@@ -1,6 +1,27 @@
 {
     "filetype": "Midi Json Creator",
     "content": [
-        
+        {
+            "element": "tempo",
+            "parameters":
+            {
+                "bpm": 120
+            }
+        },
+        {
+            "element": "signature",
+            "parameters":
+            {
+                "beats_measure": 3,
+                "note_beat": 4
+            }
+        },
+        {
+            "element": "quantization",
+            "parameters":
+            {
+                "note": 16
+            }
+        }
     ]
 }
