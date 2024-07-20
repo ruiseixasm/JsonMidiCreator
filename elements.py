@@ -40,7 +40,7 @@ class Tempo:
         pulses_per_beat = pulses_per_note / time_signature._beats_per_note
         pulses_per_measure = pulses_per_beat * time_signature._beats_per_measure
         
-        return (60.0 * 1000 / self._bpm) * (pulses_per_measure * measure + pulses_per_note * notedivision)
+        return (60.0 * 1000 / self._bpm / pulses_per_beat) * (pulses_per_measure * measure + pulses_per_note * notedivision)
         
     def getList(self):
         ...
@@ -195,7 +195,7 @@ class PlacedElements:
                 )
         return play_list
 
-class Creator:
+class PlayListCreator:
 
     def __init__(self):
         pass
