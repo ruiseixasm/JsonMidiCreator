@@ -40,7 +40,7 @@ class Tempo:
         pulses_per_beat = pulses_per_note / time_signature._beats_per_note
         pulses_per_measure = pulses_per_beat * time_signature._beats_per_measure
         
-        return (60.0 * 1000 / self._bpm / pulses_per_beat) * (pulses_per_measure * measure + pulses_per_note * notedivision)
+        return  (pulses_per_measure * measure + pulses_per_note * notedivision) * 60.0 * 1000 / self._bpm / pulses_per_beat
         
     def getList(self):
         ...
@@ -52,7 +52,7 @@ class Tempo:
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / time_signature._beats_per_note
         staff_pulses = round(pulses_per_beat * time_signature._beats_per_measure * staff._measures)
-        staff_duration_ms = (60.0 * 1000 / self._bpm) * time_signature._beats_per_measure * staff._measures
+        staff_duration_ms =  time_signature._beats_per_measure * staff._measures * 60.0 * 1000 / self._bpm
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
