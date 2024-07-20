@@ -10,6 +10,18 @@ class Staff:
 
     def loadList(self, json_list):
         ...
+        
+class TimeSignature:
+        
+    def __init__(self, beats_per_measure = 4, beats_per_note = 4):
+        self._beats_per_measure = beats_per_measure
+        self._beats_per_note = beats_per_note
+
+    def getList(self):
+        ...
+
+    def loadList(self, json_list):
+        ...
 
 class Tempo:
         
@@ -23,19 +35,7 @@ class Tempo:
     def loadList(self, json_list):
         ...
 
-    def getPlayList(self, staff):
-        ...
-        
-class TimeSignature:
-        
-    def __init__(self, beats_per_measure = 4, beats_per_note = 4):
-        self._beats_per_measure = beats_per_measure
-        self._beats_per_note = beats_per_note
-
-    def getList(self):
-        ...
-
-    def loadList(self, json_list):
+    def getPlayList(self, staff, time_signature):
         ...
 
 class Quantization:
