@@ -109,7 +109,7 @@ class Quantization:
 
 class Note:
 
-    def __init__(self, channel, key_note = 60, velocity = 100, notedivision_duration = 0.25):
+    def __init__(self, channel = 1, key_note = 60, velocity = 100, notedivision_duration = 0.25):
         self._channel = channel
         self._key_note = key_note
         self._velocity = velocity
@@ -136,13 +136,10 @@ class Note:
                     }
                 }
             ]
-
-
-
     
 class Automation:
 
-    def __init__(self, control_change = 10, value = 64):    # 10 - pan
+    def __init__(self, channel = 1, control_change = 10, value = 64):    # 10 - pan
         pass
 
 class MidiMessage:
@@ -159,6 +156,14 @@ class PlacedElements:
         self._time_signature = time_signature
         self._tempo = tempo
 
+    def setTimeSignature(self, time_signature):
+        self._time_signature = time_signature
+        return self
+
+    def setTempo(self, tempo):
+        self._tempo = tempo
+        return self
+
     def placeElement(self, element, measure, notedivision):
         self._placed_elements.append({
                 "element": element,
@@ -172,6 +177,14 @@ class PlacedElements:
                 "measure": measure,
                 "notedivision": notedivision
             })
+        
+    def replaceAll(self, measure, notedivision):
+        ...
+        return self
+
+    def moveAll(self, measure, notedivision):
+        ...
+        return self
 
     def getPlayList(self):
         play_list = []
