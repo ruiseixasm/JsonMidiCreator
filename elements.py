@@ -39,7 +39,7 @@ class Tempo:
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / time_signature._beats_per_note
         staff_pulses = pulses_per_beat * time_signature._beats_per_measure * staff._measures
-        staff_duration_ms = (60 * 1000 / self._bpm) * time_signature._beats_per_measure * staff._measures
+        staff_duration_ms = (60.0 * 1000 / self._bpm) * time_signature._beats_per_measure * staff._measures
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
