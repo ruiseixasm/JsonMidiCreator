@@ -2,6 +2,13 @@
     "filetype": "Midi Json Creator",
     "content": [
         {
+            "element": "staff",
+            "parameters":
+            {
+                "measures": 8
+            }
+        },
+        {
             "element": "tempo",
             "parameters":
             {
@@ -12,15 +19,15 @@
             "element": "signature",
             "parameters":
             {
-                "beats_measure": 3,
-                "note_beat": 4
+                "beats_per_measure": 3,
+                "beats_per_note": 4
             }
         },
         {
             "element": "quantization",
             "parameters":
             {
-                "note": 16
+                "divisions_per_note": 16
             }
         }
     ]
