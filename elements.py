@@ -215,25 +215,25 @@ class PlacedElements:
         self._tempo = tempo
         return self
 
-    def placeElement(self, element, position_1, position_2):
+    def placeElement(self, element, position, displacement):
         self._placed_elements.append({
                 "element": element,
-                "position_1": position_1,
-                "position_2": position_2
+                "position": position,
+                "displacement": displacement
             })
 
-    def takeElement(self, element, position_1, position_2):
+    def takeElement(self, element, position, displacement):
         self._placed_elements.remove({
                 "element": element,
-                "position_1": position_1,
-                "position_2": position_2
+                "position": position,
+                "displacement": displacement
             })
         
-    def replaceAll(self, position_1, position_2):
+    def replaceAll(self, position, displacement):
         ...
         return self
 
-    def moveAll(self, position_1, position_2):
+    def moveAll(self, position, displacement):
         ...
         return self
 
@@ -241,7 +241,7 @@ class PlacedElements:
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    placed_element["position_1"], placed_element["position_2"],
+                    placed_element["position"], placed_element["displacement"],
                     self._time_signature, self._tempo
                 )
         return play_list
