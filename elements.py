@@ -37,7 +37,7 @@ class Tempo:
 
     def getPlayList(self, staff, time_signature):
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / time_signature._beats_per_note
+        pulses_per_beat = round(pulses_per_note / time_signature._beats_per_note)
         staff_pulses = pulses_per_beat * time_signature._beats_per_measure * staff._measures
         staff_duration_ms = (60.0 * 1000 / self._bpm) * time_signature._beats_per_measure * staff._measures
 
@@ -97,8 +97,14 @@ class Creator:
     def __init__(self):
         pass
 
-    def addDevice(play_list, devicename):
-        pass
+    def addDevice(self, play_list, devicename):
+        for element in play_list:
+            if "midi_message" in element:
+                if "device" in element["midi_message"]:
+                    element["midi_message"]["device"].append(devicename)
+                else:
+                    element["midi_message"]["device"] = [ devicename ]
+        return play_list
 
     def removeDevice(play_list, devicename):
         pass
@@ -115,6 +121,12 @@ class Creator:
     def loadJson(self, filename):
         pass
 
-    def saveJsonPlay(self, json_list, filename):
-        pass
+    def saveJsonPlay(self, play_list, filename):
+        json_file_dict = {
+                "filetype": "Midi Json Player",
+                "content": play_list
+            }
+        
+        with open(filename, "w") as outfile:
+            json.dump(json_file_dict, outfile)
 
