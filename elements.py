@@ -107,6 +107,57 @@ class Quantization:
     def loadList(self, json_list):
         ...
 
+class Clock:
+
+    def __init__(self, pulses_per_quarternote = 24):
+        self._pulses_per_quarternote = pulses_per_quarternote
+
+    def getPlayList(self, start_measure, finish_measure, time_signature, tempo):
+        pulses_per_note = 4 * self._pulses_per_quarternote
+        pulses_per_beat = pulses_per_note / time_signature._beats_per_note
+        staff_pulses = round(pulses_per_beat * time_signature._beats_per_measure * staff._measures)
+        staff_duration_ms =  time_signature._beats_per_measure * staff._measures * 60.0 * 1000 / self._bpm
+
+        # System Real-Time Message         Status Byte 
+        # ------------------------         -----------
+        # Timing Clock                         F8
+        # Start Sequence                       FA
+        # Continue Sequence                    FB
+        # Stop Sequence                        FC
+        # Active Sensing                       FE
+        # System Reset                         FF
+
+        play_list = [
+                {
+                    "time_ms": 0.000,
+                    "midi_message": {
+                        "status_byte": 0xFA
+                    }
+                }
+            ]
+
+        for staff_pulse in range(1, staff_pulses):
+            play_list.append(
+                {
+                    "time_ms": round(staff_duration_ms * staff_pulse / staff_pulses, 3),
+                    "midi_message": {
+                        "status_byte": 0xF8
+                    }
+                }
+            )
+
+        play_list.append(
+            {
+                "time_ms": round(staff_duration_ms, 3),
+                "midi_message": {
+                    "status_byte": 0xFC
+                }
+            }
+        )
+
+        return play_list
+
+
 class Note:
 
     def __init__(self, channel = 1, key_note = 60, velocity = 100, notedivision_duration = 0.25):
@@ -137,7 +188,7 @@ class Note:
                 }
             ]
     
-class Automation:
+class ControlChange:
 
     def __init__(self, channel = 1, control_change = 10, value = 64):    # 10 - pan
         pass
@@ -164,25 +215,25 @@ class PlacedElements:
         self._tempo = tempo
         return self
 
-    def placeElement(self, element, measure, notedivision):
+    def placeElement(self, element, position_1, position_2):
         self._placed_elements.append({
                 "element": element,
-                "measure": measure,
-                "notedivision": notedivision
+                "position_1": position_1,
+                "position_2": position_2
             })
 
-    def takeElement(self, element, measure, notedivision):
+    def takeElement(self, element, position_1, position_2):
         self._placed_elements.remove({
                 "element": element,
-                "measure": measure,
-                "notedivision": notedivision
+                "position_1": position_1,
+                "position_2": position_2
             })
         
-    def replaceAll(self, measure, notedivision):
+    def replaceAll(self, position_1, position_2):
         ...
         return self
 
-    def moveAll(self, measure, notedivision):
+    def moveAll(self, position_1, position_2):
         ...
         return self
 
@@ -190,7 +241,7 @@ class PlacedElements:
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    placed_element["measure"], placed_element["notedivision"],
+                    placed_element["position_1"], placed_element["position_2"],
                     self._time_signature, self._tempo
                 )
         return play_list
