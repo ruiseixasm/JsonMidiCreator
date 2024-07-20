@@ -17,6 +17,12 @@ class TimeSignature:
         self._beats_per_measure = beats_per_measure
         self._beats_per_note = beats_per_note
 
+    def noteDivisionFromBeats(self, beats):
+        return beats / self._beats_per_note
+        
+    def noteDivisionFromMeasures(self, measures):
+        return measures * self._beats_per_measure / self._beats_per_note
+        
     def getList(self):
         ...
 
@@ -29,6 +35,13 @@ class Tempo:
         self._bpm = bpm
         self._pulses_per_quarternote = pulses_per_quarternote
 
+    def getTime_ms(self, measure, notedivision, time_signature):
+        pulses_per_note = 4 * self._pulses_per_quarternote
+        pulses_per_beat = pulses_per_note / time_signature._beats_per_note
+        pulses_per_measure = pulses_per_beat * time_signature._beats_per_measure
+        
+        return (60.0 * 1000 / self._bpm) * (pulses_per_measure * measure + pulses_per_note * notedivision)
+        
     def getList(self):
         ...
 
@@ -37,8 +50,8 @@ class Tempo:
 
     def getPlayList(self, staff, time_signature):
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = round(pulses_per_note / time_signature._beats_per_note)
-        staff_pulses = pulses_per_beat * time_signature._beats_per_measure * staff._measures
+        pulses_per_beat = pulses_per_note / time_signature._beats_per_note
+        staff_pulses = round(pulses_per_beat * time_signature._beats_per_measure * staff._measures)
         staff_duration_ms = (60.0 * 1000 / self._bpm) * time_signature._beats_per_measure * staff._measures
 
         # System Real-Time Message         Status Byte 
@@ -52,7 +65,7 @@ class Tempo:
 
         play_list = [
                 {
-                    "time_ms": 0,
+                    "time_ms": 0.000,
                     "midi_message": {
                         "status_byte": 0xFA
                     }
@@ -62,7 +75,7 @@ class Tempo:
         for staff_pulse in range(1, staff_pulses):
             play_list.append(
                 {
-                    "time_ms": staff_duration_ms * staff_pulse / staff_pulses,
+                    "time_ms": round(staff_duration_ms * staff_pulse / staff_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8
                     }
@@ -71,7 +84,7 @@ class Tempo:
 
         play_list.append(
             {
-                "time_ms": staff_duration_ms,
+                "time_ms": round(staff_duration_ms, 3),
                 "midi_message": {
                     "status_byte": 0xFC
                 }
@@ -80,17 +93,94 @@ class Tempo:
 
         return play_list
 
-
 class Quantization:
         
-    def __init__(self, divisions_per_note = 16):
-        self._divisions_per_note = divisions_per_note
+    def __init__(self, steps_per_note = 16):
+        self._steps_per_note = steps_per_note
 
+    def noteDivisionFromSteps(self, steps):
+        return steps / self._steps_per_note
+        
     def getList(self):
         ...
 
     def loadList(self, json_list):
         ...
+
+class Note:
+
+    def __init__(self, channel, key_note = 60, velocity = 100, notedivision_duration = 0.25):
+        self._channel = channel
+        self._key_note = key_note
+        self._velocity = velocity
+        self._notedivision_duration = notedivision_duration
+
+    def getPlayList(self, measure, notedivision, time_signature, tempo):
+        on_position_ms = tempo.getTime_ms(measure, notedivision, time_signature)
+        off_position_ms = on_position_ms + tempo.getTime_ms(0, self._notedivision_duration, time_signature)
+        return [
+                {
+                    "time_ms": round(on_position_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x90 | 0x0F & (self._channel - 1),
+                        "data_byte_1": self._key_note,
+                        "data_byte_2": self._velocity
+                    }
+                },
+                {
+                    "time_ms": round(off_position_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x80 | 0x0F & (self._channel - 1),
+                        "data_byte_1": self._key_note,
+                        "data_byte_2": 0
+                    }
+                }
+            ]
+
+
+
+    
+class Automation:
+
+    def __init__(self, control_change = 10, value = 64):    # 10 - pan
+        pass
+
+class MidiMessage:
+
+    def __init__(self, status_byte = 0xF2, data_byte_1 = 0, data_byte_2 = 0):   # 0xF2 - Song Position
+        self._status_byte = status_byte
+        self._data_byte_1 = data_byte_1
+        self._data_byte_2 = data_byte_2
+
+class PlacedElements:
+
+    def __init__(self, time_signature, tempo):
+        self._placed_elements = []
+        self._time_signature = time_signature
+        self._tempo = tempo
+
+    def placeElement(self, element, measure, notedivision):
+        self._placed_elements.append({
+                "element": element,
+                "measure": measure,
+                "notedivision": notedivision
+            })
+
+    def takeElement(self, element, measure, notedivision):
+        self._placed_elements.remove({
+                "element": element,
+                "measure": measure,
+                "notedivision": notedivision
+            })
+
+    def getPlayList(self):
+        play_list = []
+        for placed_element in self._placed_elements:
+            play_list = play_list + placed_element["element"].getPlayList(
+                    placed_element["measure"], placed_element["notedivision"],
+                    self._time_signature, self._tempo
+                )
+        return play_list
 
 class Creator:
 

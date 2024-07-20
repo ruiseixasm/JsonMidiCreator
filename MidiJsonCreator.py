@@ -9,9 +9,11 @@ default_creator = elements.Creator()
 
 clock_list = default_tempo.getPlayList(default_staff, default_timesignature)
 
-print(clock_list)
+# print(clock_list)
 
 default_creator.addDevice(clock_list, "Midi Through")
+default_creator.addDevice(clock_list, "loopMIDI Port")
+default_creator.addDevice(clock_list, "GS Wavetable Synth")
 
 print(clock_list)
 
