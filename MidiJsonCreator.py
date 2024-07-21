@@ -6,13 +6,11 @@ print("Test Creator")
 
 # staff objects
 
-default_staff = staff.Staff()
-default_timesignature = staff.TimeSignature()
-default_tempo = staff.Tempo(240)
+default_staff = staff.Staff(4).setData__tempo(staff.Tempo(110))
 
 # element ojects
 
-default_clock = element.Clock(1.5)
+default_clock = element.Clock()
 default_note = element.Note()
 
 sequence = [
@@ -28,13 +26,13 @@ sequence = [
 
 default_sequence = element.Sequence(10, 60, 2, sequence)
 
-placed_elements = element.Composition(default_timesignature, default_tempo)
-#placed_elements.placeElement(default_clock, 0, 4)
+placed_elements = element.Composition()
+placed_elements.placeElement(default_clock, 0, 4)
 placed_elements.placeElement(default_note, 1, 0.25)
 placed_elements.placeElement(default_sequence, 2, 0)
 
 placed_elements.setData__device_list();
-elements_list = placed_elements.getPlayList()
+elements_list = placed_elements.getPlayList(default_staff)
 print(elements_list)
 
 # creator objects

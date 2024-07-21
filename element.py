@@ -2,6 +2,7 @@ import staff
 import enum
 
 class ClockModes(enum.Enum):
+    entire = 0
     single = 1
     first = 2
     middle = 3
@@ -10,7 +11,7 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, measures = 8, mode: ClockModes = ClockModes.single, pulses_per_quarternote = 24):
+    def __init__(self, measures = 8, mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
         self._measures = measures
         self._mode = mode
         self._pulses_per_quarternote = pulses_per_quarternote
@@ -25,19 +26,24 @@ class Clock:
     def getData__device_list(self):
         return self._device_list
 
-    def getPlayList(self, position_measure, displacement_beat = 0, displacement_note = 0,
-                        time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
-        pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / time_signature.getData__beats_per_note()
-        pulses_per_measure = pulses_per_beat * time_signature.getData__beats_per_measure()
-        clock_pulses = round(pulses_per_measure * self._measures)
+    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
+                    displacement_note: float = 0, displacement_step: float = 0):
 
-        notes_per_measure = time_signature.getData__beats_per_measure() / time_signature.getData__beats_per_note()
-        start_measure = position_measure + displacement_beat / time_signature.getData__beats_per_measure \
-                        + displacement_note / notes_per_measure
-        measure_duration_ms = time_signature.getData__beats_per_measure() * 60.0 * 1000 / tempo.getData__bpm()
-        clock_start_ms = start_measure * measure_duration_ms
-        clock_stop_ms = clock_start_ms + self._measures * measure_duration_ms
+        length_measure = staff.getData__measures() if self._mode == ClockModes.entire else self._measures
+
+        pulses_per_note = 4 * self._pulses_per_quarternote
+        pulses_per_beat = pulses_per_note / staff.getValue__beats_per_note()
+        pulses_per_measure = pulses_per_beat * staff.getValue__beats_per_measure()
+        clock_pulses = round(pulses_per_measure * length_measure)
+
+        start_measure = 0 if self._mode == ClockModes.entire \
+                else position_measure \
+                    + displacement_beat / staff.getValue__beats_per_measure() \
+                    + displacement_note / staff.getValue__notes_per_measure() \
+                    + displacement_step / staff.getValue__steps_per_measure()
+        measure_duration_ms = staff.getTime_ms(1)
+        clock_start_ms = staff.getTime_ms(start_measure)
+        clock_stop_ms = clock_start_ms + staff.getTime_ms(length_measure)
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
@@ -52,8 +58,10 @@ class Clock:
                 {
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xFA if self._mode == ClockModes.single or self._mode == ClockModes.first else
-                                       0xFB if self._mode == ClockModes.resume else 0xF8
+                        "status_byte": 0xFA if self._mode == ClockModes.entire
+                                or self._mode == ClockModes.single
+                                or self._mode == ClockModes.first
+                            else 0xFB if self._mode == ClockModes.resume else 0xF8
                     }
                 }
             ]
@@ -68,7 +76,8 @@ class Clock:
                 }
             )
 
-        if self._mode == ClockModes.single or self._mode == ClockModes.last:
+        if self._mode == ClockModes.entire or self._mode == ClockModes.single or \
+                self._mode == ClockModes.last:
 
             play_list.append(
                 {
@@ -113,16 +122,17 @@ class Note:
     def getData__duration_note(self):
         return self._duration_note
     
-    def getLength_beats(self, time_signature = staff.TimeSignature()):
-        return self._duration_note * time_signature.getData__beats_per_note()
+    def getLength_steps(self, staff = staff.Staff()):
+        return self._duration_note * staff.getData__quantization().getData__steps_per_note()
 
     def getData__device_list(self):
         return self._device_list
 
-    def getPlayList(self, position_measure, displacement_beat = 0, displacement_note = 0,
-                        time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
-        on_time_ms = tempo.getTime_ms(position_measure, displacement_beat, displacement_note, time_signature)
-        off_time_ms = on_time_ms + tempo.getTime_ms(0, 0, self._duration_note, time_signature)
+    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
+                    displacement_note: float = 0, displacement_step: float = 0):
+        
+        on_time_ms = staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
+        off_time_ms = on_time_ms + staff.getTime_ms(0, 0, self._duration_note)
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -254,20 +264,17 @@ class Sequence:
     def getData__device_list(self):
         return self._device_list
 
-    def getPlayList(self, position_measure, displacement_beat = 0, displacement_note = 0,
-                        time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
+    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
+                    displacement_note: float = 0, displacement_step: float = 0):
         
-        start_time_ms = tempo.getTime_ms(position_measure, displacement_beat, displacement_note, time_signature)
+        start_time_ms = staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
 
         play_list = []
         for trigger_note in self._sequence:
 
             if "beat" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
 
-                on_time_ms = start_time_ms + tempo.getTime_ms(
-                        0, trigger_note["beat"],
-                        0, time_signature
-                    )
+                on_time_ms = start_time_ms + staff.getTime_ms(0, trigger_note["beat"])
                 play_list.append({
                         "time_ms": round(on_time_ms, 3),
                         "midi_message": {
@@ -277,10 +284,7 @@ class Sequence:
                         }
                     })
                 
-                off_time_ms = on_time_ms + tempo.getTime_ms(
-                        0, 0, trigger_note["duration_note"],
-                        time_signature
-                    )
+                off_time_ms = on_time_ms + staff.getTime_ms(0, 0, trigger_note["duration_note"])
                 play_list.append({
                         "time_ms": round(off_time_ms, 3),
                         "midi_message": {
@@ -311,24 +315,24 @@ class Retrigger:
 
 class Composition:
 
-    def __init__(self, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
+    def __init__(self):
         self._placed_elements = []
-        self._time_signature = time_signature
-        self._tempo = tempo
         self._device_list = 0
 
     def getData__device_list(self):
         return self._device_list
 
-    def getPlayList(self, position_measure = 0, displacement_beat = 0, displacement_note = 0,
-                        time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
+    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
+                    displacement_note: float = 0, displacement_step: float = 0):
+        
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
+                    staff,
                     placed_element["position_measure"] + position_measure,
                     placed_element["displacement_beat"] + displacement_beat,
                     placed_element["displacement_note"] + displacement_note,
-                    self._time_signature, self._tempo
+                    placed_element["displacement_step"] + displacement_step
                 )
             
         if isinstance(self._device_list, list):
@@ -341,33 +345,29 @@ class Composition:
 
     # CHAINED OPERATIONS
 
-    def setTimeSignature(self, time_signature = staff.TimeSignature()):
-        self._time_signature = time_signature
-        return self
-
-    def setTempo(self, tempo = staff.Tempo()):
-        self._tempo = tempo
-        return self
-
     def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
 
-    def placeElement(self, element, position_measure, displacement_beat = 0, displacement_note = 0):
+    def placeElement(self, element, position_measure: float, displacement_beat: float = 0,
+                    displacement_note: float = 0, displacement_step: float = 0):
         self._placed_elements.append({
                 "element": element,
                 "position_measure": position_measure,
                 "displacement_beat": displacement_beat,
-                "displacement_note": displacement_note
+                "displacement_note": displacement_note,
+                "displacement_step": displacement_step
             })
         return self
 
-    def takeElement(self, element, position_measure, displacement_beat = 0, displacement_note = 0):
+    def takeElement(self, element, position_measure: float, displacement_beat: float = 0,
+                    displacement_note: float = 0, displacement_step: float = 0):
         self._placed_elements.remove({
                 "element": element,
                 "position_measure": position_measure,
                 "displacement_beat": displacement_beat,
-                "displacement_note": displacement_note
+                "displacement_note": displacement_note,
+                "displacement_step": displacement_step
             })
         return self
         

@@ -1,33 +1,9 @@
-
-class Staff:
-
-    def __init__(self, measures = 8):
-        self._measures = measures
-
-    def getData__measures(self):
-        return self._measures
-
-    def getList(self):
-        ...
-
-    def loadList(self, json_list):
-        ...
-        
-    # CHAINED OPERATIONS
-
-
 class TimeSignature:
         
     def __init__(self, beats_per_measure = 4, beats_per_note = 4):
         self._beats_per_measure = beats_per_measure
         self._beats_per_note = beats_per_note
 
-    def noteDivisionFromBeats(self, beats):
-        return beats / self._beats_per_note
-        
-    def noteDivisionFromMeasures(self, measures):
-        return measures * self._beats_per_measure / self._beats_per_note
-        
     def getData__beats_per_measure(self):
         return self._beats_per_measure
 
@@ -48,15 +24,6 @@ class Tempo:
     def __init__(self, bpm = 120):
         self._bpm = bpm
 
-    def getTime_ms(self, position_measure, displacement_beat = 0, displacement_note = 0,
-                    time_signature = TimeSignature()):
-        beat_time_ms = 60.0 * 1000 / self._bpm
-        measure_time_ms = beat_time_ms * time_signature.getData__beats_per_measure()
-        note_time_ms = beat_time_ms * time_signature.getData__beats_per_note()
-        
-        return position_measure * measure_time_ms + displacement_beat * beat_time_ms \
-                + displacement_note * note_time_ms
-        
     def getData__bpm(self):
         return self._bpm
 
@@ -80,9 +47,6 @@ class Quantization:
     def getData__steps_per_note(self):
         return self._steps_per_note
 
-    def noteDivisionFromSteps(self, steps):
-        return steps / self._steps_per_note
-        
     def getList(self):
         ...
 
@@ -117,3 +81,79 @@ class Scale:
         self._scale = scale
         return self
     
+class Staff:
+
+    def __init__(self, measures: int = 8,
+                tempo = Tempo(),
+                quantization = Quantization(),
+                time_signature = TimeSignature()):
+        
+        self._measures = measures
+        self._tempo = tempo
+        self._quantization = quantization
+        self._time_signature = time_signature
+
+    def getData__measures(self):
+        return self._measures
+
+    def getData__tempo(self):
+        return self._tempo
+
+    def getData__quantization(self):
+        return self._quantization
+
+    def getData__time_signature(self):
+        return self._time_signature
+    
+    def getValue__beats_per_minute(self):
+        return self._tempo.getData__bpm()
+    
+    def getValue__steps_per_note(self):
+        return self._quantization.getData__steps_per_note()
+    
+    def getValue__beats_per_measure(self):
+        return self._time_signature.getData__beats_per_measure()
+    
+    def getValue__beats_per_note(self):
+        return self._time_signature.getData__beats_per_note()
+
+    def getValue__notes_per_measure(self):
+        return self.getValue__beats_per_measure() / self.getValue__beats_per_note()
+
+    def getValue__steps_per_measure(self):
+        return self.getValue__steps_per_note() * self.getValue__notes_per_measure()
+    
+    def getTime_ms(self, position_measure: float, displacement_beat: float = 0,
+                   displacement_note: float = 0, displacement_step: float = 0):
+        beat_time_ms = 60.0 * 1000 / self._tempo.getData__bpm()
+        measure_time_ms = beat_time_ms * self._time_signature.getData__beats_per_measure()
+        note_time_ms = beat_time_ms * self._time_signature.getData__beats_per_note()
+        step_time_ms = note_time_ms / self._quantization.getData__steps_per_note();
+        
+        return position_measure * measure_time_ms + displacement_beat * beat_time_ms \
+                + displacement_note * note_time_ms + displacement_step * step_time_ms
+        
+    def getList(self):
+        ...
+
+    def loadList(self, json_list):
+        ...
+        
+    # CHAINED OPERATIONS
+
+    def setData__measures(self, measures: int):
+        self._measures = measures
+        return self
+
+    def setData__tempo(self, tempo: Tempo):
+        self._tempo = tempo
+        return self
+
+    def setData__quantization(self, quantization: Quantization):
+        self._quantization = quantization
+        return self
+
+    def setData__time_signature(self, time_signature: TimeSignature):
+        self._time_signature = time_signature
+        return self
+
