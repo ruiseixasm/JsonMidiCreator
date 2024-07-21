@@ -1,26 +1,26 @@
-import elements
+import staff
+import element
+import operator
 
 print("Test Creator")
 
-default_staff = elements.Staff()
-default_timesignature = elements.TimeSignature()
-default_tempo = elements.Tempo()
+default_staff = staff.Staff()
+default_timesignature = staff.TimeSignature()
+default_tempo = staff.Tempo()
 
-clock_list = default_tempo.getPlayList(default_staff, default_timesignature)
-
-default_note = elements.Note()
-placed_elements = elements.PlacedElements(default_timesignature, default_tempo)
+default_clock = element.Clock()
+default_note = element.Note()
+placed_elements = element.Positioner(default_timesignature, default_tempo)
+placed_elements.placeElement(default_clock, 0, 4)
 placed_elements.placeElement(default_note, 1, 0.25)
 
 elements_list = placed_elements.getPlayList()
 
-final_list = clock_list + elements_list
+default_creator = element.PlayListCreator()
+default_creator.addDevice(elements_list, "Midi Through")
+default_creator.addDevice(elements_list, "loopMIDI Port")
+default_creator.addDevice(elements_list, "GS Wavetable Synth")
 
-default_creator = elements.PlayListCreator()
-default_creator.addDevice(final_list, "Midi Through")
-default_creator.addDevice(final_list, "loopMIDI Port")
-default_creator.addDevice(final_list, "GS Wavetable Synth")
+print(elements_list)
 
-print(final_list)
-
-default_creator.saveJsonPlay(final_list, "example_play_file.mjp")
+default_creator.saveJsonPlay(elements_list, "example_play_file.mjp")
