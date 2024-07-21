@@ -1,6 +1,6 @@
 import staff
 import element
-import operator
+import creator
 
 print("Test Creator")
 
@@ -16,7 +16,7 @@ placed_elements.placeElement(default_note, 1, 0.25)
 
 elements_list = placed_elements.getPlayList()
 
-default_creator = element.PlayListCreator()
+default_creator = creator.PlayListCreator()
 default_creator.addDevice(elements_list, "Midi Through")
 default_creator.addDevice(elements_list, "loopMIDI Port")
 default_creator.addDevice(elements_list, "GS Wavetable Synth")

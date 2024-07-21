@@ -1,16 +1,15 @@
 import staff
 import enum
-import json
 
 class ClockModes(enum.Enum):
-    full = 1
-    start = 2
+    single = 1
+    first = 2
     middle = 3
-    stop = 4
+    last = 4
 
 class Clock:
 
-    def __init__(self, measures = 8, mode: ClockModes = ClockModes.full):
+    def __init__(self, measures = 8, mode: ClockModes = ClockModes.single):
         self._measures = measures
         self._mode = mode
 
@@ -32,7 +31,6 @@ class Clock:
         clock_start_ms = start_measure * measure_duration_ms
         clock_stop_ms = clock_start_ms + self._measures * measure_duration_ms
 
-
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
         # Timing Clock                         F8
@@ -46,7 +44,7 @@ class Clock:
                 {
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xFA if self._mode == ClockModes.full or self._mode == ClockModes.start else 0xF8
+                        "status_byte": 0xFA if self._mode == ClockModes.single or self._mode == ClockModes.first else 0xF8
                     }
                 }
             ]
@@ -61,7 +59,7 @@ class Clock:
                 }
             )
 
-        if self._mode == ClockModes.full or self._mode == ClockModes.stop:
+        if self._mode == ClockModes.single or self._mode == ClockModes.last:
 
             play_list.append(
                 {
@@ -74,6 +72,9 @@ class Clock:
 
         return play_list
 
+    # CHAINED OPERATIONS
+
+
 class Note:
 
     def __init__(self, channel = 1, key_note = 60, velocity = 100, duration_note = 0.25):
@@ -81,6 +82,18 @@ class Note:
         self._key_note = key_note
         self._velocity = velocity
         self._duration_note = duration_note
+
+    def getData__channel(self):
+        return self._channel
+
+    def getData__key_note(self):
+        return self._key_note
+
+    def getData__velocity(self):
+        return self._velocity
+
+    def getData__duration_note(self):
+        return self._duration_note
 
     def getPlayList(self, position_measure, displacement_note, time_signature, tempo):
         on_position_ms = tempo.getTime_ms(position_measure, displacement_note, time_signature)
@@ -104,10 +117,37 @@ class Note:
                 }
             ]
     
+    # CHAINED OPERATIONS
+
+    def setData__channel(self, channel):
+        self._channel = channel
+        return self
+
+    def setData__key_note(self, key_note):
+        self._key_note = key_note
+        return self
+
+    def setData__velocity(self, velocity):
+        self._velocity = velocity
+        return self
+
+    def setData__duration_note(self, duration_note):
+        self._duration_note = duration_note
+        return self
+
+    def transpose(self, chromatic_steps = 12):
+        self._key_note = self._key_note + chromatic_steps
+        return self
+    
+
+    
 class ControlChange:
 
     def __init__(self, channel = 1, control_change = 10, value = 64):    # 10 - pan
         pass
+
+    # CHAINED OPERATIONS
+
 
 class MidiMessage:
 
@@ -119,27 +159,39 @@ class MidiMessage:
 class Panic:
     ...
 
+    # CHAINED OPERATIONS
+
+
 class Chord:
     ...
+
+    # CHAINED OPERATIONS
+
 
 class Agregation:
     ...
 
+    # CHAINED OPERATIONS
+
+
 class Stack:
     ...
 
+    # CHAINED OPERATIONS
+
+
 class Positioner:
 
-    def __init__(self, time_signature, tempo):
+    def __init__(self, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
         self._placed_elements = []
         self._time_signature = time_signature
         self._tempo = tempo
 
-    def setTimeSignature(self, time_signature):
+    def setTimeSignature(self, time_signature = staff.TimeSignature()):
         self._time_signature = time_signature
         return self
 
-    def setTempo(self, tempo):
+    def setTempo(self, tempo = staff.Tempo()):
         self._tempo = tempo
         return self
 
@@ -174,41 +226,5 @@ class Positioner:
                 )
         return play_list
 
-class PlayListCreator:
-
-    def __init__(self):
-        pass
-
-    def addDevice(self, play_list, devicename):
-        for element in play_list:
-            if "midi_message" in element:
-                if "device" in element["midi_message"]:
-                    element["midi_message"]["device"].append(devicename)
-                else:
-                    element["midi_message"]["device"] = [ devicename ]
-        return play_list
-
-    def removeDevice(play_list, devicename):
-        pass
-
-    def printDevices(play_list):
-        pass
-
-    def setChannel(play_list, channel):
-        pass
-
-    def saveJson(self, json_list, filename):
-        pass
-
-    def loadJson(self, filename):
-        pass
-
-    def saveJsonPlay(self, play_list, filename):
-        json_file_dict = {
-                "filetype": "Midi Json Player",
-                "content": play_list
-            }
-        
-        with open(filename, "w") as outfile:
-            json.dump(json_file_dict, outfile)
+    # CHAINED OPERATIONS
 

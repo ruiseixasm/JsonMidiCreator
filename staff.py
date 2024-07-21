@@ -13,6 +13,9 @@ class Staff:
     def loadList(self, json_list):
         ...
         
+    # CHAINED OPERATIONS
+
+
 class TimeSignature:
         
     def __init__(self, beats_per_measure = 4, beats_per_note = 4):
@@ -36,6 +39,9 @@ class TimeSignature:
 
     def loadList(self, json_list):
         ...
+
+    # CHAINED OPERATIONS
+
 
 class Tempo:
         
@@ -62,6 +68,9 @@ class Tempo:
     def loadList(self, json_list):
         ...
 
+    # CHAINED OPERATIONS
+
+
 class Quantization:
         
     def __init__(self, steps_per_note = 16):
@@ -79,6 +88,9 @@ class Quantization:
     def loadList(self, json_list):
         ...
 
+    # CHAINED OPERATIONS
+
+
 class Scale:
 
     def __init__(self, key = "C", scale = "Major"):
@@ -91,5 +103,16 @@ class Scale:
     def getData__scale(self):
         return self._scale
     
+    def chromaticSteps(self, scale_steps, reference_key):
+        ...
+    
+    # CHAINED OPERATIONS
 
+    def setData__key(self, key):
+        self._key = key
+        return self
 
+    def setData__scale(self, scale):
+        self._scale = scale
+        return self
+    
