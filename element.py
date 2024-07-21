@@ -94,6 +94,9 @@ class Note:
 
     def getData__duration_note(self):
         return self._duration_note
+    
+    def getLength_beats(self, time_signature = staff.TimeSignature()):
+        return self._duration_note * time_signature.getData__beats_per_note()
 
     def getPlayList(self, position_measure, displacement_note, time_signature, tempo):
         on_position_ms = tempo.getTime_ms(position_measure, displacement_note, time_signature)
@@ -163,8 +166,18 @@ class Panic:
 
 
 class Chord:
-    ...
+    def __init__(self, root_note = 60, size = 3, scale = staff.Scale()):   # 0xF2 - Song Position
+        self._root_note = root_note
+        self._size = size
+        self._scale = scale
+        self._notes = []
 
+    # CHAINED OPERATIONS
+
+
+class Loop:
+    ...
+    
     # CHAINED OPERATIONS
 
 
