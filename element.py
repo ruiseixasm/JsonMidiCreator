@@ -265,11 +265,7 @@ class Composition:
         self._placed_elements = []
         return self
 
-    def replaceAll(self, position_measure, displacement_note):
-        ...
-        return self
-
-    def moveAll(self, position_measure, displacement_note):
+    def displace(self, displacement_note):
         ...
         return self
 
