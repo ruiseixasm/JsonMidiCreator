@@ -208,6 +208,11 @@ class Automation:
 
     # CHAINED OPERATIONS
 
+class Sequence:
+    ...
+
+    # CHAINED OPERATIONS
+
 
 class Composition:
 
@@ -256,7 +261,7 @@ class Composition:
             })
         return self
         
-    def removeAll(self):
+    def clear(self):
         self._placed_elements = []
         return self
 
