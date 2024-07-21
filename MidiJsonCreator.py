@@ -33,6 +33,7 @@ placed_elements = element.Composition(default_timesignature, default_tempo)
 placed_elements.placeElement(default_note, 1, 0.25)
 placed_elements.placeElement(default_sequence, 2, 0)
 
+placed_elements.setData__device_list();
 elements_list = placed_elements.getPlayList()
 print(elements_list)
 

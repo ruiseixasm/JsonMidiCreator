@@ -14,12 +14,16 @@ class Clock:
         self._measures = measures
         self._mode = mode
         self._pulses_per_quarternote = pulses_per_quarternote
+        self._device_list = 0
 
     def getData__measures(self):
         return self._measures
 
     def getData__mode(self):
         return self._mode
+
+    def getData__device_list(self):
+        return self._device_list
 
     def getPlayList(self, position_measure, displacement_beat = 0, displacement_note = 0,
                         time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
@@ -74,10 +78,18 @@ class Clock:
                     }
                 }
             )
+        
+        if isinstance(self._device_list, list):
+            for list_element in play_list:
+                list_element["midi_message"]["device"] = self._device_list
 
         return play_list
 
     # CHAINED OPERATIONS
+
+    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+        self._device_list = device_list
+        return self
 
 
 class Note:
@@ -87,6 +99,7 @@ class Note:
         self._key_note = key_note
         self._velocity = velocity
         self._duration_note = duration_note
+        self._device_list = 0
 
     def getData__channel(self):
         return self._channel
@@ -103,11 +116,14 @@ class Note:
     def getLength_beats(self, time_signature = staff.TimeSignature()):
         return self._duration_note * time_signature.getData__beats_per_note()
 
+    def getData__device_list(self):
+        return self._device_list
+
     def getPlayList(self, position_measure, displacement_beat = 0, displacement_note = 0,
                         time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
         on_time_ms = tempo.getTime_ms(position_measure, displacement_beat, displacement_note, time_signature)
         off_time_ms = on_time_ms + tempo.getTime_ms(0, 0, self._duration_note, time_signature)
-        return [
+        play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
@@ -126,6 +142,12 @@ class Note:
                 }
             ]
     
+        if isinstance(self._device_list, list):
+            for list_element in play_list:
+                list_element["midi_message"]["device"] = self._device_list
+
+        return play_list
+    
     # CHAINED OPERATIONS
 
     def setData__channel(self, channel):
@@ -142,6 +164,10 @@ class Note:
 
     def setData__duration_note(self, duration_note):
         self._duration_note = duration_note
+        return self
+
+    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+        self._device_list = device_list
         return self
 
     def transpose(self, semitones = 12):
@@ -166,6 +192,7 @@ class MidiMessage:
         self._status_byte = status_byte
         self._data_byte_1 = data_byte_1
         self._data_byte_2 = data_byte_2
+        self._device_list = 0
 
 class Panic:
     ...
@@ -180,6 +207,7 @@ class Chord:
         self._size = size
         self._scale = scale
         self._notes = []
+        self._device_list = 0
 
     # CHAINED OPERATIONS
 
@@ -194,13 +222,8 @@ class Loop:
     def __init__(self, element, repeat = 4):
         self._element = element
         self._repeat = repeat
+        self._device_list = 0
     
-    # CHAINED OPERATIONS
-
-
-class Agregation:
-    ...
-
     # CHAINED OPERATIONS
 
 
@@ -226,7 +249,11 @@ class Sequence:
         self._key_note = key_note
         self._length_beats = length_beats
         self._sequence = sequence
+        self._device_list = 0
     
+    def getData__device_list(self):
+        return self._device_list
+
     def getPlayList(self, position_measure, displacement_beat = 0, displacement_note = 0,
                         time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
         
@@ -263,9 +290,17 @@ class Sequence:
                         }
                     })
 
+        if isinstance(self._device_list, list):
+            for list_element in play_list:
+                list_element["midi_message"]["device"] = self._device_list
+
         return play_list
     
     # CHAINED OPERATIONS
+
+    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+        self._device_list = device_list
+        return self
 
 
 class Retrigger:
@@ -280,20 +315,27 @@ class Composition:
         self._placed_elements = []
         self._time_signature = time_signature
         self._tempo = tempo
+        self._device_list = 0
 
-    def getPlayList(self, device_list = ["Midi", "Port", "Synth"]):
+    def getData__device_list(self):
+        return self._device_list
+
+    def getPlayList(self, position_measure = 0, displacement_beat = 0, displacement_note = 0,
+                        time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    placed_element["position_measure"],
-                    placed_element["displacement_beat"],
-                    placed_element["displacement_note"],
+                    placed_element["position_measure"] + position_measure,
+                    placed_element["displacement_beat"] + displacement_beat,
+                    placed_element["displacement_note"] + displacement_note,
                     self._time_signature, self._tempo
                 )
             
-        for list_element in play_list:
-            if "midi_message" in list_element:
-                list_element["midi_message"]["device"] = device_list
+        if isinstance(self._device_list, list):
+            for list_element in play_list:
+                if "midi_message" in list_element:
+                    if "device" not in list_element["midi_message"]:
+                            list_element["midi_message"]["device"] = self._device_list
 
         return play_list
 
@@ -305,6 +347,10 @@ class Composition:
 
     def setTempo(self, tempo = staff.Tempo()):
         self._tempo = tempo
+        return self
+
+    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+        self._device_list = device_list
         return self
 
     def placeElement(self, element, position_measure, displacement_beat = 0, displacement_note = 0):
