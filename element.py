@@ -6,6 +6,7 @@ class ClockModes(enum.Enum):
     first = 2
     middle = 3
     last = 4
+    resume = 5
 
 class Clock:
 
@@ -44,7 +45,8 @@ class Clock:
                 {
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xFA if self._mode == ClockModes.single or self._mode == ClockModes.first else 0xF8
+                        "status_byte": 0xFA if self._mode == ClockModes.single or self._mode == ClockModes.first else
+                                       0xFB if self._mode == ClockModes.resume else 0xF8
                     }
                 }
             ]
@@ -98,7 +100,7 @@ class Note:
     def getLength_beats(self, time_signature = staff.TimeSignature()):
         return self._duration_note * time_signature.getData__beats_per_note()
 
-    def getPlayList(self, position_measure, displacement_note, time_signature, tempo):
+    def getPlayList(self, position_measure, displacement_note, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
         on_position_ms = tempo.getTime_ms(position_measure, displacement_note, time_signature)
         off_position_ms = on_position_ms + tempo.getTime_ms(0, self._duration_note, time_signature)
         return [
@@ -146,7 +148,7 @@ class Note:
     
 class ControlChange:
 
-    def __init__(self, channel = 1, control_change = 10, value = 64):    # 10 - pan
+    def __init__(self, channel = 1, control_change = 10, value = 64):    # default is 10 - pan
         pass
 
     # CHAINED OPERATIONS
@@ -166,6 +168,7 @@ class Panic:
 
 
 class Chord:
+
     def __init__(self, root_note = 60, size = 3, scale = staff.Scale()):   # 0xF2 - Song Position
         self._root_note = root_note
         self._size = size
@@ -174,9 +177,17 @@ class Chord:
 
     # CHAINED OPERATIONS
 
+class Arpeggio:
+    ...
+
+    # CHAINED OPERATIONS
+
 
 class Loop:
-    ...
+
+    def __init__(self, element, repeat = 4):
+        self._element = element
+        self._repeat = repeat
     
     # CHAINED OPERATIONS
 
@@ -192,13 +203,34 @@ class Stack:
 
     # CHAINED OPERATIONS
 
+class Automation:
+    ...
 
-class Positioner:
+    # CHAINED OPERATIONS
+
+
+class Composition:
 
     def __init__(self, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
         self._placed_elements = []
         self._time_signature = time_signature
         self._tempo = tempo
+
+    def getPlayList(self, device_list = ["Midi", "Port", "Synth"]):
+        play_list = []
+        for placed_element in self._placed_elements:
+            play_list = play_list + placed_element["element"].getPlayList(
+                    placed_element["position_measure"], placed_element["displacement_note"],
+                    self._time_signature, self._tempo
+                )
+            
+        for list_element in play_list:
+            if "midi_message" in list_element:
+                list_element["midi_message"]["device"] = device_list
+
+        return play_list
+
+    # CHAINED OPERATIONS
 
     def setTimeSignature(self, time_signature = staff.TimeSignature()):
         self._time_signature = time_signature
@@ -214,6 +246,7 @@ class Positioner:
                 "position_measure": position_measure,
                 "displacement_note": displacement_note
             })
+        return self
 
     def takeElement(self, element, position_measure, displacement_note):
         self._placed_elements.remove({
@@ -221,7 +254,12 @@ class Positioner:
                 "position_measure": position_measure,
                 "displacement_note": displacement_note
             })
+        return self
         
+    def removeAll(self):
+        self._placed_elements = []
+        return self
+
     def replaceAll(self, position_measure, displacement_note):
         ...
         return self
@@ -229,15 +267,4 @@ class Positioner:
     def moveAll(self, position_measure, displacement_note):
         ...
         return self
-
-    def getPlayList(self):
-        play_list = []
-        for placed_element in self._placed_elements:
-            play_list = play_list + placed_element["element"].getPlayList(
-                    placed_element["position_measure"], placed_element["displacement_note"],
-                    self._time_signature, self._tempo
-                )
-        return play_list
-
-    # CHAINED OPERATIONS
 

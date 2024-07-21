@@ -5,15 +5,6 @@ class PlayListCreator:
     def __init__(self):
         pass
 
-    def addDevice(self, play_list, devicename):
-        for element in play_list:
-            if "midi_message" in element:
-                if "device" in element["midi_message"]:
-                    element["midi_message"]["device"].append(devicename)
-                else:
-                    element["midi_message"]["device"] = [ devicename ]
-        return play_list
-
     def removeDevice(play_list, devicename):
         pass
 
