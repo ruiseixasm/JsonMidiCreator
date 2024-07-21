@@ -10,9 +10,10 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, measures = 8, mode: ClockModes = ClockModes.single):
+    def __init__(self, measures = 8, mode: ClockModes = ClockModes.single, pulses_per_quarternote = 24):
         self._measures = measures
         self._mode = mode
+        self._pulses_per_quarternote = pulses_per_quarternote
 
     def getData__measures(self):
         return self._measures
@@ -21,7 +22,7 @@ class Clock:
         return self._mode
 
     def getPlayList(self, position_measure, displacement_note, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
-        pulses_per_note = 4 * tempo.getData__pulses_per_quarternote()
+        pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / time_signature.getData__beats_per_note()
         pulses_per_measure = pulses_per_beat * time_signature.getData__beats_per_measure()
         clock_pulses = round(pulses_per_measure * self._measures)
@@ -101,11 +102,11 @@ class Note:
         return self._duration_note * time_signature.getData__beats_per_note()
 
     def getPlayList(self, position_measure, displacement_note, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
-        on_position_ms = tempo.getTime_ms(position_measure, displacement_note, time_signature)
-        off_position_ms = on_position_ms + tempo.getTime_ms(0, self._duration_note, time_signature)
+        on_time_ms = tempo.getTime_ms(position_measure, displacement_note, time_signature)
+        off_time_ms = on_time_ms + tempo.getTime_ms(0, self._duration_note, time_signature)
         return [
                 {
-                    "time_ms": round(on_position_ms, 3),
+                    "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & (self._channel - 1),
                         "data_byte_1": self._key_note,
@@ -113,7 +114,7 @@ class Note:
                     }
                 },
                 {
-                    "time_ms": round(off_position_ms, 3),
+                    "time_ms": round(off_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & (self._channel - 1),
                         "data_byte_1": self._key_note,
@@ -140,10 +141,12 @@ class Note:
         self._duration_note = duration_note
         return self
 
-    def transpose(self, chromatic_steps = 12):
-        self._key_note = self._key_note + chromatic_steps
+    def transpose(self, semitones = 12):
+        self._key_note = self._key_note + semitones
         return self
     
+    def quantize(self, mount = 100, quantization = staff.Quantization()):
+        return self
 
     
 class ControlChange:
@@ -209,8 +212,60 @@ class Automation:
     # CHAINED OPERATIONS
 
 class Sequence:
-    ...
 
+    def __init__(self, channel = 1, key_note = 60, length_beats = 4, sequence = [
+            {"beat": 0, "velocity": 100, "duration_note": 1/4},
+            {"beat": 1, "velocity": 100, "duration_note": 1/4},
+            {"beat": 2, "velocity": 100, "duration_note": 1/4},
+            {"beat": 3, "velocity": 100, "duration_note": 1/4}
+        ]):
+        self._channel = channel
+        self._key_note = key_note
+        self._length_beats = length_beats
+        self._sequence = sequence
+    
+    def getPlayList(self, position_measure, displacement_note, time_signature = staff.TimeSignature(), tempo = staff.Tempo()):
+        start_time_ms = tempo.getTime_ms(position_measure, displacement_note, time_signature)
+
+        play_list = []
+        for trigger_note in self._sequence:
+
+            if "beat" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
+
+                on_time_ms = start_time_ms + tempo.getTime_ms(
+                        trigger_note["beat"],
+                        0, time_signature
+                    )
+                play_list.append({
+                        "time_ms": round(on_time_ms, 3),
+                        "midi_message": {
+                            "status_byte": 0x90 | 0x0F & (self._channel - 1),
+                            "data_byte_1": self._key_note,
+                            "data_byte_2": trigger_note["velocity"]
+                        }
+                    })
+                
+                off_time_ms = on_time_ms + tempo.getTime_ms(
+                        0, trigger_note["duration_note"],
+                        time_signature
+                    )
+                play_list.append({
+                        "time_ms": round(off_time_ms, 3),
+                        "midi_message": {
+                            "status_byte": 0x80 | 0x0F & (self._channel - 1),
+                            "data_byte_1": self._key_note,
+                            "data_byte_2": 0
+                        }
+                    })
+
+        return play_list
+    
+    # CHAINED OPERATIONS
+
+
+class Retrigger:
+    ...
+    
     # CHAINED OPERATIONS
 
 

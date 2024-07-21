@@ -45,16 +45,15 @@ class TimeSignature:
 
 class Tempo:
         
-    def __init__(self, bpm = 120, pulses_per_quarternote = 24):
+    def __init__(self, bpm = 120):
         self._bpm = bpm
-        self._pulses_per_quarternote = pulses_per_quarternote
 
-    def getTime_ms(self, measure, notedivision, time_signature):
-        pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / time_signature._beats_per_note
-        pulses_per_measure = pulses_per_beat * time_signature._beats_per_measure
+    def getTime_ms(self, position_measure, displacement_note, time_signature = TimeSignature()):
+        beat_time_ms = 60.0 * 1000 / self._bpm
+        measure_time_ms = beat_time_ms * time_signature.getData__beats_per_measure()
+        note_time_ms = beat_time_ms * time_signature.getData__beats_per_note()
         
-        return  (pulses_per_measure * measure + pulses_per_note * notedivision) * 60.0 * 1000 / self._bpm / pulses_per_beat
+        return position_measure * measure_time_ms + displacement_note * note_time_ms
         
     def getData__bpm(self):
         return self._bpm
@@ -103,7 +102,7 @@ class Scale:
     def getData__scale(self):
         return self._scale
     
-    def chromaticSteps(self, scale_steps, reference_key):
+    def getSemitones(self, scale_steps, reference_key):
         ...
     
     # CHAINED OPERATIONS
