@@ -184,7 +184,7 @@ class Note:
         self._key_note = self._key_note + semitones
         return self
     
-    def quantize(self, mount = 100, quantization = staff.Quantization()):
+    def quantize(self, mount = 100, staff = staff.Staff()):
         return self
 
     
@@ -250,10 +250,10 @@ class Automation:
 class Sequence:
 
     def __init__(self, channel = 1, key_note = 60, length_beats = 4, sequence = [
-            {"beat": 0, "velocity": 100, "duration_note": 1/4},
-            {"beat": 1, "velocity": 100, "duration_note": 1/4},
-            {"beat": 2, "velocity": 100, "duration_note": 1/4},
-            {"beat": 3, "velocity": 100, "duration_note": 1/4}
+            {"step": 0, "velocity": 100, "duration_note": 1/8},
+            {"step": 3, "velocity": 100, "duration_note": 1/8},
+            {"step": 7, "velocity": 100, "duration_note": 1/8},
+            {"step": 11, "velocity": 100, "duration_note": 1/8}
         ]):
         self._channel = channel
         self._key_note = key_note
@@ -272,9 +272,9 @@ class Sequence:
         play_list = []
         for trigger_note in self._sequence:
 
-            if "beat" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
+            if "step" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
 
-                on_time_ms = start_time_ms + staff.getTime_ms(0, trigger_note["beat"])
+                on_time_ms = start_time_ms + staff.getTime_ms(0, 0, 0, trigger_note["step"])
                 play_list.append({
                         "time_ms": round(on_time_ms, 3),
                         "midi_message": {

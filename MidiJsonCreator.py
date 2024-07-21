@@ -6,7 +6,7 @@ print("Test Creator")
 
 # staff objects
 
-default_staff = staff.Staff(4).setData__tempo(staff.Tempo(110))
+default_staff = staff.Staff(4, 110)
 
 # element ojects
 
@@ -14,14 +14,14 @@ default_clock = element.Clock()
 default_note = element.Note()
 
 sequence = [
-            {"beat": 0/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 1/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 2/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 3/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 4/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 5/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 6/4, "velocity": 100, "duration_note": 1/16},
-            {"beat": 7/4, "velocity": 100, "duration_note": 1/16}
+            {"step": 0, "velocity": 100, "duration_note": 1/16},
+            {"step": 1, "velocity": 100, "duration_note": 1/16},
+            {"step": 2, "velocity": 100, "duration_note": 1/16},
+            {"step": 3, "velocity": 100, "duration_note": 1/16},
+            {"step": 4, "velocity": 100, "duration_note": 1/16},
+            {"step": 5, "velocity": 100, "duration_note": 1/16},
+            {"step": 6, "velocity": 100, "duration_note": 1/16},
+            {"step": 7, "velocity": 100, "duration_note": 1/16}
         ]
 
 default_sequence = element.Sequence(10, 60, 2, sequence)
