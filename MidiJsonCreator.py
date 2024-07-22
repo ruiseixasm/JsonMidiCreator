@@ -43,6 +43,5 @@ elements_list = placed_elements.getPlayList(default_staff)
 
 default_creator = creator.PlayList()
 default_creator.saveJsonPlayList(elements_list, "example_play_file.mjp")
-
-# default_creator.playPlayList(elements_list)
+default_creator.playPlayList(elements_list)
 
