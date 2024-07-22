@@ -41,4 +41,7 @@ print(elements_list)
 # creator objects
 
 default_creator = creator.PlayList()
-default_creator.saveJsonPlay(elements_list, "example_play_file.mjp")
+default_creator.saveJsonPlayList(elements_list, "example_play_file.mjp")
+
+default_creator.playPlayList(elements_list)
+
