@@ -13,15 +13,15 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, measures = 8, mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
-        self._measures = measures
+    def __init__(self, duration = Length(measures=8), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
+        self._duration: Length = duration
         self._mode = mode
         self._pulses_per_quarternote = pulses_per_quarternote
         self._device_list: list = None
         self._staff: Staff = None
 
-    def getData__measures(self):
-        return self._measures
+    def getData__duration(self):
+        return self._duration
 
     def getData__mode(self):
         return self._mode
@@ -36,16 +36,16 @@ class Clock:
         
         apt_staff = self._staff if self._staff is not None else staff
 
-        length_measure = apt_staff.getData__measures() if self._mode == ClockModes.entire else self._measures
+        clock_duration = Length(apt_staff.getData__measures()) if self._mode == ClockModes.entire else self._duration
 
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / apt_staff.getValue__beats_per_note()
         pulses_per_measure = pulses_per_beat * apt_staff.getValue__beats_per_measure()
-        clock_pulses = round(pulses_per_measure * length_measure)
+        clock_pulses = round(pulses_per_measure * clock_duration.getData__measures())
 
-        measure_duration_ms = apt_staff.getTime_ms(Length(1))
+        single_measure_duration_ms = apt_staff.getTime_ms(Length(1))
         clock_start_ms = apt_staff.getTime_ms(position)
-        clock_stop_ms = clock_start_ms + apt_staff.getTime_ms(Length(length_measure))
+        clock_stop_ms = clock_start_ms + apt_staff.getTime_ms(clock_duration)
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
@@ -71,7 +71,8 @@ class Clock:
         for clock_pulse in range(1, clock_pulses):
             play_list.append(
                 {
-                    "time_ms": round(clock_start_ms + measure_duration_ms * self._measures * clock_pulse / clock_pulses, 3),
+                    "time_ms": round(clock_start_ms + single_measure_duration_ms \
+                                     * clock_duration.getData__measures() * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8
                     }
@@ -287,7 +288,7 @@ class Sequence:
         play_list = []
         for trigger_note in self._sequence:
 
-            if "step" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
+            if "position" in trigger_note and "velocity" in trigger_note and "duration" in trigger_note:
 
                 on_time_ms = start_time_ms + apt_staff.getTime_ms(trigger_note["position"])
                 play_list.append({

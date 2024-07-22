@@ -113,7 +113,7 @@ class Staff:
         return self._time_signature
     
     def getValue__steps_per_note(self):
-        return round(1 / self._quantization, 6) # round avoids floating-point error
+        return round(1 / self._quantization, 9) # round avoids floating-point error
     
     def getValue__beats_per_measure(self):
         return self._time_signature[0]

@@ -3,7 +3,7 @@ import element
 import creator
 from staff import Length
 
-print("Test Creator")
+# print("Test Creator")
 
 # staff objects
 
@@ -28,17 +28,17 @@ sequence = [
 default_sequence = element.Sequence(10, 60, 2, sequence)
 
 placed_elements = element.Composition()
-placed_elements.placeElement(default_clock, Length(beats=4))
-placed_elements.placeElement(default_note, Length(1, 0.25))
+placed_elements.placeElement(default_clock, Length())
+# placed_elements.placeElement(default_note, Length(1, 0.25))
 placed_elements.placeElement(default_sequence, Length(2))
 
 placed_elements.setData__device_list();
 elements_list = placed_elements.getPlayList(default_staff)
 print(elements_list)
-print(isinstance(default_note.getData__device_list(), list))
-print(isinstance(placed_elements.getData__device_list(), list))
+# print(isinstance(default_note.getData__device_list(), list))
+# print(isinstance(placed_elements.getData__device_list(), list))
 
 # creator objects
 
-default_creator = creator.PlayListCreator()
+default_creator = creator.PlayList()
 default_creator.saveJsonPlay(elements_list, "example_play_file.mjp")

@@ -1,6 +1,9 @@
 import json
 
-class PlayListCreator:
+class Configuration:
+    ...
+
+class PlayList:
 
     def __init__(self):
         pass
