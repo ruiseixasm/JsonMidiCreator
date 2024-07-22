@@ -34,7 +34,8 @@ placed_elements.placeElement(default_sequence, Length(2))
 
 placed_elements.setData__device_list();
 elements_list = placed_elements.getPlayList(default_staff)
-print(elements_list)
+
+# print(elements_list)
 # print(isinstance(default_note.getData__device_list(), list))
 # print(isinstance(placed_elements.getData__device_list(), list))
 
@@ -43,5 +44,5 @@ print(elements_list)
 default_creator = creator.PlayList()
 default_creator.saveJsonPlayList(elements_list, "example_play_file.mjp")
 
-default_creator.playPlayList(elements_list)
+# default_creator.playPlayList(elements_list)
 
