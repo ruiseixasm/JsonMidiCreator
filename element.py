@@ -15,7 +15,8 @@ class Clock:
         self._measures = measures
         self._mode = mode
         self._pulses_per_quarternote = pulses_per_quarternote
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
 
     def getData__measures(self):
         return self._measures
@@ -26,24 +27,29 @@ class Clock:
     def getData__device_list(self):
         return self._device_list
 
+    def getData__staff(self):
+        return self._staff
+
     def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
                     displacement_note: float = 0, displacement_step: float = 0):
+        
+        apt_staff = self._staff if self._staff is not None else staff
 
-        length_measure = staff.getData__measures() if self._mode == ClockModes.entire else self._measures
+        length_measure = apt_staff.getData__measures() if self._mode == ClockModes.entire else self._measures
 
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / staff.getValue__beats_per_note()
-        pulses_per_measure = pulses_per_beat * staff.getValue__beats_per_measure()
+        pulses_per_beat = pulses_per_note / apt_staff.getValue__beats_per_note()
+        pulses_per_measure = pulses_per_beat * apt_staff.getValue__beats_per_measure()
         clock_pulses = round(pulses_per_measure * length_measure)
 
         start_measure = 0 if self._mode == ClockModes.entire \
                 else position_measure \
-                    + displacement_beat / staff.getValue__beats_per_measure() \
-                    + displacement_note / staff.getValue__notes_per_measure() \
-                    + displacement_step / staff.getValue__steps_per_measure()
-        measure_duration_ms = staff.getTime_ms(1)
-        clock_start_ms = staff.getTime_ms(start_measure)
-        clock_stop_ms = clock_start_ms + staff.getTime_ms(length_measure)
+                    + displacement_beat / apt_staff.getValue__beats_per_measure() \
+                    + displacement_note / apt_staff.getValue__notes_per_measure() \
+                    + displacement_step / apt_staff.getValue__steps_per_measure()
+        measure_duration_ms = apt_staff.getTime_ms(1)
+        clock_start_ms = apt_staff.getTime_ms(start_measure)
+        clock_stop_ms = clock_start_ms + apt_staff.getTime_ms(length_measure)
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
@@ -96,7 +102,7 @@ class Clock:
 
     # CHAINED OPERATIONS
 
-    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+    def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
 
@@ -108,7 +114,8 @@ class Note:
         self._key_note = key_note
         self._velocity = velocity
         self._duration_note = duration_note
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
 
     def getData__channel(self):
         return self._channel
@@ -128,11 +135,16 @@ class Note:
     def getData__device_list(self):
         return self._device_list
 
+    def getData__staff(self):
+        return self._staff
+
     def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
                     displacement_note: float = 0, displacement_step: float = 0):
         
-        on_time_ms = staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
-        off_time_ms = on_time_ms + staff.getTime_ms(0, 0, self._duration_note)
+        apt_staff = self._staff if self._staff is not None else staff
+
+        on_time_ms = apt_staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
+        off_time_ms = on_time_ms + apt_staff.getTime_ms(0, 0, self._duration_note)
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -176,7 +188,7 @@ class Note:
         self._duration_note = duration_note
         return self
 
-    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+    def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
 
@@ -202,7 +214,8 @@ class MidiMessage:
         self._status_byte = status_byte
         self._data_byte_1 = data_byte_1
         self._data_byte_2 = data_byte_2
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
 
 class Panic:
     ...
@@ -217,7 +230,8 @@ class Chord:
         self._size = size
         self._scale = scale
         self._notes = []
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
 
     # CHAINED OPERATIONS
 
@@ -232,7 +246,8 @@ class Loop:
     def __init__(self, element, repeat = 4):
         self._element = element
         self._repeat = repeat
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
     
     # CHAINED OPERATIONS
 
@@ -259,22 +274,28 @@ class Sequence:
         self._key_note = key_note
         self._length_beats = length_beats
         self._sequence = sequence
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
     
     def getData__device_list(self):
         return self._device_list
 
+    def getData__staff(self):
+        return self._staff
+
     def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
                     displacement_note: float = 0, displacement_step: float = 0):
         
-        start_time_ms = staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
+        apt_staff = self._staff if self._staff is not None else staff
+
+        start_time_ms = apt_staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
 
         play_list = []
         for trigger_note in self._sequence:
 
             if "step" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
 
-                on_time_ms = start_time_ms + staff.getTime_ms(0, 0, 0, trigger_note["step"])
+                on_time_ms = start_time_ms + apt_staff.getTime_ms(0, 0, 0, trigger_note["step"])
                 play_list.append({
                         "time_ms": round(on_time_ms, 3),
                         "midi_message": {
@@ -284,7 +305,7 @@ class Sequence:
                         }
                     })
                 
-                off_time_ms = on_time_ms + staff.getTime_ms(0, 0, trigger_note["duration_note"])
+                off_time_ms = on_time_ms + apt_staff.getTime_ms(0, 0, trigger_note["duration_note"])
                 play_list.append({
                         "time_ms": round(off_time_ms, 3),
                         "midi_message": {
@@ -302,8 +323,12 @@ class Sequence:
     
     # CHAINED OPERATIONS
 
-    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+    def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
+        return self
+
+    def setData__staff(self, staff: staff.Staff = None):
+        self._staff = staff
         return self
 
 
@@ -317,18 +342,24 @@ class Composition:
 
     def __init__(self):
         self._placed_elements = []
-        self._device_list = 0
+        self._device_list: list = None
+        self._staff: staff.Staff = None
 
     def getData__device_list(self):
         return self._device_list
 
+    def getData__staff(self):
+        return self._staff
+
     def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
                     displacement_note: float = 0, displacement_step: float = 0):
         
+        apt_staff = self._staff if self._staff is not None else staff
+
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    staff,
+                    apt_staff,
                     placed_element["position_measure"] + position_measure,
                     placed_element["displacement_beat"] + displacement_beat,
                     placed_element["displacement_note"] + displacement_note,
@@ -345,7 +376,7 @@ class Composition:
 
     # CHAINED OPERATIONS
 
-    def setData__device_list(self, device_list = ["Midi", "Port", "Synth"]):
+    def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
 

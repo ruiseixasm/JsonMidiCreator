@@ -34,6 +34,8 @@ placed_elements.placeElement(default_sequence, 2, 0)
 placed_elements.setData__device_list();
 elements_list = placed_elements.getPlayList(default_staff)
 print(elements_list)
+print(isinstance(default_note.getData__device_list(), list))
+print(isinstance(placed_elements.getData__device_list(), list))
 
 # creator objects
 
