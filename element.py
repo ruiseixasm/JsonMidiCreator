@@ -30,8 +30,7 @@ class Clock:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
-                    displacement_note: float = 0, displacement_step: float = 0):
+    def getPlayList(self, staff = staff.Staff(), displacement: list = [0, 0, 0, 0]):
         
         apt_staff = self._staff if self._staff is not None else staff
 
@@ -43,13 +42,13 @@ class Clock:
         clock_pulses = round(pulses_per_measure * length_measure)
 
         start_measure = 0 if self._mode == ClockModes.entire \
-                else position_measure \
-                    + displacement_beat / apt_staff.getValue__beats_per_measure() \
-                    + displacement_note / apt_staff.getValue__notes_per_measure() \
-                    + displacement_step / apt_staff.getValue__steps_per_measure()
-        measure_duration_ms = apt_staff.getTime_ms(1)
-        clock_start_ms = apt_staff.getTime_ms(start_measure)
-        clock_stop_ms = clock_start_ms + apt_staff.getTime_ms(length_measure)
+                else displacement[0] \
+                    + displacement[1] / apt_staff.getValue__beats_per_measure() \
+                    + displacement[2] / apt_staff.getValue__notes_per_measure() \
+                    + displacement[3] / apt_staff.getValue__steps_per_measure()
+        measure_duration_ms = apt_staff.getTime_ms([1, 0, 0, 0])
+        clock_start_ms = apt_staff.getTime_ms([start_measure, 0, 0, 0])
+        clock_stop_ms = clock_start_ms + apt_staff.getTime_ms([length_measure, 0, 0, 0])
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
@@ -138,13 +137,12 @@ class Note:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
-                    displacement_note: float = 0, displacement_step: float = 0):
+    def getPlayList(self, staff = staff.Staff(), displacement: list = [0, 0, 0, 0]):
         
         apt_staff = self._staff if self._staff is not None else staff
 
-        on_time_ms = apt_staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
-        off_time_ms = on_time_ms + apt_staff.getTime_ms(0, 0, self._duration_note)
+        on_time_ms = apt_staff.getTime_ms(displacement)
+        off_time_ms = on_time_ms + apt_staff.getTime_ms([0, 0, self._duration_note, 0])
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -265,10 +263,10 @@ class Automation:
 class Sequence:
 
     def __init__(self, channel = 1, key_note = 60, length_beats = 4, sequence = [
-            {"step": 0, "velocity": 100, "duration_note": 1/8},
-            {"step": 3, "velocity": 100, "duration_note": 1/8},
-            {"step": 7, "velocity": 100, "duration_note": 1/8},
-            {"step": 11, "velocity": 100, "duration_note": 1/8}
+            {"displacement": [0, 0, 0, 0], "velocity": 100, "duration_note": 1/8},
+            {"displacement": [0, 0, 0, 3], "velocity": 100, "duration_note": 1/8},
+            {"displacement": [0, 0, 0, 7], "velocity": 100, "duration_note": 1/8},
+            {"displacement": [0, 0, 0, 11], "velocity": 100, "duration_note": 1/8}
         ]):
         self._channel = channel
         self._key_note = key_note
@@ -283,19 +281,18 @@ class Sequence:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
-                    displacement_note: float = 0, displacement_step: float = 0):
+    def getPlayList(self, staff = staff.Staff(), displacement: list = [0, 0, 0, 0]):
         
         apt_staff = self._staff if self._staff is not None else staff
 
-        start_time_ms = apt_staff.getTime_ms(position_measure, displacement_beat, displacement_note, displacement_step)
+        start_time_ms = apt_staff.getTime_ms(displacement)
 
         play_list = []
         for trigger_note in self._sequence:
 
             if "step" in trigger_note and "velocity" in trigger_note and "duration_note" in trigger_note:
 
-                on_time_ms = start_time_ms + apt_staff.getTime_ms(0, 0, 0, trigger_note["step"])
+                on_time_ms = start_time_ms + apt_staff.getTime_ms(trigger_note["displacement"])
                 play_list.append({
                         "time_ms": round(on_time_ms, 3),
                         "midi_message": {
@@ -305,7 +302,7 @@ class Sequence:
                         }
                     })
                 
-                off_time_ms = on_time_ms + apt_staff.getTime_ms(0, 0, trigger_note["duration_note"])
+                off_time_ms = on_time_ms + apt_staff.getTime_ms([0, 0, trigger_note["duration_note"], 0])
                 play_list.append({
                         "time_ms": round(off_time_ms, 3),
                         "midi_message": {
@@ -351,19 +348,19 @@ class Composition:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = staff.Staff(), position_measure: float = 0, displacement_beat: float = 0,
-                    displacement_note: float = 0, displacement_step: float = 0):
+    def getPlayList(self, staff = staff.Staff(), displacement: list = [0, 0, 0, 0]):
         
         apt_staff = self._staff if self._staff is not None else staff
 
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    apt_staff,
-                    placed_element["position_measure"] + position_measure,
-                    placed_element["displacement_beat"] + displacement_beat,
-                    placed_element["displacement_note"] + displacement_note,
-                    placed_element["displacement_step"] + displacement_step
+                    apt_staff, [
+                        placed_element["displacement"][0] + displacement[0],
+                        placed_element["displacement"][1] + displacement[1],
+                        placed_element["displacement"][2] + displacement[2],
+                        placed_element["displacement"][3] + displacement[3]
+                    ]
                 )
             
         if isinstance(self._device_list, list):
@@ -380,25 +377,17 @@ class Composition:
         self._device_list = device_list
         return self
 
-    def placeElement(self, element, position_measure: float, displacement_beat: float = 0,
-                    displacement_note: float = 0, displacement_step: float = 0):
+    def placeElement(self, element, displacement: list = [0, 0, 0, 0]):
         self._placed_elements.append({
                 "element": element,
-                "position_measure": position_measure,
-                "displacement_beat": displacement_beat,
-                "displacement_note": displacement_note,
-                "displacement_step": displacement_step
+                "displacement": displacement
             })
         return self
 
-    def takeElement(self, element, position_measure: float, displacement_beat: float = 0,
-                    displacement_note: float = 0, displacement_step: float = 0):
+    def takeElement(self, element, displacement: list = [0, 0, 0, 0]):
         self._placed_elements.remove({
                 "element": element,
-                "position_measure": position_measure,
-                "displacement_beat": displacement_beat,
-                "displacement_note": displacement_note,
-                "displacement_step": displacement_step
+                "displacement": displacement
             })
         return self
         
@@ -406,7 +395,7 @@ class Composition:
         self._placed_elements = []
         return self
 
-    def displace(self, displacement_note):
+    def displace(self, displacement: list = [0, 0, 0, 0]):
         ...
         return self
 

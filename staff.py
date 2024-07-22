@@ -62,15 +62,14 @@ class Staff:
     def getValue__steps_per_measure(self):
         return self.getValue__steps_per_note() * self.getValue__notes_per_measure()
     
-    def getTime_ms(self, position_measure: float, displacement_beat: float = 0,
-                   displacement_note: float = 0, displacement_step: float = 0):
+    def getTime_ms(self, displacement: list = [0, 0, 0, 0]):
         beat_time_ms = 60.0 * 1000 / self._tempo
         measure_time_ms = beat_time_ms * self.getValue__beats_per_measure()
         note_time_ms = beat_time_ms * self.getValue__beats_per_note()
         step_time_ms = note_time_ms / self.getValue__steps_per_note();
         
-        return position_measure * measure_time_ms + displacement_beat * beat_time_ms \
-                + displacement_note * note_time_ms + displacement_step * step_time_ms
+        return displacement[0] * measure_time_ms + displacement[1] * beat_time_ms \
+                + displacement[2] * note_time_ms + displacement[3] * step_time_ms
         
     def getList(self):
         ...
