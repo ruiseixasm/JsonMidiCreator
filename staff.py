@@ -13,7 +13,7 @@ class Scale:
     def getSemitones(self, scale_steps, reference_key):
         ...
     
-    # CHAINED OPERATIONS
+    # CHAINABLE OPERATIONS
 
     def setData__key(self, key):
         self._key = key
@@ -22,6 +22,71 @@ class Scale:
     def setData__scale(self, scale):
         self._scale = scale
         return self
+    
+class Length:
+    
+    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
+        self._measures = measures
+        self._beats = beats
+        self._note = note
+        self._steps = steps
+
+    def getData__measures(self):
+        return self._measures
+
+    def getData__beats(self):
+        return self._beats
+
+    def getData__note(self):
+        return self._note
+
+    def getData__steps(self):
+        return self._steps
+
+    def __eq__(self, other_length):
+        return (self._measures, self._beats, self._note, self._steps) == \
+               (other_length.getData__measures(),
+                other_length.getData__beats(),
+                other_length.getData__note(),
+                other_length.getData__steps())
+    
+    # CHAINABLE OPERATIONS
+
+    # adding two lengths 
+    def __add__(self, other_length):
+        return Length(
+                self._measures + other_length.getData__measures(),
+                self._beats + other_length.getData__beats(),
+                self._note + other_length.getData__note(),
+                self._steps + other_length.getData__steps()
+            )
+    
+    # subtracting two lengths 
+    def __sub__(self, other_length):
+        return Length(
+                self._measures - other_length.getData__measures(),
+                self._beats - other_length.getData__beats(),
+                self._note - other_length.getData__note(),
+                self._steps - other_length.getData__steps()
+            )
+    
+    # multiply two lengths 
+    def __mul__(self, other_length):
+        return Length(
+                self._measures * other_length.getData__measures(),
+                self._beats * other_length.getData__beats(),
+                self._note * other_length.getData__note(),
+                self._steps * other_length.getData__steps()
+            )
+    
+    # multiply with a escalator 
+    def __rmul__(self, number: float):
+        return Length(
+                self._measures * number,
+                self._beats * number,
+                self._note * number,
+                self._steps * number
+            )
     
 class Staff:
 
@@ -62,14 +127,14 @@ class Staff:
     def getValue__steps_per_measure(self):
         return self.getValue__steps_per_note() * self.getValue__notes_per_measure()
     
-    def getTime_ms(self, displacement: list = [0, 0, 0, 0]):
+    def getTime_ms(self, length: Length = Length(0, 0, 0, 0)):
         beat_time_ms = 60.0 * 1000 / self._tempo
         measure_time_ms = beat_time_ms * self.getValue__beats_per_measure()
         note_time_ms = beat_time_ms * self.getValue__beats_per_note()
-        step_time_ms = note_time_ms / self.getValue__steps_per_note();
+        step_time_ms = note_time_ms / self.getValue__steps_per_note()
         
-        return displacement[0] * measure_time_ms + displacement[1] * beat_time_ms \
-                + displacement[2] * note_time_ms + displacement[3] * step_time_ms
+        return length.getData__measures() * measure_time_ms + length.getData__beats() * beat_time_ms \
+                + length.getData__note() * note_time_ms + length.getData__steps() * step_time_ms
         
     def getList(self):
         ...
@@ -77,7 +142,7 @@ class Staff:
     def loadList(self, json_list):
         ...
         
-    # CHAINED OPERATIONS
+    # CHAINABLE OPERATIONS
 
     def setData__measures(self, measures: int = 8):
         self._measures = measures
