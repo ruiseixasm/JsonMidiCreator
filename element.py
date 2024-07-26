@@ -1,6 +1,7 @@
 from staff import Staff
 from staff import Length
 from staff import Scale
+import operand
 import enum
 
 class ClockModes(enum.Enum):
