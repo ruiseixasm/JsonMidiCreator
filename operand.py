@@ -1,18 +1,66 @@
-import staff
+from staff import *
 
 
 class Duration:
     
-    def __init__(self, duration = staff.Length()):
-        self._duration: staff.Length = duration
+    def __init__(self, length = Length(note=1/4)):
+        self._length: Length = length
 
+    def getData__length(self):
+        return self._length
+
+    def getTime_ms(self, staff: Staff = Staff()):
+        return staff.getTime_ms(self._length)
+        
+    # CHAINABLE OPERATIONS
+
+    # adding two durations 
+    def __add__(self, other_duration):
+        return Duration(self._length + other_duration.getData__length())
+    
+    # subtracting two durations 
+    def __sub__(self, other_duration):
+        return Duration(self._length - other_duration.getData__length())
+
+    # multiply two durations 
+    def __mul__(self, other_duration):
+        return Duration(self._length * other_duration.getData__length())
+    
+    # multiply with a scalar
+    def __rmul__(self, scalar: float):
+        return Duration(scalar * self._length.getData__length())
+    
 
 
 class Position:
 
-    def __init__(self, position = staff.Length()):
-        self._position: staff.Length = position
+    def __init__(self, length = Length(0)):
+        self._length: Length = length
 
+    def getData__length(self):
+        return self._length
+
+    def getTime_ms(self, staff: Staff = Staff()):
+        return staff.getTime_ms(self._length)
+        
+    # CHAINABLE OPERATIONS
+
+    # adding two positions 
+    def __add__(self, other_position):
+        return Position(self._length + other_position.getData__length())
+    
+    # subtracting two positions 
+    def __sub__(self, other_position):
+        return Position(self._length - other_position.getData__length())
+
+    # multiply two positions 
+    def __mul__(self, other_position):
+        return Position(self._length * other_position.getData__length())
+    
+    # multiply with a scalar
+    def __rmul__(self, scalar: float):
+        return Position(scalar * self._length.getData__length())
+    
 
 
 class Value:
@@ -47,8 +95,17 @@ class KeyNote:
 
 class NoteOn:
     
-    def __init__(self, note_on: int = 0):
+    def __init__(self, note_on: int = 60):
         self._note_on: int = note_on
+
+class Velocity:
+    
+    def __init__(self, velocity: int = 100):
+        self._velocity: int = velocity
+
+    def getData__velocity(self):
+        return self._velocity
+
 
 class IntervalQuality:
 
@@ -66,4 +123,23 @@ class Inversion:
     def __init__(self, inversion: int = 0):
         self._inversion: int = inversion
 
+
+
+class Swing:
+
+    def __init__(self, swing: float = 0):
+        self._swing: float = swing
+
+
+
+class Swing:
+
+    def __init__(self, swing: float = 0.50):
+        self._swing: float = swing
+
+
+class Gate:
+
+    def __init__(self, gate: float = 0.50):
+        self._gate: float = gate
 

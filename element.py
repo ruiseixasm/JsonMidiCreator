@@ -1,7 +1,5 @@
-from staff import Staff
-from staff import Length
-from staff import Scale
-import operand
+from staff import *
+from operand import *
 import enum
 
 class ClockModes(enum.Enum):
@@ -14,8 +12,8 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, duration = Length(measures=8), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
-        self._duration: Length = duration
+    def __init__(self, duration = Duration(Length(measures=8)), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
+        self._duration: Duration = duration
         self._mode = mode
         self._pulses_per_quarternote = pulses_per_quarternote
         self._device_list: list = None
@@ -33,20 +31,20 @@ class Clock:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Length = Length()):
+    def getPlayList(self, staff = Staff(), position: Position = Position()):
         
-        apt_staff = self._staff if self._staff is not None else staff
+        on_staff = self._staff if self._staff is not None else staff
 
-        clock_duration = Length(apt_staff.getData__measures()) if self._mode == ClockModes.entire else self._duration
+        clock_duration = Duration(Length(on_staff.getData__measures())) if self._mode == ClockModes.entire else self._duration
 
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / apt_staff.getValue__beats_per_note()
-        pulses_per_measure = pulses_per_beat * apt_staff.getValue__beats_per_measure()
-        clock_pulses = round(pulses_per_measure * clock_duration.getData__measures())
+        pulses_per_beat = pulses_per_note / on_staff.getValue__beats_per_note()
+        pulses_per_measure = pulses_per_beat * on_staff.getValue__beats_per_measure()
+        clock_pulses = round(pulses_per_measure * clock_duration.getData__length().getData__measures())
 
-        single_measure_duration_ms = apt_staff.getTime_ms(Length(1))
-        clock_start_ms = apt_staff.getTime_ms(position)
-        clock_stop_ms = clock_start_ms + apt_staff.getTime_ms(clock_duration)
+        single_measure_duration_ms = on_staff.getTime_ms(Length(1))
+        clock_start_ms = position.getTime_ms(on_staff)
+        clock_stop_ms = clock_start_ms + clock_duration.getTime_ms(on_staff)
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
@@ -73,7 +71,7 @@ class Clock:
             play_list.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_duration_ms \
-                                     * clock_duration.getData__measures() * clock_pulse / clock_pulses, 3),
+                                     * clock_duration.getData__length().getData__measures() * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8
                     }
@@ -107,11 +105,11 @@ class Clock:
 
 class Note:
 
-    def __init__(self, channel = 1, key_note = 60, velocity = 100, duration = Length(note=1/4)):
+    def __init__(self, channel = 1, key_note = 60, velocity = 100, duration = Duration(Length(note=1/4))):
         self._channel = channel
         self._key_note = key_note
         self._velocity = velocity
-        self._duration: Length = duration
+        self._duration: Duration = duration
         self._device_list: list = None
         self._staff: Staff = None
 
@@ -136,12 +134,12 @@ class Note:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Length = Length()):
+    def getPlayList(self, staff = Staff(), position: Position = Position()):
         
-        apt_staff = self._staff if self._staff is not None else staff
+        on_staff = self._staff if self._staff is not None else staff
 
-        on_time_ms = apt_staff.getTime_ms(position)
-        off_time_ms = on_time_ms + apt_staff.getTime_ms(self._duration)
+        on_time_ms = position.getTime_ms(on_staff)
+        off_time_ms = on_time_ms + self._duration.getTime_ms(on_staff)
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -181,7 +179,7 @@ class Note:
         self._velocity = velocity
         return self
 
-    def setData__duration(self, duration: Length):
+    def setData__duration(self, duration: Duration):
         self._duration = duration
         return self
 
@@ -262,10 +260,10 @@ class Automation:
 class Sequence:
 
     def __init__(self, channel = 1, key_note = 60, length_beats = 4, sequence: list = [
-            {"position": Length(steps=0), "velocity": 100, "duration": Length(note=1/8)},
-            {"position": Length(steps=3), "velocity": 100, "duration": Length(note=1/8)},
-            {"position": Length(steps=7), "velocity": 100, "duration": Length(note=1/8)},
-            {"position": Length(steps=11), "velocity": 100, "duration": Length(note=1/8)}
+            [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/8)) ],
+            [ Position(Length(steps=4)), Velocity(100), Duration(Length(note=1/8)) ],
+            [ Position(Length(steps=8)), Velocity(100), Duration(Length(note=1/8)) ],
+            [ Position(Length(steps=12)), Velocity(100), Duration(Length(note=1/8)) ]
         ]):
         self._channel = channel
         self._key_note = key_note
@@ -280,36 +278,47 @@ class Sequence:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Length = Length()):
+    def getPlayList(self, staff = Staff(), position: Position = Position()):
         
-        apt_staff = self._staff if self._staff is not None else staff
+        on_staff = self._staff if self._staff is not None else staff
 
-        start_time_ms = apt_staff.getTime_ms(position)
+        start_time_ms = position.getTime_ms(on_staff)
 
         play_list = []
         for trigger_note in self._sequence:
 
-            if "position" in trigger_note and "velocity" in trigger_note and "duration" in trigger_note:
+            on_position = Position(0)
+            with_duration = Duration(Length(note=1/4))
+            with_velocity = Velocity(100)
 
-                on_time_ms = start_time_ms + apt_staff.getTime_ms(trigger_note["position"])
-                play_list.append({
-                        "time_ms": round(on_time_ms, 3),
-                        "midi_message": {
-                            "status_byte": 0x90 | 0x0F & (self._channel - 1),
-                            "data_byte_1": self._key_note,
-                            "data_byte_2": trigger_note["velocity"]
-                        }
-                    })
-                
-                off_time_ms = on_time_ms + apt_staff.getTime_ms(trigger_note["duration"])
-                play_list.append({
-                        "time_ms": round(off_time_ms, 3),
-                        "midi_message": {
-                            "status_byte": 0x80 | 0x0F & (self._channel - 1),
-                            "data_byte_1": self._key_note,
-                            "data_byte_2": 0
-                        }
-                    })
+            for note_operand in trigger_note:
+                match note_operand.__class__.__name__:
+                    case "Position":
+                        on_position = note_operand
+                    case "Duration":
+                        with_duration = note_operand
+                    case "Velocity":
+                        with_velocity = note_operand
+
+            on_time_ms = start_time_ms + on_position.getTime_ms(on_staff)
+            play_list.append({
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x90 | 0x0F & (self._channel - 1),
+                        "data_byte_1": self._key_note,
+                        "data_byte_2": with_velocity.getData__velocity()
+                    }
+                })
+            
+            off_time_ms = on_time_ms + with_duration.getTime_ms(on_staff)
+            play_list.append({
+                    "time_ms": round(off_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x80 | 0x0F & (self._channel - 1),
+                        "data_byte_1": self._key_note,
+                        "data_byte_2": 0
+                    }
+                })
 
         if isinstance(self._device_list, list):
             for list_element in play_list:
@@ -347,14 +356,14 @@ class Composition:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Length = Length()):
+    def getPlayList(self, staff = Staff(), position: Position = Position()):
         
-        apt_staff = self._staff if self._staff is not None else staff
+        on_staff = self._staff if self._staff is not None else staff
 
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    apt_staff, placed_element["position"] + position
+                    on_staff, placed_element["position"] + position
                 )
             
         if isinstance(self._device_list, list):
@@ -371,14 +380,14 @@ class Composition:
         self._device_list = device_list
         return self
 
-    def placeElement(self, element, position = Length()):
+    def placeElement(self, element, position = Position()):
         self._placed_elements.append({
                 "element": element,
                 "position": position
             })
         return self
 
-    def takeElement(self, element, position = Length()):
+    def takeElement(self, element, position = Position()):
         self._placed_elements.remove({
                 "element": element,
                 "position": position

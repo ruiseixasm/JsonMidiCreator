@@ -79,13 +79,13 @@ class Length:
                 self._steps * other_length.getData__steps()
             )
     
-    # multiply with a escalator 
-    def __rmul__(self, number: float):
+    # multiply with a scalar 
+    def __rmul__(self, scalar: float):
         return Length(
-                self._measures * number,
-                self._beats * number,
-                self._note * number,
-                self._steps * number
+                self._measures * scalar,
+                self._beats * scalar,
+                self._note * scalar,
+                self._steps * scalar
             )
     
 class Staff:

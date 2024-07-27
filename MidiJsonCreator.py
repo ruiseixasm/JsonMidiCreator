@@ -1,36 +1,36 @@
-import staff
-import element
 import creator
-from staff import Length
+from staff import *
+from operand import *
+from element import *
 
 # print("Test Creator")
 
 # staff objects
 
-default_staff = staff.Staff(4, 110)
+default_staff = Staff(4, 110)
 
 # element ojects
 
-default_clock = element.Clock()
-default_note = element.Note()
+default_clock = Clock()
+default_note = Note()
 
 sequence = [
-            {"position": Length(steps=0), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=1), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=2), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=3), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=4), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=5), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=6), "velocity": 100, "duration": Length(note=1/16)},
-            {"position": Length(steps=7), "velocity": 100, "duration": Length(note=1/16)}
+            [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=1)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=2)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=3)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=4)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=5)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=6)), Velocity(100), Duration(Length(note=1/16)) ],
+            [ Position(Length(steps=7)), Velocity(100), Duration(Length(note=1/16)) ]
         ]
 
-default_sequence = element.Sequence(10, 60, 2, sequence)
+default_sequence = Sequence(10, 60, 2, sequence)
 
-placed_elements = element.Composition()
-# placed_elements.placeElement(default_clock, Length())
-# placed_elements.placeElement(default_note, Length(1, 0.25))
-placed_elements.placeElement(default_sequence, Length(2))
+placed_elements = Composition()
+placed_elements.placeElement(default_clock, Position(Length()))
+placed_elements.placeElement(default_note, Position(Length(1, 0.25)))
+placed_elements.placeElement(default_sequence, Position(Length(1)))
 
 placed_elements.setData__device_list();
 elements_list = placed_elements.getPlayList(default_staff)
