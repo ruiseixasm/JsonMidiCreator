@@ -25,12 +25,15 @@ sequence = [
             [ Position(Length(steps=7)), Velocity(100), Duration(Length(note=1/16)) ]
         ]
 
-default_sequence = Sequence(10, 60, 2, sequence)
+first_sequence = Sequence(10, 60, 2, sequence)
+second_sequence = first_sequence.copy()
+second_sequence.op_add(Position(Length(beats=2)))
 
 placed_elements = Composition()
 # placed_elements.placeElement(default_clock, Position(Length()))
 placed_elements.placeElement(default_note, Position(Length(1, 0.25)))
-placed_elements.placeElement(default_sequence, Position(Length(1)))
+placed_elements.placeElement(first_sequence, Position(Length(1)))
+placed_elements.placeElement(second_sequence, Position(Length(1)))
 
 placed_elements.setData__device_list();
 elements_list = placed_elements.getPlayList(default_staff)

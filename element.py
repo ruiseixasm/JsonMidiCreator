@@ -287,7 +287,7 @@ class Sequence:
         play_list = []
         for trigger_note in self._sequence:
 
-            on_position = Position(0)
+            on_position = Position(Length(0))
             with_duration = Duration(Length(note=1/4))
             with_velocity = Velocity(100)
 
@@ -336,6 +336,20 @@ class Sequence:
     
     # CHAINABLE OPERATIONS
 
+    def copy(self):
+        sequence_copy = Sequence(
+            self._channel,
+            self._key_note,
+            self._length_beats,
+            self._sequence.copy()
+        )
+        if self._device_list is not None:
+            sequence_copy.setData__device_list(self._device_list.copy())
+        if self._staff is not None:
+            sequence_copy.setData__staff(self._staff)
+            
+        return sequence_copy
+
     def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
@@ -345,9 +359,11 @@ class Sequence:
         return self
 
     def op_add(self, operand = Duration()):
-        match(operand.__class__):
-            case Duration.__class__:
-                ...
+        for trigger_i in range(0, len(self._sequence)):
+            for operand_j in range(0, len(self._sequence[trigger_i])):
+                if (self._sequence[trigger_i][operand_j].__class__ == operand.__class__):
+                    self._sequence[trigger_i][operand_j] += operand
+
 
 
 
