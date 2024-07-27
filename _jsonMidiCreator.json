@@ -1,0 +1,221 @@
+{
+    "filetype": "Json Midi Creator",
+    "content": {
+        "class": "Sequence",
+        "channel": 10,
+        "key_note": 60,
+        "length_beats": 2,
+        "sequence": [
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 0
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 1
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 2
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 3
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 4
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 5
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 6
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ],
+            [
+                {
+                    "class": "Position",
+                    "length": {
+                        "class": "Length",
+                        "measures": 2,
+                        "beats": 0,
+                        "note": 0,
+                        "steps": 7
+                    }
+                },
+                {
+                    "class": "Velocity",
+                    "velocity": 100
+                },
+                {
+                    "class": "Duration",
+                    "length": {
+                        "class": "Length",
+                        "measures": 0,
+                        "beats": 0,
+                        "note": 0.0625,
+                        "steps": 0
+                    }
+                }
+            ]
+        ],
+        "device_list": null,
+        "staff": null
+    }
+}

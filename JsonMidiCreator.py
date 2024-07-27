@@ -48,6 +48,8 @@ elements_list = placed_elements.getPlayList(default_staff)
 # creator objects
 
 default_creator = creator.PlayList()
-default_creator.saveJsonPlayList(elements_list, "example_play_file.json")
-default_creator.playPlayList(elements_list)
+default_creator.saveJsonMidiPlay(elements_list, "example_play_file.json")
+default_creator.jsonMidiPlay(elements_list)
 
+default_creator.saveJsonMidiCreator(second_sequence.getSerialization(), "_jsonMidiCreator.json")
+print(default_creator.loadJsonMidiCreator("_jsonMidiCreator.json"))
