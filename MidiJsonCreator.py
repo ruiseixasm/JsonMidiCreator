@@ -28,7 +28,7 @@ sequence = [
 default_sequence = Sequence(10, 60, 2, sequence)
 
 placed_elements = Composition()
-placed_elements.placeElement(default_clock, Position(Length()))
+# placed_elements.placeElement(default_clock, Position(Length()))
 placed_elements.placeElement(default_note, Position(Length(1, 0.25)))
 placed_elements.placeElement(default_sequence, Position(Length(1)))
 

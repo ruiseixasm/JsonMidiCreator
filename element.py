@@ -267,7 +267,7 @@ class Sequence:
         ]):
         self._channel = channel
         self._key_note = key_note
-        self._length_beats = length_beats
+        self._length_beats = length_beats   # to change to Length type
         self._sequence: list = sequence
         self._device_list: list = None
         self._staff: Staff = None
@@ -291,14 +291,22 @@ class Sequence:
             with_duration = Duration(Length(note=1/4))
             with_velocity = Velocity(100)
 
+            # for note_operand in trigger_note:
+            #     match note_operand.__class__:
+            #         case Position:
+            #             on_position = note_operand
+            #         case Duration:
+            #             with_duration = note_operand
+            #         case Velocity:
+            #             with_velocity = note_operand
+
             for note_operand in trigger_note:
-                match note_operand.__class__.__name__:
-                    case "Position":
-                        on_position = note_operand
-                    case "Duration":
-                        with_duration = note_operand
-                    case "Velocity":
-                        with_velocity = note_operand
+                if (note_operand.__class__ == Position):
+                    on_position = note_operand
+                elif (note_operand.__class__ == Duration):
+                    with_duration = note_operand
+                elif (note_operand.__class__ == Velocity):
+                    with_velocity = note_operand
 
             on_time_ms = start_time_ms + on_position.getTime_ms(on_staff)
             play_list.append({
@@ -335,6 +343,12 @@ class Sequence:
     def setData__staff(self, staff: Staff = None):
         self._staff = staff
         return self
+
+    def op_add(self, operand = Duration()):
+        match(operand.__class__):
+            case Duration.__class__:
+                ...
+
 
 
 class Retrigger:
