@@ -10,7 +10,7 @@ class Duration:
         return self._length
 
     def getTime_ms(self, staff: Staff = Staff()):
-        return staff.getTime_ms(self._length)
+        return self._length.getTime_ms(staff)
         
     def getSerialization(self):
         return {
@@ -58,7 +58,7 @@ class Position:
         return self._length
 
     def getTime_ms(self, staff: Staff = Staff()):
-        return staff.getTime_ms(self._length)
+        return self._length.getTime_ms(staff)
         
     def getSerialization(self):
         return {

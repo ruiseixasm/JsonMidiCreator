@@ -1,30 +1,82 @@
+class Staff:
 
+    def __init__(self, measures: int = 8,
+                tempo: int = 120,
+                quantization: float = 1/16,
+                time_signature: list = [4, 4]):
+        
+        self._measures = measures
+        self._tempo = tempo
+        self._quantization = quantization
+        self._time_signature = time_signature
 
-class Scale:
+    def getData__measures(self):
+        return self._measures
 
-    def __init__(self, key = "C", scale = "Major"):
-        self._key = key
-        self._scale = scale
+    def getData__tempo(self):
+        return self._tempo
 
-    def getData__key(self):
-        return self._key
+    def getData__quantization(self):
+        return self._quantization
 
-    def getData__scale(self):
-        return self._scale
+    def getData__time_signature(self):
+        return self._time_signature
     
-    def getSemitones(self, scale_steps, reference_key):
-        ...
+    def getValue__steps_per_note(self):
+        return round(1 / self._quantization, 9) # round avoids floating-point error
     
+    def getValue__beats_per_measure(self):
+        return self._time_signature[0]
+    
+    def getValue__beats_per_note(self):
+        return self._time_signature[1]
+
+    def getValue__notes_per_measure(self):
+        return self.getValue__beats_per_measure() / self.getValue__beats_per_note()
+
+    def getValue__steps_per_measure(self):
+        return self.getValue__steps_per_note() * self.getValue__notes_per_measure()
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "measures": self._measures,
+            "tempo": self._tempo,
+            "quantization": self._quantization,
+            "time_signature": self._time_signature
+        }
+
     # CHAINABLE OPERATIONS
 
-    def setData__key(self, key):
-        self._key = key
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "measures" in serialization and "tempo" in serialization and
+            "quantization" in serialization and "time_signature" in serialization):
+
+            self._measures = serialization["measures"]
+            self._tempo = serialization["tempo"]
+            self._quantization = serialization["quantization"]
+            self._time_signature = serialization["time_signature"]
+
+        return self
+        
+    def setData__measures(self, measures: int = 8):
+        self._measures = measures
         return self
 
-    def setData__scale(self, scale):
-        self._scale = scale
+    def setData__tempo(self, tempo: int = 120):
+        self._tempo = tempo
         return self
-    
+
+    def setData__quantization(self, quantization: float = 1/16):
+        self._quantization = quantization
+        return self
+
+    def setData__time_signature(self, time_signature: list = [4, 4]):
+        self._time_signature = time_signature
+        return self
+
+
 class Length:
     
     def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
@@ -45,13 +97,27 @@ class Length:
     def getData__steps(self):
         return self._steps
 
-    def __eq__(self, other_length):
+    def __eq__(self, other_length):       
         return (self._measures, self._beats, self._note, self._steps) == \
                (other_length.getData__measures(),
                 other_length.getData__beats(),
                 other_length.getData__note(),
                 other_length.getData__steps())
     
+    # Type hints as string literals to handle forward references
+    def equal_on_staff(self, other_length: 'Length', staff: Staff) -> bool:
+        return round(self.getTime_ms(staff), 3) == round(other_length.getTime_ms(staff), 3)
+    
+    # Type hints as string literals to handle forward references
+    def getTime_ms(self, staff: Staff):
+        beat_time_ms = 60.0 * 1000 / staff.getData__tempo()
+        measure_time_ms = beat_time_ms * staff.getValue__beats_per_measure()
+        note_time_ms = beat_time_ms * staff.getValue__beats_per_note()
+        step_time_ms = note_time_ms / staff.getValue__steps_per_note()
+        
+        return self._measures * measure_time_ms + self._beats * beat_time_ms \
+                + self._note * note_time_ms + self._steps * step_time_ms
+        
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -130,90 +196,28 @@ class Length:
                 self._steps
             )
     
-class Staff:
+class Scale:
 
-    def __init__(self, measures: int = 8,
-                tempo: int = 120,
-                quantization: float = 1/16,
-                time_signature: list = [4, 4]):
-        
-        self._measures = measures
-        self._tempo = tempo
-        self._quantization = quantization
-        self._time_signature = time_signature
+    def __init__(self, key = "C", scale = "Major"):
+        self._key = key
+        self._scale = scale
 
-    def getData__measures(self):
-        return self._measures
+    def getData__key(self):
+        return self._key
 
-    def getData__tempo(self):
-        return self._tempo
-
-    def getData__quantization(self):
-        return self._quantization
-
-    def getData__time_signature(self):
-        return self._time_signature
+    def getData__scale(self):
+        return self._scale
     
-    def getValue__steps_per_note(self):
-        return round(1 / self._quantization, 9) # round avoids floating-point error
+    def getSemitones(self, scale_steps, reference_key):
+        ...
     
-    def getValue__beats_per_measure(self):
-        return self._time_signature[0]
-    
-    def getValue__beats_per_note(self):
-        return self._time_signature[1]
-
-    def getValue__notes_per_measure(self):
-        return self.getValue__beats_per_measure() / self.getValue__beats_per_note()
-
-    def getValue__steps_per_measure(self):
-        return self.getValue__steps_per_note() * self.getValue__notes_per_measure()
-    
-    def getTime_ms(self, length: Length = Length(0, 0, 0, 0)):
-        beat_time_ms = 60.0 * 1000 / self._tempo
-        measure_time_ms = beat_time_ms * self.getValue__beats_per_measure()
-        note_time_ms = beat_time_ms * self.getValue__beats_per_note()
-        step_time_ms = note_time_ms / self.getValue__steps_per_note()
-        
-        return length.getData__measures() * measure_time_ms + length.getData__beats() * beat_time_ms \
-                + length.getData__note() * note_time_ms + length.getData__steps() * step_time_ms
-        
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "measures": self._measures,
-            "tempo": self._tempo,
-            "quantization": self._quantization,
-            "time_signature": self._time_signature
-        }
-
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "measures" in serialization and "tempo" in serialization and
-            "quantization" in serialization and "time_signature" in serialization):
-
-            self._measures = serialization["measures"]
-            self._tempo = serialization["tempo"]
-            self._quantization = serialization["quantization"]
-            self._time_signature = serialization["time_signature"]
-
-        return self
-        
-    def setData__measures(self, measures: int = 8):
-        self._measures = measures
+    def setData__key(self, key):
+        self._key = key
         return self
 
-    def setData__tempo(self, tempo: int = 120):
-        self._tempo = tempo
+    def setData__scale(self, scale):
+        self._scale = scale
         return self
-
-    def setData__quantization(self, quantization: float = 1/16):
-        self._quantization = quantization
-        return self
-
-    def setData__time_signature(self, time_signature: list = [4, 4]):
-        self._time_signature = time_signature
-        return self
-
+    
