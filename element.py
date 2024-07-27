@@ -376,7 +376,7 @@ class Composition:
 
     # CHAINABLE OPERATIONS
 
-    def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
+    def setData__device_list(self, device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
 

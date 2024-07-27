@@ -5,7 +5,7 @@ class Duration:
     
     def __init__(self, length = Length(note=1/4)):
         self._length: Length = length
-
+    
     def getData__length(self):
         return self._length
 
