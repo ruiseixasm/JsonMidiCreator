@@ -52,6 +52,14 @@ class Length:
     
     # CHAINABLE OPERATIONS
 
+    def copy(self):
+        return Length(
+                self._measures,
+                self._beats,
+                self._note,
+                self._steps
+            )
+
     # adding two lengths 
     def __add__(self, other_length):
         return Length(

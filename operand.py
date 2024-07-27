@@ -14,6 +14,9 @@ class Duration:
         
     # CHAINABLE OPERATIONS
 
+    def copy(self):
+        return Length(self._length.copy())
+
     # adding two durations 
     def __add__(self, other_duration):
         return Duration(self._length + other_duration.getData__length())
@@ -44,6 +47,9 @@ class Position:
         return staff.getTime_ms(self._length)
         
     # CHAINABLE OPERATIONS
+
+    def copy(self):
+        return Position(self._length.copy())
 
     # adding two positions 
     def __add__(self, other_position):
@@ -105,6 +111,11 @@ class Velocity:
 
     def getData__velocity(self):
         return self._velocity
+
+    # CHAINABLE OPERATIONS
+
+    def copy(self):
+        return Velocity(self._velocity)
 
 
 class IntervalQuality:

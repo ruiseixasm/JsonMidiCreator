@@ -337,14 +337,25 @@ class Sequence:
     # CHAINABLE OPERATIONS
 
     def copy(self):
+        device_list_copy = []
+        for trigger_note in self._sequence:
+            note_operand_copy = []
+            for note_operand in trigger_note:
+                note_operand_copy.append(
+                    note_operand.copy()
+                )
+            device_list_copy.append(note_operand_copy)
+
         sequence_copy = Sequence(
             self._channel,
             self._key_note,
             self._length_beats,
-            self._sequence.copy()
+            device_list_copy
         )
+
         if self._device_list is not None:
             sequence_copy.setData__device_list(self._device_list.copy())
+            
         if self._staff is not None:
             sequence_copy.setData__staff(self._staff)
             

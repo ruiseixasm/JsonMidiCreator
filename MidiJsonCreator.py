@@ -27,7 +27,7 @@ sequence = [
 
 first_sequence = Sequence(10, 60, 2, sequence)
 second_sequence = first_sequence.copy()
-second_sequence.op_add(Position(Length(beats=2)))
+second_sequence.op_add(Position(Length(measures=2)))
 
 placed_elements = Composition()
 # placed_elements.placeElement(default_clock, Position(Length()))
