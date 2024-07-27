@@ -70,22 +70,33 @@ class Length:
                 self._steps - other_length.getData__steps()
             )
     
-    # multiply two lengths 
-    def __mul__(self, other_length):
-        return Length(
-                self._measures * other_length.getData__measures(),
-                self._beats * other_length.getData__beats(),
-                self._note * other_length.getData__note(),
-                self._steps * other_length.getData__steps()
-            )
-    
     # multiply with a scalar 
-    def __rmul__(self, scalar: float):
+    def __mul__(self, scalar: float):
         return Length(
                 self._measures * scalar,
                 self._beats * scalar,
                 self._note * scalar,
                 self._steps * scalar
+            )
+    
+    # multiply with a scalar 
+    def __rmul__(self, scalar: float):
+        return self * scalar
+    
+    # multiply with a scalar 
+    def __div__(self, scalar: float):
+        if (scalar != 0):
+            return Length(
+                    self._measures / scalar,
+                    self._beats / scalar,
+                    self._note / scalar,
+                    self._steps / scalar
+                )
+        return Length(
+                self._measures,
+                self._beats,
+                self._note,
+                self._steps
             )
     
 class Staff:
