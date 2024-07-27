@@ -12,8 +12,22 @@ class Duration:
     def getTime_ms(self, staff: Staff = Staff()):
         return staff.getTime_ms(self._length)
         
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "length": self._length.getSerialization()
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "length" in serialization):
+
+            self._length = Length().loadSerialization(serialization["length"])
+
+        return self
+        
     def copy(self):
         return Length(self._length.copy())
 
@@ -46,8 +60,22 @@ class Position:
     def getTime_ms(self, staff: Staff = Staff()):
         return staff.getTime_ms(self._length)
         
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "length": self._length.getSerialization()
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "length" in serialization):
+
+            self._length = Length().loadSerialization(serialization["length"])
+
+        return self
+        
     def copy(self):
         return Position(self._length.copy())
 
@@ -112,8 +140,22 @@ class Velocity:
     def getData__velocity(self):
         return self._velocity
 
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "velocity": self._velocity
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "velocity" in serialization):
+
+            self._velocity = serialization["velocity"]
+
+        return self
+        
     def copy(self):
         return Velocity(self._velocity)
 

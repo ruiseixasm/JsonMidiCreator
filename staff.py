@@ -1,3 +1,5 @@
+
+
 class Scale:
 
     def __init__(self, key = "C", scale = "Major"):
@@ -50,8 +52,29 @@ class Length:
                 other_length.getData__note(),
                 other_length.getData__steps())
     
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "measures": self._measures,
+            "beats": self._beats,
+            "note": self._note,
+            "steps": self._steps
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "measures" in serialization and "beats" in serialization and
+            "note" in serialization and "steps" in serialization):
+
+            self._measures = serialization["measures"]
+            self._beats = serialization["beats"]
+            self._note = serialization["note"]
+            self._steps = serialization["steps"]
+
+        return self
+        
     def copy(self):
         return Length(
                 self._measures,
@@ -155,14 +178,29 @@ class Staff:
         return length.getData__measures() * measure_time_ms + length.getData__beats() * beat_time_ms \
                 + length.getData__note() * note_time_ms + length.getData__steps() * step_time_ms
         
-    def getList(self):
-        ...
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "measures": self._measures,
+            "tempo": self._tempo,
+            "quantization": self._quantization,
+            "time_signature": self._time_signature
+        }
 
-    def loadList(self, json_list):
-        ...
-        
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "measures" in serialization and "tempo" in serialization and
+            "quantization" in serialization and "time_signature" in serialization):
+
+            self._measures = serialization["measures"]
+            self._tempo = serialization["tempo"]
+            self._quantization = serialization["quantization"]
+            self._time_signature = serialization["time_signature"]
+
+        return self
+        
     def setData__measures(self, measures: int = 8):
         self._measures = measures
         return self

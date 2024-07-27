@@ -334,8 +334,44 @@ class Sequence:
 
         return play_list
     
+    def getSerialization(self):
+        sequence_serialization = []
+        for trigger_note in self._sequence:
+            note_operand_serialization = []
+            for note_operand in trigger_note:
+                note_operand_serialization.append(
+                    note_operand.getSerialization()
+                )
+            sequence_serialization.append(note_operand_serialization)
+
+        return {
+            "class": self.__class__.__name__,
+            "channel": self._channel, 
+            "key_note": self._key_note,
+            "length_beats": self._length_beats,
+            "sequence": sequence_serialization,
+            "device_list": self._device_list,
+            "staff": None if self._staff is None else self._staff.getSerialization()
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "length" in serialization):
+
+
+            self._channel = channel
+            self._key_note = key_note
+            self._length_beats = length_beats   # to change to Length type
+            self._sequence: list = sequence
+            self._device_list: list = None
+            self._staff: Staff = None
+
+            self._length = Length().loadSerialization(serialization["length"])
+
+        return self
+        
     def copy(self):
         device_list_copy = []
         for trigger_note in self._sequence:
