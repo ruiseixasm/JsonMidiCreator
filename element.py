@@ -358,17 +358,24 @@ class Sequence:
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "length" in serialization):
+            "channel" in serialization and "key_note" in serialization and "length_beats" in serialization and
+            "sequence" in serialization and "device_list" in serialization and "staff" in serialization):
 
+            sequence_serialization = []
+            for trigger_note in serialization["sequence"]:
+                note_operand_serialization = []
+                for note_operand in trigger_note:
+                    note_operand_serialization.append(
+                        globals()[note_operand["class"]].loadSerialization(note_operand)
+                    )
+                sequence_serialization.append(note_operand_serialization)
 
-            self._channel = channel
-            self._key_note = key_note
-            self._length_beats = length_beats   # to change to Length type
-            self._sequence: list = sequence
-            self._device_list: list = None
-            self._staff: Staff = None
-
-            self._length = Length().loadSerialization(serialization["length"])
+            self._channel = serialization["sequence"]
+            self._key_note = serialization["key_note"]
+            self._length_beats = serialization["length_beats"]   # to change to Length type
+            self._sequence: list = sequence_serialization
+            self._device_list: list = serialization["device_list"]
+            self._staff: Staff = None if serialization["staff"] is None else Staff().loadSerialization(serialization["sequence"])
 
         return self
         

@@ -29,6 +29,9 @@ first_sequence = Sequence(10, 60, 2, sequence)
 second_sequence = first_sequence.copy()
 second_sequence.op_add(Position(Length(measures=2)))
 
+print(second_sequence.getSerialization())
+
+
 placed_elements = Composition()
 # placed_elements.placeElement(default_clock, Position(Length()))
 placed_elements.placeElement(default_note, Position(Length(1, 0.25)))

@@ -29,7 +29,7 @@ class Duration:
         return self
         
     def copy(self):
-        return Length(self._length.copy())
+        return Duration(self._length.copy())
 
     # adding two durations 
     def __add__(self, other_duration):

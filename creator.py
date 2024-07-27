@@ -93,7 +93,7 @@ class PlayList:
 
     def saveJsonPlayList(self, play_list, filename):
         json_file_dict = {
-                "filetype": "Midi Json Player",
+                "filetype": "Json Midi Player",
                 "content": play_list
             }
         with open(filename, "w") as outfile:
