@@ -12,11 +12,9 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, duration = Duration(Length(measures=8)), mode: ClockModes = ClockModes.entire,
-                 staff: Staff = None, pulses_per_quarternote = 24):
+    def __init__(self, duration = Duration(Length(measures=8)), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
         self._duration: Duration = duration
         self._mode = mode
-        self._staff: Staff = staff
         self._pulses_per_quarternote = pulses_per_quarternote
         self._device_list: list = None
 
@@ -29,19 +27,9 @@ class Clock:
     def getData__device_list(self):
         return self._device_list
 
-    def getData__staff(self):
-        return self._staff
-
-    def getValue__on_staff(self, staff: Staff = None):
-        if (self._staff is not None):
-            return self._staff
-        elif (staff is not None):
-            return staff
-        return get_global_staff()
-
-    def getPlayList(self, position: Position = Position(), staff: Staff = None):
+    def getPlayList(self, position: Position = Position()):
         
-        on_staff = self.getValue__on_staff(staff)
+        on_staff = get_global_staff()
 
         clock_duration = Duration(Length(on_staff.getData__measures())) if self._mode == ClockModes.entire else self._duration
 
@@ -51,8 +39,8 @@ class Clock:
         clock_pulses = round(pulses_per_measure * clock_duration.getData__length().getData__measures())
 
         single_measure_duration_ms = on_staff.getTime_ms(Length(1))
-        clock_start_ms = position.getTime_ms(on_staff)
-        clock_stop_ms = clock_start_ms + clock_duration.getTime_ms(on_staff)
+        clock_start_ms = position.getTime_ms()
+        clock_stop_ms = clock_start_ms + clock_duration.getTime_ms()
 
         # System Real-Time Message         Status Byte 
         # ------------------------         -----------
@@ -119,7 +107,6 @@ class Note:
         self._velocity = velocity
         self._duration: Duration = duration
         self._device_list: list = None
-        self._staff: Staff = None
 
     def getData__channel(self):
         return self._channel
@@ -133,28 +120,13 @@ class Note:
     def getData__duration(self):
         return self._duration
     
-    def getLength_steps(self, staff = Staff()):
-        return self._duration * staff.getData__quantization().getData__steps_per_note()
-
     def getData__device_list(self):
         return self._device_list
 
-    def getData__staff(self):
-        return self._staff
-
-    def getValue__on_staff(self, staff: Staff = None):
-        if (self._staff is not None):
-            return self._staff
-        elif (staff is not None):
-            return staff
-        return get_global_staff()
-
-    def getPlayList(self, position: Position = Position(), staff: Staff = None):
+    def getPlayList(self, position: Position = Position()):
         
-        on_staff = self.getValue__on_staff(staff)
-
-        on_time_ms = position.getTime_ms(on_staff)
-        off_time_ms = on_time_ms + self._duration.getTime_ms(on_staff)
+        on_time_ms = position.getTime_ms()
+        off_time_ms = on_time_ms + self._duration.getTime_ms()
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -206,7 +178,7 @@ class Note:
         self._key_note = self._key_note + semitones
         return self
     
-    def quantize(self, amount = 100, staff = Staff()):
+    def quantize(self, amount = 100):
         return self
 
     
@@ -225,7 +197,6 @@ class MidiMessage:
         self._data_byte_1 = data_byte_1
         self._data_byte_2 = data_byte_2
         self._device_list: list = None
-        self._staff: Staff = None
 
 class Panic:
     ...
@@ -241,7 +212,6 @@ class Chord:
         self._scale = scale
         self._notes = []
         self._device_list: list = None
-        self._staff: Staff = None
 
     # CHAINABLE OPERATIONS
 
@@ -257,7 +227,6 @@ class Loop:
         self._element = element
         self._repeat = repeat
         self._device_list: list = None
-        self._staff: Staff = None
     
     # CHAINABLE OPERATIONS
 
@@ -278,17 +247,15 @@ class Sequence:
             [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/8)) ],
             [ Position(Length(steps=4)), Velocity(100), Duration(Length(note=1/8)) ],
             [ Position(Length(steps=8)), Velocity(100), Duration(Length(note=1/8)) ],
-            [ Position(Length(steps=12)), Velocity(100), Duration(Length(note=1/8)) ]],
-            staff: Staff = None
+            [ Position(Length(steps=12)), Velocity(100), Duration(Length(note=1/8)) ]]
         ):
         self._channel = channel
         self._key_note = key_note
         self._length: Length = length
         self._trigger_notes: list = trigger_notes
-        self._staff: Staff = staff
         self._device_list: list = None
 
-        self.sort(staff)
+        self.sort()
     
     def getData__channel(self):
         return self._channel
@@ -299,27 +266,15 @@ class Sequence:
     def getData__trigger_notes(self):
         return self._trigger_notes
 
-    def getData__staff(self):
-        return self._staff
-
     def getData__device_list(self):
         return self._device_list
 
-    def getValue__on_staff(self, staff: Staff = None):
-        if (self._staff is not None):
-            return self._staff
-        elif (staff is not None):
-            return staff
-        return get_global_staff()
-
-    def is_position_triggered(self, position: Position, staff: Staff = None):
+    def is_position_triggered(self, position: Position):
         ...
 
-    def getPlayList(self, position: Position = Position(), staff: Staff = None):
+    def getPlayList(self, position: Position = Position()):
         
-        on_staff = self.getValue__on_staff(staff)
-
-        start_time_ms = position.getTime_ms(on_staff)
+        start_time_ms = position.getTime_ms()
 
         play_list = []
         for trigger_note in self._trigger_notes:
@@ -345,7 +300,7 @@ class Sequence:
                 elif (note_operand.__class__ == Velocity):
                     with_velocity = note_operand
 
-            on_time_ms = start_time_ms + on_position.getTime_ms(on_staff)
+            on_time_ms = start_time_ms + on_position.getTime_ms()
             play_list.append({
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
@@ -355,7 +310,7 @@ class Sequence:
                     }
                 })
             
-            off_time_ms = on_time_ms + with_duration.getTime_ms(on_staff)
+            off_time_ms = on_time_ms + with_duration.getTime_ms()
             play_list.append({
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
@@ -387,8 +342,7 @@ class Sequence:
             "key_note": self._key_note,
             "length": None if self._length is None else self._length.getSerialization(),
             "trigger_notes": trigger_notes_serialization,
-            "device_list": self._device_list,
-            "staff": None if self._staff is None else self._staff.getSerialization()
+            "device_list": self._device_list
         }
 
     # CHAINABLE OPERATIONS
@@ -396,7 +350,7 @@ class Sequence:
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "channel" in serialization and "key_note" in serialization and "length" in serialization and
-            "trigger_notes" in serialization and "device_list" in serialization and "staff" in serialization):
+            "trigger_notes" in serialization and "device_list" in serialization):
 
             trigger_notes_serialization = []
             for trigger_note in serialization["trigger_notes"]:
@@ -413,8 +367,6 @@ class Sequence:
                 Length().loadSerialization(serialization["length"])
             self._trigger_notes: list = trigger_notes_serialization
             self._device_list: list = serialization["device_list"]
-            self._staff: Staff = None if serialization["staff"] is None else \
-                Staff().loadSerialization(serialization["staff"])
 
         return self
         
@@ -438,9 +390,6 @@ class Sequence:
         if self._device_list is not None:
             sequence_copy.setData__device_list(self._device_list.copy())
             
-        if self._staff is not None:
-            sequence_copy.setData__staff(self._staff)
-            
         return sequence_copy
 
     def setData__channel(self, channel: int = 10):
@@ -455,17 +404,11 @@ class Sequence:
         self._trigger_notes = trigger_notes
         return self
 
-    def setData__staff(self, staff: Staff = None):
-        self._staff = staff
-        return self
-    
     def setData__device_list(self, device_list: list = ["Midi", "Port", "Synth"]):
         self._device_list = device_list
         return self
 
-    def sort(self, staff: Staff = None):
-
-        on_staff = self.getValue__on_staff(staff)
+    def sort(self):
 
         for trigger_k in range(len(self._trigger_notes), 0, -1):
             for trigger_i in range(trigger_k):
@@ -481,7 +424,7 @@ class Sequence:
                         position_i_1 = self._trigger_notes[trigger_i - 1][operand_j]
                         break
                     
-                if position_i.is_lt(position_i_1, on_staff):
+                if position_i.is_lt(position_i_1):
                     trigger_note = self._trigger_notes[trigger_i]
                     self._trigger_notes[trigger_i] = self._trigger_notes[trigger_i - 1]
                     self._trigger_notes[trigger_i - 1] = trigger_note
@@ -492,18 +435,17 @@ class Sequence:
 
         return self
 
-    def trim(self, position = Position(Length(beats=4)), staff: Staff = None):
+    def trim(self, position = Position(Length(beats=4))):
 
-        self.sort(staff)
+        self.sort()
         sorted_trigger_notes = self._trigger_notes
-        on_staff = self.getValue__on_staff(staff)
 
         for trigger_i in range(0, len(sorted_trigger_notes)):
             for operand_j in range(0, len(sorted_trigger_notes[trigger_i])):
                 if (sorted_trigger_notes[trigger_i][operand_j].__class__ == Position):
                     trigger_position: Position = sorted_trigger_notes[trigger_i][operand_j]
                     break
-            if (trigger_position.is_gt(position, on_staff)):
+            if (trigger_position.is_gt(position)):
                 trim_trigger_i = trigger_i
                 break
 
@@ -560,32 +502,19 @@ class Retrigger:
 
 class Composition:
 
-    def __init__(self, staff: Staff = None):
-        self._staff: Staff = staff
+    def __init__(self):
         self._placed_elements = []
         self._device_list: list = None
-
-    def getData__staff(self):
-        return self._staff
 
     def getData__device_list(self):
         return self._device_list
 
-    def getValue__on_staff(self, staff: Staff = None):
-        if (self._staff is not None):
-            return self._staff
-        elif (staff is not None):
-            return staff
-        return get_global_staff()
-
-    def getPlayList(self, position: Position = Position(), staff: Staff = None):
+    def getPlayList(self, position: Position = Position()):
         
-        on_staff = self.getValue__on_staff(staff)
-
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    placed_element["position"] + position, on_staff
+                    placed_element["position"] + position
                 )
             
         if isinstance(self._device_list, list):
@@ -597,10 +526,6 @@ class Composition:
         return play_list
 
     # CHAINABLE OPERATIONS
-
-    def setData__staff(self, staff: Staff = None):
-        self._staff = staff
-        return self
 
     def setData__device_list(self, device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
         self._device_list = device_list

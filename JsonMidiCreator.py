@@ -7,7 +7,7 @@ from element import *
 
 # global objects
 
-global_staff = Staff(tempo=110)
+set_global_staff(Staff(tempo=110)).setData__measures(4)
 
 # element ojects
 

@@ -81,21 +81,20 @@ global_staff: Staff = Staff()
 def get_global_staff():
     if global_staff is not None and isinstance(global_staff, Staff):
         return global_staff
-    print("Global Staff NOT definned!")
+    print("Global Staff NOT defined!")
     return Staff()
 
 def set_global_staff(staff: Staff = Staff()):
     global_staff = staff
+    return global_staff
 
 class Length:
     
-    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0,
-                 staff: Staff = None):
+    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
         self._measures = measures
         self._beats = beats
         self._note = note
         self._steps = steps
-        self._staff: Staff = staff
 
     def getData__measures(self):
         return self._measures
@@ -109,29 +108,25 @@ class Length:
     def getData__steps(self):
         return self._steps
 
-    def is_eq(self, other_length, staff: Staff = None):
-        return round(self.getTime_ms(staff), 3) == round(other_length.getTime_ms(staff), 3)
+    def is_eq(self, other_length):
+        return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)
     
-    def is_lt(self, other_length, staff: Staff = None):
-        return round(self.getTime_ms(staff), 3) < round(other_length.getTime_ms(staff), 3)
+    def is_lt(self, other_length):
+        return round(self.getTime_ms(), 3) < round(other_length.getTime_ms(), 3)
     
-    def is_gt(self, other_length, staff: Staff = None):
-        return round(self.getTime_ms(staff), 3) > round(other_length.getTime_ms(staff), 3)
+    def is_gt(self, other_length):
+        return round(self.getTime_ms(), 3) > round(other_length.getTime_ms(), 3)
     
-    def is_le(self, other_length, staff: Staff = None):
-        return not self.is_gt(other_length, staff)
+    def is_le(self, other_length):
+        return not self.is_gt(other_length)
     
-    def is_ge(self, other_length, staff: Staff = None):
-        return not self.is_lt(other_length, staff)
+    def is_ge(self, other_length):
+        return not self.is_lt(other_length)
     
     # Type hints as string literals to handle forward references
-    def getTime_ms(self, staff: Staff = None):
+    def getTime_ms(self):
 
         on_staff = get_global_staff()
-        if (self._staff is not None):
-            on_staff = self._staff
-        elif (staff is not None):
-            on_staff = staff
 
         beat_time_ms = 60.0 * 1000 / on_staff.getData__tempo()
         measure_time_ms = beat_time_ms * on_staff.getValue__beats_per_measure()
@@ -147,8 +142,7 @@ class Length:
             "measures": self._measures,
             "beats": self._beats,
             "note": self._note,
-            "steps": self._steps,
-            "staff": None if self._staff is None else self._staff.getSerialization()
+            "steps": self._steps
         }
 
     # CHAINABLE OPERATIONS
@@ -162,7 +156,6 @@ class Length:
             self._beats = serialization["beats"]
             self._note = serialization["note"]
             self._steps = serialization["steps"]
-            self._staff = None if serialization["staff"] is None else Staff().loadSerialization(serialization["staff"])
 
         return self
         
