@@ -3,12 +3,22 @@ class Staff:
     def __init__(self, measures: int = 8,
                 tempo: int = 120,
                 quantization: float = 1/16,
-                time_signature: list = [4, 4]):
+                time_signature: list = [4, 4],
+                channel: int = 1,
+                note_key: int = 60,
+                note_velocity: int = 100,
+                note_duration: float = 1/4,
+                device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
         
         self._measures = measures
         self._tempo = tempo
         self._quantization = quantization
         self._time_signature = time_signature
+        self._channel = channel
+        self._note_key = note_key
+        self._note_velocity = note_velocity
+        self._note_duration = note_duration
+        self._device_list = device_list
 
     def getData__measures(self):
         return self._measures
@@ -21,6 +31,21 @@ class Staff:
 
     def getData__time_signature(self):
         return self._time_signature
+    
+    def getData__channel(self):
+        return self._channel
+    
+    def getData__note_key(self):
+        return self._note_key
+    
+    def getData__note_velocity(self):
+        return self._note_velocity
+    
+    def getData__note_duration(self):
+        return self._note_duration
+    
+    def getData__device_list(self):
+        return self._device_list
     
     def getValue__steps_per_note(self):
         return round(1 / self._quantization, 9) # round avoids floating-point error
@@ -76,6 +101,26 @@ class Staff:
         self._time_signature = time_signature
         return self
 
+    def setData__channel(self, channel: int = 1):
+        self._channel = channel
+        return self
+    
+    def setData__note_key(self, note_key: int = 60):
+        self._note_key = note_key
+        return self
+    
+    def setData__note_velocity(self, note_velocity: int = 100):
+        self._note_velocity = note_velocity
+        return self
+    
+    def setData__note_duration(self, note_duration: float = 1/4):
+        self._note_duration = note_duration
+        return self
+    
+    def setData__device_list(self, device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
+        self._device_list = device_list
+        return self
+    
 global_staff: Staff = Staff()
 
 def get_global_staff():

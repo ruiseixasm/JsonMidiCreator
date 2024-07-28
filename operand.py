@@ -126,59 +126,6 @@ class Length:
                 self._steps
             )
 
-class Duration(Length):
-    
-    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
-        super().__init__(measures, beats, note, steps)
-    
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "length": super().getSerialization()
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        super().loadSerialization(serialization)
-
-        return self
-        
-    def copy(self):
-        return Duration(self._measures, self._beats, self._note, self._steps)
-
-    # adding two durations 
-    def __add__(self, other_length: Length):
-        return Duration(
-                self._measures + other_length.getData__measures(),
-                self._beats + other_length.getData__beats(),
-                self._note + other_length.getData__note(),
-                self._steps + other_length.getData__steps(),
-            )
-    
-    # subtracting two durations 
-    def __sub__(self, other_length: Length):
-        return Duration(
-                self._measures - other_length.getData__measures(),
-                self._beats - other_length.getData__beats(),
-                self._note - other_length.getData__note(),
-                self._steps - other_length.getData__steps(),
-            )
-
-    # multiply two durations 
-    def __mul__(self, scalar: float):
-        return Duration(
-                self._measures * scalar,
-                self._beats * scalar,
-                self._note * scalar,
-                self._steps * scalar
-            )
-    
-    # multiply with a scalar
-    def __rmul__(self, scalar: float):
-        return self * scalar    
-
-
 class Position(Length):
 
     def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
@@ -231,6 +178,63 @@ class Position(Length):
     def __rmul__(self, scalar: float):
         return self * scalar    
 
+class Duration(Length):
+    
+    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
+        super().__init__(measures, beats, note, steps)
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "length": super().getSerialization()
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        super().loadSerialization(serialization)
+
+        return self
+        
+    def copy(self):
+        return Duration(self._measures, self._beats, self._note, self._steps)
+
+    # adding two durations 
+    def __add__(self, other_length: Length):
+        return Duration(
+                self._measures + other_length.getData__measures(),
+                self._beats + other_length.getData__beats(),
+                self._note + other_length.getData__note(),
+                self._steps + other_length.getData__steps(),
+            )
+    
+    # subtracting two durations 
+    def __sub__(self, other_length: Length):
+        return Duration(
+                self._measures - other_length.getData__measures(),
+                self._beats - other_length.getData__beats(),
+                self._note - other_length.getData__note(),
+                self._steps - other_length.getData__steps(),
+            )
+
+    # multiply two durations 
+    def __mul__(self, scalar: float):
+        return Duration(
+                self._measures * scalar,
+                self._beats * scalar,
+                self._note * scalar,
+                self._steps * scalar
+            )
+    
+    # multiply with a scalar
+    def __rmul__(self, scalar: float):
+        return self * scalar    
+
+class Range:
+
+    def __init__(self, position: Position, length: Length):
+        self._position = position
+        self._length = length
 
 
 class Value:

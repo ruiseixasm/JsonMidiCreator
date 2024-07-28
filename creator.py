@@ -48,7 +48,7 @@ class Configuration:
 
 
 
-class PlayList:
+class JsonMidiCreator:
 
     def __init__(self):
         ...
@@ -71,6 +71,8 @@ class PlayList:
         with open(filename, "w") as outfile:
             json.dump(json_file_dict, outfile)
 
+        return self
+
     def loadJsonMidiCreator(self, filename):
 
         with open(filename, "r") as infile:
@@ -88,6 +90,8 @@ class PlayList:
             }
         with open(filename, "w") as outfile:
             json.dump(json_file_dict, outfile)
+            
+        return self
 
     def jsonMidiPlay(self, play_list):
 
@@ -110,3 +114,4 @@ class PlayList:
         except Exception as e:
             print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
 
+        return self
