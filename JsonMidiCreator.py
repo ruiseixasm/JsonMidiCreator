@@ -29,7 +29,7 @@ second_sequence = first_sequence.copy()
 second_sequence.op_add(Position(Length(steps=2)))
 
 # print(second_sequence.getSerialization())
-print(Length(beats=4).is_eq(Length(measures=1)))
+print(Length(beats=4) == Length(measures=1))
 
 placed_elements = Composition()
 # placed_elements.placeElement(default_clock, Position(Length()))

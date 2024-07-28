@@ -424,7 +424,7 @@ class Sequence:
                         position_i_1 = self._trigger_notes[trigger_i - 1][operand_j]
                         break
                     
-                if position_i.is_lt(position_i_1):
+                if position_i < position_i_1:
                     trigger_note = self._trigger_notes[trigger_i]
                     self._trigger_notes[trigger_i] = self._trigger_notes[trigger_i - 1]
                     self._trigger_notes[trigger_i - 1] = trigger_note

@@ -85,6 +85,7 @@ def get_global_staff():
     return Staff()
 
 def set_global_staff(staff: Staff = Staff()):
+    global global_staff     # Declare global variable
     global_staff = staff
     return global_staff
 
@@ -108,20 +109,20 @@ class Length:
     def getData__steps(self):
         return self._steps
 
-    def is_eq(self, other_length):
+    def __eq__(self, other_length):
         return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)
     
-    def is_lt(self, other_length):
+    def __lt__(self, other_length):
         return round(self.getTime_ms(), 3) < round(other_length.getTime_ms(), 3)
     
-    def is_gt(self, other_length):
+    def __gt__(self, other_length):
         return round(self.getTime_ms(), 3) > round(other_length.getTime_ms(), 3)
     
-    def is_le(self, other_length):
-        return not self.is_gt(other_length)
+    def __le__(self, other_length):
+        return not (self > other_length)
     
-    def is_ge(self, other_length):
-        return not self.is_lt(other_length)
+    def __ge__(self, other_length):
+        return not (self < other_length)
     
     # Type hints as string literals to handle forward references
     def getTime_ms(self):
