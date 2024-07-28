@@ -12,12 +12,13 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, duration = Duration(Length(measures=8)), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
+    def __init__(self, duration = Duration(Length(measures=8)), mode: ClockModes = ClockModes.entire,
+                 staff: Staff = None, pulses_per_quarternote = 24):
         self._duration: Duration = duration
         self._mode = mode
+        self._staff: Staff = staff
         self._pulses_per_quarternote = pulses_per_quarternote
         self._device_list: list = None
-        self._staff: Staff = None
 
     def getData__duration(self):
         return self._duration
@@ -31,9 +32,13 @@ class Clock:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Position = Position()):
+    def getPlayList(self, position: Position = Position(), staff: Staff = None):
         
-        on_staff = self._staff if self._staff is not None else staff
+        on_staff = get_global_staff()
+        if (self._staff is not None):
+            on_staff = self._staff
+        elif (staff is not None):
+            on_staff = staff
 
         clock_duration = Duration(Length(on_staff.getData__measures())) if self._mode == ClockModes.entire else self._duration
 
@@ -134,9 +139,13 @@ class Note:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Position = Position()):
+    def getPlayList(self, position: Position = Position(), staff: Staff = None):
         
-        on_staff = self._staff if self._staff is not None else staff
+        on_staff = get_global_staff()
+        if (self._staff is not None):
+            on_staff = self._staff
+        elif (staff is not None):
+            on_staff = staff
 
         on_time_ms = position.getTime_ms(on_staff)
         off_time_ms = on_time_ms + self._duration.getTime_ms(on_staff)
@@ -263,14 +272,15 @@ class Sequence:
             [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/8)) ],
             [ Position(Length(steps=4)), Velocity(100), Duration(Length(note=1/8)) ],
             [ Position(Length(steps=8)), Velocity(100), Duration(Length(note=1/8)) ],
-            [ Position(Length(steps=12)), Velocity(100), Duration(Length(note=1/8)) ]
-        ]):
+            [ Position(Length(steps=12)), Velocity(100), Duration(Length(note=1/8)) ]],
+            staff: Staff = None
+        ):
         self._channel = channel
         self._key_note = key_note
         self._length_beats = length_beats   # to change to Length type
         self._sequence: list = sequence
+        self._staff: Staff = staff
         self._device_list: list = None
-        self._staff: Staff = None
     
     def getData__device_list(self):
         return self._device_list
@@ -278,9 +288,13 @@ class Sequence:
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Position = Position()):
+    def getPlayList(self, position: Position = Position(), staff: Staff = None):
         
-        on_staff = self._staff if self._staff is not None else staff
+        on_staff = get_global_staff()
+        if (self._staff is not None):
+            on_staff = self._staff
+        elif (staff is not None):
+            on_staff = staff
 
         start_time_ms = position.getTime_ms(on_staff)
 
@@ -429,25 +443,29 @@ class Retrigger:
 
 class Composition:
 
-    def __init__(self):
+    def __init__(self, staff: Staff = None):
+        self._staff: Staff = staff
         self._placed_elements = []
         self._device_list: list = None
-        self._staff: Staff = None
-
-    def getData__device_list(self):
-        return self._device_list
 
     def getData__staff(self):
         return self._staff
 
-    def getPlayList(self, staff = Staff(), position: Position = Position()):
+    def getData__device_list(self):
+        return self._device_list
+
+    def getPlayList(self, position: Position = Position(), staff: Staff = None):
         
-        on_staff = self._staff if self._staff is not None else staff
+        on_staff = get_global_staff()
+        if (self._staff is not None):
+            on_staff = self._staff
+        elif (staff is not None):
+            on_staff = staff
 
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list + placed_element["element"].getPlayList(
-                    on_staff, placed_element["position"] + position
+                    placed_element["position"] + position, on_staff
                 )
             
         if isinstance(self._device_list, list):
@@ -459,6 +477,10 @@ class Composition:
         return play_list
 
     # CHAINABLE OPERATIONS
+
+    def setData__staff(self, staff: Staff = None):
+        self._staff = staff
+        return self
 
     def setData__device_list(self, device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
         self._device_list = device_list

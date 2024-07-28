@@ -5,13 +5,12 @@ from element import *
 
 # print("Test Creator")
 
-# staff objects
+# global objects
 
-default_staff = Staff(4, 110)
+global_staff = Staff(tempo=110)
 
 # element ojects
 
-default_clock = Clock()
 default_note = Note()
 
 sequence = [
@@ -33,16 +32,16 @@ second_sequence.op_add(Position(Length(steps=2)))
 print(Length(steps=4) == Length(measures=2))
 print(Length(note=1/2) == Length(note=1/2))
 print(Length(beats=4) == Length(measures=1))
-print(Length(beats=4).equal_on_staff(Length(measures=1), default_staff))
+print(Length(beats=4).equal_on_staff(Length(measures=1)))
 
 placed_elements = Composition()
 # placed_elements.placeElement(default_clock, Position(Length()))
-placed_elements.placeElement(default_note, Position(Length(1, 0.25)))
+placed_elements.placeElement(default_note, Position(Length(beats=1)))
 placed_elements.placeElement(first_sequence, Position(Length(1)))
 placed_elements.placeElement(second_sequence, Position(Length(1)))
 
 placed_elements.setData__device_list();
-elements_list = placed_elements.getPlayList(default_staff)
+elements_list = placed_elements.getPlayList()
 
 # print(elements_list)
 # print(isinstance(default_note.getData__device_list(), list))

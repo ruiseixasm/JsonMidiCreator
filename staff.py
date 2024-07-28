@@ -76,14 +76,25 @@ class Staff:
         self._time_signature = time_signature
         return self
 
+global_staff: Staff = Staff()
+
+def get_global_staff():
+    if global_staff is not None:
+        return global_staff
+    return Staff()
+
+def set_global_staff(staff: Staff = Staff()):
+    global_staff = staff
 
 class Length:
     
-    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
+    def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0,
+                 staff: Staff = None):
         self._measures = measures
         self._beats = beats
         self._note = note
         self._steps = steps
+        self._staff: Staff = staff
 
     def getData__measures(self):
         return self._measures
@@ -105,15 +116,22 @@ class Length:
                 other_length.getData__steps())
     
     # Type hints as string literals to handle forward references
-    def equal_on_staff(self, other_length: 'Length', staff: Staff) -> bool:
+    def equal_on_staff(self, other_length: 'Length', staff: Staff = None) -> bool:
         return round(self.getTime_ms(staff), 3) == round(other_length.getTime_ms(staff), 3)
     
     # Type hints as string literals to handle forward references
-    def getTime_ms(self, staff: Staff):
-        beat_time_ms = 60.0 * 1000 / staff.getData__tempo()
-        measure_time_ms = beat_time_ms * staff.getValue__beats_per_measure()
-        note_time_ms = beat_time_ms * staff.getValue__beats_per_note()
-        step_time_ms = note_time_ms / staff.getValue__steps_per_note()
+    def getTime_ms(self, staff: Staff = None):
+
+        on_staff = get_global_staff()
+        if (self._staff is not None):
+            on_staff = self._staff
+        elif (staff is not None):
+            on_staff = staff
+
+        beat_time_ms = 60.0 * 1000 / on_staff.getData__tempo()
+        measure_time_ms = beat_time_ms * on_staff.getValue__beats_per_measure()
+        note_time_ms = beat_time_ms * on_staff.getValue__beats_per_note()
+        step_time_ms = note_time_ms / on_staff.getValue__steps_per_note()
         
         return self._measures * measure_time_ms + self._beats * beat_time_ms \
                 + self._note * note_time_ms + self._steps * step_time_ms
