@@ -38,7 +38,7 @@ class Clock:
         pulses_per_measure = pulses_per_beat * on_staff.getValue__beats_per_measure()
         clock_pulses = round(pulses_per_measure * clock_duration.getData__length().getData__measures())
 
-        single_measure_duration_ms = on_staff.getTime_ms(Length(1))
+        single_measure_duration_ms = Length(measures=1).getTime_ms()
         clock_start_ms = position.getTime_ms()
         clock_stop_ms = clock_start_ms + clock_duration.getTime_ms()
 
@@ -268,6 +268,22 @@ class Sequence:
 
     def getData__device_list(self):
         return self._device_list
+    
+    def getList__trigger_operands(self, opperand_type = Position):
+        trigger_operands = []
+        for trigger_i in range(0, len(self._trigger_notes)):
+            for operand_j in range(0, len(self._trigger_notes[trigger_i])):
+                if (self._trigger_notes[trigger_i][operand_j].__class__ == opperand_type):
+                    trigger_operands.append({
+                            "index": operand_j,
+                            "opperand": self._trigger_notes[trigger_i][operand_j]
+                        })
+                    break
+                trigger_operands.append({
+                        "index": -1,
+                        "opperand": None
+                    })
+        return trigger_operands
 
     def is_position_triggered(self, position: Position):
         ...
@@ -453,17 +469,25 @@ class Sequence:
     
         return self
 
-    def __add__(self, other_sequence: 'Sequence'):
-        self.sort()
+    # Right add (+) means is self being added to other_sequence
+    def __radd__(self, other_sequence: 'Sequence'):
+        merged_sequence = other_sequence.copy()     # Right add
+        merged_trigger_notes = other_sequence.getData__trigger_notes() + self._trigger_notes
+        merged_sequence.setData__trigger_notes(merged_trigger_notes)
+
+        return other_sequence.sort()
+
+    def __add__(self, operand = Position(Length(note=1/4))):
+        incremented_sequence = self.copy()
+        operands_list = self.getList__trigger_operands(operand.__class__)
+        trigger_notes = incremented_sequence.getData__trigger_notes()
         
+        for operand_j in range(len(operands_list)):
+            if operands_list[operand_j]["opperand"] is not None:
+                trigger_notes[operand_j][operands_list[operand_j]["index"]] = operands_list[operand_j]["opperand"] + operand
 
+        return incremented_sequence
 
-        self._trigger_notes += other_sequence.getData__trigger_notes()
-        self.sort()
-
-
-
-        return self
 
     def __mul__(self, n_times: int):
         actual_length = self._length

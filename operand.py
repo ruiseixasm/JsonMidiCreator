@@ -189,6 +189,22 @@ class Velocity:
     def copy(self):
         return Velocity(self._velocity)
 
+    # adding two positions 
+    def __add__(self, other_velocity):
+        return Velocity(self._velocity + other_velocity.getData__velocity())
+    
+    # subtracting two positions 
+    def __sub__(self, other_velocity):
+        return Velocity(self._velocity - other_velocity.getData__velocity())
+
+    # multiply two positions 
+    def __mul__(self, other_velocity):
+        return Velocity(self._velocity * other_velocity.getData__velocity())
+    
+    # multiply with a scalar
+    def __rmul__(self, scalar: float):
+        return Velocity(scalar * self._velocity.getData__velocity())
+    
 
 class IntervalQuality:
 

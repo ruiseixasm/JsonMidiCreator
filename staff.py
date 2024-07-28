@@ -85,7 +85,7 @@ def get_global_staff():
     return Staff()
 
 def set_global_staff(staff: Staff = Staff()):
-    global global_staff     # Declare global variable
+    global global_staff     # Declares it as global variable
     global_staff = staff
     return global_staff
 

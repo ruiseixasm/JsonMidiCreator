@@ -12,6 +12,7 @@ set_global_staff(Staff(tempo=110)).setData__measures(4)
 # element ojects
 
 default_note = Note()
+default_clock = Clock()
 
 trigger_notes = [
             [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/16)) ],
@@ -26,13 +27,13 @@ trigger_notes = [
 
 first_sequence = Sequence(10, 60, Length(beats=2), trigger_notes)
 second_sequence = first_sequence.copy()
-second_sequence.op_add(Position(Length(steps=2)))
+second_sequence += Position(Length(steps=2))
 
 # print(second_sequence.getSerialization())
 print(Length(beats=4) == Length(measures=1))
 
 placed_elements = Composition()
-# placed_elements.placeElement(default_clock, Position(Length()))
+placed_elements.placeElement(default_clock, Position(Length(0)))
 placed_elements.placeElement(default_note, Position(Length(beats=1)))
 placed_elements.placeElement(first_sequence, Position(Length(1)))
 placed_elements.placeElement(second_sequence, Position(Length(1)))
