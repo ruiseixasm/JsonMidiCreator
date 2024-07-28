@@ -12,7 +12,7 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, duration = Duration(Length(measures=8)), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
+    def __init__(self, duration = Duration(measures=8), mode: ClockModes = ClockModes.entire, pulses_per_quarternote = 24):
         self._duration: Duration = duration
         self._mode = mode
         self._pulses_per_quarternote = pulses_per_quarternote
@@ -31,12 +31,12 @@ class Clock:
         
         on_staff = get_global_staff()
 
-        clock_duration = Duration(Length(on_staff.getData__measures())) if self._mode == ClockModes.entire else self._duration
+        clock_duration = Duration(on_staff.getData__measures()) if self._mode == ClockModes.entire else self._duration
 
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / on_staff.getValue__beats_per_note()
         pulses_per_measure = pulses_per_beat * on_staff.getValue__beats_per_measure()
-        clock_pulses = round(pulses_per_measure * clock_duration.getData__length().getData__measures())
+        clock_pulses = round(pulses_per_measure * clock_duration.getData__measures())
 
         single_measure_duration_ms = Length(measures=1).getTime_ms()
         clock_start_ms = position.getTime_ms()
@@ -67,7 +67,7 @@ class Clock:
             play_list.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_duration_ms \
-                                     * clock_duration.getData__length().getData__measures() * clock_pulse / clock_pulses, 3),
+                                     * clock_duration.getData__measures() * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8
                     }
@@ -101,7 +101,7 @@ class Clock:
 
 class Note:
 
-    def __init__(self, channel = 1, key_note = 60, velocity = 100, duration = Duration(Length(note=1/4))):
+    def __init__(self, channel = 1, key_note = 60, velocity = 100, duration = Duration(note=1/4)):
         self._channel = channel
         self._key_note = key_note
         self._velocity = velocity
@@ -243,12 +243,7 @@ class Automation:
 
 class Sequence:
 
-    def __init__(self, channel = 10, key_note = 60, length = Length(beats=4), trigger_notes: list = [
-            [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/8)) ],
-            [ Position(Length(steps=4)), Velocity(100), Duration(Length(note=1/8)) ],
-            [ Position(Length(steps=8)), Velocity(100), Duration(Length(note=1/8)) ],
-            [ Position(Length(steps=12)), Velocity(100), Duration(Length(note=1/8)) ]]
-        ):
+    def __init__(self, channel = 10, key_note = 60, length = Length(beats=4), trigger_notes: list = []):
         self._channel = channel
         self._key_note = key_note
         self._length: Length = length
@@ -295,8 +290,8 @@ class Sequence:
         play_list = []
         for trigger_note in self._trigger_notes:
 
-            on_position = Position(Length(0))
-            with_duration = Duration(Length(note=1/4))
+            on_position = Position(0)
+            with_duration = Duration(note=1/4)
             with_velocity = Velocity(100)
 
             # for note_operand in trigger_note:
@@ -451,7 +446,7 @@ class Sequence:
 
         return self
 
-    def trim(self, position = Position(Length(beats=4))):
+    def trim(self, position = Position(beats=4)):
 
         self.sort()
         sorted_trigger_notes = self._trigger_notes
@@ -477,7 +472,7 @@ class Sequence:
 
         return other_sequence.sort()
 
-    def __add__(self, operand = Position(Length(note=1/4))):
+    def __add__(self, operand = Position(note=1/4)):
         incremented_sequence = self.copy()
         operands_list = self.getList__trigger_operands(operand.__class__)
         trigger_notes = incremented_sequence.getData__trigger_notes()
