@@ -79,8 +79,9 @@ class Staff:
 global_staff: Staff = Staff()
 
 def get_global_staff():
-    if global_staff is not None:
+    if global_staff is not None and isinstance(global_staff, Staff):
         return global_staff
+    print("Global Staff NOT definned!")
     return Staff()
 
 def set_global_staff(staff: Staff = Staff()):
@@ -108,16 +109,20 @@ class Length:
     def getData__steps(self):
         return self._steps
 
-    def __eq__(self, other_length):       
-        return (self._measures, self._beats, self._note, self._steps) == \
-               (other_length.getData__measures(),
-                other_length.getData__beats(),
-                other_length.getData__note(),
-                other_length.getData__steps())
-    
-    # Type hints as string literals to handle forward references
-    def equal_on_staff(self, other_length: 'Length', staff: Staff = None) -> bool:
+    def is_eq(self, other_length, staff: Staff = None):
         return round(self.getTime_ms(staff), 3) == round(other_length.getTime_ms(staff), 3)
+    
+    def is_lt(self, other_length, staff: Staff = None):
+        return round(self.getTime_ms(staff), 3) < round(other_length.getTime_ms(staff), 3)
+    
+    def is_gt(self, other_length, staff: Staff = None):
+        return round(self.getTime_ms(staff), 3) > round(other_length.getTime_ms(staff), 3)
+    
+    def is_le(self, other_length, staff: Staff = None):
+        return not self.is_gt(other_length, staff)
+    
+    def is_ge(self, other_length, staff: Staff = None):
+        return not self.is_lt(other_length, staff)
     
     # Type hints as string literals to handle forward references
     def getTime_ms(self, staff: Staff = None):
@@ -142,7 +147,8 @@ class Length:
             "measures": self._measures,
             "beats": self._beats,
             "note": self._note,
-            "steps": self._steps
+            "steps": self._steps,
+            "staff": None if self._staff is None else self._staff.getSerialization()
         }
 
     # CHAINABLE OPERATIONS
@@ -156,6 +162,7 @@ class Length:
             self._beats = serialization["beats"]
             self._note = serialization["note"]
             self._steps = serialization["steps"]
+            self._staff = None if serialization["staff"] is None else Staff().loadSerialization(serialization["staff"])
 
         return self
         

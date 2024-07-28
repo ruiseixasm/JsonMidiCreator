@@ -13,7 +13,7 @@ global_staff = Staff(tempo=110)
 
 default_note = Note()
 
-sequence = [
+trigger_notes = [
             [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/16)) ],
             [ Position(Length(steps=1)), Velocity(100), Duration(Length(note=1/16)) ],
             [ Position(Length(steps=2)), Velocity(100), Duration(Length(note=1/16)) ],
@@ -24,15 +24,12 @@ sequence = [
             [ Position(Length(steps=7)), Velocity(100), Duration(Length(note=1/16)) ]
         ]
 
-first_sequence = Sequence(10, 60, 2, sequence)
+first_sequence = Sequence(10, 60, Length(beats=2), trigger_notes)
 second_sequence = first_sequence.copy()
 second_sequence.op_add(Position(Length(steps=2)))
 
 # print(second_sequence.getSerialization())
-print(Length(steps=4) == Length(measures=2))
-print(Length(note=1/2) == Length(note=1/2))
-print(Length(beats=4) == Length(measures=1))
-print(Length(beats=4).equal_on_staff(Length(measures=1)))
+print(Length(beats=4).is_eq(Length(measures=1)))
 
 placed_elements = Composition()
 # placed_elements.placeElement(default_clock, Position(Length()))

@@ -9,6 +9,21 @@ class Duration:
     def getData__length(self):
         return self._length
 
+    def is_eq(self, other_length, staff: Staff = None):
+        return self._length.is_eq(other_length, staff)
+    
+    def is_lt(self, other_length, staff: Staff = None):
+        return self._length.is_lt(other_length, staff)
+    
+    def is_gt(self, other_length, staff: Staff = None):
+        return self._length.is_gt(other_length, staff)
+    
+    def is_le(self, other_length, staff: Staff = None):
+        return self._length.is_le(other_length, staff)
+    
+    def is_ge(self, other_length, staff: Staff = None):
+        return self._length.is_ge(other_length, staff)
+    
     def getTime_ms(self, staff: Staff = None):
         return self._length.getTime_ms(staff)
         
@@ -57,6 +72,21 @@ class Position:
     def getData__length(self):
         return self._length
 
+    def is_eq(self, other_length, staff: Staff = None):
+        return self._length.is_eq(other_length, staff)
+    
+    def is_lt(self, other_length, staff: Staff = None):
+        return self._length.is_lt(other_length, staff)
+    
+    def is_gt(self, other_length, staff: Staff = None):
+        return self._length.is_gt(other_length, staff)
+    
+    def is_le(self, other_length, staff: Staff = None):
+        return self._length.is_le(other_length, staff)
+    
+    def is_ge(self, other_length, staff: Staff = None):
+        return self._length.is_ge(other_length, staff)
+    
     def getTime_ms(self, staff: Staff = None):
         return self._length.getTime_ms(staff)
         

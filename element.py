@@ -268,7 +268,7 @@ class Automation:
 
 class Sequence:
 
-    def __init__(self, channel = 1, key_note = 60, length_beats = 4, sequence: list = [
+    def __init__(self, channel = 1, key_note = 60, length = Length(beats=4), trigger_notes: list = [
             [ Position(Length(steps=0)), Velocity(100), Duration(Length(note=1/8)) ],
             [ Position(Length(steps=4)), Velocity(100), Duration(Length(note=1/8)) ],
             [ Position(Length(steps=8)), Velocity(100), Duration(Length(note=1/8)) ],
@@ -277,8 +277,8 @@ class Sequence:
         ):
         self._channel = channel
         self._key_note = key_note
-        self._length_beats = length_beats   # to change to Length type
-        self._sequence: list = sequence
+        self._length: Length = length
+        self._trigger_notes: list = trigger_notes
         self._staff: Staff = staff
         self._device_list: list = None
     
@@ -299,7 +299,7 @@ class Sequence:
         start_time_ms = position.getTime_ms(on_staff)
 
         play_list = []
-        for trigger_note in self._sequence:
+        for trigger_note in self._trigger_notes:
 
             on_position = Position(Length(0))
             with_duration = Duration(Length(note=1/4))
@@ -349,21 +349,21 @@ class Sequence:
         return play_list
     
     def getSerialization(self):
-        sequence_serialization = []
-        for trigger_note in self._sequence:
+        trigger_notes_serialization = []
+        for trigger_note in self._trigger_notes:
             note_operand_serialization = []
             for note_operand in trigger_note:
                 note_operand_serialization.append(
                     note_operand.getSerialization()
                 )
-            sequence_serialization.append(note_operand_serialization)
+            trigger_notes_serialization.append(note_operand_serialization)
 
         return {
             "class": self.__class__.__name__,
             "channel": self._channel, 
             "key_note": self._key_note,
-            "length_beats": self._length_beats,
-            "sequence": sequence_serialization,
+            "length": None if self._length is None else self._length.getSerialization(),
+            "trigger_notes": trigger_notes_serialization,
             "device_list": self._device_list,
             "staff": None if self._staff is None else self._staff.getSerialization()
         }
@@ -372,30 +372,32 @@ class Sequence:
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "channel" in serialization and "key_note" in serialization and "length_beats" in serialization and
-            "sequence" in serialization and "device_list" in serialization and "staff" in serialization):
+            "channel" in serialization and "key_note" in serialization and "length" in serialization and
+            "trigger_notes" in serialization and "device_list" in serialization and "staff" in serialization):
 
-            sequence_serialization = []
-            for trigger_note in serialization["sequence"]:
+            trigger_notes_serialization = []
+            for trigger_note in serialization["trigger_notes"]:
                 note_operand_serialization = []
                 for note_operand in trigger_note:
                     note_operand_serialization.append(
                         globals()[note_operand["class"]].loadSerialization(note_operand)
                     )
-                sequence_serialization.append(note_operand_serialization)
+                trigger_notes_serialization.append(note_operand_serialization)
 
-            self._channel = serialization["sequence"]
+            self._channel = serialization["channel"]
             self._key_note = serialization["key_note"]
-            self._length_beats = serialization["length_beats"]   # to change to Length type
-            self._sequence: list = sequence_serialization
+            self._length = None if serialization["length"] is None else \
+                Length().loadSerialization(serialization["length"])
+            self._trigger_notes: list = trigger_notes_serialization
             self._device_list: list = serialization["device_list"]
-            self._staff: Staff = None if serialization["staff"] is None else Staff().loadSerialization(serialization["sequence"])
+            self._staff: Staff = None if serialization["staff"] is None else \
+                Staff().loadSerialization(serialization["staff"])
 
         return self
         
     def copy(self):
         device_list_copy = []
-        for trigger_note in self._sequence:
+        for trigger_note in self._trigger_notes:
             note_operand_copy = []
             for note_operand in trigger_note:
                 note_operand_copy.append(
@@ -406,7 +408,7 @@ class Sequence:
         sequence_copy = Sequence(
             self._channel,
             self._key_note,
-            self._length_beats,
+            self._length,
             device_list_copy
         )
 
@@ -425,12 +427,32 @@ class Sequence:
     def setData__staff(self, staff: Staff = None):
         self._staff = staff
         return self
+    
+    def __mul__(self, n_times: int):
+        actual_length = self._length
+        n_times = round(n_times)
+        new_length = actual_length * n_times
+
+        in_range_trigger_notes = []
+        out_range_trigger_notes = []
+
+        for trigger_note in self._trigger_notes:
+            for operand in trigger_note:
+                if operand.__class__ == Position:
+                    if operand.is_gt(actual_length):
+                        out_range_trigger_notes.append(trigger_note)
+                    else:
+                        in_range_trigger_notes.append(trigger_note)
+
+        # Better to develop new Sequence function to help on this one as delegation (self call)
+
+        return self
 
     def op_add(self, operand = Duration()):
-        for trigger_i in range(0, len(self._sequence)):
-            for operand_j in range(0, len(self._sequence[trigger_i])):
-                if (self._sequence[trigger_i][operand_j].__class__ == operand.__class__):
-                    self._sequence[trigger_i][operand_j] += operand
+        for trigger_i in range(0, len(self._trigger_notes)):
+            for operand_j in range(0, len(self._trigger_notes[trigger_i])):
+                if (self._trigger_notes[trigger_i][operand_j].__class__ == operand.__class__):
+                    self._trigger_notes[trigger_i][operand_j] += operand
 
 
 
