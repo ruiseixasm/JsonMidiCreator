@@ -48,7 +48,7 @@ class Configuration:
 
 
 
-class JsonMidiCreator:
+class Creator:
 
     def __init__(self):
         ...

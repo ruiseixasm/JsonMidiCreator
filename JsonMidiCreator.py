@@ -7,26 +7,25 @@ from creator import *
 
 # global objects
 
-set_global_staff(Staff(tempo=110)).setData__measures(2)
+set_global_staff(Staff(tempo=110)).setData__measures(4)
 
 # element ojects
 
-default_note = Note()
-note_play_list = default_note.getPlayList(position=Position(beats=3))
-print(note_play_list)
-JsonMidiCreator().saveJsonMidiPlay(note_play_list, "example_play_file.json").jsonMidiPlay(note_play_list)
-# default_clock = Clock()
+play_list = Note().getPlayList(Position(beats=3))
+play_list += Clock().getPlayList()
 
-# trigger_notes = [
-#             [ Position(steps=0), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=1), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=2), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=3), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=4), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=5), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=6), Velocity(100), Duration(note=1/16) ],
-#             [ Position(steps=7), Velocity(100), Duration(note=1/16) ]
-#         ]
+trigger_notes = [
+        Note(Position(steps=0), None, Duration(note=1/16)),
+        Note(Position(steps=1), None, Duration(note=1/16)),
+        Note(Position(steps=2), None, Duration(note=1/16)),
+        Note(Position(steps=3), None, Duration(note=1/16)),
+        Note(Position(steps=4), None, Duration(note=1/16)),
+        Note(Position(steps=5), None, Duration(note=1/16)),
+        Note(Position(steps=6), None, Duration(note=1/16)),
+        Note(Position(steps=7), None, Duration(note=1/16))
+    ]
+play_list += Sequence(trigger_notes=trigger_notes).getPlayList(Position(measures=1))
+print(play_list)
 
 # first_sequence = Sequence(10, 60, Length(beats=2), trigger_notes)
 # second_sequence = first_sequence.copy()
@@ -58,3 +57,5 @@ JsonMidiCreator().saveJsonMidiPlay(note_play_list, "example_play_file.json").jso
 
 # default_creator.saveJsonMidiCreator(second_sequence.getSerialization(), "_jsonMidiCreator.json")
 # print(default_creator.loadJsonMidiCreator("_jsonMidiCreator.json"))
+
+Creator().saveJsonMidiPlay(play_list, "example_play_file.json").jsonMidiPlay(play_list)

@@ -11,12 +11,16 @@ class ClockModes(enum.Enum):
 
 class Clock:
 
-    def __init__(self, position: Position = Position(0), length: Length = None, mode: ClockModes = ClockModes.single, device_list: list = None, pulses_per_quarternote: int = 24):
+    def __init__(self, position: Position = Position(0), length: Length = None, mode: ClockModes = ClockModes.single,
+                 device_list: list[str] = None, pulses_per_quarternote: int = 24):
         self._position: Position = position
         self._length: Length = length
         self._mode = mode
-        self._device_list: list = device_list
+        self._device_list: list[str] = device_list
         self._pulses_per_quarternote = pulses_per_quarternote
+
+    def getData__position(self):
+        return self._position
 
     def getData__length(self):
         return self._length
@@ -27,11 +31,14 @@ class Clock:
     def getData__device_list(self):
         return self._device_list
 
+    def getData__pulses_per_quarternote(self):
+        return self._pulses_per_quarternote
+
     def getPlayList(self, position: Position = None):
         
         on_staff = get_global_staff()
         position = Position(0) if position is None else position
-
+        device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
         clock_length = Length(on_staff.getData__measures()) if self._length is None else self._length
 
         pulses_per_note = 4 * self._pulses_per_quarternote
@@ -43,14 +50,16 @@ class Clock:
         clock_start_ms = position.getTime_ms()
         clock_stop_ms = clock_start_ms + clock_length.getTime_ms()
 
-        # System Real-Time Message         Status Byte 
-        # ------------------------         -----------
-        # Timing Clock                         F8
-        # Start Sequence                       FA
-        # Continue Sequence                    FB
-        # Stop Sequence                        FC
-        # Active Sensing                       FE
-        # System Reset                         FF
+        """
+            System Real-Time Message         Status Byte 
+            ------------------------         -----------
+            Timing Clock                         F8
+            Start Sequence                       FA
+            Continue Sequence                    FB
+            Stop Sequence                        FC
+            Active Sensing                       FE
+            System Reset                         FF
+        """
 
         play_list = [
                 {
@@ -84,23 +93,40 @@ class Clock:
                 }
             )
         
-        if isinstance(self._device_list, list):
+        if isinstance(device_list, list):
             for list_element in play_list:
-                list_element["midi_message"]["device"] = self._device_list
+                list_element["midi_message"]["device"] = device_list
 
         return play_list
 
     # CHAINABLE OPERATIONS
 
-    def setData__device_list(self, device_list: list = None):
+    def setData__position(self, position: Position = Position(0)):
+        self._position = position
+        return self
+
+    def setData__length(self, length: Length = None):
+        self._length = length
+        return self
+
+    def setData__mode(self, mode: ClockModes = ClockModes.single):
+        self._mode = mode
+        return self
+
+    def setData__device_list(self, device_list: list[str] = None):
         self._device_list = device_list
         return self
 
+    def setData__pulses_per_quarternote(self, pulses_per_quarternote: int = 24):
+        self._pulses_per_quarternote = pulses_per_quarternote
+        return self
+                 
 
 class Note:
 
-    def __init__(self, position: Position = Position(0), length: Length = Length(beats=1),
-                 duration: Duration = None, note_key: int = None, velocity: int = None, channel: int = None, device_list: list = None):
+    def __init__(self, position: Position = Position(0), length: Length = None,
+                 duration: Duration = None, note_key: int = None, velocity: int = None, channel: int = None,
+                 device_list: list[str] = None):
         self._position: Position = position
         self._length: Length = length
         self._duration: Duration = duration
@@ -133,26 +159,27 @@ class Note:
     def getPlayList(self, position: Position = None):
         
         position = Position(0) if position is None else position
-        on_time_ms = (self._position + position).getTime_ms()
-        note_duration = Duration(note=get_global_staff().getData__note_duration()) if self._duration is None else self._duration
+        duration = Duration(note=get_global_staff().getData__note_duration()) if self._duration is None else self._duration
         note_key = get_global_staff().getData__note_key() if self._note_key is None else self._note_key
-        note_velocity = get_global_staff().getData__note_velocity() if self._velocity is None else self._velocity
-        note_channel = get_global_staff().getData__channel() if self._channel is None else self._channel
+        velocity = get_global_staff().getData__note_velocity() if self._velocity is None else self._velocity
+        channel = get_global_staff().getData__channel() if self._channel is None else self._channel
         device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
-        off_time_ms = on_time_ms + note_duration.getTime_ms()
+
+        on_time_ms = (self._position + position).getTime_ms()
+        off_time_ms = on_time_ms + duration.getTime_ms()
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (note_channel - 1),
+                        "status_byte": 0x90 | 0x0F & (channel - 1),
                         "data_byte_1": note_key,
-                        "data_byte_2": note_velocity
+                        "data_byte_2": velocity
                     }
                 },
                 {
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (note_channel - 1),
+                        "status_byte": 0x80 | 0x0F & (channel - 1),
                         "data_byte_1": note_key,
                         "data_byte_2": 0
                     }
@@ -202,79 +229,22 @@ class Note:
     def quantize(self, amount = 100):
         return self
 
-    
-class ControlChange:
-
-    def __init__(self, channel = 1, control_change = 10, value = 64):    # default is 10 - pan
-        pass
-
-    # CHAINABLE OPERATIONS
-
-
-class MidiMessage:
-
-    def __init__(self, status_byte = 0xF2, data_byte_1 = 0, data_byte_2 = 0):   # 0xF2 - Song Position
-        self._status_byte = status_byte
-        self._data_byte_1 = data_byte_1
-        self._data_byte_2 = data_byte_2
-        self._device_list: list = None
-
-class Panic:
-    ...
-
-    # CHAINABLE OPERATIONS
-
-
-class Chord:
-
-    def __init__(self, root_note = 60, size = 3, scale = Scale()):   # 0xF2 - Song Position
-        self._root_note = root_note
-        self._size = size
-        self._scale = scale
-        self._notes = []
-        self._device_list: list = None
-
-    # CHAINABLE OPERATIONS
-
-class Arpeggio:
-    ...
-
-    # CHAINABLE OPERATIONS
-
-
-class Loop:
-
-    def __init__(self, element, repeat = 4):
-        self._element = element
-        self._repeat = repeat
-        self._device_list: list = None
-    
-    # CHAINABLE OPERATIONS
-
-
-class Stack:
-    ...
-
-    # CHAINABLE OPERATIONS
-
-class Automation:
-    ...
-
-    # CHAINABLE OPERATIONS
-
 class Sequence:
 
-    def __init__(self, position: Position = Position(0), length: Length = Length(beats=4), trigger_notes: list = [],
-                 duration: Duration = None, note_key: int = None, velocity: int = None, channel: int = None, device_list: list = None):
+    def __init__(self, position: Position = Position(0), length: Length = Length(measures=1),
+                 trigger_notes: list[Note] = [Note()],
+                 duration: Duration = None, note_key: int = None, velocity: int = None, channel: int = None,
+                 device_list: list[str] = None):
         self._position: Position = position
         self._length: Length = length
-        self._channel = channel
+        self._trigger_notes: list[Note] = [] if trigger_notes is None else trigger_notes
+        self._duration: Duration = duration
         self._note_key = note_key
-        self._trigger_notes: list = trigger_notes
-        self._device_list: list = None
+        self._velocity = velocity
+        self._channel = channel
+        self._device_list: list[str] = None
 
-        self.sort()
-    
+
     def getData__channel(self):
         return self._channel
 
@@ -311,55 +281,45 @@ class Sequence:
     def getPlayList(self, position: Position = None):
         
         position = Position(0) if position is None else position
-        start_time_ms = (self._position + position).getTime_ms()
-
+        duration = Duration(note=get_global_staff().getData__note_duration()) if self._duration is None else self._duration
+        note_key = get_global_staff().getData__note_key() if self._note_key is None else self._note_key
+        velocity = get_global_staff().getData__note_velocity() if self._velocity is None else self._velocity
+        channel = get_global_staff().getData__channel() if self._channel is None else self._channel
+        device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
+        
         play_list = []
+        Note().getData__note_key()
         for trigger_note in self._trigger_notes:
 
-            on_position = Position(0)
-            with_duration = Duration(note=1/4)
-            with_velocity = Velocity(100)
+            trigger_position = position + trigger_note.getData__position()
+            trigger_duration = duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
+            trigger_note_key = note_key if trigger_note.getData__note_key() is None else trigger_note.getData__note_key()
+            trigger_velocity = velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
+            trigger_channel = channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
+            trigger_device_list = device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
 
-            # for note_operand in trigger_note:
-            #     match note_operand.__class__:
-            #         case Position:
-            #             on_position = note_operand
-            #         case Duration:
-            #             with_duration = note_operand
-            #         case Velocity:
-            #             with_velocity = note_operand
-
-            for note_operand in trigger_note:
-                if (note_operand.__class__ == Position):
-                    on_position = note_operand
-                elif (note_operand.__class__ == Duration):
-                    with_duration = note_operand
-                elif (note_operand.__class__ == Velocity):
-                    with_velocity = note_operand
-
-            on_time_ms = start_time_ms + on_position.getTime_ms()
+            start_time_ms = (self._position + position).getTime_ms()
+            on_time_ms = start_time_ms + trigger_position.getTime_ms()
             play_list.append({
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (self._channel - 1),
-                        "data_byte_1": self._note_key,
-                        "data_byte_2": with_velocity.getData__velocity()
+                        "status_byte": 0x90 | 0x0F & (trigger_channel - 1),
+                        "data_byte_1": trigger_note_key,
+                        "data_byte_2": trigger_velocity,
+                        "device": trigger_device_list
                     }
                 })
             
-            off_time_ms = on_time_ms + with_duration.getTime_ms()
+            off_time_ms = on_time_ms + trigger_duration.getTime_ms()
             play_list.append({
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (self._channel - 1),
-                        "data_byte_1": self._note_key,
-                        "data_byte_2": 0
+                        "status_byte": 0x80 | 0x0F & (trigger_channel - 1),
+                        "data_byte_1": trigger_note_key,
+                        "data_byte_2": 0,
+                        "device": trigger_device_list
                     }
                 })
-
-        if isinstance(self._device_list, list):
-            for list_element in play_list:
-                list_element["midi_message"]["device"] = self._device_list
 
         return play_list
     
@@ -553,6 +513,66 @@ class Sequence:
                 if (self._trigger_notes[trigger_i][operand_j].__class__ == operand.__class__):
                     self._trigger_notes[trigger_i][operand_j] += operand
 
+
+    
+class ControlChange:
+
+    def __init__(self, channel = 1, control_change = 10, value = 64):    # default is 10 - pan
+        pass
+
+    # CHAINABLE OPERATIONS
+
+
+class MidiMessage:
+
+    def __init__(self, status_byte = 0xF2, data_byte_1 = 0, data_byte_2 = 0):   # 0xF2 - Song Position
+        self._status_byte = status_byte
+        self._data_byte_1 = data_byte_1
+        self._data_byte_2 = data_byte_2
+        self._device_list: list = None
+
+class Panic:
+    ...
+
+    # CHAINABLE OPERATIONS
+
+
+class Chord:
+
+    def __init__(self, root_note = 60, size = 3, scale = Scale()):   # 0xF2 - Song Position
+        self._root_note = root_note
+        self._size = size
+        self._scale = scale
+        self._notes = []
+        self._device_list: list = None
+
+    # CHAINABLE OPERATIONS
+
+class Arpeggio:
+    ...
+
+    # CHAINABLE OPERATIONS
+
+
+class Loop:
+
+    def __init__(self, element, repeat = 4):
+        self._element = element
+        self._repeat = repeat
+        self._device_list: list = None
+    
+    # CHAINABLE OPERATIONS
+
+
+class Stack:
+    ...
+
+    # CHAINABLE OPERATIONS
+
+class Automation:
+    ...
+
+    # CHAINABLE OPERATIONS
 
 
 
