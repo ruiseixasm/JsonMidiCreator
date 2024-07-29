@@ -27,3 +27,35 @@ class Duration(Length):
     def __add__(self, other_length: Length) -> 'Duration':
         return self + other_length
     
+
+class Position:
+    pass
+
+class Duration:
+    pass
+
+class Velocity:
+    pass
+
+# Example list of note operands
+trigger_note = [Position(), Duration(), Velocity()]
+
+# Initialize variables
+on_position = None
+with_duration = None
+with_velocity = None
+
+# Match and assign
+for note_operand in trigger_note:
+    match note_operand:
+        case Position():
+            on_position = note_operand
+        case Duration():
+            with_duration = note_operand
+        case Velocity():
+            with_velocity = note_operand
+
+# Print results
+print(f"on_position: {on_position}")
+print(f"with_duration: {with_duration}")
+print(f"with_velocity: {with_velocity}")

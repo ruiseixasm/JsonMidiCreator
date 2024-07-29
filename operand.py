@@ -228,50 +228,107 @@ class Duration(Length):
     
     # multiply with a scalar
     def __rmul__(self, scalar: float):
-        return self * scalar    
+        return self * scalar
 
-class Key:
+
+class Unit:
+
+    def __init__(self, unit: int = None):
+        self._unit: int = unit
+
+    def getData__unit(self):
+        return self._unit
+    
+    def setData__unit(self, unit: int = None):
+        self._unit = unit
+        return self
+    
+class Key(Unit):
 
     _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
                         "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
     
     @staticmethod
-    def getKey(note_key: int = 60) -> str:
+    def getKey(note_key: int = 0) -> str:
         return Key._keys[note_key % 12]
 
-    def __init__(self, key: str = None):
-        self._key: str = key
-
-    def getData__key(self) -> str:
-        return self._key
-    
-    def keyToNoteKey(self, octave: int = None) -> int:
+    @staticmethod
+    def keyToKeyNumber(key: str) -> int:
         octave = -1 if octave is None else octave
-        note_key = 12 * (octave - 1)
+        number_key = 0
         for key_i in range(len(Key._keys)):
-            if self._key.lower() == Key._keys[key_i].lower():
-                note_key += key_i % 12
+            if key.lower() == Key._keys[key_i].lower():
+                number_key += key_i % 12
                 break
 
-        return note_key
+        return number_key
 
-class NoteKey(Key):
+    def __init__(self, key: str = None):
+        super().__init__(Key.keyToKeyNumber(key))
 
-    def __init__(self, note_key: int = None, key: str = None, octave: int = None):
-        self._note_key = note_key
+    def getData__key(self):
+        if self._unit is None:
+            return None
+        return Key.getKey(self._unit)
 
-        if note_key is not None:
-            super().__init__(Key.getKey(self._note_key))
-            self._octave = round(note_key/12) - 1
-        else:
-            super().__init__(key)
-            self._octave = octave
+    def getValue__key(self) -> str:
+        if self._unit is None:
+            return get_global_staff().getData__key()
+        return Key.getKey(self._unit)
 
-    def getData__note_key(self) -> int:
-        return self._note_key
+    def getValue__key_number(self) -> int:
+        if self._unit is None:
+            return Key.keyToKeyNumber(get_global_staff().getData__key())
+        return self._unit
+
+class Octave(Unit):
+
+    def __init__(self, octave: int = None):
+        super().__init__(octave)
+
+    def getData__octave(self):
+        if self._unit is None:
+            return None
+        return self._unit
+
+    def getValue__octave(self) -> int:
+        if self._unit is None:
+            return get_global_staff().getData__octave()
+        return self._unit
+
+
+class KeyNote():
+
+    def __init__(self, key: str = None, octave: int = None):
+        self._key: Key = Key(key)
+        self._octave: Octave = Octave(octave)
+
+    def getData__key(self):
+        return self._key.getData__key()
+
+    def getValue__key(self) -> str:
+        return self._key.getValue__key()
+
+    def getData__octave(self):
+        return self._octave.getData__octave()
+
+    def getValue__octave(self) -> int:
+        return self._octave.getValue__octave()
+
+    def getValue__midi_key_note(self) -> int:
+        key_unit = self._key.getValue__key_number()
+        octave = self._octave.getValue__octave()
+        return 12 * (octave + 1) + key_unit
     
-    def getValue__note_key(self) -> int:
-        return get_global_staff().getData__note_key() if self._note_key is None else self._note_key
+    
+
+class Velocity(Unit):
+    
+    def __init__(self, velocity: str = None):
+        super().__init__(velocity)
+
+    
+    
 
 
 class Range:
@@ -281,10 +338,10 @@ class Range:
         self._length = length
 
 
-class Value:
+class Unit:
     
-    def __init__(self, value: int = 0):
-        self._value: int = value
+    def __init__(self, unit: int = 0):
+        self._unit: int = unit
 
 
 class Pitch:

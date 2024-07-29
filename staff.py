@@ -4,20 +4,22 @@ class Staff:
                 tempo: int = 120,
                 quantization: float = 1/16,
                 time_signature: list = [4, 4],
-                channel: int = 1,
-                note_key: int = 60,
-                note_velocity: int = 100,
                 note_duration: float = 1/4,
+                key: str = "C",
+                octave: int = 4,
+                note_velocity: int = 100,
+                channel: int = 1,
                 device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
         
         self._measures = measures
         self._tempo = tempo
         self._quantization = quantization
         self._time_signature = time_signature
-        self._channel = channel
-        self._note_key = note_key
-        self._note_velocity = note_velocity
         self._note_duration = note_duration
+        self._key = key
+        self._octave = octave
+        self._note_velocity = note_velocity
+        self._channel = channel
         self._device_list = device_list
 
     def getData__measures(self):
@@ -35,8 +37,11 @@ class Staff:
     def getData__channel(self):
         return self._channel
     
-    def getData__note_key(self):
-        return self._note_key
+    def getData__key(self):
+        return self._key
+    
+    def getData__octave(self):
+        return self._octave
     
     def getData__note_velocity(self):
         return self._note_velocity
@@ -105,8 +110,12 @@ class Staff:
         self._channel = channel
         return self
     
-    def setData__note_key(self, note_key: int = 60):
-        self._note_key = note_key
+    def setData__key(self, key: str = "C"):
+        self._key = key
+        return self
+    
+    def setData__octave(self, octave: int = 4):
+        self._octave = octave
         return self
     
     def setData__note_velocity(self, note_velocity: int = 100):
