@@ -230,6 +230,50 @@ class Duration(Length):
     def __rmul__(self, scalar: float):
         return self * scalar    
 
+class Key:
+
+    _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+                        "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+    
+    @staticmethod
+    def getKey(note_key: int = 60) -> str:
+        return Key._keys[note_key % 12]
+
+    def __init__(self, key: str = None):
+        self._key: str = key
+
+    def getData__key(self) -> str:
+        return self._key
+    
+    def keyToNoteKey(self, octave: int = None) -> int:
+        octave = -1 if octave is None else octave
+        note_key = 12 * (octave - 1)
+        for key_i in range(len(Key._keys)):
+            if self._key.lower() == Key._keys[key_i].lower():
+                note_key += key_i % 12
+                break
+
+        return note_key
+
+class NoteKey(Key):
+
+    def __init__(self, note_key: int = None, key: str = None, octave: int = None):
+        self._note_key = note_key
+
+        if note_key is not None:
+            super().__init__(Key.getKey(self._note_key))
+            self._octave = round(note_key/12) - 1
+        else:
+            super().__init__(key)
+            self._octave = octave
+
+    def getData__note_key(self) -> int:
+        return self._note_key
+    
+    def getValue__note_key(self) -> int:
+        return get_global_staff().getData__note_key() if self._note_key is None else self._note_key
+
+
 class Range:
 
     def __init__(self, position: Position, length: Length):
