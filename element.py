@@ -15,7 +15,7 @@ class Clock:
                  device_list: list[str] = None, pulses_per_quarternote: int = 24):
         self._position: Position = position
         self._length: Length = length
-        self._mode = mode
+        self._mode: ClockModes = mode
         self._device_list: list[str] = device_list
         self._pulses_per_quarternote = pulses_per_quarternote
 
@@ -34,12 +34,17 @@ class Clock:
     def getData__pulses_per_quarternote(self):
         return self._pulses_per_quarternote
 
+    def getValue__length(self) -> Length:
+        if self._length is None:
+            return Length(get_global_staff().getData__measures())
+        return self._length
+    
     def getPlayList(self, position: Position = None):
         
         on_staff = get_global_staff()
         position = Position(0) if position is None else position
         device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
-        clock_length = Length(on_staff.getData__measures()) if self._length is None else self._length
+        clock_length = self.getValue__length()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / on_staff.getValue__beats_per_note()
@@ -125,15 +130,15 @@ class Clock:
 class Note:
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 duration: Duration = None, note_key: int = None, velocity: int = None, channel: int = None,
+                 duration: Duration = None, key_note: KeyNote = None, velocity: Velocity = None, channel: Channel = None,
                  device_list: list[str] = None):
         self._position: Position = position
         self._length: Length = length
         self._duration: Duration = duration
-        self._note_key = note_key
-        self._velocity = velocity
-        self._channel = channel
-        self._device_list: list = device_list
+        self._key_note: KeyNote = key_note
+        self._velocity: Velocity = velocity
+        self._channel: Channel = channel
+        self._device_list: list[str] = device_list
 
     def getData__position(self):
         return self._position
@@ -144,8 +149,8 @@ class Note:
     def getData__duration(self):
         return self._duration
     
-    def getData__note_key(self):
-        return self._note_key
+    def getData__key_note(self):
+        return self._key_note
 
     def getData__velocity(self):
         return self._velocity
@@ -156,14 +161,47 @@ class Note:
     def getData__device_list(self):
         return self._device_list
 
+    def getValue__length(self) -> Length:
+        if self._length is None:
+            return Length(note=get_global_staff().getData__note_duration())
+        return self._length
+    
+    def getValue__duration(self) -> Duration:
+        if self._duration is None:
+            return Duration(note=get_global_staff().getData__note_duration())
+        return self._duration
+    
+    def getValue__key_note(self) -> KeyNote:
+        if self._key_note is None:
+            return KeyNote(
+                    get_global_staff().getData__key(),
+                    get_global_staff().getData__octave()
+                )
+        return self._key_note
+
+    def getValue__velocity(self) -> Velocity:
+        if self._velocity is None:
+            return Velocity(get_global_staff().getData__note_velocity())
+        return self._velocity
+
+    def getValue__channel(self) -> Channel:
+        if self._channel is None:
+            return Channel(get_global_staff().getData__channel())
+        return self._channel
+
+    def getValue__device_list(self) -> list[str]:
+        if self._device_list is None:
+            return get_global_staff().getData__device_list()
+        return self._device_list
+
     def getPlayList(self, position: Position = None):
         
         position = Position(0) if position is None else position
-        duration = Duration(note=get_global_staff().getData__note_duration()) if self._duration is None else self._duration
-        note_key = get_global_staff().getData__note_key() if self._note_key is None else self._note_key
-        velocity = get_global_staff().getData__note_velocity() if self._velocity is None else self._velocity
-        channel = get_global_staff().getData__channel() if self._channel is None else self._channel
-        device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
+        duration = self.getValue__duration()
+        midi_key_note = self.getValue__key_note().getValue__midi_key_note()
+        midi_velocity = self.getValue__velocity().getData__unit()
+        midi_channel = self.getValue__channel().getData__unit()
+        device_list = self.getValue__device_list()
 
         on_time_ms = (self._position + position).getTime_ms()
         off_time_ms = on_time_ms + duration.getTime_ms()
@@ -171,16 +209,16 @@ class Note:
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (channel - 1),
-                        "data_byte_1": note_key,
-                        "data_byte_2": velocity
+                        "status_byte": 0x90 | 0x0F & (midi_channel - 1),
+                        "data_byte_1": midi_key_note,
+                        "data_byte_2": midi_velocity
                     }
                 },
                 {
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (channel - 1),
-                        "data_byte_1": note_key,
+                        "status_byte": 0x80 | 0x0F & (midi_channel - 1),
+                        "data_byte_1": midi_key_note,
                         "data_byte_2": 0
                     }
                 }
@@ -194,11 +232,11 @@ class Note:
     
     # CHAINABLE OPERATIONS
 
-    def setData__position(self, position: Position = Position(0)):
+    def setData__position(self, position: Position = None):
         self._position = position
         return self
 
-    def setData__length(self, length: Length = Length(beats=1)):
+    def setData__length(self, length: Length = None):
         self._length = length
         return self
 
@@ -206,24 +244,24 @@ class Note:
         self._duration = duration
         return self
 
-    def setData__note_key(self, note_key: int):
-        self._note_key = note_key
+    def setData__key_note(self, key_note: KeyNote = None):
+        self._key_note = key_note
         return self
 
-    def setData__velocity(self, velocity: int):
+    def setData__velocity(self, velocity: Velocity = None):
         self._velocity = velocity
         return self
 
-    def setData__channel(self, channel: int):
+    def setData__channel(self, channel: Channel = None):
         self._channel = channel
         return self
 
-    def setData__device_list(self, device_list: list = None):
+    def setData__device_list(self, device_list: list[str] = None):
         self._device_list = device_list
         return self
 
     def transpose(self, semitones: int = 12):
-        self._note_key = self._note_key + semitones
+        self._key_note = self._key_note + semitones
         return self
     
     def quantize(self, amount = 100):
@@ -233,23 +271,23 @@ class Sequence:
 
     def __init__(self, position: Position = Position(0), length: Length = Length(measures=1),
                  trigger_notes: list[Note] = [Note()],
-                 duration: Duration = None, note_key: int = None, velocity: int = None, channel: int = None,
+                 duration: Duration = None, key_note: KeyNote = None, velocity: Velocity = None, channel: Channel = None,
                  device_list: list[str] = None):
         self._position: Position = position
         self._length: Length = length
         self._trigger_notes: list[Note] = [] if trigger_notes is None else trigger_notes
         self._duration: Duration = duration
-        self._note_key = note_key
-        self._velocity = velocity
-        self._channel = channel
+        self._key_note: KeyNote = key_note
+        self._velocity: Velocity = velocity
+        self._channel: Channel = channel
         self._device_list: list[str] = None
 
 
     def getData__channel(self):
         return self._channel
 
-    def getData__note_key(self):
-        return self._note_key
+    def getData__key_note(self):
+        return self._key_note
 
     def getData__trigger_notes(self):
         return self._trigger_notes
@@ -282,18 +320,18 @@ class Sequence:
         
         position = Position(0) if position is None else position
         duration = Duration(note=get_global_staff().getData__note_duration()) if self._duration is None else self._duration
-        note_key = get_global_staff().getData__note_key() if self._note_key is None else self._note_key
+        key_note = get_global_staff().getData__key_note() if self._key_note is None else self._key_note
         velocity = get_global_staff().getData__note_velocity() if self._velocity is None else self._velocity
         channel = get_global_staff().getData__channel() if self._channel is None else self._channel
         device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
         
         play_list = []
-        Note().getData__note_key()
+        Note().getData__key_note()
         for trigger_note in self._trigger_notes:
 
             trigger_position = position + trigger_note.getData__position()
             trigger_duration = duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
-            trigger_note_key = note_key if trigger_note.getData__note_key() is None else trigger_note.getData__note_key()
+            trigger_key_note = key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
             trigger_velocity = velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
             trigger_channel = channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
             trigger_device_list = device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
@@ -304,7 +342,7 @@ class Sequence:
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & (trigger_channel - 1),
-                        "data_byte_1": trigger_note_key,
+                        "data_byte_1": trigger_key_note,
                         "data_byte_2": trigger_velocity,
                         "device": trigger_device_list
                     }
@@ -315,7 +353,7 @@ class Sequence:
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & (trigger_channel - 1),
-                        "data_byte_1": trigger_note_key,
+                        "data_byte_1": trigger_key_note,
                         "data_byte_2": 0,
                         "device": trigger_device_list
                     }
@@ -336,7 +374,7 @@ class Sequence:
         return {
             "class": self.__class__.__name__,
             "channel": self._channel, 
-            "note_key": self._note_key,
+            "key_note": self._key_note,
             "length": None if self._length is None else self._length.getSerialization(),
             "trigger_notes": trigger_notes_serialization,
             "device_list": self._device_list
@@ -346,7 +384,7 @@ class Sequence:
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "channel" in serialization and "note_key" in serialization and "length" in serialization and
+            "channel" in serialization and "key_note" in serialization and "length" in serialization and
             "trigger_notes" in serialization and "device_list" in serialization):
 
             trigger_notes_serialization = []
@@ -359,7 +397,7 @@ class Sequence:
                 trigger_notes_serialization.append(note_operand_serialization)
 
             self._channel = serialization["channel"]
-            self._note_key = serialization["note_key"]
+            self._key_note = serialization["key_note"]
             self._length = None if serialization["length"] is None else \
                 Length().loadSerialization(serialization["length"])
             self._trigger_notes: list = trigger_notes_serialization
@@ -379,7 +417,7 @@ class Sequence:
 
         sequence_copy = Sequence(
             self._channel,
-            self._note_key,
+            self._key_note,
             self._length,
             device_list_copy
         )
@@ -393,8 +431,8 @@ class Sequence:
         self._channel = channel
         return self
 
-    def setData__note_key(self, note_key: int = 60):
-        self._note_key = note_key
+    def setData__key_note(self, key_note: int = 60):
+        self._key_note = key_note
         return self
 
     def setData__trigger_notes(self, trigger_notes: list):

@@ -230,18 +230,30 @@ class Duration(Length):
     def __rmul__(self, scalar: float):
         return self * scalar
 
-
+# Units have never None values (const, no setters)
 class Unit:
 
-    def __init__(self, unit: int = None):
+    def __init__(self, unit: int = 0):
         self._unit: int = unit
 
     def getData__unit(self):
         return self._unit
     
-    def setData__unit(self, unit: int = None):
-        self._unit = unit
-        return self
+    # adding two positions
+    def __add__(self, other_unit):
+        return self._unit + other_unit.getData__unit()
+    
+    # subtracting two positions
+    def __sub__(self, other_unit):
+        return self._unit - other_unit.getData__unit()
+
+    # multiply two positions
+    def __mul__(self, other_unit):
+        return self._unit * other_unit.getData__unit()
+    
+    # multiply with a scalar
+    def __rmul__(self, scalar: float):
+        return scalar * self._unit.getData__unit()
     
 class Key(Unit):
 
@@ -254,80 +266,63 @@ class Key(Unit):
 
     @staticmethod
     def keyToKeyNumber(key: str) -> int:
-        octave = -1 if octave is None else octave
-        number_key = 0
+        key_number = 0
         for key_i in range(len(Key._keys)):
             if key.lower() == Key._keys[key_i].lower():
-                number_key += key_i % 12
+                key_number += key_i % 12
                 break
 
-        return number_key
+        return key_number
 
-    def __init__(self, key: str = None):
+    def __init__(self, key: str = "C"):
         super().__init__(Key.keyToKeyNumber(key))
 
     def getData__key(self):
-        if self._unit is None:
-            return None
         return Key.getKey(self._unit)
 
     def getValue__key(self) -> str:
-        if self._unit is None:
-            return get_global_staff().getData__key()
         return Key.getKey(self._unit)
-
-    def getValue__key_number(self) -> int:
-        if self._unit is None:
-            return Key.keyToKeyNumber(get_global_staff().getData__key())
-        return self._unit
 
 class Octave(Unit):
 
-    def __init__(self, octave: int = None):
+    def __init__(self, octave: int = 4):
         super().__init__(octave)
 
-    def getData__octave(self):
-        if self._unit is None:
-            return None
-        return self._unit
+class Velocity(Unit):
+    
+    def __init__(self, velocity: int = 100):
+        super().__init__(velocity)
 
-    def getValue__octave(self) -> int:
-        if self._unit is None:
-            return get_global_staff().getData__octave()
-        return self._unit
+class Channel(Unit):
+
+    def __init__(self, channel: int = 1):
+        super().__init__(channel)
+
+class Pitch(Unit):
+    
+    def __init__(self, pitch: int = 0):
+        super().__init__(pitch)
 
 
 class KeyNote():
 
-    def __init__(self, key: str = None, octave: int = None):
+    def __init__(self, key: str = "C", octave: int = 4):
         self._key: Key = Key(key)
         self._octave: Octave = Octave(octave)
 
     def getData__key(self):
         return self._key.getData__key()
 
-    def getValue__key(self) -> str:
-        return self._key.getValue__key()
-
     def getData__octave(self):
         return self._octave.getData__octave()
 
-    def getValue__octave(self) -> int:
-        return self._octave.getValue__octave()
-
     def getValue__midi_key_note(self) -> int:
-        key_unit = self._key.getValue__key_number()
-        octave = self._octave.getValue__octave()
+        key_unit = self._key.getData__unit()
+        octave = self._octave.getData__unit()
         return 12 * (octave + 1) + key_unit
     
     
 
-class Velocity(Unit):
-    
-    def __init__(self, velocity: str = None):
-        super().__init__(velocity)
-
-    
     
 
 
@@ -338,84 +333,6 @@ class Range:
         self._length = length
 
 
-class Unit:
-    
-    def __init__(self, unit: int = 0):
-        self._unit: int = unit
-
-
-class Pitch:
-    
-    def __init__(self, pitch: int = 0):
-        self._pitch: int = pitch
-
-class Key:
-
-    def __init__(self, key: str = 0):
-        self._key: str = key
-
-
-class Octave:
-
-    def __init__(self, octave: int = 4):
-        self._octave: int = octave
-
-
-class KeyNote:
-    
-    def __init__(self, key: Key = Key(), octave: Octave = Octave()):
-        self._key: Key = key
-        self._octave: Octave = octave
-
-
-class NoteOn:
-    
-    def __init__(self, note_on: int = 60):
-        self._note_on: int = note_on
-
-class Velocity:
-    
-    def __init__(self, velocity: int = 100):
-        self._velocity: int = velocity
-
-    def getData__velocity(self):
-        return self._velocity
-
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "velocity": self._velocity
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "velocity" in serialization):
-
-            self._velocity = serialization["velocity"]
-
-        return self
-        
-    def copy(self):
-        return Velocity(self._velocity)
-
-    # adding two positions 
-    def __add__(self, other_velocity):
-        return Velocity(self._velocity + other_velocity.getData__velocity())
-    
-    # subtracting two positions 
-    def __sub__(self, other_velocity):
-        return Velocity(self._velocity - other_velocity.getData__velocity())
-
-    # multiply two positions 
-    def __mul__(self, other_velocity):
-        return Velocity(self._velocity * other_velocity.getData__velocity())
-    
-    # multiply with a scalar
-    def __rmul__(self, scalar: float):
-        return Velocity(scalar * self._velocity.getData__velocity())
-    
 
 class IntervalQuality:
 

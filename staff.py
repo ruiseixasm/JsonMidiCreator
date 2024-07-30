@@ -34,8 +34,8 @@ class Staff:
     def getData__time_signature(self):
         return self._time_signature
     
-    def getData__channel(self):
-        return self._channel
+    def getData__note_duration(self):
+        return self._note_duration
     
     def getData__key(self):
         return self._key
@@ -46,8 +46,8 @@ class Staff:
     def getData__note_velocity(self):
         return self._note_velocity
     
-    def getData__note_duration(self):
-        return self._note_duration
+    def getData__channel(self):
+        return self._channel
     
     def getData__device_list(self):
         return self._device_list
@@ -106,8 +106,8 @@ class Staff:
         self._time_signature = time_signature
         return self
 
-    def setData__channel(self, channel: int = 1):
-        self._channel = channel
+    def setData__note_duration(self, note_duration: float = 1/4):
+        self._note_duration = note_duration
         return self
     
     def setData__key(self, key: str = "C"):
@@ -122,8 +122,8 @@ class Staff:
         self._note_velocity = note_velocity
         return self
     
-    def setData__note_duration(self, note_duration: float = 1/4):
-        self._note_duration = note_duration
+    def setData__channel(self, channel: int = 1):
+        self._channel = channel
         return self
     
     def setData__device_list(self, device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
