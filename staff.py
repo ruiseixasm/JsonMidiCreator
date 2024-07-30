@@ -4,10 +4,10 @@ class Staff:
                 tempo: int = 120,
                 quantization: float = 1/16,
                 time_signature: list = [4, 4],
-                note_duration: float = 1/4,
+                duration_note: float = 1/4,
                 key: str = "C",
                 octave: int = 4,
-                note_velocity: int = 100,
+                velocity: int = 100,
                 channel: int = 1,
                 device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
         
@@ -15,10 +15,10 @@ class Staff:
         self._tempo = tempo
         self._quantization = quantization
         self._time_signature = time_signature
-        self._note_duration = note_duration
+        self._duration_note = duration_note
         self._key = key
         self._octave = octave
-        self._note_velocity = note_velocity
+        self._velocity = velocity
         self._channel = channel
         self._device_list = device_list
 
@@ -34,8 +34,8 @@ class Staff:
     def getData__time_signature(self):
         return self._time_signature
     
-    def getData__note_duration(self):
-        return self._note_duration
+    def getData__duration_note(self):
+        return self._duration_note
     
     def getData__key(self):
         return self._key
@@ -43,8 +43,8 @@ class Staff:
     def getData__octave(self):
         return self._octave
     
-    def getData__note_velocity(self):
-        return self._note_velocity
+    def getData__velocity(self):
+        return self._velocity
     
     def getData__channel(self):
         return self._channel
@@ -73,7 +73,13 @@ class Staff:
             "measures": self._measures,
             "tempo": self._tempo,
             "quantization": self._quantization,
-            "time_signature": self._time_signature
+            "time_signature": self._time_signature,
+            "duration_note": 1/4,
+            "key": "C",
+            "octave": 4,
+            "velocity": 100,
+            "channel": 1,
+            "device_list": ["FLUID", "Midi", "Port", "Synth"]
         }
 
     # CHAINABLE OPERATIONS
@@ -81,12 +87,21 @@ class Staff:
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "measures" in serialization and "tempo" in serialization and
-            "quantization" in serialization and "time_signature" in serialization):
+            "quantization" in serialization and "time_signature" in serialization and
+            "duration_note" in serialization and "key" in serialization and
+            "octave" in serialization and "velocity" in serialization and
+            "channel" in serialization and "device_list" in serialization):
 
             self._measures = serialization["measures"]
             self._tempo = serialization["tempo"]
             self._quantization = serialization["quantization"]
             self._time_signature = serialization["time_signature"]
+            self._duration_note = serialization["duration_note"]
+            self._key = serialization["key"]
+            self._octave = serialization["octave"]
+            self._velocity = serialization["velocity"]
+            self._channel = serialization["channel"]
+            self._device_list = serialization["device_list"]
 
         return self
         
@@ -106,8 +121,8 @@ class Staff:
         self._time_signature = time_signature
         return self
 
-    def setData__note_duration(self, note_duration: float = 1/4):
-        self._note_duration = note_duration
+    def setData__duration_note(self, duration_note: float = 1/4):
+        self._duration_note = duration_note
         return self
     
     def setData__key(self, key: str = "C"):
@@ -118,8 +133,8 @@ class Staff:
         self._octave = octave
         return self
     
-    def setData__note_velocity(self, note_velocity: int = 100):
-        self._note_velocity = note_velocity
+    def setData__velocity(self, velocity: int = 100):
+        self._velocity = velocity
         return self
     
     def setData__channel(self, channel: int = 1):

@@ -41,8 +41,28 @@ class Element:
             return get_global_staff().getData__device_list()
         return self._device_list
 
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "position": self._position.getSerialization(),
+            "length": self._length.getSerialization(),
+            "channel": self._channel.getSerialization(),
+            "device_list": self._device_list
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "position" in serialization and "length" in serialization and
+            "channel" in serialization and "device_list" in serialization):
+
+            self._position = Position().loadSerialization(serialization["position"])
+            self._length = Length().loadSerialization(serialization["length"])
+            self._channel = Channel().loadSerialization(serialization["channel"])
+            self._device_list = serialization["device_list"]
+        return self
+        
     def setData__position(self, position: Position = None):
         self._position = Position() if position is None else position
         return self
@@ -148,22 +168,26 @@ class Clock(Element):
 
         return play_list
 
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        return element_serialization + {
+            "mode": self._mode,
+            "pulses_per_quarternote": self._pulses_per_quarternote
+        }
+
     # CHAINABLE OPERATIONS
 
-    def setData__position(self, position: Position = Position(0)):
-        self._position = position
-        return self
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "mode" in serialization and "pulses_per_quarternote" in serialization):
 
-    def setData__length(self, length: Length = None):
-        self._length = length
+            super().loadSerialization(serialization)
+            self._mode = serialization["mode"]
+            self._pulses_per_quarternote = serialization["pulses_per_quarternote"]
         return self
-
+      
     def setData__mode(self, mode: ClockModes = ClockModes.single):
         self._mode = mode
-        return self
-
-    def setData__device_list(self, device_list: list[str] = None):
-        self._device_list = device_list
         return self
 
     def setData__pulses_per_quarternote(self, pulses_per_quarternote: int = 24):
@@ -239,8 +263,31 @@ class Note(Element):
 
         return play_list
     
+        self._duration: Duration = duration
+        self._key_note: KeyNote = key_note
+        self._velocity: Velocity = Velocity(velocity)
+
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        return element_serialization + {
+            "duration": self._duration.getSerialization(),
+            "key_note": self._key_note.getSerialization(),
+            "velocity": self._velocity.getSerialization()
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "duration" in serialization and "key_note" in serialization and
+            "velocity" in serialization):
+
+            super().loadSerialization(serialization)
+            self._duration = Duration.loadSerialization(serialization["duration"])
+            self._key_note = KeyNote.loadSerialization(serialization["key_note"])
+            self._velocity = Velocity.loadSerialization(serialization["velocity"])
+        return self
+      
     def setData__duration(self, duration: Duration = None):
         self._duration = duration
         return self
@@ -251,13 +298,6 @@ class Note(Element):
 
     def setData__velocity(self, velocity: Velocity = None):
         self._velocity = velocity
-        return self
-
-    def transpose(self, semitones: int = 12):
-        self._key_note = self._key_note + semitones
-        return self
-    
-    def quantize(self, amount = 100):
         return self
 
 class Sequence(Element):
@@ -342,47 +382,41 @@ class Sequence(Element):
 
         return play_list
     
+        self._duration: Duration = duration
+        self._key_note: KeyNote = key_note
+        self._velocity: Velocity = Velocity(velocity)
+
     def getSerialization(self):
         trigger_notes_serialization = []
         for trigger_note in self._trigger_notes:
-            note_operand_serialization = []
-            for note_operand in trigger_note:
-                note_operand_serialization.append(
-                    note_operand.getSerialization()
-                )
-            trigger_notes_serialization.append(note_operand_serialization)
+            trigger_notes_serialization.append(trigger_note.getSerialization())
 
-        return {
-            "class": self.__class__.__name__,
-            "channel": self._channel, 
-            "key_note": self._key_note,
-            "length": None if self._length is None else self._length.getSerialization(),
+        element_serialization = super().getSerialization()
+        return element_serialization + {
             "trigger_notes": trigger_notes_serialization,
-            "device_list": self._device_list
+            "duration": self._duration.getSerialization(),
+            "key_note": self._key_note.getSerialization(),
+            "velocity": self._velocity.getSerialization()
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "channel" in serialization and "key_note" in serialization and "length" in serialization and
-            "trigger_notes" in serialization and "device_list" in serialization):
+            "trigger_notes" in serialization and "duration" in serialization and
+            "key_note" in serialization and "velocity" in serialization):
 
-            trigger_notes_serialization = []
-            for trigger_note in serialization["trigger_notes"]:
-                note_operand_serialization = []
-                for note_operand in trigger_note:
-                    note_operand_serialization.append(
-                        globals()[note_operand["class"]].loadSerialization(note_operand)
+            trigger_notes = []
+            for trigger_note_serialization in serialization["trigger_notes"]:
+                trigger_notes.append(
+                        Note().loadSerialization(trigger_note_serialization)
                     )
-                trigger_notes_serialization.append(note_operand_serialization)
 
-            self._channel = serialization["channel"]
-            self._key_note = serialization["key_note"]
-            self._length = None if serialization["length"] is None else \
-                Length().loadSerialization(serialization["length"])
-            self._trigger_notes: list = trigger_notes_serialization
-            self._device_list: list = serialization["device_list"]
+            super().loadSerialization(serialization)
+            self._trigger_notes: list = trigger_notes
+            self._duration = Duration.loadSerialization(serialization["duration"])
+            self._key_note = KeyNote.loadSerialization(serialization["key_note"])
+            self._velocity = Velocity.loadSerialization(serialization["velocity"])
 
         return self
     
