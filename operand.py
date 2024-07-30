@@ -314,6 +314,16 @@ class Velocity(Unit):
             return get_global_staff().getData__note_velocity()
         return self._unit
 
+class Value(Unit):
+
+    def __init__(self, value: int = None):
+        super().__init__(value)
+
+    def getValue(self) -> int:
+        if self._unit is None:
+            return 64   # Center
+        return self._unit
+
 class Channel(Unit):
 
     def __init__(self, channel: int = None):

@@ -24,7 +24,7 @@ trigger_notes = [
         Note(Position(steps=6), None, Duration(note=1/16)),
         Note(Position(steps=7), None, Duration(note=1/16))
     ]
-play_list += Sequence(trigger_notes=trigger_notes).getPlayList(Position(measures=1))
+play_list += Sequence(trigger_notes=trigger_notes, channel=10).getPlayList(Position(measures=1))
 print(play_list)
 
 # first_sequence = Sequence(10, 60, Length(beats=2), trigger_notes)
