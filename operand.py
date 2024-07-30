@@ -195,6 +195,11 @@ class Duration(Length):
         super().loadSerialization(serialization)
 
         return self
+    
+    def getDefault(self):
+        return Duration(
+            note=get_global_staff().getData__note_duration()
+        )
         
     def copy(self):
         return Duration(self._measures, self._beats, self._note, self._steps)
@@ -236,7 +241,7 @@ class Unit:
     def __init__(self, unit: int = 0):
         self._unit: int = unit
 
-    def getUnit(self):
+    def getData(self):
         return self._unit
     
     # adding two positions
@@ -286,7 +291,7 @@ class Key(Unit):
 
     def getValue_number(self) -> int:
         if self._unit is None:
-            return Key(get_global_staff().getData__key()).getUnit()
+            return Key(get_global_staff().getData__key()).getData()
         return self._unit
 
 class Octave(Unit):
@@ -347,7 +352,14 @@ class KeyNote():
         octave = self._octave.getValue()
         return 12 * (octave + 1) + key_number
     
+    # CHAINABLE OPERATIONS
     
+    def getDefault(self):
+        return KeyNote(
+            get_global_staff().getData__key(),
+            get_global_staff().getData__octave()
+        )
+        
 
     
 
