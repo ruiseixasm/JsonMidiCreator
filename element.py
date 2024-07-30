@@ -130,14 +130,14 @@ class Clock:
 class Note:
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 duration: Duration = None, key_note: KeyNote = None, velocity: Velocity = None, channel: Channel = None,
+                 duration: Duration = None, key_note: KeyNote = None, velocity: int = None, channel: int = None,
                  device_list: list[str] = None):
         self._position: Position = position
         self._length: Length = length
         self._duration: Duration = duration
         self._key_note: KeyNote = key_note
-        self._velocity: Velocity = velocity
-        self._channel: Channel = channel
+        self._velocity: Velocity = Velocity(velocity)
+        self._channel: Channel = Channel(channel)
         self._device_list: list[str] = device_list
 
     def getData__position(self):
@@ -173,21 +173,8 @@ class Note:
     
     def getValue__key_note(self) -> KeyNote:
         if self._key_note is None:
-            return KeyNote(
-                    get_global_staff().getData__key(),
-                    get_global_staff().getData__octave()
-                )
+            return KeyNote()
         return self._key_note
-
-    def getValue__velocity(self) -> Velocity:
-        if self._velocity is None:
-            return Velocity(get_global_staff().getData__note_velocity())
-        return self._velocity
-
-    def getValue__channel(self) -> Channel:
-        if self._channel is None:
-            return Channel(get_global_staff().getData__channel())
-        return self._channel
 
     def getValue__device_list(self) -> list[str]:
         if self._device_list is None:
@@ -196,11 +183,11 @@ class Note:
 
     def getPlayList(self, position: Position = None):
         
-        position = Position(0) if position is None else position
+        position = Position() if position is None else position
         duration = self.getValue__duration()
         midi_key_note = self.getValue__key_note().getValue__midi_key_note()
-        midi_velocity = self.getValue__velocity().getData__unit()
-        midi_channel = self.getValue__channel().getData__unit()
+        midi_velocity = self._velocity.getValue()
+        midi_channel = self._channel.getValue()
         device_list = self.getValue__device_list()
 
         on_time_ms = (self._position + position).getTime_ms()

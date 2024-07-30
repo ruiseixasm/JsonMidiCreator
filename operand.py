@@ -236,7 +236,7 @@ class Unit:
     def __init__(self, unit: int = 0):
         self._unit: int = unit
 
-    def getData__unit(self):
+    def getUnit(self):
         return self._unit
     
     # adding two positions
@@ -271,55 +271,81 @@ class Key(Unit):
             if key.lower() == Key._keys[key_i].lower():
                 key_number += key_i % 12
                 break
-
         return key_number
 
-    def __init__(self, key: str = "C"):
-        super().__init__(Key.keyToKeyNumber(key))
+    def __init__(self, key: str = None):
+        if key is None:
+            super().__init__(None)
+        else:
+            super().__init__(Key.keyToKeyNumber(key))
 
-    def getData__key(self):
+    def getValue(self) -> str:
+        if self._unit is None:
+            return get_global_staff().getData__key()
         return Key.getKey(self._unit)
 
-    def getValue__key(self) -> str:
-        return Key.getKey(self._unit)
+    def getValue_number(self) -> int:
+        if self._unit is None:
+            return Key(get_global_staff().getData__key()).getUnit()
+        return self._unit
 
 class Octave(Unit):
 
-    def __init__(self, octave: int = 4):
+    def __init__(self, octave: int = None):
         super().__init__(octave)
+
+    def getValue(self) -> str:
+        if self._unit is None:
+            return get_global_staff().getData__octave()
+        return self._unit
 
 class Velocity(Unit):
     
-    def __init__(self, velocity: int = 100):
+    def __init__(self, velocity: int = None):
         super().__init__(velocity)
+
+    def getValue(self) -> str:
+        if self._unit is None:
+            return get_global_staff().getData__note_velocity()
+        return self._unit
 
 class Channel(Unit):
 
-    def __init__(self, channel: int = 1):
+    def __init__(self, channel: int = None):
         super().__init__(channel)
+
+    def getValue(self) -> str:
+        if self._unit is None:
+            return get_global_staff().getData__channel()
+        return self._unit
 
 class Pitch(Unit):
     
-    def __init__(self, pitch: int = 0):
+    def __init__(self, pitch: int = None):
         super().__init__(pitch)
+
+    def getValue(self) -> str:
+        if self._unit is None:
+            return 0
+        return self._unit
 
 
 class KeyNote():
 
-    def __init__(self, key: str = "C", octave: int = 4):
+    def __init__(self, key: str = None, octave: int = None):
         self._key: Key = Key(key)
         self._octave: Octave = Octave(octave)
 
-    def getData__key(self):
-        return self._key.getData__key()
+    def getValue__key(self):
+        return self._key.getValue()
 
-    def getData__octave(self):
-        return self._octave.getData__octave()
+    def getValue__octave(self):
+        return self._octave.getValue()
 
     def getValue__midi_key_note(self) -> int:
-        key_unit = self._key.getData__unit()
-        octave = self._octave.getData__unit()
-        return 12 * (octave + 1) + key_unit
+        key_number = self._key.getValue_number()
+        octave = self._octave.getValue()
+        return 12 * (octave + 1) + key_number
     
     
 
@@ -328,9 +354,10 @@ class KeyNote():
 
 class Range:
 
-    def __init__(self, position: Position, length: Length):
+    def __init__(self, operand, position: Position = None, length: Length = None):
         self._position = position
         self._length = length
+        self._operand = operand
 
 
 
