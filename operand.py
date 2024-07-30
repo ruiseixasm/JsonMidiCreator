@@ -299,7 +299,7 @@ class Octave(Unit):
     def __init__(self, octave: int = None):
         super().__init__(octave)
 
-    def getValue(self) -> str:
+    def getValue(self) -> int:
         if self._unit is None:
             return get_global_staff().getData__octave()
         return self._unit
@@ -309,7 +309,7 @@ class Velocity(Unit):
     def __init__(self, velocity: int = None):
         super().__init__(velocity)
 
-    def getValue(self) -> str:
+    def getValue(self) -> int:
         if self._unit is None:
             return get_global_staff().getData__note_velocity()
         return self._unit
@@ -319,7 +319,7 @@ class Channel(Unit):
     def __init__(self, channel: int = None):
         super().__init__(channel)
 
-    def getValue(self) -> str:
+    def getValue(self) -> int:
         if self._unit is None:
             return get_global_staff().getData__channel()
         return self._unit

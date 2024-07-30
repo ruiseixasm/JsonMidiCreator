@@ -272,52 +272,50 @@ class Sequence(Element):
         self._key_note: KeyNote = key_note
         self._velocity: Velocity = Velocity(velocity)
 
-    def getData__trigger_notes(self):
+    def getData__trigger_notes(self) -> list:
         return self._trigger_notes
 
+    def getData__duration(self):
+        return self._duration
+    
     def getData__key_note(self):
         return self._key_note
 
-    def getList__trigger_operands(self, opperand_type = Position):
-        trigger_operands = []
-        for trigger_i in range(0, len(self._trigger_notes)):
-            for operand_j in range(0, len(self._trigger_notes[trigger_i])):
-                if (self._trigger_notes[trigger_i][operand_j].__class__ == opperand_type):
-                    trigger_operands.append({
-                            "index_i": trigger_i,
-                            "index_j": operand_j,
-                            "opperand": self._trigger_notes[trigger_i][operand_j]
-                        })
-                    break
-                trigger_operands.append({
-                        "index_i": -1,
-                        "index_j": -1,
-                        "opperand": None
-                    })
-        return trigger_operands
+    def getData__velocity(self):
+        return self._velocity.getData()
 
-    def is_position_triggered(self, position: Position):
-        ...
+    def getValue__duration(self) -> Duration:
+        if self._duration is None:
+            return Duration().getDefault()
+        return self._duration
+
+    def getValue__key_note(self) -> KeyNote:
+        if self._key_note is None:
+            return KeyNote().getDefault()
+        return self._key_note
+
+    def getValue__velocity(self):
+        return self._velocity.getValue()
 
     def getPlayList(self, position: Position = None):
         
-        position = Position(0) if position is None else position
-        duration = Duration(note=get_global_staff().getData__note_duration()) if self._duration is None else self._duration
-        key_note = get_global_staff().getData__key_note() if self._key_note is None else self._key_note
-        velocity = get_global_staff().getData__note_velocity() if self._velocity is None else self._velocity
-        channel = get_global_staff().getData__channel() if self._channel is None else self._channel
-        device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
+        sequence_position: Position = self.getValue__position() + Position() if position is None else position
+        sequence_duration = self.getValue__duration()
+        sequence_key_note = self.getValue__key_note()
+        sequence_velocity = self.getValue__velocity()
+        sequence_channel = self.getValue__channel()
+        sequence_device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
         
         play_list = []
         Note().getData__key_note()
         for trigger_note in self._trigger_notes:
 
-            trigger_position = position + trigger_note.getData__position()
-            trigger_duration = duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
-            trigger_key_note = key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
-            trigger_velocity = velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
-            trigger_channel = channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
-            trigger_device_list = device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
+            trigger_position = sequence_position + trigger_note.getValue__position()
+            trigger_duration = sequence_duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
+            trigger_key_note = sequence_key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
+            trigger_velocity = sequence_velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
+            trigger_channel = sequence_channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
+            trigger_device_list = sequence_device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
 
             start_time_ms = (self._position + position).getTime_ms()
             on_time_ms = start_time_ms + trigger_position.getTime_ms()
@@ -325,7 +323,7 @@ class Sequence(Element):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & (trigger_channel - 1),
-                        "data_byte_1": trigger_key_note,
+                        "data_byte_1": trigger_key_note.getValue__midi_key_note(),
                         "data_byte_2": trigger_velocity,
                         "device": trigger_device_list
                     }
@@ -336,7 +334,7 @@ class Sequence(Element):
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & (trigger_channel - 1),
-                        "data_byte_1": trigger_key_note,
+                        "data_byte_1": trigger_key_note.getValue__midi_key_note(),
                         "data_byte_2": 0,
                         "device": trigger_device_list
                     }
@@ -418,68 +416,6 @@ class Sequence(Element):
         self._trigger_notes = trigger_notes
         return self
 
-    def remove_unplaced_trigger_notes(self):
-        trigger_notes_to_remove = []
-        for trigger_i in range(0, len(self._trigger_notes)):
-            for operand_j in range(0, len(self._trigger_notes[trigger_i])):
-                if (self._trigger_notes[trigger_i][operand_j].__class__ == Position):
-                    break
-                trigger_notes_to_remove.append(trigger_i)
-        for trigger_note_index in trigger_notes_to_remove:
-            self._trigger_notes.pop(trigger_note_index)
-
-        return self
-
-    def sort(self):
-
-        self.remove_unplaced_trigger_notes()
-        trigger_operands = self.getList__trigger_operands(Position)
-
-
-
-        for trigger_k in range(len(self._trigger_notes), 0, -1):
-            for trigger_i in range(trigger_k):
-
-                changed_position = False
-
-                for operand_j in range(0, len(self._trigger_notes[trigger_i])):
-                    if (self._trigger_notes[trigger_i][operand_j].__class__ == Position):
-                        position_i = self._trigger_notes[trigger_i][operand_j]
-                        break
-                for operand_j in range(0, len(self._trigger_notes[trigger_i - 1])):
-                    if (self._trigger_notes[trigger_i - 1][operand_j].__class__ == Position):
-                        position_i_1 = self._trigger_notes[trigger_i - 1][operand_j]
-                        break
-                    
-                if position_i < position_i_1:
-                    trigger_note = self._trigger_notes[trigger_i]
-                    self._trigger_notes[trigger_i] = self._trigger_notes[trigger_i - 1]
-                    self._trigger_notes[trigger_i - 1] = trigger_note
-                    changed_position = True
-
-                if not changed_position:
-                    break
-
-        return self
-
-    def trim(self, position = Position(beats=4)):
-
-        self.sort()
-        sorted_trigger_notes = self._trigger_notes
-
-        for trigger_i in range(0, len(sorted_trigger_notes)):
-            for operand_j in range(0, len(sorted_trigger_notes[trigger_i])):
-                if (sorted_trigger_notes[trigger_i][operand_j].__class__ == Position):
-                    trigger_position: Position = sorted_trigger_notes[trigger_i][operand_j]
-                    break
-            if (trigger_position.is_gt(position)):
-                trim_trigger_i = trigger_i
-                break
-
-        self._trigger_notes = sorted_trigger_notes[0, trim_trigger_i]
-    
-        return self
-
     # Right add (+) means is self being added to other_sequence
     def __radd__(self, other_sequence: 'Sequence'):
         merged_sequence = other_sequence.copy()     # Right add
@@ -519,13 +455,6 @@ class Sequence(Element):
         # Better to develop new Sequence function to help on this one as delegation (self call)
 
         return self
-
-    def op_add(self, operand = Duration()):
-        for trigger_i in range(0, len(self._trigger_notes)):
-            for operand_j in range(0, len(self._trigger_notes[trigger_i])):
-                if (self._trigger_notes[trigger_i][operand_j].__class__ == operand.__class__):
-                    self._trigger_notes[trigger_i][operand_j] += operand
-
 
     
 class ControlChange:
