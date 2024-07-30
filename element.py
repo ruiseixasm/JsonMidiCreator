@@ -63,6 +63,14 @@ class Element:
             self._device_list = serialization["device_list"]
         return self
         
+    def copy(self) -> 'Element':
+        return self.__class__(
+                self._position.copy(),
+                self._length.copy(),
+                self._channel.getData(),    # Unit objects are const objects, read only
+                self._device_list.copy()
+            )
+
     def setData__position(self, position: Position = None):
         self._position = Position() if position is None else position
         return self
@@ -78,8 +86,6 @@ class Element:
     def setData__device_list(self, device_list: list[str] = None):
         self._device_list = device_list
         return self
-
-    
 
 class ClockModes(enum.Enum):
     single = 1
@@ -186,6 +192,10 @@ class Clock(Element):
             self._pulses_per_quarternote = serialization["pulses_per_quarternote"]
         return self
       
+    def copy(self) -> 'Clock':
+        element_copy: Clock = super().copy()
+        return element_copy.setData__mode(self._mode).setData__pulses_per_quarternote(self._pulses_per_quarternote)
+
     def setData__mode(self, mode: ClockModes = ClockModes.single):
         self._mode = mode
         return self
@@ -288,6 +298,11 @@ class Note(Element):
             self._velocity = Velocity.loadSerialization(serialization["velocity"])
         return self
       
+    def copy(self) -> 'Note':
+        element_copy: Note = super().copy()
+        element_copy.setData__duration(self._duration.copy()).setData__key_note(self._key_note.copy())
+        return element_copy.setData__velocity(self._velocity.getData())
+
     def setData__duration(self, duration: Duration = None):
         self._duration = duration
         return self
@@ -303,7 +318,7 @@ class Note(Element):
 class Sequence(Element):
 
     def __init__(self, position: Position = Position(0), length: Length = Length(measures=1),
-                 trigger_notes: list[Note] = [Note()],
+                 trigger_notes: list[Note] = None,
                  duration: Duration = None, key_note: KeyNote = None, velocity: int = None, channel: int = None,
                  device_list: list[str] = None):
         super().__init__(position, length, channel, device_list)
@@ -312,7 +327,7 @@ class Sequence(Element):
         self._key_note: KeyNote = key_note
         self._velocity: Velocity = Velocity(velocity)
 
-    def getData__trigger_notes(self) -> list:
+    def getData__trigger_notes(self):
         return self._trigger_notes
 
     def getData__duration(self):
@@ -334,7 +349,7 @@ class Sequence(Element):
             return KeyNote().getDefault()
         return self._key_note
 
-    def getValue__velocity(self):
+    def getValue__velocity(self) -> int:
         return self._velocity.getValue()
 
     def getPlayList(self, position: Position = None):
@@ -420,34 +435,30 @@ class Sequence(Element):
 
         return self
     
-    def copy(self):
-        device_list_copy = []
+    def copy(self) -> 'Sequence':
+        element_copy: Sequence = super().copy()
+        
+        trigger_notes: list[Note] = []
         for trigger_note in self._trigger_notes:
-            note_operand_copy = []
-            for note_operand in trigger_note:
-                note_operand_copy.append(
-                    note_operand.copy()
-                )
-            device_list_copy.append(note_operand_copy)
+            trigger_notes.append(trigger_note.copy())
 
-        sequence_copy = Sequence(
-            self._channel,
-            self._key_note,
-            self._length,
-            device_list_copy
-        )
+        element_copy.setData__trigger_notes(trigger_notes).setData__duration(self._duration.copy())
+        return element_copy.setData__key_note(self._key_note.copy()).setData__velocity(self._velocity.getData())
 
-        if self._device_list is not None:
-            sequence_copy.setData__device_list(self._device_list.copy())
-            
-        return sequence_copy
+    def setData__trigger_notes(self, trigger_notes: list[Note]):
+        self._trigger_notes = trigger_notes
+        return self
 
-    def setData__key_note(self, key_note: int = 60):
+    def setData__duration(self, duration: Duration):
+        self._duration = duration
+        return self
+
+    def setData__key_note(self, key_note: KeyNote):
         self._key_note = key_note
         return self
 
-    def setData__trigger_notes(self, trigger_notes: list):
-        self._trigger_notes = trigger_notes
+    def setData__velocity(self, velocity: int):
+        self._velocity = Velocity(velocity)
         return self
 
     # Right add (+) means is self being added to other_sequence
@@ -468,7 +479,6 @@ class Sequence(Element):
                 trigger_notes[trigger_i][operands_list[trigger_i]["index_j"]] = operands_list[trigger_i]["opperand"] + operand
 
         return incremented_sequence
-
 
     def __mul__(self, n_times: int):
         actual_length = self._length

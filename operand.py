@@ -150,7 +150,7 @@ class Duration(Length):
         )
 
 
-# Units have never None values (const, no setters)
+# Units have never None values and are also const, with no setters
 class Unit:
 
     def __init__(self, unit: int = 0):
@@ -326,6 +326,12 @@ class KeyNote():
             self._octave = Octave().loadSerialization(serialization["octave"])
         return self
         
+    def copy(self) -> 'KeyNote':
+        return self.__class__(
+                self._key,
+                self._octave
+            )
+
     def getDefault(self):
         return KeyNote(
             get_global_staff().getData__key(),
