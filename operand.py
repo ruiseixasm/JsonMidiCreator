@@ -239,26 +239,40 @@ class Duration(Length):
 class Unit:
 
     def __init__(self, unit: int = 0):
-        self._unit: int = unit
+        self._unit: int = None if unit is None else round(unit)
 
     def getData(self):
         return self._unit
     
-    # adding two positions
-    def __add__(self, other_unit):
-        return self._unit + other_unit.getData__unit()
+    def getValue(self) -> int:
+        if self._unit is None:
+            return 0
+        return self._unit
     
-    # subtracting two positions
-    def __sub__(self, other_unit):
-        return self._unit - other_unit.getData__unit()
+    # CHAINABLE OPERATIONS
 
-    # multiply two positions
-    def __mul__(self, other_unit):
-        return self._unit * other_unit.getData__unit()
+    def __add__(self, other_unit: 'Unit') -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() + other_unit)
+        return self.__class__(self.getValue() + other_unit.getValue())
     
-    # multiply with a scalar
-    def __rmul__(self, scalar: float):
-        return scalar * self._unit.getData__unit()
+    def __sub__(self, other_unit: 'Unit') -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() - other_unit)
+        return self.__class__(self.getValue() - other_unit.getValue())
+    
+    def __mul__(self, other_unit: 'Unit') -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() * other_unit)
+        return self.__class__(self.getValue() * other_unit.getValue())
+    
+    def __div__(self, other_unit: 'Unit') -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() / other_unit)
+        return self.__class__(self.getValue() / other_unit.getValue())
+    
+    def __rmul__(self, scalar: float) -> 'Unit':
+        return  self * scalar
     
 class Key(Unit):
 
@@ -270,29 +284,31 @@ class Key(Unit):
         return Key._keys[note_key % 12]
 
     @staticmethod
-    def keyToKeyNumber(key: str) -> int:
+    def keyStrToKeyUnit(key: str = "C") -> int:
         key_number = 0
         for key_i in range(len(Key._keys)):
-            if key.lower() == Key._keys[key_i].lower():
+            if  Key._keys[key_i].lower().find(key.strip().lower()) != -1:
                 key_number += key_i % 12
                 break
         return key_number
 
     def __init__(self, key: str = None):
-        if key is None:
-            super().__init__(None)
-        else:
-            super().__init__(Key.keyToKeyNumber(key))
 
-    def getValue(self) -> str:
-        if self._unit is None:
-            return get_global_staff().getData__key()
-        return Key.getKey(self._unit)
+        match key:
+            case str():
+                super().__init__(Key.keyStrToKeyUnit(key))
+            case int() | float():
+                super().__init__(key)
+            case _:
+                super().__init__(None)
 
-    def getValue_number(self) -> int:
+    def getValue(self) -> int:
         if self._unit is None:
             return Key(get_global_staff().getData__key()).getData()
         return self._unit
+
+    def getValue_str(self) -> str:
+        return Key.getKey(self.getValue(self))
 
 class Octave(Unit):
 
@@ -351,16 +367,19 @@ class KeyNote():
         self._key: Key = Key(key)
         self._octave: Octave = Octave(octave)
 
-    def getValue__key(self):
+    def getValue__key(self) -> int:
         return self._key.getValue()
+    
+    def getValue__key_str(self) -> str:
+        return self._key.getValue_str()
 
-    def getValue__octave(self):
+    def getValue__octave(self) -> int:
         return self._octave.getValue()
 
     def getValue__midi_key_note(self) -> int:
-        key_number = self._key.getValue_number()
+        key = self._key.getValue()
         octave = self._octave.getValue()
-        return 12 * (octave + 1) + key_number
+        return 12 * (octave + 1) + key
     
     # CHAINABLE OPERATIONS
     
