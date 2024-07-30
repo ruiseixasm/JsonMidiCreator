@@ -65,10 +65,10 @@ class Element:
         
     def copy(self) -> 'Element':
         return self.__class__(
-                self._position.copy(),
-                self._length.copy(),
-                self._channel.getData(),    # Unit objects are const objects, read only
-                self._device_list.copy()
+                position = self._position.copy(),
+                length = self._length.copy(),
+                channel = self._channel.getData(),  # Unit objects are const objects, read only
+                device_list = self._device_list.copy()
             )
 
     def setData__position(self, position: Position = None):

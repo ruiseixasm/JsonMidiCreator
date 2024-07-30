@@ -73,10 +73,10 @@ class Length:
         
     def copy(self) -> 'Length':
         return self.__class__(
-                self._measures,
-                self._beats,
-                self._note,
-                self._steps
+                measures = self._measures,
+                beats = self._beats,
+                note = self._note,
+                steps = self._steps
             )
 
     # adding two lengths 
