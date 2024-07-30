@@ -313,19 +313,19 @@ class Sequence(Element):
             trigger_position = sequence_position + trigger_note.getValue__position()
             trigger_duration = sequence_duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
             trigger_key_note = sequence_key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
-            trigger_velocity = sequence_velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
-            trigger_channel = sequence_channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
-            trigger_device_list = sequence_device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
+            trigger_velocity_unit = sequence_velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
+            trigger_channel_unit = sequence_channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
+            trigger_device_list_unit = sequence_device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
 
             start_time_ms = (self._position + position).getTime_ms()
             on_time_ms = start_time_ms + trigger_position.getTime_ms()
             play_list.append({
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (trigger_channel - 1),
+                        "status_byte": 0x90 | 0x0F & (trigger_channel_unit - 1),
                         "data_byte_1": trigger_key_note.getValue__midi_key_note(),
-                        "data_byte_2": trigger_velocity,
-                        "device": trigger_device_list
+                        "data_byte_2": trigger_velocity_unit,
+                        "device": trigger_device_list_unit
                     }
                 })
             
@@ -333,10 +333,10 @@ class Sequence(Element):
             play_list.append({
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (trigger_channel - 1),
+                        "status_byte": 0x80 | 0x0F & (trigger_channel_unit - 1),
                         "data_byte_1": trigger_key_note.getValue__midi_key_note(),
                         "data_byte_2": 0,
-                        "device": trigger_device_list
+                        "device": trigger_device_list_unit
                     }
                 })
 
