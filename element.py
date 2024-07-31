@@ -2,6 +2,20 @@ from staff import *
 from operand import *
 import enum
 
+"""
+    Operators logic:
+        >>	__rshift__(self, other)
+            slide by length of Length to left or set position by Position
+
+        <<	__lshift__(self, other)
+            slide by length of Length to left or set position by Position
+
+        |	__or__(self, other)
+            Stacks position of second element on the first
+
+        
+"""
+
 class Element:
 
     def __init__(self, position: Position = Position(0), length: Length = None,
