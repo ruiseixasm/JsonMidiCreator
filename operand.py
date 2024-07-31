@@ -405,6 +405,23 @@ class KeyNote():
     #     return self.copy().setData__position(self.getValue__position() - length)
 
 
+# Read only class
+class Device:
+
+    def __init__(self, device_list: list[str] = None):
+        self._device_list = device_list
+
+    def getData(self):
+        return self._device_list
+    
+    def getValue(self) -> list[str]:
+        if self._device_list is None:
+            return self.getDefault()
+        return self._device_list
+
+    def getDefault(self) -> list[str]:
+        return get_global_staff().getData__device_list()
+        
 
 class Range:
 
