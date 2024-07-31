@@ -4,11 +4,21 @@ import enum
 
 """
     Operators logic:
+        +	__add__(self, other)
+            slide by length of the Position given
+            increases the length by the the Length given
+            
+
+        –	__sub__(self, other)
+        
+
         >>	__rshift__(self, other)
-            slide by length of Length to left or set position by Position
+            gets the respective length data if any Length() is given
+            gets the respective position data if any Position is given
 
         <<	__lshift__(self, other)
-            slide by length of Length to left or set position by Position
+            sets the position by the Position given
+            sets the length by the Length given
 
         |	__or__(self, other)
             Stacks position of second element on the first
