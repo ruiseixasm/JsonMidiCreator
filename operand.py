@@ -420,7 +420,7 @@ class Device:
     
 class TriggerNotes:
 
-    def __init__(self, trigger_notes: list[Note] = None):
+    def __init__(self, *trigger_notes: Note):
         self._trigger_notes = trigger_notes
 
     def getData(self):

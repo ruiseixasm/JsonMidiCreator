@@ -14,7 +14,7 @@ set_global_staff(Staff(tempo=110)).setData__measures(4)
 play_list = Note().getPlayList(Position(beats=3))
 play_list += Clock().getPlayList()
 
-trigger_notes = TriggerNotes([
+trigger_notes = TriggerNotes(
         Note(Position(steps=0), None, Duration(note=1/16)),
         Note(Position(steps=1), None, Duration(note=1/16)),
         Note(Position(steps=2), None, Duration(note=1/16)),
@@ -23,7 +23,7 @@ trigger_notes = TriggerNotes([
         Note(Position(steps=5), None, Duration(note=1/16)),
         Note(Position(steps=6), None, Duration(note=1/16)),
         Note(Position(steps=7), None, Duration(note=1/16))
-    ])
+    )
 play_list += Sequence(trigger_notes=trigger_notes, channel=Channel(10)).getPlayList(Position(measures=1))
 print(play_list)
 
