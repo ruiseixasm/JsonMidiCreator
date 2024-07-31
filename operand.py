@@ -1,3 +1,9 @@
+
+from __future__ import annotations  # Required for forward references
+from typing import TYPE_CHECKING    # Import Note only when type checking
+if TYPE_CHECKING:
+    from element import Note        # Import Note for type hints only
+
 from staff import *
 
 class Length:
@@ -161,9 +167,8 @@ class Position(Length):
 
     # CHAINABLE OPERATIONS
 
-    def getDefault(self):
-        return Duration()
-        
+    def getDefault(self) -> 'Position':
+        return Position()
 
 class Duration(Length):
     
@@ -172,7 +177,7 @@ class Duration(Length):
     
     # CHAINABLE OPERATIONS
 
-    def getDefault(self):
+    def getDefault(self) -> 'Duration':
         return Duration(
             note=get_global_staff().getData__duration_note()
         )
@@ -189,9 +194,12 @@ class Unit:
     
     def getValue(self) -> int:
         if self._unit is None:
-            return 0
+            return self.getDefault().getData()
         return self._unit
     
+    def getDefault(self) -> 'Unit':
+        return Unit(0)
+        
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -258,64 +266,52 @@ class Key(Unit):
             case _:
                 super().__init__(None)
 
-    def getValue(self) -> int:
-        if self._unit is None:
-            return Key(get_global_staff().getData__key()).getData()
-        return self._unit
-
     def getValue_str(self) -> str:
         return Key.getKey(self.getValue(self))
 
+    def getDefault(self) -> 'Key':
+        return Key(get_global_staff().getData__key())
+        
 class Octave(Unit):
 
     def __init__(self, octave: int = None):
         super().__init__(octave)
 
-    def getValue(self) -> int:
-        if self._unit is None:
-            return get_global_staff().getData__octave()
-        return self._unit
-
+    def getDefault(self) -> 'Octave':
+        return Octave(get_global_staff().getData__octave())
+        
 class Velocity(Unit):
     
     def __init__(self, velocity: int = None):
         super().__init__(velocity)
 
-    def getValue(self) -> int:
-        if self._unit is None:
-            return get_global_staff().getData__velocity()
-        return self._unit
-
+    def getDefault(self) -> 'Velocity':
+        return Velocity(get_global_staff().getData__velocity())
+        
 class Value(Unit):
 
     def __init__(self, value: int = None):
         super().__init__(value)
 
-    def getValue(self) -> int:
-        if self._unit is None:
-            return 64   # Center
-        return self._unit
-
+    def getDefault(self) -> 'Value':
+        return Value(64)    # 64 for Center
+        
 class Channel(Unit):
 
     def __init__(self, channel: int = None):
         super().__init__(channel)
 
-    def getValue(self) -> int:
-        if self._unit is None:
-            return get_global_staff().getData__channel()
-        return self._unit
-
+    def getDefault(self) -> 'Channel':
+        return Channel(get_global_staff().getData__channel())
+        
 class Pitch(Unit):
     
     def __init__(self, pitch: int = None):
         super().__init__(pitch)
 
-    def getValue(self) -> str:
-        if self._unit is None:
-            return 0
-        return self._unit
-
+    def getDefault(self) -> 'Pitch':
+        return Pitch(0)
+        
 
 class KeyNote():
 
@@ -360,7 +356,7 @@ class KeyNote():
                 self._octave
             )
 
-    def getDefault(self):
+    def getDefault(self) -> 'KeyNote':
         return KeyNote(
             get_global_staff().getData__key(),
             get_global_staff().getData__octave()
@@ -419,9 +415,31 @@ class Device:
             return self.getDefault()
         return self._device_list
 
-    def getDefault(self) -> list[str]:
-        return get_global_staff().getData__device_list()
-        
+    def getDefault(self) -> 'Device':
+        return Device(get_global_staff().getData__device_list())
+    
+class TriggerNotes:
+
+    def __init__(self, trigger_notes: list[Note] = None):
+        self._trigger_notes = trigger_notes
+
+    def getData(self):
+        return self._trigger_notes
+    
+    def getValue(self) -> list[Note]:
+        if self._trigger_notes is None:
+            return self.getDefault()
+        return self._trigger_notes
+
+    def getDefault(self) -> 'TriggerNotes':
+        return TriggerNotes([])
+    
+    def getLastPosition(self) -> Position:
+        last_position: Position = Position()
+        for trigger_note in self.getValue():
+            if trigger_note.getValue__position() > last_position:
+                last_position = trigger_note.getValue__position()
+        return last_position
 
 class Range:
 

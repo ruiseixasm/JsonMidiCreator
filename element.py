@@ -5,11 +5,13 @@ import enum
 """
     Operators logic:
         +	__add__(self, other)
-            slide by length of the Position given
+            slide to right by length of the Position given
             increases the length by the the Length given
             
 
         –	__sub__(self, other)
+            slide to left length of the Position given
+            increases the length by the the Length given
         
 
         >>	__rshift__(self, other)
@@ -29,23 +31,19 @@ import enum
 class Element:
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 channel: int = None, device_list: list[str] = None):
-        self._position: Position = Position() if position is None else position
+                 channel: int = None, device: Device = None):
+        self._position: Position = position
         self._length: Length = length
-        self._channel: Channel = Channel(channel)
-        self._device_list: list[str] = device_list
+        self._channel: Channel = channel
+        self._device: Device = device
 
-    def getData__position(self):
-        return self._position
-    
-    def getData__length(self):
-        return self._length
-    
-    def getData__channel(self):
-        return self._channel.getData()
-
-    def getData__device_list(self):
-        return self._device_list
+    def __rshift__(self, operand):
+        match operand:
+            case Position():    return self._position
+            case Length():      return self._length
+            case Channel():     return self._channel
+            case Device():      return self._device
+            case _:             return Empty()
 
     def getValue__position(self) -> Position:
         if self._position is None:
@@ -54,16 +52,18 @@ class Element:
     
     def getValue__length(self) -> Length:
         if self._length is None:
-            return Length(note=get_global_staff().getData__note_duration())
+            return Length()
         return self._length
     
-    def getValue__channel(self):
-        return self._channel.getValue()
+    def getValue__channel(self) -> Channel:
+        if self._channel is None:
+            return Channel().getDefault()
+        return self._channel
 
-    def getValue__device_list(self) -> list[str]:
-        if self._device_list is None:
-            return get_global_staff().getData__device_list()
-        return self._device_list
+    def getValue__device(self) -> Device:
+        if self._device is None:
+            return Device().getDefault()
+        return self._device
 
     def getSerialization(self):
         return {
@@ -71,7 +71,7 @@ class Element:
             "position": self._position.getSerialization(),
             "length": self._length.getSerialization(),
             "channel": self._channel.getSerialization(),
-            "device_list": self._device_list
+            "device": self._device
         }
 
     # CHAINABLE OPERATIONS
@@ -79,54 +79,51 @@ class Element:
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "position" in serialization and "length" in serialization and
-            "channel" in serialization and "device_list" in serialization):
+            "channel" in serialization and "device" in serialization):
 
             self._position      = Position().loadSerialization(serialization["position"])
             self._length        = Length().loadSerialization(serialization["length"])
             self._channel       = Channel().loadSerialization(serialization["channel"])
-            self._device_list   = serialization["device_list"]
+            self._device   = serialization["device"]
         return self
         
     def copy(self) -> 'Element':
         return self.__class__(
-                position    = self._position.copy(),
-                length      = self._length.copy(),
-                channel     = self._channel.getData(),  # Unit objects are const objects, read only
-                device_list = self._device_list.copy()
+                position    = None if self._position is None else self._position.copy(),
+                length      = None if self._length is None else self._length.copy(),
+                channel     = None if self._channel is None else self._channel.getData(),   # Unit objects are const objects, read only
+                device      = None if self._device is None else self._device.getData()      # Device are read only objects
             )
 
-    def setData__position(self, position: Position = None):
-        self._position = Position() if position is None else position
-        return self
-
-    def setData__length(self, length: Length = None):
-        self._length = length
-        return self
-
-    def setData__channel(self, channel: Channel = None):
-        self._channel = channel
-        return self
-
-    def setData__device_list(self, device_list: list[str] = None):
-        self._device_list = device_list
+    def __lshift__(self, operand):
+        if operand.__class__ == Empty:
+            operand = operand.getOperand()
+            operand_data = None
+        else:
+            operand_data = operand
+        match operand:
+            case Position():    self._position  = operand_data
+            case Length():      self._length    = operand_data
+            case Channel():     self._channel   = operand_data
+            case Device():      self._device    = operand_data
         return self
 
     def __add__(self, other_element: 'Element') -> 'Element':
         return self.__class__(
                 position = self._position,
-                length = None if self._length is None or other_element.getData__length() is None
-                    else self._length + other_element.getData__length(),
+                length = None if self._length is None or other_element >> Length() is None
+                    else self._length + other_element >> Length(),
                 channel = self._channel,
-                device_list = self._device_list
+                device = self._device
             )
     
     def __sub__(self, other_element: 'Element') -> 'Element':
         return self.__class__(
                 position = self._position,
-                length = None if self._length is None or other_element.getData__length() is None
-                    else self._length - other_element.getData__length(),
+                length = None if self._length is None or other_element >> Length() is None
+                    else self._length - other_element >> Length(),
                 channel = self._channel,
-                device_list = self._device_list
+                device = self._device
             )
 
     # multiply with a scalar 
@@ -135,7 +132,7 @@ class Element:
                 position = self._position,
                 length = None if self._length is None else self._length * scalar,
                 channel = self._channel,
-                device_list = self._device_list
+                device = self._device
             )
     
     # multiply with a scalar 
@@ -148,13 +145,6 @@ class Element:
             return self * (1/scalar)
         return self.copy()
     
-    def __rshift__(self, length: Length) -> 'Element':
-        return self.copy().setData__position(self.getValue__position() + length)
-
-    def __lshift__(self, length: Length) -> 'Element':
-        return self.copy().setData__position(self.getValue__position() - length)
-
-
 class ClockModes(enum.Enum):
     single  = 1
     first   = 2
@@ -165,8 +155,8 @@ class ClockModes(enum.Enum):
 class Clock(Element):
 
     def __init__(self, position: Position = Position(0), length: Length = None, mode: ClockModes = ClockModes.single,
-                 device_list: list[str] = None, pulses_per_quarternote: int = 24):
-        super().__init__(position, length, None, device_list)
+                 device: Device = None, pulses_per_quarternote: int = 24):
+        super().__init__(position, length, None, device)
         self._mode: ClockModes = mode
         self._pulses_per_quarternote = 24 if pulses_per_quarternote is None else pulses_per_quarternote
 
@@ -181,8 +171,9 @@ class Clock(Element):
         staff = get_global_staff()
         clock_position: Position = self.getValue__position() + Position() if position is None else position
         staff_length = Length(measures=get_global_staff().getData__measures())
-        clock_length = staff_length if self._mode == ClockModes.single else self.getValue__length()
-        device_list = self.getValue__device_list()
+        clock_mode = ClockModes.single if self._mode is None else self._mode
+        clock_length = staff_length if clock_mode == ClockModes.single else self.getValue__length()
+        device = self.getValue__device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / staff.getValue__beats_per_note()
@@ -208,8 +199,9 @@ class Clock(Element):
                 {
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xFA if self._mode == ClockModes.single or self._mode == ClockModes.first
-                            else 0xFB if self._mode == ClockModes.resume else 0xF8
+                        "status_byte": 0xFA if clock_mode == ClockModes.single or clock_mode == ClockModes.first
+                            else 0xFB if clock_mode == ClockModes.resume else 0xF8,
+                        "device": device.getValue()
                     }
                 }
             ]
@@ -220,26 +212,23 @@ class Clock(Element):
                     "time_ms": round(clock_start_ms + single_measure_ms \
                                      * clock_length.getData__measures() * clock_pulse / clock_pulses, 3),
                     "midi_message": {
-                        "status_byte": 0xF8
+                        "status_byte": 0xF8,
+                        "device": device.getValue()
                     }
                 }
             )
 
-        if self._mode == ClockModes.single or self._mode == ClockModes.last:
-
+        if clock_mode == ClockModes.single or clock_mode == ClockModes.last:
             play_list.append(
                 {
                     "time_ms": round(clock_stop_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xFC
+                        "status_byte": 0xFC,
+                        "device": device.getValue()
                     }
                 }
             )
         
-        if isinstance(device_list, list):
-            for list_element in play_list:
-                list_element["midi_message"]["device"] = device_list
-
         return play_list
 
     def getSerialization(self):
@@ -271,26 +260,23 @@ class Clock(Element):
     def setData__pulses_per_quarternote(self, pulses_per_quarternote: int = 24):
         self._pulses_per_quarternote = pulses_per_quarternote
         return self
-                 
 
 class Note(Element):
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 duration: Duration = None, key_note: KeyNote = None, velocity: int = None, channel: int = None,
-                 device_list: list[str] = None):
-        super().__init__(position, length, channel, device_list)
+                 duration: Duration = None, key_note: KeyNote = None, velocity: Velocity = None,
+                 channel: Channel = None, device: Device = None):
+        super().__init__(position, length, channel, device)
         self._duration: Duration = duration
         self._key_note: KeyNote = key_note
-        self._velocity: Velocity = Velocity(velocity)
+        self._velocity: Velocity = velocity
 
-    def getData__duration(self):
-        return self._duration
-    
-    def getData__key_note(self):
-        return self._key_note
-
-    def getData__velocity(self):
-        return self._velocity.getData()
+    def __rshift__(self, operand):
+        match operand:
+            case Duration():    return self._duration
+            case KeyNote():     return self._key_note
+            case Velocity():    return self._velocity
+            case _:             return super().__rshift__(operand)
 
     def getValue__length(self) -> Length:
         if self._length is None:
@@ -307,27 +293,30 @@ class Note(Element):
             return KeyNote().getDefault()
         return self._key_note
 
-    def getValue__velocity(self):
-        return self._velocity.getValue()
+    def getValue__velocity(self) -> Velocity:
+        if self._velocity is None:
+            return Velocity().getDefault()
+        return self._velocity
 
     def getPlayList(self, position: Position = None):
         
         note_position: Position = self.getValue__position() + Position() if position is None else position
-        duration = self.getValue__duration()
+        duration_ms = self.getValue__duration().getTime_ms()
         midi_key_note = self.getValue__key_note().getValue__midi_key_note()
-        midi_velocity = self._velocity.getValue()
-        midi_channel = self.getValue__channel()
-        device_list = self.getValue__device_list()
+        midi_velocity = self.getValue__velocity().getData()
+        midi_channel = self.getValue__channel().getData()
+        device_list = self.getValue__device().getData()
 
         on_time_ms = note_position.getTime_ms()
-        off_time_ms = on_time_ms + duration.getTime_ms()
+        off_time_ms = on_time_ms + duration_ms
         play_list = [
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & (midi_channel - 1),
                         "data_byte_1": midi_key_note,
-                        "data_byte_2": midi_velocity
+                        "data_byte_2": midi_velocity,
+                        "device": device_list
                     }
                 },
                 {
@@ -335,14 +324,11 @@ class Note(Element):
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & (midi_channel - 1),
                         "data_byte_1": midi_key_note,
-                        "data_byte_2": 0
+                        "data_byte_2": 0,
+                        "device": device_list
                     }
                 }
             ]
-    
-        if isinstance(device_list, list):
-            for list_element in play_list:
-                list_element["midi_message"]["device"] = device_list
 
         return play_list
     
@@ -368,54 +354,50 @@ class Note(Element):
         return self
       
     def copy(self) -> 'Note':
-        element_copy: Note = super().copy()
-        element_copy.setData__duration(self._duration.copy()).setData__key_note(self._key_note.copy())
-        return element_copy.setData__velocity(self._velocity.getData())
+        note_copy: Note = super().copy()
+        note_duration = Empty(Duration()) if self._duration is None else self._duration
+        note_key_note = Empty(KeyNote()) if self._key_note is None else self._key_note
+        note_velocity = Empty(Velocity()) if self._velocity is None else self._velocity
+        return note_copy << note_duration << note_key_note << note_velocity
 
-    def setData__duration(self, duration: Duration = None):
-        self._duration = duration
-        return self
-
-    def setData__key_note(self, key_note: KeyNote = None):
-        self._key_note = key_note
-        return self
-
-    def setData__velocity(self, velocity: Velocity = None):
-        self._velocity = velocity
+    def __lshift__(self, operand):
+        super().__lshift__(operand)
+        if operand.__class__ == Empty:
+            operand = operand.getOperand()
+            operand_data = None
+        else:
+            operand_data = operand
+        match operand:
+            case Duration():    self._duration = operand_data
+            case KeyNote():     self._key_note = operand_data
+            case Velocity():    self._velocity = operand_data
         return self
 
 class Sequence(Element):
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 trigger_notes: list[Note] = None,
-                 duration: Duration = None, key_note: KeyNote = None, velocity: int = None, channel: int = None,
-                 device_list: list[str] = None):
-        super().__init__(position, length, channel, device_list)
-        self._trigger_notes: list[Note] = [] if trigger_notes is None else trigger_notes
+                 trigger_notes: TriggerNotes = None,
+                 duration: Duration = None, key_note: KeyNote = None, velocity: Velocity = None,
+                 channel: Channel = None, device: Device = None):
+        super().__init__(position, length, channel, device)
+        self._trigger_notes: TriggerNotes = trigger_notes
         self._duration: Duration = duration
         self._key_note: KeyNote = key_note
-        self._velocity: Velocity = Velocity(velocity)
+        self._velocity: Velocity = velocity
 
-    def getData__trigger_notes(self):
-        return self._trigger_notes
-
-    def getData__duration(self):
-        return self._duration
-    
-    def getData__key_note(self):
-        return self._key_note
-
-    def getData__velocity(self):
-        return self._velocity.getData()
+    def __rshift__(self, operand):
+        match operand:
+            case TriggerNotes():    return self._trigger_notes  # case [] | [Note(), *rest]:  # Match an empty list or a list with one or more Note instances
+            case Duration():        return self._duration
+            case KeyNote():         return self._key_note
+            case Velocity():        return self._velocity
+        return super() >> operand
 
     def getValue__length(self) -> Length:
         if self._length is None:
-            note_last_position = Position()
-            for trigger_note in self._trigger_notes:
-                if trigger_note.getValue__position() > note_last_position:
-                    note_last_position = trigger_note.getValue__position()
-            sequence_length = Length(measures=1)
-            while note_last_position.getLength() > sequence_length:
+            last_position: Position = self._trigger_notes.getLastPosition()
+            sequence_length: Length = Length(measures=1)
+            while last_position > sequence_length:
                 sequence_length += Length(measures=1)
             return sequence_length
         return self._length
@@ -430,8 +412,10 @@ class Sequence(Element):
             return KeyNote().getDefault()
         return self._key_note
 
-    def getValue__velocity(self) -> int:
-        return self._velocity.getValue()
+    def getValue__velocity(self) -> Velocity:
+        if self._velocity is None:
+            return Velocity().getDefault()
+        return self._velocity
 
     def getPlayList(self, position: Position = None):
         
@@ -439,31 +423,31 @@ class Sequence(Element):
         sequence_length: Length = self.getValue__length()
         sequence_duration: Duration = self.getValue__duration()
         sequence_key_note: KeyNote = self.getValue__key_note()
-        sequence_velocity_unit = self.getValue__velocity()
-        sequence_channel_unit = self.getValue__channel()
-        sequence_device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
+        sequence_velocity_value = self.getValue__velocity().getData()
+        sequence_channel_value = self.getValue__channel().getData()
+        sequence_device_value = self.getValue__device().getData()
         
         play_list = []
-        for trigger_note in self._trigger_notes:
+        for trigger_note in self._trigger_notes.getValue():
 
             if trigger_note.getValue__position() < sequence_length:
 
                 trigger_position: Position = sequence_position + trigger_note.getValue__position()
-                trigger_duration = sequence_duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
-                trigger_key_note = sequence_key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
-                trigger_velocity_unit = sequence_velocity_unit if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
-                trigger_channel_unit = sequence_channel_unit if trigger_note.getData__channel() is None else trigger_note.getData__channel()
-                trigger_device_list_unit = sequence_device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
+                trigger_duration = sequence_duration if trigger_note >> Duration() is None else trigger_note >> Duration()
+                trigger_key_note = sequence_key_note if trigger_note >> KeyNote() is None else trigger_note >> KeyNote()
+                trigger_velocity_value = sequence_velocity_value if trigger_note >> Velocity() is None else (trigger_note >> Velocity()).getValue()
+                trigger_channel_value = sequence_channel_value if trigger_note >> Channel() is None else (trigger_note >> Channel()).getValue()
+                trigger_device_value = sequence_device_value if trigger_note >> Device() is None else (trigger_note >> Device()).getValue()
 
                 start_time_ms = (self._position + position).getTime_ms()
                 on_time_ms = start_time_ms + trigger_position.getTime_ms()
                 play_list.append({
                         "time_ms": round(on_time_ms, 3),
                         "midi_message": {
-                            "status_byte": 0x90 | 0x0F & (trigger_channel_unit - 1),
+                            "status_byte": 0x90 | 0x0F & (trigger_channel_value - 1),
                             "data_byte_1": trigger_key_note.getValue__midi_key_note(),
-                            "data_byte_2": trigger_velocity_unit,
-                            "device": trigger_device_list_unit
+                            "data_byte_2": trigger_velocity_value,
+                            "device": trigger_device_value
                         }
                     })
                 
@@ -471,10 +455,10 @@ class Sequence(Element):
                 play_list.append({
                         "time_ms": round(off_time_ms, 3),
                         "midi_message": {
-                            "status_byte": 0x80 | 0x0F & (trigger_channel_unit - 1),
+                            "status_byte": 0x80 | 0x0F & (trigger_channel_value - 1),
                             "data_byte_1": trigger_key_note.getValue__midi_key_note(),
                             "data_byte_2": 0,
-                            "device": trigger_device_list_unit
+                            "device": trigger_device_value
                         }
                     })
 
@@ -524,20 +508,18 @@ class Sequence(Element):
         element_copy.setData__trigger_notes(trigger_notes).setData__duration(self._duration.copy())
         return element_copy.setData__key_note(self._key_note.copy()).setData__velocity(self._velocity.getData())
 
-    def setData__trigger_notes(self, trigger_notes: list[Note]):
-        self._trigger_notes = trigger_notes
-        return self
-
-    def setData__duration(self, duration: Duration):
-        self._duration = duration
-        return self
-
-    def setData__key_note(self, key_note: KeyNote):
-        self._key_note = key_note
-        return self
-
-    def setData__velocity(self, velocity: int):
-        self._velocity = Velocity(velocity)
+    def __lshift__(self, operand):
+        super().__lshift__(operand)
+        if operand.__class__ == Empty:
+            operand = operand.getOperand()
+            operand_data = None
+        else:
+            operand_data = operand
+        match operand:
+            case TriggerNotes():    self._trigger_notes = operand_data
+            case Duration():        self._duration = operand_data
+            case KeyNote():         self._key_note = operand_data
+            case Velocity():        self._velocity = operand_data
         return self
 
     # Right add (+) means is self being added to other_sequence
@@ -594,7 +576,7 @@ class MidiMessage:
         self._status_byte = status_byte
         self._data_byte_1 = data_byte_1
         self._data_byte_2 = data_byte_2
-        self._device_list: list = None
+        self._device: list = None
 
 class Panic:
     ...
@@ -609,7 +591,7 @@ class Chord:
         self._size = size
         self._scale = scale
         self._notes = []
-        self._device_list: list = None
+        self._device: list = None
 
     # CHAINABLE OPERATIONS
 
@@ -624,7 +606,7 @@ class Loop:
     def __init__(self, element, repeat = 4):
         self._element = element
         self._repeat = repeat
-        self._device_list: list = None
+        self._device: list = None
     
     # CHAINABLE OPERATIONS
 
@@ -653,10 +635,10 @@ class Composition:
         self._position: Position = position
         self._length: Length = length
         self._placed_elements = []
-        self._device_list: list = None
+        self._device: list = None
 
-    def getData__device_list(self):
-        return self._device_list
+    def getData__device(self):
+        return self._device
 
     def getPlayList(self, position: Position = None):
         
@@ -667,18 +649,18 @@ class Composition:
                     placed_element["position"] + (self._position + position)
                 )
             
-        if isinstance(self._device_list, list):
+        if isinstance(self._device, list):
             for list_element in play_list:
                 if "midi_message" in list_element:
                     if "device" not in list_element["midi_message"]:
-                            list_element["midi_message"]["device"] = self._device_list
+                            list_element["midi_message"]["device"] = self._device
 
         return play_list
 
     # CHAINABLE OPERATIONS
 
-    def setData__device_list(self, device_list: list = ["FLUID", "Midi", "Port", "Synth"]):
-        self._device_list = device_list
+    def setData__device(self, device: list = ["FLUID", "Midi", "Port", "Synth"]):
+        self._device = device
         return self
 
     def placeElement(self, element, position = Position()):
