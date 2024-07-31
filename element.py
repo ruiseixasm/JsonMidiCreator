@@ -224,6 +224,11 @@ class Note(Element):
     def getData__velocity(self):
         return self._velocity.getData()
 
+    def getValue__length(self) -> Length:
+        if self._length is None:
+            return self.getValue__duration().getLength()
+        return self._length
+    
     def getValue__duration(self) -> Duration:
         if self._duration is None:
             return Duration().getDefault()
@@ -273,10 +278,6 @@ class Note(Element):
 
         return play_list
     
-        self._duration: Duration = duration
-        self._key_note: KeyNote = key_note
-        self._velocity: Velocity = Velocity(velocity)
-
     def getSerialization(self):
         element_serialization = super().getSerialization()
         return element_serialization + {
@@ -317,7 +318,7 @@ class Note(Element):
 
 class Sequence(Element):
 
-    def __init__(self, position: Position = Position(0), length: Length = Length(measures=1),
+    def __init__(self, position: Position = Position(0), length: Length = None,
                  trigger_notes: list[Note] = None,
                  duration: Duration = None, key_note: KeyNote = None, velocity: int = None, channel: int = None,
                  device_list: list[str] = None):
@@ -339,6 +340,18 @@ class Sequence(Element):
     def getData__velocity(self):
         return self._velocity.getData()
 
+    def getValue__length(self) -> Length:
+        if self._length is None:
+            note_last_position = Position()
+            for trigger_note in self._trigger_notes:
+                if trigger_note.getValue__position() > note_last_position:
+                    note_last_position = trigger_note.getValue__position()
+            sequence_length = Length(measures=1)
+            while note_last_position.getLength() > sequence_length:
+                sequence_length += Length(measures=1)
+            return sequence_length
+        return self._length
+    
     def getValue__duration(self) -> Duration:
         if self._duration is None:
             return Duration().getDefault()
@@ -355,52 +368,50 @@ class Sequence(Element):
     def getPlayList(self, position: Position = None):
         
         sequence_position: Position = self.getValue__position() + Position() if position is None else position
-        sequence_duration = self.getValue__duration()
-        sequence_key_note = self.getValue__key_note()
-        sequence_velocity = self.getValue__velocity()
-        sequence_channel = self.getValue__channel()
+        sequence_length: Length = self.getValue__length()
+        sequence_duration: Duration = self.getValue__duration()
+        sequence_key_note: KeyNote = self.getValue__key_note()
+        sequence_velocity_unit = self.getValue__velocity()
+        sequence_channel_unit = self.getValue__channel()
         sequence_device_list = get_global_staff().getData__device_list() if self._device_list is None else self._device_list
         
         play_list = []
-        Note().getData__key_note()
         for trigger_note in self._trigger_notes:
 
-            trigger_position = sequence_position + trigger_note.getValue__position()
-            trigger_duration = sequence_duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
-            trigger_key_note = sequence_key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
-            trigger_velocity_unit = sequence_velocity if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
-            trigger_channel_unit = sequence_channel if trigger_note.getData__channel() is None else trigger_note.getData__channel()
-            trigger_device_list_unit = sequence_device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
+            if trigger_note.getValue__position() < sequence_length:
 
-            start_time_ms = (self._position + position).getTime_ms()
-            on_time_ms = start_time_ms + trigger_position.getTime_ms()
-            play_list.append({
-                    "time_ms": round(on_time_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (trigger_channel_unit - 1),
-                        "data_byte_1": trigger_key_note.getValue__midi_key_note(),
-                        "data_byte_2": trigger_velocity_unit,
-                        "device": trigger_device_list_unit
-                    }
-                })
-            
-            off_time_ms = on_time_ms + trigger_duration.getTime_ms()
-            play_list.append({
-                    "time_ms": round(off_time_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (trigger_channel_unit - 1),
-                        "data_byte_1": trigger_key_note.getValue__midi_key_note(),
-                        "data_byte_2": 0,
-                        "device": trigger_device_list_unit
-                    }
-                })
+                trigger_position: Position = sequence_position + trigger_note.getValue__position()
+                trigger_duration = sequence_duration if trigger_note.getData__duration() is None else trigger_note.getData__duration()
+                trigger_key_note = sequence_key_note if trigger_note.getData__key_note() is None else trigger_note.getData__key_note()
+                trigger_velocity_unit = sequence_velocity_unit if trigger_note.getData__velocity() is None else trigger_note.getData__velocity()
+                trigger_channel_unit = sequence_channel_unit if trigger_note.getData__channel() is None else trigger_note.getData__channel()
+                trigger_device_list_unit = sequence_device_list if trigger_note.getData__device_list() is None else trigger_note.getData__device_list()
+
+                start_time_ms = (self._position + position).getTime_ms()
+                on_time_ms = start_time_ms + trigger_position.getTime_ms()
+                play_list.append({
+                        "time_ms": round(on_time_ms, 3),
+                        "midi_message": {
+                            "status_byte": 0x90 | 0x0F & (trigger_channel_unit - 1),
+                            "data_byte_1": trigger_key_note.getValue__midi_key_note(),
+                            "data_byte_2": trigger_velocity_unit,
+                            "device": trigger_device_list_unit
+                        }
+                    })
+                
+                off_time_ms = on_time_ms + trigger_duration.getTime_ms()
+                play_list.append({
+                        "time_ms": round(off_time_ms, 3),
+                        "midi_message": {
+                            "status_byte": 0x80 | 0x0F & (trigger_channel_unit - 1),
+                            "data_byte_1": trigger_key_note.getValue__midi_key_note(),
+                            "data_byte_2": 0,
+                            "device": trigger_device_list_unit
+                        }
+                    })
 
         return play_list
     
-        self._duration: Duration = duration
-        self._key_note: KeyNote = key_note
-        self._velocity: Velocity = Velocity(velocity)
-
     def getSerialization(self):
         trigger_notes_serialization = []
         for trigger_note in self._trigger_notes:

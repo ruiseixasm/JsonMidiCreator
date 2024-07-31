@@ -12,7 +12,7 @@ set_global_staff(Staff(tempo=110)).setData__measures(4)
 # element ojects
 
 play_list = Note().getPlayList(Position(beats=3))
-play_list += Clock().getPlayList()
+#play_list += Clock().getPlayList()
 
 trigger_notes = [
         Note(Position(steps=0), None, Duration(note=1/16)),
