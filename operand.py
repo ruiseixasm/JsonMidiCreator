@@ -404,7 +404,6 @@ class KeyNote():
     # def __lshift__(self, semitones: int) -> 'KeyNote':
     #     return self.copy().setData__position(self.getValue__position() - length)
 
-    
 
 
 class Range:
@@ -452,3 +451,11 @@ class Gate:
     def __init__(self, gate: float = 0.50):
         self._gate: float = gate
 
+
+class Empty:
+
+    def __init__(self, operand):
+        self._operand = operand
+
+    def getOperand(self):
+        return self._operand
