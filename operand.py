@@ -20,6 +20,26 @@ class Length:
     def getData__steps(self):
         return self._steps
 
+    def getValue__measures(self) -> int:
+        if self._measures is None:
+            return 0
+        return self._measures
+
+    def getValue__beats(self) -> int:
+        if self._beats is None:
+            return 0
+        return self._beats
+
+    def getValue__note(self) -> int:
+        if self._note is None:
+            return 0
+        return self._note
+
+    def getValue__steps(self) -> int:
+        if self._steps is None:
+            return 0
+        return self._steps
+
     def __eq__(self, other_length):
         return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)
     
@@ -299,7 +319,7 @@ class Pitch(Unit):
 
 class KeyNote():
 
-    def __init__(self, key: str = None, octave: int = None):
+    def __init__(self, key: str | int = None, octave: int = None):
         self._key: Key = Key(key)
         self._octave: Octave = Octave(octave)
 
@@ -346,6 +366,43 @@ class KeyNote():
             get_global_staff().getData__octave()
         )
         
+    def __add__(self, unit) -> 'KeyNote':
+        key: Key = self._key
+        octave: Octave = self._octave
+        match unit:
+            case Key():
+                key += unit
+            case Octave():
+                octave += unit
+            case _:
+                return self.copy()
+
+        return KeyNote(
+            key     = key.getData(),
+            octave  = octave.getData()
+        )
+     
+    def __sub__(self, unit) -> 'KeyNote':
+        key: Key = self._key
+        octave: Octave = self._octave
+        match unit:
+            case Key():
+                key -= unit
+            case Octave():
+                octave -= unit
+            case _:
+                return self.copy()
+
+        return KeyNote(
+            key     = key.getData(),
+            octave  = octave.getData()
+        )
+     
+    # def __rshift__(self, semitones: int) -> 'KeyNote':
+    #     return self.copy().setData__position(self.getValue__position() + length)
+
+    # def __lshift__(self, semitones: int) -> 'KeyNote':
+    #     return self.copy().setData__position(self.getValue__position() - length)
 
     
 

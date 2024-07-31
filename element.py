@@ -57,17 +57,17 @@ class Element:
             "position" in serialization and "length" in serialization and
             "channel" in serialization and "device_list" in serialization):
 
-            self._position = Position().loadSerialization(serialization["position"])
-            self._length = Length().loadSerialization(serialization["length"])
-            self._channel = Channel().loadSerialization(serialization["channel"])
-            self._device_list = serialization["device_list"]
+            self._position      = Position().loadSerialization(serialization["position"])
+            self._length        = Length().loadSerialization(serialization["length"])
+            self._channel       = Channel().loadSerialization(serialization["channel"])
+            self._device_list   = serialization["device_list"]
         return self
         
     def copy(self) -> 'Element':
         return self.__class__(
-                position = self._position.copy(),
-                length = self._length.copy(),
-                channel = self._channel.getData(),  # Unit objects are const objects, read only
+                position    = self._position.copy(),
+                length      = self._length.copy(),
+                channel     = self._channel.getData(),  # Unit objects are const objects, read only
                 device_list = self._device_list.copy()
             )
 
@@ -87,12 +87,56 @@ class Element:
         self._device_list = device_list
         return self
 
+    def __add__(self, other_element: 'Element') -> 'Element':
+        return self.__class__(
+                position = self._position,
+                length = None if self._length is None or other_element.getData__length() is None
+                    else self._length + other_element.getData__length(),
+                channel = self._channel,
+                device_list = self._device_list
+            )
+    
+    def __sub__(self, other_element: 'Element') -> 'Element':
+        return self.__class__(
+                position = self._position,
+                length = None if self._length is None or other_element.getData__length() is None
+                    else self._length - other_element.getData__length(),
+                channel = self._channel,
+                device_list = self._device_list
+            )
+
+    # multiply with a scalar 
+    def __mul__(self, scalar: float) -> 'Element':
+        return self.__class__(
+                position = self._position,
+                length = None if self._length is None else self._length * scalar,
+                channel = self._channel,
+                device_list = self._device_list
+            )
+    
+    # multiply with a scalar 
+    def __rmul__(self, scalar: float) -> 'Element':
+        return self * scalar
+    
+    # multiply with a scalar 
+    def __div__(self, scalar: float) -> 'Element':
+        if (scalar != 0):
+            return self * (1/scalar)
+        return self.copy()
+    
+    def __rshift__(self, length: Length) -> 'Element':
+        return self.copy().setData__position(self.getValue__position() + length)
+
+    def __lshift__(self, length: Length) -> 'Element':
+        return self.copy().setData__position(self.getValue__position() - length)
+
+
 class ClockModes(enum.Enum):
-    single = 1
-    first = 2
-    middle = 3
-    last = 4
-    resume = 5
+    single  = 1
+    first   = 2
+    middle  = 3
+    last    = 4
+    resume  = 5
 
 class Clock(Element):
 
