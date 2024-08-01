@@ -465,13 +465,59 @@ class Range(Operand):
         self._length = length
 
 class Repeat(Operand):
-    
-    def __init__(self, unit: Unit, start: int = 0, stop: int = 1, step: int = 1):
+    """
+    The Repeat class initializes with a Unit and additional arguments,
+    similar to the arguments in the range() function.
+
+    Parameters:
+    unit (Unit): The unit object.
+    *argv (int): Additional arguments, similar to the range() function.
+
+    The *argv works similarly to the arguments in range():
+    - If one argument is provided, it's taken as the end value.
+    - If two arguments are provided, they're taken as start and end.
+    - If three arguments are provided, they're taken as start, end, and step.
+
+    Repeat usage:
+    operand = Repeat(unit, 8)
+    operand = Repeat(unit, 0, 10, 2)
+    """
+
+    def __init__(self, unit: Unit, *argv: int):
+        """
+        Initialize the Repeat with a Unit and additional arguments.
+
+        Parameters:
+        unit (Unit): The unit object.
+        *argv: Additional arguments, similar to the range() function.
+
+        The *argv works similarly to the arguments in range():
+        - If one argument is provided, it's taken as the end value.
+        - If two arguments are provided, they're taken as start and end.
+        - If three arguments are provided, they're taken as start, end, and step.
+
+        Repeat usage:
+        operand = Repeat(unit, 8)
+        operand = Repeat(unit, 0, 10, 2)
+        """
+
         self._unit = unit
-        self._start = start
-        self._stop = stop
-        self._step = step
-        self._iterator = start
+        self._start = 0
+        self._stop = 0
+        self._step = 1
+        if len(argv) == 1:
+            self._stop = argv[0]
+        elif len(argv) == 2:
+            self._start = argv[0]
+            self._stop = argv[1]
+        elif len(argv) == 3:
+            self._start = argv[0]
+            self._stop = argv[1]
+            self._step = argv[2]
+        else:
+            raise ValueError("Repeat requires 1, 2, or 3 arguments for the range.")
+
+        self._iterator = self._start
 
     def step(self) -> Unit | Empty:
         if self._iterator < self._stop:
