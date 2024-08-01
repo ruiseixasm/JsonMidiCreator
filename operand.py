@@ -456,6 +456,12 @@ class Range(Operand):
         self._position = position
         self._length = length
 
+class Increment(Operand):
+    
+    def __init__(self, operand: Operand, increment: int = 1):
+        self._operand = operand
+        self._increment = increment
+
 
 class IntervalQuality(Operand):
 
