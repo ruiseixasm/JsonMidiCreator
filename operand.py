@@ -224,7 +224,7 @@ class Unit(Operand):
         return self
         
     def __add__(self, other_unit: 'Unit') -> 'Unit':
-        if other_unit.__class__ == int or other_unit.__class__ == float:
+        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct add of a number
             return self.__class__(self.getValue() + other_unit)
         return self.__class__(self.getValue() + other_unit.getValue())
     
