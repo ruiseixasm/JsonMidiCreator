@@ -31,7 +31,7 @@ import enum
 class Element:
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 channel: int = None, device: Device = None):
+                 channel: Channel = None, device: Device = None):
         self._position: Position = position
         self._length: Length = length
         self._channel: Channel = channel
@@ -79,21 +79,22 @@ class Element:
         return self.__class__(
                 position    = None if self._position is None else self._position.copy(),
                 length      = None if self._length is None else self._length.copy(),
-                channel     = None if self._channel is None else self._channel.getData(),   # Unit objects are const objects, read only
-                device      = None if self._device is None else self._device.getData()      # Device are read only objects
+                channel     = None if self._channel is None else self._channel,     # Unit objects are const objects, read only
+                device      = None if self._device is None else self._device        # Device are read only objects
             )
+    
+    def __or__(self, other_element: 'Element') -> 'Element':
+        return other_element << self ** Position() + self ** Length()
 
     def __lshift__(self, operand: Operand) -> Operand:
+        operand_data = operand
         if operand.__class__ == Empty:
             operand = operand.getOperand()
             operand_data = None
-        else:
-            operand_data = operand
-        match operand:
-            case Position():    self._position  = operand_data
-            case Length():      self._length    = operand_data
-            case Channel():     self._channel   = operand_data
-            case Device():      self._device    = operand_data
+        if operand.__class__ == Position: self._position = operand_data
+        if operand.__class__ == Length: self._length = operand_data
+        if operand.__class__ == Channel: self._channel = operand_data
+        if operand.__class__ == Device: self._device = operand_data
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
@@ -328,15 +329,13 @@ class Note(Element):
 
     def __lshift__(self, operand: Operand) -> 'Note':
         super().__lshift__(operand)
+        operand_data = operand
         if operand.__class__ == Empty:
             operand = operand.getOperand()
             operand_data = None
-        else:
-            operand_data = operand
-        match operand:
-            case Duration():    self._duration = operand_data
-            case KeyNote():     self._key_note = operand_data
-            case Velocity():    self._velocity = operand_data
+        if operand.__class__ == Duration: self._duration = operand_data
+        if operand.__class__ == KeyNote: self._key_note = operand_data
+        if operand.__class__ == Velocity: self._velocity = operand_data
         return self
 
 class Sequence(Element):
@@ -456,27 +455,22 @@ class Sequence(Element):
         return self
     
     def copy(self) -> 'Sequence':
-        element_copy: Sequence = super().copy()
-        
-        trigger_notes: list[Note] = []
-        for trigger_note in self._trigger_notes:
-            trigger_notes.append(trigger_note.copy())
-
-        element_copy.setData__trigger_notes(trigger_notes).setData__duration(self._duration.copy())
-        return element_copy.setData__key_note(self._key_note.copy()).setData__velocity(self._velocity.getData())
+        trigger_notes   = Empty(TriggerNotes()) if self._trigger_notes is None else self._trigger_notes.copy()
+        duration        = Empty(Duration()) if self._duration is None else self._duration.copy()
+        key_note        = Empty(KeyNote()) if self._key_note is None else self._key_note.copy()
+        velocity        = Empty(Velocity()) if self._velocity is None else self._velocity
+        return super().copy() << trigger_notes << duration << key_note << velocity
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         super().__lshift__(operand)
+        operand_data = operand
         if operand.__class__ == Empty:
             operand = operand.getOperand()
             operand_data = None
-        else:
-            operand_data = operand
-        match operand:
-            case TriggerNotes():    self._trigger_notes = operand_data
-            case Duration():        self._duration = operand_data
-            case KeyNote():         self._key_note = operand_data
-            case Velocity():        self._velocity = operand_data
+        if operand.__class__ == TriggerNotes: self._trigger_notes = operand_data
+        if operand.__class__ == Duration: self._duration = operand_data
+        if operand.__class__ == KeyNote: self._key_note = operand_data
+        if operand.__class__ == Velocity: self._velocity = operand_data
         return self
 
     # Right add (+) means is self being added to other_sequence

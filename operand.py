@@ -439,9 +439,6 @@ class TriggerNotes(Operand):
             return self.getDefault()
         return self._trigger_notes
 
-    def getDefault(self) -> 'TriggerNotes':
-        return TriggerNotes([])
-    
     def getLastPosition(self) -> Position:
         last_position: Position = Position()
         for trigger_note in self.getValue():
@@ -449,6 +446,17 @@ class TriggerNotes(Operand):
                 last_position = trigger_note ** Position()
         return last_position
 
+    def getDefault(self) -> 'TriggerNotes':
+        return TriggerNotes([])
+    
+    def copy(self) -> 'TriggerNotes':
+        if self._trigger_notes is None:
+            return None
+        trigger_notes: list[Note] = []
+        for trigger_note in self.getData():
+            trigger_notes.append(trigger_note.copy())
+        return TriggerNotes(trigger_notes)
+    
 class Range(Operand):
 
     def __init__(self, operand: Operand, position: Position = None, length: Length = None):
