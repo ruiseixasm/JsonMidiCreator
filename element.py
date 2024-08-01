@@ -69,10 +69,10 @@ class Element:
             "position" in serialization and "length" in serialization and
             "channel" in serialization and "device" in serialization):
 
-            self._position      = Position().loadSerialization(serialization["position"])
-            self._length        = Length().loadSerialization(serialization["length"])
-            self._channel       = Channel().loadSerialization(serialization["channel"])
-            self._device   = serialization["device"]
+            self._position  = Position().loadSerialization(serialization["position"])
+            self._length    = Length().loadSerialization(serialization["length"])
+            self._channel   = Channel().loadSerialization(serialization["channel"])
+            self._device    = serialization["device"]
         return self
         
     def copy(self) -> 'Element':
@@ -86,7 +86,7 @@ class Element:
     def __or__(self, other_element: 'Element') -> 'Element':
         return other_element << self ** Position() + self ** Length()
 
-    def __lshift__(self, operand: Operand) -> Operand:
+    def __lshift__(self, operand: Operand) -> 'Element':
         operand_data = operand
         if operand.__class__ == Empty:
             operand = operand.getOperand()
@@ -104,6 +104,89 @@ class Element:
     def __sub__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy ** operand - operand
+
+    # multiply with a scalar 
+    def __mul__(self, scalar: float) -> 'Element':
+        return self.__class__(
+                position = self._position,
+                length = None if self._length is None else self._length * scalar,
+                channel = self._channel,
+                device = self._device
+            )
+    
+    # multiply with a scalar 
+    def __rmul__(self, scalar: float) -> 'Element':
+        return self * scalar
+    
+    # multiply with a scalar 
+    def __div__(self, scalar: float) -> 'Element':
+        if (scalar != 0):
+            return self * (1/scalar)
+        return self.copy()
+    
+class MultiElements():  # Just a container of Elements
+
+    def __init__(self, multi_elements: list[Element] = None):
+        self._multi_elements: list[Element] = multi_elements
+
+    def getData(self):
+        return self._multi_elements
+    
+    def getValue(self) -> list[Element]:
+        if self._multi_elements is None:
+            return self.getDefault()
+        return self._multi_elements
+
+    def getLastPosition(self) -> Position:
+        last_position: Position = Position()
+        for single_element in self.getValue():
+            if single_element ** Position() > last_position:
+                last_position = single_element ** Position()
+        return last_position
+
+    def getDefault(self) -> 'MultiElements':
+        return MultiElements([])
+    
+    def __rshift__(self, operand: list) -> list[Element] | None:
+        return self._multi_elements
+
+    def __pow__(self, operand: list) -> list[Element]:
+        return MultiElements().getDefault() if self._multi_elements is None else self._multi_elements
+
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "multi_elements": self._multi_elements
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "multi_elements" in serialization):
+
+            self._multi_elements = serialization["multi_elements"]
+        return self
+        
+    def copy(self) -> 'MultiElements':
+        if self._multi_elements is None:
+            return None
+        multi_elements: list[Element] = []
+        for single_element in self.getData():
+            multi_elements.append(single_element.copy())
+        return MultiElements(multi_elements)
+
+    def __lshift__(self, operand: list[Element]) -> 'MultiElements':
+        self._multi_elements = operand
+        return self
+
+    def __add__(self, operand: 'MultiElements') -> 'MultiElements':
+        multi_element_copy = self.copy()
+        return multi_element_copy << self ** list + operand ** list
+
+    def __sub__(self, operand: 'MultiElements') -> 'MultiElements':
+        multi_element_copy = self.copy()
+        return multi_element_copy << self ** list - operand ** list
 
     # multiply with a scalar 
     def __mul__(self, scalar: float) -> 'Element':
@@ -315,9 +398,9 @@ class Note(Element):
             "velocity" in serialization):
 
             super().loadSerialization(serialization)
-            self._duration = Duration.loadSerialization(serialization["duration"])
-            self._key_note = KeyNote.loadSerialization(serialization["key_note"])
-            self._velocity = Velocity.loadSerialization(serialization["velocity"])
+            self._duration = Duration().loadSerialization(serialization["duration"])
+            self._key_note = KeyNote().loadSerialization(serialization["key_note"])
+            self._velocity = Velocity().loadSerialization(serialization["velocity"])
         return self
       
     def copy(self) -> 'Note':
@@ -338,52 +421,21 @@ class Note(Element):
         if operand.__class__ == Velocity: self._velocity = operand_data
         return self
 
-class TriggerNotes(Element):
-
-    def __init__(self, trigger_notes: list[Note] = None):
-        self._trigger_notes = trigger_notes
-
-    def getData(self):
-        return self._trigger_notes
-    
-    def getValue(self) -> list[Note]:
-        if self._trigger_notes is None:
-            return self.getDefault()
-        return self._trigger_notes
-
-    def getLastPosition(self) -> Position:
-        last_position: Position = Position()
-        for trigger_note in self.getValue():
-            if trigger_note ** Position() > last_position:
-                last_position = trigger_note ** Position()
-        return last_position
-
-    def getDefault(self) -> 'TriggerNotes':
-        return TriggerNotes([])
-    
-    def copy(self) -> 'TriggerNotes':
-        if self._trigger_notes is None:
-            return None
-        trigger_notes: list[Note] = []
-        for trigger_note in self.getData():
-            trigger_notes.append(trigger_note.copy())
-        return TriggerNotes(trigger_notes)
-    
 class Sequence(Element):
 
     def __init__(self, position: Position = Position(0), length: Length = None,
-                 trigger_notes: TriggerNotes = None,
+                 trigger_notes: MultiElements = None,
                  duration: Duration = None, key_note: KeyNote = None, velocity: Velocity = None,
                  channel: Channel = None, device: Device = None):
         super().__init__(position, length, channel, device)
-        self._trigger_notes: TriggerNotes = trigger_notes
+        self._trigger_notes: MultiElements = trigger_notes
         self._duration: Duration = duration
         self._key_note: KeyNote = key_note
         self._velocity: Velocity = velocity
 
     def __rshift__(self, operand: Operand) -> Operand:
         match operand:
-            case TriggerNotes():    return self._trigger_notes  # case [] | [Note(), *rest]:  # Match an empty list or a list with one or more Note instances
+            case MultiElements():   return self._trigger_notes  # case [] | [Note(), *rest]:  # Match an empty list or a list with one or more Note instances
             case Duration():        return self._duration
             case KeyNote():         return self._key_note
             case Velocity():        return self._velocity
@@ -458,10 +510,10 @@ class Sequence(Element):
 
         element_serialization = super().getSerialization()
         return element_serialization + {
-            "trigger_notes": trigger_notes_serialization,
-            "duration": self._duration.getSerialization(),
-            "key_note": self._key_note.getSerialization(),
-            "velocity": self._velocity.getSerialization()
+            "trigger_notes": None if self._trigger_notes is None else self._trigger_notes.getSerialization(),
+            "duration": None if self._duration is None else self._duration.getSerialization(),
+            "key_note": None if self._key_note is None else self._key_note.getSerialization(),
+            "velocity": None if self._velocity is None else self._velocity.getSerialization()
         }
 
     # CHAINABLE OPERATIONS
@@ -471,22 +523,16 @@ class Sequence(Element):
             "trigger_notes" in serialization and "duration" in serialization and
             "key_note" in serialization and "velocity" in serialization):
 
-            trigger_notes = []
-            for trigger_note_serialization in serialization["trigger_notes"]:
-                trigger_notes.append(
-                        Note().loadSerialization(trigger_note_serialization)
-                    )
-
             super().loadSerialization(serialization)
-            self._trigger_notes: list = trigger_notes
-            self._duration = Duration.loadSerialization(serialization["duration"])
-            self._key_note = KeyNote.loadSerialization(serialization["key_note"])
-            self._velocity = Velocity.loadSerialization(serialization["velocity"])
+            self._trigger_notes = MultiElements().loadSerialization(serialization["trigger_notes"])
+            self._duration = Duration().loadSerialization(serialization["duration"])
+            self._key_note = KeyNote().loadSerialization(serialization["key_note"])
+            self._velocity = Velocity().loadSerialization(serialization["velocity"])
 
         return self
     
     def copy(self) -> 'Sequence':
-        trigger_notes   = Empty(TriggerNotes()) if self._trigger_notes is None else self._trigger_notes.copy()
+        trigger_notes   = Empty(MultiElements()) if self._trigger_notes is None else self._trigger_notes.copy()
         duration        = Empty(Duration()) if self._duration is None else self._duration.copy()
         key_note        = Empty(KeyNote()) if self._key_note is None else self._key_note.copy()
         velocity        = Empty(Velocity()) if self._velocity is None else self._velocity
@@ -498,7 +544,7 @@ class Sequence(Element):
         if operand.__class__ == Empty:
             operand = operand.getOperand()
             operand_data = None
-        if operand.__class__ == TriggerNotes: self._trigger_notes = operand_data
+        if operand.__class__ == MultiElements: self._trigger_notes = operand_data
         if operand.__class__ == Duration: self._duration = operand_data
         if operand.__class__ == KeyNote: self._key_note = operand_data
         if operand.__class__ == Velocity: self._velocity = operand_data
@@ -507,7 +553,7 @@ class Sequence(Element):
     # Right add (+) means is self being added to other_sequence
     def __radd__(self, other_sequence: 'Sequence'):
         merged_sequence = other_sequence.copy()     # Right add
-        merged_trigger_notes = other_sequence.getData__trigger_notes() + self._trigger_notes
+        merged_trigger_notes = (other_sequence >> MultiElements()) + self._trigger_notes
         merged_sequence.setData__trigger_notes(merged_trigger_notes)
 
         return other_sequence.sort()
@@ -515,7 +561,7 @@ class Sequence(Element):
     def __add__(self, operand: Operand = Position(note=1/4)):
         incremented_sequence = self.copy()
         operands_list = self.getList__trigger_operands(operand.__class__)
-        trigger_notes = incremented_sequence.getData__trigger_notes()
+        trigger_notes = incremented_sequence >> MultiElements()
         
         for trigger_i in range(len(operands_list)):
             if operands_list[trigger_i]["opperand"] is not None:

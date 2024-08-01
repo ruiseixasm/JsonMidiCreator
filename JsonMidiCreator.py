@@ -26,7 +26,7 @@ trigger_notes = [
         Note(Position(steps=6), None, Duration(note=1/16)),
         Note(Position(steps=7), None, Duration(note=1/16))
     ]
-first_sequence = Sequence(trigger_notes=TriggerNotes(trigger_notes), channel=Channel(10))
+first_sequence = Sequence(trigger_notes=MultiElements(trigger_notes), channel=Channel(10))
 second_sequence = first_sequence.copy()
 first_sequence | second_sequence
 play_list += first_sequence.getPlayList(Position(measures=1)) + second_sequence.getPlayList(Position(measures=1))
