@@ -37,7 +37,7 @@ class Element:
         self._channel: Channel = channel
         self._device: Device = device
 
-    def __rshift__(self, operand):
+    def __rshift__(self, operand: Operand) -> Operand:
         match operand:
             case Position():    return self._position
             case Length():      return self._length
@@ -45,7 +45,7 @@ class Element:
             case Device():      return self._device
             case _:             return operand
 
-    def __gt__(self, operand):
+    def __gt__(self, operand: Operand) -> Operand:
         match operand:
             case Position():    return Position().getDefault() if self._position is None else self._position
             case Length():      return Length().getDefault() if self._length is None else self._length
@@ -83,7 +83,7 @@ class Element:
                 device      = None if self._device is None else self._device.getData()      # Device are read only objects
             )
 
-    def __lshift__(self, operand):
+    def __lshift__(self, operand: Operand) -> Operand:
         if operand.__class__ == Empty:
             operand = operand.getOperand()
             operand_data = None
@@ -96,11 +96,11 @@ class Element:
             case Device():      self._device    = operand_data
         return self
 
-    def __add__(self, operand) -> 'Element':
+    def __add__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << (element_copy > operand) + operand
 
-    def __sub__(self, operand: 'Element') -> 'Element':
+    def __sub__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << (element_copy > operand) - operand
 
@@ -249,14 +249,14 @@ class Note(Element):
         self._key_note: KeyNote = key_note
         self._velocity: Velocity = velocity
 
-    def __rshift__(self, operand):
+    def __rshift__(self, operand: Operand) -> Operand:
         match operand:
             case Duration():    return self._duration
             case KeyNote():     return self._key_note
             case Velocity():    return self._velocity
             case _:             return super().__rshift__(operand)
 
-    def __gt__(self, operand):
+    def __gt__(self, operand: Operand) -> Operand:
         if operand.__class__ == Length: return (self > Duration()).getLength() if self._length is None else self._length
         match operand:
             case Duration():    return Duration().getDefault() if self._duration is None else self._duration
@@ -326,7 +326,7 @@ class Note(Element):
         note_velocity = Empty(Velocity()) if self._velocity is None else self._velocity
         return note_copy << note_duration << note_key_note << note_velocity
 
-    def __lshift__(self, operand):
+    def __lshift__(self, operand: Operand) -> 'Note':
         super().__lshift__(operand)
         if operand.__class__ == Empty:
             operand = operand.getOperand()
@@ -351,15 +351,15 @@ class Sequence(Element):
         self._key_note: KeyNote = key_note
         self._velocity: Velocity = velocity
 
-    def __rshift__(self, operand):
+    def __rshift__(self, operand: Operand) -> Operand:
         match operand:
             case TriggerNotes():    return self._trigger_notes  # case [] | [Note(), *rest]:  # Match an empty list or a list with one or more Note instances
             case Duration():        return self._duration
             case KeyNote():         return self._key_note
             case Velocity():        return self._velocity
-        return super() >> operand
+        return super().__rshift__(operand)
 
-    def __gt__(self, operand):
+    def __gt__(self, operand: Operand) -> Operand:
         if operand.__class__ == Length:
             if self._length is None:
                 last_position: Position = self._trigger_notes.getLastPosition()
@@ -465,7 +465,7 @@ class Sequence(Element):
         element_copy.setData__trigger_notes(trigger_notes).setData__duration(self._duration.copy())
         return element_copy.setData__key_note(self._key_note.copy()).setData__velocity(self._velocity.getData())
 
-    def __lshift__(self, operand):
+    def __lshift__(self, operand: Operand) -> 'Sequence':
         super().__lshift__(operand)
         if operand.__class__ == Empty:
             operand = operand.getOperand()
@@ -487,7 +487,7 @@ class Sequence(Element):
 
         return other_sequence.sort()
 
-    def __add__(self, operand = Position(note=1/4)):
+    def __add__(self, operand: Operand = Position(note=1/4)):
         incremented_sequence = self.copy()
         operands_list = self.getList__trigger_operands(operand.__class__)
         trigger_notes = incremented_sequence.getData__trigger_notes()

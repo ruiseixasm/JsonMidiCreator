@@ -6,7 +6,10 @@ if TYPE_CHECKING:
 
 from staff import *
 
-class Length:
+class Operand:
+    pass
+
+class Length(Operand):
     
     def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
         self._measures = measures
@@ -189,7 +192,7 @@ class Duration(Length):
 
 
 # Units have never None values and are also const, with no setters
-class Unit:
+class Unit(Operand):
 
     def __init__(self, unit: int = 0):
         self._unit: int = None if unit is None else round(unit)
@@ -318,7 +321,7 @@ class Pitch(Unit):
         return Pitch(0)
         
 
-class KeyNote():
+class KeyNote(Operand):
 
     def __init__(self, key: str | int = None, octave: int = None):
         self._key: Key = Key(key)
@@ -407,7 +410,7 @@ class KeyNote():
 
 
 # Read only class
-class Device:
+class Device(Operand):
 
     def __init__(self, device_list: list[str] = None):
         self._device_list = device_list
@@ -423,7 +426,7 @@ class Device:
     def getDefault(self) -> 'Device':
         return Device(get_global_staff().getData__device_list())
     
-class TriggerNotes:
+class TriggerNotes(Operand):
 
     def __init__(self, trigger_notes: list[Note] = None):
         self._trigger_notes = trigger_notes
@@ -446,16 +449,15 @@ class TriggerNotes:
                 last_position = trigger_note > Position()
         return last_position
 
-class Range:
+class Range(Operand):
 
-    def __init__(self, operand, position: Position = None, length: Length = None):
+    def __init__(self, operand: Operand, position: Position = None, length: Length = None):
+        self._operand = operand
         self._position = position
         self._length = length
-        self._operand = operand
 
 
-
-class IntervalQuality:
+class IntervalQuality(Operand):
 
     def __init__(self, interval_quality: str = 0):
         self._interval_quality: str = interval_quality
@@ -466,35 +468,27 @@ class IntervalQuality:
         # Minor (mi)
         # Diminished (d or o)
 
-class Inversion:
+class Inversion(Operand):
     
     def __init__(self, inversion: int = 0):
         self._inversion: int = inversion
 
 
-
-class Swing:
+class Swing(Operand):
 
     def __init__(self, swing: float = 0):
         self._swing: float = swing
 
 
-
-class Swing:
-
-    def __init__(self, swing: float = 0.50):
-        self._swing: float = swing
-
-
-class Gate:
+class Gate(Operand):
 
     def __init__(self, gate: float = 0.50):
         self._gate: float = gate
 
 
-class Empty:
+class Empty(Operand):
 
-    def __init__(self, operand):
+    def __init__(self, operand: Operand):
         self._operand = operand
 
     def getOperand(self):
