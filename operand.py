@@ -445,8 +445,8 @@ class TriggerNotes(Operand):
     def getLastPosition(self) -> Position:
         last_position: Position = Position()
         for trigger_note in self.getValue():
-            if (trigger_note > Position()) > last_position:
-                last_position = trigger_note > Position()
+            if trigger_note ** Position() > last_position:
+                last_position = trigger_note ** Position()
         return last_position
 
 class Range(Operand):
