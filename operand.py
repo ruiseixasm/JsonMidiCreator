@@ -466,16 +466,34 @@ class Range(Operand):
 
 class Repeat(Operand):
     
-    def __init__(self, operand: Operand, increment: int = 1, times: int = 1):
-        self._operand: Operand = operand
-        self._increment: int = increment
-        self._times: int = times
+    def __init__(self, unit: Unit, start: int = 0, stop: int = 1, step: int = 1):
+        self._unit = unit
+        self._start = start
+        self._stop = stop
+        self._step = step
+        self._iterator = start
+
+    def step(self) -> Unit | Empty:
+        if self._iterator < self._stop:
+            self._unit += self._step
+            self._iterator += 1
+            return self._unit
+        return Empty(self._unit)
 
 class Increment(Operand):
     
-    def __init__(self, operand: Operand, increment: int = 1):
-        self._operand = operand
+    def __init__(self, unit: Unit, repeat: int = 1, increment: int = 1, step: int = 0):
+        self._unit = unit
+        self._repeat = repeat
         self._increment = increment
+        self._step = step
+
+    def step(self) -> Unit | Empty:
+        self._step += 1
+        if self._step > self._repeat:
+            return Empty(self._unit)
+        self._unit += self._step - 1
+        return self._unit
 
 
 class IntervalQuality(Operand):
