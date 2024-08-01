@@ -465,8 +465,20 @@ class Range(Operand):
         self._length = length
 
 class Repeat(Operand):
+    
+    def __init__(self, unit: Unit, repeat: int = 1):
+        self._unit = unit
+        self._repeat = repeat
+
+    def step(self) -> Unit | Empty:
+        if self._repeat > 0:
+            self._repeat -= 1
+            return self._unit
+        return Empty(self._unit)
+
+class Increment(Operand):
     """
-    The Repeat class initializes with a Unit and additional arguments,
+    The Increment class initializes with a Unit and additional arguments,
     similar to the arguments in the range() function.
 
     Parameters:
@@ -478,14 +490,14 @@ class Repeat(Operand):
     - If two arguments are provided, they're taken as start and end.
     - If three arguments are provided, they're taken as start, end, and step.
 
-    Repeat usage:
-    operand = Repeat(unit, 8)
-    operand = Repeat(unit, 0, 10, 2)
+    Increment usage:
+    operand = Increment(unit, 8)
+    operand = Increment(unit, 0, 10, 2)
     """
 
     def __init__(self, unit: Unit, *argv: int):
         """
-        Initialize the Repeat with a Unit and additional arguments.
+        Initialize the Increment with a Unit and additional arguments.
 
         Parameters:
         unit (Unit): The unit object.
@@ -496,9 +508,9 @@ class Repeat(Operand):
         - If two arguments are provided, they're taken as start and end.
         - If three arguments are provided, they're taken as start, end, and step.
 
-        Repeat usage:
-        operand = Repeat(unit, 8)
-        operand = Repeat(unit, 0, 10, 2)
+        Increment usage:
+        operand = Increment(unit, 8)
+        operand = Increment(unit, 0, 10, 2)
         """
 
         self._unit = unit
@@ -515,7 +527,7 @@ class Repeat(Operand):
             self._stop = argv[1]
             self._step = argv[2]
         else:
-            raise ValueError("Repeat requires 1, 2, or 3 arguments for the range.")
+            raise ValueError("Increment requires 1, 2, or 3 arguments for the range.")
 
         self._iterator = self._start
 
@@ -525,21 +537,6 @@ class Repeat(Operand):
             self._iterator += 1
             return self._unit
         return Empty(self._unit)
-
-class Increment(Operand):
-    
-    def __init__(self, unit: Unit, repeat: int = 1, increment: int = 1, step: int = 0):
-        self._unit = unit
-        self._repeat = repeat
-        self._increment = increment
-        self._step = step
-
-    def step(self) -> Unit | Empty:
-        self._step += 1
-        if self._step > self._repeat:
-            return Empty(self._unit)
-        self._unit += self._step - 1
-        return self._unit
 
 
 class IntervalQuality(Operand):
