@@ -456,6 +456,13 @@ class Range(Operand):
         self._position = position
         self._length = length
 
+class Repeat(Operand):
+    
+    def __init__(self, operand: Operand, increment: int = 1, times: int = 1):
+        self._operand: Operand = operand
+        self._increment: int = increment
+        self._times: int = times
+
 class Increment(Operand):
     
     def __init__(self, operand: Operand, increment: int = 1):
