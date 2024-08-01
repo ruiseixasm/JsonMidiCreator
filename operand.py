@@ -1,13 +1,16 @@
 
-from __future__ import annotations  # Required for forward references
-from typing import TYPE_CHECKING    # Import Note only when type checking
-if TYPE_CHECKING:
-    from element import Note        # Import Note for type hints only
-
 from staff import *
 
 class Operand:
     pass
+
+class Empty(Operand):
+
+    def __init__(self, operand: Operand):
+        self._operand = operand
+
+    def getOperand(self):
+        return self._operand
 
 class Length(Operand):
     
@@ -426,37 +429,6 @@ class Device(Operand):
     def getDefault(self) -> 'Device':
         return Device(get_global_staff().getData__device_list())
     
-class TriggerNotes(Operand):
-
-    def __init__(self, trigger_notes: list[Note] = None):
-        self._trigger_notes = trigger_notes
-
-    def getData(self):
-        return self._trigger_notes
-    
-    def getValue(self) -> list[Note]:
-        if self._trigger_notes is None:
-            return self.getDefault()
-        return self._trigger_notes
-
-    def getLastPosition(self) -> Position:
-        last_position: Position = Position()
-        for trigger_note in self.getValue():
-            if trigger_note ** Position() > last_position:
-                last_position = trigger_note ** Position()
-        return last_position
-
-    def getDefault(self) -> 'TriggerNotes':
-        return TriggerNotes([])
-    
-    def copy(self) -> 'TriggerNotes':
-        if self._trigger_notes is None:
-            return None
-        trigger_notes: list[Note] = []
-        for trigger_note in self.getData():
-            trigger_notes.append(trigger_note.copy())
-        return TriggerNotes(trigger_notes)
-    
 class Range(Operand):
 
     def __init__(self, operand: Operand, position: Position = None, length: Length = None):
@@ -567,11 +539,3 @@ class Gate(Operand):
     def __init__(self, gate: float = 0.50):
         self._gate: float = gate
 
-
-class Empty(Operand):
-
-    def __init__(self, operand: Operand):
-        self._operand = operand
-
-    def getOperand(self):
-        return self._operand

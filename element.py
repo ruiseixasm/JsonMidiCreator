@@ -338,6 +338,37 @@ class Note(Element):
         if operand.__class__ == Velocity: self._velocity = operand_data
         return self
 
+class TriggerNotes(Element):
+
+    def __init__(self, trigger_notes: list[Note] = None):
+        self._trigger_notes = trigger_notes
+
+    def getData(self):
+        return self._trigger_notes
+    
+    def getValue(self) -> list[Note]:
+        if self._trigger_notes is None:
+            return self.getDefault()
+        return self._trigger_notes
+
+    def getLastPosition(self) -> Position:
+        last_position: Position = Position()
+        for trigger_note in self.getValue():
+            if trigger_note ** Position() > last_position:
+                last_position = trigger_note ** Position()
+        return last_position
+
+    def getDefault(self) -> 'TriggerNotes':
+        return TriggerNotes([])
+    
+    def copy(self) -> 'TriggerNotes':
+        if self._trigger_notes is None:
+            return None
+        trigger_notes: list[Note] = []
+        for trigger_note in self.getData():
+            trigger_notes.append(trigger_note.copy())
+        return TriggerNotes(trigger_notes)
+    
 class Sequence(Element):
 
     def __init__(self, position: Position = Position(0), length: Length = None,
