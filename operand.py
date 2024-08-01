@@ -97,7 +97,7 @@ class Length:
 
         return self
         
-    def getLength(self):
+    def getLength(self) -> 'Length':
         return Length(
             measures    = self._measures,
             beats       = self._measures,
@@ -112,6 +112,11 @@ class Length:
                 note        = self._note,
                 steps       = self._steps
             )
+
+    def getDefault(self) -> 'Length':
+        return Length(
+            measures=get_global_staff().getData__measures()
+        )
 
     # adding two lengths 
     def __add__(self, other_length) -> 'Length':
@@ -420,7 +425,7 @@ class Device:
     
 class TriggerNotes:
 
-    def __init__(self, *trigger_notes: Note):
+    def __init__(self, trigger_notes: list[Note] = None):
         self._trigger_notes = trigger_notes
 
     def getData(self):
@@ -437,8 +442,8 @@ class TriggerNotes:
     def getLastPosition(self) -> Position:
         last_position: Position = Position()
         for trigger_note in self.getValue():
-            if trigger_note.getValue__position() > last_position:
-                last_position = trigger_note.getValue__position()
+            if (trigger_note > Position()) > last_position:
+                last_position = trigger_note > Position()
         return last_position
 
 class Range:

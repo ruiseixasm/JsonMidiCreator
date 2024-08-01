@@ -43,27 +43,15 @@ class Element:
             case Length():      return self._length
             case Channel():     return self._channel
             case Device():      return self._device
-            case _:             return Empty()
+            case _:             return operand
 
-    def getValue__position(self) -> Position:
-        if self._position is None:
-            return Position()
-        return self._position
-    
-    def getValue__length(self) -> Length:
-        if self._length is None:
-            return Length()
-        return self._length
-    
-    def getValue__channel(self) -> Channel:
-        if self._channel is None:
-            return Channel().getDefault()
-        return self._channel
-
-    def getValue__device(self) -> Device:
-        if self._device is None:
-            return Device().getDefault()
-        return self._device
+    def __gt__(self, operand):
+        match operand:
+            case Position():    return Position().getDefault() if self._position is None else self._position
+            case Length():      return Length().getDefault() if self._length is None else self._length
+            case Channel():     return Channel().getDefault() if self._channel is None else self._channel
+            case Device():      return Device().getDefault() if self._device is None else self._device
+            case _:             return operand
 
     def getSerialization(self):
         return {
@@ -108,23 +96,13 @@ class Element:
             case Device():      self._device    = operand_data
         return self
 
-    def __add__(self, other_element: 'Element') -> 'Element':
-        return self.__class__(
-                position = self._position,
-                length = None if self._length is None or other_element >> Length() is None
-                    else self._length + other_element >> Length(),
-                channel = self._channel,
-                device = self._device
-            )
-    
-    def __sub__(self, other_element: 'Element') -> 'Element':
-        return self.__class__(
-                position = self._position,
-                length = None if self._length is None or other_element >> Length() is None
-                    else self._length - other_element >> Length(),
-                channel = self._channel,
-                device = self._device
-            )
+    def __add__(self, operand) -> 'Element':
+        element_copy = self.copy()
+        return element_copy << (element_copy > operand) + operand
+
+    def __sub__(self, operand: 'Element') -> 'Element':
+        element_copy = self.copy()
+        return element_copy << (element_copy > operand) - operand
 
     # multiply with a scalar 
     def __mul__(self, scalar: float) -> 'Element':
@@ -169,11 +147,11 @@ class Clock(Element):
     def getPlayList(self, position: Position = None):
         
         staff = get_global_staff()
-        clock_position: Position = self.getValue__position() + Position() if position is None else position
+        clock_position: Position = (self > Position()) + (Position().getDefault() if position is None else position)
         staff_length = Length(measures=get_global_staff().getData__measures())
         clock_mode = ClockModes.single if self._mode is None else self._mode
-        clock_length = staff_length if clock_mode == ClockModes.single else self.getValue__length()
-        device = self.getValue__device()
+        clock_length = staff_length if clock_mode == ClockModes.single else self > Length()
+        device = self > Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / staff.getValue__beats_per_note()
@@ -278,34 +256,22 @@ class Note(Element):
             case Velocity():    return self._velocity
             case _:             return super().__rshift__(operand)
 
-    def getValue__length(self) -> Length:
-        if self._length is None:
-            return self.getValue__duration().getLength()
-        return self._length
-    
-    def getValue__duration(self) -> Duration:
-        if self._duration is None:
-            return Duration().getDefault()
-        return self._duration
-
-    def getValue__key_note(self) -> KeyNote:
-        if self._key_note is None:
-            return KeyNote().getDefault()
-        return self._key_note
-
-    def getValue__velocity(self) -> Velocity:
-        if self._velocity is None:
-            return Velocity().getDefault()
-        return self._velocity
+    def __gt__(self, operand):
+        if operand.__class__ == Length: return (self > Duration()).getLength() if self._length is None else self._length
+        match operand:
+            case Duration():    return Duration().getDefault() if self._duration is None else self._duration
+            case KeyNote():     return KeyNote().getDefault() if self._key_note is None else self._key_note
+            case Velocity():    return Velocity().getDefault() if self._velocity is None else self._velocity
+            case _:             return super().__gt__(operand)
 
     def getPlayList(self, position: Position = None):
         
-        note_position: Position = self.getValue__position() + Position() if position is None else position
-        duration_ms = self.getValue__duration().getTime_ms()
-        midi_key_note = self.getValue__key_note().getValue__midi_key_note()
-        midi_velocity = self.getValue__velocity().getData()
-        midi_channel = self.getValue__channel().getData()
-        device_list = self.getValue__device().getData()
+        note_position: Position = (self > Position()) + (Position().getDefault() if position is None else position)
+        duration_ms     = (self > Duration()).getTime_ms()
+        midi_key_note   = (self > KeyNote()).getValue__midi_key_note()
+        midi_velocity   = (self > Velocity()).getData()
+        midi_channel    = (self > Channel()).getData()
+        device_list     = (self > Device()).getData()
 
         on_time_ms = note_position.getTime_ms()
         off_time_ms = on_time_ms + duration_ms
@@ -393,46 +359,37 @@ class Sequence(Element):
             case Velocity():        return self._velocity
         return super() >> operand
 
-    def getValue__length(self) -> Length:
-        if self._length is None:
-            last_position: Position = self._trigger_notes.getLastPosition()
-            sequence_length: Length = Length(measures=1)
-            while last_position > sequence_length:
-                sequence_length += Length(measures=1)
-            return sequence_length
-        return self._length
-    
-    def getValue__duration(self) -> Duration:
-        if self._duration is None:
-            return Duration().getDefault()
-        return self._duration
-
-    def getValue__key_note(self) -> KeyNote:
-        if self._key_note is None:
-            return KeyNote().getDefault()
-        return self._key_note
-
-    def getValue__velocity(self) -> Velocity:
-        if self._velocity is None:
-            return Velocity().getDefault()
-        return self._velocity
+    def __gt__(self, operand):
+        if operand.__class__ == Length:
+            if self._length is None:
+                last_position: Position = self._trigger_notes.getLastPosition()
+                sequence_length: Length = Length(measures=1)
+                while last_position > sequence_length:
+                    sequence_length += Length(measures=1)
+                return sequence_length
+            return self._length
+        match operand:
+            case Duration():    return Duration().getDefault() if self._duration is None else self._duration
+            case KeyNote():     return KeyNote().getDefault() if self._key_note is None else self._key_note
+            case Velocity():    return Velocity().getDefault() if self._velocity is None else self._velocity
+            case _:             return super().__gt__(operand)
 
     def getPlayList(self, position: Position = None):
         
-        sequence_position: Position = self.getValue__position() + Position() if position is None else position
-        sequence_length: Length = self.getValue__length()
-        sequence_duration: Duration = self.getValue__duration()
-        sequence_key_note: KeyNote = self.getValue__key_note()
-        sequence_velocity_value = self.getValue__velocity().getData()
-        sequence_channel_value = self.getValue__channel().getData()
-        sequence_device_value = self.getValue__device().getData()
+        sequence_position: Position = self > Position() + (Position().getDefault() if position is None else position)
+        sequence_length: Length     = self > Length()
+        sequence_duration: Duration = self > Duration()
+        sequence_key_note: KeyNote  = self > KeyNote()
+        sequence_velocity_value     = (self > Velocity()).getData()
+        sequence_channel_value      = (self > Channel()).getData()
+        sequence_device_value       = (self > Device()).getData()
         
         play_list = []
         for trigger_note in self._trigger_notes.getValue():
 
-            if trigger_note.getValue__position() < sequence_length:
+            if (trigger_note > Position()) < sequence_length:
 
-                trigger_position: Position = sequence_position + trigger_note.getValue__position()
+                trigger_position: Position = sequence_position + (trigger_note > Position())
                 trigger_duration = sequence_duration if trigger_note >> Duration() is None else trigger_note >> Duration()
                 trigger_key_note = sequence_key_note if trigger_note >> KeyNote() is None else trigger_note >> KeyNote()
                 trigger_velocity_value = sequence_velocity_value if trigger_note >> Velocity() is None else (trigger_note >> Velocity()).getValue()
