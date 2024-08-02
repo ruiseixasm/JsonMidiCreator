@@ -155,6 +155,13 @@ class MultiElements():  # Just a container of Elements
     def __pow__(self, operand: list) -> list[Element]:
         return MultiElements().getDefault() if self._multi_elements is None else self._multi_elements
 
+    def getPlayList(self, position: Position = None):
+        multi_elements = self ** list
+        play_list = []
+        for element in multi_elements:
+            play_list += element.getPlayList(position)
+        return play_list
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
