@@ -1,6 +1,8 @@
 from staff import *
 from operand import *
 import enum
+# Example using typing.Union (compatible with Python < 3.10)
+from typing import Union
 
 """
     Operators logic:
@@ -170,7 +172,7 @@ class MultiElements():  # Just a container of Elements
         
     def copy(self) -> 'MultiElements':
         if self._multi_elements is None:
-            return None
+            return MultiElements(None)
         multi_elements: list[Element] = []
         for single_element in self.getData():
             multi_elements.append(single_element.copy())
@@ -180,13 +182,21 @@ class MultiElements():  # Just a container of Elements
         self._multi_elements = operand
         return self
 
-    def __add__(self, operand: 'MultiElements') -> 'MultiElements':
-        multi_element_copy = self.copy()
-        return multi_element_copy << self ** list + operand ** list
+    def __add__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':
+        match operand:
+            case MultiElements():
+                return MultiElements(self ** list + operand ** list).copy()
+            case Element():
+                return MultiElements((self ** list).append(operand)).copy()
+        return self.copy()
 
-    def __sub__(self, operand: 'MultiElements') -> 'MultiElements':
-        multi_element_copy = self.copy()
-        return multi_element_copy << self ** list - operand ** list
+    def __sub__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':
+        match operand:
+            case MultiElements():
+                return MultiElements(self ** list - operand ** list).copy()
+            case Element():
+                return MultiElements((self ** list).remove(operand)).copy()
+        return self.copy()
 
     # multiply with a scalar 
     def __mul__(self, scalar: float) -> 'Element':
