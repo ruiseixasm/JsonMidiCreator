@@ -128,38 +128,34 @@ class Element:
     
 class MultiElements():  # Just a container of Elements
 
-    def __init__(self, multi_elements: list[Element] = None):
-        self._multi_elements: list[Element] = multi_elements
-
-    def getData(self):
-        return self._multi_elements
-    
-    def getValue(self) -> list[Element]:
-        if self._multi_elements is None:
-            return self.getDefault()
-        return self._multi_elements
+    def __init__(self, *multi_elements: list[Element] | Element):
+        self._multi_elements = []
+        if multi_elements is not None:
+            for single_element in multi_elements:
+                if isinstance(single_element, Element):
+                    self._multi_elements.append(single_element)
+                elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
+                    self._multi_elements.extend(single_element)
 
     def getLastPosition(self) -> Position:
         last_position: Position = Position()
-        for single_element in self.getValue():
+        for single_element in self._multi_elements:
             if single_element ** Position() > last_position:
                 last_position = single_element ** Position()
         return last_position
 
-    def getDefault(self) -> 'MultiElements':
-        return MultiElements([])
-    
-    def __rshift__(self, operand: list) -> list[Element] | None:
+    def __rshift__(self, operand: list) -> list[Element]:
         return self._multi_elements
 
     def __pow__(self, operand: list) -> list[Element]:
-        return MultiElements().getDefault() if self._multi_elements is None else self._multi_elements
+        return self._multi_elements
 
     def getPlayList(self, position: Position = None):
-        multi_elements = self ** list
+        multi_elements = self ** list()
         play_list = []
-        for element in multi_elements:
-            play_list += element.getPlayList(position)
+        for single_element in multi_elements:
+            if isinstance(single_element, Element):
+                play_list.extend(single_element.getPlayList(position))
         return play_list
 
     def getSerialization(self):
@@ -178,10 +174,8 @@ class MultiElements():  # Just a container of Elements
         return self
         
     def copy(self) -> 'MultiElements':
-        if self._multi_elements is None:
-            return MultiElements(None)
         multi_elements: list[Element] = []
-        for single_element in self.getData():
+        for single_element in self._multi_elements:
             multi_elements.append(single_element.copy())
         return MultiElements(multi_elements)
 
@@ -192,17 +186,17 @@ class MultiElements():  # Just a container of Elements
     def __add__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':
         match operand:
             case MultiElements():
-                return MultiElements(self ** list + operand ** list).copy()
+                return MultiElements(self ** list() + operand ** list()).copy()
             case Element():
-                return MultiElements((self ** list).append(operand)).copy()
+                return MultiElements((self ** list()) + [operand]).copy()
         return self.copy()
 
     def __sub__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':
         match operand:
             case MultiElements():
-                return MultiElements(self ** list - operand ** list).copy()
+                return MultiElements(self ** list() - operand ** list()).copy()
             case Element():
-                return MultiElements((self ** list).remove(operand)).copy()
+                return MultiElements((self ** list()) - [operand]).copy()
         return self.copy()
 
     # multiply with a scalar 
@@ -329,8 +323,13 @@ class Clock(Element):
         return self
       
     def copy(self) -> 'Clock':
-        element_copy: Clock = super().copy()
-        return element_copy.setData__mode(self._mode).setData__pulses_per_quarternote(self._pulses_per_quarternote)
+        return Clock(
+                position    = None if self._position is None else self._position.copy(),
+                length      = None if self._length is None else self._length.copy(),
+                mode        = None if self._mode is None else self._mode,
+                device      = None if self._device is None else self._device,       # Device are read only objects
+                pulses_per_quarternote = None if self._pulses_per_quarternote is None else self._pulses_per_quarternote
+            )
 
     def setData__mode(self, mode: ClockModes = ClockModes.single):
         self._mode = mode
@@ -484,7 +483,7 @@ class Sequence(Element):
         sequence_device_value       = (self ** Device()).getData()
         
         play_list = []
-        for trigger_note in self._trigger_notes.getValue():
+        for trigger_note in self._trigger_notes ** list():
 
             if trigger_note ** Position() < sequence_length:
 
@@ -495,7 +494,7 @@ class Sequence(Element):
                 trigger_channel_value = sequence_channel_value if trigger_note >> Channel() is None else (trigger_note >> Channel()).getValue()
                 trigger_device_value = sequence_device_value if trigger_note >> Device() is None else (trigger_note >> Device()).getValue()
 
-                start_time_ms = (self._position + position).getTime_ms()
+                start_time_ms = sequence_position.getTime_ms()
                 on_time_ms = start_time_ms + trigger_position.getTime_ms()
                 play_list.append({
                         "time_ms": round(on_time_ms, 3),
@@ -567,24 +566,9 @@ class Sequence(Element):
         if operand.__class__ == Velocity: self._velocity = operand_data
         return self
 
-    # Right add (+) means is self being added to other_sequence
-    def __radd__(self, other_sequence: 'Sequence'):
-        merged_sequence = other_sequence.copy()     # Right add
-        merged_trigger_notes = (other_sequence >> MultiElements()) + self._trigger_notes
-        merged_sequence.setData__trigger_notes(merged_trigger_notes)
+    def __add__(self, other_element: Element):
 
-        return other_sequence.sort()
-
-    def __add__(self, operand: Operand = Position(note=1/4)):
-        incremented_sequence = self.copy()
-        operands_list = self.getList__trigger_operands(operand.__class__)
-        trigger_notes = incremented_sequence >> MultiElements()
-        
-        for trigger_i in range(len(operands_list)):
-            if operands_list[trigger_i]["opperand"] is not None:
-                trigger_notes[trigger_i][operands_list[trigger_i]["index_j"]] = operands_list[trigger_i]["opperand"] + operand
-
-        return incremented_sequence
+        return self
 
     def __mul__(self, n_times: int):
         actual_length = self._length
@@ -690,8 +674,10 @@ class Composition:
         position = Position(0) if position is None else position
         play_list = []
         for placed_element in self._placed_elements:
-            play_list = play_list + placed_element["element"].getPlayList(
-                    placed_element["position"] + (self._position + position)
+            play_list = play_list.extend(
+                    placed_element["element"].getPlayList(
+                        placed_element["position"] + (self._position + position)
+                    )
                 )
             
         if isinstance(self._device, list):

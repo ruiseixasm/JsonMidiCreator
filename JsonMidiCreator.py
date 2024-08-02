@@ -11,8 +11,8 @@ set_global_staff(Staff(tempo=110)).setData__measures(4)
 
 # element ojects
 
-play_list = Note().getPlayList(Position(beats=3))
-play_list += Clock().getPlayList()
+global_clock = Clock()
+first_note = Note() << Position(beats=3)
 
 repeat_operand = Repeat(Channel(), 10)
 
@@ -26,11 +26,13 @@ trigger_notes = [
         Note(Position(steps=6), None, Duration(note=1/16)),
         Note(Position(steps=7), None, Duration(note=1/16))
     ]
-first_sequence = Sequence(trigger_notes=MultiElements(trigger_notes), channel=Channel(10))
-second_sequence = first_sequence.copy()
-first_sequence | second_sequence
-play_list += first_sequence.getPlayList(Position(measures=1)) + second_sequence.getPlayList(Position(measures=1))
-print(play_list)
+first_sequence = Sequence(Position(1)) << MultiElements(trigger_notes) << Channel(10)
+second_sequence = first_sequence.copy() << Position(2)
+all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
+all_elements += first_note
+all_elements += global_clock
+play_list = all_elements.getPlayList()
+# print(play_list)
 
 # first_sequence = Sequence(10, 60, Length(beats=2), trigger_notes)
 # second_sequence = first_sequence.copy()

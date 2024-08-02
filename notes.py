@@ -109,5 +109,94 @@
 # print(f"with_velocity: {with_velocity}")
 
 
-print (1 % 12)
-print (-1 % 12)
+# print (1 % 12)
+# print (-1 % 12)
+
+
+# class Element:
+#     # Your Element class definition here
+#     pass
+
+# class ChildElement(Element):
+#     # Your ChildElement class definition here
+#     pass
+
+# class MultiElements:
+#     def __init__(self):
+#         self._multi_elements = []
+
+#     def add_elements(self, single_element):
+#         match single_element:
+#             case Element():
+#                 self._multi_elements.append(single_element)
+#             case [Element()]:
+#                 self._multi_elements.extend(single_element) # Using extend to add multiple elements from the list
+#             case _:
+#                 raise ValueError("Unsupported type provided")
+
+# # Example usage:
+# multi_elements = MultiElements()
+
+# # Assuming you have some Element instances
+# elem1 = Element()
+# child_elem1 = ChildElement()
+# child_elem2 = ChildElement()
+
+# # Adding a single Element
+# multi_elements.add_elements(elem1)
+
+# # Adding a single ChildElement (child of Element)
+# multi_elements.add_elements(child_elem1)
+
+# # Adding a list of ChildElements
+# multi_elements.add_elements([child_elem2])
+
+# # Adding a mixed list of Elements and ChildElements
+# multi_elements.add_elements([elem1, child_elem1, child_elem2])
+
+# print(multi_elements._multi_elements)
+
+class Element:
+    def __init__(self, name="Element"):
+        self.name = name
+    
+    def __repr__(self):
+        return f"{self.name}"
+
+class ChildElement(Element):
+    def __init__(self, name="ChildElement"):
+        super().__init__(name)
+
+class MultiElements:
+    def __init__(self):
+        self._multi_elements = []
+
+    def add_elements(self, single_element):
+        if isinstance(single_element, Element):
+            self._multi_elements.append(single_element)
+        elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
+            self._multi_elements.extend(single_element)
+        else:
+            raise ValueError(f"Unsupported type provided: {single_element}")
+
+# Example usage:
+multi_elements = MultiElements()
+
+# Assuming you have some Element instances
+elem1 = Element("Element1")
+child_elem1 = ChildElement("ChildElement1")
+child_elem2 = ChildElement("ChildElement2")
+
+# Adding a single Element
+multi_elements.add_elements(elem1)
+
+# Adding a single ChildElement (child of Element)
+multi_elements.add_elements(child_elem1)
+
+# Adding a list of ChildElements
+multi_elements.add_elements([child_elem2])
+
+# Adding a mixed list of Elements and ChildElements
+multi_elements.add_elements([elem1, child_elem1, child_elem2])
+
+print(multi_elements._multi_elements)
