@@ -14,6 +14,377 @@ class Empty(Operand):
     def getOperand(self):
         return self._operand
 
+
+# Units have never None values and are also const, with no setters
+class Unit(Operand):
+
+    def __init__(self, unit: int = None):
+        self._unit: int = None if unit is None else round(unit)
+
+    def getData(self):
+        return self._unit
+    
+    def getValue(self) -> int:
+        if self._unit is None:
+            return self.getDefault().getData()
+        return self._unit
+    
+    def getDefault(self) -> 'Unit':
+        return Unit(0)
+        
+    def __eq__(self, other_unit: Union['Unit', int, float]) -> bool:
+        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct comparison with a number
+            return self.getValue() == other_unit
+        return self.getValue() == other_unit.getValue()
+    
+    def __lt__(self, other_unit: Union['Unit', int, float]) -> bool:
+        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct comparison with a number
+            return self.getValue() < other_unit
+        return self.getValue() < other_unit.getValue()
+    
+    def __gt__(self, other_unit: Union['Unit', int, float]) -> bool:
+        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct comparison with a number
+            return self.getValue() > other_unit
+        return self.getValue() > other_unit.getValue()
+    
+    def __le__(self, other_unit: Union['Unit', int, float]) -> bool:
+        return not (self > other_unit)
+    
+    def __ge__(self, other_unit: Union['Unit', int, float]) -> bool:
+        return not (self < other_unit)
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "unit": self._unit
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "unit" in serialization):
+
+            self._unit = serialization["unit"]
+        return self
+        
+    def __add__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct add of a number
+            return self.__class__(self.getValue() + other_unit)
+        return self.__class__(self.getValue() + other_unit.getValue())
+    
+    def __sub__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() - other_unit)
+        return self.__class__(self.getValue() - other_unit.getValue())
+    
+    def __mul__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() * other_unit)
+        return self.__class__(self.getValue() * other_unit.getValue())
+    
+    def __div__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
+        if other_unit.__class__ == int or other_unit.__class__ == float:
+            return self.__class__(self.getValue() / other_unit)
+        return self.__class__(self.getValue() / other_unit.getValue())
+    
+    def __rmul__(self, scalar: int | float) -> 'Unit':
+        return  self * scalar
+    
+class Key(Unit):
+
+    _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+                        "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+    
+    @staticmethod
+    def getKey(note_key: int = 0) -> str:
+        return Key._keys[note_key % 12]
+
+    @staticmethod
+    def keyStrToKeyUnit(key: str = "C") -> int:
+        key_number = 0
+        for key_i in range(len(Key._keys)):
+            if  Key._keys[key_i].lower().find(key.strip().lower()) != -1:
+                key_number += key_i % 12
+                break
+        return key_number
+
+    def __init__(self, key: str = None):
+
+        match key:
+            case str():
+                super().__init__(Key.keyStrToKeyUnit(key))
+            case int() | float():
+                super().__init__(key)
+            case _:
+                super().__init__(None)
+
+    def getValue_str(self) -> str:
+        return Key.getKey(self.getValue(self))
+
+    def getDefault(self) -> 'Key':
+        return Key(get_global_staff().getData__key())
+        
+class Octave(Unit):
+
+    def __init__(self, octave: int = None):
+        super().__init__(octave)
+
+    def getDefault(self) -> 'Octave':
+        return Octave(get_global_staff().getData__octave())
+        
+class Velocity(Unit):
+    
+    def __init__(self, velocity: int = None):
+        super().__init__(velocity)
+
+    def getDefault(self) -> 'Velocity':
+        return Velocity(get_global_staff().getData__velocity())
+        
+class ValueUnit(Unit):
+
+    def __init__(self, value: int = None):
+        super().__init__(value)
+
+    def getDefault(self) -> 'Value':
+        return Value(64)    # 64 for Center
+        
+class Channel(Unit):
+
+    def __init__(self, channel: int = None):
+        super().__init__(channel)
+
+    def getDefault(self) -> 'Channel':
+        return Channel(get_global_staff().getData__channel())
+        
+class Pitch(Unit):
+    
+    def __init__(self, pitch: int = None):
+        super().__init__(pitch)
+
+    def getDefault(self) -> 'Pitch':
+        return Pitch(0)
+
+class KeyNote(Operand):
+
+    def __init__(self, key: str | int = None, octave: int = None):
+        self._key: Key = Key(key)
+        self._octave: Octave = Octave(octave)
+
+    def getValue__key(self) -> int:
+        return self._key.getValue()
+    
+    def getValue__key_str(self) -> str:
+        return self._key.getValue_str()
+
+    def getValue__octave(self) -> int:
+        return self._octave.getValue()
+
+    def getValue__midi_key_note(self) -> int:
+        key = self._key.getValue()
+        octave = self._octave.getValue()
+        return 12 * (octave + 1) + key
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "key": self._key.getSerialization(),
+            "octave": self._octave.getSerialization()
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "key" in serialization and "octave" in serialization):
+
+            self._key = Key().loadSerialization(serialization["key"])
+            self._octave = Octave().loadSerialization(serialization["octave"])
+        return self
+        
+    def copy(self) -> 'KeyNote':
+        return self.__class__(
+                self._key,
+                self._octave
+            )
+
+    def getDefault(self) -> 'KeyNote':
+        return KeyNote(
+            get_global_staff().getData__key(),
+            get_global_staff().getData__octave()
+        )
+        
+    def __add__(self, unit) -> 'KeyNote':
+        key: Key = self._key
+        octave: Octave = self._octave
+        match unit:
+            case Key():
+                key += unit
+            case Octave():
+                octave += unit
+            case _:
+                return self.copy()
+
+        return KeyNote(
+            key     = key.getData(),
+            octave  = octave.getData()
+        )
+     
+    def __sub__(self, unit) -> 'KeyNote':
+        key: Key = self._key
+        octave: Octave = self._octave
+        match unit:
+            case Key():
+                key -= unit
+            case Octave():
+                octave -= unit
+            case _:
+                return self.copy()
+
+        return KeyNote(
+            key     = key.getData(),
+            octave  = octave.getData()
+        )
+     
+    # def __rshift__(self, semitones: int) -> 'KeyNote':
+    #     return self.copy().setData__position(self.getValue__position() + length)
+
+    # def __lshift__(self, semitones: int) -> 'KeyNote':
+    #     return self.copy().setData__position(self.getValue__position() - length)
+
+
+# Values have never None values and are also const, with no setters
+class Value(Operand):
+
+    def __init__(self, value: float = None):
+        self._value: float = None if value is None else value
+
+    def getData(self):
+        return self._value
+    
+    def getValue(self) -> float:
+        if self._value is None:
+            return self.getDefault().getData()
+        return self._value
+    
+    def getDefault(self) -> 'Value':
+        return Value(0)
+        
+    def __eq__(self, other_value: Union['Value', int, float]) -> bool:
+        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct comparison with a number
+            return self.getValue() == other_value
+        return self.getValue() == other_value.getValue()
+    
+    def __lt__(self, other_value: Union['Value', int, float]) -> bool:
+        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct comparison with a number
+            return self.getValue() < other_value
+        return self.getValue() < other_value.getValue()
+    
+    def __gt__(self, other_value: Union['Value', int, float]) -> bool:
+        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct comparison with a number
+            return self.getValue() > other_value
+        return self.getValue() > other_value.getValue()
+    
+    def __le__(self, other_value: Union['Value', int, float]) -> bool:
+        return not (self > other_value)
+    
+    def __ge__(self, other_value: Union['Value', int, float]) -> bool:
+        return not (self < other_value)
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "value": self._value
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "value" in serialization):
+
+            self._value = serialization["value"]
+        return self
+        
+    def __add__(self, other_value: Union['Value', int, float]) -> 'Value':
+        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct add of a number
+            return self.__class__(self.getValue() + other_value)
+        return self.__class__(self.getValue() + other_value.getValue())
+    
+    def __sub__(self, other_value: Union['Value', int, float]) -> 'Value':
+        if other_value.__class__ == int or other_value.__class__ == float:
+            return self.__class__(self.getValue() - other_value)
+        return self.__class__(self.getValue() - other_value.getValue())
+    
+    def __mul__(self, other_value: Union['Value', int, float]) -> 'Value':
+        if other_value.__class__ == int or other_value.__class__ == float:
+            return self.__class__(self.getValue() * other_value)
+        return self.__class__(self.getValue() * other_value.getValue())
+    
+    def __div__(self, other_value: Union['Value', int, float]) -> 'Value':
+        if other_value.__class__ == int or other_value.__class__ == float:
+            return self.__class__(self.getValue() / other_value)
+        return self.__class__(self.getValue() / other_value.getValue())
+    
+    def __rmul__(self, scalar: int | float) -> 'Value':
+        return  self * scalar
+    
+class Measure(Value):
+
+    def __init__(self, value: float = 0):
+        super().__init__(value)
+
+    def getDefault(self) -> 'Measure':
+        return Measure(0)
+        
+    def getTime_ms(self):
+        return Beat(1).getTime_ms() * get_global_staff().getValue__beats_per_measure()
+     
+class Beat(Value):
+
+    def __init__(self, value: float = 0):
+        super().__init__(value)
+
+    def getDefault(self) -> 'Beat':
+        return Beat(0)
+        
+    def getTime_ms(self):
+        return 60.0 * 1000 / get_global_staff().getData__tempo() * self.getValue()
+     
+class NoteValue(Value):
+
+    def __init__(self, value: float = 0):
+        super().__init__(value)
+
+    def getDefault(self) -> 'NoteValue':
+        return NoteValue(0)
+        
+    def getTime_ms(self):
+        return Beat(1).getTime_ms() * get_global_staff().getValue__beats_per_note()
+     
+class Step(Value):
+
+    def __init__(self, value: float = 0):
+        super().__init__(value)
+
+    def getDefault(self) -> 'Step':
+        return Step(0)
+        
+    def getTime_ms(self):
+        return NoteValue(1).getTime_ms() / get_global_staff().getValue__steps_per_note()
+     
+class Default():
+
+    def __init__(self, unit: Unit):
+        self._unit: Unit = unit
+
+    def getData(self):
+        return self._unit
+        
+    def getValue(self):
+        return self._unit.getDefault().getValue()
+        
+
 class Length(Operand):
     
     def __init__(self, measures: float = 0, beats: float = 0, note: float = 0, steps: float = 0):
@@ -194,365 +565,6 @@ class Duration(Length):
         return Duration(
             note=get_global_staff().getData__duration_note()
         )
-
-
-# Units have never None values and are also const, with no setters
-class Unit(Operand):
-
-    def __init__(self, unit: int = None):
-        self._unit: int = None if unit is None else round(unit)
-
-    def getData(self):
-        return self._unit
-    
-    def getValue(self) -> int:
-        if self._unit is None:
-            return self.getDefault().getData()
-        return self._unit
-    
-    def getDefault(self) -> 'Unit':
-        return Unit(0)
-        
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "unit": self._unit
-        }
-
-    def __eq__(self, other_unit: Union['Unit', int, float]) -> bool:
-        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct comparison with a number
-            return self.getValue() == other_unit
-        return self.getValue() == other_unit.getValue()
-    
-    def __lt__(self, other_unit: Union['Unit', int, float]) -> bool:
-        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct comparison with a number
-            return self.getValue() < other_unit
-        return self.getValue() < other_unit.getValue()
-    
-    def __gt__(self, other_unit: Union['Unit', int, float]) -> bool:
-        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct comparison with a number
-            return self.getValue() > other_unit
-        return self.getValue() > other_unit.getValue()
-    
-    def __le__(self, other_unit: Union['Unit', int, float]) -> bool:
-        return not (self > other_unit)
-    
-    def __ge__(self, other_unit: Union['Unit', int, float]) -> bool:
-        return not (self < other_unit)
-    
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "unit" in serialization):
-
-            self._unit = serialization["unit"]
-        return self
-        
-    def __add__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
-        if other_unit.__class__ == int or other_unit.__class__ == float: # Allows the direct add of a number
-            return self.__class__(self.getValue() + other_unit)
-        return self.__class__(self.getValue() + other_unit.getValue())
-    
-    def __sub__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
-        if other_unit.__class__ == int or other_unit.__class__ == float:
-            return self.__class__(self.getValue() - other_unit)
-        return self.__class__(self.getValue() - other_unit.getValue())
-    
-    def __mul__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
-        if other_unit.__class__ == int or other_unit.__class__ == float:
-            return self.__class__(self.getValue() * other_unit)
-        return self.__class__(self.getValue() * other_unit.getValue())
-    
-    def __div__(self, other_unit: Union['Unit', int, float]) -> 'Unit':
-        if other_unit.__class__ == int or other_unit.__class__ == float:
-            return self.__class__(self.getValue() / other_unit)
-        return self.__class__(self.getValue() / other_unit.getValue())
-    
-    def __rmul__(self, scalar: int | float) -> 'Unit':
-        return  self * scalar
-    
-class Key(Unit):
-
-    _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
-                        "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
-    
-    @staticmethod
-    def getKey(note_key: int = 0) -> str:
-        return Key._keys[note_key % 12]
-
-    @staticmethod
-    def keyStrToKeyUnit(key: str = "C") -> int:
-        key_number = 0
-        for key_i in range(len(Key._keys)):
-            if  Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                key_number += key_i % 12
-                break
-        return key_number
-
-    def __init__(self, key: str = None):
-
-        match key:
-            case str():
-                super().__init__(Key.keyStrToKeyUnit(key))
-            case int() | float():
-                super().__init__(key)
-            case _:
-                super().__init__(None)
-
-    def getValue_str(self) -> str:
-        return Key.getKey(self.getValue(self))
-
-    def getDefault(self) -> 'Key':
-        return Key(get_global_staff().getData__key())
-        
-class Octave(Unit):
-
-    def __init__(self, octave: int = None):
-        super().__init__(octave)
-
-    def getDefault(self) -> 'Octave':
-        return Octave(get_global_staff().getData__octave())
-        
-class Velocity(Unit):
-    
-    def __init__(self, velocity: int = None):
-        super().__init__(velocity)
-
-    def getDefault(self) -> 'Velocity':
-        return Velocity(get_global_staff().getData__velocity())
-        
-class ValueUnit(Unit):
-
-    def __init__(self, value: int = None):
-        super().__init__(value)
-
-    def getDefault(self) -> 'Value':
-        return Value(64)    # 64 for Center
-        
-class Channel(Unit):
-
-    def __init__(self, channel: int = None):
-        super().__init__(channel)
-
-    def getDefault(self) -> 'Channel':
-        return Channel(get_global_staff().getData__channel())
-        
-class Pitch(Unit):
-    
-    def __init__(self, pitch: int = None):
-        super().__init__(pitch)
-
-    def getDefault(self) -> 'Pitch':
-        return Pitch(0)
-
-# Values have never None values and are also const, with no setters
-class Value(Operand):
-
-    def __init__(self, value: float = None):
-        self._value: float = None if value is None else value
-
-    def getData(self):
-        return self._value
-    
-    def getValue(self) -> float:
-        if self._value is None:
-            return self.getDefault().getData()
-        return self._value
-    
-    def getDefault(self) -> 'Value':
-        return Value(0)
-        
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "value": self._value
-        }
-
-    def __eq__(self, other_value: Union['Value', int, float]) -> bool:
-        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct comparison with a number
-            return self.getValue() == other_value
-        return self.getValue() == other_value.getValue()
-    
-    def __lt__(self, other_value: Union['Value', int, float]) -> bool:
-        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct comparison with a number
-            return self.getValue() < other_value
-        return self.getValue() < other_value.getValue()
-    
-    def __gt__(self, other_value: Union['Value', int, float]) -> bool:
-        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct comparison with a number
-            return self.getValue() > other_value
-        return self.getValue() > other_value.getValue()
-    
-    def __le__(self, other_value: Union['Value', int, float]) -> bool:
-        return not (self > other_value)
-    
-    def __ge__(self, other_value: Union['Value', int, float]) -> bool:
-        return not (self < other_value)
-    
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "value" in serialization):
-
-            self._value = serialization["value"]
-        return self
-        
-    def __add__(self, other_value: Union['Value', int, float]) -> 'Value':
-        if other_value.__class__ == int or other_value.__class__ == float: # Allows the direct add of a number
-            return self.__class__(self.getValue() + other_value)
-        return self.__class__(self.getValue() + other_value.getValue())
-    
-    def __sub__(self, other_value: Union['Value', int, float]) -> 'Value':
-        if other_value.__class__ == int or other_value.__class__ == float:
-            return self.__class__(self.getValue() - other_value)
-        return self.__class__(self.getValue() - other_value.getValue())
-    
-    def __mul__(self, other_value: Union['Value', int, float]) -> 'Value':
-        if other_value.__class__ == int or other_value.__class__ == float:
-            return self.__class__(self.getValue() * other_value)
-        return self.__class__(self.getValue() * other_value.getValue())
-    
-    def __div__(self, other_value: Union['Value', int, float]) -> 'Value':
-        if other_value.__class__ == int or other_value.__class__ == float:
-            return self.__class__(self.getValue() / other_value)
-        return self.__class__(self.getValue() / other_value.getValue())
-    
-    def __rmul__(self, scalar: int | float) -> 'Value':
-        return  self * scalar
-    
-class Measure(Value):
-
-    def __init__(self, value: int = None):
-        super().__init__(value)
-
-    def getDefault(self) -> 'Measure':
-        return Measure(0)
-        
-class Beat(Value):
-
-    def __init__(self, value: int = None):
-        super().__init__(value)
-
-    def getDefault(self) -> 'Beat':
-        return Beat(0)
-        
-class NoteValue(Value):
-
-    def __init__(self, value: int = None):
-        super().__init__(value)
-
-    def getDefault(self) -> 'NoteValue':
-        return NoteValue(0)
-        
-class Step(Value):
-
-    def __init__(self, value: int = None):
-        super().__init__(value)
-
-    def getDefault(self) -> 'Step':
-        return Step(0)
-        
-class Default():
-
-    def __init__(self, unit: Unit):
-        self._unit: Unit = unit
-
-    def getData(self):
-        return self._unit
-        
-    def getValue(self):
-        return self._unit.getDefault().getValue()
-        
-
-class KeyNote(Operand):
-
-    def __init__(self, key: str | int = None, octave: int = None):
-        self._key: Key = Key(key)
-        self._octave: Octave = Octave(octave)
-
-    def getValue__key(self) -> int:
-        return self._key.getValue()
-    
-    def getValue__key_str(self) -> str:
-        return self._key.getValue_str()
-
-    def getValue__octave(self) -> int:
-        return self._octave.getValue()
-
-    def getValue__midi_key_note(self) -> int:
-        key = self._key.getValue()
-        octave = self._octave.getValue()
-        return 12 * (octave + 1) + key
-    
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "key": self._key.getSerialization(),
-            "octave": self._octave.getSerialization()
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "key" in serialization and "octave" in serialization):
-
-            self._key = Key().loadSerialization(serialization["key"])
-            self._octave = Octave().loadSerialization(serialization["octave"])
-        return self
-        
-    def copy(self) -> 'KeyNote':
-        return self.__class__(
-                self._key,
-                self._octave
-            )
-
-    def getDefault(self) -> 'KeyNote':
-        return KeyNote(
-            get_global_staff().getData__key(),
-            get_global_staff().getData__octave()
-        )
-        
-    def __add__(self, unit) -> 'KeyNote':
-        key: Key = self._key
-        octave: Octave = self._octave
-        match unit:
-            case Key():
-                key += unit
-            case Octave():
-                octave += unit
-            case _:
-                return self.copy()
-
-        return KeyNote(
-            key     = key.getData(),
-            octave  = octave.getData()
-        )
-     
-    def __sub__(self, unit) -> 'KeyNote':
-        key: Key = self._key
-        octave: Octave = self._octave
-        match unit:
-            case Key():
-                key -= unit
-            case Octave():
-                octave -= unit
-            case _:
-                return self.copy()
-
-        return KeyNote(
-            key     = key.getData(),
-            octave  = octave.getData()
-        )
-     
-    # def __rshift__(self, semitones: int) -> 'KeyNote':
-    #     return self.copy().setData__position(self.getValue__position() + length)
-
-    # def __lshift__(self, semitones: int) -> 'KeyNote':
-    #     return self.copy().setData__position(self.getValue__position() - length)
-
 
 # Read only class
 class Device(Operand):
