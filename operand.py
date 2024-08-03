@@ -319,7 +319,7 @@ class NoteValue(Value):
 class Step(Value):
 
     def __init__(self, value: float = 0):
-        super().__init__()
+        super().__init__(value)
 
     def getTime_ms(self):
         return NoteValue(1).getTime_ms() / get_global_staff().getValue__steps_per_note() * self._value
@@ -394,7 +394,8 @@ class Length(Operand):
         if value.__class__ == Measure:      self._measure = value
         if value.__class__ == Beat:         self._beat = value
         if value.__class__ == NoteValue:    self._note_value = value
-        if value.__class__ == Step:         self._step = value
+        if value.__class__ == Step:         
+            self._step = value
         return self
 
     # adding two lengths 

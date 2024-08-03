@@ -7,20 +7,20 @@ from creator import *
 
 # global objects
 
-set_global_staff(Staff(tempo=110)).setData__measures(4)
+set_global_staff(Staff(tempo=110)).setData__measures(6)
 
 # element ojects
 
 global_clock = Clock()
 clock_serialization = global_clock.getSerialization()
 Creator().saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
-first_note = Note() << (Position() << Beat(3))
+first_note = Note() << (Position() << Beat(3) << Step(2))
 note_serialization = first_note.getSerialization()
 Creator().saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
 # repeat_operand = Repeat(Channel(), 10)
 
-base_note = Note() << (Duration() << NoteValue(1/16))
+base_note = Note() << (Duration() << NoteValue(1/16)) << Channel(10)
 trigger_notes = [
         base_note.copy() << (Position() << Step(0)),
         base_note.copy() << (Position() << Step(1)),
@@ -32,11 +32,11 @@ trigger_notes = [
         base_note.copy() << (Position() << Step(7))
     ]
 first_sequence = Sequence() << (Position() << Measure(1)) << MultiElements(trigger_notes) << Channel(10)
-print(first_sequence.getPlayList())
 sequence_serialization = first_sequence.getSerialization()
 Creator().saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
 
 second_sequence = first_sequence.copy() << (Position() << Measure(2))
+
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += first_note
 all_elements += global_clock
@@ -74,4 +74,4 @@ play_list = all_elements.getPlayList()
 # default_creator.saveJsonMidiCreator(second_sequence.getSerialization(), "_jsonMidiCreator.json")
 # print(default_creator.loadJsonMidiCreator("_jsonMidiCreator.json"))
 
-# Creator().jsonMidiPlay(play_list).saveJsonMidiPlay(play_list, "example_play_file.json")
+Creator().jsonMidiPlay(play_list).saveJsonMidiPlay(play_list, "example_play_file.json")
