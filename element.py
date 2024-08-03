@@ -38,6 +38,9 @@ class Element:
         self._channel: Channel      = Channel()
         self._device: Device        = Device()
 
+    def __pow__(self, operand: 'Operand') -> 'Operand':
+        return self % operand
+    
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case Position():    return self._position
@@ -132,6 +135,9 @@ class MultiElements():  # Just a container of Elements
                 last_position = single_element % Position()
         return last_position
 
+    def __pow__(self, operand: list) -> list[Element]:
+        return self % operand
+    
     def __mod__(self, operand: list) -> list[Element]:
         if operand.__class__ == list:
             return self._multi_elements

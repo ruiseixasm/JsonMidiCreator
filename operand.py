@@ -4,10 +4,10 @@ from staff import *
 from typing import Union
 
 class Operand:
-    pass
+    def __pow__(self, operand: 'Operand') -> 'Operand':
+        return self % operand
 
 class Empty(Operand):
-
     def __init__(self, operand: Operand):
         self._operand = operand
 
@@ -17,7 +17,6 @@ class Empty(Operand):
 
 # Units have never None values and are also const, with no setters
 class Unit(Operand):
-
     def __init__(self, unit: int = 0):
         self._unit: int = 0 if unit is None else round(unit)
 
