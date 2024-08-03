@@ -504,7 +504,29 @@ class Device(Operand):
 
             self._device_list = serialization["device_list"]
         return self
-        
+
+
+class Inner(Operand):
+    def __init__(self, operand: Operand):
+        self._operand: Operand = operand
+
+    def __mod__(self, operand: Operand) -> Operand:
+        return self.getOperand()
+    
+    def getOperand(self):
+        return self._operand
+
+class Default(Operand):
+    def __init__(self, operand: Operand):
+        self._operand: Operand = operand
+
+    def __mod__(self, operand: Operand) -> Operand:
+        return self.getOperand()
+    
+    def getOperand(self):
+        return self._operand
+
+
 class Range(Operand):
 
     def __init__(self, operand: Operand, position: Position = None, length: Length = None):

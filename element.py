@@ -501,6 +501,9 @@ class Sequence(Element):
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         match operand:
+            case Inner():
+                inner_operand = operand.getOperand()
+                self._trigger_notes << inner_operand
             case Position() | TimeLength():
                 super().__lshift__(operand)
             case MultiElements():
@@ -509,33 +512,69 @@ class Sequence(Element):
                 self._trigger_notes << operand
         return self
 
-    def __add__(self, other_element: Element):
+    def __add__(self, operand: Operand) -> 'Element':
+        sequence_copy = self.copy()
+        match operand:
+            case Inner():
+                inner_operand = operand.getOperand()
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note + inner_operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+            case Position() | TimeLength():
+                sequence_copy << sequence_copy % operand + operand
+            case Operand():
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note + operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+        return sequence_copy
 
-        return self
+    def __sub__(self, operand: Operand) -> 'Element':
+        sequence_copy = self.copy()
+        match operand:
+            case Inner():
+                inner_operand = operand.getOperand()
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note - inner_operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+            case Position() | TimeLength():
+                sequence_copy << sequence_copy % operand - operand
+            case Operand():
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note - operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+        return sequence_copy
 
-    def __mul__(self, n_times: int):
-        actual_length = self._time_length
-        n_times = round(n_times)
-        new_length = actual_length * n_times
-
-        in_range_trigger_notes = []
-        out_range_trigger_notes = []
-
-        for trigger_note in self._trigger_notes:
-            for operand in trigger_note:
-                if operand.__class__ == Position:
-                    if operand.is_gt(actual_length):
-                        out_range_trigger_notes.append(trigger_note)
-                    else:
-                        in_range_trigger_notes.append(trigger_note)
-
-        # Better to develop new Sequence function to help on this one as delegation (self call)
-
-        return self
+    def __mul__(self, operand: Operand) -> 'Element':
+        sequence_copy = self.copy()
+        match operand:
+            case Inner():
+                inner_operand = operand.getOperand()
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note * inner_operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+            case Position() | TimeLength():
+                sequence_copy << sequence_copy % operand * operand
+            case Operand():
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note * operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+        return sequence_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
         match operand:
+            case Inner():
+                inner_operand = operand.getOperand()
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note / inner_operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
             case Position() | TimeLength():
                 sequence_copy << sequence_copy % operand / operand
             case Operand():
