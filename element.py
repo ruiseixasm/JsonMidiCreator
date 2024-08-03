@@ -102,11 +102,9 @@ class Element:
     def __rmul__(self, scalar: float) -> 'Element':
         return self * scalar
     
-    # multiply with a scalar 
-    def __div__(self, scalar: float) -> 'Element':
-        if (scalar != 0):
-            return self * (1/scalar)
-        return self.copy()
+    def __div__(self, operand: Operand) -> 'Element':
+        element_copy = self.copy()
+        return element_copy << element_copy % operand / operand
     
 class MultiElements():  # Just a container of Elements
 
@@ -170,12 +168,18 @@ class MultiElements():  # Just a container of Elements
         self._multi_elements = operand
         return self
 
-    def __add__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':
+    def __add__(self, operand: Union['MultiElements', Element, Operand]) -> 'MultiElements':
         match operand:
             case MultiElements():
                 return MultiElements(self % list() + operand % list()).copy()
             case Element():
                 return MultiElements((self % list()) + [operand]).copy()
+            case Operand():
+                element_copy = self.copy()
+                element_list = element_copy % list()
+                for single_element in element_list:
+                    single_element << single_element % operand + operand
+                return element_copy << element_copy % operand + operand
         return self.copy()
 
     def __sub__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':

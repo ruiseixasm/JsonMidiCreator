@@ -21,6 +21,7 @@ Creator().saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 # repeat_operand = Repeat(Channel(), 10)
 
 base_note = Note() << (Duration() << NoteValue(1/16)) << Channel(10)
+# second_note = base_note / (Duration() << NoteValue(2))
 trigger_notes = [
         base_note.copy() << (Position() << Step(0)),
         base_note.copy() << (Position() << Step(1)),
@@ -36,10 +37,12 @@ sequence_serialization = first_sequence.getSerialization()
 Creator().saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
 
 second_sequence = first_sequence.copy() << (Position() << Measure(2))
+# second_sequence = second_sequence / (Position() << Step(2))
 
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += first_note
 all_elements += global_clock
+
 play_list = all_elements.getPlayList()
 # print(play_list)
 
