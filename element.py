@@ -7,22 +7,22 @@ from typing import Union
 """
     Operators logic:
         +	__add__(self, other)
-            slide to right by length of the Position given
-            increases the length by the the Length given
+            slide to right by time_length of the Position given
+            increases the time_length by the the Length given
             
 
         –	__sub__(self, other)
-            slide to left length of the Position given
-            increases the length by the the Length given
+            slide to left time_length of the Position given
+            increases the time_length by the the Length given
         
 
         >>	__mod__(self, other)
-            gets the respective length data if any Length() is given
+            gets the respective time_length data if any Length() is given
             gets the respective position data if any Position is given
 
         <<	__lshift__(self, other)
             sets the position by the Position given
-            sets the length by the Length given
+            sets the time_length by the Length given
 
         |	__or__(self, other)
             Stacks position of second element on the first
@@ -50,7 +50,7 @@ class Element:
         return {
             "class": self.__class__.__name__,
             "position": self._position.getSerialization(),
-            "length": self._time_length.getSerialization(),
+            "time_length": self._time_length.getSerialization(),
             "channel": self._channel.getSerialization(),
             "device": self._device.getSerialization()
         }
@@ -59,11 +59,11 @@ class Element:
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "position" in serialization and "length" in serialization and
+            "position" in serialization and "time_length" in serialization and
             "channel" in serialization and "device" in serialization):
 
             self._position  = Position().loadSerialization(serialization["position"])
-            self._time_length    = TimeLength().loadSerialization(serialization["length"])
+            self._time_length    = TimeLength().loadSerialization(serialization["time_length"])
             self._channel   = Channel().loadSerialization(serialization["channel"])
             self._device    = Device().loadSerialization(serialization["device"])
         return self
@@ -91,7 +91,7 @@ class Element:
     def __mul__(self, scalar: float) -> 'Element':
         return self.__class__(
                 position = self._position,
-                length = None if self._time_length is None else self._time_length * scalar,
+                time_length = None if self._time_length is None else self._time_length * scalar,
                 channel = self._channel,
                 device = self._device
             )
@@ -211,7 +211,7 @@ class MultiElements():  # Just a container of Elements
     def __mul__(self, scalar: float) -> 'Element':
         return self.__class__(
                 position = self._position,
-                length = None if self._time_length is None else self._time_length * scalar,
+                time_length = None if self._time_length is None else self._time_length * scalar,
                 channel = self._channel,
                 device = self._device
             )
@@ -654,9 +654,9 @@ class Retrigger:
 
 class Composition:
 
-    def __init__(self, position: Position = Position(), length: TimeLength = TimeLength()):
+    def __init__(self, position: Position = Position(), time_length: TimeLength = TimeLength()):
         self._position: Position = position
-        self._time_length: TimeLength = length
+        self._time_length: TimeLength = time_length
         self._placed_elements = []
         self._device: list = None
 

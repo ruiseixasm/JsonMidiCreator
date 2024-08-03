@@ -56,7 +56,10 @@ class Unit(Operand):
 
             self._unit = serialization["unit"]
         return self
-        
+
+    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
+        return self
+
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__(self % int() + unit % int())
@@ -265,6 +268,9 @@ class Value(Operand):
             self._value = serialization["value"]
         return self
         
+    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
+        return self
+
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case Value(): return self.__class__(self % float() + value % float())
@@ -526,6 +532,54 @@ class Default(Operand):
     def getOperand(self):
         return self._operand
 
+class Selection(Operand):
+    
+    def __init__(self, operand: Operand):
+        self._position: Position = Position()
+        self._time_length: TimeLength = TimeLength() << Measure(1)
+        self._operand = operand
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case Position():
+                return self._position
+            case TimeLength():
+                return self._time_length
+            case Operand():
+                return self._operand
+        return self
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "position": self._position.getSerialization(),
+            "time_length": self._time_length.getSerialization(),
+            "operand": self._operand.getSerialization()
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Selection':
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "position" in serialization and "time_length" in serialization and
+            "operand" in serialization):
+
+            self._position  = Position().loadSerialization(serialization["position"])
+            self._time_length    = TimeLength().loadSerialization(serialization["length"])
+            class_name = serialization["class"]
+            self._operand   = globals()[class_name]().loadSerialization(serialization["operand"])
+        return self
+
+    def copy(self) -> 'Selection':
+        return Selection((self % Operand()).copy()) << self._position.copy() << self._time_length.copy()
+
+    def __lshift__(self, operand: Operand) -> 'Operand':
+        match operand:
+            case Position(): self._position = operand
+            case TimeLength(): self._time_length = operand
+            case Operand(): self._operand = operand
+        return self
+    
 
 class Range(Operand):
 
