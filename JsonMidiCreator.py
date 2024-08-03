@@ -20,8 +20,8 @@ Creator().saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
 # repeat_operand = Repeat(Channel(), 10)
 
-base_note = Note() << (Duration() << NoteValue(1/16)) << Channel(10)
-second_note = base_note << (base_note % Duration() / NoteValue(2))
+base_note = Note() << (Duration() << NoteValue(1/16))
+second_note = base_note / (Duration() << Identity() << NoteValue(2))
 trigger_notes = [
         base_note.copy() << (Position() << Step(0)),
         base_note.copy() << (Position() << Step(1)),
@@ -32,12 +32,18 @@ trigger_notes = [
         base_note.copy() << (Position() << Step(6)),
         base_note.copy() << (Position() << Step(7))
     ]
-first_sequence = Sequence() << (Position() << Measure(1)) << MultiElements(trigger_notes) << Channel(10)
+first_sequence = Sequence() << (Position() << Measure(1))
+first_sequence << MultiElements(trigger_notes)
+first_sequence << Channel(10)
 sequence_serialization = first_sequence.getSerialization()
 Creator().saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
 
-second_sequence = first_sequence.copy() << (Position() << Measure(2))
-# second_sequence = second_sequence / (Position() << Step(2))
+second_sequence = first_sequence.copy()
+second_sequence << (Position() << Measure(2))
+multi_elements = second_sequence % MultiElements()
+multi_elements /= Position() << Identity() << Step(2)
+multi_elements /= Duration() << Identity() << NoteValue(2)
+second_sequence << multi_elements
 
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += first_note

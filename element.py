@@ -34,14 +34,14 @@ class Element:
 
     def __init__(self):
         self._position: Position    = Position()
-        self._length: Length        = Length()
+        self._time_length: TimeLength        = TimeLength()
         self._channel: Channel      = Channel()
         self._device: Device        = Device()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case Position():    return self._position
-            case Length():      return self._length
+            case TimeLength():      return self._time_length
             case Channel():     return self._channel
             case Device():      return self._device
             case _:             return operand
@@ -50,7 +50,7 @@ class Element:
         return {
             "class": self.__class__.__name__,
             "position": self._position.getSerialization(),
-            "length": self._length.getSerialization(),
+            "length": self._time_length.getSerialization(),
             "channel": self._channel.getSerialization(),
             "device": self._device.getSerialization()
         }
@@ -63,22 +63,20 @@ class Element:
             "channel" in serialization and "device" in serialization):
 
             self._position  = Position().loadSerialization(serialization["position"])
-            self._length    = Length().loadSerialization(serialization["length"])
+            self._time_length    = TimeLength().loadSerialization(serialization["length"])
             self._channel   = Channel().loadSerialization(serialization["channel"])
             self._device    = Device().loadSerialization(serialization["device"])
         return self
         
     def copy(self) -> 'Element':
-        return self.__class__() << self._position.copy() << self._length.copy() << self._channel << self._device
+        return self.__class__() << self._position.copy() << self._time_length.copy() << self._channel << self._device
     
-    def __or__(self, other_element: 'Element') -> 'Element':
-        return other_element << self % Position() + self % Length()
-
     def __lshift__(self, operand: Operand) -> 'Element':
-        if operand.__class__ == Position: self._position = operand
-        if operand.__class__ == Length: self._length = operand
-        if operand.__class__ == Channel: self._channel = operand
-        if operand.__class__ == Device: self._device = operand
+        match operand:
+            case Position(): self._position = operand
+            case TimeLength(): self._time_length = operand
+            case Channel(): self._channel = operand
+            case Device(): self._device = operand
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
@@ -93,7 +91,7 @@ class Element:
     def __mul__(self, scalar: float) -> 'Element':
         return self.__class__(
                 position = self._position,
-                length = None if self._length is None else self._length * scalar,
+                length = None if self._time_length is None else self._time_length * scalar,
                 channel = self._channel,
                 device = self._device
             )
@@ -113,6 +111,20 @@ class MultiElements():  # Just a container of Elements
                 elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
                     self._multi_elements.extend(single_element)
 
+        self._element_iterator = 0
+
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self._element_iterator < len(self._multi_elements):
+            single_element = self._multi_elements[self._element_iterator]
+            self._element_iterator += 1
+            return single_element
+        else:
+            self._element_iterator = 0  # Reset to 0 when limit is reached
+            raise StopIteration
+        
     def getLastPosition(self) -> Position:
         last_position: Position = Position()
         for single_element in self._multi_elements:
@@ -121,7 +133,9 @@ class MultiElements():  # Just a container of Elements
         return last_position
 
     def __mod__(self, operand: list) -> list[Element]:
-        return self._multi_elements
+        if operand.__class__ == list:
+            return self._multi_elements
+        return []
 
     def getPlayList(self, position: Position = None):
         play_list = []
@@ -160,8 +174,15 @@ class MultiElements():  # Just a container of Elements
             multi_elements.append(single_element.copy())
         return MultiElements(multi_elements)
 
-    def __lshift__(self, operand: list[Element]) -> 'MultiElements':
-        self._multi_elements = operand
+    def __lshift__(self, operand: list[Element] | Operand) -> 'MultiElements':
+        match operand:
+            case list():
+                self._multi_elements = operand
+            case MultiElements():
+                self._multi_elements = operand % list()
+            case Operand():
+                for single_element in self._multi_elements:
+                    single_element << operand
         return self
 
     def __add__(self, operand: Union['MultiElements', Element, Operand]) -> 'MultiElements':
@@ -190,17 +211,17 @@ class MultiElements():  # Just a container of Elements
     def __mul__(self, scalar: float) -> 'Element':
         return self.__class__(
                 position = self._position,
-                length = None if self._length is None else self._length * scalar,
+                length = None if self._time_length is None else self._time_length * scalar,
                 channel = self._channel,
                 device = self._device
             )
     
-    # multiply with a scalar 
-    def __truediv__(self, scalar: float) -> 'Element':
-        if (scalar != 0):
-            return self * (1/scalar)
-        return self.copy()
-    
+    def __truediv__(self, operand: Operand) -> 'Element':
+        multi_elements_copy: list[Element] = []
+        for single_element in self._multi_elements:
+            multi_elements_copy.append(single_element / operand)
+        return self.copy() << multi_elements_copy
+
 class ClockModes(enum.Enum):
     single  = 1
     first   = 2
@@ -212,7 +233,7 @@ class Clock(Element):
 
     def __init__(self):
         super().__init__()
-        self._length = Length() << Measure(get_global_staff().getData__measures())
+        self._time_length = TimeLength() << Measure(get_global_staff().getData__measures())
         self._mode: ClockModes = ClockModes.single
         self._pulses_per_quarternote = 24
 
@@ -226,9 +247,9 @@ class Clock(Element):
         
         staff = get_global_staff()
         clock_position: Position = self % Position() + Position() if position is None else position
-        staff_length = Length() << Measure(staff.getData__measures())
+        staff_length = TimeLength() << Measure(staff.getData__measures())
         clock_mode = ClockModes.single if self._mode is None else self._mode
-        clock_length = staff_length if clock_mode == ClockModes.single else self % Length()
+        clock_length = staff_length if clock_mode == ClockModes.single else self % TimeLength()
         device = self % Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
@@ -309,7 +330,7 @@ class Clock(Element):
 
     def __lshift__(self, operand: Operand) -> 'Clock':
         if operand.__class__ == Position: self._position = Position() << Measure(operand % Measure() % int())
-        if operand.__class__ == Length: self._length = Length() << Measure(operand % Measure() % int())
+        if operand.__class__ == TimeLength: self._time_length = TimeLength() << Measure(operand % Measure() % int())
         if operand.__class__ == ClockModes: self._mode = operand
         if operand.__class__ == int: self._pulses_per_quarternote = operand
         return self
@@ -397,28 +418,26 @@ class Sequence(Element):
 
     def __init__(self):
         super().__init__()
-        self._length = Length() << Measure(1)
+        self._time_length = TimeLength() << Measure(1)
         self._trigger_notes: MultiElements = MultiElements()
 
     def __mod__(self, operand: Operand) -> Operand:
-        if operand.__class__ == Length:
-            if self._length is None:
-                last_position: Position = self._trigger_notes.getLastPosition()
-                sequence_length: Length = Length(measures=1)
-                while last_position > sequence_length:
-                    sequence_length += Length(measures=1)
-                return sequence_length
-            return self._length
         match operand:
-            case Duration():    self._duration
-            case KeyNote():     self._key_note
-            case Velocity():    self._velocity
-            case _:             return super().__mod__(operand)
+            case TimeLength():
+                if self._time_length is None:
+                    last_position: Position = self._trigger_notes.getLastPosition()
+                    sequence_length: TimeLength = TimeLength(measures=1)
+                    while last_position > sequence_length:
+                        sequence_length += TimeLength(measures=1)
+                    return sequence_length
+                return self._time_length
+            case MultiElements():   return self._trigger_notes
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: Position = None):
         
         sequence_position: Position = self % Position() + Position() if position is None else position
-        sequence_length: Length     = self % Length()
+        sequence_length: TimeLength     = self % TimeLength()
         
         play_list = []
         for trigger_note in self._trigger_notes % list():
@@ -481,11 +500,13 @@ class Sequence(Element):
         return super().copy() << self._trigger_notes.copy()
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
-        super().__lshift__(operand)
-        if operand.__class__ == MultiElements: self._trigger_notes = operand
-        if operand.__class__ == Duration: self._duration = operand
-        if operand.__class__ == KeyNote: self._key_note = operand
-        if operand.__class__ == Velocity: self._velocity = operand
+        match operand:
+            case Position() | TimeLength():
+                super().__lshift__(operand)
+            case MultiElements():
+                self._trigger_notes = operand
+            case Operand():
+                self._trigger_notes << operand
         return self
 
     def __add__(self, other_element: Element):
@@ -493,7 +514,7 @@ class Sequence(Element):
         return self
 
     def __mul__(self, n_times: int):
-        actual_length = self._length
+        actual_length = self._time_length
         n_times = round(n_times)
         new_length = actual_length * n_times
 
@@ -512,6 +533,18 @@ class Sequence(Element):
 
         return self
 
+    def __truediv__(self, operand: Operand) -> 'Element':
+        sequence_copy = self.copy()
+        match operand:
+            case Position() | TimeLength():
+                sequence_copy << sequence_copy % operand / operand
+            case Operand():
+                trigger_notes_copy = []
+                for single_note in self._trigger_notes:
+                    trigger_notes_copy.append(single_note / operand)
+                sequence_copy << MultiElements(trigger_notes_copy)
+        return sequence_copy
+    
     
 class ControlChange:
 
@@ -582,9 +615,9 @@ class Retrigger:
 
 class Composition:
 
-    def __init__(self, position: Position = Position(), length: Length = Length()):
+    def __init__(self, position: Position = Position(), length: TimeLength = TimeLength()):
         self._position: Position = position
-        self._length: Length = length
+        self._time_length: TimeLength = length
         self._placed_elements = []
         self._device: list = None
 
@@ -634,7 +667,7 @@ class Composition:
         self._placed_elements = []
         return self
 
-    def displace(self, displacement = Length()):
+    def displace(self, displacement = TimeLength()):
         ...
         return self
 

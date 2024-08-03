@@ -439,10 +439,10 @@ class Length(Operand):
                 return self.__class__() << self % operand * operand
             case Length():
                 return self.__class__() \
-                    << self._measure * operand % Measure() \
-                    << self._beat * operand % Beat() \
-                    << self._note_value * operand % NoteValue() \
-                    << self._step * operand % Step()
+                    << self._measure * (operand % Measure()) \
+                    << self._beat * (operand % Beat()) \
+                    << self._note_value * (operand % NoteValue()) \
+                    << self._step * (operand % Step())
         return self.__class__()
     
     def __truediv__(self, operand: Union[Value, 'Length']) -> 'Length':
@@ -451,19 +451,21 @@ class Length(Operand):
                 return self.__class__() << self % operand / operand
             case Length():
                 return self.__class__() \
-                    << self._measure / operand % Measure() \
-                    << self._beat / operand % Beat() \
-                    << self._note_value / operand % NoteValue() \
-                    << self._step / operand % Step()
+                    << self._measure / (operand % Measure()) \
+                    << self._beat / (operand % Beat()) \
+                    << self._note_value / (operand % NoteValue()) \
+                    << self._step / (operand % Step())
         return self.__class__()
 
 class Position(Length):
-
     def __init__(self):
         super().__init__()
 
 class Duration(Length):
-    
+    def __init__(self):
+        super().__init__()
+
+class TimeLength(Length):
     def __init__(self):
         super().__init__()
     
@@ -471,10 +473,10 @@ class Identity(Length):
     
     def __init__(self):
         super().__init__()
-        self._measure << 1
-        self._beat << 1
-        self._note_value << 1
-        self._step << 1
+        self._measure       = Measure(1)
+        self._beat          = Beat(1)
+        self._note_value    = NoteValue(1)
+        self._step          = Step(1)
     
 # Read only class
 class Device(Operand):
