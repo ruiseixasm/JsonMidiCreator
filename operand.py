@@ -295,7 +295,11 @@ class Value(Operand):
                 if value != 0:
                     return self.__class__(self % float() / value)
         return self.__class__()
-    
+
+class YieldValue(Value):
+    def __init__(self, value: float = 0):
+        super().__init__(value)
+
 class Measure(Value):
 
     def __init__(self, value: float = 0):
