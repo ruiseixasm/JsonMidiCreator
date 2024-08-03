@@ -98,11 +98,7 @@ class Element:
                 device = self._device
             )
     
-    # multiply with a scalar 
-    def __rmul__(self, scalar: float) -> 'Element':
-        return self * scalar
-    
-    def __div__(self, operand: Operand) -> 'Element':
+    def __truediv__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand / operand
     
@@ -200,11 +196,7 @@ class MultiElements():  # Just a container of Elements
             )
     
     # multiply with a scalar 
-    def __rmul__(self, scalar: float) -> 'Element':
-        return self * scalar
-    
-    # multiply with a scalar 
-    def __div__(self, scalar: float) -> 'Element':
+    def __truediv__(self, scalar: float) -> 'Element':
         if (scalar != 0):
             return self * (1/scalar)
         return self.copy()
@@ -242,7 +234,7 @@ class Clock(Element):
         pulses_per_note = 4 * self._pulses_per_quarternote
         pulses_per_beat = pulses_per_note / staff.getValue__beats_per_note()
         pulses_per_measure = pulses_per_beat * staff.getValue__beats_per_measure()
-        clock_pulses = round(pulses_per_measure * clock_length % Measure() % float())
+        clock_pulses = round(pulses_per_measure * (clock_length % Measure() % float()))
 
         single_measure_ms = Measure(1).getTime_ms()
         clock_start_ms = clock_position.getTime_ms()
@@ -274,7 +266,7 @@ class Clock(Element):
             play_list.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_ms \
-                                     * clock_length % Measure() % int() * clock_pulse / clock_pulses, 3),
+                                     * (clock_length % Measure() % int()) * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8,
                         "device": device % list()

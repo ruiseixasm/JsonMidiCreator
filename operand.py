@@ -70,16 +70,13 @@ class Unit(Operand):
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self % int() * unit % int())
+            case Unit(): return self.__class__((self % int()) * (unit % int()))
             case int() | float(): return self.__class__(self % int() * unit)
     
-    def __div__(self, unit: Union['Unit', int, float]) -> 'Unit':
+    def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self % int() / unit % int())
+            case Unit(): return self.__class__((self % int()) / (unit % int()))
             case int() | float(): return self.__class__(self % int() / unit)
-    
-    def __rmul__(self, scalar: Union['Unit', int, float]) -> 'Unit':
-        return self * scalar
     
 class Key(Unit):
 
@@ -284,13 +281,15 @@ class Value(Operand):
             case Value(): return self.__class__((self % float()) * (value % float()))
             case float() | int(): return self.__class__(self % float() * value)
     
-    def __div__(self, value: Union['Value', float]) -> 'Value':
+    def __truediv__(self, value: Union['Value', float]) -> 'Value':
         match value:
-            case Value(): return self.__class__((self % float()) / (value % float()))
-            case float() | int(): return self.__class__(self % float() / value)
-    
-    def __rmul__(self, scalar: int | float) -> 'Value':
-        return  self * scalar
+            case Value():
+                if value % float() != 0:
+                    return self.__class__((self % float()) / (value % float()))
+            case float() | int():
+                if value != 0:
+                    return self.__class__(self % float() / value)
+        return self.__class__()
     
 class Measure(Value):
 
@@ -390,44 +389,73 @@ class Length(Operand):
     def copy(self) -> 'Length':
         return self.__class__() << self._measure << self._beat << self._note_value << self._step
 
-    def __lshift__(self, value: Value) -> 'Length':
-        if value.__class__ == Measure:      self._measure = value
-        if value.__class__ == Beat:         self._beat = value
-        if value.__class__ == NoteValue:    self._note_value = value
-        if value.__class__ == Step:         
-            self._step = value
+    def __lshift__(self, operand: Union[Value, 'Length']) -> 'Length':
+        match operand:
+            case Measure(): self._measure = operand
+            case Beat(): self._beat = operand
+            case NoteValue(): self._note_value = operand
+            case Step(): self._step = operand
+            case Length():
+                self._measure = operand % Measure()
+                self._beat = operand % Beat()
+                self._note_value = operand % NoteValue()
+                self._step = operand % Step()
+            case float() | int():
+                self._measure = Measure(operand)
+                self._beat = Beat(operand)
+                self._note_value = NoteValue(operand)
+                self._step = Step(operand)
         return self
 
     # adding two lengths 
-    def __add__(self, other_length) -> 'Length':
-        return self.__class__() \
-            << self._measure + other_length % Measure() \
-            << self._beat + other_length % Beat() \
-            << self._note_value + other_length % NoteValue() \
-            << self._step + other_length % Step()
+    def __add__(self, operand: Union[Value, 'Length']) -> 'Length':
+        match operand:
+            case Value():
+                return self.__class__() << self % operand + operand
+            case Length():
+                return self.__class__() \
+                    << self._measure + operand % Measure() \
+                    << self._beat + operand % Beat() \
+                    << self._note_value + operand % NoteValue() \
+                    << self._step + operand % Step()
+        return self.__class__()
     
     # subtracting two lengths 
-    def __sub__(self, other_length) -> 'Length':
-        return self.__class__() \
-            << self._measure - other_length % Measure() \
-            << self._beat - other_length % Beat() \
-            << self._note_value - other_length % NoteValue() \
-            << self._step - other_length % Step()
+    def __sub__(self, operand: Union[Value, 'Length']) -> 'Length':
+        match operand:
+            case Value():
+                return self.__class__() << self % operand - operand
+            case Length():
+                return self.__class__() \
+                    << self._measure - operand % Measure() \
+                    << self._beat - operand % Beat() \
+                    << self._note_value - operand % NoteValue() \
+                    << self._step - operand % Step()
+        return self.__class__()
     
-    # multiply with a scalar 
-    def __mul__(self, scalar: float) -> 'Length':
-        return Length() << self % Measure() * scalar << self % Beat() * scalar \
-                        << self % NoteValue() * scalar << self % Step() * scalar
+    def __mul__(self, operand: Union[Value, 'Length']) -> 'Length':
+        match operand:
+            case Value():
+                return self.__class__() << self % operand * operand
+            case Length():
+                return self.__class__() \
+                    << self._measure * operand % Measure() \
+                    << self._beat * operand % Beat() \
+                    << self._note_value * operand % NoteValue() \
+                    << self._step * operand % Step()
+        return self.__class__()
     
-    # multiply with a scalar 
-    def __rmul__(self, scalar: float) -> 'Length':
-        return self * scalar
-    
-    # multiply with a scalar 
-    def __div__(self, scalar: float) -> 'Length':
-        if (scalar != 0):
-            return self * (1/scalar)
-        return Length()
+    def __truediv__(self, operand: Union[Value, 'Length']) -> 'Length':
+        match operand:
+            case Value():
+                return self.__class__() << self % operand / operand
+            case Length():
+                return self.__class__() \
+                    << self._measure / operand % Measure() \
+                    << self._beat / operand % Beat() \
+                    << self._note_value / operand % NoteValue() \
+                    << self._step / operand % Step()
+        return self.__class__()
 
 class Position(Length):
 
@@ -438,6 +466,15 @@ class Duration(Length):
     
     def __init__(self):
         super().__init__()
+    
+class Identity(Length):
+    
+    def __init__(self):
+        super().__init__()
+        self._measure << 1
+        self._beat << 1
+        self._note_value << 1
+        self._step << 1
     
 # Read only class
 class Device(Operand):

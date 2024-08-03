@@ -21,7 +21,7 @@ Creator().saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 # repeat_operand = Repeat(Channel(), 10)
 
 base_note = Note() << (Duration() << NoteValue(1/16)) << Channel(10)
-# second_note = base_note / (Duration() << NoteValue(2))
+second_note = base_note << (base_note % Duration() / NoteValue(2))
 trigger_notes = [
         base_note.copy() << (Position() << Step(0)),
         base_note.copy() << (Position() << Step(1)),
