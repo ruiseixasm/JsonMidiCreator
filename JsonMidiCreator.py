@@ -1,84 +1,51 @@
+'''JsonMidiCreator - Json Midi Creator is intended to be used
+in conjugation with the Json Midi Player to Play composed Elements
+Original Copyright (c) 2024 Rui Seixas Monteiro. All right reserved.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.'''
 from staff import *
 from operand import *
 from element import *
 from creator import *
 
-# print("Test Creator")
-
-# global objects
-
+# Global Staff and Clock setting up
 set_global_staff(Staff(tempo=110)).setData__measures(6)
-
-# element ojects
-
 global_clock = Clock()
 clock_serialization = global_clock.getSerialization()
-Creator().saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
-first_note = Note() << (Position() << Beat(3) << Step(2))
+saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
+
+# First Note creation and play
+first_note = (Note() << (Position() << Beat(3) << Step(2))).play()
 note_serialization = first_note.getSerialization()
-Creator().saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
+saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
-# repeat_operand = Repeat(Channel(), 10)
-
+# Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << NoteValue(1/16))
-second_note = base_note / (Duration() << Identity() << NoteValue(2))
-# trigger_notes = [
-#         base_note.copy() << (Position() << Step(0)),
-#         base_note.copy() << (Position() << Step(1)),
-#         base_note.copy() << (Position() << Step(2)),
-#         base_note.copy() << (Position() << Step(3)),
-#         base_note.copy() << (Position() << Step(4)),
-#         base_note.copy() << (Position() << Step(5)),
-#         base_note.copy() << (Position() << Step(6)),
-#         base_note.copy() << (Position() << Step(7))
-#     ]
+
+# Creation and configuration of first Sequencer
 first_sequence = Sequence() << (Position() << Measure(1))
 first_sequence << MultiElements([base_note.copy()]) * 8 // (TimeLength() << Step(1))
 first_sequence << Channel(10)
 sequence_serialization = first_sequence.getSerialization()
-Creator().saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
+saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
 
+# Creation and configuration of second Sequencer
 second_sequence = first_sequence.copy()
 second_sequence << (Position() << Measure(2))
 second_sequence /= Inner()**(Position() << Identity() << Step(2))
 second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 
+# Creations, agregation of both Sequences in a MultiElements element and respective Play
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += first_note
 all_elements += global_clock
+all_elements.play()
 
-play_list = all_elements.getPlayList()
-# print(play_list)
-
-# first_sequence = Sequence(10, 60, Length(beats=2), trigger_notes)
-# second_sequence = first_sequence.copy()
-# second_sequence += Position(steps=2)
-
-# print(second_sequence.getSerialization())
-# print(Length(beats=4).getTime_ms())
-# print(Length(measures=1).getTime_ms())
-# print(Length(beats=4) == Length(measures=1))
-
-# placed_elements = Composition()
-# placed_elements.placeElement(default_clock, Position(0))
-# placed_elements.placeElement(default_note, Position(beats=1))
-# placed_elements.placeElement(first_sequence, Position(1))
-# placed_elements.placeElement(second_sequence, Position(1))
-
-# placed_elements.setData__device_list();
-# elements_list = placed_elements.getPlayList()
-
-# print(elements_list)
-# print(isinstance(default_note.getData__device_list(), list))
-# print(isinstance(placed_elements.getData__device_list(), list))
-
-# creator objects
-
-# default_creator = creator.PlayList()
-# default_creator.saveJsonMidiPlay(elements_list, "example_play_file.json")
-# default_creator.jsonMidiPlay(elements_list)
-
-# default_creator.saveJsonMidiCreator(second_sequence.getSerialization(), "_jsonMidiCreator.json")
-# print(default_creator.loadJsonMidiCreator("_jsonMidiCreator.json"))
-
-Creator().jsonMidiPlay(play_list).saveJsonMidiPlay(play_list, "example_play_file.json")
+# Saving in a Play file the all_elements play list
+saveJsonMidiPlay(all_elements.getPlayList(), "example_play_file.json")

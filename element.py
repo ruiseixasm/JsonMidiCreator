@@ -1,5 +1,17 @@
+'''JsonMidiCreator - Json Midi Creator is intended to be used
+in conjugation with the Json Midi Player to Play composed Elements
+Original Copyright (c) 2024 Rui Seixas Monteiro. All right reserved.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.'''
 from staff import *
 from operand import *
+from creator import *
 import enum
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
@@ -46,6 +58,9 @@ class Element:
             case Device():      return self._device
             case _:             return operand
 
+    def getPlayList(self, position: Position = None) -> list:
+        return []
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -70,7 +85,11 @@ class Element:
         
     def copy(self) -> 'Element':
         return self.__class__() << self._position.copy() << self._time_length.copy() << self._channel << self._device
-    
+
+    def play(self, verbose: bool = False) -> 'Element':
+        jsonMidiPlay(self.getPlayList(), verbose)
+        return self
+
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
             case Position(): self._position = operand
@@ -176,6 +195,10 @@ class MultiElements():  # Just a container of Elements
         for single_element in self._multi_elements:
             multi_elements.append(single_element.copy())
         return MultiElements(multi_elements)
+
+    def play(self, verbose: bool = False) -> 'MultiElements':
+        jsonMidiPlay(self.getPlayList(), verbose)
+        return self
 
     def __lshift__(self, operand: list[Element] | Operand) -> 'MultiElements':
         match operand:

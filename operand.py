@@ -1,4 +1,14 @@
-
+'''JsonMidiCreator - Json Midi Creator is intended to be used
+in conjugation with the Json Midi Player to Play composed Elements
+Original Copyright (c) 2024 Rui Seixas Monteiro. All right reserved.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.'''
 from staff import *
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
@@ -563,7 +573,7 @@ class Selection(Setup):
     
     def __init__(self):
         self._position: Position = Position()
-        self._time_length: TimeLength = TimeLength() << Measure(1)
+        self._time_length: TimeLength = TimeLength() << Beat(1)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -572,7 +582,7 @@ class Selection(Setup):
             case TimeLength():
                 return self._time_length
         return self
-    
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,

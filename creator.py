@@ -1,3 +1,14 @@
+'''JsonMidiCreator - Json Midi Creator is intended to be used
+in conjugation with the Json Midi Player to Play composed Elements
+Original Copyright (c) 2024 Rui Seixas Monteiro. All right reserved.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.'''
 import json
 import platform
 import os
@@ -43,6 +54,51 @@ else:
         print(f"An unexpected error occurred: {e}")
 
 
+def saveJsonMidiCreator(serialization: dict, filename):
+    json_file_dict = {
+            "filetype": "Json Midi Creator",
+            "content": serialization
+        }
+    with open(filename, "w") as outfile:
+        json.dump(json_file_dict, outfile)
+
+def loadJsonMidiCreator(filename):
+    with open(filename, "r") as infile:
+        json_file_dict = json.load(infile)
+    if "content" in json_file_dict and "filetype" in json_file_dict and json_file_dict["filetype"] == "Json Midi Creator":
+        return json_file_dict["content"]
+    return {}
+
+def saveJsonMidiPlay(play_list, filename):
+    json_file_dict = {
+            "filetype": "Json Midi Player",
+            "content": play_list
+        }
+    with open(filename, "w") as outfile:
+        json.dump(json_file_dict, outfile)
+        
+def jsonMidiPlay(play_list, verbose: bool = False):
+    json_file_dict = {
+            "filetype": "Json Midi Player",
+            "content": play_list
+        }
+    # Convert Python dictionary to JSON string
+    json_str = json.dumps([ json_file_dict ])
+
+    try:
+        # Call the C++ function with the JSON string
+        lib.PlayList_ctypes(json_str.encode('utf-8'))
+    except FileNotFoundError:
+        print(f"Could not find the library file: {lib_path}")
+    except OSError as e:
+        print(f"An error occurred while loading the library: {e}")
+    except AttributeError as e:
+        print(f"An error occurred while accessing the function: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
+
+
+
 class Configuration:
     ...
 
@@ -63,55 +119,3 @@ class Creator:
     def setChannel(self, play_list, channel):
         pass
 
-    def saveJsonMidiCreator(self, serialization: dict, filename):
-        json_file_dict = {
-                "filetype": "Json Midi Creator",
-                "content": serialization
-            }
-        with open(filename, "w") as outfile:
-            json.dump(json_file_dict, outfile)
-
-        return self
-
-    def loadJsonMidiCreator(self, filename):
-
-        with open(filename, "r") as infile:
-            json_file_dict = json.load(infile)
-
-        if "content" in json_file_dict and "filetype" in json_file_dict and json_file_dict["filetype"] == "Json Midi Creator":
-            return json_file_dict["content"]
-        
-        return {}
-
-    def saveJsonMidiPlay(self, play_list, filename):
-        json_file_dict = {
-                "filetype": "Json Midi Player",
-                "content": play_list
-            }
-        with open(filename, "w") as outfile:
-            json.dump(json_file_dict, outfile)
-            
-        return self
-
-    def jsonMidiPlay(self, play_list):
-
-        json_file_dict = {
-                "filetype": "Json Midi Player",
-                "content": play_list
-            }
-        # Convert Python dictionary to JSON string
-        json_str = json.dumps([ json_file_dict ])
-
-        try:
-            # Call the C++ function with the JSON string
-            lib.PlayList_ctypes(json_str.encode('utf-8'))
-        except FileNotFoundError:
-            print(f"Could not find the library file: {lib_path}")
-        except OSError as e:
-            print(f"An error occurred while loading the library: {e}")
-        except AttributeError as e:
-            print(f"An error occurred while accessing the function: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
-
-        return self
