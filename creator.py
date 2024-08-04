@@ -40,12 +40,12 @@ if not os.path.isfile(lib_path):
     raise FileNotFoundError(f"COULD NOT FIND THE LIBRARY FILE: {lib_path}")
 else:
     # Print the library path for debugging
-    print(f"Library FOUND in: {lib_path}")
+    # print(f"Library FOUND in: {lib_path}")
     try:
         # Load the shared library
         lib = ctypes.CDLL(lib_path)
         # Define the argument and return types for the C function
-        lib.PlayList_ctypes.argtypes = [ctypes.c_char_p]
+        lib.PlayList_ctypes.argtypes = [ctypes.c_char_p, ctypes.c_int]
         lib.PlayList_ctypes.restype = ctypes.c_int
 
     except FileNotFoundError:
@@ -86,6 +86,7 @@ def saveJsonMidiPlay(play_list, filename):
 def jsonMidiPlay(play_list, verbose: bool = False):
     json_file_dict = {
             "filetype": "Json Midi Player",
+            "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
             "content": play_list
         }
     # Convert Python dictionary to JSON string
@@ -93,7 +94,7 @@ def jsonMidiPlay(play_list, verbose: bool = False):
 
     try:
         # Call the C++ function with the JSON string
-        lib.PlayList_ctypes(json_str.encode('utf-8'))
+        lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
     except FileNotFoundError:
         print(f"Could not find the library file: {lib_path}")
     except OSError as e:

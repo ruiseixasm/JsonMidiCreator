@@ -25,7 +25,7 @@ clock_serialization = global_clock.getSerialization()
 saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
 
 # First Note creation and play
-first_note = (Note() << (Position() << Beat(3) << Step(2))).play()
+first_note = (Note() << (Position() << Beat(3) << Step(2))).play(False)
 note_serialization = first_note.getSerialization()
 saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
