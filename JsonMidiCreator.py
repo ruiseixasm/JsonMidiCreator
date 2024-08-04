@@ -22,18 +22,18 @@ Creator().saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
 base_note = Note() << (Duration() << NoteValue(1/16))
 second_note = base_note / (Duration() << Identity() << NoteValue(2))
-trigger_notes = [
-        base_note.copy() << (Position() << Step(0)),
-        base_note.copy() << (Position() << Step(1)),
-        base_note.copy() << (Position() << Step(2)),
-        base_note.copy() << (Position() << Step(3)),
-        base_note.copy() << (Position() << Step(4)),
-        base_note.copy() << (Position() << Step(5)),
-        base_note.copy() << (Position() << Step(6)),
-        base_note.copy() << (Position() << Step(7))
-    ]
+# trigger_notes = [
+#         base_note.copy() << (Position() << Step(0)),
+#         base_note.copy() << (Position() << Step(1)),
+#         base_note.copy() << (Position() << Step(2)),
+#         base_note.copy() << (Position() << Step(3)),
+#         base_note.copy() << (Position() << Step(4)),
+#         base_note.copy() << (Position() << Step(5)),
+#         base_note.copy() << (Position() << Step(6)),
+#         base_note.copy() << (Position() << Step(7))
+#     ]
 first_sequence = Sequence() << (Position() << Measure(1))
-first_sequence << MultiElements(trigger_notes)
+first_sequence << MultiElements([base_note.copy()]) * 8 // (TimeLength() << Step(1))
 first_sequence << Channel(10)
 sequence_serialization = first_sequence.getSerialization()
 Creator().saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")

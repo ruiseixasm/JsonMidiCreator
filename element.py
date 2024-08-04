@@ -244,7 +244,7 @@ class MultiElements():  # Just a container of Elements
                     single_element << single_element % operand * operand
                 return element_copy
             case int(): # repeat n times the last argument if any
-                multi_elements = MultiElements()
+                multi_elements = MultiElements()    # empty list
                 while operand > 0:
                     multi_elements += self
                     operand -= 1
@@ -254,20 +254,20 @@ class MultiElements():  # Just a container of Elements
     def __truediv__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
         match operand:
             case Operand():
-                element_copy = self.copy()
-                element_list = element_copy % list()
-                for single_element in element_list:
+                self_copy = self.copy()
+                elements_list = self_copy % list()
+                for single_element in elements_list:
                     single_element << single_element % operand / operand
-                return element_copy
+                return self_copy
             case int(): # repeat n times the last argument if any
-                multi_elements = MultiElements()
-                total_elements = self.len()
                 if operand > 0:
-                    elements_to_be_removed = round(total_elements / operand)
-                while elements_to_be_removed > 0:
-                    multi_elements += self
-                    elements_to_be_removed -= 1
-                return multi_elements
+                    self_copy = self.copy()
+                    elements_list = self_copy % list()
+                    elements_to_be_removed = round(1 - self_copy.len() / operand)
+                    while elements_to_be_removed > 0:
+                        elements_list.pop()
+                        elements_to_be_removed -= 1
+                return self_copy
         return self.copy()
     
     def __floordiv__(self, time_length: TimeLength) -> 'MultiElements':
@@ -278,7 +278,8 @@ class MultiElements():  # Just a container of Elements
                     if starting_position is None:
                         starting_position = single_element % Position()
                     else:
-                        single_element << Position() << starting_position + time_length
+                        starting_position += time_length
+                        single_element << Position() << starting_position
         return self
 
 
