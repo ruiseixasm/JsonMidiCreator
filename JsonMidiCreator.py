@@ -40,8 +40,8 @@ Creator().saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator
 
 second_sequence = first_sequence.copy()
 second_sequence << (Position() << Measure(2))
-second_sequence /= Inner(Position() << Identity() << Step(2))
-second_sequence /= Inner(Duration() << Identity() << NoteValue(2))
+second_sequence /= Inner()**(Position() << Identity() << Step(2))
+second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += first_note

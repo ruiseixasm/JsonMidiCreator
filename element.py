@@ -38,9 +38,6 @@ class Element:
         self._channel: Channel      = Channel()
         self._device: Device        = Device()
 
-    def __pow__(self, operand: 'Operand') -> 'Operand':
-        return self % operand
-    
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case Position():    return self._position
@@ -113,7 +110,7 @@ class MultiElements():  # Just a container of Elements
                     self._multi_elements.append(single_element)
                 elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
                     self._multi_elements.extend(single_element)
-
+        self._selection: Selection = None
         self._element_iterator = 0
 
     def __iter__(self):
@@ -135,9 +132,6 @@ class MultiElements():  # Just a container of Elements
                 last_position = single_element % Position()
         return last_position
 
-    def __pow__(self, operand: list) -> list[Element]:
-        return self % operand
-    
     def __mod__(self, operand: list) -> list[Element]:
         if operand.__class__ == list:
             return self._multi_elements
@@ -191,7 +185,7 @@ class MultiElements():  # Just a container of Elements
                     single_element << operand
         return self
 
-    def __add__(self, operand: Union['MultiElements', Element, Operand]) -> 'MultiElements':
+    def __add__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
         match operand:
             case MultiElements():
                 return MultiElements(self % list() + operand % list()).copy()
@@ -202,31 +196,65 @@ class MultiElements():  # Just a container of Elements
                 element_list = element_copy % list()
                 for single_element in element_list:
                     single_element << single_element % operand + operand
-                return element_copy << element_copy % operand + operand
+                return element_copy
+            case int(): # repeat n times the last argument if any
+                element_copy = self.copy()
+                element_list = element_copy % list()
+                if len(self._multi_elements) > 0:
+                    last_element = self._multi_elements[len(self._multi_elements) - 1]
+                    while operand > 0:
+                        element_list.append(last_element.copy)
+                        operand -= 1
+                return element_copy
         return self.copy()
 
-    def __sub__(self, operand: Union['MultiElements', Element]) -> 'MultiElements':
+    def __sub__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
         match operand:
             case MultiElements():
                 return MultiElements(self % list() - operand % list()).copy()
             case Element():
                 return MultiElements((self % list()) - [operand]).copy()
+            case Operand():
+                element_copy = self.copy()
+                element_list = element_copy % list()
+                for single_element in element_list:
+                    single_element << single_element % operand - operand
+                return element_copy
+            case int(): # repeat n times the last argument if any
+                element_copy = self.copy()
+                element_list = element_copy % list()
+                while len(element_list) > 0 and operand > 0:
+                    element_list.pop()
+                    operand -= 1
+                return element_copy
         return self.copy()
 
     # multiply with a scalar 
-    def __mul__(self, scalar: float) -> 'Element':
-        return self.__class__(
+    def __mul__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
+        return MultiElements(
                 position = self._position,
                 time_length = None if self._time_length is None else self._time_length * scalar,
                 channel = self._channel,
                 device = self._device
             )
     
-    def __truediv__(self, operand: Operand) -> 'Element':
+    def __truediv__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
         multi_elements_copy: list[Element] = []
         for single_element in self._multi_elements:
             multi_elements_copy.append(single_element / operand)
         return self.copy() << multi_elements_copy
+    
+    def __floordiv__(self, time_length: TimeLength) -> 'MultiElements':
+        match time_length:
+            case TimeLength():
+                starting_position = None
+                for single_element in self._multi_elements:
+                    if starting_position is None:
+                        starting_position = single_element % Position()
+                    else:
+                        single_element << Position() << starting_position + time_length
+        return self
+
 
 class ClockModes(enum.Enum):
     single  = 1
@@ -507,9 +535,15 @@ class Sequence(Element):
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         match operand:
-            case Inner():
-                inner_operand = operand.getOperand()
-                self._trigger_notes << inner_operand
+            case Setup():
+                match operand % Inner():
+                    case Empty():
+                        return self
+                    case _:
+                        inner_operand = operand % Operand()
+                        self._trigger_notes << inner_operand
+                        return self
+        match operand:
             case Position() | TimeLength():
                 super().__lshift__(operand)
             case MultiElements():
@@ -520,76 +554,59 @@ class Sequence(Element):
 
     def __add__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        match operand:
-            case Inner():
-                inner_operand = operand.getOperand()
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note + inner_operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
-            case Position() | TimeLength():
-                sequence_copy << sequence_copy % operand + operand
-            case Operand():
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note + operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
+        if isinstance(operand, Setup):
+            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+                sequence_copy << (self._trigger_notes + (operand % Operand())).copy()
+        else:
+            match operand:
+                case Position() | TimeLength():
+                    sequence_copy << sequence_copy % operand + operand
+                case Operand():
+                    sequence_copy << (self._trigger_notes + operand).copy()
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        match operand:
-            case Inner():
-                inner_operand = operand.getOperand()
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note - inner_operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
-            case Position() | TimeLength():
-                sequence_copy << sequence_copy % operand - operand
-            case Operand():
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note - operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
+        if isinstance(operand, Setup):
+            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+                sequence_copy << (self._trigger_notes - (operand % Operand())).copy()
+        else:
+            match operand:
+                case Position() | TimeLength():
+                    sequence_copy << sequence_copy % operand - operand
+                case Operand():
+                    sequence_copy << (self._trigger_notes - operand).copy()
         return sequence_copy
 
     def __mul__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        match operand:
-            case Inner():
-                inner_operand = operand.getOperand()
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note * inner_operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
-            case Position() | TimeLength():
-                sequence_copy << sequence_copy % operand * operand
-            case Operand():
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note * operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
+        if isinstance(operand, Setup):
+            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+                sequence_copy << (self._trigger_notes * (operand % Operand())).copy()
+        else:
+            match operand:
+                case Position() | TimeLength():
+                    sequence_copy << sequence_copy % operand * operand
+                case Operand():
+                    sequence_copy << (self._trigger_notes * operand).copy()
         return sequence_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        match operand:
-            case Inner():
-                inner_operand = operand.getOperand()
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note / inner_operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
-            case Position() | TimeLength():
-                sequence_copy << sequence_copy % operand / operand
-            case Operand():
-                trigger_notes_copy = []
-                for single_note in self._trigger_notes:
-                    trigger_notes_copy.append(single_note / operand)
-                sequence_copy << MultiElements(trigger_notes_copy)
+        if isinstance(operand, Setup):
+            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+                sequence_copy << (self._trigger_notes / (operand % Operand())).copy()
+        else:
+            match operand:
+                case Position() | TimeLength():
+                    sequence_copy << sequence_copy % operand / operand
+                case Operand():
+                    sequence_copy << (self._trigger_notes / operand).copy()
         return sequence_copy
-    
+
+    def __floordiv__(self, time_length: TimeLength) -> 'Sequence':
+        return self << self._trigger_notes // time_length
+  
     
 class ControlChange:
 

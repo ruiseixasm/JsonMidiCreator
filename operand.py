@@ -4,15 +4,11 @@ from staff import *
 from typing import Union
 
 class Operand:
-    def __pow__(self, operand: 'Operand') -> 'Operand':
-        return self % operand
+    def __mod__(self, operand: 'Operand') -> 'Operand':
+        return operand
 
 class Empty(Operand):
-    def __init__(self, operand: Operand):
-        self._operand = operand
-
-    def getOperand(self):
-        return self._operand
+    pass
 
 
 # Units have never None values and are also const, with no setters
@@ -296,10 +292,6 @@ class Value(Operand):
                     return self.__class__(self % float() / value)
         return self.__class__()
 
-class YieldValue(Value):
-    def __init__(self, value: float = 0):
-        super().__init__(value)
-
 class Measure(Value):
 
     def __init__(self, value: float = 0):
@@ -514,16 +506,10 @@ class Device(Operand):
             self._device_list = serialization["device_list"]
         return self
 
+class Yield():
+    def __init__(self, value: float = 0):
+        super().__init__(value)
 
-class Inner(Operand):
-    def __init__(self, operand: Operand):
-        self._operand: Operand = operand
-
-    def __mod__(self, operand: Operand) -> Operand:
-        return self.getOperand()
-    
-    def getOperand(self):
-        return self._operand
 
 class Default(Operand):
     def __init__(self, operand: Operand):
@@ -535,12 +521,45 @@ class Default(Operand):
     def getOperand(self):
         return self._operand
 
-class Selection(Operand):
+class Setup(Operand):
+    def __init__(self):
+        self._next_operand: Union['Setup', Operand] = None
+
+    def __mod__(self, operand: Union['Setup', Operand]) -> Operand:
+        if type(self) == type(operand):
+            return self
+        if self._next_operand is not None:
+            match operand:
+                case Setup():
+                    if isinstance(self._next_operand, Setup):
+                        return self._next_operand % operand
+                    return Empty()
+                case Operand():
+                    match self._next_operand:
+                        case Setup():
+                            return self._next_operand % Operand()
+                        case Operand():
+                            return self._next_operand
+        return Empty()
     
-    def __init__(self, operand: Operand):
+    def __pow__(self, operand: Union['Setup', Operand]) -> 'Setup':
+        match operand:
+            case Setup():
+                self._setup_list.append(operand)
+            case Operand():
+                self._next_operand = operand
+        return self
+    
+
+class Inner(Setup):
+    def __init__(self):
+        super().__init__()
+
+class Selection(Setup):
+    
+    def __init__(self):
         self._position: Position = Position()
         self._time_length: TimeLength = TimeLength() << Measure(1)
-        self._operand = operand
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -548,16 +567,13 @@ class Selection(Operand):
                 return self._position
             case TimeLength():
                 return self._time_length
-            case Operand():
-                return self._operand
         return self
     
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
             "position": self._position.getSerialization(),
-            "time_length": self._time_length.getSerialization(),
-            "operand": self._operand.getSerialization()
+            "time_length": self._time_length.getSerialization()
         }
 
     # CHAINABLE OPERATIONS
@@ -570,17 +586,15 @@ class Selection(Operand):
             self._position  = Position().loadSerialization(serialization["position"])
             self._time_length    = TimeLength().loadSerialization(serialization["length"])
             class_name = serialization["class"]
-            self._operand   = globals()[class_name]().loadSerialization(serialization["operand"])
         return self
 
     def copy(self) -> 'Selection':
-        return Selection((self % Operand()).copy()) << self._position.copy() << self._time_length.copy()
+        return Selection() << self._position.copy() << self._time_length.copy()
 
     def __lshift__(self, operand: Operand) -> 'Operand':
         match operand:
             case Position(): self._position = operand
             case TimeLength(): self._time_length = operand
-            case Operand(): self._operand = operand
         return self
     
 
@@ -601,7 +615,7 @@ class Repeat(Operand):
         if self._repeat > 0:
             self._repeat -= 1
             return self._unit
-        return Empty(self._unit)
+        return Empty()
 
 class Increment(Operand):
     """
@@ -663,7 +677,7 @@ class Increment(Operand):
             self._unit += self._step
             self._iterator += 1
             return self._unit
-        return Empty(self._unit)
+        return Empty()
 
 
 class IntervalQuality(Operand):
