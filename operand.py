@@ -21,7 +21,7 @@ class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
         return operand
 
-class Empty(Operand):
+class Null(Operand):
     pass
 
 
@@ -547,14 +547,14 @@ class Setup(Operand):
                 case Setup():
                     if isinstance(self._next_operand, Setup):
                         return self._next_operand % operand
-                    return Empty()
+                    return Null()
                 case Operand():
                     match self._next_operand:
                         case Setup():
                             return self._next_operand % Operand()
                         case Operand():
                             return self._next_operand
-        return Empty()
+        return Null()
     
     def __pow__(self, operand: Union['Setup', Operand]) -> 'Setup':
         match operand:
@@ -630,11 +630,11 @@ class Repeat(Operand):
         self._unit = unit
         self._repeat = repeat
 
-    def step(self) -> Unit | Empty:
+    def step(self) -> Unit | Null:
         if self._repeat > 0:
             self._repeat -= 1
             return self._unit
-        return Empty()
+        return Null()
 
 class Increment(Operand):
     """
@@ -691,12 +691,12 @@ class Increment(Operand):
 
         self._iterator = self._start
 
-    def step(self) -> Unit | Empty:
+    def step(self) -> Unit | Null:
         if self._iterator < self._stop:
             self._unit += self._step
             self._iterator += 1
             return self._unit
-        return Empty()
+        return Null()
 
 
 class IntervalQuality(Operand):

@@ -102,10 +102,19 @@ class Element:
             case Device(): self._device = operand
         return self
 
-    def __rshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
+    def __rshift__(self, element: 'Element') -> 'Element':
+        return element.__rrshift__(self)
+
+    def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
         match element_operand:
-            case Element() | Position(): element_operand << self % Position() + self % TimeLength()
-        return element_operand
+            case MultiElements():
+                last_element = element_operand.lastElement()
+                if type(last_element) != Void:
+                    self << last_element % Position() + last_element % TimeLength()
+            case Element(): self << element_operand % Position() + element_operand % TimeLength()
+            case Position(): self << element_operand
+            case TimeLength(): self += Position() << element_operand
+        return self
 
     def __add__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
@@ -127,7 +136,10 @@ class Element:
     def __truediv__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand / operand
-    
+
+class Void(Element):
+    pass
+
 class MultiElements():  # Just a container of Elements
 
     def __init__(self, *multi_elements: list[Element] | Element):
@@ -167,6 +179,16 @@ class MultiElements():  # Just a container of Elements
         if operand.__class__ == list:
             return self._multi_elements
         return []
+
+    def firstElement(self) -> Element:
+        if len(self._multi_elements) > 0:
+            return self._multi_elements[0]
+        return Void()
+
+    def lastElement(self) -> Element:
+        if len(self._multi_elements) > 0:
+            return self._multi_elements[len(self._multi_elements) - 1]
+        return Void()
 
     def getPlayList(self, position: Position = None):
         play_list = []
@@ -218,6 +240,23 @@ class MultiElements():  # Just a container of Elements
             case Operand():
                 for single_element in self._multi_elements:
                     single_element << operand
+        return self
+
+    def __rshift__(self, multi_elements: 'MultiElements') -> 'MultiElements':
+        return multi_elements.__rrshift__(self)
+
+    def __rrshift__(self, other_operand: Union['MultiElements', 'Element', Operand]) -> Union['MultiElements', 'Element', Operand]:
+        self_first_element = self.firstElement()
+        if type(self_first_element) != Void:
+            match other_operand:
+                case MultiElements():
+                    other_last_element = self.lastElement()
+                    if type(other_last_element) != Void:
+                        other_last_element >> self_first_element
+                case Element(): other_operand % Position() + other_operand % TimeLength() >> self_first_element
+                case Position() | TimeLength(): other_operand >> self_first_element
+            for single_element_i in range(1, len(self._multi_elements)):
+                self._multi_elements[single_element_i - 1] >> self._multi_elements[single_element_i]
         return self
 
     def __add__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
@@ -599,7 +638,7 @@ class Sequence(Element):
         match operand:
             case Setup():
                 match operand % Inner():
-                    case Empty():
+                    case Null():
                         return self
                     case _:
                         inner_operand = operand % Operand()
@@ -617,7 +656,7 @@ class Sequence(Element):
     def __add__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
         if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
                 sequence_copy << (self._trigger_notes + (operand % Operand())).copy()
         else:
             match operand:
@@ -630,7 +669,7 @@ class Sequence(Element):
     def __sub__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
         if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
                 sequence_copy << (self._trigger_notes - (operand % Operand())).copy()
         else:
             match operand:
@@ -643,7 +682,7 @@ class Sequence(Element):
     def __mul__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
         if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
                 sequence_copy << (self._trigger_notes * (operand % Operand())).copy()
         else:
             match operand:
@@ -656,7 +695,7 @@ class Sequence(Element):
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
         if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Empty) and not isinstance(operand % Operand(), Empty):
+            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
                 sequence_copy << (self._trigger_notes / (operand % Operand())).copy()
         else:
             match operand:
