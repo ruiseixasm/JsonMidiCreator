@@ -113,6 +113,9 @@ class MultiElements():  # Just a container of Elements
         self._selection: Selection = None
         self._element_iterator = 0
 
+    def len(self) -> int:
+        return len(self._multi_elements)
+
     def __iter__(self):
         return self
     
@@ -223,26 +226,49 @@ class MultiElements():  # Just a container of Elements
             case int(): # repeat n times the last argument if any
                 element_copy = self.copy()
                 element_list = element_copy % list()
-                while len(element_list) > 0 and operand > 0:
-                    element_list.pop()
-                    operand -= 1
+                if len(self._multi_elements) > 0:
+                    last_element = self._multi_elements[len(self._multi_elements) - 1]
+                    while operand > 0 and len(element_list) > 0:
+                        element_list.pop()
+                        operand -= 1
                 return element_copy
         return self.copy()
 
     # multiply with a scalar 
     def __mul__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
-        return MultiElements(
-                position = self._position,
-                time_length = None if self._time_length is None else self._time_length * scalar,
-                channel = self._channel,
-                device = self._device
-            )
+        match operand:
+            case Operand():
+                element_copy = self.copy()
+                element_list = element_copy % list()
+                for single_element in element_list:
+                    single_element << single_element % operand * operand
+                return element_copy
+            case int(): # repeat n times the last argument if any
+                multi_elements = MultiElements()
+                while operand > 0:
+                    multi_elements += self
+                    operand -= 1
+                return multi_elements
+        return self.copy()
     
     def __truediv__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
-        multi_elements_copy: list[Element] = []
-        for single_element in self._multi_elements:
-            multi_elements_copy.append(single_element / operand)
-        return self.copy() << multi_elements_copy
+        match operand:
+            case Operand():
+                element_copy = self.copy()
+                element_list = element_copy % list()
+                for single_element in element_list:
+                    single_element << single_element % operand / operand
+                return element_copy
+            case int(): # repeat n times the last argument if any
+                multi_elements = MultiElements()
+                total_elements = self.len()
+                if operand > 0:
+                    elements_to_be_removed = round(total_elements / operand)
+                while elements_to_be_removed > 0:
+                    multi_elements += self
+                    elements_to_be_removed -= 1
+                return multi_elements
+        return self.copy()
     
     def __floordiv__(self, time_length: TimeLength) -> 'MultiElements':
         match time_length:
@@ -454,6 +480,9 @@ class Sequence(Element):
         super().__init__()
         self._time_length = TimeLength() << Measure(1)
         self._trigger_notes: MultiElements = MultiElements()
+
+    def len(self) -> int:
+        return self._trigger_notes.len()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:

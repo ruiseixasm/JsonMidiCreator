@@ -550,6 +550,10 @@ class Setup(Operand):
                 self._next_operand = operand
         return self
     
+    def __lshift__(self, operand: Operand) -> 'Setup':
+        match operand:
+            case None: self._next_operand = None
+        return self
 
 class Inner(Setup):
     def __init__(self):
@@ -595,6 +599,7 @@ class Selection(Setup):
         match operand:
             case Position(): self._position = operand
             case TimeLength(): self._time_length = operand
+            case _: super().__lshift__(operand)
         return self
     
 
