@@ -102,6 +102,11 @@ class Element:
             case Device(): self._device = operand
         return self
 
+    def __rshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
+        match element_operand:
+            case Element() | Position(): element_operand << self % Position() + self % TimeLength()
+        return element_operand
+
     def __add__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand + operand

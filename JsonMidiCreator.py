@@ -24,8 +24,12 @@ global_clock = Clock()
 clock_serialization = global_clock.getSerialization()
 saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
 
-# First Note creation and play
-first_note = (Note() << (Position() << Beat(3) << Step(2))).play(False)
+# Multiple individual Notes creation and sequencially played
+first_note = (Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)))
+second_note = first_note.copy()
+third_note = first_note.copy()
+first_note >> second_note >> third_note # Stack notes by Element's TimeLength
+MultiElements(first_note, second_note, third_note).play()
 note_serialization = first_note.getSerialization()
 saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
