@@ -18,26 +18,21 @@ from element import *
 # Global Staff and Clock setting up
 global_staff << Tempo(110) << Measure(6)
 single_clock = Clock()
-clock_serialization = single_clock.getSerialization()
-saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
+saveJsonMidiCreator(single_clock.getSerialization(), "_Clock_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequencially played
 first_note = (Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)))
-second_note = first_note.copy()
-third_note = first_note.copy()
-(Void() >> MultiElements(first_note, second_note, third_note)).play()
-note_serialization = first_note.getSerialization()
-saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
+multi_notes = first_note * 3
+(Void() >> multi_notes).play()
+saveJsonMidiCreator(first_note.getSerialization(), "_Note_jsonMidiCreator.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << NoteValue(1/16))
 
 # Creation and configuration of first Sequencer
 first_sequence = Sequence() << (Position() << Measure(1))
-first_sequence << MultiElements([base_note.copy()]) * 8 // (TimeLength() << Step(1))
-first_sequence << Channel(10)
-sequence_serialization = first_sequence.getSerialization()
-saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
+first_sequence << base_note * 8 // (TimeLength() << Step(1)) << Channel(10)
+saveJsonMidiCreator(first_sequence.getSerialization(), "_Sequence_jsonMidiCreator.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence.copy()
@@ -47,8 +42,7 @@ second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 
 # Creations, agregation of both Sequences in a MultiElements element and respective Play
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
-all_elements += first_note
-all_elements += single_clock
+all_elements += (TimeLength() << Beat(2) >> first_note) + single_clock
 all_elements.play()
 
 # Saving in a Play file the all_elements play list

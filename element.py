@@ -114,22 +114,24 @@ class Element:
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
-        element_copy = self.copy()
-        return element_copy << element_copy % operand + operand
+        match operand:
+            case Element():
+                return MultiElements(self.copy, operand.copy())
+            case MultiElements():
+                return MultiElements(self.copy(), operand.copy() % list())
+            case Operand():
+                element_copy = self.copy()
+                return element_copy << element_copy % operand + operand
+        return self
 
     def __sub__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand - operand
 
-    # multiply with a scalar 
-    def __mul__(self, scalar: float) -> 'Element':
-        return self.__class__(
-                position = self._position,
-                time_length = None if self._time_length is None else self._time_length * scalar,
-                channel = self._channel,
-                device = self._device
-            )
-    
+    def __mul__(self, operand: Operand) -> 'Element':
+        element_copy = self.copy()
+        return element_copy << element_copy % operand * operand
+
     def __truediv__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand / operand
@@ -259,9 +261,9 @@ class MultiElements():  # Just a container of Elements
     def __add__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
         match operand:
             case MultiElements():
-                return MultiElements(self % list() + operand % list()).copy()
+                return MultiElements(self.copy() % list() + operand.copy() % list())
             case Element():
-                return MultiElements((self % list()) + [operand]).copy()
+                return MultiElements(self.copy() % list() + [operand.copy()])
             case Operand():
                 element_copy = self.copy()
                 element_list = element_copy % list()
@@ -375,9 +377,12 @@ class Clock(Element):
     def getPlayList(self, position: Position = None):
         
         clock_position: Position = self % Position() + Position() if position is None else position
-        staff_length = TimeLength() << Measure(global_staff % Measure() % int())
+        clock_length = TimeLength() << Measure(global_staff % Measure() % int()) \
+                if self._time_length is None else self._time_length
         clock_mode = ClockModes.single if self._mode is None else self._mode
-        clock_length = staff_length if clock_mode == ClockModes.single else self % TimeLength()
+        if clock_mode == ClockModes.single:
+            clock_position = Position()
+            clock_length = TimeLength() << Measure(global_staff % Measure() % int())
         device = self % Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
@@ -541,6 +546,15 @@ class Note(Element):
         if operand.__class__ == KeyNote: self._key_note = operand
         if operand.__class__ == Velocity: self._velocity = operand
         return self
+
+    def __mul__(self, operand: Operand) -> MultiElements | Element:
+        match operand:
+            case int():
+                multi_notes = []
+                for note_i in range(0, operand):
+                    multi_notes.append(self.copy())
+                return MultiElements(multi_notes)
+        return super().__mul__(self)
 
 class Sequence(Element):
 

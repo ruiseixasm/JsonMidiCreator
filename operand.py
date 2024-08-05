@@ -841,7 +841,7 @@ class Gate(Operand):
         self._gate: float = gate
 
 # Set the Default Staff values here
-
+                                            # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
 global_staff << Measure(8) << Tempo(120) << BeatsPerMeasure(4) << BeatNoteValue(1/4)
 global_staff << Quantization(1/16) << (Duration() << NoteValue(1/4)) << Key("C") << Octave(4) << Velocity(100)
 global_staff << ValueUnit(64) << Channel(1) << Device(["FLUID", "Midi", "Port", "Synth"])
