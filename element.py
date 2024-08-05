@@ -487,14 +487,14 @@ class Note(Element):
         
         note_position: Position = self % Position() + Position() if position is None else position
         duration: Duration      = self % Duration()
-        key_note_midi: KeyNote  = (self % KeyNote()).getValue__midi_key_note()
+        key_note_midi: KeyNote  = (self % KeyNote()).getMidi__key_note()
         velocity_int: Velocity  = self % Velocity() % int()
         channel_int: Channel    = self % Channel() % int()
         device_list: Device     = self % Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         off_time_ms = on_time_ms + duration.getTime_ms()
-        play_list = [
+        return [
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
@@ -514,8 +514,6 @@ class Note(Element):
                     }
                 }
             ]
-
-        return play_list
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -550,7 +548,7 @@ class Note(Element):
         match operand:
             case int():
                 multi_notes = []
-                for note_i in range(0, operand):
+                for _ in range(0, operand):
                     multi_notes.append(self.copy())
                 return MultiElements(multi_notes)
         return super().__mul__(self)
@@ -576,7 +574,7 @@ class ControlChange(Element):
         device_list: Device     = self % Device() % list()
 
         on_time_ms = note_position.getTime_ms()
-        play_list = [
+        return [
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
@@ -587,8 +585,6 @@ class ControlChange(Element):
                     }
                 }
             ]
-
-        return play_list
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -622,9 +618,72 @@ class ControlChange(Element):
         match operand:
             case int():
                 multi_control_changes = []
-                for note_i in range(0, operand):
+                for _ in range(0, operand):
                     multi_control_changes.append(self.copy())
                 return MultiElements(multi_control_changes)
+        return super().__mul__(self)
+
+class PitchBend(Element):
+    def __init__(self):
+        super().__init__()
+        self._pitch: Pitch = Pitch()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case Pitch():       return self._pitch
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: Position = None):
+        
+        note_position: Position = self % Position() + Position() if position is None else position
+        pitch_list: list[int]   = (self % Pitch()).getMidi__pitch_pair()
+        channel_int: Channel    = self % Channel() % int()
+        device_list: Device     = self % Device() % list()
+
+        on_time_ms = note_position.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xE0 | 0x0F & (channel_int - 1),
+                        "data_byte_1": pitch_list[0],
+                        "data_byte_2": pitch_list[1],
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["pitch"] = self._pitch % int()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "pitch" in serialization):
+
+            super().loadSerialization(serialization)
+            self._pitch = Pitch(serialization["pitch"])
+        return self
+      
+    def copy(self) -> 'PitchBend':
+        return super().copy() << self._pitch
+
+    def __lshift__(self, operand: Operand) -> 'PitchBend':
+        match operand:
+            case Pitch():
+                self._pitch = operand
+        return super().__lshift__(operand)
+
+    def __mul__(self, operand: Operand) -> MultiElements | Element:
+        match operand:
+            case int():
+                multi_pitch_ends = []
+                for _ in range(0, operand):
+                    multi_pitch_ends.append(self.copy())
+                return MultiElements(multi_pitch_ends)
         return super().__mul__(self)
 
 class Sequence(Element):
@@ -672,7 +731,7 @@ class Sequence(Element):
                         "time_ms": round(on_time_ms, 3),
                         "midi_message": {
                             "status_byte": 0x90 | 0x0F & (trigger_channel % int() - 1),
-                            "data_byte_1": trigger_key_note.getValue__midi_key_note(),
+                            "data_byte_1": trigger_key_note.getMidi__key_note(),
                             "data_byte_2": trigger_velocity % int(),
                             "device": trigger_device % list()
                         }
@@ -683,7 +742,7 @@ class Sequence(Element):
                         "time_ms": round(off_time_ms, 3),
                         "midi_message": {
                             "status_byte": 0x80 | 0x0F & (trigger_channel % int() - 1),
-                            "data_byte_1": trigger_key_note.getValue__midi_key_note(),
+                            "data_byte_1": trigger_key_note.getMidi__key_note(),
                             "data_byte_2": 0,
                             "device": trigger_device % list()
                         }

@@ -15,8 +15,16 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from element import *
 
-# Global Staff and Clock setting up
+# Global Staff setting up
 global_staff << Tempo(110) << Measure(6)
+if current_os == "Windows":
+    global_staff << Device(["Microsoft"])   # Microsoft GS Wavetable Synth
+elif current_os == "Darwin":  # macOS
+    global_staff << Device(["Apple"])       # Apple DLS Synthesizer
+else:  # Assume Linux/Unix
+    global_staff << Device(["FLUID"])       # FLUID Synth
+
+# Set the default single Clock for the entire Staff Length
 single_clock = Clock()
 saveJsonMidiCreator(single_clock.getSerialization(), "_Clock_jsonMidiCreator.json")
 

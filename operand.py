@@ -126,7 +126,7 @@ global_staff: Staff = Staff()
 class Unit(Operand):
     def __init__(self, unit: int = None):
         self._unit: int = 0
-        self._unit: int = global_staff % self % int() if unit is None else unit
+        self._unit = global_staff % self % int() if unit is None else unit
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -243,7 +243,13 @@ class Channel(Unit):
 
 class Scale(Unit):
     def __init__(self, scale: str = "Chromatic"):
-        super().__init__(scale)
+        match scale:
+            case str():
+                super().__init__(Scale.scaleStrToScaleUnit(scale))
+            case int() | float():
+                super().__init__(scale)
+            case _:
+                super().__init__(None)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -315,9 +321,22 @@ class Scale(Unit):
 
 class Pitch(Unit):
     def __init__(self, pitch: int = None):
-        if pitch is None:
-            pitch = 0
         super().__init__(pitch)
+
+    def getMidi__pitch_pair(self) -> list[int]:
+        amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+        amount = max(min(amount, 16383), 0)
+        lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+        msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        return [msb, lsb]
+
+#        bend down    center      bend up
+#     0 |<----------- |8192| ----------->| 16383
+# -8192                   0                 8191
+# 14 bits resolution (MSB, LSB). Value = 128 * MSB + LSB
+# min : The maximum negative swing is achieved with data byte values of 00, 00. Value = 0
+# center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
+# max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
 
 class KeyNote(Operand):
     def __init__(self):
@@ -330,7 +349,7 @@ class KeyNote(Operand):
             case Octave():  return self._octave
             case _:         return operand
 
-    def getValue__midi_key_note(self) -> int:
+    def getMidi__key_note(self) -> int:
         key = self._key % int()
         octave = self._octave % int()
         return 12 * (octave + 1) + key
@@ -397,7 +416,7 @@ class KeyNote(Operand):
 class Value(Operand):
     def __init__(self, value: float = None):
         self._value: float = 0.0
-        self._value: float = global_staff % self % float() if value is None else value
+        self._value = global_staff % self % float() if value is None else value
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -673,15 +692,13 @@ class Identity(Length):
 # Read only class
 class Device(Operand):
     def __init__(self, device_list: list[str] = None):
-        self._device_list: list[str] = device_list
+        self._device_list: list[str] = []
+        self._device_list = global_staff % self % list() if device_list is None else device_list
 
     def __mod__(self, operand: list) -> 'Device':
-        if self._device_list is not None:
-            match operand:
-                case list(): return self._device_list
-                case _: return self
-        else:
-            return global_staff % self % list()
+        match operand:
+            case list(): return self._device_list
+            case _: return self
 
     def getSerialization(self):
         return {
