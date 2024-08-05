@@ -126,7 +126,8 @@ global_staff: Staff = Staff()
 # Units have never None values and are also const, with no setters
 class Unit(Operand):
     def __init__(self, unit: int = None):
-        self._unit: int = unit
+        self._unit: int = 0
+        self._unit: int = global_staff % self % int() if unit is None else unit
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -190,6 +191,20 @@ class Unit(Operand):
     
 class Key(Unit):
 
+    def __init__(self, key: str = None):
+        match key:
+            case str():
+                super().__init__(Key.keyStrToKeyUnit(key))
+            case int() | float():
+                super().__init__(key)
+            case _:
+                super().__init__( global_staff % self % int() )
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case str():     return Key.getKey(self % int())
+            case _:         return super().__mod__(operand)
+
     _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
                         "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
     
@@ -201,71 +216,63 @@ class Key(Unit):
     def keyStrToKeyUnit(key: str = "C") -> int:
         key_number = 0
         for key_i in range(len(Key._keys)):
-            if  Key._keys[key_i].lower().find(key.strip().lower()) != -1:
+            if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
                 key_number += key_i % 12
                 break
         return key_number
 
-    def __init__(self, key: str = None):
-        match key:
-            case str():
-                super().__init__(Key.keyStrToKeyUnit(key))
-            case int() | float():
-                super().__init__(key)
-            case _:
-                super().__init__( global_staff % Key(0) % int() )
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case str():     return Key.getKey(self % int())
-            case _:         return super().__mod__(operand)
-
 class Tempo(Unit):
     def __init__(self, tempo: int = None):
-        super().__init__( global_staff % Tempo(0) % int() if tempo is None else tempo )
+        super().__init__(tempo)
 
 class Octave(Unit):
     def __init__(self, octave: int = None):
-        super().__init__( global_staff % Octave(0) % int() if octave is None else octave )
+        super().__init__(octave)
 
 class Velocity(Unit):
     def __init__(self, velocity: int = None):
-        super().__init__( global_staff % Velocity(0) % int() if velocity is None else velocity )
+        super().__init__(velocity)
 
 class ValueUnit(Unit):
     def __init__(self, value_unit: int = None):
-        super().__init__( global_staff % ValueUnit(0) % int() if value_unit is None else value_unit )
+        super().__init__(value_unit)
 
 class Channel(Unit):
     def __init__(self, channel: int = None):
-        super().__init__( global_staff % Channel(0) % int() if channel is None else channel )
+        super().__init__(channel)
 
 class Scale(Unit):
-    def __init__(self, scale: int = None):
+    def __init__(self, scale: str = "Chromatic"):
         super().__init__(scale)
 
-    scale_mames = [
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case list():    return Scale.getScale(self % int())
+            case str():     return Scale.getScaleName(self % int())
+            case _:         return super().__mod__(operand)
+
+    _scale_names = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
-        ["Major", "Maj", "Ionian"],
-        ["Dorian"],
-        ["Phrygian"],
-        ["Lydian"],
-        ["Mixolydian"],
-        ["minor", "min", "Aeolian"],
-        ["Locrian"],
+        ["Major", "Maj", "Ionian", "ionian"],
+        ["Dorian", "dorian"],
+        ["Phrygian", "phrygian"],
+        ["Lydian", "lydian"],
+        ["Mixolydian", "mixolydian"],
+        ["minor", "min", "Aeolian", "aeolian"],
+        ["Locrian", "locrian"],
         # Other Scales
         ["harmonic"],
         ["melodic"],
         ["octatonic_hw"],
         ["octatonic_wh"],
-        ["pentatonic_maj"],
-        ["pentatonic_min"],
+        ["pentatonic_maj", "Pentatonic"],
+        ["pentatonic_min", "pentatonic"],
         ["diminished"],
         ["augmented"],
         ["blues"]
     ]
-    scales = [
+    _scales = [
     #       Db    Eb       Gb    Ab    Bb
     #       C#    D#       F#    G#    A#
     #    C     D     E  F     G     A     B
@@ -289,6 +296,24 @@ class Scale(Unit):
         [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
         [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0]
     ]
+
+    @staticmethod
+    def getScale(scale_unit: int = 0):
+        return Scale._scales[scale_unit % len(Scale._scales)]
+
+    @staticmethod
+    def getScaleName(scale_unit: int = 0):
+        return Scale._scale_names[scale_unit % len(Scale._scales)][0]
+
+    @staticmethod
+    def scaleStrToScaleUnit(scale_name: str = "Chromatic") -> int:
+        scale_number = 0
+        for scale_i in range(len(Scale._scale_names)):
+            for scale_j in range(len(Scale._scale_names[scale_i])):
+                if scale_name.strip() == Scale._scale_names[scale_i][scale_j]:
+                    scale_number = scale_i
+                    break
+        return scale_number
 
 class Pitch(Unit):
     def __init__(self, pitch: int = None):
@@ -375,7 +400,8 @@ class KeyNote(Operand):
 class Value(Operand):
 
     def __init__(self, value: float = None):
-        self._value: float = 0 if value is None else value
+        self._value: float = 0.0
+        self._value: float = global_staff % self % float() if value is None else value
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -444,27 +470,27 @@ class Value(Operand):
 
 class Quantization(Value):
     def __init__(self, quantization: float = None):
-        super().__init__( global_staff % Quantization(0) % float() if quantization is None else quantization )
+        super().__init__(quantization)
 
 class BeatsPerMeasure(Value):
     def __init__(self, beats_per_measure: float = None):
-        super().__init__( global_staff % BeatsPerMeasure(0) % float() if beats_per_measure is None else beats_per_measure )
+        super().__init__(beats_per_measure)
 
 class BeatNoteValue(Value):
     def __init__(self, beat_note_value: float = None):
-        super().__init__( global_staff % BeatNoteValue(0) % float() if beat_note_value is None else beat_note_value )
+        super().__init__(beat_note_value)
 
 class NotesPerMeasure(Value):
     def __init__(self, notes_per_measure: float = None):
-        super().__init__( global_staff % NotesPerMeasure(0) % float() if notes_per_measure is None else notes_per_measure )
+        super().__init__(notes_per_measure)
 
 class StepsPerMeasure(Value):
     def __init__(self, steps_per_measure: float = None):
-        super().__init__( global_staff % StepsPerMeasure(0) % float() if steps_per_measure is None else steps_per_measure )
+        super().__init__(steps_per_measure)
 
 class StepsPerNote(Value):
     def __init__(self, steps_per_note: float = None):
-        super().__init__( global_staff % StepsPerNote(0) % float() if steps_per_note is None else steps_per_note )
+        super().__init__(steps_per_note)
 
 class Measure(Value):
 
@@ -639,7 +665,7 @@ class Position(Length):
 class Duration(Length):
     def __init__(self):
         super().__init__()
-        self << global_staff % Duration
+        self << global_staff % self
 
 class TimeLength(Length):
     def __init__(self):

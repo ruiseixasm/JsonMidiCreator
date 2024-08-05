@@ -21,7 +21,7 @@ single_clock = Clock()
 saveJsonMidiCreator(single_clock.getSerialization(), "_Clock_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequencially played
-first_note = (Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)))
+first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2))
 multi_notes = first_note * 3
 (Void() >> multi_notes).play()
 saveJsonMidiCreator(first_note.getSerialization(), "_Note_jsonMidiCreator.json")
