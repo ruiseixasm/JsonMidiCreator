@@ -54,7 +54,7 @@ class Element:
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case Position():    return self._position
-            case TimeLength():      return self._time_length
+            case TimeLength():  return self._time_length
             case Channel():     return self._channel
             case Device():      return self._device
             case _:             return operand
@@ -104,6 +104,8 @@ class Element:
 
     def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
         match element_operand:
+            case Void():
+                pass
             case MultiElements():
                 last_element = element_operand.lastElement()
                 if type(last_element) != Void:
@@ -248,6 +250,8 @@ class MultiElements():  # Just a container of Elements
         self_first_element = self.firstElement()
         if type(self_first_element) != Void:
             match other_operand:
+                case Void():
+                    pass
                 case MultiElements():
                     other_last_element = self.lastElement()
                     if type(other_last_element) != Void:
@@ -541,11 +545,10 @@ class Note(Element):
         return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity
 
     def __lshift__(self, operand: Operand) -> 'Note':
-        super().__lshift__(operand)
         if operand.__class__ == Duration: self._duration = operand
         if operand.__class__ == KeyNote: self._key_note = operand
         if operand.__class__ == Velocity: self._velocity = operand
-        return self
+        return super().__lshift__(operand)
 
     def __mul__(self, operand: Operand) -> MultiElements | Element:
         match operand:

@@ -240,6 +240,46 @@ class Channel(Unit):
     def __init__(self, channel: int = None):
         super().__init__( global_staff % Channel(0) % int() if channel is None else channel )
 
+class Scale(Unit):
+    def __init__(self, scale: int = None):
+        super().__init__(scale)
+
+    scale_mames = [
+        ["Chromatic", "chromatic"],
+        # Diatonic Scales
+        ["Major", "Maj"],
+        
+        # Other Scales
+        ["harmonic"],
+        ["melodic"],
+        ["octatonic_hw"],
+        ["octatonic_wh"],
+        ["pentatonic_maj"],
+        ["pentatonic_min"],
+        ["diminished"],
+        ["augmented"],
+        ["blues"]
+    ]
+    scales = [
+    #       Db    Eb       Gb    Ab    Bb
+    #       C#    D#       F#    G#    A#
+    #    C     D     E  F     G     A     B
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        # Diatonic Scales
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
+
+        # Other Scales
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],
+        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0],
+        [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
+        [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0]
+    ]
+
 class Pitch(Unit):
     def __init__(self, pitch: int = None):
         if pitch is None:
