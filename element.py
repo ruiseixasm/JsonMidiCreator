@@ -116,7 +116,7 @@ class Element:
     def __add__(self, operand: Operand) -> 'Element':
         match operand:
             case Element():
-                return MultiElements(self.copy, operand.copy())
+                return MultiElements(self.copy(), operand.copy())
             case MultiElements():
                 return MultiElements(self.copy(), operand.copy() % list())
             case Operand():
@@ -276,7 +276,7 @@ class MultiElements():  # Just a container of Elements
                 if len(self._multi_elements) > 0:
                     last_element = self._multi_elements[len(self._multi_elements) - 1]
                     while operand > 0:
-                        element_list.append(last_element.copy)
+                        element_list.append(last_element.copy())
                         operand -= 1
                 return element_copy
         return self.copy()
