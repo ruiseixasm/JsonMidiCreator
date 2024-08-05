@@ -898,3 +898,13 @@ class Composition:
         ...
         return self
 
+# Voice Message           Status Byte      Data Byte1          Data Byte2
+# -------------           -----------   -----------------   -----------------
+# Note off                      8x      Key number          Note Off velocity
+# Note on                       9x      Key number          Note on velocity
+# Polyphonic Key Pressure       Ax      Key number          Amount of pressure
+# Control Change                Bx      Controller number   Controller value
+# Program Change                Cx      Program number      None
+# Channel Pressure              Dx      Pressure value      None            
+# Pitch Bend                    Ex      MSB                 LSB
+
