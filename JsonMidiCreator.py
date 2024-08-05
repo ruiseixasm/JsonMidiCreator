@@ -19,7 +19,7 @@ from element import *
 global_staff << Tempo(110) << Measure(6)
 single_clock = Clock()
 clock_serialization = single_clock.getSerialization()
-#saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
+saveJsonMidiCreator(clock_serialization, "_Clock_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequencially played
 first_note = (Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)))
@@ -27,7 +27,7 @@ second_note = first_note.copy()
 third_note = first_note.copy()
 (Void() >> MultiElements(first_note, second_note, third_note)).play()
 note_serialization = first_note.getSerialization()
-#saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
+saveJsonMidiCreator(note_serialization, "_Note_jsonMidiCreator.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << NoteValue(1/16))
@@ -37,7 +37,7 @@ first_sequence = Sequence() << (Position() << Measure(1))
 first_sequence << MultiElements([base_note.copy()]) * 8 // (TimeLength() << Step(1))
 first_sequence << Channel(10)
 sequence_serialization = first_sequence.getSerialization()
-#saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
+saveJsonMidiCreator(sequence_serialization, "_Sequence_jsonMidiCreator.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence.copy()

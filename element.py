@@ -364,7 +364,7 @@ class Clock(Element):
         super().__init__()
         self._time_length = TimeLength() << Measure(global_staff % Measure() % int())
         self._mode: ClockModes = ClockModes.single
-        self._pulses_per_quarternote = 24
+        self._pulses_per_quarternote: int = 24
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -381,7 +381,7 @@ class Clock(Element):
         device = self % Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / (global_staff % BeatsPerNote() % float())
+        pulses_per_beat = pulses_per_note * (global_staff % BeatNoteValue() % float())
         pulses_per_measure = pulses_per_beat * (global_staff % BeatsPerMeasure() % float())
         clock_pulses = round(pulses_per_measure * (clock_length % Measure() % float()))
 
@@ -467,7 +467,7 @@ class Note(Element):
 
     def __init__(self):
         super().__init__()
-        self._duration: Duration    = Duration() << NoteValue(global_staff % NoteValue() % float())
+        self._duration: Duration    = Duration()
         self._key_note: KeyNote     = KeyNote()
         self._velocity: Velocity    = Velocity()
 

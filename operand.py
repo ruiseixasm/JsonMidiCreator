@@ -29,11 +29,11 @@ class Staff(Operand):
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: Measure                      = None
         self._tempo: Tempo                          = None
-        # Time Signature is BeatsPerMeasure / BeatsPerNote like 4/4
+        # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
         self._beats_per_measure: BeatsPerMeasure    = None
-        self._beats_per_note: BeatsPerNote          = None
+        self._beat_note_value: BeatNoteValue        = None
         self._quantization: Quantization            = None
-        self._note_value: NoteValue                 = None
+        self._duration: Duration                    = None
         self._key: Key                              = None
         self._octave: Octave                        = None
         self._velocity: Velocity                    = None
@@ -47,9 +47,9 @@ class Staff(Operand):
             case Measure():         return self._measure
             case Tempo():           return self._tempo
             case BeatsPerMeasure(): return self._beats_per_measure
-            case BeatsPerNote():    return self._beats_per_note
+            case BeatNoteValue():   return self._beat_note_value
             case Quantization():    return self._quantization
-            case NoteValue():       return self._note_value
+            case Duration():        return self._duration
             case Key():             return self._key
             case Octave():          return self._octave
             case Velocity():        return self._velocity
@@ -57,7 +57,7 @@ class Staff(Operand):
             case Channel():         return self._channel
             case Device():          return self._device
             # Calculated Values
-            case NotesPerMeasure(): return NotesPerMeasure((self % BeatsPerMeasure() % float()) / (self % BeatsPerNote() % float()))
+            case NotesPerMeasure(): return NotesPerMeasure((self % BeatsPerMeasure() % float()) * (self % BeatNoteValue() % float()))
             case StepsPerMeasure(): return StepsPerMeasure((self % StepsPerNote() % float()) * (self % NotesPerMeasure() % float()))
             case StepsPerNote():    return StepsPerNote(1 / (self._quantization % float()))
         return operand
@@ -65,17 +65,18 @@ class Staff(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "measures": self._measures,
+            "measures": self._measure,
             "tempo": self._tempo,
-            "quantization": self._quantization,
             "beats_per_measure": self._beats_per_measure,
-            "beats_per_note": self._beats_per_note,
-            "note_value": 1/4,
-            "key": "C",
-            "octave": 4,
-            "velocity": 100,
-            "channel": 1,
-            "device_list": ["FLUID", "Midi", "Port", "Synth"]
+            "beat_note_value": self._beat_note_value,
+            "quantization": self._quantization,
+            "duration": self._duration,
+            "key": self._key,
+            "octave": self._octave,
+            "velocity": self._velocity,
+            "value_unit": self._value_unit,
+            "channel": self._channel,
+            "device_list": self._device
         }
 
     # CHAINABLE OPERATIONS
@@ -83,20 +84,21 @@ class Staff(Operand):
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "measures" in serialization and "tempo" in serialization and
-            "quantization" in serialization and "beats_per_measure" in serialization and "beats_per_note" in serialization and
-            "note_value" in serialization and "key" in serialization and
-            "octave" in serialization and "velocity" in serialization and
+            "quantization" in serialization and "beats_per_measure" in serialization and "beat_note_value" in serialization and
+            "duration" in serialization and "key" in serialization and
+            "octave" in serialization and "velocity" in serialization and "value_unit" in serialization and
             "channel" in serialization and "device_list" in serialization):
 
             self._measures = serialization["measures"]
             self._tempo = serialization["tempo"]
             self._quantization = serialization["quantization"]
-            self._beats_per_note = serialization["beats_per_measure"]
-            self._time_signature = serialization["beats_per_note"]
-            self._note_value = serialization["note_value"]
+            self._beat_note_value = serialization["beats_per_measure"]
+            self._time_signature = serialization["beat_note_value"]
+            self._duration = serialization["duration"]
             self._key = serialization["key"]
             self._octave = serialization["octave"]
             self._velocity = serialization["velocity"]
+            self._value_unit = serialization["value_unit"]
             self._channel = serialization["channel"]
             self._device_list = serialization["device_list"]
 
@@ -107,9 +109,9 @@ class Staff(Operand):
             case Measure():         self._measure = operand
             case Tempo():           self._tempo = operand
             case BeatsPerMeasure(): self._beats_per_measure = operand
-            case BeatsPerNote():    self._beats_per_note = operand
+            case BeatNoteValue():   self._beat_note_value = operand
             case Quantization():    self._quantization = operand
-            case NoteValue():       self._note_value = operand
+            case Duration():        self._duration = operand
             case Key():             self._key = operand
             case Octave():          self._octave = operand
             case Velocity():        self._velocity = operand
@@ -404,9 +406,9 @@ class BeatsPerMeasure(Value):
     def __init__(self, beats_per_measure: float = None):
         super().__init__(beats_per_measure)
 
-class BeatsPerNote(Value):
-    def __init__(self, beats_per_note: float = None):
-        super().__init__(beats_per_note)
+class BeatNoteValue(Value):
+    def __init__(self, beat_note_value: float = None):
+        super().__init__(beat_note_value)
 
 class NotesPerMeasure(Value):
     def __init__(self, notes_per_measure: float = None):
@@ -435,14 +437,14 @@ class Beat(Value):
 
     def getTime_ms(self):
         return 60.0 * 1000 / (global_staff % Tempo() % int()) * self._value
-     
+    
 class NoteValue(Value):
 
     def __init__(self, value: float = 0):
         super().__init__(value)
 
     def getTime_ms(self):
-        return Beat(1).getTime_ms() * (global_staff % BeatsPerNote() % float()) * self._value
+        return Beat(1).getTime_ms() / (global_staff % BeatNoteValue() % float()) * self._value
      
 class Step(Value):
 
@@ -593,6 +595,7 @@ class Position(Length):
 class Duration(Length):
     def __init__(self):
         super().__init__()
+        self << global_staff % Duration
 
 class TimeLength(Length):
     def __init__(self):
@@ -845,8 +848,8 @@ class Gate(Operand):
 
 # Set the Default Staff values here
 
-global_staff << Measure(8) << Tempo(120) << BeatsPerMeasure(4) << BeatsPerNote(4)
-global_staff << Quantization(1/16) << NoteValue(1/4) << Key("C") << Octave(4) << Velocity(100)
+global_staff << Measure(8) << Tempo(120) << BeatsPerMeasure(4) << BeatNoteValue(1/4)
+global_staff << Quantization(1/16) << (Duration() << NoteValue(1/4)) << Key("C") << Octave(4) << Velocity(100)
 global_staff << ValueUnit(64) << Channel(1) << Device(["FLUID", "Midi", "Port", "Synth"])
                 # 64 for CC Center
                 
