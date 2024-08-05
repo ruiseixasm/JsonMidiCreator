@@ -129,13 +129,10 @@ class Unit(Operand):
         self._unit: int = unit
 
     def __mod__(self, operand: Operand) -> Operand:
-        if self._unit is not None:
-            match operand:
-                case int():     return round(self._unit)
-                case float():   return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
-                case _:         return operand
-        else:
-            return global_staff % self % int()
+        match operand:
+            case int():     return round(self._unit)
+            case float():   return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
+            case _:         return operand
 
     def __eq__(self, other_unit: 'Unit') -> bool:
         return self % int() == other_unit % int()
@@ -216,7 +213,7 @@ class Key(Unit):
             case int() | float():
                 super().__init__(key)
             case _:
-                super().__init__(None)
+                super().__init__( global_staff % Key(0) % int() )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -225,23 +222,23 @@ class Key(Unit):
 
 class Tempo(Unit):
     def __init__(self, tempo: int = None):
-        super().__init__(tempo)
+        super().__init__( global_staff % Tempo(0) % int() if tempo is None else tempo )
 
 class Octave(Unit):
     def __init__(self, octave: int = None):
-        super().__init__(octave)
+        super().__init__( global_staff % Octave(0) % int() if octave is None else octave )
 
 class Velocity(Unit):
     def __init__(self, velocity: int = None):
-        super().__init__(velocity)
+        super().__init__( global_staff % Velocity(0) % int() if velocity is None else velocity )
 
 class ValueUnit(Unit):
     def __init__(self, value_unit: int = None):
-        super().__init__(value_unit)
+        super().__init__( global_staff % ValueUnit(0) % int() if value_unit is None else value_unit )
 
 class Channel(Unit):
     def __init__(self, channel: int = None):
-        super().__init__(channel)
+        super().__init__( global_staff % Channel(0) % int() if channel is None else channel )
 
 class Pitch(Unit):
     def __init__(self, pitch: int = None):
@@ -328,16 +325,13 @@ class KeyNote(Operand):
 class Value(Operand):
 
     def __init__(self, value: float = None):
-        self._value: float = value
+        self._value: float = 0 if value is None else value
 
     def __mod__(self, operand: Operand) -> Operand:
-        if self._value is not None:
-            match operand:
-                case float():   return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
-                case int():     return round(self._value)
-                case _:         return operand
-        else:
-            return global_staff % self % float()
+        match operand:
+            case float():   return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
+            case int():     return round(self._value)
+            case _:         return operand
 
     def __eq__(self, other_value: 'Value') -> bool:
         return self % float() == other_value % float()
@@ -400,31 +394,31 @@ class Value(Operand):
 
 class Quantization(Value):
     def __init__(self, quantization: float = None):
-        super().__init__(quantization)
+        super().__init__( global_staff % Quantization(0) % float() if quantization is None else quantization )
 
 class BeatsPerMeasure(Value):
     def __init__(self, beats_per_measure: float = None):
-        super().__init__(beats_per_measure)
+        super().__init__( global_staff % BeatsPerMeasure(0) % float() if beats_per_measure is None else beats_per_measure )
 
 class BeatNoteValue(Value):
     def __init__(self, beat_note_value: float = None):
-        super().__init__(beat_note_value)
+        super().__init__( global_staff % BeatNoteValue(0) % float() if beat_note_value is None else beat_note_value )
 
 class NotesPerMeasure(Value):
     def __init__(self, notes_per_measure: float = None):
-        super().__init__(notes_per_measure)
+        super().__init__( global_staff % NotesPerMeasure(0) % float() if notes_per_measure is None else notes_per_measure )
 
 class StepsPerMeasure(Value):
     def __init__(self, steps_per_measure: float = None):
-        super().__init__(steps_per_measure)
+        super().__init__( global_staff % StepsPerMeasure(0) % float() if steps_per_measure is None else steps_per_measure )
 
 class StepsPerNote(Value):
     def __init__(self, steps_per_note: float = None):
-        super().__init__(steps_per_note)
+        super().__init__( global_staff % StepsPerNote(0) % float() if steps_per_note is None else steps_per_note )
 
 class Measure(Value):
 
-    def __init__(self, value: float = 0):
+    def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
@@ -432,7 +426,7 @@ class Measure(Value):
      
 class Beat(Value):
 
-    def __init__(self, value: float = 0):
+    def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
@@ -440,7 +434,7 @@ class Beat(Value):
     
 class NoteValue(Value):
 
-    def __init__(self, value: float = 0):
+    def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
@@ -448,7 +442,7 @@ class NoteValue(Value):
      
 class Step(Value):
 
-    def __init__(self, value: float = 0):
+    def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
