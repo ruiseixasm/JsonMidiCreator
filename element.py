@@ -44,7 +44,6 @@ import enum
 """
 
 class Element:
-
     def __init__(self):
         self._position: Position    = Position()
         self._time_length: TimeLength        = TimeLength()
@@ -142,7 +141,6 @@ class Void(Element):
     pass
 
 class MultiElements():  # Just a container of Elements
-
     def __init__(self, *multi_elements: list[Element] | Element):
         self._multi_elements = []
         if multi_elements is not None:
@@ -365,7 +363,6 @@ class ClockModes(enum.Enum):
     resume  = 5
 
 class Clock(Element):
-
     def __init__(self):
         super().__init__()
         self._time_length = TimeLength() << Measure(global_staff % Measure() % int())
@@ -473,7 +470,6 @@ class Clock(Element):
         return self
 
 class Note(Element):
-
     def __init__(self):
         super().__init__()
         self._duration: Duration    = Duration()
@@ -559,8 +555,79 @@ class Note(Element):
                 return MultiElements(multi_notes)
         return super().__mul__(self)
 
-class Sequence(Element):
+class ControlChange(Element):
+    def __init__(self):
+        super().__init__()
+        self._number: Number = Number()
+        self._value_unit: ValueUnit = ValueUnit()
 
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case Number():      return self._number
+            case ValueUnit():   return self._value_unit
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: Position = None):
+        
+        note_position: Position = self % Position() + Position() if position is None else position
+        number_int: Number      = self % Number() % int()
+        value_int: ValueUnit    = self % ValueUnit() % int()
+        channel_int: Channel    = self % Channel() % int()
+        device_list: Device     = self % Device() % list()
+
+        on_time_ms = note_position.getTime_ms()
+        play_list = [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & (channel_int - 1),
+                        "data_byte_1": number_int,
+                        "data_byte_2": value_int,
+                        "device": device_list
+                    }
+                }
+            ]
+
+        return play_list
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["number"] = self._number % int()
+        element_serialization["value_unit"] = self._value_unit % int()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "number" in serialization and "value_unit" in serialization):
+
+            super().loadSerialization(serialization)
+            self._number = Number(serialization["number"])
+            self._value_unit = ValueUnit(serialization["value_unit"])
+        return self
+      
+    def copy(self) -> 'ControlChange':
+        return super().copy() << self._number << self._value_unit
+
+    def __lshift__(self, operand: Operand) -> 'ControlChange':
+        match operand:
+            case Number():
+                self._number = operand
+            case ValueUnit():
+                self._value_unit = operand
+        return super().__lshift__(operand)
+
+    def __mul__(self, operand: Operand) -> MultiElements | Element:
+        match operand:
+            case int():
+                multi_control_changes = []
+                for note_i in range(0, operand):
+                    multi_control_changes.append(self.copy())
+                return MultiElements(multi_control_changes)
+        return super().__mul__(self)
+
+class Sequence(Element):
     def __init__(self):
         super().__init__()
         self._time_length = TimeLength() << Measure(1)
@@ -721,22 +788,6 @@ class Sequence(Element):
     def __floordiv__(self, time_length: TimeLength) -> 'Sequence':
         return self << self._trigger_notes // time_length
   
-    
-class ControlChange:
-
-    def __init__(self, channel = 1, control_change = 10, value = 64):    # default is 10 - pan
-        pass
-
-    # CHAINABLE OPERATIONS
-
-
-class MidiMessage:
-
-    def __init__(self, status_byte = 0xF2, data_byte_1 = 0, data_byte_2 = 0):   # 0xF2 - Song Position
-        self._status_byte = status_byte
-        self._data_byte_1 = data_byte_1
-        self._data_byte_2 = data_byte_2
-        self._device: list = None
 
 class Panic:
     ...

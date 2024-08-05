@@ -24,7 +24,6 @@ class Null(Operand):
     pass
 
 class Staff(Operand):
-
     def __init__(self):
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: Measure                      = None
@@ -190,7 +189,6 @@ class Unit(Operand):
             case int() | float(): return self.__class__(self % int() / unit)
     
 class Key(Unit):
-
     def __init__(self, key: str = None):
         match key:
             case str():
@@ -214,12 +212,10 @@ class Key(Unit):
 
     @staticmethod
     def keyStrToKeyUnit(key: str = "C") -> int:
-        key_number = 0
         for key_i in range(len(Key._keys)):
             if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                key_number += key_i % 12
-                break
-        return key_number
+                return key_i % 12
+        return 0
 
 class Tempo(Unit):
     def __init__(self, tempo: int = None):
@@ -236,6 +232,10 @@ class Velocity(Unit):
 class ValueUnit(Unit):
     def __init__(self, value_unit: int = None):
         super().__init__(value_unit)
+
+class Number(Unit):
+    def __init__(self, number: int = None):
+        super().__init__(number)
 
 class Channel(Unit):
     def __init__(self, channel: int = None):
@@ -307,13 +307,11 @@ class Scale(Unit):
 
     @staticmethod
     def scaleStrToScaleUnit(scale_name: str = "Chromatic") -> int:
-        scale_number = 0
         for scale_i in range(len(Scale._scale_names)):
             for scale_j in range(len(Scale._scale_names[scale_i])):
                 if scale_name.strip() == Scale._scale_names[scale_i][scale_j]:
-                    scale_number = scale_i
-                    break
-        return scale_number
+                    return scale_i
+        return 0
 
 class Pitch(Unit):
     def __init__(self, pitch: int = None):
@@ -322,7 +320,6 @@ class Pitch(Unit):
         super().__init__(pitch)
 
 class KeyNote(Operand):
-
     def __init__(self):
         self._key: Key = Key()
         self._octave: Octave = Octave()
@@ -398,7 +395,6 @@ class KeyNote(Operand):
 
 # Values have never None values and are also const, with no setters
 class Value(Operand):
-
     def __init__(self, value: float = None):
         self._value: float = 0.0
         self._value: float = global_staff % self % float() if value is None else value
@@ -493,7 +489,6 @@ class StepsPerNote(Value):
         super().__init__(steps_per_note)
 
 class Measure(Value):
-
     def __init__(self, value: float = None):
         super().__init__(value)
 
@@ -501,7 +496,6 @@ class Measure(Value):
         return Beat(1).getTime_ms() * (global_staff % BeatsPerMeasure() % float()) * self._value
      
 class Beat(Value):
-
     def __init__(self, value: float = None):
         super().__init__(value)
 
@@ -509,7 +503,6 @@ class Beat(Value):
         return 60.0 * 1000 / (global_staff % Tempo() % int()) * self._value
     
 class NoteValue(Value):
-
     def __init__(self, value: float = None):
         super().__init__(value)
 
@@ -517,7 +510,6 @@ class NoteValue(Value):
         return Beat(1).getTime_ms() / (global_staff % BeatNoteValue() % float()) * self._value
      
 class Step(Value):
-
     def __init__(self, value: float = None):
         super().__init__(value)
 
@@ -525,7 +517,6 @@ class Step(Value):
         return NoteValue(1).getTime_ms() / (global_staff % StepsPerNote() % float()) * self._value
     
 class Length(Operand):
-    
     def __init__(self):
         # Default values already, no need to wrap them with Default()
         self._measure       = Measure(0)
@@ -672,7 +663,6 @@ class TimeLength(Length):
         super().__init__()
     
 class Identity(Length):
-    
     def __init__(self):
         super().__init__()
         self._measure       = Measure(1)
@@ -682,7 +672,6 @@ class Identity(Length):
     
 # Read only class
 class Device(Operand):
-
     def __init__(self, device_list: list[str] = None):
         self._device_list: list[str] = device_list
 
@@ -763,7 +752,6 @@ class Inner(Setup):
         super().__init__()
 
 class Selection(Setup):
-    
     def __init__(self):
         self._position: Position = Position()
         self._time_length: TimeLength = TimeLength() << Beat(1)
@@ -807,14 +795,12 @@ class Selection(Setup):
     
 
 class Range(Operand):
-
     def __init__(self, operand: Operand, position: Position = None, length: Length = None):
         self._operand = operand
         self._position = position
         self._length = length
 
 class Repeat(Operand):
-    
     def __init__(self, unit: Unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
@@ -843,7 +829,6 @@ class Increment(Operand):
     operand = Increment(unit, 8)
     operand = Increment(unit, 0, 10, 2)
     """
-
     def __init__(self, unit: Unit, *argv: int):
         """
         Initialize the Increment with a Unit and additional arguments.
@@ -889,7 +874,6 @@ class Increment(Operand):
 
 
 class IntervalQuality(Operand):
-
     def __init__(self, interval_quality: str = 0):
         self._interval_quality: str = interval_quality
 
@@ -900,19 +884,16 @@ class IntervalQuality(Operand):
         # Diminished (d or o)
 
 class Inversion(Operand):
-    
     def __init__(self, inversion: int = 0):
         self._inversion: int = inversion
 
 
 class Swing(Operand):
-
     def __init__(self, swing: float = 0):
         self._swing: float = swing
 
 
 class Gate(Operand):
-
     def __init__(self, gate: float = 0.50):
         self._gate: float = gate
 
