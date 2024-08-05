@@ -13,7 +13,6 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from staff import *
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 
@@ -24,17 +23,117 @@ class Operand:
 class Null(Operand):
     pass
 
+class Staff(Operand):
 
-# Units have never None values and are also const, with no setters
-class Unit(Operand):
-    def __init__(self, unit: int = 0):
-        self._unit: int = 0 if unit is None else round(unit)
+    def __init__(self):
+        # Set Global Staff Defaults at the end of this file bottom bellow
+        self._measure: Measure                      = None
+        self._tempo: Tempo                          = None
+        # Time Signature is BeatsPerMeasure / BeatsPerNote like 4/4
+        self._beats_per_measure: BeatsPerMeasure    = None
+        self._beats_per_note: BeatsPerNote          = None
+        self._quantization: Quantization            = None
+        self._note_value: NoteValue                 = None
+        self._key: Key                              = None
+        self._octave: Octave                        = None
+        self._velocity: Velocity                    = None
+        self._value_unit: ValueUnit                 = None
+        self._channel: Channel                      = None
+        self._device: Device                        = None
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case int():     return round(self._unit)
-            case float():   return 1.0 * self._unit
-            case _:         return operand
+            # Direct Values
+            case Measure():         return self._measure
+            case Tempo():           return self._tempo
+            case BeatsPerMeasure(): return self._beats_per_measure
+            case BeatsPerNote():    return self._beats_per_note
+            case Quantization():    return self._quantization
+            case NoteValue():       return self._note_value
+            case Key():             return self._key
+            case Octave():          return self._octave
+            case Velocity():        return self._velocity
+            case ValueUnit():       return self._value_unit
+            case Channel():         return self._channel
+            case Device():          return self._device
+            # Calculated Values
+            case NotesPerMeasure(): return NotesPerMeasure((self % BeatsPerMeasure() % float()) / (self % BeatsPerNote() % float()))
+            case StepsPerMeasure(): return StepsPerMeasure((self % StepsPerNote() % float()) * (self % NotesPerMeasure() % float()))
+            case StepsPerNote():    return StepsPerNote(1 / (self._quantization % float()))
+        return operand
+
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "measures": self._measures,
+            "tempo": self._tempo,
+            "quantization": self._quantization,
+            "beats_per_measure": self._beats_per_measure,
+            "beats_per_note": self._beats_per_note,
+            "note_value": 1/4,
+            "key": "C",
+            "octave": 4,
+            "velocity": 100,
+            "channel": 1,
+            "device_list": ["FLUID", "Midi", "Port", "Synth"]
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "measures" in serialization and "tempo" in serialization and
+            "quantization" in serialization and "beats_per_measure" in serialization and "beats_per_note" in serialization and
+            "note_value" in serialization and "key" in serialization and
+            "octave" in serialization and "velocity" in serialization and
+            "channel" in serialization and "device_list" in serialization):
+
+            self._measures = serialization["measures"]
+            self._tempo = serialization["tempo"]
+            self._quantization = serialization["quantization"]
+            self._beats_per_note = serialization["beats_per_measure"]
+            self._time_signature = serialization["beats_per_note"]
+            self._note_value = serialization["note_value"]
+            self._key = serialization["key"]
+            self._octave = serialization["octave"]
+            self._velocity = serialization["velocity"]
+            self._channel = serialization["channel"]
+            self._device_list = serialization["device_list"]
+
+        return self
+        
+    def __lshift__(self, operand: Operand) -> 'Staff':
+        match operand:
+            case Measure():         self._measure = operand
+            case Tempo():           self._tempo = operand
+            case BeatsPerMeasure(): self._beats_per_measure = operand
+            case BeatsPerNote():    self._beats_per_note = operand
+            case Quantization():    self._quantization = operand
+            case NoteValue():       self._note_value = operand
+            case Key():             self._key = operand
+            case Octave():          self._octave = operand
+            case Velocity():        self._velocity = operand
+            case ValueUnit():       self._value_unit = operand
+            case Channel():         self._channel = operand
+            case Device():          self._device = operand
+        return self
+
+global_staff: Staff = Staff()
+
+
+# Units have never None values and are also const, with no setters
+class Unit(Operand):
+    def __init__(self, unit: int = None):
+        self._unit: int = unit
+
+    def __mod__(self, operand: Operand) -> Operand:
+        if self._unit is not None:
+            match operand:
+                case int():     return round(self._unit)
+                case float():   return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
+                case _:         return operand
+        else:
+            return global_staff % self % int()
 
     def __eq__(self, other_unit: 'Unit') -> bool:
         return self % int() == other_unit % int()
@@ -109,8 +208,6 @@ class Key(Unit):
         return key_number
 
     def __init__(self, key: str = None):
-        if key is None:
-            key = get_global_staff().getData__key()
         match key:
             case str():
                 super().__init__(Key.keyStrToKeyUnit(key))
@@ -119,39 +216,32 @@ class Key(Unit):
             case _:
                 super().__init__(None)
 
-    def getData_str(self) -> str:
-        return Key.getKey(self.getData(self))
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case str():     return Key.getKey(self % int())
+            case _:         return super().__mod__(operand)
+
+class Tempo(Unit):
+    def __init__(self, tempo: int = None):
+        super().__init__(tempo)
 
 class Octave(Unit):
-
     def __init__(self, octave: int = None):
-        if octave is None:
-            octave = get_global_staff().getData__octave()
         super().__init__(octave)
 
 class Velocity(Unit):
-    
     def __init__(self, velocity: int = None):
-        if velocity is None:
-            velocity = get_global_staff().getData__velocity()
         super().__init__(velocity)
 
 class ValueUnit(Unit):
-
     def __init__(self, value_unit: int = None):
-        if value_unit is None:
-            value_unit = 64     # 64 for Center
         super().__init__(value_unit)
 
 class Channel(Unit):
-
     def __init__(self, channel: int = None):
-        if channel is None:
-            channel = get_global_staff().getData__channel()
         super().__init__(channel)
 
 class Pitch(Unit):
-    
     def __init__(self, pitch: int = None):
         if pitch is None:
             pitch = 0
@@ -168,9 +258,6 @@ class KeyNote(Operand):
             case Key():     return self._key
             case Octave():  return self._octave
             case _:         return operand
-
-    def getValue__key_str(self) -> str:
-        return self._key.getData_str()
 
     def getValue__midi_key_note(self) -> int:
         key = self._key % int()
@@ -190,8 +277,8 @@ class KeyNote(Operand):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "key" in serialization and "octave" in serialization):
 
-            self._key = Key().loadSerialization(serialization["key"])
-            self._octave = Octave().loadSerialization(serialization["octave"])
+            self._key = Key(serialization["key"])
+            self._octave = Octave(serialization["octave"])
         return self
         
     def copy(self) -> 'KeyNote':
@@ -238,23 +325,26 @@ class KeyNote(Operand):
 # Values have never None values and are also const, with no setters
 class Value(Operand):
 
-    def __init__(self, value: float = 0):
-        self._value: float = 0 if value is None else value
+    def __init__(self, value: float = None):
+        self._value: float = value
 
     def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case float():   return 1.0 * self._value
-            case int():     return round(self._value)
-            case _:         return operand
+        if self._value is not None:
+            match operand:
+                case float():   return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
+                case int():     return round(self._value)
+                case _:         return operand
+        else:
+            return global_staff % self % float()
 
     def __eq__(self, other_value: 'Value') -> bool:
-        return self % int() == other_value % int()
+        return self % float() == other_value % float()
     
     def __lt__(self, other_value: 'Value') -> bool:
-        return self % int() < other_value % int()
+        return self % float() < other_value % float()
     
     def __gt__(self, other_value: 'Value') -> bool:
-        return self % int() > other_value % int()
+        return self % float() > other_value % float()
     
     def __le__(self, other_value: 'Value') -> bool:
         return not (self > other_value)
@@ -306,13 +396,37 @@ class Value(Operand):
                     return self.__class__(self % float() / value)
         return self.__class__()
 
+class Quantization(Value):
+    def __init__(self, quantization: float = None):
+        super().__init__(quantization)
+
+class BeatsPerMeasure(Value):
+    def __init__(self, beats_per_measure: float = None):
+        super().__init__(beats_per_measure)
+
+class BeatsPerNote(Value):
+    def __init__(self, beats_per_note: float = None):
+        super().__init__(beats_per_note)
+
+class NotesPerMeasure(Value):
+    def __init__(self, notes_per_measure: float = None):
+        super().__init__(notes_per_measure)
+
+class StepsPerMeasure(Value):
+    def __init__(self, steps_per_measure: float = None):
+        super().__init__(steps_per_measure)
+
+class StepsPerNote(Value):
+    def __init__(self, steps_per_note: float = None):
+        super().__init__(steps_per_note)
+
 class Measure(Value):
 
     def __init__(self, value: float = 0):
         super().__init__(value)
 
     def getTime_ms(self):
-        return Beat(1).getTime_ms() * get_global_staff().getValue__beats_per_measure() * self._value
+        return Beat(1).getTime_ms() * (global_staff % BeatsPerMeasure() % float()) * self._value
      
 class Beat(Value):
 
@@ -320,7 +434,7 @@ class Beat(Value):
         super().__init__(value)
 
     def getTime_ms(self):
-        return 60.0 * 1000 / get_global_staff().getData__tempo() * (self % float())
+        return 60.0 * 1000 / (global_staff % Tempo() % int()) * self._value
      
 class NoteValue(Value):
 
@@ -328,7 +442,7 @@ class NoteValue(Value):
         super().__init__(value)
 
     def getTime_ms(self):
-        return Beat(1).getTime_ms() * get_global_staff().getValue__beats_per_note() * self._value
+        return Beat(1).getTime_ms() * (global_staff % BeatsPerNote() % float()) * self._value
      
 class Step(Value):
 
@@ -336,8 +450,8 @@ class Step(Value):
         super().__init__(value)
 
     def getTime_ms(self):
-        return NoteValue(1).getTime_ms() / get_global_staff().getValue__steps_per_note() * self._value
-     
+        return NoteValue(1).getTime_ms() / (global_staff % StepsPerNote() % float()) * self._value
+    
 class Length(Operand):
     
     def __init__(self):
@@ -497,13 +611,15 @@ class Identity(Length):
 class Device(Operand):
 
     def __init__(self, device_list: list[str] = None):
-        self._device_list: list[str] = get_global_staff().getData__device_list() \
-                            if device_list is None else device_list
+        self._device_list: list[str] = device_list
 
     def __mod__(self, operand: list) -> 'Device':
-        match operand:
-            case list(): return self._device_list
-            case _: return self
+        if self._device_list is not None:
+            match operand:
+                case list(): return self._device_list
+                case _: return self
+        else:
+            return global_staff % self % list()
 
     def getSerialization(self):
         return {
@@ -726,4 +842,13 @@ class Gate(Operand):
 
     def __init__(self, gate: float = 0.50):
         self._gate: float = gate
+
+# Set the Default Staff values here
+
+global_staff << Measure(8) << Tempo(120) << BeatsPerMeasure(4) << BeatsPerNote(4)
+global_staff << Quantization(1/16) << NoteValue(1/4) << Key("C") << Octave(4) << Velocity(100)
+global_staff << ValueUnit(64) << Channel(1) << Device(["FLUID", "Midi", "Port", "Synth"])
+                # 64 for CC Center
+                
+
 

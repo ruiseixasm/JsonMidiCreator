@@ -13,12 +13,9 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from staff import *
 from operand import *
 from creator import *
 import enum
-# Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
 
 """
     Operators logic:
@@ -365,7 +362,7 @@ class Clock(Element):
 
     def __init__(self):
         super().__init__()
-        self._time_length = TimeLength() << Measure(get_global_staff().getData__measures())
+        self._time_length = TimeLength() << Measure(global_staff % Measure() % int())
         self._mode: ClockModes = ClockModes.single
         self._pulses_per_quarternote = 24
 
@@ -377,16 +374,15 @@ class Clock(Element):
 
     def getPlayList(self, position: Position = None):
         
-        staff = get_global_staff()
         clock_position: Position = self % Position() + Position() if position is None else position
-        staff_length = TimeLength() << Measure(staff.getData__measures())
+        staff_length = TimeLength() << Measure(global_staff % Measure() % int())
         clock_mode = ClockModes.single if self._mode is None else self._mode
         clock_length = staff_length if clock_mode == ClockModes.single else self % TimeLength()
         device = self % Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note / staff.getValue__beats_per_note()
-        pulses_per_measure = pulses_per_beat * staff.getValue__beats_per_measure()
+        pulses_per_beat = pulses_per_note / (global_staff % BeatsPerNote() % float())
+        pulses_per_measure = pulses_per_beat * (global_staff % BeatsPerMeasure() % float())
         clock_pulses = round(pulses_per_measure * (clock_length % Measure() % float()))
 
         single_measure_ms = Measure(1).getTime_ms()
@@ -471,7 +467,7 @@ class Note(Element):
 
     def __init__(self):
         super().__init__()
-        self._duration: Duration    = Duration() << NoteValue(1/4)
+        self._duration: Duration    = Duration() << NoteValue(global_staff % NoteValue() % float())
         self._key_note: KeyNote     = KeyNote()
         self._velocity: Velocity    = Velocity()
 
@@ -733,7 +729,7 @@ class Panic:
 
 class Chord:
 
-    def __init__(self, root_note = 60, size = 3, scale = Scale()):   # 0xF2 - Song Position
+    def __init__(self, root_note = 60, size = 3, scale = None):   # 0xF2 - Song Position
         self._root_note = root_note
         self._size = size
         self._scale = scale

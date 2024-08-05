@@ -171,47 +171,75 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 # print(multi_elements._multi_elements)
 
-class Element:
-    def __init__(self, name="Element"):
-        self.name = name
+# class Element:
+#     def __init__(self, name="Element"):
+#         self.name = name
     
-    def __repr__(self):
-        return f"{self.name}"
+#     def __repr__(self):
+#         return f"{self.name}"
 
-class ChildElement(Element):
-    def __init__(self, name="ChildElement"):
-        super().__init__(name)
+# class ChildElement(Element):
+#     def __init__(self, name="ChildElement"):
+#         super().__init__(name)
 
-class MultiElements:
-    def __init__(self):
-        self._multi_elements = []
+# class MultiElements:
+#     def __init__(self):
+#         self._multi_elements = []
 
-    def add_elements(self, single_element):
-        if isinstance(single_element, Element):
-            self._multi_elements.append(single_element)
-        elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
-            self._multi_elements.extend(single_element)
-        else:
-            raise ValueError(f"Unsupported type provided: {single_element}")
+#     def add_elements(self, single_element):
+#         if isinstance(single_element, Element):
+#             self._multi_elements.append(single_element)
+#         elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
+#             self._multi_elements.extend(single_element)
+#         else:
+#             raise ValueError(f"Unsupported type provided: {single_element}")
 
-# Example usage:
-multi_elements = MultiElements()
+# # Example usage:
+# multi_elements = MultiElements()
 
-# Assuming you have some Element instances
-elem1 = Element("Element1")
-child_elem1 = ChildElement("ChildElement1")
-child_elem2 = ChildElement("ChildElement2")
+# # Assuming you have some Element instances
+# elem1 = Element("Element1")
+# child_elem1 = ChildElement("ChildElement1")
+# child_elem2 = ChildElement("ChildElement2")
 
-# Adding a single Element
-multi_elements.add_elements(elem1)
+# # Adding a single Element
+# multi_elements.add_elements(elem1)
 
-# Adding a single ChildElement (child of Element)
-multi_elements.add_elements(child_elem1)
+# # Adding a single ChildElement (child of Element)
+# multi_elements.add_elements(child_elem1)
 
-# Adding a list of ChildElements
-multi_elements.add_elements([child_elem2])
+# # Adding a list of ChildElements
+# multi_elements.add_elements([child_elem2])
 
-# Adding a mixed list of Elements and ChildElements
-multi_elements.add_elements([elem1, child_elem1, child_elem2])
+# # Adding a mixed list of Elements and ChildElements
+# multi_elements.add_elements([elem1, child_elem1, child_elem2])
 
-print(multi_elements._multi_elements)
+# print(multi_elements._multi_elements)
+
+
+def itsMeasure(operand_type):
+    match operand_type:
+        case Measure():     print("It's a Measure too!")
+
+
+class Measure:
+    pass
+
+class SubMeasure(Measure):
+    pass
+
+operand = Measure()
+match operand:
+    case Measure():     print("It's a Measure()")
+
+operand_type = Measure
+match operand_type:
+    case Measure:     print("It's a Measure")
+
+operand_type = SubMeasure
+match operand_type:
+    case Measure:     print("It's a Measure too!")
+
+itsMeasure(SubMeasure())
+
+itsMeasure(SubMeasure)
