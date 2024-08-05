@@ -247,8 +247,13 @@ class Scale(Unit):
     scale_mames = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
-        ["Major", "Maj"],
-        
+        ["Major", "Maj", "Ionian"],
+        ["Dorian"],
+        ["Phrygian"],
+        ["Lydian"],
+        ["Mixolydian"],
+        ["minor", "min", "Aeolian"],
+        ["Locrian"],
         # Other Scales
         ["harmonic"],
         ["melodic"],
@@ -267,7 +272,12 @@ class Scale(Unit):
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         # Diatonic Scales
         [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-
+        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+        [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+        [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0],
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+        [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
         # Other Scales
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],
         [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
