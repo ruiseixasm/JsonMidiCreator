@@ -84,6 +84,14 @@ def saveJsonMidiPlay(play_list, filename):
     with open(filename, "w") as outfile:
         json.dump(json_file_dict, outfile)
         
+def loadJsonMidiPlay(filename):
+    with open(filename, "r") as infile:
+        json_file_dict = json.load(infile)
+    if "content" in json_file_dict and "filetype" in json_file_dict and \
+            json_file_dict["filetype"] == "Json Midi Player" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiPlayer":
+        return json_file_dict["content"]
+    return {}
+        
 def jsonMidiPlay(play_list, verbose: bool = False):
     json_file_dict = {
             "filetype": "Json Midi Player",
@@ -104,26 +112,3 @@ def jsonMidiPlay(play_list, verbose: bool = False):
         print(f"An error occurred while accessing the function: {e}")
     except Exception as e:
         print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
-
-
-
-class Configuration:
-    ...
-
-
-
-class Creator:
-
-    def __init__(self):
-        ...
-
-
-    def removeDevice(self, play_list, devicename):
-        pass
-
-    def printDevices(self, play_list):
-        pass
-
-    def setChannel(self, play_list, channel):
-        pass
-

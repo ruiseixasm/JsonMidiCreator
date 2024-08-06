@@ -16,8 +16,10 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 # Json Midi Creator Libraries
+import creator as c
 from operand import Operand
 import operand_staff as os
+import operand_unit as ou
 
 class Data(Operand):
     def __init__(self, data = None):
@@ -59,3 +61,29 @@ class Export(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
         super().__init__(file_name)
 
+class Import(Data):
+    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
+        super().__init__(file_name)
+        self._others_playlist: list = []
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case list():        return c.loadJsonMidiPlay(self._data)
+            case _:             return operand
+
+    # CHAINABLE OPERATIONS
+
+    def __rshift__(self, operand: Operand) -> 'Operand':
+        match operand:
+            case ou.Play():
+                play_list = c.loadJsonMidiPlay(self._data)
+                c.jsonMidiPlay(self._others_playlist + play_list, operand % int())
+                return self
+            case _: return operand.__rrshift__(self)
+
+    def __rrshift__(self, operand: Operand) -> Operand:
+        match operand:
+            case Import():
+                self._others_playlist.extend(operand % list())
+                return self
+        return self
