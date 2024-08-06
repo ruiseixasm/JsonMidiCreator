@@ -82,6 +82,7 @@ class Element(Operand):
         match operand:
             case ou.Play():
                 jsonMidiPlay(self.getPlayList(), operand % int())
+                return self
             case _: return operand.__rrshift__(self)
 
     def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:

@@ -132,6 +132,7 @@ class MultiElements(Container):  # Just a container of Elements
         match operand:
             case ou.Play():
                 jsonMidiPlay(self.getPlayList(), operand % int())
+                return self
             case _: return operand.__rrshift__(self)
 
     def __rrshift__(self, other_operand: Operand) -> Operand:
