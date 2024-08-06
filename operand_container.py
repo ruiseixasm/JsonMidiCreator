@@ -18,7 +18,7 @@ from typing import Union
 import json
 import enum
 # Json Midi Creator Libraries
-from creator import *
+import creator as c
 from operand import Operand
 
 import operand_unit as ou
@@ -109,6 +109,9 @@ class Container(Operand):
             case Operand():
                 for single_operand in self._operand_list:
                     single_operand << operand
+            case od.Load():
+                serialization = c.loadJsonMidiCreator(operand % str())
+                self.loadSerialization(serialization)
         return self
 
     def __rshift__(self, operand: 'Operand') -> 'MultiElements':
@@ -157,13 +160,13 @@ class MultiElements(Container):  # Just a container of Elements
     def __rshift__(self, operand: 'Operand') -> 'MultiElements':
         match operand:
             case ou.Play():
-                jsonMidiPlay(self.getPlayList(), operand % int())
+                c.jsonMidiPlay(self.getPlayList(), operand % int())
                 return self
             case od.Save():
-                saveJsonMidiCreator(self.getSerialization(), operand % str())
+                c.saveJsonMidiCreator(self.getSerialization(), operand % str())
                 return self
             case od.Export():
-                saveJsonMidiPlay(self.getPlayList(), operand % str())
+                c.saveJsonMidiPlay(self.getPlayList(), operand % str())
                 return self
             case _: return super().__rshift__(operand)
 

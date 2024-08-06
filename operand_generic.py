@@ -17,7 +17,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 import enum
 # Json Midi Creator Libraries
-from creator import *
+import creator as c
 from operand import Operand
 
 import operand_unit as ou
@@ -63,8 +63,9 @@ class KeyNote(Generic):
         return KeyNote() << self._key << self._octave
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
-        if operand.__class__ == ou.Key:    self._measure = operand
-        if operand.__class__ == ou.Octave: self._beat = operand
+        match operand:
+            case ou.Key(): self._key = operand
+            case ou.Octave(): self._octave = operand
         return self
 
     def __add__(self, unit) -> 'KeyNote':

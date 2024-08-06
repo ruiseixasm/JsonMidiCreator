@@ -18,7 +18,7 @@ from typing import Union
 import json
 import enum
 # Json Midi Creator Libraries
-from creator import *
+import creator as c
 from operand import Operand
 import operand_staff as os
 
@@ -80,18 +80,21 @@ class Element(Operand):
             case ol.TimeLength(): self._time_length = operand
             case ou.Channel(): self._channel = operand
             case od.Device(): self._device = operand
+            case od.Load():
+                serialization = c.loadJsonMidiCreator(operand % str())
+                self.loadSerialization(serialization)
         return self
 
     def __rshift__(self, operand: Operand) -> 'Element':
         match operand:
             case ou.Play():
-                jsonMidiPlay(self.getPlayList(), operand % int())
+                c.jsonMidiPlay(self.getPlayList(), operand % int())
                 return self
             case od.Save():
-                saveJsonMidiCreator(self.getSerialization(), operand % str())
+                c.saveJsonMidiCreator(self.getSerialization(), operand % str())
                 return self
             case od.Export():
-                saveJsonMidiPlay(self.getPlayList(), operand % str())
+                c.saveJsonMidiPlay(self.getPlayList(), operand % str())
                 return self
             case ot.Print():
                 serialized_json_str = json.dumps(self.getSerialization())
@@ -262,6 +265,8 @@ class Note(Element):
         match operand:
             case ol.Duration():    return self._duration
             case og.KeyNote():     return self._key_note
+            case ou.Key():         return self._key_note % ou.Key()
+            case ou.Octave():      return self._key_note % ou.Octave()
             case ou.Velocity():    return self._velocity
             case _:             return super().__mod__(operand)
 
@@ -321,9 +326,12 @@ class Note(Element):
         return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity
 
     def __lshift__(self, operand: Operand) -> 'Note':
-        if operand.__class__ == ol.Duration: self._duration = operand
-        if operand.__class__ == og.KeyNote: self._key_note = operand
-        if operand.__class__ == ou.Velocity: self._velocity = operand
+        match operand:
+            case ol.Duration(): self._duration = operand
+            case og.KeyNote(): self._key_note = operand
+            case ou.Key(): self._key_note << operand
+            case ou.Octave(): self._key_note << operand
+            case ou.Velocity(): self._velocity = operand
         return super().__lshift__(operand)
 
     def __mul__(self, operand: Operand) -> oc.MultiElements | Element:

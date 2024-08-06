@@ -51,6 +51,10 @@ class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
         super().__init__(file_name)
 
+class Load(Data):
+    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
+        super().__init__(file_name)
+
 class Export(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
         super().__init__(file_name)

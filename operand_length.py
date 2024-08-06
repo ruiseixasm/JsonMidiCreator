@@ -17,7 +17,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 import enum
 # Json Midi Creator Libraries
-from creator import *
+import creator as c
 from operand import Operand
 import operand_staff as os
 

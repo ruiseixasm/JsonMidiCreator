@@ -118,4 +118,10 @@ class Staff(Operand):
             case od.Device():          self._device = operand
         return self
 
-global_staff: Staff = Staff()
+# Set the Default Staff values here.
+global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
+global_staff << ov.Measure(8) << ou.Tempo(120) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
+    << ov.Quantization(1/16) << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
+    << ou.Velocity(100) << ou.ValueUnit(64) << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])
+                                      # 64 for CC Center
+

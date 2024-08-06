@@ -70,7 +70,8 @@ def saveJsonMidiCreator(serialization: dict, filename):
 def loadJsonMidiCreator(filename):
     with open(filename, "r") as infile:
         json_file_dict = json.load(infile)
-    if "content" in json_file_dict and "filetype" in json_file_dict and json_file_dict["filetype"] == "Json Midi Creator":
+    if "content" in json_file_dict and "filetype" in json_file_dict and \
+            json_file_dict["filetype"] == "Json Midi Creator" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
         return json_file_dict["content"]
     return {}
 

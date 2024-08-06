@@ -21,8 +21,8 @@ class Operand:
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         return self
 
-    # def __rshift__(self, operand: 'Operand') -> 'Operand':
-    #     return self
+    def __rshift__(self, operand: 'Operand') -> 'Operand':
+        return operand.__rrshift__(self)
 
     def __rrshift__(self, operand: 'Operand') -> 'Operand':
         return self
