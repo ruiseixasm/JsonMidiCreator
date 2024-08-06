@@ -13,33 +13,18 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from __future__ import annotations  # Required for forward references
-from typing import TYPE_CHECKING    # Import Note only when type checking
-if TYPE_CHECKING:
-    from operand import *           # Import Note for type hints only
+# Json Midi Creator Libraries
+from operand import *
+from operand_unit import *
+from operand_value import *
+from operand_generic import *
+from operand_staff import global_staff
 
-class Scale:
 
-    def __init__(self, key = "C", scale = "Major"):
-        self._key = key
-        self._scale = scale
+# Set the Default Staff values here
+                                            # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
+global_staff << Measure(8) << Tempo(120) << BeatsPerMeasure(4) << BeatNoteValue(1/4)
+global_staff << Quantization(1/16) << (Duration() << NoteValue(1/4)) << Key("C") << Octave(4) << Velocity(100)
+global_staff << ValueUnit(64) << Channel(1) << Device(["FLUID", "Midi", "Port", "Synth"])
+                # 64 for CC Center
 
-    def getData__key(self):
-        return self._key
-
-    def getData__scale(self):
-        return self._scale
-    
-    def getSemitones(self, scale_steps, reference_key):
-        ...
-    
-    # CHAINABLE OPERATIONS
-
-    def setData__key(self, key):
-        self._key = key
-        return self
-
-    def setData__scale(self, scale):
-        self._scale = scale
-        return self
-    
