@@ -25,3 +25,6 @@ class Tag(Operand):
 class Null(Tag):
     pass
 
+class Print(Tag):
+    pass
+

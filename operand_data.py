@@ -21,7 +21,7 @@ import operand_staff as os
 
 class Data(Operand):
     def __init__(self, data = None):
-        self._data: data
+        self._data = data
 
     def __mod__(self, operand: Operand):
         return self._data
@@ -47,23 +47,11 @@ class Device(Data):
         super().__init__(device_list)
         self._data = os.global_staff % self % list() if device_list is None else device_list
 
-    def __mod__(self, operand: list) -> 'Device':
-        match operand:
-            case list(): return self._data
-            case _: return self
+class Save(Data):
+    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
+        super().__init__(file_name)
 
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "device_list": self._data
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "device_list" in serialization):
-
-            self._data = serialization["device_list"]
-        return self
+class Export(Data):
+    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
+        super().__init__(file_name)
 

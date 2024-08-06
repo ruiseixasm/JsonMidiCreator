@@ -45,8 +45,8 @@ class KeyNote(Generic):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "key": self._key.getSerialization(),
-            "octave": self._octave.getSerialization()
+            "key": self._key % int(),
+            "octave": self._octave % int()
         }
 
     # CHAINABLE OPERATIONS
@@ -123,20 +123,3 @@ class IntervalQuality(Generic):
         # Perfect (P)
         # Minor (mi)
         # Diminished (d or o)
-
-class Save(Generic):
-    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
-        self._file_name = file_name
-
-    def __mod__(self, operand: Operand) -> str:
-        return self._file_name
-
-class Export(Generic):
-    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
-        self._file_name = file_name
-
-    def __mod__(self, operand: Operand) -> str:
-        return self._file_name
-
-class Print(Generic):
-    pass

@@ -53,8 +53,8 @@ class Element(Operand):
             "class": self.__class__.__name__,
             "position": self._position.getSerialization(),
             "time_length": self._time_length.getSerialization(),
-            "channel": self._channel.getSerialization(),
-            "device": self._device.getSerialization()
+            "channel": self._channel % int(),
+            "device": self._device % list()
         }
 
     # CHAINABLE OPERATIONS
@@ -66,8 +66,8 @@ class Element(Operand):
 
             self._position  = ol.Position().loadSerialization(serialization["position"])
             self._time_length    = ol.TimeLength().loadSerialization(serialization["time_length"])
-            self._channel   = ou.Channel().loadSerialization(serialization["channel"])
-            self._device    = od.Device().loadSerialization(serialization["device"])
+            self._channel   = ou.Channel(serialization["channel"])
+            self._device    = od.Device(serialization["device"])
         return self
         
     def copy(self) -> 'Element':
@@ -86,10 +86,10 @@ class Element(Operand):
             case ou.Play():
                 jsonMidiPlay(self.getPlayList(), operand % int())
                 return self
-            case og.Save():
+            case od.Save():
                 saveJsonMidiCreator(self.getSerialization(), operand % str())
                 return self
-            case og.Export():
+            case od.Export():
                 saveJsonMidiPlay(self.getPlayList(), operand % str())
                 return self
             case _: return operand.__rrshift__(self)
@@ -294,7 +294,7 @@ class Note(Element):
         element_serialization = super().getSerialization()
         element_serialization["duration"] = self._duration.getSerialization()
         element_serialization["key_note"] = self._key_note.getSerialization()
-        element_serialization["velocity"] = self._velocity.getSerialization()
+        element_serialization["velocity"] = self._velocity % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -307,7 +307,7 @@ class Note(Element):
             super().loadSerialization(serialization)
             self._duration = ol.Duration().loadSerialization(serialization["duration"])
             self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
-            self._velocity = ou.Velocity().loadSerialization(serialization["velocity"])
+            self._velocity = ou.Velocity(serialization["velocity"])
         return self
       
     def copy(self) -> 'Note':

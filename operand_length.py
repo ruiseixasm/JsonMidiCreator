@@ -63,10 +63,10 @@ class Length(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "measure": self._measure.getSerialization(),
-            "beat": self._beat.getSerialization(),
-            "note_value": self._note_value.getSerialization(),
-            "step": self._step.getSerialization()
+            "measure": self._measure % float(),
+            "beat": self._beat % float(),
+            "note_value": self._note_value % float(),
+            "step": self._step % float()
         }
 
     # CHAINABLE OPERATIONS
@@ -76,10 +76,10 @@ class Length(Operand):
             "measure" in serialization and "beat" in serialization and
             "note_value" in serialization and "step" in serialization):
 
-            self._measure = ov.Measure().loadSerialization(serialization["measure"])
-            self._beat = ov.Beat().loadSerialization(serialization["beat"])
-            self._note_value = ov.NoteValue().loadSerialization(serialization["note_value"])
-            self._step = ov.Step().loadSerialization(serialization["step"])
+            self._measure = ov.Measure(serialization["measure"])
+            self._beat = ov.Beat(serialization["beat"])
+            self._note_value = ov.NoteValue(serialization["note_value"])
+            self._step = ov.Step(serialization["step"])
 
         return self
         
