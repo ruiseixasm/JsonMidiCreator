@@ -29,8 +29,8 @@ else:  # Assume Linux/Unix
 single_clock = Clock() >> Save("_Clock_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequencially played
-first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2))
-multi_notes = Null() >> first_note * 3 >> Play(1) >> Save("_Note_jsonMidiCreator.json")
+first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)) >> Save("_Note_jsonMidiCreator.json")
+multi_notes = Null() >> first_note * 3 >> Play(1) >> Save("_MultiElements_jsonMidiCreator.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << NoteValue(1/16))
