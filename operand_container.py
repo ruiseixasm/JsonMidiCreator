@@ -13,31 +13,31 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from __future__ import annotations  # Required for forward references
-from typing import TYPE_CHECKING    # Import Note only when type checking
-if TYPE_CHECKING:                   # Import Note for type hints only
-    from operand_element import *
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
+import enum
 # Json Midi Creator Libraries
-from operand import *
-from operand_unit import *
-from operand_value import *
-from operand_generic import *
-from operand_setup import *
+from creator import *
+from operand import Operand
 
+import operand_length as ol
+import operand_generic as og
+import operand_setup as os
 
-class MultiElements(Operand):  # Just a container of Elements
-    def __init__(self, *multi_elements: list[Element] | Element):
-        from operand_element import Element
+class Container(Operand):
+    pass
+
+class MultiElements(Container):  # Just a container of Elements
+    def __init__(self, *multi_elements):
+        import operand_element as oe
         self._multi_elements = []
         if multi_elements is not None:
             for single_element in multi_elements:
-                if isinstance(single_element, Element):
+                if isinstance(single_element, oe.Element):
                     self._multi_elements.append(single_element)
-                elif isinstance(single_element, list) and all(isinstance(elem, Element) for elem in single_element):
+                elif isinstance(single_element, list) and all(isinstance(elem, oe.Element) for elem in single_element):
                     self._multi_elements.extend(single_element)
-        self._selection: Selection = None
+        self._selection: os.Selection = None
         self._element_iterator = 0
 
     def len(self) -> int:
@@ -55,33 +55,33 @@ class MultiElements(Operand):  # Just a container of Elements
             self._element_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration
         
-    def getLastPosition(self) -> Position:
-        last_position: Position = Position()
+    def getLastPosition(self) -> ol.Position:
+        last_position: ol.Position = ol.Position()
         for single_element in self._multi_elements:
-            if single_element % Position() > last_position:
-                last_position = single_element % Position()
+            if single_element % ol.Position() > last_position:
+                last_position = single_element % ol.Position()
         return last_position
 
-    def __mod__(self, operand: list) -> list[Element]:
+    def __mod__(self, operand: list) -> list:
         if operand.__class__ == list:
             return self._multi_elements
         return []
 
-    def firstElement(self) -> Element:
+    def firstElement(self) -> Operand:
         if len(self._multi_elements) > 0:
             return self._multi_elements[0]
-        return Null()
+        return og.Null()
 
-    def lastElement(self) -> Element:
+    def lastElement(self) -> Operand:
         if len(self._multi_elements) > 0:
             return self._multi_elements[len(self._multi_elements) - 1]
-        return Null()
+        return og.Null()
 
-    def getPlayList(self, position: Position = None):
-        from operand_element import Element
+    def getPlayList(self, position: ol.Position = None):
+        import operand_element as oe
         play_list = []
         for single_element in self % list():
-            if isinstance(single_element, Element):
+            if isinstance(single_element, oe.Element):
                 play_list.extend(single_element.getPlayList(position))
         return play_list
 
@@ -110,7 +110,8 @@ class MultiElements(Operand):  # Just a container of Elements
         return self
         
     def copy(self) -> 'MultiElements':
-        multi_elements: list[Element] = []
+        import operand_element as oe
+        multi_elements: list[oe.Element] = []
         for single_element in self._multi_elements:
             multi_elements.append(single_element.copy())
         return MultiElements(multi_elements)
@@ -119,7 +120,7 @@ class MultiElements(Operand):  # Just a container of Elements
         jsonMidiPlay(self.getPlayList(), verbose)
         return self
 
-    def __lshift__(self, operand: list[Element] | Operand) -> 'MultiElements':
+    def __lshift__(self, operand: Operand) -> 'MultiElements':
         match operand:
             case list():
                 self._multi_elements = operand
@@ -133,27 +134,29 @@ class MultiElements(Operand):  # Just a container of Elements
     def __rshift__(self, multi_elements: 'MultiElements') -> 'MultiElements':
         return multi_elements.__rrshift__(self)
 
-    def __rrshift__(self, other_operand: Union['MultiElements', 'Element', Operand]) -> Union['MultiElements', 'Element', Operand]:
+    def __rrshift__(self, other_operand: Operand) -> Operand:
+        import operand_element as oe
         self_first_element = self.firstElement()
-        if type(self_first_element) != Null:
+        if type(self_first_element) != og.Null:
             match other_operand:
-                case Null():
+                case og.Null():
                     pass
                 case MultiElements():
                     other_last_element = self.lastElement()
-                    if type(other_last_element) != Null:
+                    if type(other_last_element) != og.Null:
                         other_last_element >> self_first_element
-                case Element(): other_operand % Position() + other_operand % TimeLength() >> self_first_element
-                case Position() | TimeLength(): other_operand >> self_first_element
+                case oe.Element(): other_operand % ol.Position() + other_operand % ol.TimeLength() >> self_first_element
+                case ol.Position() | ol.TimeLength(): other_operand >> self_first_element
             for single_element_i in range(1, len(self._multi_elements)):
                 self._multi_elements[single_element_i - 1] >> self._multi_elements[single_element_i]
         return self
 
-    def __add__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
+    def __add__(self, operand: Operand) -> 'MultiElements':
+        import operand_element as oe
         match operand:
             case MultiElements():
                 return MultiElements(self.copy() % list() + operand.copy() % list())
-            case Element():
+            case oe.Element():
                 return MultiElements(self.copy() % list() + [operand.copy()])
             case Operand():
                 element_copy = self.copy()
@@ -172,11 +175,12 @@ class MultiElements(Operand):  # Just a container of Elements
                 return element_copy
         return self.copy()
 
-    def __sub__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
+    def __sub__(self, operand: Operand) -> 'MultiElements':
+        import operand_element as oe
         match operand:
             case MultiElements():
                 return MultiElements(self % list() - operand % list()).copy()
-            case Element():
+            case oe.Element():
                 return MultiElements((self % list()) - [operand]).copy()
             case Operand():
                 element_copy = self.copy()
@@ -196,7 +200,8 @@ class MultiElements(Operand):  # Just a container of Elements
         return self.copy()
 
     # multiply with a scalar 
-    def __mul__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
+    def __mul__(self, operand: Operand) -> 'MultiElements':
+        import operand_element as oe
         match operand:
             case Operand():
                 element_copy = self.copy()
@@ -212,7 +217,8 @@ class MultiElements(Operand):  # Just a container of Elements
                 return multi_elements
         return self.copy()
     
-    def __truediv__(self, operand: Union['MultiElements', Element, Operand, int]) -> 'MultiElements':
+    def __truediv__(self, operand: Operand) -> 'MultiElements':
+        import operand_element as oe
         match operand:
             case Operand():
                 self_copy = self.copy()
@@ -231,14 +237,14 @@ class MultiElements(Operand):  # Just a container of Elements
                 return self_copy
         return self.copy()
     
-    def __floordiv__(self, time_length: TimeLength) -> 'MultiElements':
+    def __floordiv__(self, time_length: ol.TimeLength) -> 'MultiElements':
         match time_length:
-            case TimeLength():
+            case ol.TimeLength():
                 starting_position = None
                 for single_element in self._multi_elements:
                     if starting_position is None:
-                        starting_position = single_element % Position()
+                        starting_position = single_element % ol.Position()
                     else:
                         starting_position += time_length
-                        single_element << Position() << starting_position
+                        single_element << ol.Position() << starting_position
         return self

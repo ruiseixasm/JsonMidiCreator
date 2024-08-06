@@ -13,10 +13,6 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-# Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
-# Json Midi Creator Libraries
-from creator import *
 
 class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':

@@ -14,17 +14,17 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Json Midi Creator Libraries
-from operand import *
-from operand_unit import *
-from operand_value import *
-from operand_generic import *
+import operand_unit as ou
+import operand_value as ov
+import operand_length as ol
+import operand_generic as og
 from operand_staff import global_staff
 
 
 # Set the Default Staff values here
-                                            # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
-global_staff << Measure(8) << Tempo(120) << BeatsPerMeasure(4) << BeatNoteValue(1/4)
-global_staff << Quantization(1/16) << (Duration() << NoteValue(1/4)) << Key("C") << Octave(4) << Velocity(100)
-global_staff << ValueUnit(64) << Channel(1) << Device(["FLUID", "Midi", "Port", "Synth"])
-                # 64 for CC Center
+                                                # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
+global_staff << ov.Measure(8) << ou.Tempo(120) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
+    << ov.Quantization(1/16) << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
+    << ou.Velocity(100) << ou.ValueUnit(64) << ou.Channel(1) << og.Device(["FLUID", "Midi", "Port", "Synth"])
+                                      # 64 for CC Center
 

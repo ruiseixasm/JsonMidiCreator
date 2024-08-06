@@ -13,62 +13,36 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from operand_staff import global_staff
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 import enum
 # Json Midi Creator Libraries
-from operand import *
-from operand_unit import *
-from operand_value import *
-from operand_generic import *
-from operand_setup import *
-from operand_container import MultiElements
+from creator import *
+from operand import Operand
 
-"""
-    Operators logic:
-        +	__add__(self, other)
-            slide to right by time_length of the Position given
-            increases the time_length by the the Length given
-            
-
-        –	__sub__(self, other)
-            slide to left time_length of the Position given
-            increases the time_length by the the Length given
-        
-
-        >>	__mod__(self, other)
-            gets the respective time_length data if any Length() is given
-            gets the respective position data if any Position is given
-
-        <<	__lshift__(self, other)
-            sets the position by the Position given
-            sets the time_length by the Length given
-
-        |	__or__(self, other)
-            Stacks position of second element on the first
-
-        
-"""
+import operand_unit as ou
+import operand_value as ov
+import operand_length as ol
+import operand_generic as og
+import operand_setup as os
+import operand_container as oc
 
 class Element(Operand):
     def __init__(self):
-        self._position: Position    = Position()
-        self._time_length: TimeLength        = TimeLength()
-        self._channel: Channel      = Channel()
-        self._device: Device        = Device()
+        self._position: ol.Position    = ol.Position()
+        self._time_length: ol.TimeLength        = ol.TimeLength()
+        self._channel: ou.Channel      = ou.Channel()
+        self._device: og.Device        = og.Device()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case Position():    return self._position
-            case TimeLength():  return self._time_length
-            case Channel():     return self._channel
-            case Device():      return self._device
+            case ol.Position():    return self._position
+            case ol.TimeLength():  return self._time_length
+            case ou.Channel():     return self._channel
+            case og.Device():      return self._device
             case _:             return operand
 
-    def getPlayList(self, position: Position = None) -> list:
+    def getPlayList(self, position: ol.Position = None) -> list:
         return []
 
     def getSerialization(self):
@@ -87,10 +61,10 @@ class Element(Operand):
             "position" in serialization and "time_length" in serialization and
             "channel" in serialization and "device" in serialization):
 
-            self._position  = Position().loadSerialization(serialization["position"])
-            self._time_length    = TimeLength().loadSerialization(serialization["time_length"])
-            self._channel   = Channel().loadSerialization(serialization["channel"])
-            self._device    = Device().loadSerialization(serialization["device"])
+            self._position  = ol.Position().loadSerialization(serialization["position"])
+            self._time_length    = ol.TimeLength().loadSerialization(serialization["time_length"])
+            self._channel   = ou.Channel().loadSerialization(serialization["channel"])
+            self._device    = og.Device().loadSerialization(serialization["device"])
         return self
         
     def copy(self) -> 'Element':
@@ -102,10 +76,10 @@ class Element(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
-            case Position(): self._position = operand
-            case TimeLength(): self._time_length = operand
-            case Channel(): self._channel = operand
-            case Device(): self._device = operand
+            case ol.Position(): self._position = operand
+            case ol.TimeLength(): self._time_length = operand
+            case ou.Channel(): self._channel = operand
+            case og.Device(): self._device = operand
         return self
 
     def __rshift__(self, element: 'Element') -> 'Element':
@@ -113,23 +87,23 @@ class Element(Operand):
 
     def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
         match element_operand:
-            case Null():
+            case og.Null():
                 pass
-            case MultiElements():
+            case oc.MultiElements():
                 last_element = element_operand.lastElement()
-                if type(last_element) != Null:
-                    self << last_element % Position() + last_element % TimeLength()
-            case Element(): self << element_operand % Position() + element_operand % TimeLength()
-            case Position(): self << element_operand
-            case TimeLength(): self += Position() << element_operand
+                if type(last_element) != og.Null:
+                    self << last_element % ol.Position() + last_element % ol.TimeLength()
+            case Element(): self << element_operand % ol.Position() + element_operand % ol.TimeLength()
+            case ol.Position(): self << element_operand
+            case ol.TimeLength(): self += ol.Position() << element_operand
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
         match operand:
             case Element():
-                return MultiElements(self.copy(), operand.copy())
-            case MultiElements():
-                return MultiElements(self.copy(), operand.copy() % list())
+                return oc.MultiElements(self.copy(), operand.copy())
+            case oc.MultiElements():
+                return oc.MultiElements(self.copy(), operand.copy() % list())
             case Operand():
                 element_copy = self.copy()
                 return element_copy << element_copy % operand + operand
@@ -158,7 +132,7 @@ class Clock(Element):
     def __init__(self):
         from operand_staff import global_staff
         super().__init__()
-        self._time_length = TimeLength() << Measure(global_staff % Measure() % int())
+        self._time_length = ol.TimeLength() << ov.Measure(global_staff % ov.Measure() % int())
         self._mode: ClockModes = ClockModes.single
         self._pulses_per_quarternote: int = 24
 
@@ -168,24 +142,24 @@ class Clock(Element):
             case int():         return self._pulses_per_quarternote
             case _:             return super().__mod__(operand)
 
-    def getPlayList(self, position: Position = None):
+    def getPlayList(self, position: ol.Position = None):
         from operand_staff import global_staff
         
-        clock_position: Position = self % Position() + Position() if position is None else position
-        clock_length = TimeLength() << Measure(global_staff % Measure() % int()) \
+        clock_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
+        clock_length = ol.TimeLength() << ov.Measure(global_staff % ov.Measure() % int()) \
                 if self._time_length is None else self._time_length
         clock_mode = ClockModes.single if self._mode is None else self._mode
         if clock_mode == ClockModes.single:
-            clock_position = Position()
-            clock_length = TimeLength() << Measure(global_staff % Measure() % int())
-        device = self % Device()
+            clock_position = ol.Position()
+            clock_length = ol.TimeLength() << ov.Measure(global_staff % ov.Measure() % int())
+        device = self % og.Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote
-        pulses_per_beat = pulses_per_note * (global_staff % BeatNoteValue() % float())
-        pulses_per_measure = pulses_per_beat * (global_staff % BeatsPerMeasure() % float())
-        clock_pulses = round(pulses_per_measure * (clock_length % Measure() % float()))
+        pulses_per_beat = pulses_per_note * (global_staff % ov.BeatNoteValue() % float())
+        pulses_per_measure = pulses_per_beat * (global_staff % ov.BeatsPerMeasure() % float())
+        clock_pulses = round(pulses_per_measure * (clock_length % ov.Measure() % float()))
 
-        single_measure_ms = Measure(1).getTime_ms()
+        single_measure_ms = ov.Measure(1).getTime_ms()
         clock_start_ms = clock_position.getTime_ms()
         clock_stop_ms = clock_start_ms + clock_length.getTime_ms()
 
@@ -215,7 +189,7 @@ class Clock(Element):
             play_list.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_ms \
-                                     * (clock_length % Measure() % int()) * clock_pulse / clock_pulses, 3),
+                                     * (clock_length % ov.Measure() % int()) * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8,
                         "device": device % list()
@@ -257,8 +231,8 @@ class Clock(Element):
         return super().copy() << self._mode << self._device << self._pulses_per_quarternote
 
     def __lshift__(self, operand: Operand) -> 'Clock':
-        if operand.__class__ == Position: self._position = Position() << Measure(operand % Measure() % int())
-        if operand.__class__ == TimeLength: self._time_length = TimeLength() << Measure(operand % Measure() % int())
+        if operand.__class__ == ol.Position: self._position = ol.Position() << ov.Measure(operand % ov.Measure() % int())
+        if operand.__class__ == ol.TimeLength: self._time_length = ol.TimeLength() << ov.Measure(operand % ov.Measure() % int())
         if operand.__class__ == ClockModes: self._mode = operand
         if operand.__class__ == int: self._pulses_per_quarternote = operand
         return self
@@ -266,25 +240,25 @@ class Clock(Element):
 class Note(Element):
     def __init__(self):
         super().__init__()
-        self._duration: Duration    = Duration()
-        self._key_note: KeyNote     = KeyNote()
-        self._velocity: Velocity    = Velocity()
+        self._duration: ol.Duration    = ol.Duration()
+        self._key_note: og.KeyNote     = og.KeyNote()
+        self._velocity: ou.Velocity    = ou.Velocity()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case Duration():    return self._duration
-            case KeyNote():     return self._key_note
-            case Velocity():    return self._velocity
+            case ol.Duration():    return self._duration
+            case og.KeyNote():     return self._key_note
+            case ou.Velocity():    return self._velocity
             case _:             return super().__mod__(operand)
 
-    def getPlayList(self, position: Position = None):
+    def getPlayList(self, position: ol.Position = None):
         
-        note_position: Position = self % Position() + Position() if position is None else position
-        duration: Duration      = self % Duration()
-        key_note_midi: KeyNote  = (self % KeyNote()).getMidi__key_note()
-        velocity_int: Velocity  = self % Velocity() % int()
-        channel_int: Channel    = self % Channel() % int()
-        device_list: Device     = self % Device() % list()
+        note_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
+        duration: ol.Duration      = self % ol.Duration()
+        key_note_midi: og.KeyNote  = (self % og.KeyNote()).getMidi__key_note()
+        velocity_int: ou.Velocity  = self % ou.Velocity() % int()
+        channel_int: ou.Channel    = self % ou.Channel() % int()
+        device_list: og.Device     = self % og.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         off_time_ms = on_time_ms + duration.getTime_ms()
@@ -324,48 +298,48 @@ class Note(Element):
             "velocity" in serialization):
 
             super().loadSerialization(serialization)
-            self._duration = Duration().loadSerialization(serialization["duration"])
-            self._key_note = KeyNote().loadSerialization(serialization["key_note"])
-            self._velocity = Velocity().loadSerialization(serialization["velocity"])
+            self._duration = ol.Duration().loadSerialization(serialization["duration"])
+            self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
+            self._velocity = ou.Velocity().loadSerialization(serialization["velocity"])
         return self
       
     def copy(self) -> 'Note':
         return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity
 
     def __lshift__(self, operand: Operand) -> 'Note':
-        if operand.__class__ == Duration: self._duration = operand
-        if operand.__class__ == KeyNote: self._key_note = operand
-        if operand.__class__ == Velocity: self._velocity = operand
+        if operand.__class__ == ol.Duration: self._duration = operand
+        if operand.__class__ == og.KeyNote: self._key_note = operand
+        if operand.__class__ == ou.Velocity: self._velocity = operand
         return super().__lshift__(operand)
 
-    def __mul__(self, operand: Operand) -> MultiElements | Element:
+    def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
         match operand:
             case int():
                 multi_notes = []
                 for _ in range(0, operand):
                     multi_notes.append(self.copy())
-                return MultiElements(multi_notes)
+                return oc.MultiElements(multi_notes)
         return super().__mul__(self)
 
 class ControlChange(Element):
     def __init__(self):
         super().__init__()
-        self._number: Number = Number()
-        self._value_unit: ValueUnit = ValueUnit()
+        self._number: ou.Number = ou.Number()
+        self._value_unit: ou.ValueUnit = ou.ValueUnit()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case Number():      return self._number
-            case ValueUnit():   return self._value_unit
+            case ou.Number():      return self._number
+            case ou.ValueUnit():   return self._value_unit
             case _:             return super().__mod__(operand)
 
-    def getPlayList(self, position: Position = None):
+    def getPlayList(self, position: ol.Position = None):
         
-        note_position: Position = self % Position() + Position() if position is None else position
-        number_int: Number      = self % Number() % int()
-        value_int: ValueUnit    = self % ValueUnit() % int()
-        channel_int: Channel    = self % Channel() % int()
-        device_list: Device     = self % Device() % list()
+        note_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
+        number_int: ou.Number      = self % ou.Number() % int()
+        value_int: ou.ValueUnit    = self % ou.ValueUnit() % int()
+        channel_int: ou.Channel    = self % ou.Channel() % int()
+        device_list: og.Device     = self % og.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         return [
@@ -393,8 +367,8 @@ class ControlChange(Element):
             "number" in serialization and "value_unit" in serialization):
 
             super().loadSerialization(serialization)
-            self._number = Number(serialization["number"])
-            self._value_unit = ValueUnit(serialization["value_unit"])
+            self._number = ou.Number(serialization["number"])
+            self._value_unit = ou.ValueUnit(serialization["value_unit"])
         return self
       
     def copy(self) -> 'ControlChange':
@@ -402,37 +376,37 @@ class ControlChange(Element):
 
     def __lshift__(self, operand: Operand) -> 'ControlChange':
         match operand:
-            case Number():
+            case ou.Number():
                 self._number = operand
-            case ValueUnit():
+            case ou.ValueUnit():
                 self._value_unit = operand
         return super().__lshift__(operand)
 
-    def __mul__(self, operand: Operand) -> MultiElements | Element:
+    def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
         match operand:
             case int():
                 multi_control_changes = []
                 for _ in range(0, operand):
                     multi_control_changes.append(self.copy())
-                return MultiElements(multi_control_changes)
+                return oc.MultiElements(multi_control_changes)
         return super().__mul__(self)
 
 class PitchBend(Element):
     def __init__(self):
         super().__init__()
-        self._pitch: Pitch = Pitch()
+        self._pitch: ou.Pitch = ou.Pitch()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case Pitch():       return self._pitch
+            case ou.Pitch():       return self._pitch
             case _:             return super().__mod__(operand)
 
-    def getPlayList(self, position: Position = None):
+    def getPlayList(self, position: ol.Position = None):
         
-        note_position: Position = self % Position() + Position() if position is None else position
-        pitch_list: list[int]   = (self % Pitch()).getMidi__pitch_pair()
-        channel_int: Channel    = self % Channel() % int()
-        device_list: Device     = self % Device() % list()
+        note_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
+        pitch_list: list[int]   = (self % ou.Pitch()).getMidi__pitch_pair()
+        channel_int: ou.Channel    = self % ou.Channel() % int()
+        device_list: og.Device     = self % og.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         return [
@@ -459,7 +433,7 @@ class PitchBend(Element):
             "pitch" in serialization):
 
             super().loadSerialization(serialization)
-            self._pitch = Pitch(serialization["pitch"])
+            self._pitch = ou.Pitch(serialization["pitch"])
         return self
       
     def copy(self) -> 'PitchBend':
@@ -467,57 +441,57 @@ class PitchBend(Element):
 
     def __lshift__(self, operand: Operand) -> 'PitchBend':
         match operand:
-            case Pitch():
+            case ou.Pitch():
                 self._pitch = operand
         return super().__lshift__(operand)
 
-    def __mul__(self, operand: Operand) -> MultiElements | Element:
+    def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
         match operand:
             case int():
                 multi_pitch_ends = []
                 for _ in range(0, operand):
                     multi_pitch_ends.append(self.copy())
-                return MultiElements(multi_pitch_ends)
+                return oc.MultiElements(multi_pitch_ends)
         return super().__mul__(self)
 
 class Sequence(Element):
     def __init__(self):
         super().__init__()
-        self._time_length = TimeLength() << Measure(1)
-        self._trigger_notes: MultiElements = MultiElements()
+        self._time_length = ol.TimeLength() << ov.Measure(1)
+        self._trigger_notes: oc.MultiElements = oc.MultiElements()
 
     def len(self) -> int:
         return self._trigger_notes.len()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case TimeLength():
+            case ol.TimeLength():
                 if self._time_length is None:
-                    last_position: Position = self._trigger_notes.getLastPosition()
-                    sequence_length: TimeLength = TimeLength(measures=1)
+                    last_position: ol.Position = self._trigger_notes.getLastol.Position()
+                    sequence_length: ol.TimeLength = ol.TimeLength(measures=1)
                     while last_position > sequence_length:
-                        sequence_length += TimeLength(measures=1)
+                        sequence_length += ol.TimeLength(measures=1)
                     return sequence_length
                 return self._time_length
-            case MultiElements():   return self._trigger_notes
+            case oc.MultiElements():   return self._trigger_notes
             case _:                 return super().__mod__(operand)
 
-    def getPlayList(self, position: Position = None):
+    def getPlayList(self, position: ol.Position = None):
         
-        sequence_position: Position = self % Position() + Position() if position is None else position
-        sequence_length: TimeLength     = self % TimeLength()
+        sequence_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
+        sequence_length: ol.TimeLength     = self % ol.TimeLength()
         
         play_list = []
         for trigger_note in self._trigger_notes % list():
 
-            if trigger_note % Position() < sequence_length:
+            if trigger_note % ol.Position() < sequence_length:
 
-                trigger_position    = sequence_position + trigger_note % Position()
-                trigger_duration    = trigger_note % Duration()
-                trigger_key_note    = trigger_note % KeyNote()
-                trigger_velocity    = trigger_note % Velocity()
-                trigger_channel     = trigger_note % Channel()
-                trigger_device      = trigger_note % Device()
+                trigger_position    = sequence_position + trigger_note % ol.Position()
+                trigger_duration    = trigger_note % ol.Duration()
+                trigger_key_note    = trigger_note % og.KeyNote()
+                trigger_velocity    = trigger_note % ou.Velocity()
+                trigger_channel     = trigger_note % ou.Channel()
+                trigger_device      = trigger_note % og.Device()
 
                 start_time_ms = sequence_position.getTime_ms()
                 on_time_ms = start_time_ms + trigger_position.getTime_ms()
@@ -560,7 +534,7 @@ class Sequence(Element):
             "trigger_notes" in serialization):
 
             super().loadSerialization(serialization)
-            self._trigger_notes = MultiElements().loadSerialization(serialization["trigger_notes"])
+            self._trigger_notes = oc.MultiElements().loadSerialization(serialization["trigger_notes"])
 
         return self
     
@@ -569,18 +543,18 @@ class Sequence(Element):
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         match operand:
-            case Setup():
-                match operand % Inner():
-                    case Null():
+            case os.Setup():
+                match operand % os.Inner():
+                    case og.Null():
                         return self
                     case _:
                         inner_operand = operand % Operand()
                         self._trigger_notes << inner_operand
                         return self
         match operand:
-            case Position() | TimeLength():
+            case ol.Position() | ol.TimeLength():
                 super().__lshift__(operand)
-            case MultiElements():
+            case oc.MultiElements():
                 self._trigger_notes = operand
             case Operand():
                 self._trigger_notes << operand
@@ -588,12 +562,12 @@ class Sequence(Element):
 
     def __add__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
+        if isinstance(operand, os.Setup):
+            if not isinstance(operand % os.Inner(), og.Null) and not isinstance(operand % Operand(), og.Null):
                 sequence_copy << (self._trigger_notes + (operand % Operand())).copy()
         else:
             match operand:
-                case Position() | TimeLength():
+                case ol.Position() | ol.TimeLength():
                     sequence_copy << sequence_copy % operand + operand
                 case Operand():
                     sequence_copy << (self._trigger_notes + operand).copy()
@@ -601,12 +575,12 @@ class Sequence(Element):
 
     def __sub__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
+        if isinstance(operand, os.Setup):
+            if not isinstance(operand % os.Inner(), og.Null) and not isinstance(operand % Operand(), og.Null):
                 sequence_copy << (self._trigger_notes - (operand % Operand())).copy()
         else:
             match operand:
-                case Position() | TimeLength():
+                case ol.Position() | ol.TimeLength():
                     sequence_copy << sequence_copy % operand - operand
                 case Operand():
                     sequence_copy << (self._trigger_notes - operand).copy()
@@ -614,12 +588,12 @@ class Sequence(Element):
 
     def __mul__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
+        if isinstance(operand, os.Setup):
+            if not isinstance(operand % os.Inner(), og.Null) and not isinstance(operand % Operand(), og.Null):
                 sequence_copy << (self._trigger_notes * (operand % Operand())).copy()
         else:
             match operand:
-                case Position() | TimeLength():
+                case ol.Position() | ol.TimeLength():
                     sequence_copy << sequence_copy % operand * operand
                 case Operand():
                     sequence_copy << (self._trigger_notes * operand).copy()
@@ -627,18 +601,18 @@ class Sequence(Element):
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, Setup):
-            if not isinstance(operand % Inner(), Null) and not isinstance(operand % Operand(), Null):
+        if isinstance(operand, os.Setup):
+            if not isinstance(operand % os.Inner(), og.Null) and not isinstance(operand % Operand(), og.Null):
                 sequence_copy << (self._trigger_notes / (operand % Operand())).copy()
         else:
             match operand:
-                case Position() | TimeLength():
+                case ol.Position() | ol.TimeLength():
                     sequence_copy << sequence_copy % operand / operand
                 case Operand():
                     sequence_copy << (self._trigger_notes / operand).copy()
         return sequence_copy
 
-    def __floordiv__(self, time_length: TimeLength) -> 'Sequence':
+    def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
         return self << self._trigger_notes // time_length
   
 
@@ -650,7 +624,7 @@ class Panic:
 
 class Chord:
 
-    def __init__(self, root_note = 60, size = 3, scale = None):   # 0xF2 - Song Position
+    def __init__(self, root_note = 60, size = 3, scale = None):   # 0xF2 - Song ol.Position
         self._root_note = root_note
         self._size = size
         self._scale = scale
@@ -695,18 +669,18 @@ class Retrigger:
 
 class Composition:
 
-    def __init__(self, position: Position = Position(), time_length: TimeLength = TimeLength()):
-        self._position: Position = position
-        self._time_length: TimeLength = time_length
+    def __init__(self, position: ol.Position = ol.Position(), time_length: ol.TimeLength = ol.TimeLength()):
+        self._position: ol.Position = position
+        self._time_length: ol.TimeLength = time_length
         self._placed_elements = []
         self._device: list = None
 
     def getData__device(self):
         return self._device
 
-    def getPlayList(self, position: Position = None):
+    def getPlayList(self, position: ol.Position = None):
         
-        position = Position() if position is None else position
+        position = ol.Position() if position is None else position
         play_list = []
         for placed_element in self._placed_elements:
             play_list = play_list.extend(
@@ -729,14 +703,14 @@ class Composition:
         self._device = device
         return self
 
-    def placeElement(self, element, position = Position()):
+    def placeElement(self, element, position = ol.Position()):
         self._placed_elements.append({
                 "element": element,
                 "position": position
             })
         return self
 
-    def takeElement(self, element, position = Position()):
+    def takeElement(self, element, position = ol.Position()):
         self._placed_elements.remove({
                 "element": element,
                 "position": position
@@ -747,7 +721,7 @@ class Composition:
         self._placed_elements = []
         return self
 
-    def displace(self, displacement = TimeLength()):
+    def displace(self, displacement = ol.TimeLength()):
         ...
         return self
 
@@ -758,6 +732,6 @@ class Composition:
 # Polyphonic Key Pressure       Ax      Key number          Amount of pressure
 # Control Change                Bx      Controller number   Controller value
 # Program Change                Cx      Program number      None
-# Channel Pressure              Dx      Pressure value      None            
+# ou.Channel Pressure              Dx      Pressure value      None            
 # Pitch Bend                    Ex      MSB                 LSB
 

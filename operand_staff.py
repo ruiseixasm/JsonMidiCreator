@@ -14,86 +14,54 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Json Midi Creator Libraries
-from operand import *
+from operand import Operand
+import operand_unit as ou
+import operand_value as ov
+import operand_length as ol
+import operand_generic as og
 
 class Staff(Operand):
     def __init__(self):
-        from operand_unit import Tempo
-        from operand_unit import Key
-        from operand_unit import Octave
-        from operand_unit import Velocity
-        from operand_unit import ValueUnit
-        from operand_unit import Channel
-        from operand_value import Measure
-        from operand_value import BeatsPerMeasure
-        from operand_value import BeatNoteValue
-        from operand_value import Quantization
-        from operand_generic import Device
-        from operand_length import Duration
         # Set Global Staff Defaults at the end of this file bottom bellow
-        self._measure: Measure                      = None
-        self._tempo: Tempo                          = None
+        self._measure: ov.Measure                      = None
+        self._tempo: ou.Tempo                          = None
         # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
-        self._beats_per_measure: BeatsPerMeasure    = None
-        self._beat_note_value: BeatNoteValue        = None
-        self._quantization: Quantization            = None
-        self._duration: Duration                    = None
-        self._key: Key                              = None
-        self._octave: Octave                        = None
-        self._velocity: Velocity                    = None
-        self._value_unit: ValueUnit                 = None
-        self._channel: Channel                      = None
-        self._device: Device                        = None
+        self._beats_per_measure: ov.BeatsPerMeasure    = None
+        self._beat_note_value: ov.BeatNoteValue        = None
+        self._quantization: ov.Quantization            = None
+        self._duration: ol.Duration                    = None
+        self._key: ou.Key                              = None
+        self._octave: ou.Octave                        = None
+        self._velocity: ou.Velocity                    = None
+        self._value_unit: ou.ValueUnit                 = None
+        self._channel: ou.Channel                      = None
+        self._device: og.Device                        = None
 
     def __mod__(self, operand: Operand) -> Operand:
-        from operand_unit import Tempo
-        from operand_unit import Key
-        from operand_unit import Octave
-        from operand_unit import Velocity
-        from operand_unit import ValueUnit
-        from operand_unit import Channel
-        from operand_value import Measure
-        from operand_value import BeatsPerMeasure
-        from operand_value import BeatNoteValue
-        from operand_value import Quantization
-        from operand_value import NotesPerMeasure
-        from operand_value import StepsPerMeasure
-        from operand_value import StepsPerNote
-        from operand_generic import Device
-        from operand_length import Duration
         match operand:
             # Direct Values
-            case Measure():         return self._measure
-            case Tempo():           return self._tempo
-            case BeatsPerMeasure(): return self._beats_per_measure
-            case BeatNoteValue():   return self._beat_note_value
-            case Quantization():    return self._quantization
-            case Duration():        return self._duration
-            case Key():             return self._key
-            case Octave():          return self._octave
-            case Velocity():        return self._velocity
-            case ValueUnit():       return self._value_unit
-            case Channel():         return self._channel
-            case Device():          return self._device
+            case ov.Measure():         return self._measure
+            case ou.Tempo():           return self._tempo
+            case ov.BeatsPerMeasure(): return self._beats_per_measure
+            case ov.BeatNoteValue():   return self._beat_note_value
+            case ov.Quantization():    return self._quantization
+            case ol.Duration():        return self._duration
+            case ou.Key():             return self._key
+            case ou.Octave():          return self._octave
+            case ou.Velocity():        return self._velocity
+            case ou.ValueUnit():       return self._value_unit
+            case ou.Channel():         return self._channel
+            case og.Device():          return self._device
             # Calculated Values
-            case NotesPerMeasure(): return NotesPerMeasure((self % BeatsPerMeasure() % float()) * (self % BeatNoteValue() % float()))
-            case StepsPerMeasure(): return StepsPerMeasure((self % StepsPerNote() % float()) * (self % NotesPerMeasure() % float()))
-            case StepsPerNote():    return StepsPerNote(1 / (self._quantization % float()))
+            case ov.NotesPerMeasure():
+                return ov.NotesPerMeasure((self % ov.BeatsPerMeasure() % float()) * (self % ov.BeatNoteValue() % float()))
+            case ov.StepsPerMeasure():
+                return ov.StepsPerMeasure((self % ov.StepsPerNote() % float()) * (self % ov.NotesPerMeasure() % float()))
+            case ov.StepsPerNote():
+                return ov.StepsPerNote(1 / (self._quantization % float()))
         return operand
 
     def getSerialization(self):
-        from operand_unit import Tempo
-        from operand_unit import Key
-        from operand_unit import Octave
-        from operand_unit import Velocity
-        from operand_unit import ValueUnit
-        from operand_unit import Channel
-        from operand_value import Measure
-        from operand_value import BeatsPerMeasure
-        from operand_value import BeatNoteValue
-        from operand_value import Quantization
-        from operand_generic import Device
-        from operand_length import Duration
         return {
             "class": self.__class__.__name__,
             "measures": self._measure % float(),
@@ -113,18 +81,6 @@ class Staff(Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        from operand_unit import Tempo
-        from operand_unit import Key
-        from operand_unit import Octave
-        from operand_unit import Velocity
-        from operand_unit import ValueUnit
-        from operand_unit import Channel
-        from operand_value import Measure
-        from operand_value import BeatsPerMeasure
-        from operand_value import BeatNoteValue
-        from operand_value import Quantization
-        from operand_generic import Device
-        from operand_length import Duration
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "measures" in serialization and "tempo" in serialization and
             "quantization" in serialization and "beats_per_measure" in serialization and "beat_note_value" in serialization and
@@ -132,46 +88,34 @@ class Staff(Operand):
             "octave" in serialization and "velocity" in serialization and "value_unit" in serialization and
             "channel" in serialization and "device" in serialization):
 
-            self._measures = Measure(serialization["measures"])
-            self._tempo = Tempo(serialization["tempo"])
-            self._beats_per_measure = BeatsPerMeasure(serialization["beats_per_measure"])
-            self._beat_note_value = BeatNoteValue(serialization["beat_note_value"])
-            self._quantization = Quantization(serialization["quantization"])
-            self._duration = Duration(serialization["duration"])
-            self._key = Key(serialization["key"])
-            self._octave = Octave(serialization["octave"])
-            self._velocity = Velocity(serialization["velocity"])
-            self._value_unit = ValueUnit(serialization["value_unit"])
-            self._channel = Channel(serialization["channel"])
-            self._device = Device(serialization["device"])
+            self._measures = ov.Measure(serialization["measures"])
+            self._tempo = ou.Tempo(serialization["tempo"])
+            self._beats_per_measure = ov.BeatsPerMeasure(serialization["beats_per_measure"])
+            self._beat_note_value = ov.BeatNoteValue(serialization["beat_note_value"])
+            self._quantization = ov.Quantization(serialization["quantization"])
+            self._duration = ol.Duration(serialization["duration"])
+            self._key = ou.Key(serialization["key"])
+            self._octave = ou.Octave(serialization["octave"])
+            self._velocity = ou.Velocity(serialization["velocity"])
+            self._value_unit = ou.ValueUnit(serialization["value_unit"])
+            self._channel = ou.Channel(serialization["channel"])
+            self._device = og.Device(serialization["device"])
         return self
         
     def __lshift__(self, operand: Operand) -> 'Staff':
-        from operand_unit import Tempo
-        from operand_unit import Key
-        from operand_unit import Octave
-        from operand_unit import Velocity
-        from operand_unit import ValueUnit
-        from operand_unit import Channel
-        from operand_value import Measure
-        from operand_value import BeatsPerMeasure
-        from operand_value import BeatNoteValue
-        from operand_value import Quantization
-        from operand_generic import Device
-        from operand_length import Duration
         match operand:
-            case Measure():         self._measure = operand
-            case Tempo():           self._tempo = operand
-            case BeatsPerMeasure(): self._beats_per_measure = operand
-            case BeatNoteValue():   self._beat_note_value = operand
-            case Quantization():    self._quantization = operand
-            case Duration():        self._duration = operand
-            case Key():             self._key = operand
-            case Octave():          self._octave = operand
-            case Velocity():        self._velocity = operand
-            case ValueUnit():       self._value_unit = operand
-            case Channel():         self._channel = operand
-            case Device():          self._device = operand
+            case ov.Measure():         self._measure = operand
+            case ou.Tempo():           self._tempo = operand
+            case ov.BeatsPerMeasure(): self._beats_per_measure = operand
+            case ov.BeatNoteValue():   self._beat_note_value = operand
+            case ov.Quantization():    self._quantization = operand
+            case ol.Duration():        self._duration = operand
+            case ou.Key():             self._key = operand
+            case ou.Octave():          self._octave = operand
+            case ou.Velocity():        self._velocity = operand
+            case ou.ValueUnit():       self._value_unit = operand
+            case ou.Channel():         self._channel = operand
+            case og.Device():          self._device = operand
         return self
 
 global_staff: Staff = Staff()

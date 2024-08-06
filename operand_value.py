@@ -13,14 +13,11 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from operand_staff import global_staff
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 # Json Midi Creator Libraries
-from operand import *
-from operand_unit import *
+from operand import Operand
+import operand_unit as ou
 
 
 # Values have never None values and are also const, with no setters
@@ -133,7 +130,7 @@ class Beat(Value):
 
     def getTime_ms(self):
         from operand_staff import global_staff
-        return 60.0 * 1000 / (global_staff % Tempo() % int()) * self._value
+        return 60.0 * 1000 / (global_staff % ou.Tempo() % int()) * self._value
     
 class NoteValue(Value):
     def __init__(self, value: float = None):

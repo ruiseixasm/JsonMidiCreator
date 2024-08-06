@@ -13,18 +13,23 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+# Example using typing.Union (compatible with Python < 3.10)
+from typing import Union
+import enum
 # Json Midi Creator Libraries
-from operand import *
-from operand_unit import *
-from operand_value import *
-from operand_generic import *
+from creator import *
+from operand import Operand
+
+import operand_value as ov
+import operand_length as ol
+import operand_generic as og
 
 
 class Setup(Operand):
     def __init__(self):
-        self._next_operand: Union['Setup', Operand] = None
+        self._next_operand: Operand = None
 
-    def __mod__(self, operand: Union['Setup', Operand]) -> Operand:
+    def __mod__(self, operand: Operand) -> Operand:
         if type(self) == type(operand):
             return self
         if self._next_operand is not None:
@@ -32,16 +37,16 @@ class Setup(Operand):
                 case Setup():
                     if isinstance(self._next_operand, Setup):
                         return self._next_operand % operand
-                    return Null()
+                    return og.Null()
                 case Operand():
                     match self._next_operand:
                         case Setup():
                             return self._next_operand % Operand()
                         case Operand():
                             return self._next_operand
-        return Null()
+        return og.Null()
     
-    def __pow__(self, operand: Union['Setup', Operand]) -> 'Setup':
+    def __pow__(self, operand: Operand) -> 'Setup':
         match operand:
             case Setup():
                 self._setup_list.append(operand)
@@ -60,14 +65,14 @@ class Inner(Setup):
 
 class Selection(Setup):
     def __init__(self):
-        self._position: Position = Position()
-        self._time_length: TimeLength = TimeLength() << Beat(1)
+        self._position: ol.Position = ol.Position()
+        self._time_length: ol.TimeLength = ol.TimeLength() << ov.Beat(1)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case Position():
+            case ol.Position():
                 return self._position
-            case TimeLength():
+            case ol.TimeLength():
                 return self._time_length
         return self
 
@@ -85,8 +90,8 @@ class Selection(Setup):
             "position" in serialization and "time_length" in serialization and
             "operand" in serialization):
 
-            self._position  = Position().loadSerialization(serialization["position"])
-            self._time_length    = TimeLength().loadSerialization(serialization["length"])
+            self._position  = ol.Position().loadSerialization(serialization["position"])
+            self._time_length    = ol.TimeLength().loadSerialization(serialization["length"])
             class_name = serialization["class"]
         return self
 
@@ -95,8 +100,14 @@ class Selection(Setup):
 
     def __lshift__(self, operand: Operand) -> 'Operand':
         match operand:
-            case Position(): self._position = operand
-            case TimeLength(): self._time_length = operand
+            case ol.Position(): self._position = operand
+            case ol.TimeLength(): self._time_length = operand
             case _: super().__lshift__(operand)
         return self
     
+
+class Range(Setup):
+    def __init__(self, operand: Operand, position: ol.Position = None, length: ol.Length = None):
+        self._operand = operand
+        self._position = position
+        self._length = length

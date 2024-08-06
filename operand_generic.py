@@ -13,28 +13,31 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from operand_staff import global_staff
+# Example using typing.Union (compatible with Python < 3.10)
+from typing import Union
+import enum
 # Json Midi Creator Libraries
-from operand import *
-from operand_unit import *
-from operand_value import *
-from operand_length import *
+from creator import *
+from operand import Operand
+
+import operand_unit as ou
 
 
-class Null(Operand):
+class Generic(Operand):
     pass
 
-class KeyNote(Operand):
+class Null(Generic):
+    pass
+
+class KeyNote(Generic):
     def __init__(self):
-        self._key: Key = Key()
-        self._octave: Octave = Octave()
+        self._key: ou.Key = ou.Key()
+        self._octave: ou.Octave = ou.Octave()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case Key():     return self._key
-            case Octave():  return self._octave
+            case ou.Key():     return self._key
+            case ou.Octave():  return self._octave
             case _:         return operand
 
     def getMidi__key_note(self) -> int:
@@ -55,25 +58,25 @@ class KeyNote(Operand):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "key" in serialization and "octave" in serialization):
 
-            self._key = Key(serialization["key"])
-            self._octave = Octave(serialization["octave"])
+            self._key = ou.Key(serialization["key"])
+            self._octave = ou.Octave(serialization["octave"])
         return self
         
     def copy(self) -> 'KeyNote':
         return KeyNote() << self._key << self._octave
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
-        if operand.__class__ == Key:    self._measure = operand
-        if operand.__class__ == Octave: self._beat = operand
+        if operand.__class__ == ou.Key:    self._measure = operand
+        if operand.__class__ == ou.Octave: self._beat = operand
         return self
 
     def __add__(self, unit) -> 'KeyNote':
-        key: Key = self._key
-        octave: Octave = self._octave
+        key: ou.Key = self._key
+        octave: ou.Octave = self._octave
         match unit:
-            case Key():
+            case ou.Key():
                 key += unit
-            case Octave():
+            case ou.Octave():
                 octave += unit
             case _:
                 return self.copy()
@@ -84,12 +87,12 @@ class KeyNote(Operand):
         )
      
     def __sub__(self, unit) -> 'KeyNote':
-        key: Key = self._key
-        octave: Octave = self._octave
+        key: ou.Key = self._key
+        octave: ou.Octave = self._octave
         match unit:
-            case Key():
+            case ou.Key():
                 key -= unit
-            case Octave():
+            case ou.Octave():
                 octave -= unit
             case _:
                 return self.copy()
@@ -100,7 +103,7 @@ class KeyNote(Operand):
         )
   
 # Read only class
-class Device(Operand):
+class Device(Generic):
     def __init__(self, device_list: list[str] = None):
         from operand_staff import global_staff
         self._device_list: list[str] = []
@@ -126,11 +129,11 @@ class Device(Operand):
             self._device_list = serialization["device_list"]
         return self
 
-class Yield(Operand):
+class Yield(Generic):
     def __init__(self, value: float = 0):
         super().__init__(value)
 
-class Default(Operand):
+class Default(Generic):
     def __init__(self, operand: Operand):
         self._operand: Operand = operand
 
@@ -140,24 +143,18 @@ class Default(Operand):
     def getOperand(self):
         return self._operand
 
-class Range(Operand):
-    def __init__(self, operand: Operand, position: Position = None, length: Length = None):
-        self._operand = operand
-        self._position = position
-        self._length = length
-
-class Repeat(Operand):
-    def __init__(self, unit: Unit, repeat: int = 1):
+class Repeat(Generic):
+    def __init__(self, unit: ou.Unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
 
-    def step(self) -> Unit | Null:
+    def step(self) -> ou.Unit | Null:
         if self._repeat > 0:
             self._repeat -= 1
             return self._unit
         return Null()
 
-class Increment(Operand):
+class Increment(Generic):
     """
     The Increment class initializes with a Unit and additional arguments,
     similar to the arguments in the range() function.
@@ -175,7 +172,7 @@ class Increment(Operand):
     operand = Increment(unit, 8)
     operand = Increment(unit, 0, 10, 2)
     """
-    def __init__(self, unit: Unit, *argv: int):
+    def __init__(self, unit: ou.Unit, *argv: int):
         """
         Initialize the Increment with a Unit and additional arguments.
 
@@ -211,7 +208,7 @@ class Increment(Operand):
 
         self._iterator = self._start
 
-    def step(self) -> Unit | Null:
+    def step(self) -> ou.Unit | Null:
         if self._iterator < self._stop:
             self._unit += self._step
             self._iterator += 1
@@ -219,7 +216,7 @@ class Increment(Operand):
         return Null()
 
 
-class IntervalQuality(Operand):
+class IntervalQuality(Generic):
     def __init__(self, interval_quality: str = 0):
         self._interval_quality: str = interval_quality
 
@@ -229,17 +226,17 @@ class IntervalQuality(Operand):
         # Minor (mi)
         # Diminished (d or o)
 
-class Inversion(Operand):
+class Inversion(Generic):
     def __init__(self, inversion: int = 0):
         self._inversion: int = inversion
 
 
-class Swing(Operand):
+class Swing(Generic):
     def __init__(self, swing: float = 0):
         self._swing: float = swing
 
 
-class Gate(Operand):
+class Gate(Generic):
     def __init__(self, gate: float = 0.50):
         self._gate: float = gate
 

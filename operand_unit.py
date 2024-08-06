@@ -13,13 +13,10 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from operand_staff import global_staff
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 # Json Midi Creator Libraries
-from operand import *
+from operand import Operand
 
 
 # Units have never None values and are also const, with no setters

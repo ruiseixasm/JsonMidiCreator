@@ -13,5 +13,14 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+# Json Midi Creator Libraries
+from creator import *
+from operand import *
+from operand_unit import *
+from operand_value import *
+from operand_length import *
+from operand_setup import *
+from operand_generic import *
+from operand_container import *
 from operand_element import *
 from operand_staff_default import *
