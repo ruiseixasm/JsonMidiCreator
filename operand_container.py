@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
+import json
 import enum
 # Json Midi Creator Libraries
 from creator import *
@@ -110,6 +111,19 @@ class Container(Operand):
                     single_operand << operand
         return self
 
+    def __rshift__(self, operand: 'Operand') -> 'MultiElements':
+        match operand:
+            case ot.Print():
+                serialized_json_str = json.dumps(self.getSerialization())
+                json_object = json.loads(serialized_json_str)
+                json_formatted_str = json.dumps(json_object, indent=4)
+                print(json_formatted_str)
+                return self
+            case _: return operand.__rrshift__(self)
+
+    def __rrshift__(self, other_operand: Operand) -> Operand:
+        return self
+
 class MultiElements(Container):  # Just a container of Elements
     def __init__(self, *elements):
         import operand_element as oe
@@ -151,7 +165,7 @@ class MultiElements(Container):  # Just a container of Elements
             case od.Export():
                 saveJsonMidiPlay(self.getPlayList(), operand % str())
                 return self
-            case _: return operand.__rrshift__(self)
+            case _: return super().__rshift__(operand)
 
     def __rrshift__(self, other_operand: Operand) -> Operand:
         import operand_element as oe

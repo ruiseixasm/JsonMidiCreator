@@ -26,11 +26,11 @@ else:  # Assume Linux/Unix
     global_staff << Device(["FLUID"])       # FLUID Synth
 
 # Set the default single Clock for the entire Staff Length
-single_clock = Clock() >> Save("_Clock_jsonMidiCreator.json")
+single_clock = Clock() >> Save("_Clock_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequencially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)) >> Save("_Note_jsonMidiCreator.json")
-multi_notes = Null() >> first_note * 3 >> Play(1) >> Save("_MultiElements_jsonMidiCreator.json")
+multi_notes = Null() >> first_note * 3 >> Play(1) >> Save("_MultiElements_jsonMidiCreator.json") >> Print()
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << NoteValue(1/16))
