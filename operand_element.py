@@ -248,10 +248,11 @@ class Clock(Element):
         return super().copy() << self._mode << self._device << self._pulses_per_quarternote
 
     def __lshift__(self, operand: Operand) -> 'Clock':
-        if operand.__class__ == ol.Position: self._position = ol.Position() << ov.Measure(operand % ov.Measure() % int())
-        if operand.__class__ == ol.TimeLength: self._time_length = ol.TimeLength() << ov.Measure(operand % ov.Measure() % int())
-        if operand.__class__ == ClockModes: self._mode = operand
-        if operand.__class__ == int: self._pulses_per_quarternote = operand
+        match operand:
+            case ol.Position(): self._position = ol.Position() << ov.Measure(operand % ov.Measure() % int())
+            case ol.TimeLength(): self._time_length = ol.TimeLength() << ov.Measure(operand % ov.Measure() % int())
+            case ClockModes(): self._mode = operand
+            case int(): self._pulses_per_quarternote = operand
         return self
 
 class Note(Element):

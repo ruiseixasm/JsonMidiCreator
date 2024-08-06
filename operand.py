@@ -18,6 +18,19 @@ class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
         return operand
 
+    def getSerialization(self):
+        return { 
+            "class": self.__class__.__name__
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        return self
+       
+    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
+        return self
+    
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         return self
 
@@ -42,17 +55,6 @@ class Operand:
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
         return self
 
-    def getSerialization(self):
-        return { 
-            "class": self.__class__.__name__
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
+    def __pow__(self, operand: 'Operand') -> 'Operand':
         return self
-       
-    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
-        return self
-    
     
