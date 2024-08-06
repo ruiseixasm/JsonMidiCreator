@@ -26,21 +26,18 @@ else:  # Assume Linux/Unix
     global_staff << Device(["FLUID"])       # FLUID Synth
 
 # Set the default single Clock for the entire Staff Length
-single_clock = Clock()
-saveJsonMidiCreator(single_clock.getSerialization(), "_Clock_jsonMidiCreator.json")
+single_clock = Clock() >> Save("_Clock_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequencially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2))
-multi_notes = Null() >> first_note * 3 >> Play()
-saveJsonMidiCreator(first_note.getSerialization(), "_Note_jsonMidiCreator.json")
+multi_notes = Null() >> first_note * 3 >> Play(1) >> Save("_Note_jsonMidiCreator.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << NoteValue(1/16))
 
 # Creation and configuration of first Sequencer
 first_sequence = Sequence() << (Position() << Measure(1))
-first_sequence << base_note * 8 // (TimeLength() << Step(1)) << Channel(10)
-saveJsonMidiCreator(first_sequence.getSerialization(), "_Sequence_jsonMidiCreator.json")
+first_sequence << base_note * 8 // (TimeLength() << Step(1)) << Channel(10) >> Save("_Sequence_jsonMidiCreator.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence.copy()
@@ -51,8 +48,5 @@ second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 # Creations, agregation of both Sequences in a MultiElements element and respective Play
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += (TimeLength() << Beat(2) >> first_note) + single_clock
-all_elements >> Play(1)
-
-# Saving in a Play file the all_elements play list
-saveJsonMidiPlay(all_elements.getPlayList(), "_Play_jsonMidiPlayer.json")
+all_elements >> Play(1) >> Export("_Play_jsonMidiPlayer.json")
 

@@ -22,8 +22,9 @@ from operand import Operand
 
 import operand_unit as ou
 import operand_length as ol
+import operand_tag as ot
 import operand_generic as og
-import operand_setup as os
+import operand_frame as of
 
 class Container(Operand):
     pass
@@ -38,7 +39,7 @@ class MultiElements(Container):  # Just a container of Elements
                     self._multi_elements.append(single_element)
                 elif isinstance(single_element, list) and all(isinstance(elem, oe.Element) for elem in single_element):
                     self._multi_elements.extend(single_element)
-        self._selection: os.Selection = None
+        self._selection: of.Selection = None
         self._element_iterator = 0
 
     def len(self) -> int:
@@ -71,12 +72,12 @@ class MultiElements(Container):  # Just a container of Elements
     def firstElement(self) -> Operand:
         if len(self._multi_elements) > 0:
             return self._multi_elements[0]
-        return og.Null()
+        return ot.Null()
 
     def lastElement(self) -> Operand:
         if len(self._multi_elements) > 0:
             return self._multi_elements[len(self._multi_elements) - 1]
-        return og.Null()
+        return ot.Null()
 
     def getPlayList(self, position: ol.Position = None):
         import operand_element as oe
@@ -133,18 +134,24 @@ class MultiElements(Container):  # Just a container of Elements
             case ou.Play():
                 jsonMidiPlay(self.getPlayList(), operand % int())
                 return self
+            case og.Save():
+                saveJsonMidiCreator(self.getSerialization(), operand % str())
+                return self
+            case og.Export():
+                saveJsonMidiPlay(self.getPlayList(), operand % str())
+                return self
             case _: return operand.__rrshift__(self)
 
     def __rrshift__(self, other_operand: Operand) -> Operand:
         import operand_element as oe
         self_first_element = self.firstElement()
-        if type(self_first_element) != og.Null:
+        if type(self_first_element) != ot.Null:
             match other_operand:
-                case og.Null():
+                case ot.Null():
                     pass
                 case MultiElements():
                     other_last_element = self.lastElement()
-                    if type(other_last_element) != og.Null:
+                    if type(other_last_element) != ot.Null:
                         other_last_element >> self_first_element
                 case oe.Element(): other_operand % ol.Position() + other_operand % ol.TimeLength() >> self_first_element
                 case ol.Position() | ol.TimeLength(): other_operand >> self_first_element

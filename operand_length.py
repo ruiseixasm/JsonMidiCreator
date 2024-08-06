@@ -19,6 +19,7 @@ import enum
 # Json Midi Creator Libraries
 from creator import *
 from operand import Operand
+import operand_staff as os
 
 import operand_value as ov
 
@@ -162,9 +163,8 @@ class Position(Length):
 
 class Duration(Length):
     def __init__(self):
-        from operand_staff import global_staff
         super().__init__()
-        self << global_staff % self
+        self << os.global_staff % self
 
 class TimeLength(Length):
     def __init__(self):

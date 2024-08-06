@@ -18,7 +18,7 @@ from operand import Operand
 import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
-import operand_generic as og
+import operand_data as od
 
 class Staff(Operand):
     def __init__(self):
@@ -35,7 +35,7 @@ class Staff(Operand):
         self._velocity: ou.Velocity                    = None
         self._value_unit: ou.ValueUnit                 = None
         self._channel: ou.Channel                      = None
-        self._device: og.Device                        = None
+        self._device: od.Device                        = None
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -51,7 +51,7 @@ class Staff(Operand):
             case ou.Velocity():        return self._velocity
             case ou.ValueUnit():       return self._value_unit
             case ou.Channel():         return self._channel
-            case og.Device():          return self._device
+            case od.Device():          return self._device
             # Calculated Values
             case ov.NotesPerMeasure():
                 return ov.NotesPerMeasure((self % ov.BeatsPerMeasure() % float()) * (self % ov.BeatNoteValue() % float()))
@@ -99,7 +99,7 @@ class Staff(Operand):
             self._velocity = ou.Velocity(serialization["velocity"])
             self._value_unit = ou.ValueUnit(serialization["value_unit"])
             self._channel = ou.Channel(serialization["channel"])
-            self._device = og.Device(serialization["device"])
+            self._device = od.Device(serialization["device"])
         return self
         
     def __lshift__(self, operand: Operand) -> 'Staff':
@@ -115,7 +115,7 @@ class Staff(Operand):
             case ou.Velocity():        self._velocity = operand
             case ou.ValueUnit():       self._value_unit = operand
             case ou.Channel():         self._channel = operand
-            case og.Device():          self._device = operand
+            case od.Device():          self._device = operand
         return self
 
 global_staff: Staff = Staff()

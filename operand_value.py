@@ -17,15 +17,15 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 # Json Midi Creator Libraries
 from operand import Operand
+import operand_staff as os
 import operand_unit as ou
 
 
 # Values have never None values and are also const, with no setters
 class Value(Operand):
     def __init__(self, value: float = None):
-        from operand_staff import global_staff
         self._value: float = 0.0
-        self._value = global_staff % self % float() if value is None else value
+        self._value = os.global_staff % self % float() if value is None else value
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -63,9 +63,6 @@ class Value(Operand):
             self._value = serialization["value"]
         return self
         
-    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
-        return self
-
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case Value(): return self.__class__(self % float() + value % float())
@@ -121,31 +118,36 @@ class Measure(Value):
         super().__init__(value)
 
     def getTime_ms(self):
-        from operand_staff import global_staff
-        return Beat(1).getTime_ms() * (global_staff % BeatsPerMeasure() % float()) * self._value
+        return Beat(1).getTime_ms() * (os.global_staff % BeatsPerMeasure() % float()) * self._value
      
 class Beat(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
-        from operand_staff import global_staff
-        return 60.0 * 1000 / (global_staff % ou.Tempo() % int()) * self._value
+        return 60.0 * 1000 / (os.global_staff % ou.Tempo() % int()) * self._value
     
 class NoteValue(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
-        from operand_staff import global_staff
-        return Beat(1).getTime_ms() / (global_staff % BeatNoteValue() % float()) * self._value
+        return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._value
      
 class Step(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
-        from operand_staff import global_staff
-        return NoteValue(1).getTime_ms() / (global_staff % StepsPerNote() % float()) * self._value
+        return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._value
     
+
+class Swing(Value):
+    def __init__(self, swing: float = 0):
+        super().__init__(swing)
+
+
+class Gate(Value):
+    def __init__(self, gate: float = 0.50):
+        super().__init__(gate)
 

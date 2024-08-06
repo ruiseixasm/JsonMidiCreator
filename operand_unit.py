@@ -17,14 +17,14 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 # Json Midi Creator Libraries
 from operand import Operand
+import operand_staff as os
 
 
 # Units have never None values and are also const, with no setters
 class Unit(Operand):
     def __init__(self, unit: int = None):
-        from operand_staff import global_staff
         self._unit: int = 0
-        self._unit = global_staff % self % int() if unit is None else unit
+        self._unit = os.global_staff % self % int() if unit is None else unit
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -62,9 +62,6 @@ class Unit(Operand):
             self._unit = serialization["unit"]
         return self
 
-    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
-        return self
-
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__(self % int() + unit % int())
@@ -88,14 +85,13 @@ class Unit(Operand):
     
 class Key(Unit):
     def __init__(self, key: str = None):
-        from operand_staff import global_staff
         match key:
             case str():
                 super().__init__(Key.keyStrToKeyUnit(key))
             case int() | float():
                 super().__init__(key)
             case _:
-                super().__init__( global_staff % self % int() )
+                super().__init__( os.global_staff % self % int() )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -236,6 +232,10 @@ class Pitch(Unit):
 # min : The maximum negative swing is achieved with data byte values of 00, 00. Value = 0
 # center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
+
+class Inversion(Unit):
+    def __init__(self, inversion: int = 0):
+        super().__init__(inversion)
 
 class Play(Unit):
     def __init__(self, verbose: bool = False):

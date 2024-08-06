@@ -17,3 +17,34 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
         return operand
+
+    def __lshift__(self, operand: 'Operand') -> 'Operand':
+        return self
+
+    # def __rshift__(self, operand: 'Operand') -> 'Operand':
+    #     return self
+
+    def __rrshift__(self, operand: 'Operand') -> 'Operand':
+        return self
+
+    def __add__(self, operand: 'Operand') -> 'Operand':
+        return self
+
+    def __sub__(self, operand: 'Operand') -> 'Operand':
+        return self
+
+    def __mul__(self, operand: 'Operand') -> 'Operand':
+        return self
+    
+    def __truediv__(self, operand: 'Operand') -> 'Operand':
+        return self
+    
+    def __floordiv__(self, operand: 'Operand') -> 'Operand':
+        return self
+
+    # CHAINABLE OPERATIONS
+
+    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
+        return self
+    
+    
