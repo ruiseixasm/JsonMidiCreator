@@ -70,10 +70,6 @@ class Element(Operand):
     def copy(self) -> 'Element':
         return self.__class__() << self._position.copy() << self._time_length.copy() << self._channel << self._device
 
-    def play(self, verbose: bool = False) -> 'Element':
-        jsonMidiPlay(self.getPlayList(), verbose)
-        return self
-
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
             case ol.Position(): self._position = operand
@@ -82,8 +78,11 @@ class Element(Operand):
             case og.Device(): self._device = operand
         return self
 
-    def __rshift__(self, element: 'Element') -> 'Element':
-        return element.__rrshift__(self)
+    def __rshift__(self, operand: Operand) -> 'Element':
+        match operand:
+            case ou.Play():
+                jsonMidiPlay(self.getPlayList(), operand % int())
+            case _: return operand.__rrshift__(self)
 
     def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
         match element_operand:

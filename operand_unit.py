@@ -236,3 +236,7 @@ class Pitch(Unit):
 # min : The maximum negative swing is achieved with data byte values of 00, 00. Value = 0
 # center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
+
+class Play(Unit):
+    def __init__(self, verbose: bool = False):
+        super().__init__(1 if verbose else 0)

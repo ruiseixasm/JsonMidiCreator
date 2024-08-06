@@ -20,6 +20,7 @@ import enum
 from creator import *
 from operand import Operand
 
+import operand_unit as ou
 import operand_length as ol
 import operand_generic as og
 import operand_setup as os
@@ -116,10 +117,6 @@ class MultiElements(Container):  # Just a container of Elements
             multi_elements.append(single_element.copy())
         return MultiElements(multi_elements)
 
-    def play(self, verbose: bool = False) -> 'MultiElements':
-        jsonMidiPlay(self.getPlayList(), verbose)
-        return self
-
     def __lshift__(self, operand: Operand) -> 'MultiElements':
         match operand:
             case list():
@@ -131,8 +128,11 @@ class MultiElements(Container):  # Just a container of Elements
                     single_element << operand
         return self
 
-    def __rshift__(self, multi_elements: 'MultiElements') -> 'MultiElements':
-        return multi_elements.__rrshift__(self)
+    def __rshift__(self, operand: 'Operand') -> 'MultiElements':
+        match operand:
+            case ou.Play():
+                jsonMidiPlay(self.getPlayList(), operand % int())
+            case _: return operand.__rrshift__(self)
 
     def __rrshift__(self, other_operand: Operand) -> Operand:
         import operand_element as oe

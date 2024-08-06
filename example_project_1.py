@@ -32,7 +32,7 @@ saveJsonMidiCreator(single_clock.getSerialization(), "_Clock_jsonMidiCreator.jso
 # Multiple individual Notes creation and sequencially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2))
 multi_notes = first_note * 3
-(Null() >> multi_notes).play()
+Null() >> multi_notes >> Play()
 saveJsonMidiCreator(first_note.getSerialization(), "_Note_jsonMidiCreator.json")
 
 # Base Note creation to be used in the Sequencer
@@ -52,7 +52,7 @@ second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 # Creations, agregation of both Sequences in a MultiElements element and respective Play
 all_elements = MultiElements(first_sequence) + MultiElements(second_sequence)
 all_elements += (TimeLength() << Beat(2) >> first_note) + single_clock
-all_elements.play()
+all_elements >> Play(1)
 
 # Saving in a Play file the all_elements play list
 saveJsonMidiPlay(all_elements.getPlayList(), "example_play_file.json")
