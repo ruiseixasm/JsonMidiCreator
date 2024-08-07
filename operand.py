@@ -58,3 +58,8 @@ class Operand:
     def __pow__(self, operand: 'Operand') -> 'Operand':
         return self
     
+    def __and__(self, operand: 'Operand') -> bool:
+        return True
+
+    def __or__(self, operand: 'Operand') -> bool:
+        return True

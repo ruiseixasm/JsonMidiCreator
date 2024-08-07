@@ -24,11 +24,32 @@ import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_tag as ot
+import operand_container as oc
 
 
+# Works as a traditinal C list (chained)
 class Frame(Operand):
     def __init__(self):
         self._next_operand: Operand = None
+        self._current_node = self
+        
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self._current_node is not None:
+            current_value = self._current_node
+            self._current_node = self._current_node._next_operand
+            return current_value
+        else:
+            self._current_node = self    # Reset to the start node
+            raise StopIteration
+
+    def len(self) -> int:
+        list_size = 0
+        for _ in self:
+            list_size += 1
+        return list_size
 
     def __mod__(self, operand: Operand) -> Operand:
         if type(self) == type(operand):
@@ -47,6 +68,11 @@ class Frame(Operand):
                             return self._next_operand
         return ot.Null()
     
+    def __and__(self, operand: 'Operand') -> bool:
+        return True
+
+    # CHAINABLE OPERATIONS
+
     def __pow__(self, operand: Operand) -> 'Frame':
         match operand:
             case Frame():
@@ -60,9 +86,19 @@ class Frame(Operand):
             case None: self._next_operand = None
         return self
 
+class Canvas(Frame):
+    def __init__(self):
+        super().__init__()
+
+    def __or__(self, operand: Operand) -> bool:
+        return True
+
 class Inner(Frame):
     def __init__(self):
         super().__init__()
+
+    def __or__(self, operand: Operand) -> bool:
+        return True
 
 class Selection(Frame):
     def __init__(self):
@@ -76,6 +112,9 @@ class Selection(Frame):
             case ol.TimeLength():
                 return self._time_length
         return self
+
+    def __and__(self, operand: 'Operand') -> bool:
+        return True
 
     def getSerialization(self):
         return {
@@ -105,13 +144,15 @@ class Selection(Frame):
             case ol.TimeLength(): self._time_length = operand
             case _: super().__lshift__(operand)
         return self
-    
 
 class Range(Frame):
     def __init__(self, operand: Operand, position: ol.Position = None, length: ol.Length = None):
         self._operand = operand
         self._position = position
         self._length = length
+
+    def __and__(self, operand: 'Operand') -> bool:
+        return True
 
 
 class Repeat(Frame):
@@ -124,6 +165,9 @@ class Repeat(Frame):
             self._repeat -= 1
             return self._unit
         return ot.Null()
+
+    def __and__(self, operand: 'Operand') -> bool:
+        return True
 
 class Increment(Frame):
     """
@@ -185,3 +229,6 @@ class Increment(Frame):
             self._iterator += 1
             return self._unit
         return ot.Null()
+
+    def __and__(self, operand: 'Operand') -> bool:
+        return True

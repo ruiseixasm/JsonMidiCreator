@@ -42,9 +42,6 @@ class Container(Operand):
     def __iter__(self):
         return self
     
-    def len(self) -> int:
-        return len(self._operand_list)
-
     def __next__(self):
         if self._element_iterator < len(self._operand_list):
             single_element = self._operand_list[self._element_iterator]
@@ -53,6 +50,9 @@ class Container(Operand):
         else:
             self._element_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration
+
+    def len(self) -> int:
+        return len(self._operand_list)
 
     def __mod__(self, operand: list) -> list:
         if operand.__class__ == list:
