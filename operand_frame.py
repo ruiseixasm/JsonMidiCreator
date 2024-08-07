@@ -74,12 +74,11 @@ class Frame(Operand):
     # CHAINABLE OPERATIONS
 
     def __pow__(self, operand: Operand) -> 'Frame':
-        match operand:
-            case Frame():
-                self._setup_list.append(operand)
-            case Operand():
-                self._next_operand = operand
+        self._next_operand = operand
         return self
+    
+    def __rpow__(self, operand: Operand) -> 'Frame':
+        return self**operand
     
     def __lshift__(self, operand: Operand) -> 'Frame':
         match operand:
