@@ -84,6 +84,9 @@ class Element(Operand):
             case od.Load():
                 serialization = c.loadJsonMidiCreator(operand % str())
                 self.loadSerialization(serialization)
+            case oc.Chain():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __rshift__(self, operand: Operand) -> 'Element':

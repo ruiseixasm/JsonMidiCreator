@@ -112,6 +112,10 @@ class Container(Operand):
             case od.Load():
                 serialization = c.loadJsonMidiCreator(operand % str())
                 self.loadSerialization(serialization)
+            case Chain():
+                if not isinstance(self, Chain): # Avoids infinte recursion!
+                    for single_operand in operand:
+                        self << single_operand
         return self
 
     def __rshift__(self, operand: 'Operand') -> 'MultiElements':
