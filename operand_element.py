@@ -77,6 +77,7 @@ class Element(Operand):
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
             case ol.Position(): self._position = operand
+            case ov.TimeUnit(): self._position << operand
             case ol.TimeLength(): self._time_length = operand
             case ou.Channel(): self._channel = operand
             case od.Device(): self._device = operand
@@ -264,21 +265,21 @@ class Note(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ol.Duration():    return self._duration
-            case og.KeyNote():     return self._key_note
-            case ou.Key():         return self._key_note % ou.Key()
-            case ou.Octave():      return self._key_note % ou.Octave()
-            case ou.Velocity():    return self._velocity
-            case _:             return super().__mod__(operand)
+            case ol.Duration():     return self._duration
+            case og.KeyNote():      return self._key_note
+            case ou.Key():          return self._key_note % ou.Key()
+            case ou.Octave():       return self._key_note % ou.Octave()
+            case ou.Velocity():     return self._velocity
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
         
-        note_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
-        duration: ol.Duration      = self % ol.Duration()
-        key_note_midi: og.KeyNote  = (self % og.KeyNote()).getMidi__key_note()
-        velocity_int: ou.Velocity  = self % ou.Velocity() % int()
-        channel_int: ou.Channel    = self % ou.Channel() % int()
-        device_list: od.Device     = self % od.Device() % list()
+        note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
+        duration: ol.Duration       = self % ol.Duration()
+        key_note_midi: og.KeyNote   = (self % og.KeyNote()).getMidi__key_note()
+        velocity_int: ou.Velocity   = self % ou.Velocity() % int()
+        channel_int: ou.Channel     = self % ou.Channel() % int()
+        device_list: od.Device      = self % od.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         off_time_ms = on_time_ms + duration.getTime_ms()
@@ -333,7 +334,8 @@ class Note(Element):
             case ou.Key(): self._key_note << operand
             case ou.Octave(): self._key_note << operand
             case ou.Velocity(): self._velocity = operand
-        return super().__lshift__(operand)
+            case _: super().__lshift__(operand)
+        return self
 
     def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
         match operand:
@@ -403,7 +405,8 @@ class ControlChange(Element):
                 self._number = operand
             case ou.ValueUnit():
                 self._value_unit = operand
-        return super().__lshift__(operand)
+            case _: super().__lshift__(operand)
+        return self
 
     def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
         match operand:
@@ -466,7 +469,8 @@ class PitchBend(Element):
         match operand:
             case ou.Pitch():
                 self._pitch = operand
-        return super().__lshift__(operand)
+            case _: super().__lshift__(operand)
+        return self
 
     def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
         match operand:

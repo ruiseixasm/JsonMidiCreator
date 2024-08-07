@@ -100,28 +100,32 @@ class StepsPerNote(Value):
     def __init__(self, steps_per_note: float = None):
         super().__init__(steps_per_note)
 
-class Measure(Value):
+class TimeUnit(Value):
+    def __init__(self, value: float = None):
+        super().__init__(value)
+
+class Measure(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
         return Beat(1).getTime_ms() * (os.global_staff % BeatsPerMeasure() % float()) * self._value
      
-class Beat(Value):
+class Beat(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
         return 60.0 * 1000 / (os.global_staff % ou.Tempo() % int()) * self._value
     
-class NoteValue(Value):
+class NoteValue(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
         return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._value
      
-class Step(Value):
+class Step(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
