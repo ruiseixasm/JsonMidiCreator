@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
+from typing import Optional
 import enum
 # Json Midi Creator Libraries
 import creator as c
@@ -30,19 +31,20 @@ import operand_container as oc
 # Works as a traditinal C list (chained)
 class Frame(Operand):
     def __init__(self):
-        self._next_operand: Operand = None
-        self._current_node = self
+        self._next_operand: Optional[Operand] = None
         
     def __iter__(self):
+        self._current_node: Optional[Operand] = self    # Reset to the start node on new iteration
         return self
     
     def __next__(self):
         if self._current_node is not None:
-            current_value = self._current_node
-            self._current_node = self._current_node._next_operand
-            return current_value
+            iteration_node = self._current_node
+            match self._current_node:
+                case Frame():   self._current_node = self._current_node._next_operand
+                case _:         self._current_node = None
+            return iteration_node
         else:
-            self._current_node = self    # Reset to the start node
             raise StopIteration
 
     def len(self) -> int:
