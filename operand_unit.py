@@ -111,14 +111,6 @@ class Velocity(Unit):
     def __init__(self, velocity: int = None):
         super().__init__(velocity)
 
-class ValueUnit(Unit):
-    def __init__(self, value_unit: int = None):
-        super().__init__(value_unit)
-
-class Number(Unit):
-    def __init__(self, number: int = None):
-        super().__init__(number)
-
 class Channel(Unit):
     def __init__(self, channel: int = None):
         super().__init__(channel)
@@ -227,3 +219,95 @@ class Inversion(Unit):
 class Play(Unit):
     def __init__(self, verbose: bool = False):
         super().__init__(1 if verbose else 0)
+
+class MidiValue(Unit):
+    def __init__(self, midi_value: int = None):
+        super().__init__(midi_value)
+
+    def getMidi__midi_value(self) -> int:
+        return max(min(self % int(), 127), 0)
+    
+class MidiCC(Unit):
+    def __init__(self, name: str = "Pan"):
+        match name:
+            case str():
+                super().__init__( MidiCC.nameToNumber(name) )
+            case int() | float():
+                super().__init__(name)
+            case _:
+                super().__init__(None)
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case str():     return MidiCC.numberToName(self % int())
+            case _:         return super().__mod__(operand)
+
+    _controllers = [
+        {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },
+        {   "midi_number": 1,   "default_value": 0,     "names": ["Modulation Wheel"]    },
+        {   "midi_number": 2,   "default_value": 0,     "names": ["Breath Controller"]    },
+        
+        {   "midi_number": 4,   "default_value": 0,     "names": ["Foot Controller", "Foot Pedal"]    },
+        {   "midi_number": 5,   "default_value": 0,     "names": ["Portamento Time"]    },
+        {   "midi_number": 6,   "default_value": 0,     "names": ["Data Entry MSB"]    },
+        {   "midi_number": 7,   "default_value": 100,   "names": ["Main Volume"]    },
+        {   "midi_number": 8,   "default_value": 64,    "names": ["Balance"]    },
+        
+        {   "midi_number": 10,  "default_value": 64,    "names": ["Pan"]    },
+        {   "midi_number": 11,  "default_value": 0,     "names": ["Expression"]    },
+        {   "midi_number": 12,  "default_value": 0,     "names": ["Effect Control 1"]    },
+        {   "midi_number": 13,  "default_value": 0,     "names": ["Effect Control 2"]    },
+        
+        {   "midi_number": 64,  "default_value": 0,     "names": ["Sustain", "Damper Pedal"]    },
+        {   "midi_number": 65,  "default_value": 0,     "names": ["Portamento"]    },
+        {   "midi_number": 66,  "default_value": 0,     "names": ["Sostenuto"]    },
+        {   "midi_number": 67,  "default_value": 0,     "names": ["Soft Pedal"]    },
+        {   "midi_number": 68,  "default_value": 0,     "names": ["Legato Footswitch"]    },
+        {   "midi_number": 69,  "default_value": 0,     "names": ["Hold 2"]    },
+        {   "midi_number": 70,  "default_value": 0,     "names": ["Sound Variation"]    },
+        {   "midi_number": 71,  "default_value": 0,     "names": ["Timbre", "Harmonic Content", "Resonance"]    },
+        {   "midi_number": 72,  "default_value": 64,    "names": ["Release Time"]    },
+        {   "midi_number": 73,  "default_value": 64,    "names": ["Attack Time"]    },
+        {   "midi_number": 74,  "default_value": 64,    "names": ["Brightness", "Frequency Cutoff"]    },
+
+        {   "midi_number": 84,  "default_value": 0,     "names": ["Portamento Control"]    },
+
+        {   "midi_number": 91,  "default_value": 0,     "names": ["Reverb"]    },
+        {   "midi_number": 92,  "default_value": 0,     "names": ["Tremolo"]    },
+        {   "midi_number": 93,  "default_value": 0,     "names": ["Chorus"]    },
+        {   "midi_number": 94,  "default_value": 0,     "names": ["Detune"]    },
+        {   "midi_number": 95,  "default_value": 0,     "names": ["Phaser"]    },
+        {   "midi_number": 96,  "default_value": 0,     "names": ["Data Increment"]    },
+        {   "midi_number": 97,  "default_value": 0,     "names": ["Data Decrement"]    },
+
+        {   "midi_number": 120, "default_value": 0,     "names": ["All Sounds Off"]    },
+        {   "midi_number": 121, "default_value": 0,     "names": ["Reset All Controllers"]    },
+        {   "midi_number": 122, "default_value": 127,   "names": ["Local Control", "Local Keyboard"]    },
+        {   "midi_number": 123, "default_value": 0,     "names": ["All Notes Off"]    },
+        {   "midi_number": 124, "default_value": 0,     "names": ["Omni Off"]    },
+        {   "midi_number": 125, "default_value": 0,     "names": ["Omni On"]    },
+        {   "midi_number": 126, "default_value": 0,     "names": ["Mono On", "Monophonic"]    },
+        {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    },
+    ]
+
+    @staticmethod
+    def getDefault(number: int) -> int:
+        for controller in MidiCC._controllers:
+            if controller["midi_number"] == number:
+                return controller["default_value"]
+        return os.global_staff % MidiCC() % int()
+
+    @staticmethod
+    def nameToNumber(name: str = "Pan") -> int:
+        for controller in MidiCC._controllers:
+            for controller_name in controller["names"]:
+                if controller_name.lower().find(name.strip().lower()) != -1:
+                    return controller["midi_number"]
+        return os.global_staff % MidiCC() % int()
+
+    @staticmethod
+    def numberToName(number: int) -> int:
+        for controller in MidiCC._controllers:
+            if controller["midi_number"] == number:
+                return controller["names"][0]
+        return os.global_staff % MidiCC() % str()

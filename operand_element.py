@@ -33,18 +33,18 @@ import operand_container as oc
 
 class Element(Operand):
     def __init__(self):
-        self._position: ol.Position    = ol.Position()
-        self._time_length: ol.TimeLength        = ol.TimeLength()
-        self._channel: ou.Channel      = ou.Channel()
-        self._device: od.Device        = od.Device()
+        self._position: ol.Position         = ol.Position()
+        self._time_length: ol.TimeLength    = ol.TimeLength()
+        self._channel: ou.Channel           = ou.Channel()
+        self._device: od.Device             = od.Device()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ol.Position():    return self._position
-            case ol.TimeLength():  return self._time_length
-            case ou.Channel():     return self._channel
-            case od.Device():      return self._device
-            case _:             return operand
+            case ol.Position():     return self._position
+            case ol.TimeLength():   return self._time_length
+            case ou.Channel():      return self._channel
+            case od.Device():       return self._device
+            case _:                 return operand
 
     def getPlayList(self, position: ol.Position = None) -> list:
         return []
@@ -276,10 +276,10 @@ class Note(Element):
         
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
         duration: ol.Duration       = self % ol.Duration()
-        key_note_midi: og.KeyNote   = (self % og.KeyNote()).getMidi__key_note()
-        velocity_int: ou.Velocity   = self % ou.Velocity() % int()
-        channel_int: ou.Channel     = self % ou.Channel() % int()
-        device_list: od.Device      = self % od.Device() % list()
+        key_note_midi: int          = (self % og.KeyNote()).getMidi__key_note()
+        velocity_int: int           = self % ou.Velocity() % int()
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         off_time_ms = on_time_ms + duration.getTime_ms()
@@ -349,22 +349,22 @@ class Note(Element):
 class ControlChange(Element):
     def __init__(self):
         super().__init__()
-        self._number: ou.Number = ou.Number()
-        self._value_unit: ou.ValueUnit = ou.ValueUnit()
+        self._controller: og.Controller = og.Controller()
+        self._midi_value: ou.MidiValue  = ou.MidiValue()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Number():      return self._number
-            case ou.ValueUnit():   return self._value_unit
-            case _:             return super().__mod__(operand)
+            case og.Controller():   return self._controller
+            case ou.MidiValue():    return self._midi_value
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
         
-        note_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
-        number_int: ou.Number      = self % ou.Number() % int()
-        value_int: ou.ValueUnit    = self % ou.ValueUnit() % int()
-        channel_int: ou.Channel    = self % ou.Channel() % int()
-        device_list: od.Device     = self % od.Device() % list()
+        note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
+        controller_int: int         = self % og.Controller() % int()
+        value_midi: int             = (self % ou.MidiValue()).getMidi__midi_value()
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         return [
@@ -372,8 +372,8 @@ class ControlChange(Element):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & (channel_int - 1),
-                        "data_byte_1": number_int,
-                        "data_byte_2": value_int,
+                        "data_byte_1": controller_int,
+                        "data_byte_2": value_midi,
                         "device": device_list
                     }
                 }
@@ -381,30 +381,28 @@ class ControlChange(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["number"] = self._number % int()
-        element_serialization["value_unit"] = self._value_unit % int()
+        element_serialization["controller"] = self._controller.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "number" in serialization and "value_unit" in serialization):
+            "controller" in serialization):
 
             super().loadSerialization(serialization)
-            self._number = ou.Number(serialization["number"])
-            self._value_unit = ou.ValueUnit(serialization["value_unit"])
+            self._controller = og.Controller().loadSerialization(serialization["controller"])
         return self
       
     def copy(self) -> 'ControlChange':
-        return super().copy() << self._number << self._value_unit
+        return super().copy() << self._controller << self._midi_value
 
     def __lshift__(self, operand: Operand) -> 'ControlChange':
         match operand:
-            case ou.Number():
-                self._number = operand
-            case ou.ValueUnit():
-                self._value_unit = operand
+            case og.Controller():
+                self._controller = operand
+            case ou.MidiCC() | ou.MidiValue():
+                self._controller << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -429,10 +427,10 @@ class PitchBend(Element):
 
     def getPlayList(self, position: ol.Position = None):
         
-        note_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
-        pitch_list: list[int]   = (self % ou.Pitch()).getMidi__pitch_pair()
-        channel_int: ou.Channel    = self % ou.Channel() % int()
-        device_list: od.Device     = self % od.Device() % list()
+        note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
+        pitch_list_midi: list[int]  = (self % ou.Pitch()).getMidi__pitch_pair()
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
         return [
@@ -440,8 +438,8 @@ class PitchBend(Element):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0xE0 | 0x0F & (channel_int - 1),
-                        "data_byte_1": pitch_list[0],
-                        "data_byte_2": pitch_list[1],
+                        "data_byte_1": pitch_list_midi[0],
+                        "data_byte_2": pitch_list_midi[1],
                         "device": device_list
                     }
                 }
