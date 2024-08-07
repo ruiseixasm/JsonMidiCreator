@@ -138,7 +138,6 @@ class MultiElements(Container):  # Just a container of Elements
                 elif isinstance(single_element, list) and all(isinstance(elem, oe.Element) for elem in single_element):
                     multi_elements.extend(single_element)
         super().__init__(multi_elements)
-        self._selection: of.Selection = None
 
     def getLastPosition(self) -> ol.Position:
         last_position: ol.Position = ol.Position()
@@ -283,4 +282,23 @@ class MultiElements(Container):  # Just a container of Elements
                     else:
                         starting_position += time_length
                         single_element << ol.Position() << starting_position
+        return self
+
+class Chain(Container):
+    def __init__(self, *operaands):
+        multi_operands = []
+        if multi_operands is not None:
+            for single_operand in operaands:
+                if isinstance(single_operand, oe.Element):
+                    multi_operands.append(single_operand)
+                elif isinstance(single_operand, list) and all(isinstance(op, Operand) for op in single_operand):
+                    multi_operands.extend(single_operand)
+        super().__init__(multi_operands)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: Operand) -> 'Chain':
+        match operand:
+            case Operand():
+                self._operand_list.append(operand)
         return self
