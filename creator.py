@@ -68,12 +68,15 @@ def saveJsonMidiCreator(serialization: dict, filename):
         json.dump(json_file_dict, outfile)
 
 def loadJsonMidiCreator(filename):
-    with open(filename, "r") as infile:
-        json_file_dict = json.load(infile)
-    if "content" in json_file_dict and "filetype" in json_file_dict and \
-            json_file_dict["filetype"] == "Json Midi Creator" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
-        return json_file_dict["content"]
-    return {}
+    try:
+        with open(filename, "r") as infile:
+            json_file_dict = json.load(infile)
+        if "content" in json_file_dict and "filetype" in json_file_dict and \
+                json_file_dict["filetype"] == "Json Midi Creator" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
+            return json_file_dict["content"]
+    except Exception as e:
+        print(f"Unable to open the file: {filename}")
+    return []
 
 def saveJsonMidiPlay(play_list, filename):
     json_file_dict = {
@@ -85,12 +88,15 @@ def saveJsonMidiPlay(play_list, filename):
         json.dump(json_file_dict, outfile)
         
 def loadJsonMidiPlay(filename):
-    with open(filename, "r") as infile:
-        json_file_dict = json.load(infile)
-    if "content" in json_file_dict and "filetype" in json_file_dict and \
-            json_file_dict["filetype"] == "Json Midi Player" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiPlayer":
-        return json_file_dict["content"]
-    return {}
+    try:
+        with open(filename, "r") as infile:
+            json_file_dict = json.load(infile)
+        if "content" in json_file_dict and "filetype" in json_file_dict and \
+                json_file_dict["filetype"] == "Json Midi Player" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiPlayer":
+            return json_file_dict["content"]
+    except Exception as e:
+        print(f"Unable to open the file: {filename}")
+    return []
         
 def jsonMidiPlay(play_list, verbose: bool = False):
     json_file_dict = {
