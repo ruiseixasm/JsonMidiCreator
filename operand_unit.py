@@ -70,10 +70,6 @@ class Unit(Operand):
             case Unit(): return self.__class__((self % int()) / (unit % int()))
             case int() | float(): return self.__class__(self % int() / unit)
     
-class Tempo(Unit):
-    def __init__(self, tempo: int = None):
-        super().__init__(tempo)
-
 class Key(Unit):
     def __init__(self, key: str = None):
         match key:

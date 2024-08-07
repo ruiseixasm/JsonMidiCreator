@@ -24,7 +24,7 @@ class Staff(Operand):
     def __init__(self):
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: ov.Measure                   = None
-        self._tempo: ou.Tempo                       = None
+        self._tempo: ov.Tempo                       = None
         # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
         self._beats_per_measure: ov.BeatsPerMeasure = None
         self._beat_note_value: ov.BeatNoteValue     = None
@@ -41,7 +41,7 @@ class Staff(Operand):
         match operand:
             # Direct Values
             case ov.Measure():          return self._measure
-            case ou.Tempo():            return self._tempo
+            case ov.Tempo():            return self._tempo
             case ov.BeatsPerMeasure():  return self._beats_per_measure
             case ov.BeatNoteValue():    return self._beat_note_value
             case ov.Quantization():     return self._quantization
@@ -89,7 +89,7 @@ class Staff(Operand):
             "channel" in serialization and "device" in serialization):
 
             self._measures = ov.Measure(serialization["measures"])
-            self._tempo = ou.Tempo(serialization["tempo"])
+            self._tempo = ov.Tempo(serialization["tempo"])
             self._beats_per_measure = ov.BeatsPerMeasure(serialization["beats_per_measure"])
             self._beat_note_value = ov.BeatNoteValue(serialization["beat_note_value"])
             self._quantization = ov.Quantization(serialization["quantization"])
@@ -105,7 +105,7 @@ class Staff(Operand):
     def __lshift__(self, operand: Operand) -> 'Staff':
         match operand:
             case ov.Measure():          self._measure = operand
-            case ou.Tempo():            self._tempo = operand
+            case ov.Tempo():            self._tempo = operand
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand
             case ov.BeatNoteValue():    self._beat_note_value = operand
             case ov.Quantization():     self._quantization = operand
@@ -120,6 +120,6 @@ class Staff(Operand):
 
 # Set the Default Staff values here.
 global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
-global_staff << ov.Measure(8) << ou.Tempo(120) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
+global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
     << ov.Quantization(1/16) << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
     << ou.Velocity(100) << ou.MidiCC("Pan") << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])
