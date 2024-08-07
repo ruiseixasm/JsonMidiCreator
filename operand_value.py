@@ -25,7 +25,7 @@ import operand_unit as ou
 class Value(Operand):
     def __init__(self, value: float = None):
         self._value: float = 0.0
-        self._value = os.global_staff % self % float() if value is None else value
+        self._value = os.global_staff % self % float() if value is None else round(1.0 * value, 9)  # rounding to 9 avoids floating-point errors
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:

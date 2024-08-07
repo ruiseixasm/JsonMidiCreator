@@ -217,29 +217,38 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # print(multi_elements._multi_elements)
 
 
-def itsMeasure(operand_type):
-    match operand_type:
-        case Measure():     print("It's a Measure too!")
+# def itsMeasure(operand_type):
+#     match operand_type:
+#         case Measure():     print("It's a Measure too!")
 
 
-class Measure:
-    pass
+# class Measure:
+#     pass
 
-class SubMeasure(Measure):
-    pass
+# class SubMeasure(Measure):
+#     pass
 
-operand = Measure()
-match operand:
-    case Measure():     print("It's a Measure()")
+# operand = Measure()
+# match operand:
+#     case Measure():     print("It's a Measure()")
 
-operand_type = Measure
-match operand_type:
-    case Measure:     print("It's a Measure")
+# operand_type = Measure
+# match operand_type:
+#     case Measure:     print("It's a Measure")
 
-operand_type = SubMeasure
-match operand_type:
-    case Measure:     print("It's a Measure too!")
+# operand_type = SubMeasure
+# match operand_type:
+#     case Measure:     print("It's a Measure too!")
 
-itsMeasure(SubMeasure())
+# itsMeasure(SubMeasure())
 
-itsMeasure(SubMeasure)
+# itsMeasure(SubMeasure)
+
+
+print(12 / 5)
+print(12 // 5)
+
+
+print(-12 / 5)
+print(-12 // 5)
+

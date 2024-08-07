@@ -40,7 +40,7 @@ class KeyNote(Generic):
     def getMidi__key_note(self) -> int:
         key = self._key % int()
         octave = self._octave % int()
-        return 12 * (octave + 1) + key
+        return max(min(12 * (octave + 1) + key, 127), 0)
     
     def getSerialization(self):
         return {
@@ -68,37 +68,39 @@ class KeyNote(Generic):
             case ou.Octave(): self._octave = operand
         return self
 
-    def __add__(self, unit) -> 'KeyNote':
-        key: ou.Key = self._key
-        octave: ou.Octave = self._octave
-        match unit:
+    def __add__(self, operand) -> 'KeyNote':
+        key_int: int = self._key % int()
+        octave_int: int = self._octave % int()
+        match operand:
             case ou.Key():
-                key += unit
+                key_int += operand % int() % 12
+                octave_int += operand % int() // 12
             case ou.Octave():
-                octave += unit
+                octave_int += operand % int()
+            case KeyNote():
+                key_int += operand % ou.Key() % int() % 12
+                octave_int += (operand % ou.Octave() \
+                               + ((KeyNote() << self % ou.Key() << ou.Octave(0)) + operand % ou.Key()) % ou.Octave()) % int()
             case _:
                 return self.copy()
-
-        return KeyNote(
-            key     = key.getData(),
-            octave  = octave.getData()
-        )
+        return KeyNote() << ou.Key(key_int) << ou.Octave(octave_int)
      
-    def __sub__(self, unit) -> 'KeyNote':
-        key: ou.Key = self._key
-        octave: ou.Octave = self._octave
-        match unit:
+    def __sub__(self, operand) -> 'KeyNote':
+        key_int: int = self._key % int()
+        octave_int: int = self._octave % int()
+        match operand:
             case ou.Key():
-                key -= unit
+                key_int -= operand % int() % 12
+                octave_int -= operand % int() // 12
             case ou.Octave():
-                octave -= unit
+                octave_int -= operand % int()
+            case KeyNote():
+                key_int -= operand % ou.Key() % int() % 12
+                octave_int -= (operand % ou.Octave() \
+                               + ((KeyNote() << self % ou.Key() << ou.Octave(0)) + operand % ou.Key()) % ou.Octave()) % int()
             case _:
                 return self.copy()
-
-        return KeyNote(
-            key     = key.getData(),
-            octave  = octave.getData()
-        )
+        return KeyNote() << ou.Key(key_int) << ou.Octave(octave_int)
 
 class Yield(Generic):
     def __init__(self, value: float = 0):

@@ -24,7 +24,7 @@ import operand_staff as os
 class Unit(Operand):
     def __init__(self, unit: int = None):
         self._unit: int = 0
-        self._unit = os.global_staff % self % int() if unit is None else unit
+        self._unit = os.global_staff % self % int() if unit is None else round(unit)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -70,13 +70,17 @@ class Unit(Operand):
             case Unit(): return self.__class__((self % int()) / (unit % int()))
             case int() | float(): return self.__class__(self % int() / unit)
     
+class Tempo(Unit):
+    def __init__(self, tempo: int = None):
+        super().__init__(tempo)
+
 class Key(Unit):
     def __init__(self, key: str = None):
         match key:
             case str():
-                super().__init__(Key.keyStrToKeyUnit(key))
+                super().__init__( Key.keyStrToKeyUnit(key) )
             case int() | float():
-                super().__init__(key)
+                super().__init__( key )
             case _:
                 super().__init__( os.global_staff % self % int() )
 
@@ -98,10 +102,6 @@ class Key(Unit):
             if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
                 return key_i % 12
         return 0
-
-class Tempo(Unit):
-    def __init__(self, tempo: int = None):
-        super().__init__(tempo)
 
 class Octave(Unit):
     def __init__(self, octave: int = None):
