@@ -37,11 +37,12 @@ class Frame(Operand):
         return self
     
     def __next__(self):
-        iteration_node = self._current_node
+        if isinstance(self._current_node, ot.Null): raise StopIteration
+        previous_node = self._current_node
         match self._current_node:
             case Frame():   self._current_node = self._current_node._next_operand
-            case _:         raise StopIteration
-        return iteration_node
+            case _:         self._current_node = ot.Null()
+        return previous_node
 
     def len(self) -> int:
         list_size = 0
@@ -50,20 +51,7 @@ class Frame(Operand):
         return list_size
 
     def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case Frame():
-                for single_frame in self:
-                    match single_frame:
-                        case operand:
-                            return single_frame
-            case Operand():
-                for single_operand in self:
-                    match single_operand:
-                        case Frame():
-                            pass
-                        case operand:
-                            return single_operand
-        return ot.Null()
+        return self & operand   # Has to return the operand inside the self (Frame)
     
     # CHAINABLE OPERATIONS
 
@@ -85,35 +73,44 @@ class Frame(Operand):
                 for self_frame in self: # Full conditions to be verified one by one (and)!
                     frame_condition = False
                     match self_frame:
-                        case Canvas():  return frame
+                        case Canvas():
+                            for self_operand in self:
+                                match self_operand:
+                                    case Frame(): continue
+                                    case Operand(): return self_operand
                         case Blank():   return ot.Null()
                         case FrameFrame():      # Only Frames are conditional
                             for other_frame in frame:
                                 if not isinstance(other_frame, FrameFrame): continue
-                                if self_frame | other_frame != ot.Null:
+                                if (self_frame | other_frame) != ot.Null:
                                     frame_condition = True
                                     break
                         case OperandFrame():    # Only Frames are conditional
                             for other_operand in frame:
                                 if isinstance(other_operand, Frame): continue
-                                if self_frame | other_operand != ot.Null:
+                                if (self_frame | other_operand) != ot.Null:
                                     frame_condition = True
                                     break
-                        case _: continue
+                        case Operand(): return self_frame
                     if not frame_condition: return ot.Null()
             case _: return self.__rand__(frame)
 
-    # Only self is a Frame() operand
+    # Only self is a Frame() operand, operand is not a Frame, just an Operand, for sure
     def __rand__(self, operand: 'Operand') -> 'Operand':
         for self_frame in self: # Full conditions to be verified one by one (and)!
-            frame_condition = False
             match self_frame:
-                case Canvas():  return operand
+                case Canvas():
+                    for self_operand in self:
+                        match self_operand:
+                            case Frame(): continue
+                            case Operand(): return self_operand
                 case Blank():   return ot.Null()
                 case OperandFrame():    # Only Frames are conditional
-                    if self_frame | operand != ot.Null: frame_condition = True
-                case _: continue
-            if not frame_condition: return ot.Null()
+                    if (self_frame | operand) != ot.Null: continue
+                case Frame():
+                    continue
+                case Operand(): return self_frame
+            return ot.Null()
         return operand
 
 class FrameFrame(Frame):

@@ -21,7 +21,6 @@ import enum
 import creator as c
 from operand import Operand
 import operand_staff as os
-
 import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
@@ -30,6 +29,7 @@ import operand_tag as ot
 import operand_frame as of
 import operand_generic as og
 import operand_container as oc
+import operand_frame as of
 
 class Element(Operand):
     def __init__(self):
@@ -144,13 +144,6 @@ class Element(Operand):
     def __truediv__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand / operand
-
-    def __and__(self, frame: of.Frame) -> Operand:
-        match frame:
-            case of.Blank():
-                return ot.Null()
-            case _:
-                return self
 
 class ClockModes(enum.Enum):
     single  = 1
@@ -637,28 +630,13 @@ class Sequence(Element):
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, of.Frame):
-            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
-                sequence_copy << (self._trigger_notes / (operand % Operand())).copy()
-        else:
-            match operand:
-                case ot.Null():
-                    return sequence_copy
-                case Operand():
-                    sequence_copy << sequence_copy % operand / operand
-                    sequence_copy << (self._trigger_notes / operand).copy()
+        sequence_copy << sequence_copy % operand / operand
+        sequence_copy << of.Inner()**self._trigger_notes / operand
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
         return self << self._trigger_notes // time_length
   
-    def __and__(self, frame: of.Frame) -> Operand:
-        match frame:
-            case of.Inner():
-                return ot.Null()
-            case _:
-                return super().__and__(frame)
-
 
 class Panic:
     ...
