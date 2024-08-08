@@ -17,6 +17,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 # Json Midi Creator Libraries
 from operand import Operand
+import operand_frame as of
 
 
 class Tag(Operand):

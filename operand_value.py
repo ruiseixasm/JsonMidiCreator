@@ -19,6 +19,7 @@ from typing import Union
 from operand import Operand
 import operand_staff as os
 import operand_unit as ou
+import operand_frame as of
 
 
 # Values have never None values and are also const, with no setters
@@ -29,9 +30,10 @@ class Value(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case float():   return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
-            case int():     return round(self._value)
-            case _:         return operand
+            case of.Frame():    return self % (operand % Operand())
+            case float():       return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
+            case int():         return round(self._value)
+            case _:             return operand
 
     def __eq__(self, other_value: 'Value') -> bool:
         return self % float() == other_value % float()
@@ -54,17 +56,19 @@ class Value(Operand):
         match value:
             case Value(): return self.__class__(self % float() + value % float())
             case float() | int(): return self.__class__(self % float() + value)
+        return self
     
     def __sub__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case Value(): return self.__class__(self % float() - value % float())
             case float() | int(): return self.__class__(self % float() - value)
-        return self.__class__(self % float() - value)
+        return self
     
     def __mul__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case Value(): return self.__class__((self % float()) * (value % float()))
             case float() | int(): return self.__class__(self % float() * value)
+        return self
     
     def __truediv__(self, value: Union['Value', float]) -> 'Value':
         match value:
@@ -74,7 +78,7 @@ class Value(Operand):
             case float() | int():
                 if value != 0:
                     return self.__class__(self % float() / value)
-        return self.__class__()
+        return self
 
 class Quantization(Value):
     def __init__(self, quantization: float = None):

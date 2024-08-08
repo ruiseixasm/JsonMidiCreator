@@ -18,6 +18,7 @@ from typing import Union
 # Json Midi Creator Libraries
 from operand import Operand
 import operand_staff as os
+import operand_frame as of
 
 
 # Units have never None values and are also const, with no setters
@@ -28,9 +29,10 @@ class Unit(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case int():     return round(self._unit)
-            case float():   return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
-            case _:         return operand
+            case of.Frame():    return self % (operand % Operand())
+            case int():         return round(self._unit)
+            case float():       return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
+            case _:             return operand
 
     def __eq__(self, other_unit: 'Unit') -> bool:
         return self % int() == other_unit % int()
@@ -53,22 +55,25 @@ class Unit(Operand):
         match unit:
             case Unit(): return self.__class__(self % int() + unit % int())
             case int() | float(): return self.__class__(self % int() + unit)
+        return self
     
     def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__(self % int() - unit % int())
             case int() | float(): return self.__class__(self % int() - unit)
-        return self.__class__(self % int() - unit)
+        return self
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__((self % int()) * (unit % int()))
             case int() | float(): return self.__class__(self % int() * unit)
+        return self
     
     def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__((self % int()) / (unit % int()))
             case int() | float(): return self.__class__(self % int() / unit)
+        return self
     
 class Key(Unit):
     def __init__(self, key: str = None):
@@ -82,8 +87,8 @@ class Key(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case str():     return Key.getKey(self % int())
-            case _:         return super().__mod__(operand)
+            case str():         return Key.getKey(self % int())
+            case _:             return super().__mod__(operand)
 
     _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
                         "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
@@ -123,9 +128,9 @@ class Scale(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case list():    return Scale.getScale(self % int())
-            case str():     return Scale.getScaleName(self % int())
-            case _:         return super().__mod__(operand)
+            case list():        return Scale.getScale(self % int())
+            case str():         return Scale.getScaleName(self % int())
+            case _:             return super().__mod__(operand)
 
     _scale_names = [
         ["Chromatic", "chromatic"],
@@ -235,8 +240,8 @@ class MidiCC(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case str():     return MidiCC.numberToName(self % int())
-            case _:         return super().__mod__(operand)
+            case str():         return MidiCC.numberToName(self % int())
+            case _:             return super().__mod__(operand)
 
     _controllers = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },

@@ -50,20 +50,21 @@ class Frame(Operand):
         return list_size
 
     def __mod__(self, operand: Operand) -> Operand:
-        for single_operand in self:
-            match single_operand:
-                case operand:
-                    return single_operand
+        match operand:
+            case Frame():
+                for single_frame in self:
+                    match single_frame:
+                        case operand:
+                            return single_frame
+            case Operand():
+                for single_operand in self:
+                    match single_operand:
+                        case Frame():
+                            pass
+                        case operand:
+                            return single_operand
         return ot.Null()
     
-    def __and__(self, operand: 'Operand') -> bool:
-        for single_frame in self:
-            match single_frame:
-                case Frame():
-                    if not operand & single_frame:
-                        return False
-        return True
-
     # CHAINABLE OPERATIONS
 
     def __pow__(self, operand: Operand) -> 'Frame':
@@ -78,19 +79,39 @@ class Frame(Operand):
             case None: self._next_operand = None
         return self
 
-class Canvas(Frame):
-    def __init__(self):
-        super().__init__()
+    def __and__(self, operand: 'Operand') -> Operand:
+        operand_operand = operand
+        if isinstance(operand_operand, Frame):
+            operand_operand = operand_operand % Operand()
+        for single_operand in self:
+            match single_operand:
+                case Frame():
+                    operand_single_operand = operand_operand & single_operand
+                    if isinstance(operand_single_operand, ot.Null):
+                        return ot.Null()
+                case Operand():
+                    return single_operand
+        return ot.Null()
 
-    def __and__(self, operand: 'Operand') -> bool:
-        return True
+class Canvas(Frame):
+    # CHAINABLE OPERATIONS
+    def __and__(self, operand: 'Operand') -> Operand:
+        return self
+
+class Blank(Frame):
+    # CHAINABLE OPERATIONS
+    def __and__(self, operand: 'Operand') -> Operand:
+        return ot.Null()
 
 class Inner(Frame):
-    def __init__(self):
-        super().__init__()
+    # CHAINABLE OPERATIONS
+    def __and__(self, operand: Operand) -> Operand:
+        return self
 
-    def __and__(self, operand: Operand) -> bool:
-        return True
+class Outer(Frame):
+    # CHAINABLE OPERATIONS
+    def __and__(self, operand: Operand) -> Operand:
+        return self
 
 class Selection(Frame):
     def __init__(self):
@@ -99,11 +120,9 @@ class Selection(Frame):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ol.Position():
-                return self._position
-            case ol.TimeLength():
-                return self._time_length
-        return self
+            case ol.Position():     return self._position
+            case ol.TimeLength():   return self._time_length
+            case _:                 return super().__mod__(operand)
 
     def __and__(self, operand: 'Operand') -> bool:
         return True

@@ -20,13 +20,16 @@ import creator as c
 from operand import Operand
 import operand_staff as os
 import operand_unit as ou
+import operand_frame as of
 
 class Data(Operand):
     def __init__(self, data = None):
         self._data = data
 
     def __mod__(self, operand: Operand):
-        return self._data
+        match operand:
+            case of.Frame():        return self % (operand % Operand())
+            case _:                 return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
         return self % bool() == other_data % bool()
@@ -69,7 +72,7 @@ class Import(Data):
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case list():        return c.loadJsonMidiPlay(self._data)
-            case _:             return operand
+            case _:             return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 

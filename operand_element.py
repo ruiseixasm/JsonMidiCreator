@@ -40,6 +40,7 @@ class Element(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case of.Frame():        return self % (operand % Operand())
             case ol.Position():     return self._position
             case ol.TimeLength():   return self._time_length
             case ou.Channel():      return self._channel
@@ -143,6 +144,13 @@ class Element(Operand):
     def __truediv__(self, operand: Operand) -> 'Element':
         element_copy = self.copy()
         return element_copy << element_copy % operand / operand
+
+    def __and__(self, frame: of.Frame) -> Operand:
+        match frame:
+            case of.Blank():
+                return ot.Null()
+            case _:
+                return self
 
 class ClockModes(enum.Enum):
     single  = 1
@@ -501,7 +509,7 @@ class Sequence(Element):
                         sequence_length += ol.TimeLength(measures=1)
                     return sequence_length
                 return self._time_length
-            case oc.Many():   return self._trigger_notes
+            case oc.Many():         return self._trigger_notes
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
@@ -634,15 +642,24 @@ class Sequence(Element):
                 sequence_copy << (self._trigger_notes / (operand % Operand())).copy()
         else:
             match operand:
-                case ol.Position() | ol.TimeLength():
-                    sequence_copy << sequence_copy % operand / operand
+                case ot.Null():
+                    return sequence_copy
                 case Operand():
-                    sequence_copy << (self._trigger_notes / operand).copy()
+                    operand_operand = operand % Operand()
+                    sequence_copy << sequence_copy % operand_operand / operand_operand
+                    sequence_copy << (self._trigger_notes / operand_operand).copy()
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
         return self << self._trigger_notes // time_length
   
+    def __and__(self, frame: of.Frame) -> Operand:
+        match frame:
+            case of.Inner():
+                return ot.Null()
+            case _:
+                return super().__and__(frame)
+
 
 class Panic:
     ...

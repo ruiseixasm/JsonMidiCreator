@@ -19,6 +19,7 @@ import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_data as od
+import operand_frame as of
 
 class Staff(Operand):
     def __init__(self):
@@ -39,6 +40,7 @@ class Staff(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case of.Frame():            return self % (operand % Operand())
             # Direct Values
             case ov.Measure():          return self._measure
             case ov.Tempo():            return self._tempo

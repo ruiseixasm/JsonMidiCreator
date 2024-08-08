@@ -55,8 +55,9 @@ class Container(Operand):
         return len(self._operand_list)
 
     def __mod__(self, operand: list) -> list:
-        if operand.__class__ == list:
-            return self._operand_list
+        match operand:
+            case of.Frame():        return self % (operand % Operand())
+            case list():            return self._operand_list
         return []
 
     def firstOperand(self) -> Operand:
