@@ -112,7 +112,7 @@ class Element(Operand):
         match element_operand:
             case ot.Null():
                 pass
-            case oc.MultiElements():
+            case oc.Many():
                 last_element = element_operand.lastElement()
                 if type(last_element) != ot.Null:
                     self << last_element % ol.Position() + last_element % ol.TimeLength()
@@ -124,9 +124,9 @@ class Element(Operand):
     def __add__(self, operand: Operand) -> 'Element':
         match operand:
             case Element():
-                return oc.MultiElements(self.copy(), operand.copy())
-            case oc.MultiElements():
-                return oc.MultiElements(self.copy(), operand.copy() % list())
+                return oc.Many(self.copy(), operand.copy())
+            case oc.Many():
+                return oc.Many(self.copy(), operand.copy() % list())
             case Operand():
                 element_copy = self.copy()
                 return element_copy << element_copy % operand + operand
@@ -340,13 +340,13 @@ class Note(Element):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
+    def __mul__(self, operand: Operand) -> oc.Many | Element:
         match operand:
             case int():
                 multi_notes = []
                 for _ in range(0, operand):
                     multi_notes.append(self.copy())
-                return oc.MultiElements(multi_notes)
+                return oc.Many(multi_notes)
         return super().__mul__(self)
 
 class ControlChange(Element):
@@ -409,13 +409,13 @@ class ControlChange(Element):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
+    def __mul__(self, operand: Operand) -> oc.Many | Element:
         match operand:
             case int():
                 multi_control_changes = []
                 for _ in range(0, operand):
                     multi_control_changes.append(self.copy())
-                return oc.MultiElements(multi_control_changes)
+                return oc.Many(multi_control_changes)
         return super().__mul__(self)
 
 class PitchBend(Element):
@@ -473,20 +473,20 @@ class PitchBend(Element):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: Operand) -> oc.MultiElements | Element:
+    def __mul__(self, operand: Operand) -> oc.Many | Element:
         match operand:
             case int():
                 multi_pitch_ends = []
                 for _ in range(0, operand):
                     multi_pitch_ends.append(self.copy())
-                return oc.MultiElements(multi_pitch_ends)
+                return oc.Many(multi_pitch_ends)
         return super().__mul__(self)
 
 class Sequence(Element):
     def __init__(self):
         super().__init__()
         self._time_length = ol.TimeLength() << ov.Measure(1)
-        self._trigger_notes: oc.MultiElements = oc.MultiElements()
+        self._trigger_notes: oc.Many = oc.Many()
 
     def len(self) -> int:
         return self._trigger_notes.len()
@@ -501,7 +501,7 @@ class Sequence(Element):
                         sequence_length += ol.TimeLength(measures=1)
                     return sequence_length
                 return self._time_length
-            case oc.MultiElements():   return self._trigger_notes
+            case oc.Many():   return self._trigger_notes
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
@@ -562,7 +562,7 @@ class Sequence(Element):
             "trigger_notes" in serialization):
 
             super().loadSerialization(serialization)
-            self._trigger_notes = oc.MultiElements().loadSerialization(serialization["trigger_notes"])
+            self._trigger_notes = oc.Many().loadSerialization(serialization["trigger_notes"])
 
         return self
     
@@ -582,7 +582,7 @@ class Sequence(Element):
         match operand:
             case ol.Position() | ol.TimeLength():
                 super().__lshift__(operand)
-            case oc.MultiElements():
+            case oc.Many():
                 self._trigger_notes = operand
             case Operand():
                 self._trigger_notes << operand

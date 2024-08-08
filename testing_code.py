@@ -136,7 +136,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #     # Your ChildElement class definition here
 #     pass
 
-# class MultiElements:
+# class Many:
 #     def __init__(self):
 #         self._multi_elements = []
 
@@ -150,7 +150,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #                 raise ValueError("Unsupported type provided")
 
 # # Example usage:
-# multi_elements = MultiElements()
+# multi_elements = Many()
 
 # # Assuming you have some Element instances
 # elem1 = Element()
@@ -182,7 +182,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #     def __init__(self, name="ChildElement"):
 #         super().__init__(name)
 
-# class MultiElements:
+# class Many:
 #     def __init__(self):
 #         self._multi_elements = []
 
@@ -195,7 +195,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #             raise ValueError(f"Unsupported type provided: {single_element}")
 
 # # Example usage:
-# multi_elements = MultiElements()
+# multi_elements = Many()
 
 # # Assuming you have some Element instances
 # elem1 = Element("Element1")

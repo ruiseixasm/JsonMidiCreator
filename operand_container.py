@@ -44,9 +44,9 @@ class Container(Operand):
     
     def __next__(self):
         if self._element_iterator < len(self._operand_list):
-            single_element = self._operand_list[self._element_iterator]
+            single_operand = self._operand_list[self._element_iterator]
             self._element_iterator += 1
-            return single_element
+            return single_operand
         else:
             self._element_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration
@@ -86,19 +86,18 @@ class Container(Operand):
 
             operands = []
             multi_elements_serialization = serialization["operands"]
-            for single_element in multi_elements_serialization:
-                class_name = single_element["class"]
-                operands.append(globals()[class_name]().loadSerialization(single_element))
+            for single_operand in multi_elements_serialization:
+                class_name = single_operand["class"]
+                operands.append(globals()[class_name]().loadSerialization(single_operand))
 
             self._operand_list = operands
         return self
        
     def copy(self) -> 'Container':
-        import operand_element as oe
-        multi_elements: list[Operand] = []
+        many_operands: list[Operand] = []
         for single_operand in self._operand_list:
-            multi_elements.append(single_operand.copy())
-        return self.__class__(multi_elements)
+            many_operands.append(single_operand.copy())
+        return self.__class__(many_operands)
 
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
@@ -117,7 +116,7 @@ class Container(Operand):
                     self << single_operand
         return self
 
-    def __rshift__(self, operand: 'Operand') -> 'MultiElements':
+    def __rshift__(self, operand: 'Operand') -> 'Many':
         match operand:
             case ot.Print():
                 serialized_json_str = json.dumps(self.getSerialization())
@@ -130,36 +129,34 @@ class Container(Operand):
     def __rrshift__(self, other_operand: Operand) -> Operand:
         return self
 
-class MultiElements(Container):  # Just a container of Elements
-    def __init__(self, *elements):
-        import operand_element as oe
-        multi_elements = []
-        if multi_elements is not None:
-            for single_element in elements:
-                if isinstance(single_element, oe.Element):
-                    multi_elements.append(single_element)
-                elif isinstance(single_element, list) and all(isinstance(elem, oe.Element) for elem in single_element):
-                    multi_elements.extend(single_element)
-        super().__init__(multi_elements)
+class Many(Container):  # Just a container of Elements
+    def __init__(self, *operands):
+        many_operands = []
+        if operands is not None:
+            for single_operand in operands:
+                match single_operand:
+                    case list(): many_operands.extend(single_operand)
+                    case _: many_operands.append(single_operand)
+        super().__init__(many_operands)
 
     def getLastPosition(self) -> ol.Position:
         last_position: ol.Position = ol.Position()
-        for single_element in self._operand_list:
-            if single_element % ol.Position() > last_position:
-                last_position = single_element % ol.Position()
+        for single_operand in self._operand_list:
+            if single_operand % ol.Position() > last_position:
+                last_position = single_operand % ol.Position()
         return last_position
 
     def getPlayList(self, position: ol.Position = None):
         import operand_element as oe
         play_list = []
-        for single_element in self % list():
-            if isinstance(single_element, oe.Element):
-                play_list.extend(single_element.getPlayList(position))
+        for single_operand in self % list():
+            if isinstance(single_operand, oe.Element):
+                play_list.extend(single_operand.getPlayList(position))
         return play_list
 
     # CHAINABLE OPERATIONS
 
-    def __rshift__(self, operand: 'Operand') -> 'MultiElements':
+    def __rshift__(self, operand: 'Operand') -> 'Many':
         match operand:
             case ou.Play():
                 c.jsonMidiPlay(self.getPlayList(), operand % int())
@@ -173,13 +170,13 @@ class MultiElements(Container):  # Just a container of Elements
             case _: return super().__rshift__(operand)
 
     def __rrshift__(self, other_operand: Operand) -> Operand:
-        import operand_element as oe
         self_first_element = self.firstOperand()
         if type(self_first_element) != ot.Null:
+            import operand_element as oe
             match other_operand:
                 case ot.Null():
                     pass
-                case MultiElements():
+                case Many():
                     other_last_element = self.lastOperand()
                     if type(other_last_element) != ot.Null:
                         other_last_element >> self_first_element
@@ -189,19 +186,12 @@ class MultiElements(Container):  # Just a container of Elements
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
         return self
 
-    def __add__(self, operand: Operand) -> 'MultiElements':
-        import operand_element as oe
+    def __add__(self, operand: Operand) -> 'Many':
         match operand:
-            case MultiElements():
-                return MultiElements(self.copy() % list() + operand.copy() % list())
-            case oe.Element():
-                return MultiElements(self.copy() % list() + [operand.copy()])
+            case Many():
+                return Many(self.copy() % list() + operand.copy() % list())
             case Operand():
-                element_copy = self.copy()
-                element_list = element_copy % list()
-                for single_element in element_list:
-                    single_element << single_element % operand + operand
-                return element_copy
+                return Many(self.copy() % list() + [operand.copy()])
             case int(): # repeat n times the last argument if any
                 element_copy = self.copy()
                 element_list = element_copy % list()
@@ -213,19 +203,12 @@ class MultiElements(Container):  # Just a container of Elements
                 return element_copy
         return self.copy()
 
-    def __sub__(self, operand: Operand) -> 'MultiElements':
-        import operand_element as oe
+    def __sub__(self, operand: Operand) -> 'Many':
         match operand:
-            case MultiElements():
-                return MultiElements(self % list() - operand % list()).copy()
-            case oe.Element():
-                return MultiElements((self % list()) - [operand]).copy()
+            case Many():
+                return Many(self % list() - operand % list()).copy()
             case Operand():
-                element_copy = self.copy()
-                element_list = element_copy % list()
-                for single_element in element_list:
-                    single_element << single_element % operand - operand
-                return element_copy
+                return Many((self % list()) - [operand]).copy()
             case int(): # repeat n times the last argument if any
                 element_copy = self.copy()
                 element_list = element_copy % list()
@@ -238,31 +221,29 @@ class MultiElements(Container):  # Just a container of Elements
         return self.copy()
 
     # multiply with a scalar 
-    def __mul__(self, operand: Operand) -> 'MultiElements':
-        import operand_element as oe
+    def __mul__(self, operand: Operand) -> 'Many':
         match operand:
             case Operand():
                 element_copy = self.copy()
                 element_list = element_copy % list()
-                for single_element in element_list:
-                    single_element << single_element % operand * operand
+                for single_operand in element_list:
+                    single_operand << single_operand % operand * operand
                 return element_copy
             case int(): # repeat n times the last argument if any
-                multi_elements = MultiElements()    # empty list
+                many_operands = Many()    # empty list
                 while operand > 0:
-                    multi_elements += self
+                    many_operands += self
                     operand -= 1
-                return multi_elements
+                return many_operands
         return self.copy()
     
-    def __truediv__(self, operand: Operand) -> 'MultiElements':
-        import operand_element as oe
+    def __truediv__(self, operand: Operand) -> 'Many':
         match operand:
             case Operand():
                 self_copy = self.copy()
                 elements_list = self_copy % list()
-                for single_element in elements_list:
-                    single_element << single_element % operand / operand
+                for single_operand in elements_list:
+                    single_operand << single_operand % operand / operand
                 return self_copy
             case int(): # repeat n times the last argument if any
                 if operand > 0:
@@ -275,33 +256,34 @@ class MultiElements(Container):  # Just a container of Elements
                 return self_copy
         return self.copy()
     
-    def __floordiv__(self, time_length: ol.TimeLength) -> 'MultiElements':
+    def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':
         match time_length:
             case ol.TimeLength():
+                import operand_element as oe
                 starting_position = None
-                for single_element in self._operand_list:
-                    if starting_position is None:
-                        starting_position = single_element % ol.Position()
-                    else:
-                        starting_position += time_length
-                        single_element << ol.Position() << starting_position
+                for single_operand in self._operand_list:
+                    if isinstance(single_operand, oe.Element):
+                        if starting_position is None:
+                            starting_position = single_operand % ol.Position()
+                        else:
+                            starting_position += time_length
+                            single_operand << ol.Position() << starting_position
         return self
 
 class Chain(Container):
-    def __init__(self, *operaands):
+    def __init__(self, *operands):
         multi_operands = []
-        if multi_operands is not None:
-            for single_operand in operaands:
-                if isinstance(single_operand, oe.Element):
-                    multi_operands.append(single_operand)
-                elif isinstance(single_operand, list) and all(isinstance(op, Operand) for op in single_operand):
-                    multi_operands.extend(single_operand)
+        if operands is not None:
+            for single_operand in operands:
+                match single_operand:
+                    case Operand(): multi_operands.append(single_operand)
+                    case list():    multi_operands.extend(single_operand)
         super().__init__(multi_operands)
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: Operand) -> 'Chain':
         match operand:
-            case Operand():
-                self._operand_list.append(operand)
+            case Operand(): self._operand_list.append(operand)
+            case list():    self._operand_list.extend(operand)
         return self
