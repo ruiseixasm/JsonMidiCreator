@@ -645,9 +645,8 @@ class Sequence(Element):
                 case ot.Null():
                     return sequence_copy
                 case Operand():
-                    operand_operand = operand % Operand()
-                    sequence_copy << sequence_copy % operand_operand / operand_operand
-                    sequence_copy << (self._trigger_notes / operand_operand).copy()
+                    sequence_copy << sequence_copy % operand / operand
+                    sequence_copy << (self._trigger_notes / operand).copy()
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':

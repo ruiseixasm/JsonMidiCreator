@@ -62,7 +62,15 @@ class Operand:
         return self
     
     def __and__(self, operand: 'Operand') -> 'Operand':
-        return self
+        return operand.__rand__(self)
+
+    def __and__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        return ot.Null()
 
     def __or__(self, operand: 'Operand') -> 'Operand':
-        return self
+        return operand.__ror__(self)
+
+    def __ror__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        return ot.Null()

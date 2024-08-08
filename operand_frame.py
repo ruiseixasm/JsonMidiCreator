@@ -21,7 +21,7 @@ import enum
 import creator as c
 from operand import Operand
 
-import operand_unit as ou
+import operand_value as ou
 import operand_value as ov
 import operand_length as ol
 import operand_tag as ot
@@ -79,24 +79,40 @@ class Frame(Operand):
             case None: self._next_operand = None
         return self
 
-    def __and__(self, operand: 'Operand') -> Operand:
-        operand_operand = operand
-        if isinstance(operand_operand, Frame):
-            operand_operand = operand_operand % Operand()
-        for single_operand in self:
-            match single_operand:
-                case Frame():
-                    operand_single_operand = operand_operand & single_operand
-                    if isinstance(operand_single_operand, ot.Null):
+    # Both must be Frame() operands
+    def __and__(self, frame: 'Operand') -> Operand:
+        match frame:
+            case Frame():
+                for self_frame in self: # Full conditions to be verified one by one (and)!
+                    frame_condition = False
+                    for other_frame in frame:
+                        if self_frame & other_frame != ot.Null:
+                            frame_condition = True
+                            break
+                    if not frame_condition:
                         return ot.Null()
-                case Operand():
-                    return single_operand
-        return ot.Null()
+
+                operand_operand = frame
+                if isinstance(operand_operand, Frame):
+                    operand_operand = operand_operand % Operand()
+                for single_operand in self:
+                    match single_operand:
+                        case Frame():
+                            operand_single_operand = operand_operand & single_operand
+                            if isinstance(operand_single_operand, ot.Null):
+                                return ot.Null()
+                        case Operand():
+                            return single_operand
+        return frame.__rand__(self)
+
+    # Only self is a Frame() operand
+    def __rand__(self, operand: 'Operand') -> 'Operand':
+        return self
 
 class Canvas(Frame):
     # CHAINABLE OPERATIONS
     def __and__(self, operand: 'Operand') -> Operand:
-        return self
+        return operand
 
 class Blank(Frame):
     # CHAINABLE OPERATIONS
@@ -106,12 +122,14 @@ class Blank(Frame):
 class Inner(Frame):
     # CHAINABLE OPERATIONS
     def __and__(self, operand: Operand) -> Operand:
-        return self
+        match operand:
+            case Inner():  return self
+            case _:                 return ot.Null()
 
 class Outer(Frame):
     # CHAINABLE OPERATIONS
     def __and__(self, operand: Operand) -> Operand:
-        return self
+        return ot.Null()
 
 class Selection(Frame):
     def __init__(self):
@@ -167,18 +185,18 @@ class Range(Frame):
 
 
 class Repeat(Frame):
-    def __init__(self, unit: ou.Unit, repeat: int = 1):
+    def __init__(self, unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
 
-    def step(self) -> ou.Unit | ot.Null:
+    def step(self) -> Operand:
         if self._repeat > 0:
             self._repeat -= 1
             return self._unit
         return ot.Null()
 
-    def __and__(self, operand: 'Operand') -> bool:
-        return True
+    def __and__(self, operand: 'Operand') -> Operand:
+        return ot.Null()
 
 class Increment(Frame):
     """
@@ -198,7 +216,7 @@ class Increment(Frame):
     operand = Increment(unit, 8)
     operand = Increment(unit, 0, 10, 2)
     """
-    def __init__(self, unit: ou.Unit, *argv: int):
+    def __init__(self, unit, *argv: int):
         """
         Initialize the Increment with a Unit and additional arguments.
 
@@ -234,7 +252,7 @@ class Increment(Frame):
 
         self._iterator = self._start
 
-    def step(self) -> ou.Unit | ot.Null:
+    def step(self) -> Operand:
         if self._iterator < self._stop:
             self._unit += self._step
             self._iterator += 1
@@ -242,4 +260,4 @@ class Increment(Frame):
         return ot.Null()
 
     def __and__(self, operand: 'Operand') -> bool:
-        return True
+        return ot.Null()
