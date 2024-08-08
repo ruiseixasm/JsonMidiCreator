@@ -56,7 +56,7 @@ class Operand:
         return self
 
     def __pow__(self, operand: 'Operand') -> 'Operand':
-        return self
+        return operand.__rpow__(self)
     
     def __rpow__(self, operand: 'Operand') -> 'Operand':
         return self

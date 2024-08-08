@@ -25,27 +25,23 @@ import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_tag as ot
-import operand_container as oc
 
 
 # Works as a traditinal C list (chained)
 class Frame(Operand):
     def __init__(self):
-        self._next_operand: Optional[Operand] = None
+        self._next_operand: Optional[Operand] = ot.Null()
         
     def __iter__(self):
         self._current_node: Optional[Operand] = self    # Reset to the start node on new iteration
         return self
     
     def __next__(self):
-        if self._current_node is not None:
-            iteration_node = self._current_node
-            match self._current_node:
-                case Frame():   self._current_node = self._current_node._next_operand
-                case _:         self._current_node = None
-            return iteration_node
-        else:
-            raise StopIteration
+        iteration_node = self._current_node
+        match self._current_node:
+            case Frame():   self._current_node = self._current_node._next_operand
+            case _:         raise StopIteration
+        return iteration_node
 
     def len(self) -> int:
         list_size = 0
@@ -54,23 +50,18 @@ class Frame(Operand):
         return list_size
 
     def __mod__(self, operand: Operand) -> Operand:
-        if type(self) == type(operand):
-            return self
-        if self._next_operand is not None:
-            match operand:
-                case Frame():
-                    if isinstance(self._next_operand, Frame):
-                        return self._next_operand % operand
-                    return ot.Null()
-                case Operand():
-                    match self._next_operand:
-                        case Frame():
-                            return self._next_operand % Operand()
-                        case Operand():
-                            return self._next_operand
+        for single_operand in self:
+            match single_operand:
+                case operand:
+                    return single_operand
         return ot.Null()
     
     def __and__(self, operand: 'Operand') -> bool:
+        for single_frame in self:
+            match single_frame:
+                case Frame():
+                    if not operand & single_frame:
+                        return False
         return True
 
     # CHAINABLE OPERATIONS
@@ -91,14 +82,14 @@ class Canvas(Frame):
     def __init__(self):
         super().__init__()
 
-    def __or__(self, operand: Operand) -> bool:
+    def __and__(self, operand: 'Operand') -> bool:
         return True
 
 class Inner(Frame):
     def __init__(self):
         super().__init__()
 
-    def __or__(self, operand: Operand) -> bool:
+    def __and__(self, operand: Operand) -> bool:
         return True
 
 class Selection(Frame):
