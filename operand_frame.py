@@ -79,59 +79,74 @@ class Frame(Operand):
             case None: self._next_operand = None
         return self
 
-    # Both must be Frame() operands
     def __and__(self, frame: 'Operand') -> Operand:
         match frame:
-            case Frame():
+            case Frame():   # Both must be Frame() operands
                 for self_frame in self: # Full conditions to be verified one by one (and)!
                     frame_condition = False
-                    for other_frame in frame:
-                        if self_frame & other_frame != ot.Null:
-                            frame_condition = True
-                            break
-                    if not frame_condition:
-                        return ot.Null()
-
-                operand_operand = frame
-                if isinstance(operand_operand, Frame):
-                    operand_operand = operand_operand % Operand()
-                for single_operand in self:
-                    match single_operand:
-                        case Frame():
-                            operand_single_operand = operand_operand & single_operand
-                            if isinstance(operand_single_operand, ot.Null):
-                                return ot.Null()
-                        case Operand():
-                            return single_operand
-        return frame.__rand__(self)
+                    match self_frame:
+                        case Canvas():  return frame
+                        case Blank():   return ot.Null()
+                        case FrameFrame():      # Only Frames are conditional
+                            for other_frame in frame:
+                                if not isinstance(other_frame, FrameFrame): continue
+                                if self_frame | other_frame != ot.Null:
+                                    frame_condition = True
+                                    break
+                        case OperandFrame():    # Only Frames are conditional
+                            for other_operand in frame:
+                                if isinstance(other_operand, Frame): continue
+                                if self_frame | other_operand != ot.Null:
+                                    frame_condition = True
+                                    break
+                        case _: continue
+                    if not frame_condition: return ot.Null()
+            case _: return self.__rand__(frame)
 
     # Only self is a Frame() operand
     def __rand__(self, operand: 'Operand') -> 'Operand':
-        return self
-
-class Canvas(Frame):
-    # CHAINABLE OPERATIONS
-    def __and__(self, operand: 'Operand') -> Operand:
+        for self_frame in self: # Full conditions to be verified one by one (and)!
+            frame_condition = False
+            match self_frame:
+                case Canvas():  return operand
+                case Blank():   return ot.Null()
+                case OperandFrame():    # Only Frames are conditional
+                    if self_frame | operand != ot.Null: frame_condition = True
+                case _: continue
+            if not frame_condition: return ot.Null()
         return operand
 
-class Blank(Frame):
-    # CHAINABLE OPERATIONS
-    def __and__(self, operand: 'Operand') -> Operand:
-        return ot.Null()
-
-class Inner(Frame):
-    # CHAINABLE OPERATIONS
-    def __and__(self, operand: Operand) -> Operand:
+class FrameFrame(Frame):
+    def __or__(self, operand: Operand) -> Operand:
         match operand:
-            case Inner():  return self
-            case _:                 return ot.Null()
+            case FrameFrame():  return ot.Null()
+            case _:             return operand
 
-class Outer(Frame):
-    # CHAINABLE OPERATIONS
-    def __and__(self, operand: Operand) -> Operand:
-        return ot.Null()
+class OperandFrame(Frame):
+    def __or__(self, operand: Operand) -> Operand:
+        match operand:
+            case Frame():       return operand
+            case _:             return ot.Null()
 
-class Selection(Frame):
+class Canvas(FrameFrame):
+    pass
+
+class Blank(FrameFrame):
+    pass
+
+class Inner(FrameFrame):
+    def __or__(self, operand: Operand) -> Operand:
+        match operand:
+            case Inner():   return operand
+            case _:         return super().__or__(operand)
+
+class Outer(FrameFrame):
+    def __or__(self, operand: Operand) -> Operand:
+        match operand:
+            case Outer():   return operand
+            case _:         return super().__or__(operand)
+
+class Selection(OperandFrame):
     def __init__(self):
         self._position: ol.Position = ol.Position()
         self._time_length: ol.TimeLength = ol.TimeLength() << ov.Beat(1)
@@ -142,7 +157,7 @@ class Selection(Frame):
             case ol.TimeLength():   return self._time_length
             case _:                 return super().__mod__(operand)
 
-    def __and__(self, operand: 'Operand') -> bool:
+    def __or__(self, operand: 'Operand') -> bool:
         return True
 
     def getSerialization(self):
@@ -174,17 +189,17 @@ class Selection(Frame):
             case _: super().__lshift__(operand)
         return self
 
-class Range(Frame):
+class Range(OperandFrame):
     def __init__(self, operand: Operand, position: ol.Position = None, length: ol.Length = None):
         self._operand = operand
         self._position = position
         self._length = length
 
-    def __and__(self, operand: 'Operand') -> bool:
+    def __or__(self, operand: 'Operand') -> bool:
         return True
 
 
-class Repeat(Frame):
+class Repeat(OperandFrame):
     def __init__(self, unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
@@ -195,10 +210,10 @@ class Repeat(Frame):
             return self._unit
         return ot.Null()
 
-    def __and__(self, operand: 'Operand') -> Operand:
+    def __or__(self, operand: 'Operand') -> Operand:
         return ot.Null()
 
-class Increment(Frame):
+class Increment(OperandFrame):
     """
     The Increment class initializes with a Unit and additional arguments,
     similar to the arguments in the range() function.
@@ -259,5 +274,5 @@ class Increment(Frame):
             return self._unit
         return ot.Null()
 
-    def __and__(self, operand: 'Operand') -> bool:
+    def __or__(self, operand: 'Operand') -> bool:
         return ot.Null()

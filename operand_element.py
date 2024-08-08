@@ -107,7 +107,7 @@ class Element(Operand):
                 json_formatted_str = json.dumps(json_object, indent=4)
                 print(json_formatted_str)
                 return self
-            case _: return operand.__rrshift__(self)
+            case _: return self.__rrshift__(operand)
 
     def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
         match element_operand:

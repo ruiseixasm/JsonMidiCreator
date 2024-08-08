@@ -69,8 +69,4 @@ class Operand:
         return ot.Null()
 
     def __or__(self, operand: 'Operand') -> 'Operand':
-        return operand.__ror__(self)
-
-    def __ror__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        return ot.Null()
+        return operand
