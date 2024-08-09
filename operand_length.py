@@ -22,6 +22,7 @@ from operand import Operand
 import operand_staff as os
 import operand_value as ov
 import operand_frame as of
+import operand_tag as ot
 
 
 class Length(Operand):
@@ -34,12 +35,12 @@ class Length(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand & self)
             case ov.Measure():      return self._measure
             case ov.Beat():         return self._beat
             case ov.NoteValue():    return self._note_value
             case ov.Step():         return self._step
-            case _:                 return operand
+            case _:                 return ot.Null()
 
     def __eq__(self, other_length):
         return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)

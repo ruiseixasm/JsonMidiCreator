@@ -16,11 +16,10 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 # Json Midi Creator Libraries
-from operand import Operand
-import operand_frame as of
+import operand as o
 
 
-class Tag(Operand):
+class Tag(o.Operand):
     pass
 
 class Null(Tag):

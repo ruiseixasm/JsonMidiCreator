@@ -19,6 +19,7 @@ from typing import Union
 from operand import Operand
 import operand_staff as os
 import operand_frame as of
+import operand_tag as ot
 
 
 # Units have never None values and are also const, with no setters
@@ -29,10 +30,10 @@ class Unit(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand % Operand())
+            case of.Frame():    return self % (operand & self)
             case int():         return round(self._unit)
             case float():       return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
-            case _:             return operand
+            case _:             return ot.Null()
 
     def __eq__(self, other_unit: 'Unit') -> bool:
         return self % int() == other_unit % int()

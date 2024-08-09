@@ -20,6 +20,8 @@ import operand_value as ov
 import operand_length as ol
 import operand_data as od
 import operand_frame as of
+import operand_tag as ot
+
 
 class Staff(Operand):
     def __init__(self):
@@ -40,7 +42,7 @@ class Staff(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():            return self % (operand % Operand())
+            case of.Frame():            return self % (operand & self)
             # Direct Values
             case ov.Measure():          return self._measure
             case ov.Tempo():            return self._tempo
@@ -61,7 +63,7 @@ class Staff(Operand):
                 return ov.StepsPerMeasure((self % ov.StepsPerNote() % float()) * (self % ov.NotesPerMeasure() % float()))
             case ov.StepsPerNote():
                 return ov.StepsPerNote(1 / (self._quantization % float()))
-        return operand
+        return ot.Null()
 
     def getSerialization(self):
         return {

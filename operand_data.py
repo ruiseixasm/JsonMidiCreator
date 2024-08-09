@@ -21,6 +21,8 @@ from operand import Operand
 import operand_staff as os
 import operand_unit as ou
 import operand_frame as of
+import operand_tag as ot
+
 
 class Data(Operand):
     def __init__(self, data = None):
@@ -28,7 +30,7 @@ class Data(Operand):
 
     def __mod__(self, operand: Operand):
         match operand:
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand & self)
             case _:                 return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:

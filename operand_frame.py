@@ -51,7 +51,11 @@ class Frame(Operand):
         return list_size
 
     def __mod__(self, operand: Operand) -> Operand:
-        return self & operand   # Has to return the operand inside the self (Frame)
+        for single_operand in self:
+            match single_operand:
+                case operand:
+                    return single_operand
+        return ot.Null()
     
     # CHAINABLE OPERATIONS
 

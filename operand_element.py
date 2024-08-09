@@ -40,12 +40,12 @@ class Element(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand & self)
             case ol.Position():     return self._position
             case ol.TimeLength():   return self._time_length
             case ou.Channel():      return self._channel
             case od.Device():       return self._device
-            case _:                 return operand
+            case _:                 return ot.Null()
 
     def getPlayList(self, position: ol.Position = None) -> list:
         return []

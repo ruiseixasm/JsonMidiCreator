@@ -16,7 +16,8 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
-        return operand
+        import operand_tag as ot
+        return ot.Null()
 
     def getSerialization(self):
         return { 
@@ -69,4 +70,5 @@ class Operand:
         return ot.Null()
 
     def __or__(self, operand: 'Operand') -> 'Operand':
-        return operand
+        import operand_tag as ot
+        return ot.Null()

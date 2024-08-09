@@ -22,6 +22,7 @@ from operand import Operand
 
 import operand_unit as ou
 import operand_frame as of
+import operand_tag as ot
 
 
 class Generic(Operand):
@@ -34,10 +35,10 @@ class KeyNote(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand % Operand())
+            case of.Frame():    return self % (operand & self)
             case ou.Key():      return self._key
             case ou.Octave():   return self._octave
-            case _:             return operand
+            case _:             return ot.Null()
 
     def getMidi__key_note(self) -> int:
         key = self._key % int()
@@ -111,7 +112,7 @@ class Controller(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand & self)
             case ou.MidiCC():       return self._midi_cc
             case ou.MidiValue():    return self._midi_value
             case _:                 return operand
@@ -181,7 +182,7 @@ class Default(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand & self)
             case _:                 return self._operand
 
 class IntervalQuality(Generic):

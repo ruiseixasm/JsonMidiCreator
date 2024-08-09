@@ -20,6 +20,7 @@ from operand import Operand
 import operand_staff as os
 import operand_unit as ou
 import operand_frame as of
+import operand_tag as ot
 
 
 # Values have never None values and are also const, with no setters
@@ -30,10 +31,10 @@ class Value(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand % Operand())
+            case of.Frame():    return self % (operand & self)
             case float():       return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
             case int():         return round(self._value)
-            case _:             return operand
+            case _:             return ot.Null()
 
     def __eq__(self, other_value: 'Value') -> bool:
         return self % float() == other_value % float()
