@@ -31,6 +31,7 @@ class Data(Operand):
     def __mod__(self, operand: Operand):
         match operand:
             case of.Frame():        return self % (operand & self)
+            case ot.Null() | None:  return ot.Null()
             case _:                 return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
@@ -76,8 +77,21 @@ class Import(Data):
             case list():        return c.loadJsonMidiPlay(self._data)
             case _:             return super().__mod__(operand)
 
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "data": self._data
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "data" in serialization):
+
+            self._data = serialization["data"]
+        return self
+   
     def __rshift__(self, operand: Operand) -> 'Operand':
         match operand:
             case ou.Play():

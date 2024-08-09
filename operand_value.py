@@ -51,8 +51,21 @@ class Value(Operand):
     def __ge__(self, other_value: 'Value') -> bool:
         return not (self < other_value)
     
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "value": self._value
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "value" in serialization):
+
+            self._value = serialization["value"]
+        return self
+   
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case Value(): return self.__class__(self % float() + value % float())

@@ -50,8 +50,21 @@ class Unit(Operand):
     def __ge__(self, other_unit: 'Unit') -> bool:
         return not (self < other_unit)
     
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "unit": self._unit
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "unit" in serialization):
+
+            self._unit = serialization["unit"]
+        return self
+   
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__(self % int() + unit % int())

@@ -57,8 +57,21 @@ class Frame(Operand):
                     return single_operand
         return ot.Null()
     
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "next_operand": self._next_operand.getSerialization()
+        }
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "next_operand" in serialization):
+
+            self._next_operand = Operand().loadSerialization(serialization)
+        return self
+   
     def __pow__(self, operand: Operand) -> 'Frame':
         self._next_operand = operand
         return self

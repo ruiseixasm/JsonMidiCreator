@@ -20,7 +20,16 @@ import operand as o
 
 
 class Tag(o.Operand):
-    pass
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        return self
 
 class Null(Tag):
     pass
