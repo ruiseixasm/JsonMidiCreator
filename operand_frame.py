@@ -92,46 +92,36 @@ class Frame(Operand):
     def __and__(self, subject: 'Operand') -> Operand:
         match subject:
             case Frame():   # Both must be Frame() operands
-                for self_frame in self: # Full conditions to be verified one by one (and)!
-                    frame_condition = False
-                    match self_frame:
-                        case Canvas():
-                            for self_operand in self:
-                                match self_operand:
-                                    case Frame(): continue
-                                    case _: return self_operand
+                for self_operand in self: # Full conditions to be verified one by one (and)!
+                    match self_operand:
+                        case Canvas():  return self % Operand()
                         case Blank():   return ot.Null()
                         case FrameFrame():      # Only Frames are conditional
                             for subject_operand in subject:
                                 if not isinstance(subject_operand, FrameFrame): continue
-                                if (self_frame | subject_operand) != ot.Null:
-                                    frame_condition = True
-                                    break
+                                if (self_operand | subject_operand) == ot.Null:
+                                    return ot.Null()
                         case OperandFrame():    # Only Frames are conditional
                             for other_operand in subject:
                                 if isinstance(other_operand, Frame): continue
-                                if (self_frame | other_operand) != ot.Null:
-                                    frame_condition = True
-                                    break
-                        case _: return self_frame
-                    if not frame_condition: return ot.Null()
+                                if (self_operand | other_operand) == ot.Null:
+                                    return ot.Null()
+                        case Frame():   continue
+                        case _:         return self_operand
             case _: return self.__rand__(subject)
 
     # Only self is a Frame() operand, operand is not a Frame, just an Operand, for sure
     def __rand__(self, subject: 'Operand') -> 'Operand':
-        for self_frame in self: # Full conditions to be verified one by one (and)!
-            match self_frame:
-                case Canvas():
-                    for self_operand in self:
-                        match self_operand:
-                            case Frame():   continue
-                            case _: return self_operand
+        for self_operand in self: # Full conditions to be verified one by one (and)!
+            match self_operand:
+                case Canvas():  return self % Operand()
                 case Blank():   return ot.Null()
                 case OperandFrame():    # Only Frames are conditional
-                    if (self_frame | subject) != ot.Null: continue
-                case Frame():
-                    continue
-                case _: return self_frame
+                    if (self_operand | subject) != ot.Null: continue
+                case FrameFrame():  # If it's a simple Operand the existence of FrameFram means False!
+                    return ot.Null()
+                case Frame():   continue
+                case _:         return self_operand
             return ot.Null()
         return subject
 

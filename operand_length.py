@@ -113,55 +113,54 @@ class Length(Operand):
     def __add__(self, operand: Operand) -> 'Length':
         match operand:
             case ov.Value():
-                return self.__class__() << self % operand + operand
+                return self.copy() << self % operand + operand
             case Length():
-                return self.__class__() \
+                return self.copy() \
                     << self._measure + operand % ov.Measure() \
                     << self._beat + operand % ov.Beat() \
                     << self._note_value + operand % ov.NoteValue() \
                     << self._step + operand % ov.Step()
-        return self.__class__()
+        return self.copy()
     
     # subtracting two lengths 
     def __sub__(self, operand: Operand) -> 'Length':
         match operand:
             case ov.Value():
-                return self.__class__() << self % operand - operand
+                return self.copy() << self % operand - operand
             case Length():
-                return self.__class__() \
+                return self.copy() \
                     << self._measure - operand % ov.Measure() \
                     << self._beat - operand % ov.Beat() \
                     << self._note_value - operand % ov.NoteValue() \
                     << self._step - operand % ov.Step()
-        return self.__class__()
+        return self.copy()
     
     def __mul__(self, operand: Operand) -> 'Length':
         match operand:
             case ov.Value():
-                return self.__class__() << self % operand * operand
+                return self.copy() << self % operand * operand
             case Length():
-                return self.__class__() \
+                return self.copy() \
                     << self._measure * (operand % ov.Measure()) \
                     << self._beat * (operand % ov.Beat()) \
                     << self._note_value * (operand % ov.NoteValue()) \
                     << self._step * (operand % ov.Step())
-        return self.__class__()
+        return self.copy()
     
     def __truediv__(self, operand: Operand) -> 'Length':
         match operand:
             case ov.Value():
-                return self.__class__() << self % operand / operand
+                return self.copy() << self % operand / operand
             case Length():
-                return self.__class__() \
+                return self.copy() \
                     << self._measure / (operand % ov.Measure()) \
                     << self._beat / (operand % ov.Beat()) \
                     << self._note_value / (operand % ov.NoteValue()) \
                     << self._step / (operand % ov.Step())
-        return self.__class__()
+        return self.copy()
 
 class Position(Length):
-    def __init__(self):
-        super().__init__()
+    pass
 
 class Duration(Length):
     def __init__(self):
@@ -169,12 +168,10 @@ class Duration(Length):
         self << os.global_staff % self
 
 class TimeLength(Length):
-    def __init__(self):
-        super().__init__()
+    pass
     
 class Identity(Length):
     def __init__(self):
-        super().__init__()
         self._measure       = ov.Measure(1)
         self._beat          = ov.Beat(1)
         self._note_value    = ov.NoteValue(1)

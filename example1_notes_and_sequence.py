@@ -34,7 +34,7 @@ single_clock = Clock() >> Save("_Clock_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequencially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)) >> Save("_Note_jsonMidiCreator.json")
-multi_notes = Null() >> first_note * 3 >> Play(1) >> Save("_Many_jsonMidiCreator.json") >> Export("_Play2_jsonMidiPlayer.json")
+multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("_Many_jsonMidiCreator.json") >> Export("_Play2_jsonMidiPlayer.json")
 
 first_note << Key("F") >> Play()
 first_note << Load("_Note_jsonMidiCreator.json")

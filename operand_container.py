@@ -244,8 +244,7 @@ class Many(Container):  # Just a container of Elements
                 self_copy = self.copy()
                 elements_list = self_copy % list()
                 for single_operand in elements_list:
-                    stripped_operand = operand % Operand()
-                    single_operand << single_operand % stripped_operand / stripped_operand
+                    single_operand << single_operand % operand / operand
                 return self_copy
             case int(): # repeat n times the last argument if any
                 if operand > 0:

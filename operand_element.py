@@ -580,7 +580,6 @@ class Sequence(Element):
                         inner_operand = operand % Operand()
                         self._trigger_notes << inner_operand
                         return self
-        match operand:
             case ol.Position() | ol.TimeLength():
                 super().__lshift__(operand)
             case oc.Many():
