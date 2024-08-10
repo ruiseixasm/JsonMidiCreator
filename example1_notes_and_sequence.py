@@ -32,7 +32,7 @@ global_staff << Tempo(110) << Measure(6)
 # Set the default single Clock for the entire Staff Length
 single_clock = Clock() >> Save("_Clock_jsonMidiCreator.json") >> Print()
 
-# Multiple individual Notes creation and sequencially played
+# Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (TimeLength() << NoteValue(1/2)) >> Save("_Note_jsonMidiCreator.json")
 multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("_Many_jsonMidiCreator.json") >> Export("_Play2_jsonMidiPlayer.json")
 
@@ -52,7 +52,7 @@ second_sequence << (Position() << Measure(2))
 second_sequence /= Inner()**(Position() << Identity() << Step(2))
 second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 
-# Creations, agregation of both Sequences in a Many element and respective Play
+# Creations, aggregation of both Sequences in a Many element and respective Play
 all_elements = Many(first_sequence) + Many(second_sequence)
 all_elements += (TimeLength() << Beat(2) >> first_note) + single_clock
 all_elements >> Print() >> Play(1) >> Export("_Play_jsonMidiPlayer.json")

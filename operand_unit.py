@@ -24,11 +24,31 @@ import operand_tag as ot
 
 # Units have never None values and are also const, with no setters
 class Unit(Operand):
+    """
+    This is a read only type of Operand that has associated an Integer.
+    This class is intended to represent parameters that are whole numbers like in midi messages from 0 to 127
+
+    Parameters
+    ----------
+    first : integer_like
+        A read only Integer described as a Unit
+    """
     def __init__(self, unit: int = None):
         self._unit: int = 0
         self._unit = os.global_staff % self % int() if unit is None else round(unit)
 
     def __mod__(self, operand: Operand) -> Operand:
+        """
+        The % symbol is used to extract the Unit, because a Unit is an Integer
+        it should be used in conjugation with int(). If used with a float() it
+        will return the respective unit formatted as a float.
+
+        Examples
+        --------
+        >>> channel_int = Channel(12) % int()
+        >>> print(channel_int)
+        12
+        """
         match operand:
             case of.Frame():    return self % (operand % Operand())
             case int():         return round(self._unit)
@@ -90,6 +110,15 @@ class Unit(Operand):
         return self
     
 class Key(Unit):
+    """
+    A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
+    It is also possible to get and to set the value based on a key string like "C#" or "Gb".
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A read only Integer or the equivalent string key varying from 0 to 11
+    """
     def __init__(self, key: str = None):
         match key:
             case str():
@@ -119,18 +148,50 @@ class Key(Unit):
         return 0
 
 class Octave(Unit):
+    """
+    An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
+    
+    Parameters
+    ----------
+    first : integer_like
+        A read only Integer representing the full midi keyboard octave varying from -1 to 9
+    """
     def __init__(self, octave: int = None):
         super().__init__(octave)
 
 class Velocity(Unit):
+    """
+    Velocity() represents the intensity with which a key is pressed.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A key velocity varies from 0 to 127 with 100 being normally the default
+    """
     def __init__(self, velocity: int = None):
         super().__init__(velocity)
 
 class Channel(Unit):
+    """
+    A Channel() is an identifier normally associated to an instrument in a given midi device.
+    
+    Parameters
+    ----------
+    first : integer_like
+        For a given device, there are 16 channels ranging from 1 to 16
+    """
     def __init__(self, channel: int = None):
         super().__init__(channel)
 
 class Scale(Unit):
+    """
+    A Scale() a selection of keys in an octave that are considered playable.
+    
+    Parameters
+    ----------
+    first : integer_like and string_like
+        It can have the name of a scale as input, like, "Major" or "Melodic"
+    """
     def __init__(self, scale: str = "Chromatic"):
         match scale:
             case str():
