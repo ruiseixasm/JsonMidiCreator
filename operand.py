@@ -35,9 +35,11 @@ class Operand:
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         return self
 
+    # self is the pusher
     def __rshift__(self, operand: 'Operand') -> 'Operand':
         return operand.__rrshift__(self)
 
+    # operand is the pusher
     def __rrshift__(self, operand: 'Operand') -> 'Operand':
         return self
 
@@ -63,9 +65,6 @@ class Operand:
         return self
     
     def __and__(self, operand: 'Operand') -> 'Operand':
-        return operand.__rand__(self)
-
-    def __and__(self, subject: 'Operand') -> 'Operand':
         return self
 
     def __or__(self, subject: 'Operand') -> 'Operand':

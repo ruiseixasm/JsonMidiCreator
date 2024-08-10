@@ -90,6 +90,7 @@ class Element(Operand):
                     self << single_operand
         return self
 
+    # self is the pusher
     def __rshift__(self, operand: Operand) -> 'Element':
         match operand:
             case ou.Play():
@@ -107,19 +108,19 @@ class Element(Operand):
                 json_formatted_str = json.dumps(json_object, indent=4)
                 print(json_formatted_str)
                 return self
-            case _: return self.__rrshift__(operand)
+            case _: return operand.__rrshift__(self)
 
-    def __rrshift__(self, element_operand: Union['Element', Operand]) -> Union['Element', Operand]:
-        match element_operand:
-            case ot.Null():
-                pass
+    # operand is the pusher
+    def __rrshift__(self, operand: Operand) -> 'Element':
+        match operand:
+            case ot.Null(): pass
             case oc.Many():
-                last_element = element_operand.lastElement()
+                last_element = operand.lastElement()
                 if type(last_element) != ot.Null:
                     self << last_element % ol.Position() + last_element % ol.TimeLength()
-            case Element(): self << element_operand % ol.Position() + element_operand % ol.TimeLength()
-            case ol.Position(): self << element_operand
-            case ol.TimeLength(): self += ol.Position() << element_operand
+            case Element(): self << operand % ol.Position() + operand % ol.TimeLength()
+            case ol.Position(): self << operand
+            case ol.TimeLength(): self += ol.Position() << operand
         return self
 
     def __add__(self, operand: Operand) -> 'Element':

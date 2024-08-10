@@ -117,6 +117,7 @@ class Container(Operand):
                     self << single_operand
         return self
 
+    # self is the pusher
     def __rshift__(self, operand: 'Operand') -> 'Many':
         match operand:
             case ot.Print():
@@ -125,20 +126,15 @@ class Container(Operand):
                 json_formatted_str = json.dumps(json_object, indent=4)
                 print(json_formatted_str)
                 return self
-            case _: return self.__rrshift__(operand)
+            case _: return operand.__rrshift__(self)
 
+    # operand is the pusher
     def __rrshift__(self, other_operand: Operand) -> Operand:
         return self
 
 class Many(Container):  # Just a container of Elements
     def __init__(self, *operands):
-        many_operands = []
-        if operands is not None:
-            for single_operand in operands:
-                match single_operand:
-                    case list(): many_operands.extend(single_operand)
-                    case _: many_operands.append(single_operand)
-        super().__init__(many_operands)
+        super().__init__(*operands)
 
     def getLastPosition(self) -> ol.Position:
         last_position: ol.Position = ol.Position()
@@ -170,19 +166,18 @@ class Many(Container):  # Just a container of Elements
                 return self
             case _: return super().__rshift__(operand)
 
-    def __rrshift__(self, other_operand: Operand) -> Operand:
+    def __rrshift__(self, operand: Operand) -> Operand:
         self_first_element = self.firstOperand()
         if type(self_first_element) != ot.Null:
             import operand_element as oe
-            match other_operand:
-                case ot.Null():
-                    pass
+            match operand:
+                case ot.Null(): pass
                 case Many():
                     other_last_element = self.lastOperand()
                     if type(other_last_element) != ot.Null:
                         other_last_element >> self_first_element
-                case oe.Element(): other_operand % ol.Position() + other_operand % ol.TimeLength() >> self_first_element
-                case ol.Position() | ol.TimeLength(): other_operand >> self_first_element
+                case oe.Element(): operand % ol.Position() + operand % ol.TimeLength() >> self_first_element
+                case ol.Position() | ol.TimeLength(): operand >> self_first_element
             for single_element_i in range(1, len(self._operand_list)):
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
         return self
