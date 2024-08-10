@@ -112,12 +112,11 @@ class Unit(Operand):
 class Key(Unit):
     """
     A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
-    It is also possible to get and to set the value based on a key string like "C#" or "Gb".
     
     Parameters
     ----------
     first : integer_like or string_like
-        A read only Integer or the equivalent string key varying from 0 to 11
+        A read only Integer from 0 to 11 or the equivalent string key like "C#" or "Gb"
     """
     def __init__(self, key: str = None):
         match key:
@@ -270,6 +269,15 @@ class Scale(Unit):
         return 0
 
 class Pitch(Unit):
+    """
+    Pitch() sets the variation in the pitch to be associated to the PitchBend() Element.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
+        this variation is 2 semi-tones bellow or above respectively
+    """
     def __init__(self, pitch: int = None):
         super().__init__(pitch)
 
@@ -289,10 +297,27 @@ class Pitch(Unit):
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
 
 class Inversion(Unit):
+    """
+    Inversion() sets the degree of inversion of a given chord.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Inversion sets the degree of chords inversion starting by 0 meaning no inversion
+    """
     def __init__(self, inversion: int = 0):
         super().__init__(inversion)
 
 class Play(Unit):
+    """
+    Pitch() sets the variation in the pitch to be associated to the PitchBend() Element.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
+        this variation is 2 semi-tones bellow or above respectively
+    """
     def __init__(self, verbose: bool = False):
         super().__init__(1 if verbose else 0)
 
