@@ -35,7 +35,7 @@ class Length(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand & self)
+            case of.Frame():        return self % (operand % Operand())
             case ov.Measure():      return self._measure
             case ov.Beat():         return self._beat
             case ov.NoteValue():    return self._note_value

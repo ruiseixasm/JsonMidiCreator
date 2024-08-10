@@ -30,7 +30,7 @@ class Unit(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand & self)
+            case of.Frame():    return self % (operand % Operand())
             case int():         return round(self._unit)
             case float():       return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
             case _:             return ot.Null()

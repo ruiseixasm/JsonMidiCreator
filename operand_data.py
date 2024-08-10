@@ -30,7 +30,7 @@ class Data(Operand):
 
     def __mod__(self, operand: Operand):
         match operand:
-            case of.Frame():        return self % (operand & self)
+            case of.Frame():        return self % (operand % Operand())
             case ot.Null() | None:  return ot.Null()
             case _:                 return self._data
 

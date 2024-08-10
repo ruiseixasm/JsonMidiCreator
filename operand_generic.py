@@ -35,7 +35,7 @@ class KeyNote(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand & self)
+            case of.Frame():    return self % (operand % Operand())
             case ou.Key():      return self._key
             case ou.Octave():   return self._octave
             case _:             return ot.Null()
@@ -112,7 +112,7 @@ class Controller(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand & self)
+            case of.Frame():        return self % (operand % Operand())
             case ou.MidiCC():       return self._midi_cc
             case ou.MidiValue():    return self._midi_value
             case _:                 return operand
@@ -182,7 +182,7 @@ class Default(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand & self)
+            case of.Frame():        return self % (operand % Operand())
             case _:                 return self._operand
 
 class IntervalQuality(Generic):

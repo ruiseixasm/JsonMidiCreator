@@ -56,7 +56,7 @@ class Container(Operand):
 
     def __mod__(self, operand: list) -> list:
         match operand:
-            case of.Frame():        return self % (operand & self)
+            case of.Frame():        return self % (operand % Operand())
             case list():            return self._operand_list
         return ot.Null()
 

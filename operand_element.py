@@ -40,7 +40,7 @@ class Element(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand & self)
+            case of.Frame():        return self % (operand % Operand())
             case ol.Position():     return self._position
             case ol.TimeLength():   return self._time_length
             case ou.Channel():      return self._channel

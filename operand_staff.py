@@ -42,7 +42,7 @@ class Staff(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():            return self % (operand & self)
+            case of.Frame():            return self % (operand % Operand())
             # Direct Values
             case ov.Measure():          return self._measure
             case ov.Tempo():            return self._tempo
