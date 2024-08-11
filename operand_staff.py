@@ -112,7 +112,7 @@ class Staff(Operand):
             case ov.Tempo():            self._tempo = operand
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand
             case ov.BeatNoteValue():    self._beat_note_value = operand
-            case ov.Quantization():     self._quantization = operand
+            case ov.Quantization():     self._quantization = operand    # Note Value
             case ol.Duration():         self._duration = operand
             case ou.Key():              self._key = operand
             case ou.Octave():           self._octave = operand
@@ -120,6 +120,13 @@ class Staff(Operand):
             case ou.MidiCC():           self._midi_cc = operand
             case ou.Channel():          self._channel = operand
             case od.Device():           self._device = operand
+            # Calculated Values
+            case ov.NotesPerMeasure():
+                self._beat_note_value = (operand % float()) / (self % ov.BeatsPerMeasure())
+            case ov.StepsPerMeasure():
+                self._quantization = (self % ov.NotesPerMeasure()) / (operand % float())
+            case ov.StepsPerNote():
+                self._quantization = 1 / (operand % float())
         return self
 
 # Set the Default Staff values here.
