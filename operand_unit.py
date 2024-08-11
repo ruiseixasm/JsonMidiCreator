@@ -310,18 +310,25 @@ class Inversion(Unit):
 
 class Play(Unit):
     """
-    Pitch() sets the variation in the pitch to be associated to the PitchBend() Element.
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
     
     Parameters
     ----------
     first : integer_like
-        Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
-        this variation is 2 semi-tones bellow or above respectively
+        By default it's configured without any verbose, set to 1 or True to enable verbose
     """
     def __init__(self, verbose: bool = False):
         super().__init__(1 if verbose else 0)
 
 class MidiValue(Unit):
+    """
+    MidiValue() represents the Control Change value that is sent via Midi
+    
+    Parameters
+    ----------
+    first : integer_like
+        The MidiValue shall be set from 0 to 127 accordingly to the range of CC Midi values
+    """
     def __init__(self, midi_value: int = None):
         super().__init__(midi_value)
 
@@ -329,6 +336,14 @@ class MidiValue(Unit):
         return max(min(self % int(), 127), 0)
     
 class MidiCC(Unit):
+    """
+    MidiCC() represents the number of the Control to be manipulated with the MidiValue values.
+    
+    Parameters
+    ----------
+    first : integer_like and string_like
+        Allows the direct set with a number or in alternative with a name relative to the Controller
+    """
     def __init__(self, name: str = "Pan"):
         match name:
             case str():

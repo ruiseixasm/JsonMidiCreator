@@ -99,6 +99,7 @@ def loadJsonMidiPlay(filename):
     return []
         
 def jsonMidiPlay(play_list, verbose: bool = False):
+    if verbose: print() # Avoids verbose cluttering
     json_file_dict = {
             "filetype": "Json Midi Player",
             "url": "https://github.com/ruiseixasm/JsonMidiPlayer",

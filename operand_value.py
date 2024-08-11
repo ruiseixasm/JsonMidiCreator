@@ -25,11 +25,31 @@ import operand_tag as ot
 
 # Values have never None values and are also const, with no setters
 class Value(Operand):
+    """
+    This is a read only type of Operand that has associated a Rational number.
+    This class is intended to represent time based variables that are ratios like the typical 1/4 note value
+
+    Parameters
+    ----------
+    first : float_like
+        A read only Rational described as a Value
+    """
     def __init__(self, value: float = None):
         self._value: float = 0.0
         self._value = os.global_staff % self % float() if value is None else round(1.0 * value, 9)  # rounding to 9 avoids floating-point errors
 
     def __mod__(self, operand: Operand) -> Operand:
+        """
+        The % symbol is used to extract the Value, because a Value is an Rational
+        it should be used in conjugation with float(). If used with a int() it
+        will return the respective rounded value as int().
+
+        Examples
+        --------
+        >>> note_value_float = NoteValue(1/4) % float()
+        >>> print(note_value_float)
+        0.25
+        """
         match operand:
             case of.Frame():    return self % (operand % Operand())
             case float():       return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
@@ -95,6 +115,14 @@ class Value(Operand):
         return self
 
 class Quantization(Value):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : integer_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
     def __init__(self, quantization: float = None):
         super().__init__(quantization)
 
