@@ -152,7 +152,7 @@ class BeatNoteValue(Value):
 
 class NotesPerMeasure(Value):
     """
-    NotesPerMeasure() sets how many notes in a Measure, this changes the Note Value of a Beat.
+    NotesPerMeasure() gets how many notes in a Measure and sets the Note Value of a Beat.
     
     Parameters
     ----------
@@ -213,7 +213,7 @@ class TimeUnit(Value):
 
 class Measure(TimeUnit):
     """
-    Measure() represents the Staff Time Length in Measures.
+    Measure() represents the Staff Time Length in Measures, also known as Bar.
     
     Parameters
     ----------
@@ -227,6 +227,14 @@ class Measure(TimeUnit):
         return Beat(1).getTime_ms() * (os.global_staff % BeatsPerMeasure() % float()) * self._value
      
 class Beat(TimeUnit):
+    """
+    A Beat() represents the Staff Time Length in Beat on which the Tempo is based on (BPM).
+    
+    Parameters
+    ----------
+    first : float_like
+        Proportional value to a Beat on the Staff
+    """
     def __init__(self, value: float = None):
         super().__init__(value)
 
@@ -234,8 +242,30 @@ class Beat(TimeUnit):
         return 60.0 * 1000 / (os.global_staff % Tempo() % float()) * self._value
     
 class NoteValue(TimeUnit):
+    """
+    NoteValue() represents the Duration of a Note, a Note Value typical come as 1/4, 1/8 and 1/16.
+    Note Value can be given as dot value, like so:
+        * 1*    = (1 + 1/2)     = 3/2
+        * 1/2*  = (1/2 + 1/4)   = 3/4
+        * 1/4*  = (1/4 + 1/8)   = 3/8
+        * 1/8*  = (1/8 + 1/16)  = 3/16
+        * 1/16* = (1/16 + 1/32) = 3/32
+        * 1/32* = (1/32 + 1/64) = 3/64
+    
+    Parameters
+    ----------
+    first : float_like or str_like
+        Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
+    """
     def __init__(self, value: float = None):
-        super().__init__(value)
+        match value:
+            case float() | int():
+                super().__init__(value)
+            case str():
+                value_float = float( value.replace('*', '') )
+                super().__init__(value_float)
+            case _:
+                super().__init__(None)
 
     def getTime_ms(self):
         return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._value

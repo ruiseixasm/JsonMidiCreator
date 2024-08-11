@@ -122,11 +122,11 @@ class Staff(Operand):
             case od.Device():           self._device = operand
             # Calculated Values
             case ov.NotesPerMeasure():
-                self._beat_note_value = (operand % float()) / (self % ov.BeatsPerMeasure())
+                self._beat_note_value = ov.BeatNoteValue( (operand % float()) / (self % ov.BeatsPerMeasure()) )
             case ov.StepsPerMeasure():
-                self._quantization = (self % ov.NotesPerMeasure()) / (operand % float())
+                self._quantization = ov.Quantization( (self % ov.NotesPerMeasure()) / (operand % float()) )
             case ov.StepsPerNote():
-                self._quantization = 1 / (operand % float())
+                self._quantization = ov.Quantization( 1 / (operand % float()) )
         return self
 
 # Set the Default Staff values here.
