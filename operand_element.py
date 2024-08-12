@@ -42,6 +42,7 @@ class Element(Operand):
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case ol.Position():     return self._position
+            case ov.TimeUnit():     return self._position % operand
             case ol.TimeLength():   return self._time_length
             case ou.Channel():      return self._channel
             case od.Device():       return self._device
@@ -275,9 +276,10 @@ class Note(Element):
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case ol.Duration():     return self._duration
+            case ov.NoteValue():    return self._duration % operand
             case og.KeyNote():      return self._key_note
-            case ou.Key():          return self._key_note % ou.Key()
-            case ou.Octave():       return self._key_note % ou.Octave()
+            case ou.Key() | ou.Octave():
+                                    return self._key_note % operand
             case ou.Velocity():     return self._velocity
             case ov.Gate():         return self._gate
             case _:                 return super().__mod__(operand)
@@ -341,12 +343,13 @@ class Note(Element):
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
-            case ol.Duration(): self._duration = operand
-            case og.KeyNote(): self._key_note = operand
-            case ou.Key(): self._key_note << operand
-            case ou.Octave(): self._key_note << operand
-            case ou.Velocity(): self._velocity = operand
-            case ov.Gate(): self._gate = operand
+            case ol.Duration():     self._duration = operand
+            case ov.NoteValue():    self._duration << operand
+            case og.KeyNote():      self._key_note = operand
+            case ou.Key() | ou.Octave():
+                                    self._key_note << operand
+            case ou.Velocity():     self._velocity = operand
+            case ov.Gate():         self._gate = operand
             case _: super().__lshift__(operand)
         return self
 
@@ -375,6 +378,12 @@ class Note3(Note):
         self._duration *= 2/3   # 3 instead of 2
         self._gate      = ov.Gate(.50)
 
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ol.Duration():     return self._duration * 3/2
+            case ov.NoteValue():    return self._duration * 3/2 % operand
+            case _:                 return super().__mod__(operand)
+
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position = ol.Position() if position is None else position
         triplet_playlist = []
@@ -383,6 +392,15 @@ class Note3(Note):
             note_position += self._duration
         return triplet_playlist
     
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: Operand) -> 'Note':
+        match operand:
+            case ol.Duration():     self._duration = operand * 2/3
+            case ov.NoteValue():    self._duration << operand * 2/3
+            case _: super().__lshift__(operand)
+        return self
+
 class ControlChange(Element):
     def __init__(self):
         super().__init__()
