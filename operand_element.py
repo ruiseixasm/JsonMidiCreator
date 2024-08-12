@@ -690,46 +690,23 @@ class Sequence(Element):
 class Triplet(Element):
     def __init__(self):
         super().__init__()
-        self._duration  = ol.Duration()
+        self._duration  = ol.Duration() * 2/3
         self._elements: list[Element] = [Rest(), Rest(), Rest()]
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ol.Duration():     return self._duration
+            case ol.Duration():     return self._duration * 3/2
+            case ov.NoteValue():    return self._duration * 3/2 % operand
             case list():            return self._elements
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
-        
-        note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
-        duration: ol.Duration       = self % ol.Duration()
-        key_note_midi: int          = (self % og.KeyNote()).getMidi__key_note()
-        velocity_int: int           = self % ou.Velocity() % int()
-        channel_int: int            = self % ou.Channel() % int()
-        device_list: list           = self % od.Device() % list()
-
-        on_time_ms = note_position.getTime_ms()
-        off_time_ms = on_time_ms + self._gate % float() * duration.getTime_ms()
-        return [
-                {
-                    "time_ms": round(on_time_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (channel_int - 1),
-                        "data_byte_1": key_note_midi,
-                        "data_byte_2": velocity_int,
-                        "device": device_list
-                    }
-                },
-                {
-                    "time_ms": round(off_time_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (channel_int - 1),
-                        "data_byte_1": key_note_midi,
-                        "data_byte_2": 0,
-                        "device": device_list
-                    }
-                }
-            ]
+        element_position: ol.Position = ol.Position() if position is None else position
+        triplet_playlist = []
+        for element_i in range(3):
+            triplet_playlist.extend(self._elements[element_i].getPlayList(element_position))
+            element_position += self._duration
+        return triplet_playlist
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -756,7 +733,8 @@ class Triplet(Element):
 
     def __lshift__(self, operand: Operand) -> 'Triplet':
         match operand:
-            case ol.Duration(): self._duration = operand
+            case ol.Duration():     self._duration = operand * 2/3
+            case ov.NoteValue():    self._duration << operand * 2/3
             case list():
                 if len(operand) == 3:
                     self._elements = operand
@@ -767,7 +745,6 @@ class Panic:
     ...
 
     # CHAINABLE OPERATIONS
-
 
 class Chord(Element):
     def __init__(self, root_note = 60, size = 3, scale = None):   # 0xF2 - Song ol.Position
@@ -803,7 +780,6 @@ class Automation(Element):
     ...
 
     # CHAINABLE OPERATIONS
-
 
 
 class Retrigger(Element):
