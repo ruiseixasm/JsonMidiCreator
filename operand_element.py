@@ -668,7 +668,82 @@ class Sequence(Element):
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
         return self << self._trigger_notes // time_length
-  
+
+class Triplet(Element):
+    def __init__(self):
+        super().__init__()
+        self._duration  = ol.Duration()
+        self._elements: list[Element] = [Rest(), Rest(), Rest()]
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ol.Duration():     return self._duration
+            case list():            return self._elements
+            case _:                 return super().__mod__(operand)
+
+    def getPlayList(self, position: ol.Position = None):
+        
+        note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
+        duration: ol.Duration       = self % ol.Duration()
+        key_note_midi: int          = (self % og.KeyNote()).getMidi__key_note()
+        velocity_int: int           = self % ou.Velocity() % int()
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
+
+        on_time_ms = note_position.getTime_ms()
+        off_time_ms = on_time_ms + self._gate % float() * duration.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x90 | 0x0F & (channel_int - 1),
+                        "data_byte_1": key_note_midi,
+                        "data_byte_2": velocity_int,
+                        "device": device_list
+                    }
+                },
+                {
+                    "time_ms": round(off_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x80 | 0x0F & (channel_int - 1),
+                        "data_byte_1": key_note_midi,
+                        "data_byte_2": 0,
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["duration"] = self._duration.getSerialization()
+        element_serialization["elements"] = self._elements % list()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "duration" in serialization and "elements" in serialization):
+
+            super().loadSerialization(serialization)
+            self._duration = ol.Duration().loadSerialization(serialization["duration"])
+            self._elements = serialization["elements"]
+        return self
+      
+    def copy(self) -> 'Triplet':
+        elements = []
+        for single_element in self._elements:
+            elements.append(single_element.copy())
+        return super().copy() << self._duration.copy() << elements
+
+    def __lshift__(self, operand: Operand) -> 'Triplet':
+        match operand:
+            case ol.Duration(): self._duration = operand
+            case list():
+                if len(operand) == 3:
+                    self._elements = operand
+            case _: super().__lshift__(operand)
+        return self
 
 class Panic:
     ...
@@ -676,8 +751,7 @@ class Panic:
     # CHAINABLE OPERATIONS
 
 
-class Chord:
-
+class Chord(Element):
     def __init__(self, root_note = 60, size = 3, scale = None):   # 0xF2 - Song ol.Position
         self._root_note = root_note
         self._size = size
@@ -687,14 +761,13 @@ class Chord:
 
     # CHAINABLE OPERATIONS
 
-class Arpeggio:
+class Arpeggio(Element):
     ...
 
     # CHAINABLE OPERATIONS
 
 
-class Loop:
-
+class Loop(Element):
     def __init__(self, element, repeat = 4):
         self._element = element
         self._repeat = repeat
@@ -703,26 +776,25 @@ class Loop:
     # CHAINABLE OPERATIONS
 
 
-class Stack:
+class Stack(Element):
     ...
 
     # CHAINABLE OPERATIONS
 
-class Automation:
+class Automation(Element):
     ...
 
     # CHAINABLE OPERATIONS
 
 
 
-class Retrigger:
+class Retrigger(Element):
     ...
     
     # CHAINABLE OPERATIONS
 
 
-class Composition:
-
+class Composition(Element):
     def __init__(self, position: ol.Position = ol.Position(), time_length: ol.TimeLength = ol.TimeLength()):
         self._position: ol.Position = position
         self._time_length: ol.TimeLength = time_length
