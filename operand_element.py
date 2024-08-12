@@ -375,13 +375,13 @@ class Note3(Note):
     """
     def __init__(self):
         super().__init__()
-        self._duration *= 2/3   # 3 instead of 2
+        self._duration *= (2/3) # 3 instead of 2
         self._gate      = ov.Gate(.50)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ol.Duration():     return self._duration * 3/2
-            case ov.NoteValue():    return self._duration * 3/2 % operand
+            case ol.Duration():     return self._duration * (3/2)
+            case ov.NoteValue():    return self._duration * (3/2) % operand
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
@@ -396,8 +396,8 @@ class Note3(Note):
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
-            case ol.Duration():     self._duration = operand * 2/3
-            case ov.NoteValue():    self._duration << operand * 2/3
+            case ol.Duration():     self._duration = operand * (2/3)
+            case ov.NoteValue():    self._duration << operand * (2/3)
             case _: super().__lshift__(operand)
         return self
 
@@ -690,13 +690,13 @@ class Sequence(Element):
 class Triplet(Element):
     def __init__(self):
         super().__init__()
-        self._duration  = ol.Duration() * 2/3
+        self._duration *= (2/3) # 3 instead of 2
         self._elements: list[Element] = [Rest(), Rest(), Rest()]
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ol.Duration():     return self._duration * 3/2
-            case ov.NoteValue():    return self._duration * 3/2 % operand
+            case ol.Duration():     return self._duration * (3/2)
+            case ov.NoteValue():    return self._duration * (3/2) % operand
             case list():            return self._elements
             case _:                 return super().__mod__(operand)
 
@@ -733,8 +733,8 @@ class Triplet(Element):
 
     def __lshift__(self, operand: Operand) -> 'Triplet':
         match operand:
-            case ol.Duration():     self._duration = operand * 2/3
-            case ov.NoteValue():    self._duration << operand * 2/3
+            case ol.Duration():     self._duration = operand * (2/3)
+            case ov.NoteValue():    self._duration << operand * (2/3)
             case list():
                 if len(operand) == 3:
                     self._elements = operand
@@ -789,61 +789,108 @@ class Retrigger(Element):
 
 
 class Composition(Element):
-    def __init__(self, position: ol.Position = ol.Position(), time_length: ol.TimeLength = ol.TimeLength()):
-        self._position: ol.Position = position
-        self._time_length: ol.TimeLength = time_length
-        self._placed_elements = []
-        self._device: list = None
+    def __init__(self):
+        super().__init__()
+        self._many_elements: oc.Many = oc.Many()
 
-    def getData__device(self):
-        return self._device
+    def len(self) -> int:
+        return self._many_elements.len()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case oc.Many():         return self._many_elements
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
         
-        position = ol.Position() if position is None else position
+        composition_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
+        
         play_list = []
-        for placed_element in self._placed_elements:
-            play_list = play_list.extend(
-                    placed_element["element"].getPlayList(
-                        placed_element["position"] + (self._position + position)
-                    )
-                )
-            
-        if isinstance(self._device, list):
-            for list_element in play_list:
-                if "midi_message" in list_element:
-                    if "device" not in list_element["midi_message"]:
-                            list_element["midi_message"]["device"] = self._device
-
+        for single_element in self._many_elements % list():
+            play_list.extend(single_element.getPlayList(composition_position))
         return play_list
+    
+    def getSerialization(self):
+        many_elements_serialization = []
+        for many_element in self._many_elements % list():
+            many_elements_serialization.append(many_element.getSerialization())
+
+        element_serialization = super().getSerialization()
+        element_serialization["many_elements"] = self._many_elements.getSerialization()
+        return element_serialization
 
     # CHAINABLE OPERATIONS
 
-    def setData__device(self, device: list = ["FLUID", "Midi", "Port", "Synth"]):
-        self._device = device
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "many_elements" in serialization):
+
+            super().loadSerialization(serialization)
+            self._many_elements = oc.Many().loadSerialization(serialization["many_elements"])
+
+        return self
+    
+    def copy(self) -> 'Composition':
+        return super().copy() << self._many_elements.copy()
+
+    def __lshift__(self, operand: Operand) -> 'Composition':
+        match operand:
+            case oc.Many(): self._many_elements = operand
+            case _: super().__lshift__(operand)
         return self
 
-    def placeElement(self, element, position = ol.Position()):
-        self._placed_elements.append({
-                "element": element,
-                "position": position
-            })
-        return self
+    def __add__(self, operand: Operand) -> 'Element':
+        composition_copy = self.copy()
+        if isinstance(operand, of.Frame):
+            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
+                composition_copy << (self._many_elements + (operand % Operand())).copy()
+        else:
+            match operand:
+                case ol.Position() | ol.TimeLength():
+                    composition_copy << composition_copy % operand + operand
+                case Operand():
+                    composition_copy << (self._many_elements + operand).copy()
+        return composition_copy
 
-    def takeElement(self, element, position = ol.Position()):
-        self._placed_elements.remove({
-                "element": element,
-                "position": position
-            })
-        return self
-        
-    def clear(self):
-        self._placed_elements = []
-        return self
+    def __sub__(self, operand: Operand) -> 'Element':
+        composition_copy = self.copy()
+        if isinstance(operand, of.Frame):
+            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
+                composition_copy << (self._many_elements - (operand % Operand())).copy()
+        else:
+            match operand:
+                case ol.Position() | ol.TimeLength():
+                    composition_copy << composition_copy % operand - operand
+                case Operand():
+                    composition_copy << (self._many_elements - operand).copy()
+        return composition_copy
 
-    def displace(self, displacement = ol.TimeLength()):
-        ...
-        return self
+    def __mul__(self, operand: Operand) -> 'Element':
+        composition_copy = self.copy()
+        if isinstance(operand, of.Frame):
+            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
+                composition_copy << (self._many_elements * (operand % Operand())).copy()
+        else:
+            match operand:
+                case ol.Position() | ol.TimeLength():
+                    composition_copy << composition_copy % operand * operand
+                case Operand():
+                    composition_copy << (self._many_elements * operand).copy()
+        return composition_copy
+
+    def __truediv__(self, operand: Operand) -> 'Element':
+        composition_copy = self.copy()
+        composition_copy << composition_copy % operand / (operand & composition_copy)
+        composition_copy << self._many_elements / (operand & of.Inner()**self._many_elements)
+        return composition_copy
+
+    def __floordiv__(self, time_length: ol.TimeLength) -> 'Composition':
+        return self << self._many_elements // time_length
+
+
+
+
+
 
 # Voice Message           Status Byte      Data Byte1          Data Byte2
 # -------------           -----------   -----------------   -----------------
@@ -852,6 +899,6 @@ class Composition(Element):
 # Polyphonic Key Pressure       Ax      Key number          Amount of pressure
 # Control Change                Bx      Controller number   Controller value
 # Program Change                Cx      Program number      None
-# ou.Channel Pressure              Dx      Pressure value      None            
+# Channel Pressure              Dx      Pressure value      None            
 # Pitch Bend                    Ex      MSB                 LSB
 
