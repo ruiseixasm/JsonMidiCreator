@@ -39,8 +39,10 @@ multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("_Many_jsonMidiCreator
 first_note << Key("F") >> Play()
 first_note << Load("_Note_jsonMidiCreator.json")
 
+Triplet() << (Duration() << NoteValue(1/8)) >> Play(1)
+
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (Duration() << NoteValue(1/16))
+base_note = Note() << (Duration() << Dotted(1/64))
 
 # Creation and configuration of first Sequencer
 first_sequence = Sequence() << (Position() << Measure(1))

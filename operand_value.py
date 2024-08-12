@@ -243,47 +243,58 @@ class Beat(TimeUnit):
     
 class NoteValue(TimeUnit):
     """
-    NoteValue() represents the Duration of a Note, a Note Value typical come as 1/4, 1/8 and 1/16.
-    Note Value can be given as dot value, like so:
-        * 1*    = (1 + 1/2)     = 3/2
-        * 1/2*  = (1/2 + 1/4)   = 3/4
-        * 1/4*  = (1/4 + 1/8)   = 3/8
-        * 1/8*  = (1/8 + 1/16)  = 3/16
-        * 1/16* = (1/16 + 1/32) = 3/32
-        * 1/32* = (1/32 + 1/64) = 3/64
+    NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
     
     Parameters
     ----------
-    first : float_like or str_like
+    first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
     def __init__(self, value: float = None):
-        match value:
-            case float() | int():
-                super().__init__(value)
-            case str():
-                value_float = float( value.replace('*', '') )
-                super().__init__(value_float)
-            case _:
-                super().__init__(None)
+        super().__init__(value)
 
     def getTime_ms(self):
         return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._value
-     
+
+class Dotted(NoteValue):
+    """
+    A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
+    Dots are equivalent to the following Note Values:
+        | 1*    = (1    + 1/2)   = 3/2
+        | 1/2*  = (1/2  + 1/4)   = 3/4
+        | 1/4*  = (1/4  + 1/8)   = 3/8
+        | 1/8*  = (1/8  + 1/16)  = 3/16
+        | 1/16* = (1/16 + 1/32)  = 3/32
+        | 1/32* = (1/32 + 1/64)  = 3/64
+    
+    Parameters
+    ----------
+    first : float_like
+        Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
+    """
+    def __init__(self, value: float = None):
+        super().__init__( value + value / 2 )
+
 class Step(TimeUnit):
+    """
+    A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
+    
+    Parameters
+    ----------
+    first : float_like
+        Steps as 1, 2, 4, 8
+    """
     def __init__(self, value: float = None):
         super().__init__(value)
 
     def getTime_ms(self):
         return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._value
     
-
 class Swing(Value):
     def __init__(self, swing: float = 0):
         super().__init__(swing)
 
-
 class Gate(Value):
-    def __init__(self, gate: float = 0.50):
+    def __init__(self, gate: float = 0.90):
         super().__init__(gate)
 

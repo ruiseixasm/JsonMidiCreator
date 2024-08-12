@@ -118,7 +118,7 @@ class Key(Unit):
     first : integer_like or string_like
         A read only Integer from 0 to 11 or the equivalent string key like "C#" or "Gb"
     """
-    def __init__(self, key: str = None):
+    def __init__(self, key: int | str = None):
         match key:
             case str():
                 super().__init__( Key.keyStrToKeyUnit(key) )

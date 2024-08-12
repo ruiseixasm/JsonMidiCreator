@@ -261,12 +261,16 @@ class Clock(Element):
             case int(): self._pulses_per_quarternote = operand
         return self
 
+class Rest(Element):
+    pass
+
 class Note(Element):
     def __init__(self):
         super().__init__()
-        self._duration: ol.Duration    = ol.Duration()
-        self._key_note: og.KeyNote     = og.KeyNote()
-        self._velocity: ou.Velocity    = ou.Velocity()
+        self._duration: ol.Duration = ol.Duration()
+        self._key_note: og.KeyNote  = og.KeyNote()
+        self._velocity: ou.Velocity = ou.Velocity()
+        self._gate: ov.Gate         = ov.Gate(.90)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -275,6 +279,7 @@ class Note(Element):
             case ou.Key():          return self._key_note % ou.Key()
             case ou.Octave():       return self._key_note % ou.Octave()
             case ou.Velocity():     return self._velocity
+            case ov.Gate():         return self._gate
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
@@ -287,7 +292,7 @@ class Note(Element):
         device_list: list           = self % od.Device() % list()
 
         on_time_ms = note_position.getTime_ms()
-        off_time_ms = on_time_ms + duration.getTime_ms()
+        off_time_ms = on_time_ms + self._gate % float() * duration.getTime_ms()
         return [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -314,6 +319,7 @@ class Note(Element):
         element_serialization["duration"] = self._duration.getSerialization()
         element_serialization["key_note"] = self._key_note.getSerialization()
         element_serialization["velocity"] = self._velocity % int()
+        element_serialization["gate"] = self._gate % float()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -321,16 +327,17 @@ class Note(Element):
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "duration" in serialization and "key_note" in serialization and
-            "velocity" in serialization):
+            "velocity" in serialization and "gate" in serialization):
 
             super().loadSerialization(serialization)
             self._duration = ol.Duration().loadSerialization(serialization["duration"])
             self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
             self._velocity = ou.Velocity(serialization["velocity"])
+            self._gate = ov.Gate(serialization["gate"])
         return self
       
     def copy(self) -> 'Note':
-        return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity
+        return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity << self._gate
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
@@ -339,6 +346,7 @@ class Note(Element):
             case ou.Key(): self._key_note << operand
             case ou.Octave(): self._key_note << operand
             case ou.Velocity(): self._velocity = operand
+            case ov.Gate(): self._gate = operand
             case _: super().__lshift__(operand)
         return self
 
@@ -351,6 +359,29 @@ class Note(Element):
                 return oc.Many(multi_notes)
         return super().__mul__(self)
 
+class Triplet(Note):
+    """
+    A Triplet() is the repetition of a given Note three times on a row
+    Triplets have each Note Duration set to the following Values:
+        | 1T    = (1    - 1/4)   = 3/4
+        | 1/2T  = (1/2  - 1/8)   = 3/8
+        | 1/4T  = (1/4  - 1/16)  = 3/16
+        | 1/8T  = (1/8  - 1/32)  = 3/32
+        | 1/16T = (1/16 - 1/64)  = 3/64
+        | 1/32T = (1/32 - 1/128) = 3/128
+    """
+    def __init__(self):
+        super().__init__()
+        self._duration *= 2/3   # 3 instead of 2
+
+    def getPlayList(self, position: ol.Position = None):
+        note_position: ol.Position = ol.Position() if position is None else position
+        triplet_playlist = []
+        for _ in range(3):
+            triplet_playlist.extend(super().getPlayList(note_position))
+            note_position += self._duration
+        return triplet_playlist
+    
 class ControlChange(Element):
     def __init__(self):
         super().__init__()
