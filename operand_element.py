@@ -359,9 +359,9 @@ class Note(Element):
                 return oc.Many(multi_notes)
         return super().__mul__(self)
 
-class Triplet(Note):
+class Note3(Note):
     """
-    A Triplet() is the repetition of a given Note three times on a row
+    A Note3() is the repetition of a given Note three times on a row
     Triplets have each Note Duration set to the following Values:
         | 1T    = (1    - 1/4)   = 3/4
         | 1/2T  = (1/2  - 1/8)   = 3/8
@@ -373,6 +373,7 @@ class Triplet(Note):
     def __init__(self):
         super().__init__()
         self._duration *= 2/3   # 3 instead of 2
+        self._gate      = ov.Gate(.50)
 
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position = ol.Position() if position is None else position
