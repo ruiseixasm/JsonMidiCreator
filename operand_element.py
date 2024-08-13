@@ -736,8 +736,10 @@ class Triplet(Element):
             case ol.Duration():     self._duration = operand * (2/3)
             case ov.NoteValue():    self._duration << operand * (2/3)
             case list():
-                if len(operand) == 3:
-                    self._elements = operand
+                if len(operand) < 4:
+                    self._elements = [Rest(), Rest(), Rest()]
+                    for element_i in range(len(operand)):
+                        self._elements[element_i] = operand[element_i]
             case _: super().__lshift__(operand)
         return self
 
