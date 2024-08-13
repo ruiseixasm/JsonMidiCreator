@@ -641,50 +641,26 @@ class Sequence(Element):
 
     def __add__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, of.Frame):
-            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
-                sequence_copy << (self._trigger_notes + (operand % Operand())).copy()
-        else:
-            match operand:
-                case ol.Position() | ol.TimeLength():
-                    sequence_copy << sequence_copy % operand + operand
-                case Operand():
-                    sequence_copy << (self._trigger_notes + operand).copy()
+        sequence_copy << sequence_copy % operand + (operand & self)
+        sequence_copy << self._trigger_notes + (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, of.Frame):
-            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
-                sequence_copy << (self._trigger_notes - (operand % Operand())).copy()
-        else:
-            match operand:
-                case ol.Position() | ol.TimeLength():
-                    sequence_copy << sequence_copy % operand - operand
-                case Operand():
-                    sequence_copy << (self._trigger_notes - operand).copy()
+        sequence_copy << sequence_copy % operand - (operand & self)
+        sequence_copy << self._trigger_notes - (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __mul__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        if isinstance(operand, of.Frame):
-            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
-                sequence_copy << (self._trigger_notes * (operand % Operand())).copy()
-        else:
-            match operand:
-                case ol.Position() | ol.TimeLength():
-                    sequence_copy << sequence_copy % operand * operand
-                case Operand():
-                    sequence_copy << (self._trigger_notes * operand).copy()
+        sequence_copy << sequence_copy % operand * (operand & self)
+        sequence_copy << self._trigger_notes * (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        match of.Inner() & operand:
-            case ot.Null():
-                sequence_copy << sequence_copy % operand / (operand & self)
-            case _:
-                sequence_copy << self._trigger_notes / (operand & of.Inner()**self._trigger_notes)
+        sequence_copy << sequence_copy % operand / (operand & self)
+        sequence_copy << self._trigger_notes / (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':

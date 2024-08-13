@@ -132,6 +132,90 @@ class Container(Operand):
     def __rrshift__(self, other_operand: Operand) -> Operand:
         return self
 
+    def __add__(self, operand: Operand) -> 'Many':
+        match operand:
+            case Many():
+                return Many(self.copy() % list() + operand.copy() % list())
+            case Operand():
+                return Many(self.copy() % list() + [operand.copy()])
+            case int(): # repeat n times the last argument if any
+                self_copy = self.copy()
+                operand_list = self_copy % list()
+                if len(self._operand_list) > 0:
+                    last_element = self._operand_list[len(self._operand_list) - 1]
+                    while operand > 0:
+                        operand_list.append(last_element.copy())
+                        operand -= 1
+                return self_copy
+        return self.copy()
+
+    def __sub__(self, operand: Operand) -> 'Many':
+        match operand:
+            case Many():
+                return Many(self % list() - operand % list()).copy()
+            case Operand():
+                return Many((self % list()) - [operand]).copy()
+            case int(): # repeat n times the last argument if any
+                self_copy = self.copy()
+                operand_list = self_copy % list()
+                if len(self._operand_list) > 0:
+                    last_element = self._operand_list[len(self._operand_list) - 1]
+                    while operand > 0 and len(operand_list) > 0:
+                        operand_list.pop()
+                        operand -= 1
+                return self_copy
+        return self.copy()
+
+    # multiply with a scalar 
+    def __mul__(self, operand: Operand) -> 'Many':
+        match operand:
+            case Operand():
+                self_copy = self.copy()
+                operand_list = self_copy % list()
+                for single_operand in operand_list:
+                    single_operand << single_operand % operand * operand
+                return self_copy
+            case int(): # repeat n times the last argument if any
+                many_operands = Many()    # empty list
+                while operand > 0:
+                    many_operands += self
+                    operand -= 1
+                return many_operands
+        return self.copy()
+    
+    def __truediv__(self, operand: Operand) -> 'Many':
+        match operand:
+            case Operand():
+                self_copy = self.copy()
+                elements_list = self_copy % list()
+                for single_operand in elements_list:
+                    single_operand << single_operand % operand / operand
+                return self_copy
+            case int(): # repeat n times the last argument if any
+                if operand > 0:
+                    self_copy = self.copy()
+                    elements_list = self_copy % list()
+                    elements_to_be_removed = round(1 - self_copy.len() / operand)
+                    while elements_to_be_removed > 0:
+                        elements_list.pop()
+                        elements_to_be_removed -= 1
+                return self_copy
+        return self.copy()
+    
+    def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':
+        match time_length:
+            case ol.TimeLength():
+                import operand_element as oe
+                starting_position = None
+                for single_operand in self._operand_list:
+                    if isinstance(single_operand, oe.Element):
+                        if starting_position is None:
+                            starting_position = single_operand % ol.Position()
+                        else:
+                            starting_position += time_length
+                            single_operand << ol.Position() << starting_position
+        return self
+
 class Many(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
@@ -180,90 +264,6 @@ class Many(Container):  # Just a container of Elements
                 case ol.Position() | ol.TimeLength(): operand >> self_first_element
             for single_element_i in range(1, len(self._operand_list)):
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
-        return self
-
-    def __add__(self, operand: Operand) -> 'Many':
-        match operand:
-            case Many():
-                return Many(self.copy() % list() + operand.copy() % list())
-            case Operand():
-                return Many(self.copy() % list() + [operand.copy()])
-            case int(): # repeat n times the last argument if any
-                element_copy = self.copy()
-                element_list = element_copy % list()
-                if len(self._operand_list) > 0:
-                    last_element = self._operand_list[len(self._operand_list) - 1]
-                    while operand > 0:
-                        element_list.append(last_element.copy())
-                        operand -= 1
-                return element_copy
-        return self.copy()
-
-    def __sub__(self, operand: Operand) -> 'Many':
-        match operand:
-            case Many():
-                return Many(self % list() - operand % list()).copy()
-            case Operand():
-                return Many((self % list()) - [operand]).copy()
-            case int(): # repeat n times the last argument if any
-                element_copy = self.copy()
-                element_list = element_copy % list()
-                if len(self._operand_list) > 0:
-                    last_element = self._operand_list[len(self._operand_list) - 1]
-                    while operand > 0 and len(element_list) > 0:
-                        element_list.pop()
-                        operand -= 1
-                return element_copy
-        return self.copy()
-
-    # multiply with a scalar 
-    def __mul__(self, operand: Operand) -> 'Many':
-        match operand:
-            case Operand():
-                element_copy = self.copy()
-                element_list = element_copy % list()
-                for single_operand in element_list:
-                    single_operand << single_operand % operand * operand
-                return element_copy
-            case int(): # repeat n times the last argument if any
-                many_operands = Many()    # empty list
-                while operand > 0:
-                    many_operands += self
-                    operand -= 1
-                return many_operands
-        return self.copy()
-    
-    def __truediv__(self, operand: Operand) -> 'Many':
-        match operand:
-            case Operand():
-                self_copy = self.copy()
-                elements_list = self_copy % list()
-                for single_operand in elements_list:
-                    single_operand << single_operand % operand / operand
-                return self_copy
-            case int(): # repeat n times the last argument if any
-                if operand > 0:
-                    self_copy = self.copy()
-                    elements_list = self_copy % list()
-                    elements_to_be_removed = round(1 - self_copy.len() / operand)
-                    while elements_to_be_removed > 0:
-                        elements_list.pop()
-                        elements_to_be_removed -= 1
-                return self_copy
-        return self.copy()
-    
-    def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':
-        match time_length:
-            case ol.TimeLength():
-                import operand_element as oe
-                starting_position = None
-                for single_operand in self._operand_list:
-                    if isinstance(single_operand, oe.Element):
-                        if starting_position is None:
-                            starting_position = single_operand % ol.Position()
-                        else:
-                            starting_position += time_length
-                            single_operand << ol.Position() << starting_position
         return self
 
 class Chain(Container):
