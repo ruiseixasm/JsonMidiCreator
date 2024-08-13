@@ -680,11 +680,11 @@ class Sequence(Element):
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        match operand & of.Outer():
+        match of.Inner() & operand:
             case ot.Null():
-                sequence_copy << self._trigger_notes / (operand & of.Inner()**self._trigger_notes)
-            case _:
                 sequence_copy << sequence_copy % operand / (operand & self)
+            case _:
+                sequence_copy << self._trigger_notes / (operand & of.Inner()**self._trigger_notes)
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
