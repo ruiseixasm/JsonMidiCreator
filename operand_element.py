@@ -680,8 +680,11 @@ class Sequence(Element):
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        sequence_copy << sequence_copy % operand / (operand & sequence_copy)
-        sequence_copy << self._trigger_notes / (operand & of.Inner()**self._trigger_notes)
+        match operand & of.Outer():
+            case ot.Null():
+                sequence_copy << self._trigger_notes / (operand & of.Inner()**self._trigger_notes)
+            case _:
+                sequence_copy << sequence_copy % operand / (operand & self)
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
@@ -739,6 +742,9 @@ class Triplet(Element):
                 if len(operand) < 4:
                     self._elements = [Rest(), Rest(), Rest()]
                     for element_i in range(len(operand)):
+                        self._elements[element_i] = operand[element_i]
+                else:
+                    for element_i in range(3):
                         self._elements[element_i] = operand[element_i]
             case _: super().__lshift__(operand)
         return self

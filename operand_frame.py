@@ -27,7 +27,7 @@ import operand_length as ol
 import operand_tag as ot
 
 
-# Works as a traditinal C list (chained)
+# Works as a traditional C list (chained)
 class Frame(Operand):
     def __init__(self):
         self._next_operand: Optional[Operand] = ot.Null()
@@ -99,12 +99,12 @@ class Frame(Operand):
                         case FrameFrame():      # Only Frames are conditional
                             for subject_operand in subject:
                                 if not isinstance(subject_operand, FrameFrame): continue
-                                if (self_operand | subject_operand) == ot.Null:
+                                if (self_operand | subject_operand).__class__ == ot.Null:
                                     return ot.Null()
                         case OperandFrame():    # Only Frames are conditional
                             for other_operand in subject:
                                 if isinstance(other_operand, Frame): continue
-                                if (self_operand | other_operand) == ot.Null:
+                                if (self_operand | other_operand).__class__ == ot.Null:
                                     return ot.Null()
                         case Frame():   continue
                         case _:         return self_operand
@@ -117,8 +117,8 @@ class Frame(Operand):
                 case Canvas():  return self % Operand()
                 case Blank():   return ot.Null()
                 case OperandFrame():    # Only Frames are conditional
-                    if (self_operand | subject) != ot.Null: continue
-                case FrameFrame():  # If it's a simple Operand the existence of FrameFram means False!
+                    if (self_operand | subject).__class__ != ot.Null: continue
+                case FrameFrame():  # If it's a simple Operand the existence of FrameFrame means False!
                     return ot.Null()
                 case Frame():   continue
                 case _:         return self_operand
