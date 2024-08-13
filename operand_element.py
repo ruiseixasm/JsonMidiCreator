@@ -690,7 +690,7 @@ class Triplet(Element):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["duration"] = self._duration.getSerialization()
-        element_serialization["elements"] = self._elements % list()
+        element_serialization["elements"] = self._elements
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -715,12 +715,80 @@ class Triplet(Element):
             case ol.Duration():     self._duration = operand * (2/3)
             case ov.NoteValue():    self._duration << operand * (2/3)
             case list():
-                if len(operand) < 4:
-                    self._elements = [Rest(), Rest(), Rest()]
+                if len(operand) < 3:
                     for element_i in range(len(operand)):
                         self._elements[element_i] = operand[element_i]
                 else:
                     for element_i in range(3):
+                        self._elements[element_i] = operand[element_i]
+            case _: super().__lshift__(operand)
+        return self
+
+class Tuplet(Element):
+    def __init__(self, division: int = 3):
+        super().__init__()
+        self._division: int = division
+        if self._division == 2:
+            self._duration *= (3/2) # from 3 notes to 2
+            self._elements: list[Element] = [Rest(), Rest()]
+        else:
+            self._duration *= (2/self._division) # from 2 notes to division
+            self._elements: list[Element] = []
+            for _ in range(self._division):
+                self._elements.append(Rest())                
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case int():             return self._division
+            case ol.Duration():     return self._duration * (2/3) if self._division == 2 else (self._division/2)
+            case ov.NoteValue():    return self._duration * (2/3) if self._division == 2 else (self._division/2) % operand
+            case list():            return self._elements
+            case _:                 return super().__mod__(operand)
+
+    def getPlayList(self, position: ol.Position = None):
+        element_position: ol.Position = ol.Position() if position is None else position
+        triplet_playlist = []
+        for element_i in range(self._division):
+            triplet_playlist.extend(self._elements[element_i].getPlayList(element_position))
+            element_position += self._duration
+        return triplet_playlist
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["division"] = self._division
+        element_serialization["duration"] = self._duration.getSerialization()
+        element_serialization["elements"] = self._elements
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "division" in serialization and "duration" in serialization and "elements" in serialization):
+
+            super().loadSerialization(serialization)
+            self._division = serialization["division"]
+            self._duration = ol.Duration().loadSerialization(serialization["duration"])
+            self._elements = serialization["elements"]
+        return self
+      
+    def copy(self) -> 'Tuplet':
+        elements = []
+        for single_element in self._elements:
+            elements.append(single_element.copy())
+        return super().copy() << self._division << self._duration.copy() << elements
+
+    def __lshift__(self, operand: Operand) -> 'Tuplet':
+        match operand:
+            case int():             self._division = operand
+            case ol.Duration():     self._duration = operand * (2/3) if self._division == 2 else (self._division/2)
+            case ov.NoteValue():    self._duration << operand * (2/3) if self._division == 2 else (self._division/2)
+            case list():
+                if len(operand) < self._division:
+                    for element_i in range(len(operand)):
+                        self._elements[element_i] = operand[element_i]
+                else:
+                    for element_i in range(self._division):
                         self._elements[element_i] = operand[element_i]
             case _: super().__lshift__(operand)
         return self
