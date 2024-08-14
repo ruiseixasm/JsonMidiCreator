@@ -133,11 +133,20 @@ class Container(Operand):
         return self
 
     def __add__(self, operand: Operand) -> 'Many':
+        import operand_element as oe
         match operand:
             case Many():
                 return Many(self.copy() % list() + operand.copy() % list())
-            case Operand():
+            case oe.Element():
                 return Many(self.copy() % list() + [operand.copy()])
+            case Operand():
+                self_copy = self.copy()
+                elements_list = self_copy % list()
+                for single_operand in elements_list:
+                    frame_operator = operand & single_operand
+                    new_measure = single_operand % operand + frame_operator
+                    single_operand << new_measure
+                return self_copy
             case int(): # repeat n times the last argument if any
                 self_copy = self.copy()
                 operand_list = self_copy % list()
@@ -175,7 +184,7 @@ class Container(Operand):
                 self_copy = self.copy()
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
-                    single_operand << single_operand % operand * operand
+                    single_operand << single_operand % operand * (operand & single_operand)
                 return self_copy
             case int(): # repeat n times the last argument if any
                 many_operands = Many()    # empty list

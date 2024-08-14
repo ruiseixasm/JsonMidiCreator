@@ -52,12 +52,13 @@ class Frame(Operand):
         return list_size
 
     def __mod__(self, operand: Operand) -> Operand:
-        for single_operand in self:
-            match operand:
-                case Frame():
-                    match single_operand:
-                        case operand:   return single_operand
-                case _:
+        match operand:
+            case Frame():
+                for single_operand in self:
+                    if isinstance(single_operand, operand.__class__):
+                        return single_operand
+            case _:
+                for single_operand in self:
                     match single_operand:
                         case Frame():   continue
                         case operand:   return single_operand
@@ -228,7 +229,6 @@ class Range(FilterOperand):
     def __or__(self, operand: 'Operand') -> bool:
         return True
 
-
 class Repeat(ApplyOperand):
     def __init__(self, unit, repeat: int = 1):
         self._unit = unit
@@ -244,58 +244,23 @@ class Repeat(ApplyOperand):
         return ot.Null()
 
 class Increment(ApplyOperand):
-    """
-    The Increment class initializes with a Numeric and additional arguments,
-    similar to the arguments in the range() function.
+    def __init__(self, step: int | float = None):
+        self._step = 1 if step is None else step
+        self._last_frame = None
 
-    Parameters:
-    apply_operand (Numeric): The apply_operand object.
-    *argv (int | float): Additional arguments, similar to the range() function.
-
-    The *argv works similarly to the arguments in range():
-    - If one argument is provided, it's taken as the step value.
-    - If two arguments are provided, they're taken as start and step.
-
-    Increment usage:
-    operand = Increment(apply_operand, 4)
-    operand = Increment(apply_operand, 1, 2)
-    """
-    def __init__(self, apply_operand: Operand, *argv: int | float):
-        """
-        Initialize the Increment with a Numeric and additional arguments.
-
-        Parameters:
-        apply_operand (Numeric): The apply_operand object.
-        *argv: Additional arguments, similar to the range() function.
-
-        The *argv works similarly to the arguments in range():
-        - If one argument is provided, it's taken as the step value.
-        - If two arguments are provided, they're taken as start and step.
-
-        Increment usage:
-        operand = Increment(apply_operand, 4)
-        operand = Increment(apply_operand, 1, 2)
-        """
-
-        self._apply_operand = apply_operand
-        self._start = 0
-        self._step = 1
-        if len(argv) == 1:
-            self._step = argv[0]
-        elif len(argv) == 2:
-            self._start = argv[0]
-            self._step = argv[1]
-        else:
-            raise ValueError("Increment requires 1 or 2 numeric arguments.")
-
-        self._apply_operand << self._start
-
-    def __or__(self, subject: Operand) -> Operand:
-        match subject:
+    def __or__(self, self_operand: Operand) -> Operand:
+        match self_operand:
             case Frame():   return self
             case Operand():
-                self_operand = self % Operand()
-                self_operand << self._apply_operand
-                self._apply_operand += self._step
+                if self._last_frame is None:
+                    for self_node in self:
+                        match self_node:
+                            case Frame():
+                                self._last_frame = self_node
+                            case Operand():
+                                break
+                            case _: return self
+                else:
+                    self._last_frame._next_operand += self._step
                 return self
-            case _:         return super().__or__(subject)
+            case _:         return super().__or__(self_operand)

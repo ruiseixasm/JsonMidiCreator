@@ -214,6 +214,7 @@ class TimeUnit(Value):
         Not intended to be set directly
     """
     def __init__(self, value: float = None):
+        value = 0 if value is None else round(1.0 * value, 9)  # rounding to 9 avoids floating-point errors
         super().__init__(value)
 
 class Measure(TimeUnit):
