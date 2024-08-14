@@ -104,11 +104,10 @@ class Frame(Operand):
         return self
 
     def __and__(self, subject: 'Operand') -> Operand:
-        self_operand = self % Operand()
         if isinstance(subject, Frame):
             for self_frame in self: # Full conditions to be verified one by one (and)!
                 match self_frame:
-                    case Canvas():  return self_operand
+                    case Canvas():  return self % Operand()
                     case Blank():   return ot.Null()
                     case FilterFrame():      # Only Frames are conditional
                         frame_frame_null = True
@@ -122,13 +121,12 @@ class Frame(Operand):
                         if (self_frame | subject % Operand()).__class__ == ot.Null:
                             return ot.Null()
                     case ApplyOperand():    # ApplyOperand is for single Operand
-                        self_frame | self_operand
-                    case Frame():   continue
-                    case _:         return self_frame   # In case it's an Operand (last in the chain)
+                        self_frame | self % Operand()
+            return self % Operand()   # In case it's an Operand (last in the chain)
         else:
             for self_frame in self: # Full conditions to be verified one by one (and)!
                 match self_frame:
-                    case Canvas():  return self_operand
+                    case Canvas():  return self % Operand()
                     case Blank():   return ot.Null()
                     case FilterOperand():    # Only Frames are conditional
                         if (self_frame | subject).__class__ == ot.Null:
@@ -136,9 +134,8 @@ class Frame(Operand):
                     case FilterFrame():  # If it's a simple Operand the existence of FilterFrame means False!
                         return ot.Null()
                     case ApplyOperand():    # ApplyOperand is for single Operand
-                        self_frame | self_operand
-                    case Frame():   continue
-                    case _:         return self_frame
+                        self_frame | self % Operand()
+            return self % Operand()
         return self # Whenever no Operand exists in self
 
 class FilterFrame(Frame):

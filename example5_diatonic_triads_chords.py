@@ -27,7 +27,7 @@ else:  # Assume Linux/Unix
 
 
 # Global Staff setting up
-global_staff << Tempo(60) << Measure(7)
+global_staff << Tempo(280) << Measure(7)
 
-seven_major_triad_chords = Chord(3) * 7 + Increment()**Measure() >> Print()
+seven_major_triad_chords = (Chord(3) << Duration() << Measure(1)) * 7 + Increment()**Measure() >> Print()
 seven_major_triad_chords >> Play(True)

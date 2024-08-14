@@ -415,7 +415,7 @@ class Chord(Note):
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
-        note_position: ol.Position = ol.Position() if position is None else position
+        note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
         chord_playlist = []
         self_note_copy = Note() << self # Copies the Note NOT the Chord
         self_key_note = self_note_copy % og.KeyNote()
