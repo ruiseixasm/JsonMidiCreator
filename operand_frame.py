@@ -63,7 +63,7 @@ class Frame(Operand):
         return ot.Null()
     
     def __eq__(self, frame: 'Frame') -> bool:
-        return self.__class__ == frame.__class__
+        return isinstance(self, frame.__class__)
     
     def getSerialization(self):
         return {
