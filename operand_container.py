@@ -189,7 +189,7 @@ class Container(Operand):
                 self_copy = self.copy()
                 elements_list = self_copy % list()
                 for single_operand in elements_list:
-                    single_operand << single_operand % operand / operand
+                    single_operand << single_operand % (operand & self) / (operand & self)
                 return self_copy
             case int(): # repeat n times the last argument if any
                 if operand > 0:

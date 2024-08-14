@@ -62,6 +62,9 @@ class Frame(Operand):
                         case operand:   return single_operand
         return ot.Null()
     
+    def __eq__(self, frame: 'Frame') -> bool:
+        return self.__class__ == frame.__class__
+    
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -76,6 +79,18 @@ class Frame(Operand):
 
             self._next_operand = Operand().loadSerialization(serialization)
         return self
+    
+    def pop(self, frame: 'Frame') -> 'Frame':
+        previous_frame: 'Frame' = self
+        for single_frame in self:
+            if isinstance(single_frame, Frame) and single_frame == frame:
+                if single_frame == self:
+                    self = self._next_operand
+                    previous_frame = self
+                else:
+                    previous_frame._next_operand = single_frame._next_operand
+                    previous_frame = single_frame
+        return self      
    
     def __pow__(self, operand: Operand) -> 'Frame':
         self._next_operand = operand

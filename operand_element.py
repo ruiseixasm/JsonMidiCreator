@@ -659,8 +659,11 @@ class Sequence(Element):
 
     def __truediv__(self, operand: Operand) -> 'Element':
         sequence_copy = self.copy()
-        sequence_copy << sequence_copy % operand / (operand & self)
-        sequence_copy << self._trigger_notes / (operand & (of.Inner() & operand)**self._trigger_notes)
+        if isinstance(of.Inner() & operand, ot.Null):
+            sequence_copy << sequence_copy % operand / (operand & self)
+        else:
+            frame_operand = operand.pop(of.Inner())
+            sequence_copy << self._trigger_notes / frame_operand
         return sequence_copy
 
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Sequence':
