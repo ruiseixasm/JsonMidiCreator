@@ -147,6 +147,7 @@ class Container(Operand):
                         operand_list.append(last_element.copy())
                         operand -= 1
                 return self_copy
+            case ot.Null(): return ot.Null()
         return self.copy()
 
     def __sub__(self, operand: Operand) -> 'Many':
@@ -164,6 +165,7 @@ class Container(Operand):
                         operand_list.pop()
                         operand -= 1
                 return self_copy
+            case ot.Null(): return ot.Null()
         return self.copy()
 
     # multiply with a scalar 
@@ -181,6 +183,7 @@ class Container(Operand):
                     many_operands += self
                     operand -= 1
                 return many_operands
+            case ot.Null(): return ot.Null()
         return self.copy()
     
     def __truediv__(self, operand: Operand) -> 'Many':
@@ -189,7 +192,7 @@ class Container(Operand):
                 self_copy = self.copy()
                 elements_list = self_copy % list()
                 for single_operand in elements_list:
-                    single_operand << single_operand % (operand & self) / (operand & self)
+                    single_operand << single_operand % operand / (operand & single_operand)
                 return self_copy
             case int(): # repeat n times the last argument if any
                 if operand > 0:
@@ -200,6 +203,7 @@ class Container(Operand):
                         elements_list.pop()
                         elements_to_be_removed -= 1
                 return self_copy
+            case ot.Null(): return ot.Null()
         return self.copy()
     
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':

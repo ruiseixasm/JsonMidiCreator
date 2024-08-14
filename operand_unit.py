@@ -18,12 +18,13 @@ from typing import Union
 # Json Midi Creator Libraries
 from operand import Operand
 import operand_staff as os
+import operand_numeric as on
 import operand_frame as of
 import operand_tag as ot
 
 
 # Units have never None values and are also const, with no setters
-class Unit(Operand):
+class Unit(on.Numeric):
     """
     This is a read only type of Operand that has associated an Integer.
     This class is intended to represent parameters that are whole numbers like in midi messages from 0 to 127
@@ -89,24 +90,28 @@ class Unit(Operand):
         match unit:
             case Unit(): return self.__class__(self % int() + unit % int())
             case int() | float(): return self.__class__(self % int() + unit)
+            case ot.Null(): return ot.Null()
         return self
     
     def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__(self % int() - unit % int())
             case int() | float(): return self.__class__(self % int() - unit)
+            case ot.Null(): return ot.Null()
         return self
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__((self % int()) * (unit % int()))
             case int() | float(): return self.__class__(self % int() * unit)
+            case ot.Null(): return ot.Null()
         return self
     
     def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__((self % int()) / (unit % int()))
             case int() | float(): return self.__class__(self % int() / unit)
+            case ot.Null(): return ot.Null()
         return self
     
 class Key(Unit):

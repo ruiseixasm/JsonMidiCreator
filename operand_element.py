@@ -673,24 +673,28 @@ class Sequence(Element):
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
+        if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
         sequence_copy << sequence_copy % operand + (operand & self)
         sequence_copy << self._trigger_notes + (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
+        if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
         sequence_copy << sequence_copy % operand - (operand & self)
         sequence_copy << self._trigger_notes - (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __mul__(self, operand: Operand) -> 'Element':
+        if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
         sequence_copy << sequence_copy % operand * (operand & self)
         sequence_copy << self._trigger_notes * (operand & (of.Inner() & operand)**self._trigger_notes)
         return sequence_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
+        if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
         if isinstance(of.Inner() & operand, ot.Null):
             sequence_copy << sequence_copy % operand / (operand & self)

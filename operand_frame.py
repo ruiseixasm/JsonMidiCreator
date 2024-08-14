@@ -21,7 +21,8 @@ import enum
 import creator as c
 from operand import Operand
 
-import operand_value as ou
+import operand_numeric as on
+import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_tag as ot
@@ -102,71 +103,80 @@ class Frame(Operand):
         return self
 
     def __and__(self, subject: 'Operand') -> Operand:
+        self_operand = self % Operand()
         if isinstance(subject, Frame):
             for self_frame in self: # Full conditions to be verified one by one (and)!
                 match self_frame:
-                    case Canvas():  return self % Operand()
+                    case Canvas():  return self_operand
                     case Blank():   return ot.Null()
-                    case FrameFrame():      # Only Frames are conditional
+                    case FilterFrame():      # Only Frames are conditional
                         frame_frame_null = True
                         for subject_frame in subject:
-                            if not isinstance(subject_frame, FrameFrame): continue
+                            if not isinstance(subject_frame, FilterFrame): continue
                             if (self_frame | subject_frame).__class__ != ot.Null:
                                 frame_frame_null = False
                                 break
                         if frame_frame_null: return ot.Null()
-                    case OperandFrame():    # Only Frames are conditional (OperandFrame is it for single Operand)
-                        for single_subject_operand in subject:    # Gets the single Subject Operand, last one
-                            if isinstance(single_subject_operand, Frame): continue
-                            if (self_frame | single_subject_operand).__class__ == ot.Null:
-                                return ot.Null()
+                    case FilterOperand():    # Only Frames are conditional (FilterOperand is it for single Operand)
+                        if (self_frame | subject % Operand()).__class__ == ot.Null:
+                            return ot.Null()
+                    case ApplyOperand():    # ApplyOperand is for single Operand
+                        self_frame | self_operand
                     case Frame():   continue
                     case _:         return self_frame   # In case it's an Operand (last in the chain)
         else:
             for self_frame in self: # Full conditions to be verified one by one (and)!
                 match self_frame:
-                    case Canvas():  return self % Operand()
+                    case Canvas():  return self_operand
                     case Blank():   return ot.Null()
-                    case OperandFrame():    # Only Frames are conditional
+                    case FilterOperand():    # Only Frames are conditional
                         if (self_frame | subject).__class__ == ot.Null:
                             return ot.Null()
-                    case FrameFrame():  # If it's a simple Operand the existence of FrameFrame means False!
+                    case FilterFrame():  # If it's a simple Operand the existence of FilterFrame means False!
                         return ot.Null()
+                    case ApplyOperand():    # ApplyOperand is for single Operand
+                        self_frame | self_operand
                     case Frame():   continue
                     case _:         return self_frame
         return self # Whenever no Operand exists in self
 
-class FrameFrame(Frame):
+class FilterFrame(Frame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
-            case FrameFrame():  return ot.Null()
-            case _:             return subject
+            case FilterFrame(): return ot.Null()
+            case _:             return self
 
-class OperandFrame(Frame):
+class FilterOperand(Frame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
-            case Frame():       return subject
+            case Frame():       return self
             case _:             return ot.Null()
 
-class Canvas(FrameFrame):
-    pass
-
-class Blank(FrameFrame):
-    pass
-
-class Inner(FrameFrame):
+class ApplyOperand(Frame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
-            case Inner():   return subject
-            case _:         return super().__or__(subject)
+            case Frame():       return self
+            case _:             return ot.Null()
 
-class Outer(FrameFrame):
+class Canvas(FilterFrame):
+    pass
+
+class Blank(FilterFrame):
+    pass
+
+class Inner(FilterFrame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
-            case Outer():   return subject
+            case Inner():   return self
             case _:         return super().__or__(subject)
 
-class Selection(OperandFrame):
+class Outer(FilterFrame):
+    def __or__(self, subject: Operand) -> Operand:
+        match subject:
+            case Outer():   return self
+            case _:         return super().__or__(subject)
+
+class Selection(FilterOperand):
     def __init__(self):
         self._position: ol.Position = ol.Position()
         self._time_length: ol.TimeLength = ol.TimeLength() << ov.Beat(1)
@@ -209,7 +219,7 @@ class Selection(OperandFrame):
             case _: super().__lshift__(operand)
         return self
 
-class Range(OperandFrame):
+class Range(FilterOperand):
     def __init__(self, operand: Operand, position: ol.Position = None, length: ol.Length = None):
         self._operand = operand
         self._position = position
@@ -219,7 +229,7 @@ class Range(OperandFrame):
         return True
 
 
-class Repeat(OperandFrame):
+class Repeat(ApplyOperand):
     def __init__(self, unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
@@ -233,66 +243,59 @@ class Repeat(OperandFrame):
     def __or__(self, operand: 'Operand') -> Operand:
         return ot.Null()
 
-class Increment(OperandFrame):
+class Increment(ApplyOperand):
     """
-    The Increment class initializes with a Unit and additional arguments,
+    The Increment class initializes with a Numeric and additional arguments,
     similar to the arguments in the range() function.
 
     Parameters:
-    unit (Unit): The unit object.
-    *argv (int): Additional arguments, similar to the range() function.
+    apply_operand (Numeric): The apply_operand object.
+    *argv (int | float): Additional arguments, similar to the range() function.
 
     The *argv works similarly to the arguments in range():
-    - If one argument is provided, it's taken as the end value.
-    - If two arguments are provided, they're taken as start and end.
-    - If three arguments are provided, they're taken as start, end, and step.
+    - If one argument is provided, it's taken as the step value.
+    - If two arguments are provided, they're taken as start and step.
 
     Increment usage:
-    operand = Increment(unit, 8)
-    operand = Increment(unit, 0, 10, 2)
+    operand = Increment(apply_operand, 4)
+    operand = Increment(apply_operand, 1, 2)
     """
-    def __init__(self, unit, *argv: int):
+    def __init__(self, apply_operand: Operand, *argv: int | float):
         """
-        Initialize the Increment with a Unit and additional arguments.
+        Initialize the Increment with a Numeric and additional arguments.
 
         Parameters:
-        unit (Unit): The unit object.
+        apply_operand (Numeric): The apply_operand object.
         *argv: Additional arguments, similar to the range() function.
 
         The *argv works similarly to the arguments in range():
-        - If one argument is provided, it's taken as the end value.
-        - If two arguments are provided, they're taken as start and end.
-        - If three arguments are provided, they're taken as start, end, and step.
+        - If one argument is provided, it's taken as the step value.
+        - If two arguments are provided, they're taken as start and step.
 
         Increment usage:
-        operand = Increment(unit, 8)
-        operand = Increment(unit, 0, 10, 2)
+        operand = Increment(apply_operand, 4)
+        operand = Increment(apply_operand, 1, 2)
         """
 
-        self._unit = unit
+        self._apply_operand = apply_operand
         self._start = 0
-        self._stop = 0
         self._step = 1
         if len(argv) == 1:
-            self._stop = argv[0]
+            self._step = argv[0]
         elif len(argv) == 2:
             self._start = argv[0]
-            self._stop = argv[1]
-        elif len(argv) == 3:
-            self._start = argv[0]
-            self._stop = argv[1]
-            self._step = argv[2]
+            self._step = argv[1]
         else:
-            raise ValueError("Increment requires 1, 2, or 3 arguments for the range.")
+            raise ValueError("Increment requires 1 or 2 numeric arguments.")
 
-        self._iterator = self._start
+        self._apply_operand << self._start
 
-    def step(self) -> Operand:
-        if self._iterator < self._stop:
-            self._unit += self._step
-            self._iterator += 1
-            return self._unit
-        return ot.Null()
-
-    def __or__(self, operand: 'Operand') -> bool:
-        return ot.Null()
+    def __or__(self, subject: Operand) -> Operand:
+        match subject:
+            case Frame():   return self
+            case Operand():
+                self_operand = self % Operand()
+                self_operand << self._apply_operand
+                self._apply_operand += self._step
+                return self
+            case _:         return super().__or__(subject)

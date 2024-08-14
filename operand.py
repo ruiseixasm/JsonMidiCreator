@@ -44,25 +44,41 @@ class Operand:
         return self
 
     def __add__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
 
     def __sub__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
 
     def __mul__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
     
     def __truediv__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
     
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
 
     def __pow__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
     
     def __and__(self, operand: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self
 
     def __or__(self, subject: 'Operand') -> 'Operand':
+        import operand_tag as ot
+        if isinstance(operand, ot.Null): return ot.Null()
         return self

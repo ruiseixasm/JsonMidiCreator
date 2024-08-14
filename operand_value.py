@@ -18,13 +18,14 @@ from typing import Union
 # Json Midi Creator Libraries
 from operand import Operand
 import operand_staff as os
+import operand_numeric as on
 import operand_unit as ou
 import operand_frame as of
 import operand_tag as ot
 
 
 # Values have never None values and are also const, with no setters
-class Value(Operand):
+class Value(on.Numeric):
     """
     This is a read only type of Operand that has associated a Rational number.
     This class is intended to represent time based variables that are ratios like the typical 1/4 note value
@@ -90,18 +91,21 @@ class Value(Operand):
         match value:
             case Value(): return self.__class__(self % float() + value % float())
             case float() | int(): return self.__class__(self % float() + value)
+            case ot.Null(): return ot.Null()
         return self
     
     def __sub__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case Value(): return self.__class__(self % float() - value % float())
             case float() | int(): return self.__class__(self % float() - value)
+            case ot.Null(): return ot.Null()
         return self
     
     def __mul__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case Value(): return self.__class__((self % float()) * (value % float()))
             case float() | int(): return self.__class__(self % float() * value)
+            case ot.Null(): return ot.Null()
         return self
     
     def __truediv__(self, value: Union['Value', float]) -> 'Value':
@@ -112,6 +116,7 @@ class Value(Operand):
             case float() | int():
                 if value != 0:
                     return self.__class__(self % float() / value)
+            case ot.Null(): return ot.Null()
         return self
 
 class Quantization(Value):

@@ -120,6 +120,7 @@ class Length(Operand):
                     << self._beat + operand % ov.Beat() \
                     << self._note_value + operand % ov.NoteValue() \
                     << self._step + operand % ov.Step()
+            case ot.Null(): return ot.Null()
         return self.copy()
     
     # subtracting two lengths 
@@ -133,6 +134,7 @@ class Length(Operand):
                     << self._beat - operand % ov.Beat() \
                     << self._note_value - operand % ov.NoteValue() \
                     << self._step - operand % ov.Step()
+            case ot.Null(): return ot.Null()
         return self.copy()
     
     def __mul__(self, operand: Operand) -> 'Length':
@@ -145,6 +147,7 @@ class Length(Operand):
                     << self._beat * (operand % ov.Beat()) \
                     << self._note_value * (operand % ov.NoteValue()) \
                     << self._step * (operand % ov.Step())
+            case ot.Null(): return ot.Null()
         return self.copy()
     
     def __truediv__(self, operand: Operand) -> 'Length':
@@ -157,6 +160,7 @@ class Length(Operand):
                     << self._beat / (operand % ov.Beat()) \
                     << self._note_value / (operand % ov.NoteValue()) \
                     << self._step / (operand % ov.Step())
+            case ot.Null(): return ot.Null()
         return self.copy()
 
 class Position(Length):
