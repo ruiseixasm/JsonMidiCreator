@@ -75,6 +75,9 @@ class KeyNote(Generic):
         key_int: int = self._key % int()
         octave_int: int = self._octave % int()
         match operand:
+            case int():
+                key_int += operand % 12
+                octave_int += operand // 12
             case ou.Key():
                 key_int += operand % int() % 12
                 octave_int += operand % int() // 12
@@ -84,8 +87,7 @@ class KeyNote(Generic):
                 key_int += operand % ou.Key() % int() % 12
                 octave_int += (operand % ou.Octave() \
                                + ((KeyNote() << self % ou.Key() << ou.Octave(0)) + operand % ou.Key()) % ou.Octave()) % int()
-            case _:
-                return self.copy()
+            case _: return self.copy()
         return KeyNote() << ou.Key(key_int) << ou.Octave(octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':

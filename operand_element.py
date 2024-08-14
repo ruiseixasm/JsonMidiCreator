@@ -401,6 +401,39 @@ class Note3(Note):
             case _: super().__lshift__(operand)
         return self
 
+class Chord(Note):
+    def __init__(self, size: int = None):   # 0xF2 - Song ol.Position
+        super().__init__()
+        self._scale: ou.Scale = ou.Scale("Major")   # Default Scale for Chords
+        self._size: int = 3 if size is None else size
+        # Need to add inversions and other parameters
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ou.Scale():    return self._scale
+            case int():         return self._size
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: ol.Position = None):
+        note_position: ol.Position = ol.Position() if position is None else position
+        chord_playlist = []
+        self_note_copy = Note() << self # Copies the Note NOT the Chord
+        self_key_note = self_note_copy % og.KeyNote()
+        for note_transposition in range(self._size):
+            chromatic_transposition = self._scale.transpose(note_transposition * 2)
+            self_note_copy << self_key_note + chromatic_transposition
+            chord_playlist.extend(self_note_copy.getPlayList(note_position))
+        return chord_playlist
+    
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: Operand) -> 'Chord':
+        match operand:
+            case ou.Scale():    self._scale = operand
+            case int():         self._size = operand
+            case _: super().__lshift__(operand)
+        return self
+
 class ControlChange(Element):
     def __init__(self):
         super().__init__()
@@ -798,16 +831,6 @@ class Tuplet(Element):
 
 class Panic:
     ...
-
-    # CHAINABLE OPERATIONS
-
-class Chord(Element):
-    def __init__(self, root_note = 60, size = 3, scale = None):   # 0xF2 - Song ol.Position
-        self._root_note = root_note
-        self._size = size
-        self._scale = scale
-        self._notes = []
-        self._device: list = None
 
     # CHAINABLE OPERATIONS
 

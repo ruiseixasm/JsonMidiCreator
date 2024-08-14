@@ -206,6 +206,21 @@ class Scale(Unit):
             case str():         return Scale.getScaleName(self % int())
             case _:             return super().__mod__(operand)
 
+    def transpose(self, interval: int = 1) -> int:
+        self_scale = Scale._scales[self % int()]
+        chromatic_transposition = 0
+        if interval > 0:
+            while interval != 0:
+                chromatic_transposition += 1
+                if self_scale[chromatic_transposition % 12] == 1:
+                    interval -= 1
+        elif interval < 0:
+            while interval != 0:
+                chromatic_transposition -= 1
+                if self_scale[chromatic_transposition % 12] == 1:
+                    interval += 1
+        return chromatic_transposition
+
     _scale_names = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
