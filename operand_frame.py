@@ -31,7 +31,7 @@ import operand_tag as ot
 # Works as a traditional C list (chained)
 class Frame(Operand):
     def __init__(self):
-        self._next_operand: Optional[Operand] = ot.Null()
+        self._next_operand: Optional[Operand] = ot.Dummy()
         
     def __iter__(self):
         self._current_node: Optional[Operand] = self    # Reset to the start node on new iteration
@@ -94,6 +94,13 @@ class Frame(Operand):
                     previous_frame = single_frame
         return self      
    
+    def last(self) -> 'Frame':
+        last_frame = self
+        for self_node in self:
+            if isinstance(self_node, Frame):
+                last_frame = self_node
+        return last_frame
+
     def __pow__(self, operand: Operand) -> 'Frame':
         self._next_operand = operand
         return self
@@ -250,13 +257,7 @@ class Increment(ApplyOperand):
             case Frame():   return self
             case Operand():
                 if self._last_frame is None:
-                    for self_node in self:
-                        match self_node:
-                            case Frame():
-                                self._last_frame = self_node
-                            case Operand():
-                                break
-                            case _: return self
+                    self._last_frame = self.last()
                 else:
                     self._last_frame._next_operand += self._step
                 return self

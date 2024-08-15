@@ -34,6 +34,9 @@ class Tag(o.Operand):
 class Null(Tag):
     pass
 
+class Dummy(Tag):
+    pass
+
 class Print(Tag):
     pass
 

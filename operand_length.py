@@ -167,9 +167,7 @@ class Position(Length):
     pass
 
 class Duration(Length):
-    def __init__(self):
-        super().__init__()
-        self << os.global_staff % self
+    pass
 
 class TimeLength(Length):
     pass

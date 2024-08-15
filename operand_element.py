@@ -268,7 +268,7 @@ class Rest(Element):
 class Note(Element):
     def __init__(self):
         super().__init__()
-        self._duration: ol.Duration = ol.Duration()
+        self._duration: ol.Duration = ol.Duration() << os.global_staff % ol.Duration()
         self._key_note: og.KeyNote  = og.KeyNote()
         self._velocity: ou.Velocity = ou.Velocity()
         self._gate: ov.Gate         = ov.Gate(.90)
