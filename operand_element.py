@@ -269,8 +269,9 @@ class Note(Element):
     def __init__(self):
         super().__init__()
         self._duration: ol.Duration = ol.Duration() << os.global_staff % ol.Duration()
-        self._key_note: og.KeyNote  = og.KeyNote()
-        self._velocity: ou.Velocity = ou.Velocity()
+        self._key_note: og.KeyNote  = og.KeyNote() \
+            << ou.Key( os.global_staff % ou.Key() % int() ) << ou.Octave( os.global_staff % ou.Octave() % int() )
+        self._velocity: ou.Velocity = ou.Velocity( os.global_staff % ou.Velocity() % int() )
         self._gate: ov.Gate         = ov.Gate(.90)
 
     def __mod__(self, operand: Operand) -> Operand:
@@ -417,12 +418,11 @@ class Chord(Note):
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
         chord_playlist = []
-        self_note_copy = Note() << self # Copies the Note NOT the Chord
-        self_key_note = self_note_copy % og.KeyNote()
+        self_key_note = self % og.KeyNote()
         for note_transposition in range(self._size):
             chromatic_transposition = self._scale.transpose(note_transposition * 2)
-            self_note_copy << self_key_note + chromatic_transposition
-            chord_playlist.extend(self_note_copy.getPlayList(note_position))
+            self << self_key_note + chromatic_transposition
+            chord_playlist.extend(super().getPlayList(note_position))
         return chord_playlist
     
     # CHAINABLE OPERATIONS

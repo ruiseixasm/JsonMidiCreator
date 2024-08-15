@@ -262,3 +262,20 @@ class Increment(ApplyOperand):
                     self._last_frame._next_operand += self._step
                 return self
             case _:         return super().__or__(self_operand)
+
+class Transpose(ApplyOperand):
+    def __init__(self, step: int | float = None):
+        self._step = 1 if step is None else step
+        self._last_frame = None
+        self._scale = ou.Scale()
+
+    def __or__(self, self_operand: Operand) -> Operand:
+        match self_operand:
+            case Frame():   return self
+            case Operand():
+                if self._last_frame is None:
+                    self._last_frame = self.last()
+                else:
+                    self._last_frame._next_operand += self._step
+                return self
+            case _:         return super().__or__(self_operand)

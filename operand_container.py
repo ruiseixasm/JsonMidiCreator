@@ -134,30 +134,27 @@ class Container(Operand):
 
     def __add__(self, operand: Operand) -> 'Many':
         import operand_element as oe
+        self_copy = self.copy()
         match operand:
             case Many():
                 return Many(self.copy() % list() + operand.copy() % list())
             case oe.Element():
                 return Many(self.copy() % list() + [operand.copy()])
             case Operand():
-                self_copy = self.copy()
-                elements_list = self_copy % list()
-                for single_operand in elements_list:
-                    frame_operator = operand & single_operand
-                    new_measure = single_operand % operand + frame_operator
-                    single_operand << new_measure
-                return self_copy
+                operand_list = self_copy % list()
+                for single_operand in operand_list:
+                    frame_operand = operand & single_operand
+                    new_operand = single_operand % operand + frame_operand
+                    single_operand << new_operand
             case int(): # repeat n times the last argument if any
-                self_copy = self.copy()
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
-                    last_element = self._operand_list[len(self._operand_list) - 1]
+                    last_operand = self._operand_list[len(self._operand_list) - 1]
                     while operand > 0:
-                        operand_list.append(last_element.copy())
+                        operand_list.append(last_operand.copy())
                         operand -= 1
-                return self_copy
             case ot.Null(): return ot.Null()
-        return self.copy()
+        return self_copy
 
     def __sub__(self, operand: Operand) -> 'Many':
         match operand:
@@ -196,24 +193,21 @@ class Container(Operand):
         return self.copy()
     
     def __truediv__(self, operand: Operand) -> 'Many':
+        self_copy = self.copy()
         match operand:
             case Operand():
-                self_copy = self.copy()
                 elements_list = self_copy % list()
                 for single_operand in elements_list:
                     single_operand << single_operand % operand / (operand & single_operand)
-                return self_copy
             case int(): # repeat n times the last argument if any
                 if operand > 0:
-                    self_copy = self.copy()
                     elements_list = self_copy % list()
                     elements_to_be_removed = round(1 - self_copy.len() / operand)
                     while elements_to_be_removed > 0:
                         elements_list.pop()
                         elements_to_be_removed -= 1
-                return self_copy
             case ot.Null(): return ot.Null()
-        return self.copy()
+        return self_copy
     
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':
         match time_length:

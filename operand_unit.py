@@ -35,8 +35,7 @@ class Unit(on.Numeric):
         A read only Integer described as a Unit
     """
     def __init__(self, unit: int = None):
-        self._unit: int = 0
-        self._unit = os.global_staff % self % int() if unit is None else round(unit)
+        self._unit: int = 0 if unit is None else round(unit)
 
     def __mod__(self, operand: Operand) -> Operand:
         """
@@ -185,6 +184,7 @@ class Channel(Unit):
         For a given device, there are 16 channels ranging from 1 to 16
     """
     def __init__(self, channel: int = None):
+        channel = os.global_staff % self % int() if channel is None else round(channel)
         super().__init__(channel)
 
 class Scale(Unit):
@@ -203,7 +203,8 @@ class Scale(Unit):
             case int() | float():
                 super().__init__(scale)
             case _:
-                super().__init__(None)
+                scale = os.global_staff % self % int() if scale is None else round(scale)
+                super().__init__(scale)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -325,7 +326,7 @@ class Inversion(Unit):
     first : integer_like
         Inversion sets the degree of chords inversion starting by 0 meaning no inversion
     """
-    def __init__(self, inversion: int = 0):
+    def __init__(self, inversion: int = None):
         super().__init__(inversion)
 
 class Play(Unit):
