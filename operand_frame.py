@@ -269,6 +269,12 @@ class Transpose(ApplyOperand):
         self._last_frame = None
         self._scale = ou.Scale()
 
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case int():         return self._step
+            case ou.Scale():    return self._scale
+            case _:             return super().__mod__(operand)
+
     def __or__(self, self_operand: Operand) -> Operand:
         match self_operand:
             case Frame():   return self
@@ -279,3 +285,11 @@ class Transpose(ApplyOperand):
                     self._last_frame._next_operand += self._step
                 return self
             case _:         return super().__or__(self_operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: Operand) -> 'Frame':
+        match operand:
+            case int():         self._step = operand
+            case ou.Scale():    self._scale = operand
+        return self
