@@ -31,21 +31,21 @@ class Generic(Operand):
 class Scale(Generic):
     def __init__(self):
         self._key: ou.Key = ou.Key()
-        self._c_scale: ou.CScale = ou.CScale()
+        self._scale_type: ou.ScaleType = ou.ScaleType()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case of.Frame():    return self % (operand % Operand())
             case ou.Key():      return self._key
-            case ou.CScale():   return self._c_scale
+            case ou.ScaleType():   return self._scale_type
             case _:             return ot.Null()
 
     def transpose(self, interval: int = 1) -> int:
         key_int = self._key % int()
         key_scale_list = [0] * 12
-        c_scale_list = self._c_scale % list()
+        scale_type_list = self._scale_type % list()
         for scale_key in range(12):
-            key_scale_list[(key_int + scale_key) % 12] = c_scale_list[scale_key % 12]
+            key_scale_list[(key_int + scale_key) % 12] = scale_type_list[scale_key % 12]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
@@ -69,63 +69,63 @@ class Scale(Generic):
         return {
             "class": self.__class__.__name__,
             "key": self._key % int(),
-            "c_scale": self._c_scale % int()
+            "scale_type": self._scale_type % int()
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Scale':
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "key" in serialization and "c_scale" in serialization):
+            "key" in serialization and "scale_type" in serialization):
 
             self._key = ou.Key(serialization["key"])
-            self._c_scale = ou.CScale(serialization["c_scale"])
+            self._scale_type = ou.ScaleType(serialization["scale_type"])
         return self
         
     def copy(self) -> 'Scale':
-        return Scale() << self._key << self._c_scale
+        return Scale() << self._key << self._scale_type
 
     def __lshift__(self, operand: Operand) -> 'Scale':
         match operand:
             case ou.Key(): self._key = operand
-            case ou.CScale(): self._c_scale = operand
+            case ou.ScaleType(): self._scale_type = operand
         return self
 
     def __add__(self, operand) -> 'Scale':
         key_int: int = self._key % int()
-        c_scale_int: int = self._c_scale % int()
+        scale_type_int: int = self._scale_type % int()
         match operand:
             case int():
                 key_int += operand % 12
-                c_scale_int += operand // 12
+                scale_type_int += operand // 12
             case ou.Key():
                 key_int += operand % int() % 12
-                c_scale_int += operand % int() // 12
-            case ou.CScale():
-                c_scale_int += operand % int()
+                scale_type_int += operand % int() // 12
+            case ou.ScaleType():
+                scale_type_int += operand % int()
             case Scale():
                 key_int += operand % ou.Key() % int() % 12
-                c_scale_int += (operand % ou.CScale() \
-                               + ((Scale() << self % ou.Key() << ou.CScale(0)) + operand % ou.Key()) % ou.CScale()) % int()
+                scale_type_int += (operand % ou.ScaleType() \
+                               + ((Scale() << self % ou.Key() << ou.ScaleType(0)) + operand % ou.Key()) % ou.ScaleType()) % int()
             case _: return self.copy()
-        return Scale() << ou.Key(key_int) << ou.CScale(c_scale_int)
+        return Scale() << ou.Key(key_int) << ou.ScaleType(scale_type_int)
      
     def __sub__(self, operand) -> 'Scale':
         key_int: int = self._key % int()
-        c_scale_int: int = self._c_scale % int()
+        scale_type_int: int = self._scale_type % int()
         match operand:
             case ou.Key():
                 key_int -= operand % int() % 12
-                c_scale_int -= operand % int() // 12
-            case ou.CScale():
-                c_scale_int -= operand % int()
+                scale_type_int -= operand % int() // 12
+            case ou.ScaleType():
+                scale_type_int -= operand % int()
             case Scale():
                 key_int -= operand % ou.Key() % int() % 12
-                c_scale_int -= (operand % ou.CScale() \
-                               + ((Scale() << self % ou.Key() << ou.CScale(0)) + operand % ou.Key()) % ou.CScale()) % int()
+                scale_type_int -= (operand % ou.ScaleType() \
+                               + ((Scale() << self % ou.Key() << ou.ScaleType(0)) + operand % ou.Key()) % ou.ScaleType()) % int()
             case _:
                 return self.copy()
-        return Scale() << ou.Key(key_int) << ou.CScale(c_scale_int)
+        return Scale() << ou.Key(key_int) << ou.ScaleType(scale_type_int)
 
 class TimeSignature(Generic):
     ...

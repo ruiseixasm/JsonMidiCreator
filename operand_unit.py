@@ -196,9 +196,9 @@ class Channel(Unit):
 class KeySignature(Unit):   # Sharps (+) and Flats (-)
     ...
 
-class CScale(Unit):
+class ScaleType(Unit):
     """
-    A CScale() represents a given scale rooted in the key of C.
+    A ScaleType() represents a given scale rooted in the key of C.
     
     Parameters
     ----------
@@ -208,7 +208,7 @@ class CScale(Unit):
     def __init__(self, scale: str = "Chromatic"):
         match scale:
             case str():
-                super().__init__(CScale.scaleStrToScaleUnit(scale))
+                super().__init__(ScaleType.scaleStrToScaleUnit(scale))
             case int() | float():
                 super().__init__(scale)
             case _:
@@ -217,12 +217,12 @@ class CScale(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case list():        return CScale.getScale(self % int())
-            case str():         return CScale.getScaleName(self % int())
+            case list():        return ScaleType.getScale(self % int())
+            case str():         return ScaleType.getScaleType(self % int())
             case _:             return super().__mod__(operand)
 
     def transpose(self, interval: int = 1) -> int:
-        self_scale = CScale._scales[self % int()]
+        self_scale = ScaleType._scales[self % int()]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
@@ -284,17 +284,17 @@ class CScale(Unit):
 
     @staticmethod
     def getScale(scale_unit: int = 0):
-        return CScale._scales[scale_unit % len(CScale._scales)]
+        return ScaleType._scales[scale_unit % len(ScaleType._scales)]
 
     @staticmethod
-    def getScaleName(scale_unit: int = 0):
-        return CScale._scale_names[scale_unit % len(CScale._scales)][0]
+    def getScaleType(scale_unit: int = 0):
+        return ScaleType._scale_names[scale_unit % len(ScaleType._scales)][0]
 
     @staticmethod
     def scaleStrToScaleUnit(scale_name: str = "Chromatic") -> int:
-        for scale_i in range(len(CScale._scale_names)):
-            for scale_j in range(len(CScale._scale_names[scale_i])):
-                if scale_name.strip() == CScale._scale_names[scale_i][scale_j]:
+        for scale_i in range(len(ScaleType._scale_names)):
+            for scale_j in range(len(ScaleType._scale_names[scale_i])):
+                if scale_name.strip() == ScaleType._scale_names[scale_i][scale_j]:
                     return scale_i
         return 0
 

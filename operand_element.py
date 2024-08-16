@@ -413,7 +413,7 @@ class Chord(Note):
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case og.Scale():    return self._scale
-            case ou.Key() | ou.CScale():
+            case ou.Key() | ou.ScaleType():
                                 return self._scale % operand
             case ou.Mode():     return self._mode
             case int():         return self._size
@@ -456,7 +456,7 @@ class Chord(Note):
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
             case og.Scale():    self._scale = operand
-            case ou.Key() | ou.CScale():
+            case ou.Key() | ou.ScaleType():
                                 self._scale << operand
             case ou.Mode():     self._mode = operand
             case int():         self._size = operand

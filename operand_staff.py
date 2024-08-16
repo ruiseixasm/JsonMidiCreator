@@ -139,6 +139,6 @@ class Staff(Operand):
 # Set the Default Staff values here.
 global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
 global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
-    << (og.Scale() << ou.Key("C") << ou.CScale("Major")) << ov.Quantization(1/16) \
+    << (og.Scale() << ou.Key("C") << ou.ScaleType("Major")) << ov.Quantization(1/16) \
     << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
     << ou.Velocity(100) << ou.MidiCC("Pan") << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])

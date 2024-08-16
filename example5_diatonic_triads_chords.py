@@ -34,7 +34,7 @@ global_staff << Tempo(30) << Measure(7)
 # seven_major_triad_chords >> Print() >> Play(True)
 
 
-seven_minor_triad_chords = (Chord(3) << Key("A") << CScale("minor") << Octave(3) << NoteValue(1/4)) * 7 + Increment()**Beat()
+seven_minor_triad_chords = (Chord(3) << Key("A") << ScaleType("minor") << Octave(3) << NoteValue(1/4)) * 7 + Increment()**Beat()
 seven_minor_triad_chords += Increment()**Mode(0)
 seven_minor_triad_chords >> Print() >> Play(True)
 
