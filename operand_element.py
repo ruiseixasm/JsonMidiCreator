@@ -413,6 +413,8 @@ class Chord(Note):
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case og.Scale():    return self._scale
+            case ou.Key() | ou.CScale():
+                                return self._scale % operand
             case ou.Mode():     return self._mode
             case int():         return self._size
             case _:             return super().__mod__(operand)
@@ -420,12 +422,12 @@ class Chord(Note):
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
         chord_playlist = []
-        original_key_note = (self % og.KeyNote()).copy()
+        root_key_note = (self % og.KeyNote()).copy() << self._scale % ou.Key()
         for note_transposition in range(self._size):
             chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + note_transposition * 2)
-            self << original_key_note + chromatic_transposition
+            self << root_key_note + chromatic_transposition
             chord_playlist.extend(super().getPlayList(note_position))
-        self << original_key_note
+        self << root_key_note
         return chord_playlist
     
     def getSerialization(self):
@@ -454,6 +456,8 @@ class Chord(Note):
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
             case og.Scale():    self._scale = operand
+            case ou.Key() | ou.CScale():
+                                self._scale << operand
             case ou.Mode():     self._mode = operand
             case int():         self._size = operand
             case _: super().__lshift__(operand)

@@ -27,14 +27,14 @@ else:  # Assume Linux/Unix
 
 
 # Global Staff setting up
-global_staff << Tempo(140) << Measure(7)
+global_staff << Tempo(30) << Measure(7)
 
-seven_major_triad_chords = (Chord(3) << (Duration() << Beat(1))) * 7 + Increment()**Beat()
-seven_major_triad_chords += Increment()**Mode(0)
-seven_major_triad_chords >> Print() >> Play(True)
+# seven_major_triad_chords = (Chord(3) << NoteValue(1/4)) * 7 + Increment()**Beat()
+# seven_major_triad_chords += Increment()**Mode(0)
+# seven_major_triad_chords >> Print() >> Play(True)
 
 
-seven_minor_triad_chords = (Chord(3) << Key("A") << Octave(3) << (Scale() << Key("A") << CScale("minor")) << (Duration() << Beat(1))) * 7 + Increment()**Beat()
+seven_minor_triad_chords = (Chord(3) << Key("A") << CScale("minor") << Octave(3) << NoteValue(1/4)) * 7 + Increment()**Beat()
 seven_minor_triad_chords += Increment()**Mode(0)
 seven_minor_triad_chords >> Print() >> Play(True)
 
