@@ -317,8 +317,8 @@ class Progression(Operation):
         Accepts a numeral equivalent to the the Roman numerals,
         1 instead of I, 4 instead of IV and 5 instead of V
     """
-    def __init__(self, progression: int = None):
-        super().__init__(progression)
+    def __init__(self, mode: int = None):
+        super().__init__(mode)
 
 class Inversion(Operation):
     """
