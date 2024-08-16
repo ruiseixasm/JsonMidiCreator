@@ -181,6 +181,14 @@ class Outer(FilterFrame):
             case Outer():   return self
             case _:         return super().__or__(subject)
 
+class Equal(FilterOperand):
+    def __or__(self, subject: Operand) -> Operand:
+        self_operand = self % Operand()
+        if self_operand == subject % self_operand:
+            return self
+        else:
+            return ot.Null()
+
 class Selection(FilterOperand):
     def __init__(self):
         self._position: ol.Position = ol.Position()
