@@ -33,7 +33,7 @@ class Staff(Operand):
         self._beats_per_measure: ov.BeatsPerMeasure = None
         self._beat_note_value: ov.BeatNoteValue     = None
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._scale: og.KeyScale                       = None
+        self._scale: og.KeyScale                    = None
         self._quantization: ov.Quantization         = None
         self._duration: ol.Duration                 = None
         self._key: ou.Key                           = None

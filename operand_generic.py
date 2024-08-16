@@ -41,21 +41,17 @@ class KeyScale(Generic):
             case _:             return ot.Null()
 
     def transpose(self, interval: int = 1) -> int:
-        key_int = self._key % int()
-        key_scale_list = [0] * 12
         scale_type_list = self._scale % list()
-        for scale_key in range(12):
-            key_scale_list[scale_key % 12] = scale_type_list[(key_int + scale_key) % 12]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
                 chromatic_transposition += 1
-                if key_scale_list[chromatic_transposition % 12] == 1:
+                if scale_type_list[chromatic_transposition % 12] == 1:
                     interval -= 1
         elif interval < 0:
             while interval != 0:
                 chromatic_transposition -= 1
-                if key_scale_list[chromatic_transposition % 12] == 1:
+                if scale_type_list[chromatic_transposition % 12] == 1:
                     interval += 1
         return chromatic_transposition
 

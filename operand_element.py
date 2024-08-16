@@ -405,16 +405,14 @@ class Note3(Note):
 class Chord(Note):
     def __init__(self, size: int = None):   # 0xF2 - Song ol.Position
         super().__init__()
-        self._scale: og.KeyScale = (os.global_staff % og.KeyScale()).copy()   # Default Scale for Chords
+        self._scale: ou.Scale = os.global_staff % og.KeyScale() % ou.Scale()   # Default Scale for Chords
         self._mode: ou.Mode = ou.Mode(1)    # 1 for Tonic
         self._size: int = 3 if size is None else size
         # Need to add inversions and other parameters
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case og.KeyScale():    return self._scale
-            case ou.Key() | ou.Scale():
-                                return self._scale % operand
+            case ou.Scale():    return self._scale
             case ou.Mode():     return self._mode
             case int():         return self._size
             case _:             return super().__mod__(operand)
@@ -422,7 +420,7 @@ class Chord(Note):
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
         chord_playlist = []
-        root_key_note = (self % og.KeyNote()).copy() << self._scale % ou.Key()
+        root_key_note = self % og.KeyNote() % ou.Key()
         for note_transposition in range(self._size):
             chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + note_transposition * 2)
             self << root_key_note + chromatic_transposition
@@ -432,7 +430,7 @@ class Chord(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["scale"] = self._scale.getSerialization()
+        element_serialization["scale"] = self._scale % int()
         element_serialization["mode"] = self._mode % int()
         element_serialization["size"] = self._size
         return element_serialization
@@ -445,7 +443,7 @@ class Chord(Note):
             "size" in serialization):
 
             super().loadSerialization(serialization)
-            self._scale = og.KeyScale().loadSerialization(serialization["scale"])
+            self._scale = ou.Scale(serialization["scale"])
             self._mode = ou.Mode(serialization["mode"])
             self._size = serialization["size"]
         return self
@@ -455,9 +453,7 @@ class Chord(Note):
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
-            case og.KeyScale():    self._scale = operand
-            case ou.Key() | ou.Scale():
-                                self._scale << operand
+            case ou.Scale():    self._scale = operand
             case ou.Mode():     self._mode = operand
             case int():         self._size = operand
             case _: super().__lshift__(operand)
