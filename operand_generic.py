@@ -40,6 +40,12 @@ class Scale(Generic):
             case ou.CScale():   return self._c_scale
             case _:             return ot.Null()
 
+    def getSharps(self, key: ou.Key = None) -> int:
+        ...
+
+    def getFlats(self, key: ou.Key = None) -> int:
+        ...
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
