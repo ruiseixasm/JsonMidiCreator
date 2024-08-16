@@ -150,6 +150,12 @@ class Key(Unit):
                 return key_i % 12
         return 0
 
+class Root(Key):
+    pass
+
+class Home(Key):
+    pass
+
 class Octave(Unit):
     """
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
