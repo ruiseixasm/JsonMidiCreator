@@ -267,12 +267,12 @@ class Transpose(ApplyOperand):
     def __init__(self, step: int | float = None):
         self._step = 1 if step is None else step
         self._last_frame = None
-        self._scale = ou.Scale()
+        self._scale = ou.CScale()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case int():         return self._step
-            case ou.Scale():    return self._scale
+            case ou.CScale():    return self._scale
             case _:             return super().__mod__(operand)
 
     def __or__(self, self_operand: Operand) -> Operand:
@@ -291,5 +291,5 @@ class Transpose(ApplyOperand):
     def __lshift__(self, operand: Operand) -> 'Frame':
         match operand:
             case int():         self._step = operand
-            case ou.Scale():    self._scale = operand
+            case ou.CScale():    self._scale = operand
         return self

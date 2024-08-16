@@ -187,9 +187,9 @@ class Channel(Unit):
         channel = os.global_staff % self % int() if channel is None else round(channel)
         super().__init__(channel)
 
-class Scale(Unit):
+class CScale(Unit):
     """
-    A Scale() a selection of keys in an octave that are considered playable.
+    A CScale() represents a given scale rooted in the key of C.
     
     Parameters
     ----------
@@ -199,7 +199,7 @@ class Scale(Unit):
     def __init__(self, scale: str = "Chromatic"):
         match scale:
             case str():
-                super().__init__(Scale.scaleStrToScaleUnit(scale))
+                super().__init__(CScale.scaleStrToScaleUnit(scale))
             case int() | float():
                 super().__init__(scale)
             case _:
@@ -208,12 +208,12 @@ class Scale(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case list():        return Scale.getScale(self % int())
-            case str():         return Scale.getScaleName(self % int())
+            case list():        return CScale.getScale(self % int())
+            case str():         return CScale.getScaleName(self % int())
             case _:             return super().__mod__(operand)
 
     def transpose(self, interval: int = 1) -> int:
-        self_scale = Scale._scales[self % int()]
+        self_scale = CScale._scales[self % int()]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
@@ -275,19 +275,31 @@ class Scale(Unit):
 
     @staticmethod
     def getScale(scale_unit: int = 0):
-        return Scale._scales[scale_unit % len(Scale._scales)]
+        return CScale._scales[scale_unit % len(CScale._scales)]
 
     @staticmethod
     def getScaleName(scale_unit: int = 0):
-        return Scale._scale_names[scale_unit % len(Scale._scales)][0]
+        return CScale._scale_names[scale_unit % len(CScale._scales)][0]
 
     @staticmethod
     def scaleStrToScaleUnit(scale_name: str = "Chromatic") -> int:
-        for scale_i in range(len(Scale._scale_names)):
-            for scale_j in range(len(Scale._scale_names[scale_i])):
-                if scale_name.strip() == Scale._scale_names[scale_i][scale_j]:
+        for scale_i in range(len(CScale._scale_names)):
+            for scale_j in range(len(CScale._scale_names[scale_i])):
+                if scale_name.strip() == CScale._scale_names[scale_i][scale_j]:
                     return scale_i
         return 0
+
+class Progress(Unit):
+    """
+    A Progress() is used to do a Progression along a given Scale.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a numeral equivalent to the the Roman numerals,
+        1 instead of I, 4 instead of IV and 5 instead of V
+    """
+    ...
 
 class Pitch(Unit):
     """

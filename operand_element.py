@@ -405,13 +405,13 @@ class Note3(Note):
 class Chord(Note):
     def __init__(self, size: int = None):   # 0xF2 - Song ol.Position
         super().__init__()
-        self._scale: ou.Scale = ou.Scale("Major")   # Default Scale for Chords
+        self._scale: ou.CScale = ou.CScale("Major")   # Default Scale for Chords
         self._size: int = 3 if size is None else size
         # Need to add inversions and other parameters
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Scale():    return self._scale
+            case ou.CScale():    return self._scale
             case int():         return self._size
             case _:             return super().__mod__(operand)
 
@@ -429,7 +429,7 @@ class Chord(Note):
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
-            case ou.Scale():    self._scale = operand
+            case ou.CScale():    self._scale = operand
             case int():         self._size = operand
             case _: super().__lshift__(operand)
         return self

@@ -28,6 +28,11 @@ import operand_tag as ot
 class Generic(Operand):
     pass
 
+class Scale(Generic):
+    def __init__(self):
+        self._key: ou.Key = ou.Key("C")
+        self._c_scale: ou.CScale = ou.CScale("Major")
+
 class KeyNote(Generic):
     def __init__(self):
         self._key: ou.Key = ou.Key()
