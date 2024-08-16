@@ -428,8 +428,26 @@ class Chord(Note):
         self << original_key_note
         return chord_playlist
     
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["scale"] = self._scale.getSerialization()
+        element_serialization["mode"] = self._mode % int()
+        element_serialization["size"] = self._size
+        return element_serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "scale" in serialization and "mode" in serialization and
+            "size" in serialization):
+
+            super().loadSerialization(serialization)
+            self._scale = og.Scale().loadSerialization(serialization["scale"])
+            self._mode = ou.Mode(serialization["mode"])
+            self._size = serialization["size"]
+        return self
+      
     def copy(self) -> 'Chord':
         return super().copy() << self._scale.copy() << self._mode << self._size
 
