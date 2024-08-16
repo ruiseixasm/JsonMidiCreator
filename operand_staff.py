@@ -19,6 +19,7 @@ import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_data as od
+import operand_generic as og
 import operand_frame as of
 import operand_tag as ot
 
@@ -31,6 +32,8 @@ class Staff(Operand):
         # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
         self._beats_per_measure: ov.BeatsPerMeasure = None
         self._beat_note_value: ov.BeatNoteValue     = None
+        # Key Signature is an alias of Sharps and Flats of a Scale
+        self._scale: og.Scale                       = None
         self._quantization: ov.Quantization         = None
         self._duration: ol.Duration                 = None
         self._key: ou.Key                           = None
@@ -48,6 +51,7 @@ class Staff(Operand):
             case ov.Tempo():            return self._tempo
             case ov.BeatsPerMeasure():  return self._beats_per_measure
             case ov.BeatNoteValue():    return self._beat_note_value
+            case og.Scale():            return self._scale
             case ov.Quantization():     return self._quantization
             case ol.Duration():         return self._duration
             case ou.Key():              return self._key
@@ -72,6 +76,7 @@ class Staff(Operand):
             "tempo": self._tempo % int(),
             "beats_per_measure": self._beats_per_measure % float(),
             "beat_note_value": self._beat_note_value % float(),
+            "scale": self._scale.getSerialization(),
             "quantization": self._quantization % float(),
             "duration": self._duration.getSerialization(),
             "key": self._key % int(),
@@ -88,7 +93,7 @@ class Staff(Operand):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "measures" in serialization and "tempo" in serialization and
             "quantization" in serialization and "beats_per_measure" in serialization and "beat_note_value" in serialization and
-            "duration" in serialization and "key" in serialization and
+            "scale" in serialization and "duration" in serialization and "key" in serialization and
             "octave" in serialization and "velocity" in serialization and "midi_cc" in serialization and
             "channel" in serialization and "device" in serialization):
 
@@ -96,6 +101,7 @@ class Staff(Operand):
             self._tempo = ov.Tempo(serialization["tempo"])
             self._beats_per_measure = ov.BeatsPerMeasure(serialization["beats_per_measure"])
             self._beat_note_value = ov.BeatNoteValue(serialization["beat_note_value"])
+            self._scale = og.Scale().loadSerialization(serialization["scale"])
             self._quantization = ov.Quantization(serialization["quantization"])
             self._duration = ol.Duration(serialization["duration"])
             self._key = ou.Key(serialization["key"])
@@ -112,6 +118,7 @@ class Staff(Operand):
             case ov.Tempo():            self._tempo = operand
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand
             case ov.BeatNoteValue():    self._beat_note_value = operand
+            case og.Scale():            self._scale = operand
             case ov.Quantization():     self._quantization = operand    # Note Value
             case ol.Duration():         self._duration = operand
             case ou.Key():              self._key = operand
@@ -132,5 +139,6 @@ class Staff(Operand):
 # Set the Default Staff values here.
 global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
 global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
-    << ov.Quantization(1/16) << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
+    << (og.Scale() << ou.Key("C") << ou.CScale("Major")) << ov.Quantization(1/16) \
+    << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
     << ou.Velocity(100) << ou.MidiCC("Pan") << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])

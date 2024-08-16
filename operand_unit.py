@@ -129,7 +129,7 @@ class Key(Unit):
             case int() | float():
                 super().__init__( key )
             case _:
-                super().__init__( os.global_staff % self % int() )
+                super().__init__( 0 )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -186,6 +186,9 @@ class Channel(Unit):
     def __init__(self, channel: int = None):
         channel = os.global_staff % self % int() if channel is None else round(channel)
         super().__init__(channel)
+
+class KeySignature(Unit):   # Sharps (+) and Flats (-)
+    ...
 
 class CScale(Unit):
     """

@@ -24,6 +24,7 @@ import operand_frame as of
 import operand_tag as ot
 
 
+# Read only classes
 class Data(Operand):
     def __init__(self, data = None):
         self._data = data
@@ -49,7 +50,6 @@ class Data(Operand):
     def __ge__(self, other_data: 'Data') -> bool:
         return not (self < other_data)
 
-# Read only class
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__(device_list)
