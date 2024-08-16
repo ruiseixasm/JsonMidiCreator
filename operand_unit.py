@@ -289,9 +289,24 @@ class CScale(Unit):
                     return scale_i
         return 0
 
-class Progress(Unit):
+class Operation(Unit):
+    pass
+
+class Transposition(Operation):
     """
-    A Progress() is used to do a Progression along a given Scale.
+    A Transposition() is used to do a Transposition along a given Scale.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a numeral equivalent to the scales playable positions
+    """
+    def __init__(self, transposition: int = None):
+        super().__init__(transposition)
+
+class Progression(Operation):
+    """
+    A Progression() is used to do a Progression along a given Scale.
     
     Parameters
     ----------
@@ -299,7 +314,20 @@ class Progress(Unit):
         Accepts a numeral equivalent to the the Roman numerals,
         1 instead of I, 4 instead of IV and 5 instead of V
     """
-    ...
+    def __init__(self, progression: int = None):
+        super().__init__(progression)
+
+class Inversion(Operation):
+    """
+    Inversion() sets the degree of inversion of a given chord.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Inversion sets the degree of chords inversion starting by 0 meaning no inversion
+    """
+    def __init__(self, inversion: int = None):
+        super().__init__(inversion)
 
 class Pitch(Unit):
     """
@@ -328,18 +356,6 @@ class Pitch(Unit):
 # min : The maximum negative swing is achieved with data byte values of 00, 00. Value = 0
 # center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
-
-class Inversion(Unit):
-    """
-    Inversion() sets the degree of inversion of a given chord.
-    
-    Parameters
-    ----------
-    first : integer_like
-        Inversion sets the degree of chords inversion starting by 0 meaning no inversion
-    """
-    def __init__(self, inversion: int = None):
-        super().__init__(inversion)
 
 class Play(Unit):
     """
