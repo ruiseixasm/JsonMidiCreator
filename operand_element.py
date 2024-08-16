@@ -407,15 +407,17 @@ class Chord(Note):
         super().__init__()
         self._scale: ou.Scale = os.global_staff % og.KeyScale() % ou.Scale()   # Default Scale for Chords
         self._mode: ou.Mode = ou.Mode(1)    # 1 for Tonic
+        self._inversion: ou.Inversion = ou.Inversion()
         self._size: int = 3 if size is None else size
         # Need to add inversions and other parameters
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Scale():    return self._scale
-            case ou.Mode():     return self._mode
-            case int():         return self._size
-            case _:             return super().__mod__(operand)
+            case ou.Scale():        return self._scale
+            case ou.Mode():         return self._mode
+            case ou.Inversion():    return self._inversion
+            case int():             return self._size
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
@@ -432,6 +434,7 @@ class Chord(Note):
         element_serialization = super().getSerialization()
         element_serialization["scale"] = self._scale % int()
         element_serialization["mode"] = self._mode % int()
+        element_serialization["inversion"] = self._inversion % int()
         element_serialization["size"] = self._size
         return element_serialization
 
@@ -440,11 +443,12 @@ class Chord(Note):
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "scale" in serialization and "mode" in serialization and
-            "size" in serialization):
+            "inversion" in serialization and "size" in serialization):
 
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["scale"])
             self._mode = ou.Mode(serialization["mode"])
+            self._inversion = ou.Inversion(serialization["inversion"])
             self._size = serialization["size"]
         return self
       
@@ -453,9 +457,10 @@ class Chord(Note):
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
-            case ou.Scale():    self._scale = operand
-            case ou.Mode():     self._mode = operand
-            case int():         self._size = operand
+            case ou.Scale():        self._scale = operand
+            case ou.Mode():         self._mode = operand
+            case ou.Inversion():    self._inversion = operand
+            case int():             self._size = operand
             case _: super().__lshift__(operand)
         return self
 
