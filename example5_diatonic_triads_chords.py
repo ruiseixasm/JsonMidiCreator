@@ -19,7 +19,7 @@ import platform
 # Determine the operating system
 current_os = platform.system()
 if current_os == "Windows":
-    global_staff << Device(["Microsoft"])   # Microsoft GS Wavetable Synth
+    global_staff << Device(["loop", "Microsoft"])   # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
     global_staff << Device(["Apple"])       # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
@@ -30,5 +30,5 @@ else:  # Assume Linux/Unix
 global_staff << Tempo(140) << Measure(7)
 
 seven_major_triad_chords = (Chord(3) << (Duration() << Beat(1))) * 7 + Increment()**Beat() >> Print()
-seven_major_triad_chords += (Transpose(2) << CScale("Major"))**KeyNote()
+seven_major_triad_chords += Increment()**Mode(0)
 seven_major_triad_chords >> Play(True)

@@ -292,6 +292,19 @@ class CScale(Unit):
                     return scale_i
         return 0
 
+class Mode(Unit):
+    """
+    A Mode() represents its relation with a Tonic key on a scale
+    and respective Progressions.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a numeral equivalent to the mode
+    """
+    def __init__(self, mode: int = None):
+        super().__init__(1 if mode is None else mode)
+
 class Operation(Unit):
     pass
 

@@ -405,31 +405,38 @@ class Note3(Note):
 class Chord(Note):
     def __init__(self, size: int = None):   # 0xF2 - Song ol.Position
         super().__init__()
-        self._scale: ou.CScale = ou.CScale("Major")   # Default Scale for Chords
+        self._scale: og.Scale = (os.global_staff % og.Scale()).copy()   # Default Scale for Chords
+        self._mode: ou.Mode = ou.Mode(1)    # 1 for Tonic
         self._size: int = 3 if size is None else size
         # Need to add inversions and other parameters
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.CScale():    return self._scale
+            case og.Scale():    return self._scale
+            case ou.Mode():     return self._mode
             case int():         return self._size
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
         chord_playlist = []
-        self_key_note = self % og.KeyNote()
+        original_key_note = (self % og.KeyNote()).copy()
         for note_transposition in range(self._size):
-            chromatic_transposition = self._scale.transpose(note_transposition * 2)
-            self << self_key_note + chromatic_transposition
+            chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + note_transposition * 2)
+            self << original_key_note + chromatic_transposition
             chord_playlist.extend(super().getPlayList(note_position))
+        self << original_key_note
         return chord_playlist
     
     # CHAINABLE OPERATIONS
 
+    def copy(self) -> 'Chord':
+        return super().copy() << self._scale.copy() << self._mode << self._size
+
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
-            case ou.CScale():    self._scale = operand
+            case og.Scale():    self._scale = operand
+            case ou.Mode():     self._mode = operand
             case int():         self._size = operand
             case _: super().__lshift__(operand)
         return self
