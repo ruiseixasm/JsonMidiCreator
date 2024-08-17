@@ -128,7 +128,7 @@ class Key(Unit):
             case str():
                 super().__init__( Key.keyStrToKeyUnit(key) )
             case int() | float():
-                super().__init__( key )
+                super().__init__( round(key) % 12 )
             case _:
                 super().__init__( 0 )
 

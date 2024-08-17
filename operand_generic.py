@@ -197,17 +197,16 @@ class KeyNote(Generic):
         octave_int: int = self._octave % int()
         match operand:
             case int():
-                key_int += operand % 12
-                octave_int += operand // 12
+                key_int += operand
+                octave_int += key_int // 12
             case ou.Key():
-                key_int += operand % int() % 12
-                octave_int += operand % int() // 12
+                key_int += operand % int()
+                octave_int += key_int // 12
             case ou.Octave():
                 octave_int += operand % int()
             case KeyNote():
-                key_int += operand % ou.Key() % int() % 12
-                octave_int += (operand % ou.Octave() \
-                               + ((KeyNote() << self % ou.Key() << ou.Octave(0)) + operand % ou.Key()) % ou.Octave()) % int()
+                key_int += operand % ou.Key() % int()
+                octave_int += operand % ou.Octave() % int() + key_int // 12
             case _: return self.copy()
         return KeyNote() << ou.Key(key_int) << ou.Octave(octave_int)
      
@@ -215,17 +214,18 @@ class KeyNote(Generic):
         key_int: int = self._key % int()
         octave_int: int = self._octave % int()
         match operand:
+            case int():
+                key_int -= operand
+                octave_int -= max(-1 * key_int + 11, 0) // 12
             case ou.Key():
-                key_int -= operand % int() % 12
-                octave_int -= operand % int() // 12
+                key_int -= operand % int()
+                octave_int -= max(-1 * key_int + 11, 0) // 12
             case ou.Octave():
                 octave_int -= operand % int()
             case KeyNote():
-                key_int -= operand % ou.Key() % int() % 12
-                octave_int -= (operand % ou.Octave() \
-                               + ((KeyNote() << self % ou.Key() << ou.Octave(0)) + operand % ou.Key()) % ou.Octave()) % int()
-            case _:
-                return self.copy()
+                key_int -= operand % ou.Key() % int()
+                octave_int -= operand % ou.Octave() % int() - max(-1 * key_int + 11, 0) // 12
+            case _: return self.copy()
         return KeyNote() << ou.Key(key_int) << ou.Octave(octave_int)
 
 class Controller(Generic):
