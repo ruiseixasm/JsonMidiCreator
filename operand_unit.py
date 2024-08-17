@@ -308,10 +308,25 @@ class Mode(Unit):
     Parameters
     ----------
     first : integer_like
-        Accepts a numeral equivalent to the mode
+        Accepts a numeral (5) or the string (V) equivalent to the mode
     """
-    def __init__(self, mode: int = None):
-        super().__init__(1 if mode is None else mode)
+    def __init__(self, mode: int | str = None):
+        match mode:
+            case str():
+                match mode.strip().lower():
+                    case "i":   mode = 1
+                    case "ii":  mode = 2
+                    case "iii": mode = 3
+                    case "iv":  mode = 4
+                    case "v":   mode = 5
+                    case "vi":  mode = 6
+                    case "vii": mode = 7
+                    case _:     mode = 1
+                super().__init__(mode)
+            case int() | float():
+                super().__init__(mode)
+            case _:
+                super().__init__( 1 )
 
 class Operation(Unit):
     pass
