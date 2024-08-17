@@ -458,6 +458,16 @@ class Chord(Note):
             case ou.Mode():         self._mode = operand
             case ou.Inversion():    self._inversion = ou.Inversion(operand % int() % (self._size - 1))
             case int():             self._size = operand
+            case str():
+                match operand.strip():
+                    case '1' | "1st":       self._size = 1
+                    case '3' | "3rd":       self._size = 2
+                    case '5' | "5th":       self._size = 3
+                    case '7' | "7th":       self._size = 4
+                    case '9' | "9th":       self._size = 5
+                    case '11' | "11th":     self._size = 6
+                    case '13' | "13th":     self._size = 7
+                    case _:                 self._size = 3
             case _: super().__lshift__(operand)
         return self
 
