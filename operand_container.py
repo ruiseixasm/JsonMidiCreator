@@ -117,17 +117,6 @@ class Container(Operand):
                     self << single_operand
         return self
 
-    # # self is the pusher
-    # def __rshift__(self, operand: 'Operand') -> 'Many':
-    #     match operand:
-    #         case ot.Print():
-    #             serialized_json_str = json.dumps(self.getSerialization())
-    #             json_object = json.loads(serialized_json_str)
-    #             json_formatted_str = json.dumps(json_object, indent=4)
-    #             print(json_formatted_str)
-    #             return self
-    #         case _: return operand.__rrshift__(self)
-
     # operand is the pusher
     def __rrshift__(self, other_operand: Operand) -> Operand:
         return self
