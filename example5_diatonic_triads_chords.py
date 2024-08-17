@@ -33,3 +33,7 @@ Chord("7th") * 7 + Increment()**Beat() + Increment()**Mode(0) >> Play(True)
 (Chord() << Key("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Mode(0) \
     >> Play(True) >> Print(8) << Inversion(1) >> Play(True)
 
+Chord("11th") << Key("E") << Scale("Major") << NoteValue(8) >> Print(8) >> Play()
+
+
+

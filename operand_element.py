@@ -388,8 +388,19 @@ class Chord(Note):
         self._scale: ou.Scale = os.global_staff % og.KeyScale() % ou.Scale()   # Default Scale for Chords
         self._mode: ou.Mode = ou.Mode(1)    # 1 for Tonic
         self._inversion: ou.Inversion = ou.Inversion()
-        self._size: int = 3 if size is None else size
-        # Need to add inversions and other parameters
+        self._size: int = 3
+        match size:
+            case int():                     self._size = size
+            case str():
+                match size.strip():
+                    case '1' | "1st":       self._size = 1
+                    case '3' | "3rd":       self._size = 2
+                    case '5' | "5th":       self._size = 3
+                    case '7' | "7th":       self._size = 4
+                    case '9' | "9th":       self._size = 5
+                    case '11' | "11th":     self._size = 6
+                    case '13' | "13th":     self._size = 7
+                    case _:                 self._size = 3
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -454,10 +465,10 @@ class Chord(Note):
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
-            case ou.Scale():        self._scale = operand
-            case ou.Mode():         self._mode = operand
-            case ou.Inversion():    self._inversion = ou.Inversion(operand % int() % (self._size - 1))
-            case int():             self._size = operand
+            case ou.Scale():                self._scale = operand
+            case ou.Mode():                 self._mode = operand
+            case ou.Inversion():            self._inversion = ou.Inversion(operand % int() % (self._size - 1))
+            case int():                     self._size = operand
             case str():
                 match operand.strip():
                     case '1' | "1st":       self._size = 1
