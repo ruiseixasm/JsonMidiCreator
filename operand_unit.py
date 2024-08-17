@@ -241,13 +241,13 @@ class Scale(Unit):
     _scale_names = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
-        ["Major", "Maj", "Ionian", "ionian"],
-        ["Dorian", "dorian"],
-        ["Phrygian", "phrygian"],
-        ["Lydian", "lydian"],
-        ["Mixolydian", "mixolydian"],
-        ["minor", "min", "Aeolian", "aeolian"],
-        ["Locrian", "locrian"],
+        ["Major", "Maj", "Ionian", "ionian", "C"],
+        ["Dorian", "dorian", "D"],
+        ["Phrygian", "phrygian", "E"],
+        ["Lydian", "lydian", "F"],
+        ["Mixolydian", "mixolydian", "G", "Dominant Seventh", "Dominant seventh", "dominant seventh", "Dominant", "Seventh"],
+        ["minor", "min", "Aeolian", "aeolian", "A"],
+        ["Locrian", "locrian", "B"],
         # Other Scales
         ["harmonic"],
         ["melodic"],
