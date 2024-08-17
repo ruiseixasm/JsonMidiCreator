@@ -138,6 +138,29 @@ class KeyNote(Generic):
             case ou.Octave():   return self._octave
             case _:             return ot.Null()
 
+    def __eq__(self, other: 'KeyNote') -> bool:
+        if self % ou.Octave() == other % ou.Octave() and self % ou.Key() == other % ou.Key():
+            return True
+        return False
+    
+    def __lt__(self, other: 'KeyNote') -> bool:
+        if self % ou.Octave() < other % ou.Octave():    return True
+        if self % ou.Octave() > other % ou.Octave():    return False
+        if self % ou.Key() < other % ou.Key():          return True
+        return False
+    
+    def __gt__(self, other: 'KeyNote') -> bool:
+        if self % ou.Octave() > other % ou.Octave():    return True
+        if self % ou.Octave() < other % ou.Octave():    return False
+        if self % ou.Key() > other % ou.Key():          return True
+        return False
+    
+    def __le__(self, other: 'KeyNote') -> bool:
+        return not (self > other)
+    
+    def __ge__(self, other: 'KeyNote') -> bool:
+        return not (self < other)
+    
     def getMidi__key_note(self) -> int:
         key = self._key % int()
         octave = self._octave % int()

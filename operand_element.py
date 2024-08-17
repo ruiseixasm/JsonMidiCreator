@@ -91,25 +91,25 @@ class Element(Operand):
                     self << single_operand
         return self
 
-    # self is the pusher
-    def __rshift__(self, operand: Operand) -> 'Element':
-        match operand:
-            case ou.Play():
-                c.jsonMidiPlay(self.getPlayList(), operand % int())
-                return self
-            case od.Save():
-                c.saveJsonMidiCreator(self.getSerialization(), operand % str())
-                return self
-            case od.Export():
-                c.saveJsonMidiPlay(self.getPlayList(), operand % str())
-                return self
-            case ot.Print():
-                serialized_json_str = json.dumps(self.getSerialization())
-                json_object = json.loads(serialized_json_str)
-                json_formatted_str = json.dumps(json_object, indent=4)
-                print(json_formatted_str)
-                return self
-            case _: return operand.__rrshift__(self)
+    # # self is the pusher
+    # def __rshift__(self, operand: Operand) -> 'Element':
+    #     match operand:
+    #         case ou.Play():
+    #             c.jsonMidiPlay(self.getPlayList(), operand % int())
+    #             return self
+    #         case od.Save():
+    #             c.saveJsonMidiCreator(self.getSerialization(), operand % str())
+    #             return self
+    #         case od.Export():
+    #             c.saveJsonMidiPlay(self.getPlayList(), operand % str())
+    #             return self
+    #         case ot.Print():
+    #             serialized_json_str = json.dumps(self.getSerialization())
+    #             json_object = json.loads(serialized_json_str)
+    #             json_formatted_str = json.dumps(json_object, indent=4)
+    #             print(json_formatted_str)
+    #             return self
+    #         case _: return operand.__rrshift__(self)
 
     # operand is the pusher
     def __rrshift__(self, operand: Operand) -> 'Element':
@@ -428,9 +428,24 @@ class Chord(Note):
             chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i * 2)
             chord_key_notes.append(root_key_note + chromatic_transposition)
 
+        # Where the inversions are done
+        first_key_note = chord_key_notes[self._inversion % int()]
+        not_first_key_note = True
+        while not_first_key_note:
+            not_first_key_note = False
+            for key_note in chord_key_notes:
+                if key_note < first_key_note:
+                    if (key_note + ou.Octave(1)).getMidi__key_note() > 127:
+                        break
+                    else:
+                        key_note << key_note % ou.Octave() + 1
+                        not_first_key_note = True
+                else:
+                    break
+
         chord_playlist = []
-        for chord_key_note in chord_key_notes:
-            self << chord_key_note
+        for key_note in chord_key_notes:
+            self << key_note
             chord_playlist.extend(super().getPlayList(note_position))
         self << root_key_note
 

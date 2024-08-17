@@ -59,6 +59,12 @@ class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
         super().__init__(file_name)
 
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: Operand) -> Operand:
+        c.saveJsonMidiCreator(operand.getSerialization(), self % str())
+        return operand
+
 class Load(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
         super().__init__(file_name)
@@ -66,6 +72,12 @@ class Load(Data):
 class Export(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
         super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: Operand) -> Operand:
+        c.saveJsonMidiPlay(operand.getPlayList(), self % str())
+        return operand
 
 class Import(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):

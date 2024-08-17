@@ -16,6 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 # Json Midi Creator Libraries
+import creator as c
 from operand import Operand
 import operand_staff as os
 import operand_numeric as on
@@ -390,6 +391,12 @@ class Play(Unit):
     """
     def __init__(self, verbose: bool = False):
         super().__init__(1 if verbose else 0)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: Operand) -> Operand:
+        c.jsonMidiPlay(operand.getPlayList(), False if self % int() == 0 else True )
+        return operand
 
 class MidiValue(Unit):
     """

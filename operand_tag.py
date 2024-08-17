@@ -15,7 +15,9 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
+import json
 # Json Midi Creator Libraries
+import creator as c
 import operand as o
 
 
@@ -38,5 +40,12 @@ class Dummy(Tag):
     pass
 
 class Print(Tag):
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        serialized_json_str = json.dumps(operand.getSerialization())
+        json_object = json.loads(serialized_json_str)
+        json_formatted_str = json.dumps(json_object, indent=4)
+        print(json_formatted_str)
+        return operand
 
