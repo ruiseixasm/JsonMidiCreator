@@ -421,13 +421,19 @@ class Chord(Note):
 
     def getPlayList(self, position: ol.Position = None):
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
+
+        root_key_note = self % og.KeyNote()
+        chord_key_notes = []
+        for key_note_i in range(self._size):
+            chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i * 2)
+            chord_key_notes.append(root_key_note + chromatic_transposition)
+
         chord_playlist = []
-        root_key_note = self % og.KeyNote() % ou.Key()
-        for note_transposition in range(self._size):
-            chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + note_transposition * 2)
-            self << root_key_note + chromatic_transposition
+        for chord_key_note in chord_key_notes:
+            self << chord_key_note
             chord_playlist.extend(super().getPlayList(note_position))
         self << root_key_note
+
         return chord_playlist
     
     def getSerialization(self):
