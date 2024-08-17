@@ -257,19 +257,6 @@ class Many(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
-    # def __rshift__(self, operand: 'Operand') -> 'Many':
-    #     match operand:
-    #         case ou.Play():
-    #             c.jsonMidiPlay(self.getPlayList(), operand % int())
-    #             return self
-    #         case od.Save():
-    #             c.saveJsonMidiCreator(self.getSerialization(), operand % str())
-    #             return self
-    #         case od.Export():
-    #             c.saveJsonMidiPlay(self.getPlayList(), operand % str())
-    #             return self
-    #         case _: return super().__rshift__(operand)
-
     def __rrshift__(self, operand: Operand) -> Operand:
         self_first_element = self.firstOperand()
         if type(self_first_element) != ot.Null:

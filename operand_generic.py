@@ -40,21 +40,6 @@ class KeyScale(Generic):
             case ou.Scale():    return self._scale
             case _:             return ot.Null()
 
-    def transpose(self, interval: int = 1) -> int:
-        scale_type_list = self._scale % list()
-        chromatic_transposition = 0
-        if interval > 0:
-            while interval != 0:
-                chromatic_transposition += 1
-                if scale_type_list[chromatic_transposition % 12] == 1:
-                    interval -= 1
-        elif interval < 0:
-            while interval != 0:
-                chromatic_transposition -= 1
-                if scale_type_list[chromatic_transposition % 12] == 1:
-                    interval += 1
-        return chromatic_transposition
-
     def getSharps(self, key: ou.Key = None) -> int:
         ...
 
