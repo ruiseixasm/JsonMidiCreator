@@ -415,10 +415,8 @@ class Chord(Note):
             not_first_key_note = False
             for key_note in chord_key_notes:
                 if key_note < first_key_note:
-                    if (key_note + ou.Octave(1)).getMidi__key_note() > 127:
-                        break
-                    else:
-                        key_note << key_note % ou.Octave() + 1
+                    key_note << key_note % ou.Octave() + 1
+                    if key_note.getMidi__key_note() < 128:
                         not_first_key_note = True
 
         chord_playlist = []
@@ -458,7 +456,7 @@ class Chord(Note):
         match operand:
             case ou.Scale():        self._scale = operand
             case ou.Mode():         self._mode = operand
-            case ou.Inversion():    self._inversion = operand
+            case ou.Inversion():    self._inversion = ou.Inversion(operand % int() % (self._size - 1))
             case int():             self._size = operand
             case _: super().__lshift__(operand)
         return self
