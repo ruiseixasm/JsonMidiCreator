@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
+import json
 # Json Midi Creator Libraries
 import creator as c
 from operand import Operand
@@ -397,6 +398,28 @@ class Play(Unit):
     def __rrshift__(self, operand: Operand) -> Operand:
         c.jsonMidiPlay(operand.getPlayList(), False if self % int() == 0 else True )
         return operand
+
+class Print(Unit):
+    """
+    Print() allows to get on the console the configuration of the source Operand in a JSON layout.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Sets the indent of the JSON print layout
+    """
+    def __init__(self, indent: int = 4):
+        super().__init__(indent)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: Operand) -> Operand:
+        serialized_json_str = json.dumps(operand.getSerialization())
+        json_object = json.loads(serialized_json_str)
+        json_formatted_str = json.dumps(json_object, indent = self % int())
+        print(json_formatted_str)
+        return operand
+
 
 class MidiValue(Unit):
     """

@@ -31,5 +31,5 @@ global_staff << Tempo(120) << Measure(7)
 
 Chord() * 7 + Increment()**Beat() + Increment()**Mode(0) >> Play(True)
 (Chord() << Key("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Mode(0) \
-    >> Play(True) >> Print() << Inversion(1) >> Play(True)
+    >> Play(True) >> Print(8) << Inversion(1) >> Play(True)
 

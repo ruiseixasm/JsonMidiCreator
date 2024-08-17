@@ -38,14 +38,3 @@ class Null(Tag):
 
 class Dummy(Tag):
     pass
-
-class Print(Tag):
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        serialized_json_str = json.dumps(operand.getSerialization())
-        json_object = json.loads(serialized_json_str)
-        json_formatted_str = json.dumps(json_object, indent=4)
-        print(json_formatted_str)
-        return operand
-
