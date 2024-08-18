@@ -46,9 +46,7 @@ base_note = Note() << (Duration() << Dotted(1/64))
 
 # Creation and configuration of first Sequencer
 first_sequence = Sequence() << (Position() << Measure(1))
-first_sequence << \
-    base_note * 8 \
-        // (TimeLength() << Step(1)) << Channel(10) >> Save("_Sequence_jsonMidiCreator.json")
+first_sequence << base_note * 8 // (TimeLength() << Step(1)) << Channel(10) >> Save("_Sequence_jsonMidiCreator.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence.copy()
@@ -58,6 +56,6 @@ second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 
 # Creations, aggregation of both Sequences in a Many element and respective Play
 all_elements = Many(first_sequence) + Many(second_sequence)
-# all_elements += (TimeLength() << Beat(2) >> first_note) + single_clock
+all_elements += (TimeLength() << Beat(2) >> first_note) + single_clock
 all_elements >> Print() >> Play(1) >> Export("_Play_jsonMidiPlayer.json")
 

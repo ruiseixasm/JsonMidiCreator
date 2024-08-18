@@ -90,15 +90,15 @@ class Length(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Length':
         match operand:
-            case ov.Measure():      self._measure = operand
-            case ov.Beat():         self._beat = operand
-            case ov.NoteValue():    self._note_value = operand
-            case ov.Step():         self._step = operand
             case Length():
                 self._measure       = operand % ov.Measure()
                 self._beat          = operand % ov.Beat()
                 self._note_value    = operand % ov.NoteValue()
                 self._step          = operand % ov.Step()
+            case ov.Measure():      self._measure = operand
+            case ov.Beat():         self._beat = operand
+            case ov.NoteValue():    self._note_value = operand
+            case ov.Step():         self._step = operand
             case float() | int():
                 self._measure       = ov.Measure(operand)
                 self._beat          = ov.Beat(operand)

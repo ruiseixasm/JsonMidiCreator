@@ -737,9 +737,9 @@ class Sequence(Element):
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         match operand:
-            # case Sequence():
-            #     super().__lshift__(operand)
-            #     self._trigger_notes = operand % oc.Many()
+            case Sequence():
+                super().__lshift__(operand)
+                self._trigger_notes = operand % oc.Many()
             case of.Frame():
                 match operand % of.Inner():
                     case ot.Null():
