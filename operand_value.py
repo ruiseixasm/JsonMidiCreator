@@ -287,31 +287,17 @@ class Dotted(NoteValue):
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
     def __init__(self, value: float = None):
-        super().__init__( value * (3/2) )
-
-    def __mod__(self, operand: Operand) -> Operand:
-        """
-        The % symbol is used to extract the Value, because a Value is an Rational
-        it should be used in conjugation with float(). If used with a int() it
-        will return the respective rounded value as int().
-
-        Examples
-        --------
-        >>> note_value_float = NoteValue(1/4) % float()
-        >>> print(note_value_float)
-        0.25
-        """
-        match operand:
-            case of.Frame():    return self % (operand % Operand())
-            case float():       return round(1.0 * self._value * (2/3), 12)  # rounding to 9 avoids floating-point errors
-            case int():         return round(self._value * (2/3))
-            case _:             return ot.Null()
+        super().__init__( 0 if value is None else value * (3/2) )
 
     # CHAINABLE OPERATIONS
 
+    def copy(self) -> 'Value':
+        return self.__class__() << self
+
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
-            case Value():           self._value = operand % float() * (3/2)
+            case Dotted():          self._value = operand % float() # Direct allocation
+            case NoteValue():       self._value = round(operand % float() * (3/2), 12)
             case float() | int():   self._value = round(1.0 * operand * (3/2), 12)
         return self
 
