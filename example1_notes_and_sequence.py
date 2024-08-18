@@ -46,7 +46,7 @@ base_note = Note() << (Duration() << Dotted(1/64))
 
 # Creation and configuration of first Sequencer
 first_sequence = Sequence() << (Position() << Measure(1))
-first_sequence += base_note * 8 // (
+first_sequence << base_note * 8 // (
     TimeLength() << Step(1)
     ) << Channel(10) >> Save("_Sequence_jsonMidiCreator.json")
 

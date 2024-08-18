@@ -733,9 +733,9 @@ class Sequence(Element):
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         match operand:
-            case Sequence():
-                super().__lshift__(operand)
-                self._trigger_notes = operand % oc.Many()
+            # case Sequence():
+            #     super().__lshift__(operand)
+            #     self._trigger_notes = operand % oc.Many()
             case of.Frame():
                 match operand % of.Inner():
                     case ot.Null():
@@ -744,21 +744,24 @@ class Sequence(Element):
                         inner_operand = operand % Operand()
                         self._trigger_notes << inner_operand
                         return self
+            case ol.Position() | ol.TimeLength():
+                super().__lshift__(operand)
             case oc.Many():
                 self._trigger_notes = operand
-            case _: super().__lshift__(operand)
+            case Operand():
+                self._trigger_notes << operand
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
         if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
-        if isinstance(operand, Element):
-            self._trigger_notes += operand
+        # if isinstance(operand, Element):
+        #     self._trigger_notes += operand
+        # else:
+        if isinstance(of.Inner() & operand, ot.Null):
+            sequence_copy << sequence_copy % operand + (operand & self)
         else:
-            if isinstance(of.Inner() & operand, ot.Null):
-                sequence_copy << sequence_copy % operand + (operand & self)
-            else:
-                sequence_copy << self._trigger_notes + operand.pop(of.Inner())
+            sequence_copy << self._trigger_notes + operand.pop(of.Inner())
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
