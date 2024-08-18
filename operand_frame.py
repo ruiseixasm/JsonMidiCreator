@@ -117,7 +117,7 @@ class FrameFilter(Frame):
 
 class Canvas(FrameFilter):
     def __and__(self, subject: Operand) -> Operand:
-        return self
+        return self % Operand()
 
 class Blank(FrameFilter):
     def __and__(self, subject: Operand) -> Operand:
