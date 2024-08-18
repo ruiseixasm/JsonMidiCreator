@@ -328,7 +328,11 @@ class Note(Element):
         return self
       
     def copy(self) -> 'Note':
-        return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity.copy() << self._gate.copy()
+        return super().copy() \
+            << self._duration.copy() \
+            << self._key_note.copy() \
+            << self._velocity.copy() \
+            << self._gate.copy()
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:

@@ -36,7 +36,7 @@ class Value(on.Numeric):
     """
     def __init__(self, value: float = None):
         self._value: float = 0.0
-        self._value = os.global_staff % self % float() if value is None else round(1.0 * value, 9)  # rounding to 9 avoids floating-point errors
+        self._value = os.global_staff % self % float() if value is None else round(1.0 * value, 12)  # rounding to 9 avoids floating-point errors
 
     def __mod__(self, operand: Operand) -> Operand:
         """
@@ -52,7 +52,7 @@ class Value(on.Numeric):
         """
         match operand:
             case of.Frame():    return self % (operand % Operand())
-            case float():       return round(1.0 * self._value, 9)  # rounding to 9 avoids floating-point errors
+            case float():       return round(1.0 * self._value, 12)  # rounding to 9 avoids floating-point errors
             case int():         return round(self._value)
             case _:             return ot.Null()
 
@@ -87,12 +87,12 @@ class Value(on.Numeric):
         return self
 
     def copy(self) -> 'Value':
-        return self.__class__(self._value)
+        return self.__class__(self % float())
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case Value():           self._value = operand % float()
-            case float() | int():   self._value = round(1.0 * operand, 9)
+            case float() | int():   self._value = round(1.0 * operand, 12)
         return self
 
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
@@ -222,7 +222,7 @@ class TimeUnit(Value):
         Not intended to be set directly
     """
     def __init__(self, value: float = None):
-        value = 0 if value is None else round(1.0 * value, 9)  # rounding to 9 avoids floating-point errors
+        value = 0 if value is None else round(1.0 * value, 12)  # rounding to 9 avoids floating-point errors
         super().__init__(value)
 
 class Measure(TimeUnit):
@@ -287,7 +287,33 @@ class Dotted(NoteValue):
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
     def __init__(self, value: float = None):
-        super().__init__( value + value / 2 )
+        super().__init__( value * (3/2) )
+
+    def __mod__(self, operand: Operand) -> Operand:
+        """
+        The % symbol is used to extract the Value, because a Value is an Rational
+        it should be used in conjugation with float(). If used with a int() it
+        will return the respective rounded value as int().
+
+        Examples
+        --------
+        >>> note_value_float = NoteValue(1/4) % float()
+        >>> print(note_value_float)
+        0.25
+        """
+        match operand:
+            case of.Frame():    return self % (operand % Operand())
+            case float():       return round(1.0 * self._value * (2/3), 12)  # rounding to 9 avoids floating-point errors
+            case int():         return round(self._value * (2/3))
+            case _:             return ot.Null()
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: Operand) -> 'Value':
+        match operand:
+            case Value():           self._value = operand % float() * (3/2)
+            case float() | int():   self._value = round(1.0 * operand * (3/2), 12)
+        return self
 
 class Step(TimeUnit):
     """

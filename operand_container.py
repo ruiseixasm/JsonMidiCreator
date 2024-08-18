@@ -102,8 +102,8 @@ class Container(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
-            # case Container():
-            #     self._operand_list = operand % list()
+            case Container():
+                self._operand_list = operand % list()
             case list():
                 self._operand_list = operand
             case Operand():

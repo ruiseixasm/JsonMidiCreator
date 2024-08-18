@@ -54,7 +54,7 @@ class Unit(on.Numeric):
         match operand:
             case of.Frame():    return self % (operand % Operand())
             case int():         return round(self._unit)
-            case float():       return round(1.0 * self._unit, 9)   # rounding to 9 avoids floating-point errors
+            case float():       return round(1.0 * self._unit, 12)   # rounding to 9 avoids floating-point errors
             case _:             return ot.Null()
 
     def __eq__(self, other_unit: 'Unit') -> bool:
@@ -88,7 +88,7 @@ class Unit(on.Numeric):
         return self
 
     def copy(self) -> 'Unit':
-        return self.__class__(self._unit)
+        return self.__class__(self % int())
 
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:

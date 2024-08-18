@@ -65,7 +65,7 @@ class Data(Operand):
         return self
 
     def copy(self) -> 'Data':
-        return self.__class__(self._data)
+        return self.__class__(self % Operand())
 
     def __lshift__(self, operand: Operand) -> 'Data':
         match operand:
