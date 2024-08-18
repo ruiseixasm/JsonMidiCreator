@@ -88,7 +88,7 @@ class Unit(on.Numeric):
         return self
 
     def copy(self) -> 'Unit':
-        return self.__class__(self % int())
+        return self.__class__(self._unit)
 
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:

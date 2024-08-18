@@ -87,7 +87,7 @@ class Value(on.Numeric):
         return self
 
     def copy(self) -> 'Value':
-        return self.__class__(self % float())
+        return self.__class__(self._value)
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
@@ -287,19 +287,25 @@ class Dotted(NoteValue):
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
     def __init__(self, value: float = None):
-        super().__init__( 0 if value is None else value * (3/2) )
+        super().__init__(value)
 
-    # CHAINABLE OPERATIONS
+    def __mod__(self, operand: Operand) -> Operand:
+        """
+        The % symbol is used to extract the Value, because a Value is an Rational
+        it should be used in conjugation with float(). If used with a int() it
+        will return the respective rounded value as int().
 
-    def copy(self) -> 'Value':
-        return self.__class__() << self
-
-    def __lshift__(self, operand: Operand) -> 'Value':
+        Examples
+        --------
+        >>> note_value_float = Dotted(1/4) % float()
+        >>> print(note_value_float)
+        0.375
+        """
         match operand:
-            case Dotted():          self._value = operand % float() # Direct allocation
-            case NoteValue():       self._value = round(operand % float() * (3/2), 12)
-            case float() | int():   self._value = round(1.0 * operand * (3/2), 12)
-        return self
+            case of.Frame():    return self % (operand % Operand())
+            case float():       return round(1.0 * self._value * (3/2), 12)  # rounding to 9 avoids floating-point errors
+            case int():         return round(self._value * (3/2))
+            case _:             return ot.Null()
 
 class Step(TimeUnit):
     """
