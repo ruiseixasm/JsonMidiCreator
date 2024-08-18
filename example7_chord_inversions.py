@@ -30,5 +30,5 @@ else:  # Assume Linux/Unix
 global_staff << Tempo(120) << Measure(7)
 
 Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) >> Play(True)
-Chord("7th") * 4 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) >> Play(True)
+Chord("7th") * 4 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("_Play7.1_chord_inversion.json") >> Play(True)
 
