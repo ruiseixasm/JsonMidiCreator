@@ -651,7 +651,7 @@ class PitchBend(Element):
 class Sequence(Element):
     def __init__(self):
         super().__init__()
-        self._time_length = ol.TimeLength() << ov.Measure(1)
+        self._time_length << ov.Measure(1)
         self._trigger_notes: oc.Many = oc.Many()
 
     def len(self) -> int:
@@ -741,19 +741,14 @@ class Sequence(Element):
                 super().__lshift__(operand)
                 self._trigger_notes = operand % oc.Many()
             case of.Frame():
-                match operand % of.Inner():
-                    case ot.Null():
-                        return self
-                    case _:
-                        inner_operand = operand % Operand()
-                        self._trigger_notes << inner_operand
-                        return self
-            case ol.Position() | ol.TimeLength():
-                super().__lshift__(operand)
+                if isinstance(of.Inner() & operand, ot.Null):
+                    self << operand & self
+                else:
+                    self._trigger_notes << operand.pop(of.Inner())
             case oc.Many():
                 self._trigger_notes = operand
             case Operand():
-                self._trigger_notes << operand
+                super().__lshift__(operand)
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
@@ -771,10 +766,13 @@ class Sequence(Element):
     def __sub__(self, operand: Operand) -> 'Element':
         if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
-        if isinstance(of.Inner() & operand, ot.Null):
-            sequence_copy << sequence_copy % operand - (operand & self)
+        if isinstance(operand, Element):
+            self._trigger_notes -= operand
         else:
-            sequence_copy << self._trigger_notes - operand.pop(of.Inner())
+            if isinstance(of.Inner() & operand, ot.Null):
+                sequence_copy << sequence_copy % operand - (operand & self)
+            else:
+                sequence_copy << self._trigger_notes - operand.pop(of.Inner())
         return sequence_copy
 
     def __mul__(self, operand: Operand) -> 'Element':

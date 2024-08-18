@@ -22,6 +22,7 @@ import creator as c
 from operand import Operand
 
 import operand_unit as ou
+import operand_value as ov
 import operand_length as ol
 import operand_data as od
 import operand_tag as ot
@@ -212,6 +213,8 @@ class Container(Operand):
         return self_copy
     
     def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':
+        if isinstance(time_length, ov.TimeUnit):
+            time_length = ol.TimeLength() << time_length
         match time_length:
             case ol.TimeLength():
                 import operand_element as oe

@@ -45,8 +45,8 @@ Note3() << (Duration() << NoteValue(1/8)) >> Play(1)
 base_note = Note() << (Duration() << Dotted(1/64))
 
 # Creation and configuration of first Sequencer
-first_sequence = Sequence() << (Position() << Measure(1))
-first_sequence << base_note * 8 // (TimeLength() << Step(1)) << Channel(10) >> Save("_Sequence_jsonMidiCreator.json")
+first_sequence = Sequence() << Measure(1)
+first_sequence << base_note * 8 // Step(1) << Inner()**Channel(10) >> Save("_Sequence_jsonMidiCreator.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence.copy()
