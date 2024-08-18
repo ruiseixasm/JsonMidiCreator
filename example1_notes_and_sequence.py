@@ -19,11 +19,11 @@ import platform
 # Determine the operating system
 current_os = platform.system()
 if current_os == "Windows":
-    global_staff << Device(["Microsoft"])   # Microsoft GS Wavetable Synth
+    global_staff << Device(["loop", "Microsoft"])   # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
     global_staff << Device(["Apple"])       # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    global_staff << Device(["FLUID"])       # FLUID Synth
+    global_staff << Device(["VMPK", "FLUID"])       # FLUID Synth
 
 
 # Global Staff setting up

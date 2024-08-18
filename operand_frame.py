@@ -181,6 +181,40 @@ class Outer(FilterFrame):
             case Outer():   return self
             case _:         return super().__or__(subject)
 
+class Odd(FilterFrame):
+    def __init__(self):
+        self._call: int = 0
+
+    def __or__(self, subject: Operand) -> Operand:
+        self._call += 1
+        if self._call % 2 == 1:
+            return self
+        else:
+            return ot.Null()
+
+class Even(FilterFrame):
+    def __init__(self):
+        self._call: int = 0
+
+    def __or__(self, subject: Operand) -> Operand:
+        self._call += 1
+        if self._call % 2 == 0:
+            return self
+        else:
+            return ot.Null()
+
+class Nths(FilterFrame):
+    def __init__(self, nths: int = 4):
+        self._nths: int = nths
+        self._call: int = 0
+
+    def __or__(self, subject: Operand) -> Operand:
+        self._call += 1
+        if self._call % self._nths == 0:
+            return self
+        else:
+            return ot.Null()
+
 class Equal(FilterOperand):
     def __or__(self, subject: Operand) -> Operand:
         self_operand = self % Operand()
