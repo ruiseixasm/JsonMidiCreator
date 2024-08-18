@@ -95,14 +95,11 @@ class Frame(Operand):
         return self      
    
     def __pow__(self, operand: Operand) -> 'Frame':
-        self._next_operand = operand
-        return self
-    
-    def __lshift__(self, operand: Operand) -> 'Frame':
         match operand:
-            case None: self._next_operand = None
+            case Operand(): self._next_operand = operand
+            case _:         self._next_operand = ot.Dummy()
         return self
-    
+
 # FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
 
 class FrameFilter(Frame):
@@ -232,9 +229,11 @@ class Selection(OperandFilter):
 
     def __lshift__(self, operand: Operand) -> 'Operand':
         match operand:
+            case Selection():
+                self._position = operand % ol.Position()
+                self._time_length = operand % ol.TimeLength()
             case ol.Position(): self._position = operand
             case ol.TimeLength(): self._time_length = operand
-            case _: super().__lshift__(operand)
         return self
 
 class Range(OperandFilter):

@@ -68,6 +68,9 @@ class KeyScale(Generic):
 
     def __lshift__(self, operand: Operand) -> 'KeyScale':
         match operand:
+            case KeyScale():
+                self._key = operand % ou.Key()
+                self._scale = operand % ou.Scale()
             case ou.Key(): self._key = operand
             case ou.Scale(): self._scale = operand
         return self
@@ -173,6 +176,9 @@ class KeyNote(Generic):
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
         match operand:
+            case KeyNote():
+                self._key = operand % ou.Key()
+                self._octave = operand % ou.Octave()
             case ou.Key(): self._key = operand
             case ou.Octave(): self._octave = operand
         return self
@@ -250,6 +256,9 @@ class Controller(Generic):
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:
+            case Controller():
+                self._midi_cc = operand % ou.MidiCC()
+                self._midi_value = operand % ou.MidiValue()
             case ou.MidiCC(): self._midi_cc = operand
             case ou.MidiValue(): self._midi_value = operand
         return self

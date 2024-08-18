@@ -114,6 +114,20 @@ class Staff(Operand):
         
     def __lshift__(self, operand: Operand) -> 'Staff':
         match operand:
+            case Staff():
+                self._measure = operand % ov.Measure()
+                self._tempo = operand % ov.Tempo()
+                self._beats_per_measure = operand % ov.BeatsPerMeasure()
+                self._beat_note_value = operand % ov.BeatNoteValue()
+                self._scale = operand % og.KeyScale()
+                self._quantization = operand % ov.Quantization()    # Note Value
+                self._duration = operand % ol.Duration()
+                self._key = operand % ou.Key()
+                self._octave = operand % ou.Octave()
+                self._velocity = operand % ou.Velocity()
+                self._midi_cc = operand % ou.MidiCC()
+                self._channel = operand % ou.Channel()
+                self._device = operand % od.Device()
             case ov.Measure():          self._measure = operand
             case ov.Tempo():            self._tempo = operand
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand

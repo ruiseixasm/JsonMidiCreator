@@ -78,11 +78,16 @@ class Element(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
-            case ol.Position(): self._position = operand
-            case ov.TimeUnit(): self._position << operand
-            case ol.TimeLength(): self._time_length = operand
-            case ou.Channel(): self._channel = operand
-            case od.Device(): self._device = operand
+            case Element():
+                self._position = operand % ol.Position()
+                self._time_length = operand % ol.TimeLength()
+                self._channel = operand % ou.Channel()
+                self._device = operand % od.Device()
+            case ol.Position():     self._position = operand
+            case ov.TimeUnit():     self._position << operand
+            case ol.TimeLength():   self._time_length = operand
+            case ou.Channel():      self._channel = operand
+            case od.Device():       self._device = operand
             case od.Load():
                 serialization = c.loadJsonMidiCreator(operand % str())
                 self.loadSerialization(serialization)
@@ -236,10 +241,13 @@ class Clock(Element):
 
     def __lshift__(self, operand: Operand) -> 'Clock':
         match operand:
-            case ol.Position(): self._position = ol.Position() << ov.Measure(operand % ov.Measure() % int())
-            case ol.TimeLength(): self._time_length = ol.TimeLength() << ov.Measure(operand % ov.Measure() % int())
+            case Clock():
+                super().__lshift__(operand)
+                self._mode = operand % ClockModes()
+                self._pulses_per_quarternote = operand % int()
             case ClockModes(): self._mode = operand
             case int(): self._pulses_per_quarternote = operand
+            case _: super().__lshift__(operand)
         return self
 
 class Rest(Element):
@@ -324,6 +332,12 @@ class Note(Element):
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
+            case Note():
+                super().__lshift__(operand)
+                self._duration = operand % ol.Duration()
+                self._key_note = operand % og.KeyNote()
+                self._velocity = operand % ou.Velocity()
+                self._gate = operand % ov.Gate()
             case ol.Duration():     self._duration = operand
             case ov.NoteValue():    self._duration << operand
             case og.KeyNote():      self._key_note = operand
@@ -377,6 +391,9 @@ class Note3(Note):
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
+            case Note3():
+                super().__lshift__(operand)
+                self._duration = operand % ol.Duration() * (2/3)
             case ol.Duration():     self._duration = operand * (2/3)
             case ov.NoteValue():    self._duration << operand * (2/3)
             case _: super().__lshift__(operand)
@@ -465,6 +482,12 @@ class Chord(Note):
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
+            case Chord():
+                super().__lshift__(operand)
+                self._scale = operand % ou.Scale()
+                self._mode = operand % ou.Mode()
+                self._inversion = operand % ou.Inversion()
+                self._size = operand % int()
             case ou.Scale():                self._scale = operand
             case ou.Mode():                 self._mode = operand
             case ou.Inversion():            self._inversion = ou.Inversion(operand % int() % (self._size - 1))
@@ -486,12 +509,12 @@ class ControlChange(Element):
     def __init__(self):
         super().__init__()
         self._controller: og.Controller = og.Controller()
-        self._midi_value: ou.MidiValue  = ou.MidiValue()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case og.Controller():   return self._controller
-            case ou.MidiValue():    return self._midi_value
+            case ou.MidiCC():       return self._controller % ou.MidiCC()
+            case ou.MidiValue():    return self._controller % ou.MidiValue()
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ol.Position = None):
@@ -535,6 +558,9 @@ class ControlChange(Element):
 
     def __lshift__(self, operand: Operand) -> 'ControlChange':
         match operand:
+            case ControlChange():
+                super().__lshift__(operand)
+                self._controller = operand % og.Controller()
             case og.Controller():
                 self._controller = operand
             case ou.MidiCC() | ou.MidiValue():
@@ -601,6 +627,9 @@ class PitchBend(Element):
 
     def __lshift__(self, operand: Operand) -> 'PitchBend':
         match operand:
+            case PitchBend():
+                super().__lshift__(operand)
+                self._pitch = operand % ou.Pitch()
             case ou.Pitch():
                 self._pitch = operand
             case _: super().__lshift__(operand)
@@ -704,6 +733,9 @@ class Sequence(Element):
 
     def __lshift__(self, operand: Operand) -> 'Sequence':
         match operand:
+            case Sequence():
+                super().__lshift__(operand)
+                self._trigger_notes = operand % oc.Many()
             case of.Frame():
                 match operand % of.Inner():
                     case ot.Null():
@@ -712,21 +744,21 @@ class Sequence(Element):
                         inner_operand = operand % Operand()
                         self._trigger_notes << inner_operand
                         return self
-            case ol.Position() | ol.TimeLength():
-                super().__lshift__(operand)
             case oc.Many():
                 self._trigger_notes = operand
-            case Operand():
-                self._trigger_notes << operand
+            case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
         if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
-        if isinstance(of.Inner() & operand, ot.Null):
-            sequence_copy << sequence_copy % operand + (operand & self)
+        if isinstance(operand, Element):
+            self._trigger_notes += operand
         else:
-            sequence_copy << self._trigger_notes + operand.pop(of.Inner())
+            if isinstance(of.Inner() & operand, ot.Null):
+                sequence_copy << sequence_copy % operand + (operand & self)
+            else:
+                sequence_copy << self._trigger_notes + operand.pop(of.Inner())
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
@@ -805,6 +837,10 @@ class Triplet(Element):
 
     def __lshift__(self, operand: Operand) -> 'Triplet':
         match operand:
+            case Triplet():
+                super().__lshift__(operand)
+                self._duration = operand % ol.Duration() * (2/3)
+                self._elements = operand % list()
             case ol.Duration():     self._duration = operand * (2/3)
             case ov.NoteValue():    self._duration << operand * (2/3)
             case list():
@@ -873,6 +909,10 @@ class Tuplet(Element):
 
     def __lshift__(self, operand: Operand) -> 'Tuplet':
         match operand:
+            case Tuplet():
+                super().__lshift__(operand)
+                self._duration = operand % ol.Duration() * (2/3) if self._division == 2 else (self._division/2)
+                self._elements = operand % list()
             case int():             self._division = operand
             case ol.Duration():     self._duration = operand * (2/3) if self._division == 2 else (self._division/2)
             case ov.NoteValue():    self._duration << operand * (2/3) if self._division == 2 else (self._division/2)
@@ -970,6 +1010,9 @@ class Composition(Element):
 
     def __lshift__(self, operand: Operand) -> 'Composition':
         match operand:
+            case Composition():
+                super().__lshift__(operand)
+                self._many_elements = operand % oc.Many()
             case oc.Many(): self._many_elements = operand
             case _: super().__lshift__(operand)
         return self

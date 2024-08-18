@@ -102,10 +102,10 @@ class Container(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
-            case list():
-                self._operand_list = operand
             case Container():
                 self._operand_list = operand % list()
+            case list():
+                self._operand_list = operand
             case Operand():
                 for single_operand in self._operand_list:
                     single_operand << operand
@@ -276,6 +276,7 @@ class Chain(Container):
 
     def __lshift__(self, operand: Operand) -> 'Chain':
         match operand:
+            case Chain():   self._operand_list = operand % list()
             case Operand(): self._operand_list.append(operand)
             case list():    self._operand_list.extend(operand)
         return self
