@@ -116,18 +116,18 @@ class Frame(Operand):
                 match self_frame:
                     case Canvas():  return self % Operand()
                     case Blank():   return ot.Null()
-                    case FilterFrame():      # Only Frames are conditional
+                    case FrameFilter():      # Only Frames are conditional
                         frame_frame_null = True
                         for subject_frame in subject:
-                            if not isinstance(subject_frame, FilterFrame): continue
+                            if not isinstance(subject_frame, FrameFilter): continue
                             if (self_frame | subject_frame).__class__ != ot.Null:
                                 frame_frame_null = False
                                 break
                         if frame_frame_null: return ot.Null()
-                    case FilterOperand():    # Only Frames are conditional (FilterOperand is it for single Operand)
+                    case OperandFilter():    # Only Frames are conditional (OperandFilter is it for single Operand)
                         if (self_frame | subject % Operand()).__class__ == ot.Null:
                             return ot.Null()
-                    case ApplyOperand():    # ApplyOperand is for single Operand
+                    case OperandEditor():    # OperandEditor is for single Operand
                         self_frame | self % Operand()
             return self % Operand()   # In case it's an Operand (last in the chain)
         else:
@@ -135,53 +135,53 @@ class Frame(Operand):
                 match self_frame:
                     case Canvas():  return self % Operand()
                     case Blank():   return ot.Null()
-                    case FilterOperand():    # Only Frames are conditional
+                    case OperandFilter():    # Only Frames are conditional
                         if (self_frame | subject).__class__ == ot.Null:
                             return ot.Null()
-                    case FilterFrame():  # If it's a simple Operand the existence of FilterFrame means False!
+                    case FrameFilter():  # If it's a simple Operand the existence of FrameFilter means False!
                         return ot.Null()
-                    case ApplyOperand():    # ApplyOperand is for single Operand
+                    case OperandEditor():    # OperandEditor is for single Operand
                         self_frame | self % Operand()
             return self % Operand()
         return self # Whenever no Operand exists in self
 
-class FilterFrame(Frame):
+class FrameFilter(Frame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
-            case FilterFrame(): return ot.Null()
+            case FrameFilter(): return ot.Null()
             case _:             return self
 
-class FilterOperand(Frame):
+class OperandFilter(Frame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
             case Frame():       return self
             case _:             return ot.Null()
 
-class ApplyOperand(Frame):
+class OperandEditor(Frame):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
             case Frame():       return self
             case _:             return ot.Null()
 
-class Canvas(FilterFrame):
+class Canvas(FrameFilter):
     pass
 
-class Blank(FilterFrame):
+class Blank(FrameFilter):
     pass
 
-class Inner(FilterFrame):
+class Inner(FrameFilter):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
             case Inner():   return self
             case _:         return super().__or__(subject)
 
-class Outer(FilterFrame):
+class Outer(FrameFilter):
     def __or__(self, subject: Operand) -> Operand:
         match subject:
             case Outer():   return self
             case _:         return super().__or__(subject)
 
-class Odd(FilterFrame):
+class Odd(OperandFilter):
     def __init__(self):
         self._call: int = 0
 
@@ -192,7 +192,7 @@ class Odd(FilterFrame):
         else:
             return ot.Null()
 
-class Even(FilterFrame):
+class Even(OperandFilter):
     def __init__(self):
         self._call: int = 0
 
@@ -203,7 +203,7 @@ class Even(FilterFrame):
         else:
             return ot.Null()
 
-class Nths(FilterFrame):
+class Nths(OperandFilter):
     def __init__(self, nths: int = 4):
         self._nths: int = nths
         self._call: int = 0
@@ -215,7 +215,7 @@ class Nths(FilterFrame):
         else:
             return ot.Null()
 
-class Equal(FilterOperand):
+class Equal(OperandFilter):
     def __or__(self, subject: Operand) -> Operand:
         self_operand = self % Operand()
         if self_operand == subject % self_operand:
@@ -223,7 +223,7 @@ class Equal(FilterOperand):
         else:
             return ot.Null()
 
-class Selection(FilterOperand):
+class Selection(OperandFilter):
     def __init__(self):
         self._position: ol.Position = ol.Position()
         self._time_length: ol.TimeLength = ol.TimeLength() << ov.Beat(1)
@@ -266,7 +266,7 @@ class Selection(FilterOperand):
             case _: super().__lshift__(operand)
         return self
 
-class Range(FilterOperand):
+class Range(OperandFilter):
     def __init__(self, operand: Operand, position: ol.Position = None, length: ol.Length = None):
         self._operand = operand
         self._position = position
@@ -275,7 +275,7 @@ class Range(FilterOperand):
     def __or__(self, operand: 'Operand') -> bool:
         return True
 
-class Repeat(ApplyOperand):
+class Repeat(OperandEditor):
     def __init__(self, unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
@@ -289,7 +289,7 @@ class Repeat(ApplyOperand):
     def __or__(self, operand: 'Operand') -> Operand:
         return ot.Null()
 
-class Increment(ApplyOperand):
+class Increment(OperandEditor):
     def __init__(self, step: int | float = None):
         self._step = 1 if step is None else step
         self._last_frame = None
