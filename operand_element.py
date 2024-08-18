@@ -759,13 +759,13 @@ class Sequence(Element):
     def __add__(self, operand: Operand) -> 'Element':
         if isinstance(operand, ot.Null): return ot.Null()
         sequence_copy = self.copy()
-        # if isinstance(operand, Element):
-        #     self._trigger_notes += operand
-        # else:
-        if isinstance(of.Inner() & operand, ot.Null):
-            sequence_copy << sequence_copy % operand + (operand & self)
+        if isinstance(operand, Element):
+            self._trigger_notes += operand
         else:
-            sequence_copy << self._trigger_notes + operand.pop(of.Inner())
+            if isinstance(of.Inner() & operand, ot.Null):
+                sequence_copy << sequence_copy % operand + (operand & self)
+            else:
+                sequence_copy << self._trigger_notes + operand.pop(of.Inner())
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
