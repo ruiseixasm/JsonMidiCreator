@@ -94,13 +94,6 @@ class Frame(Operand):
                     previous_frame = single_frame
         return self      
    
-    def last(self) -> 'Frame':
-        last_frame = self
-        for self_node in self:
-            if isinstance(self_node, Frame):
-                last_frame = self_node
-        return last_frame
-
     def __pow__(self, operand: Operand) -> 'Frame':
         self._next_operand = operand
         return self
@@ -109,66 +102,26 @@ class Frame(Operand):
         match operand:
             case None: self._next_operand = None
         return self
-
-    # def __and__(self, subject: 'Operand') -> Operand:
-    #     if isinstance(subject, Frame):
-    #         for self_frame in self: # Full conditions to be verified one by one (and)!
-    #             match self_frame:
-    #                 case Canvas():  return self % Operand()
-    #                 case Blank():   return ot.Null()
-    #                 case FrameFilter():      # Only Frames are conditional
-    #                     frame_frame_null = True
-    #                     for subject_frame in subject:
-    #                         if not isinstance(subject_frame, FrameFilter): continue
-    #                         if (self_frame | subject_frame).__class__ != ot.Null:
-    #                             frame_frame_null = False
-    #                             break
-    #                     if frame_frame_null: return ot.Null()
-    #                 case OperandFilter():    # Only Frames are conditional (OperandFilter is it for single Operand)
-    #                     if (self_frame | subject % Operand()).__class__ == ot.Null:
-    #                         return ot.Null()
-    #                 case OperandEditor():    # OperandEditor is for single Operand
-    #                     self_frame | self % Operand()
-    #         return self % Operand()   # In case it's an Operand (last in the chain)
-    #     else:
-    #         for self_frame in self: # Full conditions to be verified one by one (and)!
-    #             match self_frame:
-    #                 case Canvas():  return self % Operand()
-    #                 case Blank():   return ot.Null()
-    #                 case OperandFilter():    # Only Frames are conditional
-    #                     if (self_frame | subject).__class__ == ot.Null:
-    #                         return ot.Null()
-    #                 case FrameFilter():  # If it's a simple Operand the existence of FrameFilter means False!
-    #                     return ot.Null()
-    #                 case OperandEditor():    # OperandEditor is for single Operand
-    #                     self_frame | self % Operand()
-    #         return self % Operand()
-    #     return self # Whenever no Operand exists in self
+    
+# FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
 
 class FrameFilter(Frame):
     def __and__(self, subject: Operand) -> Operand:
         for operand in subject:
-            if isinstance(operand, Frame):
-                if isinstance(operand, FrameFilter) and self == operand:
-                    return self._next_operand & subject
-            return ot.Null()
+            if self == operand:
+                return self._next_operand & subject
+        return ot.Null()
         
     def __eq__(self, other: Operand) -> bool:
         return self.__class__ == other.__class__
 
-class OperandFilter(Frame):
-    def __init__(self):
-        self._status: int = 0
-
-class OperandEditor(Frame):
-    def __init__(self):
-        self._unit: int = 0
-
 class Canvas(FrameFilter):
-    pass
+    def __and__(self, subject: Operand) -> Operand:
+        return self
 
 class Blank(FrameFilter):
-    pass
+    def __and__(self, subject: Operand) -> Operand:
+        return ot.Null()
 
 class Inner(FrameFilter):
     pass
@@ -176,50 +129,70 @@ class Inner(FrameFilter):
 class Outer(FrameFilter):
     pass
 
-class Odd(OperandFilter):
+class Odd(FrameFilter):
+    def __init__(self):
+        self._call: int = 0
+
     def __and__(self, subject: Operand) -> Operand:
-        self._status += 1
-        if self._status % 2 == 1:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                return self_operand & subject
-            return self_operand
+        self._call += 1
+        if self._call % 2 == 1:
+            return self._next_operand & subject
         else:
             return ot.Null()
 
-class Even(OperandFilter):
+class Even(FrameFilter):
+    def __init__(self):
+        self._call: int = 0
+        
     def __and__(self, subject: Operand) -> Operand:
-        self._status += 1
-        if self._status % 2 == 0:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                return self_operand & subject
-            return self_operand
+        self._call += 1
+        if self._call % 2 == 0:
+            return self._next_operand & subject
         else:
             return ot.Null()
 
-class Nths(OperandFilter):
+class Nths(FrameFilter):
     def __init__(self, nths: int = 4):
-        super().__init__()
+        self._call: int = 0
         self._nths: int = nths
 
     def __and__(self, subject: Operand) -> Operand:
-        self._status += 1
-        if self._status % self._nths == 0:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                return self_operand & subject
-            return self_operand
+        self._call += 1
+        if self._call % self._nths == 0:
+            return self._next_operand & subject
         else:
             return ot.Null()
 
-class Equal(OperandFilter):
-    def __or__(self, subject: Operand) -> Operand:
-        self_operand = self % Operand()
-        if self_operand == subject % self_operand:
-            return self
+class Nth(FrameFilter):
+    def __init__(self, nth: int = 4):
+        self._call: int = 0
+        self._nth: int = nth
+
+    def __and__(self, subject: Operand) -> Operand:
+        self._call += 1
+        if self._call == self._nth:
+            return self._next_operand & subject
         else:
             return ot.Null()
+
+# OPERAND FILTERS (DEPENDENT ON OPERAND DATA)
+
+class OperandFilter(Frame):
+    def __init__(self):
+        self._status: int = 0
+
+class Equal(OperandFilter):
+    def __init__(self, operand: Operand):
+        super().__init__()
+        self._operand: Operand = operand
+
+    def __and__(self, subject: Operand) -> Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if self_operand == self._operand:
+            return self_operand
+        return ot.Null()
 
 class Selection(OperandFilter):
     def __init__(self):
@@ -273,7 +246,7 @@ class Range(OperandFilter):
     def __or__(self, operand: 'Operand') -> bool:
         return True
 
-class Repeat(OperandEditor):
+class Repeat(OperandFilter):
     def __init__(self, unit, repeat: int = 1):
         self._unit = unit
         self._repeat = repeat
@@ -286,6 +259,12 @@ class Repeat(OperandEditor):
 
     def __or__(self, operand: 'Operand') -> Operand:
         return ot.Null()
+
+# OPERAND EDITORS (ALTERS OPERAND DATA)
+
+class OperandEditor(Frame):
+    def __init__(self):
+        self._unit: int = 0
 
 class Increment(OperandEditor):
     def __init__(self, step: int | float = None):
