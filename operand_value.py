@@ -97,33 +97,33 @@ class Value(on.Numeric):
 
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
-            case Value(): return self.__class__(self % float() + value % float())
-            case float() | int(): return self.__class__(self % float() + value)
+            case Value(): return self.__class__(self._value + value._value)
+            case float() | int(): return self.__class__(self._value + value)
             case ot.Null(): return ot.Null()
         return self
     
     def __sub__(self, value: Union['Value', float]) -> 'Value':
         match value:
-            case Value(): return self.__class__(self % float() - value % float())
-            case float() | int(): return self.__class__(self % float() - value)
+            case Value(): return self.__class__(self._value - value._value)
+            case float() | int(): return self.__class__(self._value - value)
             case ot.Null(): return ot.Null()
         return self
     
     def __mul__(self, value: Union['Value', float]) -> 'Value':
         match value:
-            case Value(): return self.__class__((self % float()) * (value % float()))
-            case float() | int(): return self.__class__(self % float() * value)
+            case Value(): return self.__class__(self._value * value._value)
+            case float() | int(): return self.__class__(self._value * value)
             case ot.Null(): return ot.Null()
         return self
     
     def __truediv__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case Value():
-                if value % float() != 0:
-                    return self.__class__((self % float()) / (value % float()))
+                if value._value != 0:
+                    return self.__class__(self._value / value._value)
             case float() | int():
                 if value != 0:
-                    return self.__class__(self % float() / value)
+                    return self.__class__(self._value / value)
             case ot.Null(): return ot.Null()
         return self
 

@@ -98,29 +98,29 @@ class Unit(on.Numeric):
 
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self % int() + unit % int())
-            case int() | float(): return self.__class__(self % int() + unit)
+            case Unit(): return self.__class__(self._unit + unit._unit)
+            case int() | float(): return self.__class__(self._unit + unit)
             case ot.Null(): return ot.Null()
         return self
     
     def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self % int() - unit % int())
-            case int() | float(): return self.__class__(self % int() - unit)
+            case Unit(): return self.__class__(self._unit - unit._unit)
+            case int() | float(): return self.__class__(self._unit - unit)
             case ot.Null(): return ot.Null()
         return self
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__((self % int()) * (unit % int()))
-            case int() | float(): return self.__class__(self % int() * unit)
+            case Unit(): return self.__class__(self._unit * unit._unit)
+            case int() | float(): return self.__class__(self._unit * unit)
             case ot.Null(): return ot.Null()
         return self
     
     def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__((self % int()) / (unit % int()))
-            case int() | float(): return self.__class__(self % int() / unit)
+            case Unit(): return self.__class__(self._unit / unit._unit)
+            case int() | float(): return self.__class__(self._unit / unit)
             case ot.Null(): return ot.Null()
         return self
     

@@ -441,7 +441,7 @@ class Chord(Note):
             chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
-        first_key_note = chord_key_notes[self._inversion % int()]
+        first_key_note = chord_key_notes[self._inversion % int() % self._size]
         not_first_key_note = True
         while not_first_key_note:
             not_first_key_note = False
@@ -494,7 +494,7 @@ class Chord(Note):
                 self._size = operand % int()
             case ou.Scale():                self._scale = operand
             case ou.Mode():                 self._mode = operand
-            case ou.Inversion():            self._inversion = ou.Inversion(operand % int() % (self._size - 1))
+            case ou.Inversion():            self._inversion = ou.Inversion(operand % int() % self._size)
             case int():                     self._size = operand
             case str():
                 match operand.strip():
