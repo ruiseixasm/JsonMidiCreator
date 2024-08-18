@@ -64,7 +64,7 @@ class KeyScale(Generic):
         return self
         
     def copy(self) -> 'KeyScale':
-        return KeyScale() << self._key << self._scale
+        return KeyScale() << self._key.copy() << self._scale.copy()
 
     def __lshift__(self, operand: Operand) -> 'KeyScale':
         match operand:
@@ -172,7 +172,7 @@ class KeyNote(Generic):
         return self
         
     def copy(self) -> 'KeyNote':
-        return KeyNote() << self._key << self._octave
+        return KeyNote() << self._key.copy() << self._octave.copy()
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
         match operand:
@@ -252,7 +252,7 @@ class Controller(Generic):
         return self
         
     def copy(self) -> 'Controller':
-        return Controller() << self._midi_cc << self._midi_value
+        return Controller() << self._midi_cc.copy() << self._midi_value.copy()
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:

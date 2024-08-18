@@ -24,7 +24,6 @@ import operand_frame as of
 import operand_tag as ot
 
 
-# Read only classes
 class Data(Operand):
     def __init__(self, data = None):
         self._data = data
@@ -49,6 +48,30 @@ class Data(Operand):
     
     def __ge__(self, other_data: 'Data') -> bool:
         return not (self < other_data)
+
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "data": self._data
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "data" in serialization):
+
+            self._data = serialization["data"]
+        return self
+
+    def copy(self) -> 'Data':
+        return self.__class__(self._data)
+
+    def __lshift__(self, operand: Operand) -> 'Data':
+        match operand:
+            case Data():            self._data = operand % Operand()
+            case _:                 self._data = operand
+        return self
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):

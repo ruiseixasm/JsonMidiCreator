@@ -30,4 +30,5 @@ else:  # Assume Linux/Unix
 global_staff << Tempo(120) << Measure(7)
 
 Chord("7th") * 7 + Increment()**Beat() + Increment()**Even()**Mode(0) >> Print(8) >> Play(True)
+Chord("7th") * 7 + Increment()**Beat() + Iterate()**Even()**Mode(0) >> Print(8) >> Play(True)
 

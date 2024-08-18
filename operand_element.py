@@ -74,7 +74,7 @@ class Element(Operand):
         return self
         
     def copy(self) -> 'Element':
-        return self.__class__() << self._position.copy() << self._time_length.copy() << self._channel << self._device
+        return self.__class__() << self._position.copy() << self._time_length.copy() << self._channel.copy() << self._device.copy()
 
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
@@ -237,7 +237,7 @@ class Clock(Element):
         return self
 
     def copy(self) -> 'Clock':
-        return super().copy() << self._mode << self._device << self._pulses_per_quarternote
+        return super().copy() << self._mode << self._device.copy() << self._pulses_per_quarternote
 
     def __lshift__(self, operand: Operand) -> 'Clock':
         match operand:
@@ -328,7 +328,7 @@ class Note(Element):
         return self
       
     def copy(self) -> 'Note':
-        return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity << self._gate
+        return super().copy() << self._duration.copy() << self._key_note.copy() << self._velocity.copy() << self._gate.copy()
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
@@ -478,7 +478,7 @@ class Chord(Note):
         return self
       
     def copy(self) -> 'Chord':
-        return super().copy() << self._scale.copy() << self._mode << self._size
+        return super().copy() << self._scale.copy() << self._mode.copy() << self._size
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
@@ -554,7 +554,7 @@ class ControlChange(Element):
         return self
       
     def copy(self) -> 'ControlChange':
-        return super().copy() << self._controller << self._midi_value
+        return super().copy() << self._controller.copy()
 
     def __lshift__(self, operand: Operand) -> 'ControlChange':
         match operand:
@@ -623,7 +623,7 @@ class PitchBend(Element):
         return self
       
     def copy(self) -> 'PitchBend':
-        return super().copy() << self._pitch
+        return super().copy() << self._pitch.copy()
 
     def __lshift__(self, operand: Operand) -> 'PitchBend':
         match operand:
@@ -668,8 +668,8 @@ class Sequence(Element):
 
     def getPlayList(self, position: ol.Position = None):
         
-        sequence_position: ol.Position = self % ol.Position() + ol.Position() if position is None else position
-        sequence_length: ol.TimeLength     = self % ol.TimeLength()
+        sequence_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
+        sequence_length: ol.TimeLength  = self % ol.TimeLength()
         
         play_list = []
         for trigger_note in self._trigger_notes % list():

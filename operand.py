@@ -78,7 +78,7 @@ class Operand:
         if isinstance(operand, ot.Null): return ot.Null()
         return self
 
-    def __or__(self, subject: 'Operand') -> 'Operand':
+    def __or__(self, operand: 'Operand') -> 'Operand':
         import operand_tag as ot
         if isinstance(operand, ot.Null): return ot.Null()
         return self

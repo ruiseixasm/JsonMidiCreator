@@ -24,7 +24,6 @@ import operand_frame as of
 import operand_tag as ot
 
 
-# Values have never None values and are also const, with no setters
 class Value(on.Numeric):
     """
     This is a read only type of Operand that has associated a Rational number.
@@ -86,7 +85,16 @@ class Value(on.Numeric):
 
             self._value = serialization["value"]
         return self
-   
+
+    def copy(self) -> 'Value':
+        return self.__class__(self._value)
+
+    def __lshift__(self, operand: Operand) -> 'Value':
+        match operand:
+            case Value():           self._value = operand % float()
+            case float() | int():   self._value = round(1.0 * operand, 9)
+        return self
+
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case Value(): return self.__class__(self % float() + value % float())

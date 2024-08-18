@@ -86,7 +86,16 @@ class Unit(on.Numeric):
 
             self._unit = serialization["unit"]
         return self
-   
+
+    def copy(self) -> 'Unit':
+        return self.__class__(self._unit)
+
+    def __lshift__(self, operand: Operand) -> 'Unit':
+        match operand:
+            case Unit():            self._unit = operand % int()
+            case int() | float():   self._unit = round(operand)
+        return self
+
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case Unit(): return self.__class__(self % int() + unit % int())
