@@ -172,6 +172,50 @@ class Nth(FrameFilter):
         else:
             return ot.Null()
 
+# SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
+
+class SubjectFilter(Frame):
+    ...
+
+class Equal(SubjectFilter):
+    def __init__(self, operand: Operand):
+        super().__init__()
+        self._operand: Operand = operand
+
+    def __and__(self, subject: Operand) -> Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if self_operand == self._operand:
+            return self_operand
+        return ot.Null()
+
+class Greater(SubjectFilter):
+    def __init__(self, operand: Operand):
+        super().__init__()
+        self._operand: Operand = operand
+
+    def __and__(self, subject: Operand) -> Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if self_operand == self._operand:
+            return self_operand
+        return ot.Null()
+
+class Lower(SubjectFilter):
+    def __init__(self, operand: Operand):
+        super().__init__()
+        self._operand: Operand = operand
+
+    def __and__(self, subject: Operand) -> Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if self_operand == self._operand:
+            return self_operand
+        return ot.Null()
+
 # OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
 class OperandFilter(Frame):
@@ -190,19 +234,6 @@ class Iterate(OperandFilter):
         stepped_operand = self_operand + self._unit
         self._unit += self._step
         return stepped_operand
-
-class Equal(OperandFilter):
-    def __init__(self, operand: Operand):
-        super().__init__()
-        self._operand: Operand = operand
-
-    def __and__(self, subject: Operand) -> Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= subject
-        if self_operand == self._operand:
-            return self_operand
-        return ot.Null()
 
 class Selection(OperandFilter):
     def __init__(self):
