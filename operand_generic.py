@@ -35,10 +35,11 @@ class KeyScale(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand % Operand())
-            case ou.Key():      return self._key
-            case ou.Scale():    return self._scale
-            case _:             return ot.Null()
+            case of.Frame():        return self % (operand % Operand())
+            case ou.Key():          return self._key
+            case ou.Scale():        return self._scale
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def getSharps(self, key: ou.Key = None) -> int:
         ...
@@ -121,10 +122,11 @@ class KeyNote(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():    return self % (operand % Operand())
-            case ou.Key():      return self._key
-            case ou.Octave():   return self._octave
-            case _:             return ot.Null()
+            case of.Frame():        return self % (operand % Operand())
+            case ou.Key():          return self._key
+            case ou.Octave():       return self._octave
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def __eq__(self, other: 'KeyNote') -> bool:
         if self % ou.Octave() == other % ou.Octave() and self % ou.Key() == other % ou.Key():
@@ -229,7 +231,8 @@ class Controller(Generic):
             case of.Frame():        return self % (operand % Operand())
             case ou.MidiCC():       return self._midi_cc
             case ou.MidiValue():    return self._midi_value
-            case _:                 return operand
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def getMidi__cc_value(self) -> int:
         return self._midi_value.getMidi__midi_value()
@@ -299,8 +302,10 @@ class Default(Generic):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
-            case _:                 return self._operand
+            case of.Frame():                return self % (operand % Operand())
+            case self._operand.__class__(): return self._operand
+            case ot.Null() | None:          return ot.Null()
+            case _:                         return self
 
 class IntervalQuality(Generic):
     def __init__(self, interval_quality: str = 0):

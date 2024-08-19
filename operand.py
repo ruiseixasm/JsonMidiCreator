@@ -17,7 +17,9 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
         import operand_tag as ot
-        return ot.Null()    # The default operand has no member variables to return!
+        match operand:
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def getSerialization(self):
         return { 

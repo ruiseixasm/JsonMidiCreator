@@ -52,10 +52,11 @@ class Unit(on.Numeric):
         12
         """
         match operand:
-            case of.Frame():    return self % (operand % Operand())
-            case int():         return round(self._unit)
-            case float():       return round(1.0 * self._unit, 12)   # rounding to 9 avoids floating-point errors
-            case _:             return ot.Null()
+            case of.Frame():        return self % (operand % Operand())
+            case int():             return round(self._unit)
+            case float():           return round(1.0 * self._unit, 12)   # rounding to 9 avoids floating-point errors
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def __eq__(self, other_unit: 'Unit') -> bool:
         return self % int() == other_unit % int()

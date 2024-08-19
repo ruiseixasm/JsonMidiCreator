@@ -67,7 +67,8 @@ class Staff(Operand):
                 return ov.StepsPerMeasure((self % ov.StepsPerNote() % float()) * (self % ov.NotesPerMeasure() % float()))
             case ov.StepsPerNote():
                 return ov.StepsPerNote(1 / (self._quantization % float()))
-        return ot.Null()
+            case ot.Null() | None:      return ot.Null()
+            case _:                     return self
 
     def getSerialization(self):
         return {

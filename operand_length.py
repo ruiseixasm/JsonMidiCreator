@@ -40,7 +40,8 @@ class Length(Operand):
             case ov.Beat():         return self._beat
             case ov.NoteValue():    return self._note_value
             case ov.Step():         return self._step
-            case _:                 return ot.Null()
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def __eq__(self, other_length):
         return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)

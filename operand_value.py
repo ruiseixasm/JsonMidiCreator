@@ -51,10 +51,11 @@ class Value(on.Numeric):
         0.25
         """
         match operand:
-            case of.Frame():    return self % (operand % Operand())
-            case float():       return round(1.0 * self._value, 12)  # rounding to 9 avoids floating-point errors
-            case int():         return round(self._value)
-            case _:             return ot.Null()
+            case of.Frame():        return self % (operand % Operand())
+            case float():           return round(1.0 * self._value, 12)  # rounding to 9 avoids floating-point errors
+            case int():             return round(self._value)
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def __eq__(self, other_value: 'Value') -> bool:
         return self % float() == other_value % float()

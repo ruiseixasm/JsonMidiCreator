@@ -57,12 +57,13 @@ class Frame(Operand):
                 for single_operand in self:
                     if isinstance(single_operand, operand.__class__):
                         return single_operand
+            case ot.Null() | None:      return ot.Null()
             case _:
                 for single_operand in self:
                     match single_operand:
                         case Frame():   continue
                         case operand:   return single_operand
-        return ot.Null()
+        return self
     
     def __eq__(self, frame: 'Frame') -> bool:
         return isinstance(self, frame.__class__)
