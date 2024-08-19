@@ -211,10 +211,10 @@ class Container(Operand):
             case ot.Null(): return ot.Null()
         return self_copy
     
-    def __floordiv__(self, time_length: ol.Time) -> 'Many':
-        if isinstance(time_length, ov.TimeUnit):
-            time_length = ol.Time() << time_length
-        match time_length:
+    def __floordiv__(self, time: ol.Time) -> 'Many':
+        if isinstance(time, ov.TimeUnit):
+            time = ol.Time() << time
+        match time:
             case ol.Time():
                 import operand_element as oe
                 starting_position = None
@@ -223,7 +223,7 @@ class Container(Operand):
                         if starting_position is None:
                             starting_position = single_operand % ol.Position()
                         else:
-                            starting_position += time_length
+                            starting_position += time
                             single_operand << ol.Position() << starting_position
         return self
 
