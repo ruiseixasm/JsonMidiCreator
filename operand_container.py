@@ -104,7 +104,6 @@ class Container(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
-            case of.Frame():        self << (operand & self)
             case Container():
                 self._operand_list = operand % list()
             case list():
