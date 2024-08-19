@@ -211,11 +211,11 @@ class Container(Operand):
             case ot.Null(): return ot.Null()
         return self_copy
     
-    def __floordiv__(self, time_length: ol.TimeLength) -> 'Many':
+    def __floordiv__(self, time_length: ol.Time) -> 'Many':
         if isinstance(time_length, ov.TimeUnit):
-            time_length = ol.TimeLength() << time_length
+            time_length = ol.Time() << time_length
         match time_length:
-            case ol.TimeLength():
+            case ol.Time():
                 import operand_element as oe
                 starting_position = None
                 for single_operand in self._operand_list:
@@ -258,8 +258,8 @@ class Many(Container):  # Just a container of Elements
                     other_last_element = self.lastOperand()
                     if type(other_last_element) != ot.Null:
                         other_last_element >> self_first_element
-                case oe.Element(): operand % ol.Position() + operand % ol.TimeLength() >> self_first_element
-                case ol.Position() | ol.TimeLength(): operand >> self_first_element
+                case oe.Element(): operand % ol.Position() + operand % ol.Time() >> self_first_element
+                case ol.Position() | ol.Time(): operand >> self_first_element
             for single_element_i in range(1, len(self._operand_list)):
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
         return self

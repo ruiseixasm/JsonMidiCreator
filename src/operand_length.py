@@ -164,7 +164,7 @@ class Position(Length):
 class Duration(Length):
     pass
 
-class TimeLength(Length):
+class Time(Length):
     pass
     
 class Identity(Length):
