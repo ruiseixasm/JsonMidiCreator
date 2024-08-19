@@ -306,7 +306,7 @@ class Dotted(NoteValue):
             case NoteValue():   return NoteValue() << self % float()
             case float():       return round(1.0 * self._value * (3/2), 12)  # rounding to 9 avoids floating-point errors
             case int():         return round(self._value * (3/2))
-            case _:             return ot.Null()
+            case _:             return super().__mod__(operand)
 
 class Step(TimeUnit):
     """
