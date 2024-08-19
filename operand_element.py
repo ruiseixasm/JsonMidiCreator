@@ -46,7 +46,8 @@ class Element(Operand):
             case ol.TimeLength():   return self._time_length
             case ou.Channel():      return self._channel
             case od.Device():       return self._device
-            case _:                 return ot.Null()
+            case ot.Null() | None:  return ot.Null()
+            case _:                 return self
 
     def getPlayList(self, position: ol.Position = None) -> list:
         return []
@@ -111,6 +112,7 @@ class Element(Operand):
 
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
+        operand_type = operand % Operand()
         match operand:
             case Element():
                 return oc.Many(self_copy, operand.copy())

@@ -30,9 +30,10 @@ class Data(Operand):
 
     def __mod__(self, operand: Operand):
         match operand:
-            case of.Frame():        return self % (operand % Operand())
-            case ot.Null() | None:  return ot.Null()
-            case _:                 return self._data
+            case of.Frame():                return self % (operand % Operand())
+            case self._data.__class__():    return self._data
+            case ot.Null() | None:          return ot.Null()
+            case _:                         return self
 
     def __eq__(self, other_data: 'Data') -> bool:
         return self % bool() == other_data % bool()
