@@ -1,0 +1,5 @@
+python examples\example1_notes_and_sequence.py
+python examples\example3_keynote_transpose.py
+python examples\example4_control_change.py
+python examples\example6_frame_filters.py
+python examples\example7_chord_inversions.py
