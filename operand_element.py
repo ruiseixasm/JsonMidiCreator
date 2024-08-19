@@ -117,7 +117,7 @@ class Element(Operand):
             case Element():         return oc.Many(self_copy, operand.copy())
             case oc.Many():         return oc.Many(self_copy, operand.copy() % list())
             case Operand():         return self_copy << self % operand + operand
-        return self
+        return self_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
@@ -126,7 +126,7 @@ class Element(Operand):
             case Element():         return self
             case oc.Many():         return self
             case Operand():         return self_copy << self % operand - operand
-        return self
+        return self_copy
 
     def __mul__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
@@ -137,7 +137,7 @@ class Element(Operand):
                 ...
             case Operand():
                 return self_copy << self % operand * operand
-        return self
+        return self_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
@@ -148,7 +148,7 @@ class Element(Operand):
                 ...
             case Operand():
                 return self_copy << self % operand / operand
-        return self
+        return self_copy
 
 class ClockModes(enum.Enum):
     single  = 1

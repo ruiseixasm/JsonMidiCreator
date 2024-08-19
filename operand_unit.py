@@ -102,32 +102,28 @@ class Unit(on.Numeric):
             case of.Frame():        return self + (unit & self)
             case Unit():            return self.__class__(self._unit + unit._unit)
             case int() | float():   return self.__class__(self._unit + unit)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
     def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self - (unit & self)
             case Unit():            return self.__class__(self._unit - unit._unit)
             case int() | float():   return self.__class__(self._unit - unit)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self * (unit & self)
             case Unit():            return self.__class__(self._unit * unit._unit)
             case int() | float():   return self.__class__(self._unit * unit)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
     def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self / (unit & self)
             case Unit():            return self.__class__(self._unit / unit._unit)
             case int() | float():   return self.__class__(self._unit / unit)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
 class Key(Unit):
     """

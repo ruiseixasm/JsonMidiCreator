@@ -117,7 +117,6 @@ class Length(Operand):
                                         << self._beat + operand % ov.Beat() \
                                         << self._note_value + operand % ov.NoteValue() \
                                         << self._step + operand % ov.Step()
-            case ot.Null() | None:  return ot.Null()
             case ov.Value():        self_copy << self % operand + operand
         return self_copy
     
@@ -131,7 +130,6 @@ class Length(Operand):
                                         << self._beat - operand % ov.Beat() \
                                         << self._note_value - operand % ov.NoteValue() \
                                         << self._step - operand % ov.Step()
-            case ot.Null() | None:  return ot.Null()
             case ov.Value():        self_copy << self % operand - operand
         return self_copy
     
@@ -144,7 +142,6 @@ class Length(Operand):
                                         << self._beat * (operand % ov.Beat()) \
                                         << self._note_value * (operand % ov.NoteValue()) \
                                         << self._step * (operand % ov.Step())
-            case ot.Null() | None:  return ot.Null()
             case ov.Value():        self_copy << self % operand * operand
         return self_copy
     
@@ -157,7 +154,6 @@ class Length(Operand):
                                         << self._beat / (operand % ov.Beat()) \
                                         << self._note_value / (operand % ov.NoteValue()) \
                                         << self._step / (operand % ov.Step())
-            case ot.Null() | None:  return ot.Null()
             case ov.Value():        self_copy << self % operand / operand
         return self_copy
 

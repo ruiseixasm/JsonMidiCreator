@@ -15,14 +15,11 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 
 class Operand:
-    def default_operator(self, operand: 'Operand') -> 'Operand':
+    def __mod__(self, operand: 'Operand') -> 'Operand':
         import operand_tag as ot
         match operand:
             case ot.Null() | None:  return ot.Null()
             case _:                 return self
-
-    def __mod__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
 
     def getSerialization(self):
         return { 
@@ -34,11 +31,11 @@ class Operand:
     def loadSerialization(self, serialization: dict):
         return self
        
-    def copy(self): # read only Operand doesn't have to be duplicated, it never changes
-        return self
+    def copy(self):
+        return self.__class__() << self
     
     def __lshift__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self
 
     # self is the pusher
     def __rshift__(self, operand: 'Operand') -> 'Operand':
@@ -46,28 +43,28 @@ class Operand:
 
     # operand is the pusher
     def __rrshift__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self
 
     def __add__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self.copy()
 
     def __sub__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self.copy()
 
     def __mul__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self.copy()
     
     def __truediv__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self.copy()
     
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self.copy()
 
     def __pow__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self
     
     def __and__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self
 
     def __or__(self, operand: 'Operand') -> 'Operand':
-        return self.default_operator(operand)
+        return self

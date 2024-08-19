@@ -101,24 +101,21 @@ class Value(on.Numeric):
             case of.Frame():        return self + (value & self)
             case Value():           return self.__class__(self._value + value._value)
             case float() | int():   return self.__class__(self._value + value)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
     def __sub__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case of.Frame():        return self - (value & self)
             case Value():           return self.__class__(self._value - value._value)
             case float() | int():   return self.__class__(self._value - value)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
     def __mul__(self, value: Union['Value', float]) -> 'Value':
         match value:
             case of.Frame():        return self * (value & self)
             case Value():           return self.__class__(self._value * value._value)
             case float() | int():   return self.__class__(self._value * value)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
     
     def __truediv__(self, value: Union['Value', float]) -> 'Value':
         match value:
@@ -129,8 +126,7 @@ class Value(on.Numeric):
             case float() | int():
                 if value != 0:
                     return self.__class__(self._value / value)
-            case ot.Null() | None:  return ot.Null()
-        return self
+        return self.copy()
 
 class Quantization(Value):
     """
