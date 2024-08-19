@@ -22,7 +22,7 @@ import creator as c
 from operand import Operand
 
 import operand_numeric as on
-import operand_unit as ou
+import operand_value as ou
 import operand_value as ov
 import operand_length as ol
 import operand_frame as of
@@ -222,19 +222,19 @@ class Lower(SubjectFilter):
 
 class OperandFilter(Frame):
     def __init__(self):
-        self._unit: int = 0
+        self._value: float = 0
 
 class Iterate(OperandFilter):
-    def __init__(self, step: int | float = None):
+    def __init__(self, step: float = None):
         super().__init__()
-        self._step = 1 if step is None else step
+        self._step: float = 1 if step is None else step
 
     def __and__(self, subject: Operand) -> Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        stepped_operand = self_operand + self._unit
-        self._unit += self._step
+        stepped_operand = self_operand + self._value
+        self._value += self._step
         return stepped_operand
 
 class Selection(OperandFilter):
@@ -294,13 +294,13 @@ class Range(OperandFilter):
 
 class Repeat(OperandFilter):
     def __init__(self, unit, repeat: int = 1):
-        self._unit = unit
+        self._value = unit
         self._repeat = repeat
 
     def step(self) -> Operand:
         if self._repeat > 0:
             self._repeat -= 1
-            return self._unit
+            return self._value
         return ot.Null()
 
     def __or__(self, operand: 'Operand') -> Operand:
@@ -310,18 +310,18 @@ class Repeat(OperandFilter):
 
 class OperandEditor(Frame):
     def __init__(self):
-        self._unit: int = 0
+        self._value: float = 0
 
 class Increment(OperandEditor):
-    def __init__(self, step: int | float = None):
+    def __init__(self, step: float = None):
         super().__init__()
-        self._step = 1 if step is None else step
+        self._step: float = 1 if step is None else step
 
     def __and__(self, subject: Operand) -> Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        self_operand << self_operand + self._unit
-        self._unit = self._step
+        self_operand << self_operand + self._value
+        self._value = self._step
         return self_operand
 
