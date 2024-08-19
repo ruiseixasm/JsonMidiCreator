@@ -29,7 +29,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/
 lib64/
 parts/
 sdist/
@@ -176,5 +176,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Self produced and very long .json extension files, so, ignore the json folder
-json/
+# JsonMidiCreator files to be ignored by git in order to not clutter the GitHub repository
+*.so
+*.dll
+*.dylib
+json/*.json
