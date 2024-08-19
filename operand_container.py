@@ -134,8 +134,7 @@ class Container(Operand):
             case Operand():
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
-                    frame_operand = operand & single_operand
-                    single_operand << single_operand + frame_operand
+                    single_operand << single_operand + operand
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
@@ -157,7 +156,7 @@ class Container(Operand):
             case Operand():
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
-                    single_operand << single_operand - (operand & single_operand)
+                    single_operand << single_operand - operand
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
@@ -180,7 +179,7 @@ class Container(Operand):
             case Operand():
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
-                    single_operand << single_operand * (operand & single_operand)
+                    single_operand << single_operand * operand
             case int(): # repeat n times the last argument if any
                 many_operands = Many()    # empty list
                 while operand > 0:
@@ -201,7 +200,7 @@ class Container(Operand):
             case Operand():
                 elements_list = self_copy % list()
                 for single_operand in elements_list:
-                    single_operand << single_operand / (operand & single_operand)
+                    single_operand << single_operand / operand
             case int(): # remove n times the last argument if any
                 if operand > 0:
                     elements_list = self_copy % list()

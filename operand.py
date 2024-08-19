@@ -15,11 +15,14 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 
 class Operand:
-    def __mod__(self, operand: 'Operand') -> 'Operand':
+    def default_operator(self, operand: 'Operand') -> 'Operand':
         import operand_tag as ot
         match operand:
             case ot.Null() | None:  return ot.Null()
             case _:                 return self
+
+    def __mod__(self, operand: 'Operand') -> 'Operand':
+        return self.default_operator(operand)
 
     def getSerialization(self):
         return { 
@@ -35,7 +38,7 @@ class Operand:
         return self
     
     def __lshift__(self, operand: 'Operand') -> 'Operand':
-        return self
+        return self.default_operator(operand)
 
     # self is the pusher
     def __rshift__(self, operand: 'Operand') -> 'Operand':
@@ -43,44 +46,28 @@ class Operand:
 
     # operand is the pusher
     def __rrshift__(self, operand: 'Operand') -> 'Operand':
-        return self
+        return self.default_operator(operand)
 
     def __add__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
 
     def __sub__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
 
     def __mul__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
     
     def __truediv__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
     
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
 
     def __pow__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
     
     def __and__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
 
     def __or__(self, operand: 'Operand') -> 'Operand':
-        import operand_tag as ot
-        if isinstance(operand, ot.Null): return ot.Null()
-        return self
+        return self.default_operator(operand)
