@@ -41,7 +41,7 @@ class Length(Operand):
             case ov.NoteValue():    return self._note_value
             case ov.Step():         return self._step
             case ot.Null() | None:  return ot.Null()
-            case ov.Value():        return self
+            case _:                 return self
 
     def __eq__(self, other_length):
         return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)
@@ -117,7 +117,7 @@ class Length(Operand):
                                         << self._beat + operand % ov.Beat() \
                                         << self._note_value + operand % ov.NoteValue() \
                                         << self._step + operand % ov.Step()
-            case ov.Value():        self_copy << self % operand + operand
+            case ov.TimeUnit():     self_copy << self % operand + operand
         return self_copy
     
     # subtracting two lengths 
@@ -130,7 +130,7 @@ class Length(Operand):
                                         << self._beat - operand % ov.Beat() \
                                         << self._note_value - operand % ov.NoteValue() \
                                         << self._step - operand % ov.Step()
-            case ov.Value():        self_copy << self % operand - operand
+            case ov.TimeUnit():     self_copy << self % operand - operand
         return self_copy
     
     def __mul__(self, operand: Operand) -> 'Length':
@@ -142,7 +142,7 @@ class Length(Operand):
                                         << self._beat * (operand % ov.Beat()) \
                                         << self._note_value * (operand % ov.NoteValue()) \
                                         << self._step * (operand % ov.Step())
-            case ov.Value():        self_copy << self % operand * operand
+            case ov.TimeUnit():     self_copy << self % operand * operand
         return self_copy
     
     def __truediv__(self, operand: Operand) -> 'Length':
@@ -154,7 +154,7 @@ class Length(Operand):
                                         << self._beat / (operand % ov.Beat()) \
                                         << self._note_value / (operand % ov.NoteValue()) \
                                         << self._step / (operand % ov.Step())
-            case ov.Value():        self_copy << self % operand / operand
+            case ov.TimeUnit():     self_copy << self % operand / operand
         return self_copy
 
 class Position(Length):
