@@ -134,7 +134,8 @@ class Container(Operand):
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
                     frame_operand = operand & single_operand
-                    new_operand = single_operand % operand + frame_operand
+                    single_frame_operand = single_operand % operand
+                    new_operand = single_frame_operand + frame_operand
                     single_operand << new_operand
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
