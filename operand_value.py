@@ -92,6 +92,7 @@ class Value(on.Numeric):
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
+            case of.Frame():        self << (operand & self)
             case Value():           self._value = operand % float()
             case float() | int():   self._value = round(1.0 * operand, 12)
         return self

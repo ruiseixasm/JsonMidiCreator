@@ -69,11 +69,12 @@ class KeyScale(Generic):
 
     def __lshift__(self, operand: Operand) -> 'KeyScale':
         match operand:
+            case of.Frame():        self << (operand & self)
             case KeyScale():
                 self._key = operand % ou.Key()
                 self._scale = operand % ou.Scale()
-            case ou.Key(): self._key = operand
-            case ou.Scale(): self._scale = operand
+            case ou.Key():          self._key = operand
+            case ou.Scale():        self._scale = operand
         return self
 
     def __add__(self, operand) -> 'KeyScale':
@@ -185,11 +186,12 @@ class KeyNote(Generic):
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
         match operand:
+            case of.Frame():        self << (operand & self)
             case KeyNote():
                 self._key = operand % ou.Key()
                 self._octave = operand % ou.Octave()
-            case ou.Key(): self._key = operand
-            case ou.Octave(): self._octave = operand
+            case ou.Key():          self._key = operand
+            case ou.Octave():       self._octave = operand
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -270,11 +272,12 @@ class Controller(Generic):
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:
+            case of.Frame():        self << (operand & self)
             case Controller():
                 self._midi_cc = operand % ou.MidiCC()
                 self._midi_value = operand % ou.MidiValue()
-            case ou.MidiCC(): self._midi_cc = operand
-            case ou.MidiValue(): self._midi_value = operand
+            case ou.MidiCC():       self._midi_cc = operand
+            case ou.MidiValue():    self._midi_value = operand
         return self
 
     def __add__(self, operand) -> 'Controller':

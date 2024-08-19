@@ -91,6 +91,7 @@ class Length(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Length':
         match operand:
+            case of.Frame():        self << (operand & self)
             case Length():
                 self._measure       = operand % ov.Measure()
                 self._beat          = operand % ov.Beat()

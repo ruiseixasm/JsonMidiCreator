@@ -25,6 +25,7 @@ import operand_numeric as on
 import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
+import operand_frame as of
 import operand_tag as ot
 
 
@@ -274,11 +275,12 @@ class Selection(OperandFilter):
 
     def __lshift__(self, operand: Operand) -> 'Operand':
         match operand:
+            case of.Frame():        self << (operand & self)
             case Selection():
                 self._position = operand % ol.Position()
                 self._time_length = operand % ol.TimeLength()
-            case ol.Position(): self._position = operand
-            case ol.TimeLength(): self._time_length = operand
+            case ol.Position():     self._position = operand
+            case ol.TimeLength():   self._time_length = operand
         return self
 
 class Range(OperandFilter):

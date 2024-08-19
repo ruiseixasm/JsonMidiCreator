@@ -115,6 +115,7 @@ class Staff(Operand):
         
     def __lshift__(self, operand: Operand) -> 'Staff':
         match operand:
+            case of.Frame():            self << (operand & self)
             case Staff():
                 self._measure = operand % ov.Measure()
                 self._tempo = operand % ov.Tempo()

@@ -93,6 +93,7 @@ class Unit(on.Numeric):
 
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:
+            case of.Frame():        self << (operand & self)
             case Unit():            self._unit = operand % int()
             case int() | float():   self._unit = round(operand)
         return self

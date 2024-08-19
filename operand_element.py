@@ -79,6 +79,7 @@ class Element(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
+            case of.Frame():        self << (operand & self)
             case Element():
                 self._position = operand % ol.Position()
                 self._time_length = operand % ol.TimeLength()
@@ -765,7 +766,7 @@ class Sequence(Element):
                     self._trigger_notes << operand.pop(of.Inner())
             case oc.Many():
                 self._trigger_notes = operand
-            case Operand():
+            case _:
                 super().__lshift__(operand)
         return self
 
