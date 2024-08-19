@@ -24,26 +24,26 @@ from operand import Operand
 import operand_numeric as on
 import operand_value as ou
 import operand_value as ov
-import operand_length as ol
+import operand_time as ot
 import operand_frame as of
-import operand_label as oll
+import operand_label as ol
 
 
 # Works as a traditional C list (chained)
 class Frame(Operand):
     def __init__(self):
-        self._next_operand: Optional[Operand] = oll.Dummy()
+        self._next_operand: Optional[Operand] = ol.Dummy()
         
     def __iter__(self):
         self._current_node: Optional[Operand] = self    # Reset to the start node on new iteration
         return self
     
     def __next__(self):
-        if isinstance(self._current_node, oll.Null): raise StopIteration
+        if isinstance(self._current_node, ol.Null): raise StopIteration
         previous_node = self._current_node
         match self._current_node:
             case Frame():   self._current_node = self._current_node._next_operand
-            case _:         self._current_node = oll.Null()
+            case _:         self._current_node = ol.Null()
         return previous_node
 
     def len(self) -> int:
@@ -58,7 +58,7 @@ class Frame(Operand):
                 for single_operand in self:
                     if isinstance(single_operand, operand.__class__):
                         return single_operand
-            case oll.Null() | None:      return oll.Null()
+            case ol.Null() | None:      return ol.Null()
             case _:
                 for single_operand in self:
                     match single_operand:
@@ -99,7 +99,7 @@ class Frame(Operand):
     def __pow__(self, operand: Operand) -> 'Frame':
         match operand:
             case Operand(): self._next_operand = operand
-            case _:         self._next_operand = oll.Dummy()
+            case _:         self._next_operand = ol.Dummy()
         return self
 
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
@@ -109,7 +109,7 @@ class FrameFilter(Frame):
         for operand in subject:
             if self == operand:
                 return self._next_operand & subject
-        return oll.Null()
+        return ol.Null()
         
     def __eq__(self, other: Operand) -> bool:
         return self.__class__ == other.__class__
@@ -120,7 +120,7 @@ class Canvas(FrameFilter):
 
 class Blank(FrameFilter):
     def __and__(self, subject: Operand) -> Operand:
-        return oll.Null()
+        return ol.Null()
 
 class Inner(FrameFilter):
     pass
@@ -137,7 +137,7 @@ class Odd(FrameFilter):
         if self._call % 2 == 1:
             return self._next_operand & subject
         else:
-            return oll.Null()
+            return ol.Null()
 
 class Even(FrameFilter):
     def __init__(self):
@@ -148,7 +148,7 @@ class Even(FrameFilter):
         if self._call % 2 == 0:
             return self._next_operand & subject
         else:
-            return oll.Null()
+            return ol.Null()
 
 class Nths(FrameFilter):
     def __init__(self, nths: int = 4):
@@ -160,7 +160,7 @@ class Nths(FrameFilter):
         if self._call % self._nths == 0:
             return self._next_operand & subject
         else:
-            return oll.Null()
+            return ol.Null()
 
 class Nth(FrameFilter):
     def __init__(self, nth: int = 4):
@@ -172,7 +172,7 @@ class Nth(FrameFilter):
         if self._call == self._nth:
             return self._next_operand & subject
         else:
-            return oll.Null()
+            return ol.Null()
 
 # 2. SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
 
@@ -191,7 +191,7 @@ class Equal(SubjectFilter):
             self_operand &= subject
         if self_operand == self._operand:
             return self_operand
-        return oll.Null()
+        return ol.Null()
 
 class Greater(SubjectFilter):
     def __init__(self, operand: Operand):
@@ -204,7 +204,7 @@ class Greater(SubjectFilter):
             self_operand &= subject
         if self_operand == self._operand:
             return self_operand
-        return oll.Null()
+        return ol.Null()
 
 class Lower(SubjectFilter):
     def __init__(self, operand: Operand):
@@ -217,7 +217,7 @@ class Lower(SubjectFilter):
             self_operand &= subject
         if self_operand == self._operand:
             return self_operand
-        return oll.Null()
+        return ol.Null()
 
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 

@@ -22,7 +22,7 @@ from operand import Operand
 import operand_staff as os
 import operand_value as ov
 import operand_frame as of
-import operand_label as oll
+import operand_label as ol
 
 
 class Length(Operand):
@@ -40,7 +40,7 @@ class Length(Operand):
             case ov.Beat():         return self._beat
             case ov.NoteValue():    return self._note_value
             case ov.Step():         return self._step
-            case oll.Null() | None:  return oll.Null()
+            case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
     def __eq__(self, other_length):

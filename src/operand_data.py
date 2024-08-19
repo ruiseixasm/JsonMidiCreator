@@ -21,7 +21,7 @@ from operand import Operand
 import operand_staff as os
 import operand_unit as ou
 import operand_frame as of
-import operand_label as oll
+import operand_label as ol
 
 
 class Data(Operand):
@@ -32,7 +32,7 @@ class Data(Operand):
         match operand:
             case of.Frame():                return self % (operand % Operand())
             case self._data.__class__():    return self._data
-            case oll.Null() | None:          return oll.Null()
+            case ol.Null() | None:          return ol.Null()
             case _:                         return self
 
     def __eq__(self, other_data: 'Data') -> bool:

@@ -17,11 +17,11 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from operand import Operand
 import operand_unit as ou
 import operand_value as ov
-import operand_length as ol
+import operand_time as ot
 import operand_data as od
 import operand_generic as og
 import operand_frame as of
-import operand_label as oll
+import operand_label as ol
 
 
 class Staff(Operand):
@@ -35,7 +35,7 @@ class Staff(Operand):
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._scale: og.KeyScale                    = None
         self._quantization: ov.Quantization         = None
-        self._duration: ol.Duration                 = None
+        self._duration: ot.Duration                 = None
         self._key: ou.Key                           = None
         self._octave: ou.Octave                     = None
         self._velocity: ou.Velocity                 = None
@@ -53,7 +53,7 @@ class Staff(Operand):
             case ov.BeatNoteValue():    return self._beat_note_value
             case og.KeyScale():         return self._scale
             case ov.Quantization():     return self._quantization
-            case ol.Duration():         return self._duration
+            case ot.Duration():         return self._duration
             case ou.Key():              return self._key
             case ou.Octave():           return self._octave
             case ou.Velocity():         return self._velocity
@@ -67,7 +67,7 @@ class Staff(Operand):
                 return ov.StepsPerMeasure((self % ov.StepsPerNote() % float()) * (self % ov.NotesPerMeasure() % float()))
             case ov.StepsPerNote():
                 return ov.StepsPerNote(1 / (self._quantization % float()))
-            case oll.Null() | None:      return oll.Null()
+            case ol.Null() | None:      return ol.Null()
             case _:                     return self
 
     def getSerialization(self):
@@ -104,7 +104,7 @@ class Staff(Operand):
             self._beat_note_value = ov.BeatNoteValue(serialization["beat_note_value"])
             self._scale = og.KeyScale().loadSerialization(serialization["scale"])
             self._quantization = ov.Quantization(serialization["quantization"])
-            self._duration = ol.Duration(serialization["duration"])
+            self._duration = ot.Duration(serialization["duration"])
             self._key = ou.Key(serialization["key"])
             self._octave = ou.Octave(serialization["octave"])
             self._velocity = ou.Velocity(serialization["velocity"])
@@ -123,7 +123,7 @@ class Staff(Operand):
                 self._beat_note_value = operand % ov.BeatNoteValue()
                 self._scale = operand % og.KeyScale()
                 self._quantization = operand % ov.Quantization()    # Note Value
-                self._duration = operand % ol.Duration()
+                self._duration = operand % ot.Duration()
                 self._key = operand % ou.Key()
                 self._octave = operand % ou.Octave()
                 self._velocity = operand % ou.Velocity()
@@ -136,7 +136,7 @@ class Staff(Operand):
             case ov.BeatNoteValue():    self._beat_note_value = operand
             case og.KeyScale():         self._scale = operand
             case ov.Quantization():     self._quantization = operand    # Note Value
-            case ol.Duration():         self._duration = operand
+            case ot.Duration():         self._duration = operand
             case ou.Key():              self._key = operand
             case ou.Octave():           self._octave = operand
             case ou.Velocity():         self._velocity = operand
@@ -156,6 +156,6 @@ class Staff(Operand):
 global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
 global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
     << (og.KeyScale() << ou.Key("C") << ou.Scale("Major")) << ov.Quantization(1/16) \
-    << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
+    << (ot.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
     << ou.Velocity(100) << (og.Controller() << ou.MidiCC("Pan") << ou.MidiValue(64)) \
     << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])

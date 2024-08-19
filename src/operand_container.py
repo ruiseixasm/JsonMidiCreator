@@ -23,9 +23,9 @@ from operand import Operand
 
 import operand_unit as ou
 import operand_value as ov
-import operand_length as ol
+import operand_time as ot
 import operand_data as od
-import operand_label as oll
+import operand_label as ol
 import operand_generic as og
 import operand_frame as of
 
@@ -59,18 +59,18 @@ class Container(Operand):
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case list():            return self._operand_list
-            case oll.Null() | None:  return oll.Null()
+            case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
     def firstOperand(self) -> Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[0]
-        return oll.Null()
+        return ol.Null()
 
     def lastOperand(self) -> Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[len(self._operand_list) - 1]
-        return oll.Null()
+        return ol.Null()
  
     def getSerialization(self):
         operands_serialization = []
@@ -142,7 +142,7 @@ class Container(Operand):
                     while operand > 0:
                         operand_list.append(last_operand.copy())
                         operand -= 1
-            case oll.Null(): return oll.Null()
+            case ol.Null(): return ol.Null()
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Many':
@@ -164,7 +164,7 @@ class Container(Operand):
                     while operand > 0 and len(operand_list) > 0:
                         operand_list.pop()
                         operand -= 1
-            case oll.Null(): return oll.Null()
+            case ol.Null(): return ol.Null()
         return self_copy
 
     # multiply with a scalar 
@@ -186,7 +186,7 @@ class Container(Operand):
                     many_operands += self
                     operand -= 1
                 return many_operands
-            case oll.Null(): return oll.Null()
+            case ol.Null(): return ol.Null()
         return self_copy
     
     def __truediv__(self, operand: Operand) -> 'Many':
@@ -208,37 +208,37 @@ class Container(Operand):
                     while elements_to_be_removed > 0:
                         elements_list.pop()
                         elements_to_be_removed -= 1
-            case oll.Null(): return oll.Null()
+            case ol.Null(): return ol.Null()
         return self_copy
     
-    def __floordiv__(self, time: ol.Time) -> 'Many':
+    def __floordiv__(self, time: ot.Time) -> 'Many':
         if isinstance(time, ov.TimeUnit):
-            time = ol.Time() << time
+            time = ot.Time() << time
         match time:
-            case ol.Time():
+            case ot.Time():
                 import operand_element as oe
                 starting_position = None
                 for single_operand in self._operand_list:
                     if isinstance(single_operand, oe.Element):
                         if starting_position is None:
-                            starting_position = single_operand % ol.Position()
+                            starting_position = single_operand % ot.Position()
                         else:
                             starting_position += time
-                            single_operand << ol.Position() << starting_position
+                            single_operand << ot.Position() << starting_position
         return self
 
 class Many(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
 
-    def getLastPosition(self) -> ol.Position:
-        last_position: ol.Position = ol.Position()
+    def getLastPosition(self) -> ot.Position:
+        last_position: ot.Position = ot.Position()
         for single_operand in self._operand_list:
-            if single_operand % ol.Position() > last_position:
-                last_position = single_operand % ol.Position()
+            if single_operand % ot.Position() > last_position:
+                last_position = single_operand % ot.Position()
         return last_position
 
-    def getPlayList(self, position: ol.Position = None):
+    def getPlayList(self, position: ot.Position = None):
         import operand_element as oe
         play_list = []
         for single_operand in self % list():
@@ -250,16 +250,16 @@ class Many(Container):  # Just a container of Elements
 
     def __rrshift__(self, operand: Operand) -> Operand:
         self_first_element = self.firstOperand()
-        if type(self_first_element) != oll.Null:
+        if type(self_first_element) != ol.Null:
             import operand_element as oe
             match operand:
-                case oll.Null(): pass
+                case ol.Null(): pass
                 case Many():
                     other_last_element = self.lastOperand()
-                    if type(other_last_element) != oll.Null:
+                    if type(other_last_element) != ol.Null:
                         other_last_element >> self_first_element
-                case oe.Element(): operand % ol.Position() + operand % ol.Time() >> self_first_element
-                case ol.Position() | ol.Time(): operand >> self_first_element
+                case oe.Element(): operand % ot.Position() + operand % ot.Time() >> self_first_element
+                case ot.Position() | ot.Time(): operand >> self_first_element
             for single_element_i in range(1, len(self._operand_list)):
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
         return self

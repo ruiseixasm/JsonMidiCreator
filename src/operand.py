@@ -16,9 +16,9 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
-        import operand_label as oll
+        import operand_label as ol
         match operand:
-            case oll.Null() | None:  return oll.Null()
+            case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
     def getSerialization(self):
