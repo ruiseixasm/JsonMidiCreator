@@ -110,27 +110,48 @@ class Element(Operand):
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
         match operand:
             case Element():
-                return oc.Many(self.copy(), operand.copy())
+                return oc.Many(self_copy, operand.copy())
             case oc.Many():
-                return oc.Many(self.copy(), operand.copy() % list())
+                return oc.Many(self_copy, operand.copy() % list())
             case Operand():
-                element_copy = self.copy()
-                return element_copy << element_copy % operand + operand
+                return self_copy << self % operand + operand
         return self
 
     def __sub__(self, operand: Operand) -> 'Element':
-        element_copy = self.copy()
-        return element_copy << element_copy % operand - operand
+        self_copy = self.copy()
+        match operand:
+            case Element():
+                ...
+            case oc.Many():
+                ...
+            case Operand():
+                return self_copy << self % operand - operand
+        return self
 
     def __mul__(self, operand: Operand) -> 'Element':
-        element_copy = self.copy()
-        return element_copy << element_copy % operand * operand
+        self_copy = self.copy()
+        match operand:
+            case Element():
+                ...
+            case oc.Many():
+                ...
+            case Operand():
+                return self_copy << self % operand * operand
+        return self
 
     def __truediv__(self, operand: Operand) -> 'Element':
-        element_copy = self.copy()
-        return element_copy << element_copy % operand / operand
+        self_copy = self.copy()
+        match operand:
+            case Element():
+                ...
+            case oc.Many():
+                ...
+            case Operand():
+                return self_copy << self % operand / operand
+        return self
 
 class ClockModes(enum.Enum):
     single  = 1
