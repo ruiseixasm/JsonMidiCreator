@@ -25,7 +25,7 @@ import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_data as od
-import operand_tag as ot
+import operand_label as oll
 import operand_frame as of
 import operand_generic as og
 import operand_container as oc
@@ -46,7 +46,7 @@ class Element(Operand):
             case ol.Time():         return self._time
             case ou.Channel():      return self._channel
             case od.Device():       return self._device
-            case ot.Null() | None:  return ot.Null()
+            case oll.Null() | None:  return oll.Null()
             case _:                 return self
 
     def getPlayList(self, position: ol.Position = None) -> list:
@@ -101,10 +101,10 @@ class Element(Operand):
     # operand is the pusher
     def __rrshift__(self, operand: Operand) -> 'Element':
         match operand:
-            case ot.Null(): pass
+            case oll.Null(): pass
             case oc.Many():
                 last_element = operand.lastElement()
-                if type(last_element) != ot.Null:
+                if type(last_element) != oll.Null:
                     self << last_element % ol.Position() + last_element % ol.Time()
             case Element(): self << operand % ol.Position() + operand % ol.Time()
             case ol.Position(): self << operand
@@ -760,7 +760,7 @@ class Sequence(Element):
                 super().__lshift__(operand)
                 self._trigger_notes = operand % oc.Many()
             case of.Frame():
-                if isinstance(of.Inner() & operand, ot.Null):
+                if isinstance(of.Inner() & operand, oll.Null):
                     self << operand & self
                 else:
                     self._trigger_notes << operand.pop(of.Inner())
@@ -771,42 +771,42 @@ class Sequence(Element):
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
-        if isinstance(operand, ot.Null): return ot.Null()
+        if isinstance(operand, oll.Null): return oll.Null()
         sequence_copy = self.copy()
         if isinstance(operand, Element):
             self._trigger_notes += operand
         else:
-            if isinstance(of.Inner() & operand, ot.Null):
+            if isinstance(of.Inner() & operand, oll.Null):
                 sequence_copy << sequence_copy % operand + (operand & self)
             else:
                 sequence_copy << self._trigger_notes + operand.pop(of.Inner())
         return sequence_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
-        if isinstance(operand, ot.Null): return ot.Null()
+        if isinstance(operand, oll.Null): return oll.Null()
         sequence_copy = self.copy()
         if isinstance(operand, Element):
             self._trigger_notes -= operand
         else:
-            if isinstance(of.Inner() & operand, ot.Null):
+            if isinstance(of.Inner() & operand, oll.Null):
                 sequence_copy << sequence_copy % operand - (operand & self)
             else:
                 sequence_copy << self._trigger_notes - operand.pop(of.Inner())
         return sequence_copy
 
     def __mul__(self, operand: Operand) -> 'Element':
-        if isinstance(operand, ot.Null): return ot.Null()
+        if isinstance(operand, oll.Null): return oll.Null()
         sequence_copy = self.copy()
-        if isinstance(of.Inner() & operand, ot.Null):
+        if isinstance(of.Inner() & operand, oll.Null):
             sequence_copy << sequence_copy % operand * (operand & self)
         else:
             sequence_copy << self._trigger_notes * operand.pop(of.Inner())
         return sequence_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
-        if isinstance(operand, ot.Null): return ot.Null()
+        if isinstance(operand, oll.Null): return oll.Null()
         sequence_copy = self.copy()
-        if isinstance(of.Inner() & operand, ot.Null):
+        if isinstance(of.Inner() & operand, oll.Null):
             sequence_copy << sequence_copy % operand / (operand & self)
         else:
             sequence_copy << self._trigger_notes / operand.pop(of.Inner())

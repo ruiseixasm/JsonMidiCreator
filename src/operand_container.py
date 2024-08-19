@@ -25,7 +25,7 @@ import operand_unit as ou
 import operand_value as ov
 import operand_length as ol
 import operand_data as od
-import operand_tag as ot
+import operand_label as oll
 import operand_generic as og
 import operand_frame as of
 
@@ -59,18 +59,18 @@ class Container(Operand):
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case list():            return self._operand_list
-            case ot.Null() | None:  return ot.Null()
+            case oll.Null() | None:  return oll.Null()
             case _:                 return self
 
     def firstOperand(self) -> Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[0]
-        return ot.Null()
+        return oll.Null()
 
     def lastOperand(self) -> Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[len(self._operand_list) - 1]
-        return ot.Null()
+        return oll.Null()
  
     def getSerialization(self):
         operands_serialization = []
@@ -142,7 +142,7 @@ class Container(Operand):
                     while operand > 0:
                         operand_list.append(last_operand.copy())
                         operand -= 1
-            case ot.Null(): return ot.Null()
+            case oll.Null(): return oll.Null()
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Many':
@@ -164,7 +164,7 @@ class Container(Operand):
                     while operand > 0 and len(operand_list) > 0:
                         operand_list.pop()
                         operand -= 1
-            case ot.Null(): return ot.Null()
+            case oll.Null(): return oll.Null()
         return self_copy
 
     # multiply with a scalar 
@@ -186,7 +186,7 @@ class Container(Operand):
                     many_operands += self
                     operand -= 1
                 return many_operands
-            case ot.Null(): return ot.Null()
+            case oll.Null(): return oll.Null()
         return self_copy
     
     def __truediv__(self, operand: Operand) -> 'Many':
@@ -208,7 +208,7 @@ class Container(Operand):
                     while elements_to_be_removed > 0:
                         elements_list.pop()
                         elements_to_be_removed -= 1
-            case ot.Null(): return ot.Null()
+            case oll.Null(): return oll.Null()
         return self_copy
     
     def __floordiv__(self, time: ol.Time) -> 'Many':
@@ -250,13 +250,13 @@ class Many(Container):  # Just a container of Elements
 
     def __rrshift__(self, operand: Operand) -> Operand:
         self_first_element = self.firstOperand()
-        if type(self_first_element) != ot.Null:
+        if type(self_first_element) != oll.Null:
             import operand_element as oe
             match operand:
-                case ot.Null(): pass
+                case oll.Null(): pass
                 case Many():
                     other_last_element = self.lastOperand()
-                    if type(other_last_element) != ot.Null:
+                    if type(other_last_element) != oll.Null:
                         other_last_element >> self_first_element
                 case oe.Element(): operand % ol.Position() + operand % ol.Time() >> self_first_element
                 case ol.Position() | ol.Time(): operand >> self_first_element

@@ -22,7 +22,7 @@ from operand import Operand
 
 import operand_unit as ou
 import operand_frame as of
-import operand_tag as ot
+import operand_label as oll
 
 
 class Generic(Operand):
@@ -38,7 +38,7 @@ class KeyScale(Generic):
             case of.Frame():        return self % (operand % Operand())
             case ou.Key():          return self._key
             case ou.Scale():        return self._scale
-            case ot.Null() | None:  return ot.Null()
+            case oll.Null() | None:  return oll.Null()
             case _:                 return self
 
     def getSharps(self, key: ou.Key = None) -> int:
@@ -133,7 +133,7 @@ class KeyNote(Generic):
             case of.Frame():        return self % (operand % Operand())
             case ou.Key():          return self._key
             case ou.Octave():       return self._octave
-            case ot.Null() | None:  return ot.Null()
+            case oll.Null() | None:  return oll.Null()
             case _:                 return self
 
     def __eq__(self, other: 'KeyNote') -> bool:
@@ -244,7 +244,7 @@ class Controller(Generic):
             case of.Frame():        return self % (operand % Operand())
             case ou.MidiCC():       return self._midi_cc
             case ou.MidiValue():    return self._midi_value
-            case ot.Null() | None:  return ot.Null()
+            case oll.Null() | None:  return oll.Null()
             case _:                 return self
 
     def getMidi__cc_value(self) -> int:
@@ -322,7 +322,7 @@ class Default(Generic):
         match operand:
             case of.Frame():                return self % (operand % Operand())
             case self._operand.__class__(): return self._operand
-            case ot.Null() | None:          return ot.Null()
+            case oll.Null() | None:          return oll.Null()
             case _:                         return self
 
 class IntervalQuality(Generic):

@@ -21,7 +21,7 @@ import operand_length as ol
 import operand_data as od
 import operand_generic as og
 import operand_frame as of
-import operand_tag as ot
+import operand_label as oll
 
 
 class Staff(Operand):
@@ -67,7 +67,7 @@ class Staff(Operand):
                 return ov.StepsPerMeasure((self % ov.StepsPerNote() % float()) * (self % ov.NotesPerMeasure() % float()))
             case ov.StepsPerNote():
                 return ov.StepsPerNote(1 / (self._quantization % float()))
-            case ot.Null() | None:      return ot.Null()
+            case oll.Null() | None:      return oll.Null()
             case _:                     return self
 
     def getSerialization(self):

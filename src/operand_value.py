@@ -21,7 +21,7 @@ import operand_staff as os
 import operand_numeric as on
 import operand_unit as ou
 import operand_frame as of
-import operand_tag as ot
+import operand_label as oll
 
 
 class Value(on.Numeric):
@@ -54,7 +54,7 @@ class Value(on.Numeric):
             case of.Frame():        return self % (operand % Operand())
             case float():           return round(1.0 * self._value, 12)  # rounding to 9 avoids floating-point errors
             case int():             return round(self._value)
-            case ot.Null() | None:  return ot.Null()
+            case oll.Null() | None:  return oll.Null()
             case _:                 return self
 
     def __eq__(self, other_value: 'Value') -> bool:
