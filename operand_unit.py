@@ -99,30 +99,34 @@ class Unit(on.Numeric):
 
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self._unit + unit._unit)
-            case int() | float(): return self.__class__(self._unit + unit)
-            case ot.Null(): return ot.Null()
+            case of.Frame():        return self + (unit & self)
+            case Unit():            return self.__class__(self._unit + unit._unit)
+            case int() | float():   return self.__class__(self._unit + unit)
+            case ot.Null() | None:  return ot.Null()
         return self
     
     def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self._unit - unit._unit)
-            case int() | float(): return self.__class__(self._unit - unit)
-            case ot.Null(): return ot.Null()
+            case of.Frame():        return self - (unit & self)
+            case Unit():            return self.__class__(self._unit - unit._unit)
+            case int() | float():   return self.__class__(self._unit - unit)
+            case ot.Null() | None:  return ot.Null()
         return self
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self._unit * unit._unit)
-            case int() | float(): return self.__class__(self._unit * unit)
-            case ot.Null(): return ot.Null()
+            case of.Frame():        return self * (unit & self)
+            case Unit():            return self.__class__(self._unit * unit._unit)
+            case int() | float():   return self.__class__(self._unit * unit)
+            case ot.Null() | None:  return ot.Null()
         return self
     
     def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
-            case Unit(): return self.__class__(self._unit / unit._unit)
-            case int() | float(): return self.__class__(self._unit / unit)
-            case ot.Null(): return ot.Null()
+            case of.Frame():        return self / (unit & self)
+            case Unit():            return self.__class__(self._unit / unit._unit)
+            case int() | float():   return self.__class__(self._unit / unit)
+            case ot.Null() | None:  return ot.Null()
         return self
     
 class Key(Unit):

@@ -113,23 +113,19 @@ class Element(Operand):
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case Element():
-                return oc.Many(self_copy, operand.copy())
-            case oc.Many():
-                return oc.Many(self_copy, operand.copy() % list())
-            case Operand():
-                return self_copy << self % operand + (operand & self)
+            case of.Frame():        return self + (operand & self)
+            case Element():         return oc.Many(self_copy, operand.copy())
+            case oc.Many():         return oc.Many(self_copy, operand.copy() % list())
+            case Operand():         return self_copy << self % operand + operand
         return self
 
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case Element():
-                ...
-            case oc.Many():
-                ...
-            case Operand():
-                return self_copy << self % operand - (operand & self)
+            case of.Frame():        return self - (operand & self)
+            case Element():         return self
+            case oc.Many():         return self
+            case Operand():         return self_copy << self % operand - operand
         return self
 
     def __mul__(self, operand: Operand) -> 'Element':
@@ -140,7 +136,7 @@ class Element(Operand):
             case oc.Many():
                 ...
             case Operand():
-                return self_copy << self % operand * (operand & self)
+                return self_copy << self % operand * operand
         return self
 
     def __truediv__(self, operand: Operand) -> 'Element':
@@ -151,7 +147,7 @@ class Element(Operand):
             case oc.Many():
                 ...
             case Operand():
-                return self_copy << self % operand / (operand & self)
+                return self_copy << self % operand / operand
         return self
 
 class ClockModes(enum.Enum):
@@ -1046,15 +1042,14 @@ class Composition(Element):
 
     def __add__(self, operand: Operand) -> 'Element':
         composition_copy = self.copy()
-        if isinstance(operand, of.Frame):
-            if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
-                composition_copy << (self._many_elements + (operand % Operand())).copy()
-        else:
-            match operand:
-                case ol.Position() | ol.TimeLength():
-                    composition_copy << composition_copy % operand + operand
-                case Operand():
-                    composition_copy << (self._many_elements + operand).copy()
+        match operand:
+            case of.Frame():
+                if not isinstance(operand % of.Inner(), ot.Null) and not isinstance(operand % Operand(), ot.Null):
+                    composition_copy << (self._many_elements + (operand % Operand())).copy()
+            case ol.Position() | ol.TimeLength():
+                composition_copy << composition_copy % operand + operand
+            case Operand():
+                composition_copy << (self._many_elements + operand).copy()
         return composition_copy
 
     def __sub__(self, operand: Operand) -> 'Element':

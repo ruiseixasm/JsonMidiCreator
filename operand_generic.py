@@ -80,6 +80,8 @@ class KeyScale(Generic):
         key_int: int = self._key % int()
         scale_type_int: int = self._scale % int()
         match operand:
+            case of.Frame():
+                return self + (operand & self)
             case int():
                 key_int += operand % 12
                 scale_type_int += operand // 12
@@ -99,6 +101,11 @@ class KeyScale(Generic):
         key_int: int = self._key % int()
         scale_type_int: int = self._scale % int()
         match operand:
+            case of.Frame():
+                return self - (operand & self)
+            case int():
+                key_int -= operand % 12
+                scale_type_int -= operand // 12
             case ou.Key():
                 key_int -= operand % int() % 12
                 scale_type_int -= operand % int() // 12
@@ -189,6 +196,8 @@ class KeyNote(Generic):
         key_int: int = self._key % int()
         octave_int: int = self._octave % int()
         match operand:
+            case of.Frame():
+                return self + (operand & self)
             case int():
                 key_int += operand
                 octave_int += key_int // 12
@@ -207,6 +216,8 @@ class KeyNote(Generic):
         key_int: int = self._key % int()
         octave_int: int = self._octave % int()
         match operand:
+            case of.Frame():
+                return self - (operand & self)
             case int():
                 key_int -= operand
                 octave_int -= max(-1 * key_int + 11, 0) // 12
@@ -269,6 +280,8 @@ class Controller(Generic):
     def __add__(self, operand) -> 'Controller':
         midi_value_int: int = self._midi_value % int()
         match operand:
+            case of.Frame():
+                return self + (operand & self)
             case int():
                 midi_value_int += operand
             case ou.MidiValue():
@@ -282,6 +295,8 @@ class Controller(Generic):
     def __sub__(self, operand) -> 'Controller':
         midi_value_int: int = self._midi_value % int()
         match operand:
+            case of.Frame():
+                return self - (operand & self)
             case int():
                 midi_value_int -= operand
             case ou.MidiValue():
