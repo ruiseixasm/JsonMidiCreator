@@ -1,0 +1,3 @@
+python example1_notes_and_sequence.py
+python example6_frame_filters.py
+python example7_chord_inversions.py
