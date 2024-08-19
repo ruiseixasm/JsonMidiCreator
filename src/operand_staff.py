@@ -39,7 +39,7 @@ class Staff(Operand):
         self._key: ou.Key                           = None
         self._octave: ou.Octave                     = None
         self._velocity: ou.Velocity                 = None
-        self._midi_cc: ou.MidiCC                    = None
+        self._controller: og.Controller             = None
         self._channel: ou.Channel                   = None
         self._device: od.Device                     = None
 
@@ -57,7 +57,7 @@ class Staff(Operand):
             case ou.Key():              return self._key
             case ou.Octave():           return self._octave
             case ou.Velocity():         return self._velocity
-            case ou.MidiCC():           return self._midi_cc
+            case og.Controller():       return self._controller
             case ou.Channel():          return self._channel
             case od.Device():           return self._device
             # Calculated Values
@@ -83,7 +83,7 @@ class Staff(Operand):
             "key": self._key % int(),
             "octave": self._octave % int(),
             "velocity": self._velocity % int(),
-            "midi_cc": self._midi_cc % int(),
+            "controller": self._controller.getSerialization(),
             "channel": self._channel % int(),
             "device": self._device % list()
         }
@@ -95,7 +95,7 @@ class Staff(Operand):
             "measures" in serialization and "tempo" in serialization and
             "quantization" in serialization and "beats_per_measure" in serialization and "beat_note_value" in serialization and
             "scale" in serialization and "duration" in serialization and "key" in serialization and
-            "octave" in serialization and "velocity" in serialization and "midi_cc" in serialization and
+            "octave" in serialization and "velocity" in serialization and "controller" in serialization and
             "channel" in serialization and "device" in serialization):
 
             self._measures = ov.Measure(serialization["measures"])
@@ -108,7 +108,7 @@ class Staff(Operand):
             self._key = ou.Key(serialization["key"])
             self._octave = ou.Octave(serialization["octave"])
             self._velocity = ou.Velocity(serialization["velocity"])
-            self._midi_cc = ou.MidiCC(serialization["midi_cc"])
+            self._controller = og.Controller().loadSerialization(serialization["controller"])
             self._channel = ou.Channel(serialization["channel"])
             self._device = od.Device(serialization["device"])
         return self
@@ -127,7 +127,7 @@ class Staff(Operand):
                 self._key = operand % ou.Key()
                 self._octave = operand % ou.Octave()
                 self._velocity = operand % ou.Velocity()
-                self._midi_cc = operand % ou.MidiCC()
+                self._controller = operand % og.Controller()
                 self._channel = operand % ou.Channel()
                 self._device = operand % od.Device()
             case ov.Measure():          self._measure = operand
@@ -140,7 +140,7 @@ class Staff(Operand):
             case ou.Key():              self._key = operand
             case ou.Octave():           self._octave = operand
             case ou.Velocity():         self._velocity = operand
-            case ou.MidiCC():           self._midi_cc = operand
+            case og.Controller():       self._controller = operand
             case ou.Channel():          self._channel = operand
             case od.Device():           self._device = operand
             # Calculated Values
@@ -157,4 +157,5 @@ global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteV
 global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
     << (og.KeyScale() << ou.Key("C") << ou.Scale("Major")) << ov.Quantization(1/16) \
     << (ol.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
-    << ou.Velocity(100) << ou.MidiCC("Pan") << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])
+    << ou.Velocity(100) << (og.Controller() << ou.MidiCC("Pan") << ou.MidiValue(64)) \
+    << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])

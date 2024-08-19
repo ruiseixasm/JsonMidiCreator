@@ -33,7 +33,7 @@ else:  # Assume Linux/Unix
     lib_name = 'libJsonMidiPlayer_ctypes.so'
 
 # Construct the full path to the library
-lib_path = os.path.join(script_dir, 'lib', lib_name)
+lib_path = os.path.join(script_dir, '..', 'lib', lib_name)
 
 # Check if the library file exists
 if not os.path.isfile(lib_path):

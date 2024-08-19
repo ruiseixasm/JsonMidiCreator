@@ -531,7 +531,7 @@ class Chord(Note):
 class ControlChange(Element):
     def __init__(self):
         super().__init__()
-        self._controller: og.Controller = og.Controller()
+        self._controller: og.Controller = og.Controller() << os.global_staff % og.Controller()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -543,7 +543,7 @@ class ControlChange(Element):
     def getPlayList(self, position: ol.Position = None):
         
         note_position: ol.Position  = self % ol.Position() + ol.Position() if position is None else position
-        controller_int: int         = self % og.Controller() % int()
+        midi_cc_int: int            = self % ou.MidiCC() % int()
         value_midi: int             = (self % ou.MidiValue()).getMidi__midi_value()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
@@ -554,7 +554,7 @@ class ControlChange(Element):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & (channel_int - 1),
-                        "data_byte_1": controller_int,
+                        "data_byte_1": midi_cc_int,
                         "data_byte_2": value_midi,
                         "device": device_list
                     }

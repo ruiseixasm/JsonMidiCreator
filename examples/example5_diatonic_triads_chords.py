@@ -13,21 +13,34 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+import sys
+import os
+src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
+if src_path not in sys.path:
+    sys.path.append(src_path)
+
 from JsonMidiCreator import *
-import platform
 
 # Determine the operating system
+import platform
 current_os = platform.system()
 if current_os == "Windows":
-    global_staff << Device(["Microsoft"])   # Microsoft GS Wavetable Synth
+    global_staff << Device(["loop", "Microsoft"])   # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
-    global_staff << Device(["Apple"])       # Apple DLS Synthesizer
+    global_staff << Device(["Apple"])               # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    global_staff << Device(["FLUID"])       # FLUID Synth
+    global_staff << Device(["VMPK", "FLUID"])       # FLUID Synth
 
 
 # Global Staff setting up
-global_staff << Tempo(110) << Measure(6)
+global_staff << Tempo(120) << Measure(7)
 
-single_note = Note() << (Duration() << Measure(2)) >> Play()
-note_transposed = single_note + Key(5) >> Play()
+Chord("7th") * 7 + Increment()**Beat() + Increment()**Mode(0) >> Play(True)
+(Chord() << Key("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Mode(0) \
+    >> Play(True) >> Print(8) << Inversion(1) >> Play(True)
+
+Chord("13th") << Key("C") << Scale("Major") << Mode("V") << Octave(3) << NoteValue(8) >> Print(8) >> Play()
+Chord("13th") << Key("G") << Scale("Dominant") << NoteValue(8) << Octave(3) >> Print(8) >> Play()
+
+
+

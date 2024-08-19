@@ -456,7 +456,7 @@ class MidiValue(Unit):
     first : integer_like
         The MidiValue shall be set from 0 to 127 accordingly to the range of CC Midi values
     """
-    def __init__(self, midi_value: int = None):
+    def __init__(self, midi_value: int = 64):
         super().__init__(midi_value)
 
     def getMidi__midi_value(self) -> int:

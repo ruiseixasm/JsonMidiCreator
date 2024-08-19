@@ -13,22 +13,17 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from JsonMidiCreator import *
-import platform
+import sys
+import os
 
-# Determine the operating system
-current_os = platform.system()
-if current_os == "Windows":
-    global_staff << Device(["loop", "Microsoft"])   # Microsoft GS Wavetable Synth
-elif current_os == "Darwin":  # macOS
-    global_staff << Device(["Apple"])       # Apple DLS Synthesizer
-else:  # Assume Linux/Unix
-    global_staff << Device(["VMPK", "FLUID"])       # FLUID Synth
+for path in sys.path:
+    print(path)
 
+src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
+if src_path not in sys.path:
+    sys.path.append(src_path)
 
-# Global Staff setting up
-global_staff << Tempo(120) << Measure(7)
-
-Chord("7th") * 7 + Increment()**Beat() + Increment()**Even()**Mode(0) >> Print(8) >> Play(True)
-Chord("7th") * 7 + Increment()**Beat() + Iterate()**Even()**Mode(0) >> Print(8) >> Play(True)
+print("--------------------------------------------------------")
+for path in sys.path:
+    print(path)
 
