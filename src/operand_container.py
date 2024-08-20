@@ -201,7 +201,7 @@ class Container(Operand):
                 elements_list = self_copy % list()
                 for single_operand in elements_list:
                     single_operand << single_operand / operand
-            case int(): # remove n times the last argument if any
+            case int(): # remove n last arguments if any
                 if operand > 0:
                     elements_list = self_copy % list()
                     elements_to_be_removed = round(1 - self_copy.len() / operand)
@@ -242,7 +242,7 @@ class Many(Container):  # Just a container of Elements
         import operand_element as oe
         play_list = []
         for single_operand in self % list():
-            if isinstance(single_operand, oe.Element):
+            if isinstance(single_operand, oe.Element) or isinstance(single_operand, Many):
                 play_list.extend(single_operand.getPlayList(position))
         return play_list
 
