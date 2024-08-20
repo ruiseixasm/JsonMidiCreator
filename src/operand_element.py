@@ -364,10 +364,10 @@ class Note(Element):
         match operand:
             case Note():
                 super().__lshift__(operand)
-                self._duration = operand % ot.Duration()
-                self._key_note = operand % og.KeyNote()
-                self._velocity = operand % ou.Velocity()
-                self._gate = operand % ov.Gate()
+                self._duration      = operand % ot.Duration()
+                self._key_note      = operand % og.KeyNote()
+                self._velocity      = operand % ou.Velocity()
+                self._gate          = operand % ov.Gate()
             case ot.Duration():     self._duration = operand
             case ov.NoteValue():    self._duration << operand
             case og.KeyNote():      self._key_note = operand
@@ -840,6 +840,128 @@ class Aftertouch(Element):
                 self._pressure = operand % ou.Pressure()
             case ou.Pressure():
                 self._pressure = operand
+            case _: super().__lshift__(operand)
+        return self
+
+class PolyAftertouch(Element):
+    def __init__(self):
+        super().__init__()
+        self._key_note: og.KeyNote  = og.KeyNote()
+        self._pressure: ou.Pressure = ou.Pressure()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case og.KeyNote():  return self._key_note
+            case ou.Pressure(): return self._pressure
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        key_note_midi: int  = (self % og.KeyNote()).getMidi__key_note()
+        pressure_int: int   = self % ou.Pressure() % int()
+        channel_int: int    = self % ou.Channel() % int()
+        device_list: list   = self % od.Device() % list()
+
+        on_time_ms = self_position.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xA0 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": key_note_midi,
+                        "data_byte_2": pressure_int,
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["key_note"] = self._key_note.getSerialization()
+        element_serialization["pressure"] = self._pressure % int()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "key_note" in serialization and "pressure" in serialization):
+
+            super().loadSerialization(serialization)
+            self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
+            self._pressure = ou.Pressure(serialization["pressure"])
+        return self
+      
+    def copy(self) -> 'PolyAftertouch':
+        return super().copy() << self._key_note.copy() << self._pressure.copy()
+
+    def __lshift__(self, operand: Operand) -> 'PolyAftertouch':
+        match operand:
+            case PolyAftertouch():
+                super().__lshift__(operand)
+                self._key_note = operand % og.KeyNote()
+                self._pressure = operand % ou.Pressure()
+            case og.KeyNote():      self._key_note = operand
+            case ou.Pressure():     self._pressure = operand
+            case _:                 super().__lshift__(operand)
+        return self
+
+class ProgramChange(Element):
+    def __init__(self):
+        super().__init__()
+        self._program: ou.Program = ou.Program()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ou.Program():  return self._program
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        program_int: int    = self % ou.Program() % int()
+        channel_int: int    = self % ou.Channel() % int()
+        device_list: list   = self % od.Device() % list()
+
+        on_time_ms = self_position.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xC0 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": program_int,
+                        "data_byte_2": None,
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["program"] = self._program % int()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "program" in serialization):
+
+            super().loadSerialization(serialization)
+            self._program = ou.Program(serialization["program"])
+        return self
+      
+    def copy(self) -> 'ProgramChange':
+        return super().copy() << self._program.copy()
+
+    def __lshift__(self, operand: Operand) -> 'ProgramChange':
+        match operand:
+            case ProgramChange():
+                super().__lshift__(operand)
+                self._program = operand % ou.Program()
+            case ou.Program():
+                self._program = operand
             case _: super().__lshift__(operand)
         return self
 

@@ -202,8 +202,20 @@ class Pressure(Unit):
     first : integer_like
         A key pressure varies from 0 to 127 with 0 being normally the default
     """
-    def __init__(self, velocity: int = None):
-        super().__init__(velocity)
+    def __init__(self, pressure: int = None):
+        super().__init__(pressure)
+
+class Program(Unit):
+    """
+    Program() represents the Program Number associated to a given Instrument.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A Program Number varies from 0 to 127 with 0 being normally the default
+    """
+    def __init__(self, program: int = None):
+        super().__init__(program)
 
 class Channel(Unit):
     """
