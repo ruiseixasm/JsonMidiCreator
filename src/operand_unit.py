@@ -249,16 +249,21 @@ class Scale(Unit):
                     interval += 1
         return chromatic_transposition
 
+        # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
+        # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
+        # 14 - Fourteenth, 15 - Fifteenth, 16 - Sixteenth, 17 - Seventeenth, 18 - Eighteenth,
+        # 19 - Nineteenth, 20 - Twentieth.
+
     _scale_names = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
-        ["Major", "Maj", "Ionian", "ionian", "C"],
-        ["Dorian", "dorian", "D"],
-        ["Phrygian", "phrygian", "E"],
-        ["Lydian", "lydian", "F"],
-        ["Mixolydian", "mixolydian", "G", "Dominant Seventh", "Dominant seventh", "dominant seventh", "Dominant", "Seventh"],
-        ["minor", "min", "Aeolian", "aeolian", "A"],
-        ["Locrian", "locrian", "B"],
+        ["Major", "Maj", "maj", "Ionian", "ionian", "C", "1", "1st", "First"],
+        ["Dorian", "dorian", "D", "2", "2nd", "Second"],
+        ["Phrygian", "phrygian", "E", "3", "3rd", "Third"],
+        ["Lydian", "lydian", "F", "4", "4th", "Fourth"],
+        ["Mixolydian", "mixolydian", "G", "5", "5th", "Fifth"],
+        ["minor", "min", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
+        ["Locrian", "locrian", "B", "7", "7th", "Seventh"],
         # Other Scales
         ["harmonic"],
         ["melodic"],
@@ -445,7 +450,6 @@ class Print(Unit):
         json_formatted_str = json.dumps(json_object, indent = self % int())
         print(json_formatted_str)
         return operand
-
 
 class MidiValue(Unit):
     """

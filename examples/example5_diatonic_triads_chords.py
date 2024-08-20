@@ -40,7 +40,7 @@ Chord("7th") * 7 + Increment()**Beat() + Increment()**Mode(0) >> Play(True)
     >> Play(True) >> Print(8) << Inversion(1) >> Play(True)
 
 Chord("13th") << Key("C") << Scale("Major") << Mode("V") << Octave(3) << NoteValue(8) >> Print(8) >> Play()
-Chord("13th") << Key("G") << Scale("Dominant") << NoteValue(8) << Octave(3) >> Print(8) >> Play()
+Chord("13th") << Key("G") << Scale("5th") << NoteValue(8) << Octave(3) >> Print(8) >> Play()
 
 
 
