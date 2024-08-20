@@ -119,22 +119,17 @@ class Container(Operand):
                     self << single_operand
         return self
 
-    # operand is the pusher
+    # Element or a Sequence is the pusher
     def __rrshift__(self, other_operand: Operand) -> Operand:
         return self
 
-    def __add__(self, operand: Operand) -> 'Sequence':
-        import operand_element as oe
+    def __add__(self, operand: Operand) -> 'Container':
         self_copy = self.copy()
         match operand:
-            case Sequence():
-                return Sequence(self.copy() % list() + operand.copy() % list())
-            case oe.Element():
-                return Sequence(self.copy() % list() + [operand.copy()])
+            case Container():
+                self_copy << self_copy % list() + operand.copy() % list()
             case Operand():
-                operand_list = self_copy % list()
-                for single_operand in operand_list:
-                    single_operand << single_operand + operand
+                self_copy._operand_list.append(operand)
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
@@ -145,18 +140,13 @@ class Container(Operand):
             case ol.Null(): return ol.Null()
         return self_copy
 
-    def __sub__(self, operand: Operand) -> 'Sequence':
-        import operand_element as oe
+    def __sub__(self, operand: Operand) -> 'Container':
         self_copy = self.copy()
         match operand:
-            case Sequence():
-                return Sequence(self.copy() % list() - operand.copy() % list())
-            case oe.Element():
-                return Sequence(self.copy() % list() - [operand.copy()])
+            case Container():
+                ...
             case Operand():
-                operand_list = self_copy % list()
-                for single_operand in operand_list:
-                    single_operand << single_operand - operand
+                ...
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
@@ -168,20 +158,15 @@ class Container(Operand):
         return self_copy
 
     # multiply with a scalar 
-    def __mul__(self, operand: Operand) -> 'Sequence':
-        import operand_element as oe
+    def __mul__(self, operand: Operand) -> 'Container':
         self_copy = self.copy()
         match operand:
-            case Sequence():
-                return self_copy
-            case oe.Element():
-                return self_copy
+            case Container():
+                ...
             case Operand():
-                operand_list = self_copy % list()
-                for single_operand in operand_list:
-                    single_operand << single_operand * operand
+                ...
             case int(): # repeat n times the last argument if any
-                many_operands = Sequence()    # empty list
+                many_operands = Container()    # empty list
                 while operand > 0:
                     many_operands += self
                     operand -= 1
@@ -189,18 +174,13 @@ class Container(Operand):
             case ol.Null(): return ol.Null()
         return self_copy
     
-    def __truediv__(self, operand: Operand) -> 'Sequence':
-        import operand_element as oe
+    def __truediv__(self, operand: Operand) -> 'Container':
         self_copy = self.copy()
         match operand:
-            case Sequence():
-                return self_copy
-            case oe.Element():
-                return self_copy
+            case Container():
+                ...
             case Operand():
-                elements_list = self_copy % list()
-                for single_operand in elements_list:
-                    single_operand << single_operand / operand
+                ...
             case int(): # remove n last arguments if any
                 if operand > 0:
                     elements_list = self_copy % list()
@@ -211,22 +191,6 @@ class Container(Operand):
             case ol.Null(): return ol.Null()
         return self_copy
     
-    def __floordiv__(self, length: ot.Length) -> 'Sequence':
-        if isinstance(length, ov.TimeUnit):
-            length = ot.Length() << length
-        match length:
-            case ot.Length():
-                import operand_element as oe
-                starting_position = None
-                for single_operand in self._operand_list:
-                    if isinstance(single_operand, oe.Element):
-                        if starting_position is None:
-                            starting_position = single_operand % ot.Position()
-                        else:
-                            starting_position += length
-                            single_operand << ot.Position() << starting_position
-        return self
-
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
@@ -262,6 +226,71 @@ class Sequence(Container):  # Just a container of Elements
                 case ot.Position() | ot.Length(): operand >> self_first_element
             for single_element_i in range(1, len(self._operand_list)):
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
+        return self
+
+    def __add__(self, operand: Operand) -> 'Sequence':
+        import operand_element as oe
+        self_copy = self.copy()
+        match operand:
+            case Sequence() | oe.Element():
+                self_copy = super().__add__(operand)
+            case Operand():
+                for single_operand in self_copy % list():
+                    single_operand << single_operand + operand
+            case _: self_copy = super().__add__(operand)
+        return self_copy
+
+    def __sub__(self, operand: Operand) -> 'Sequence':
+        import operand_element as oe
+        self_copy = self.copy()
+        match operand:
+            case Sequence() | oe.Element():
+                ...
+            case Operand():
+                for single_operand in self_copy % list():
+                    single_operand << single_operand - operand
+            case _: self_copy = super().__add__(operand)
+        return self_copy
+
+    # multiply with a scalar 
+    def __mul__(self, operand: Operand) -> 'Sequence':
+        import operand_element as oe
+        self_copy = self.copy()
+        match operand:
+            case Sequence() | oe.Element():
+                ...
+            case Operand():
+                for single_operand in self_copy % list():
+                    single_operand << single_operand * operand
+            case _: self_copy = super().__add__(operand)
+        return self_copy
+    
+    def __truediv__(self, operand: Operand) -> 'Sequence':
+        import operand_element as oe
+        self_copy = self.copy()
+        match operand:
+            case Sequence() | oe.Element():
+                ...
+            case Operand():
+                for single_operand in self_copy % list():
+                    single_operand << single_operand / operand
+            case _: self_copy = super().__add__(operand)
+        return self_copy
+    
+    def __floordiv__(self, length: ot.Length) -> 'Sequence':
+        if isinstance(length, ov.TimeUnit):
+            length = ot.Length() << length
+        match length:
+            case ot.Length():
+                import operand_element as oe
+                starting_position = None
+                for single_operand in self._operand_list:
+                    if isinstance(single_operand, oe.Element):
+                        if starting_position is None:
+                            starting_position = single_operand % ot.Position()
+                        else:
+                            starting_position += length
+                            single_operand << ot.Position() << starting_position
         return self
 
 class Chain(Container):
