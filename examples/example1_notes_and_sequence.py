@@ -21,16 +21,6 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-# Determine the operating system
-import platform
-current_os = platform.system()
-if current_os == "Windows":
-    global_staff << Device(["loop", "Microsoft"])   # Microsoft GS Wavetable Synth
-elif current_os == "Darwin":  # macOS
-    global_staff << Device(["Apple"])               # Apple DLS Synthesizer
-else:  # Assume Linux/Unix
-    global_staff << Device(["VMPK", "FLUID"])       # FLUID Synth
-
 
 # Global Staff setting up
 global_staff << Tempo(110) << Measure(6)
