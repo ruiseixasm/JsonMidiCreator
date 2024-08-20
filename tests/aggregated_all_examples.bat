@@ -1,6 +1,6 @@
 python examples\example1_notes_and_sequence.py
 python examples\example2_import_direct_play.py
-python examples\example3_keynote_transpose.py
+python examples\example3_keynote_transpose_and_triplet.py
 python examples\example4_control_change.py
 python examples\example5_diatonic_triads_chords.py
 python examples\example6_frame_filters.py

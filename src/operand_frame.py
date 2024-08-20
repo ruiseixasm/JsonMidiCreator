@@ -178,7 +178,7 @@ class Nth(FrameFilter):
 
 class SubjectFilter(Frame):
     def __init__(self):
-        self._value: float = 0
+        self._data = 0
 
 class Equal(SubjectFilter):
     def __init__(self, operand: Operand):
@@ -223,7 +223,7 @@ class Lower(SubjectFilter):
 
 class OperandFilter(Frame):
     def __init__(self):
-        self._value: float = 0
+        self._data = 0
 
 class Iterate(OperandFilter):
     def __init__(self, step: float = None):
@@ -234,15 +234,26 @@ class Iterate(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        stepped_operand = self_operand + self._value
-        self._value += self._step
+        stepped_operand = self_operand + self._data
+        self._data += self._step
         return stepped_operand
+    
+class Wrapper(OperandFilter):
+    def __init__(self, operand: Operand = None):
+        super().__init__()
+        self._data = operand
+
+    def __and__(self, subject: Operand) -> Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        return (self._data << self_operand).copy()
 
 # 4. OPERAND EDITORS (ALTERS THE SOURCE OPERAND DATA)
 
 class OperandEditor(Frame):
     def __init__(self):
-        self._value: float = 0
+        self._data = 0
 
 class Increment(OperandEditor):
     def __init__(self, step: float = None):
@@ -253,7 +264,7 @@ class Increment(OperandEditor):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        self_operand << self_operand + self._value
-        self._value = self._step
+        self_operand << self_operand + self._data
+        self._data = self._step
         return self_operand
 
