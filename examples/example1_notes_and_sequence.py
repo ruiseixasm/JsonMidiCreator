@@ -39,7 +39,7 @@ global_staff << Tempo(110) << Measure(6)
 single_clock = Clock() >> Save("json/_Clock_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequentially played
-first_note = Note() << (Position() << Beat(3) << Step(2)) << (Time() << NoteValue(1/2)) >> Save("json/_Note_jsonMidiCreator.json")
+first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/_Note_jsonMidiCreator.json")
 multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("json/_Many_jsonMidiCreator.json") >> Export("json/_Play2_jsonMidiPlayer.json")
 
 first_note << Key("F") >> Play()
@@ -62,6 +62,6 @@ second_sequence /= Inner()**(Duration() << Identity() << NoteValue(2))
 
 # Creations, aggregation of both Sequences in a Many element and respective Play
 all_elements = Many(first_sequence) + Many(second_sequence)
-all_elements += (Time() << Beat(2) >> first_note) + single_clock
+all_elements += (Length() << Beat(2) >> first_note) + single_clock
 all_elements >> Print() >> Play(1) >> Export("json/_Play_jsonMidiPlayer.json")
 
