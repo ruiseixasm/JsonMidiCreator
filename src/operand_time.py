@@ -25,7 +25,7 @@ import operand_frame as of
 import operand_label as ol
 
 
-class Length(Operand):
+class Time(Operand):
     def __init__(self):
         # Default values already, no need to wrap them with Default()
         self._measure       = ov.Measure(0)
@@ -86,13 +86,13 @@ class Length(Operand):
 
         return self
         
-    def copy(self) -> 'Length':
+    def copy(self) -> 'Time':
         return self.__class__() << self._measure.copy() << self._beat.copy() << self._note_value.copy() << self._step.copy()
 
-    def __lshift__(self, operand: Operand) -> 'Length':
+    def __lshift__(self, operand: Operand) -> 'Time':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Length():
+            case Time():
                 self._measure       = operand % ov.Measure()
                 self._beat          = operand % ov.Beat()
                 self._note_value    = operand % ov.NoteValue()
@@ -109,11 +109,11 @@ class Length(Operand):
         return self
 
     # adding two lengths 
-    def __add__(self, operand: Operand) -> 'Length':
+    def __add__(self, operand: Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self + (operand & self)
-            case Length():          self_copy \
+            case Time():            self_copy \
                                         << self._measure + operand % ov.Measure() \
                                         << self._beat + operand % ov.Beat() \
                                         << self._note_value + operand % ov.NoteValue() \
@@ -122,11 +122,11 @@ class Length(Operand):
         return self_copy
     
     # subtracting two lengths 
-    def __sub__(self, operand: Operand) -> 'Length':
+    def __sub__(self, operand: Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self - (operand & self)
-            case Length():          self_copy \
+            case Time():            self_copy \
                                         << self._measure - operand % ov.Measure() \
                                         << self._beat - operand % ov.Beat() \
                                         << self._note_value - operand % ov.NoteValue() \
@@ -134,11 +134,11 @@ class Length(Operand):
             case ov.TimeUnit():     self_copy << self % operand - operand
         return self_copy
     
-    def __mul__(self, operand: Operand) -> 'Length':
+    def __mul__(self, operand: Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self * (operand & self)
-            case Length():          self_copy \
+            case Time():            self_copy \
                                         << self._measure * (operand % ov.Measure()) \
                                         << self._beat * (operand % ov.Beat()) \
                                         << self._note_value * (operand % ov.NoteValue()) \
@@ -146,11 +146,11 @@ class Length(Operand):
             case ov.TimeUnit():     self_copy << self % operand * operand
         return self_copy
     
-    def __truediv__(self, operand: Operand) -> 'Length':
+    def __truediv__(self, operand: Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self / (operand & self)
-            case Length():          self_copy \
+            case Time():            self_copy \
                                         << self._measure / (operand % ov.Measure()) \
                                         << self._beat / (operand % ov.Beat()) \
                                         << self._note_value / (operand % ov.NoteValue()) \
@@ -158,16 +158,16 @@ class Length(Operand):
             case ov.TimeUnit():     self_copy << self % operand / operand
         return self_copy
 
-class Position(Length):
+class Position(Time):
     pass
 
-class Duration(Length):
+class Duration(Time):
     pass
 
-class Time(Length):
+class Length(Time):
     pass
     
-class Identity(Length):
+class Identity(Time):
     def __init__(self):
         self._measure       = ov.Measure(1)
         self._beat          = ov.Beat(1)
