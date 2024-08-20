@@ -207,7 +207,7 @@ class Clock(Element):
             System Reset                         FF
         """
 
-        play_list = [
+        self_playlist = [
                 {
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
@@ -219,7 +219,7 @@ class Clock(Element):
             ]
 
         for clock_pulse in range(1, clock_pulses):
-            play_list.append(
+            self_playlist.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_ms \
                                      * (clock_length % ov.Measure() % int()) * clock_pulse / clock_pulses, 3),
@@ -231,7 +231,7 @@ class Clock(Element):
             )
 
         if clock_mode == ClockModes.single or clock_mode == ClockModes.last:
-            play_list.append(
+            self_playlist.append(
                 {
                     "time_ms": round(clock_stop_ms, 3),
                     "midi_message": {
@@ -241,7 +241,7 @@ class Clock(Element):
                 }
             )
         
-        return play_list
+        return self_playlist
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -403,11 +403,11 @@ class Note3(Note):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
-        triplet_playlist = []
+        self_playlist = []
         for _ in range(3):
-            triplet_playlist.extend(super().getPlayList(self_position))
+            self_playlist.extend(super().getPlayList(self_position))
             self_position += self._duration
-        return triplet_playlist
+        return self_playlist
     
     # CHAINABLE OPERATIONS
 
@@ -469,13 +469,13 @@ class Chord(Note):
                     if key_note.getMidi__key_note() < 128:
                         not_first_key_note = True
 
-        chord_playlist = []
+        self_playlist = []
         for key_note in chord_key_notes:
             self << key_note
-            chord_playlist.extend(super().getPlayList(self_position))
+            self_playlist.extend(super().getPlayList(self_position))
         self << root_key_note
 
-        return chord_playlist
+        return self_playlist
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -543,11 +543,11 @@ class Triplet(Rest):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
-        triplet_playlist = []
+        self_playlist = []
         for element_i in range(3):
-            triplet_playlist.extend(self._elements[element_i].getPlayList(self_position))
+            self_playlist.extend(self._elements[element_i].getPlayList(self_position))
             self_position += self._duration
-        return triplet_playlist
+        return self_playlist
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -614,11 +614,11 @@ class Tuplet(Rest):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
         
-        triplet_playlist = []
+        self_playlist = []
         for element_i in range(self._division):
-            triplet_playlist.extend(self._elements[element_i].getPlayList(self_position))
+            self_playlist.extend(self._elements[element_i].getPlayList(self_position))
             self_position += self._duration
-        return triplet_playlist
+        return self_playlist
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
@@ -966,7 +966,36 @@ class ProgramChange(Element):
         return self
 
 class Panic:
-    ...
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        self_playlist = []
+        self_playlist.extend((ControlChange() << ou.MidiCC(123) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((PitchBend() << ou.Pitch(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange() << ou.MidiCC(64) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange() << ou.MidiCC(1) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange() << ou.MidiCC(121) << ou.MidiValue(0)).getPlayList(self_position))
+
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
+        on_time_ms = self_position.getTime_ms()
+        for key_note_midi in range(128):
+            self_playlist.append(
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x80 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": key_note_midi,
+                        "data_byte_2": 0,
+                        "device": device_list
+                    }
+                }
+            )
+
+        self_playlist.extend((ControlChange() << ou.MidiCC(7) << ou.MidiValue(100)).getPlayList(self_position))
+        self_playlist.extend((ControlChange() << ou.MidiCC(11) << ou.MidiValue(127)).getPlayList(self_position))
+
+        return self_playlist
 
     # CHAINABLE OPERATIONS
 
