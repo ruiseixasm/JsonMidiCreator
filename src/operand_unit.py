@@ -331,7 +331,7 @@ class Mode(Unit):
             case str():
                 match mode.strip().lower():
                     case "i"   | "tonic":           mode = 1
-                    case "ii"  | "subtonic":        mode = 2
+                    case "ii"  | "supertonic":      mode = 2
                     case "iii" | "mediant":         mode = 3
                     case "iv"  | "subdominant":     mode = 4
                     case "v"   | "dominant":        mode = 5
