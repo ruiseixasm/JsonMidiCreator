@@ -138,6 +138,11 @@ class Element(Operand):
                 ...
             case Operand():
                 return self_copy << self % operand * operand
+            case int():
+                multi_elements = []
+                for _ in range(0, operand):
+                    multi_elements.append(self.copy())
+                return oc.Sequence(multi_elements)
         return self_copy
 
     def __truediv__(self, operand: Operand) -> 'Element':
@@ -309,7 +314,7 @@ class Note(Element):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & (channel_int - 1),
+                        "status_byte": 0x90 | 0x0F & max(channel_int - 1, 0),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": velocity_int,
                         "device": device_list
@@ -318,7 +323,7 @@ class Note(Element):
                 {
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & (channel_int - 1),
+                        "status_byte": 0x80 | 0x0F & max(channel_int - 1, 0),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
                         "device": device_list
@@ -372,15 +377,6 @@ class Note(Element):
             case ov.Gate():         self._gate = operand
             case _: super().__lshift__(operand)
         return self
-
-    def __mul__(self, operand: Operand) -> oc.Sequence | Element:
-        match operand:
-            case int():
-                multi_notes = []
-                for _ in range(0, operand):
-                    multi_notes.append(self.copy())
-                return oc.Sequence(multi_notes)
-        return super().__mul__(self)
 
 class Note3(Note):
     """
@@ -531,145 +527,6 @@ class Chord(Note):
             case _: super().__lshift__(operand)
         return self
 
-class ControlChange(Element):
-    def __init__(self):
-        super().__init__()
-        self._controller: og.Controller = og.Controller() << os.global_staff % og.Controller()
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case og.Controller():   return self._controller
-            case ou.MidiCC():       return self._controller % ou.MidiCC()
-            case ou.MidiValue():    return self._controller % ou.MidiValue()
-            case _:                 return super().__mod__(operand)
-
-    def getPlayList(self, position: ot.Position = None):
-        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
-
-        midi_cc_int: int            = self % ou.MidiCC() % int()
-        value_midi: int             = (self % ou.MidiValue()).getMidi__midi_value()
-        channel_int: int            = self % ou.Channel() % int()
-        device_list: list           = self % od.Device() % list()
-
-        on_time_ms = self_position.getTime_ms()
-        return [
-                {
-                    "time_ms": round(on_time_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & (channel_int - 1),
-                        "data_byte_1": midi_cc_int,
-                        "data_byte_2": value_midi,
-                        "device": device_list
-                    }
-                }
-            ]
-    
-    def getSerialization(self):
-        element_serialization = super().getSerialization()
-        element_serialization["controller"] = self._controller.getSerialization()
-        return element_serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "controller" in serialization):
-
-            super().loadSerialization(serialization)
-            self._controller = og.Controller().loadSerialization(serialization["controller"])
-        return self
-      
-    def copy(self) -> 'ControlChange':
-        return super().copy() << self._controller.copy()
-
-    def __lshift__(self, operand: Operand) -> 'ControlChange':
-        match operand:
-            case ControlChange():
-                super().__lshift__(operand)
-                self._controller = operand % og.Controller()
-            case og.Controller():
-                self._controller = operand
-            case ou.MidiCC() | ou.MidiValue():
-                self._controller << operand
-            case _: super().__lshift__(operand)
-        return self
-
-    def __mul__(self, operand: Operand) -> oc.Sequence | Element:
-        match operand:
-            case int():
-                multi_control_changes = []
-                for _ in range(0, operand):
-                    multi_control_changes.append(self.copy())
-                return oc.Sequence(multi_control_changes)
-        return super().__mul__(self)
-
-class PitchBend(Element):
-    def __init__(self):
-        super().__init__()
-        self._pitch: ou.Pitch = ou.Pitch()
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case ou.Pitch():       return self._pitch
-            case _:             return super().__mod__(operand)
-
-    def getPlayList(self, position: ot.Position = None):
-        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
-
-        pitch_list_midi: list[int]  = (self % ou.Pitch()).getMidi__pitch_pair()
-        channel_int: int            = self % ou.Channel() % int()
-        device_list: list           = self % od.Device() % list()
-
-        on_time_ms = self_position.getTime_ms()
-        return [
-                {
-                    "time_ms": round(on_time_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0xE0 | 0x0F & (channel_int - 1),
-                        "data_byte_1": pitch_list_midi[0],
-                        "data_byte_2": pitch_list_midi[1],
-                        "device": device_list
-                    }
-                }
-            ]
-    
-    def getSerialization(self):
-        element_serialization = super().getSerialization()
-        element_serialization["pitch"] = self._pitch % int()
-        return element_serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "pitch" in serialization):
-
-            super().loadSerialization(serialization)
-            self._pitch = ou.Pitch(serialization["pitch"])
-        return self
-      
-    def copy(self) -> 'PitchBend':
-        return super().copy() << self._pitch.copy()
-
-    def __lshift__(self, operand: Operand) -> 'PitchBend':
-        match operand:
-            case PitchBend():
-                super().__lshift__(operand)
-                self._pitch = operand % ou.Pitch()
-            case ou.Pitch():
-                self._pitch = operand
-            case _: super().__lshift__(operand)
-        return self
-
-    def __mul__(self, operand: Operand) -> oc.Sequence | Element:
-        match operand:
-            case int():
-                multi_pitch_ends = []
-                for _ in range(0, operand):
-                    multi_pitch_ends.append(self.copy())
-                return oc.Sequence(multi_pitch_ends)
-        return super().__mul__(self)
-
 class Triplet(Rest):
     def __init__(self):
         super().__init__()
@@ -804,6 +661,185 @@ class Tuplet(Rest):
                 else:
                     for element_i in range(self._division):
                         self._elements[element_i] = operand[element_i]
+            case _: super().__lshift__(operand)
+        return self
+
+class ControlChange(Element):
+    def __init__(self):
+        super().__init__()
+        self._controller: og.Controller = og.Controller() << os.global_staff % og.Controller()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case og.Controller():   return self._controller
+            case ou.MidiCC():       return self._controller % ou.MidiCC()
+            case ou.MidiValue():    return self._controller % ou.MidiValue()
+            case _:                 return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        midi_cc_int: int            = self % ou.MidiCC() % int()
+        value_midi: int             = (self % ou.MidiValue()).getMidi__midi_value()
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
+
+        on_time_ms = self_position.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": midi_cc_int,
+                        "data_byte_2": value_midi,
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["controller"] = self._controller.getSerialization()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "controller" in serialization):
+
+            super().loadSerialization(serialization)
+            self._controller = og.Controller().loadSerialization(serialization["controller"])
+        return self
+      
+    def copy(self) -> 'ControlChange':
+        return super().copy() << self._controller.copy()
+
+    def __lshift__(self, operand: Operand) -> 'ControlChange':
+        match operand:
+            case ControlChange():
+                super().__lshift__(operand)
+                self._controller = operand % og.Controller()
+            case og.Controller():
+                self._controller = operand
+            case ou.MidiCC() | ou.MidiValue():
+                self._controller << operand
+            case _: super().__lshift__(operand)
+        return self
+
+class PitchBend(Element):
+    def __init__(self):
+        super().__init__()
+        self._pitch: ou.Pitch = ou.Pitch()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ou.Pitch():    return self._pitch
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        pitch_list_midi: list[int]  = (self % ou.Pitch()).getMidi__pitch_pair()
+        channel_int: int            = self % ou.Channel() % int()
+        device_list: list           = self % od.Device() % list()
+
+        on_time_ms = self_position.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xE0 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": pitch_list_midi[0],
+                        "data_byte_2": pitch_list_midi[1],
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["pitch"] = self._pitch % int()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "pitch" in serialization):
+
+            super().loadSerialization(serialization)
+            self._pitch = ou.Pitch(serialization["pitch"])
+        return self
+      
+    def copy(self) -> 'PitchBend':
+        return super().copy() << self._pitch.copy()
+
+    def __lshift__(self, operand: Operand) -> 'PitchBend':
+        match operand:
+            case PitchBend():
+                super().__lshift__(operand)
+                self._pitch = operand % ou.Pitch()
+            case ou.Pitch():
+                self._pitch = operand
+            case _: super().__lshift__(operand)
+        return self
+
+class Aftertouch(Element):
+    def __init__(self):
+        super().__init__()
+        self._pressure: ou.Pressure = ou.Pressure()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ou.Pressure(): return self._pressure
+            case _:             return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        pressure_int: int   = self % ou.Pressure() % int()
+        channel_int: int    = self % ou.Channel() % int()
+        device_list: list   = self % od.Device() % list()
+
+        on_time_ms = self_position.getTime_ms()
+        return [
+                {
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0xD0 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": pressure_int,
+                        "data_byte_2": None,
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["pressure"] = self._pressure % int()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "pressure" in serialization):
+
+            super().loadSerialization(serialization)
+            self._pressure = ou.Pressure(serialization["pressure"])
+        return self
+      
+    def copy(self) -> 'Aftertouch':
+        return super().copy() << self._pressure.copy()
+
+    def __lshift__(self, operand: Operand) -> 'Aftertouch':
+        match operand:
+            case Aftertouch():
+                super().__lshift__(operand)
+                self._pressure = operand % ou.Pressure()
+            case ou.Pressure():
+                self._pressure = operand
             case _: super().__lshift__(operand)
         return self
 

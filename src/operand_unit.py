@@ -183,12 +183,24 @@ class Octave(Unit):
 
 class Velocity(Unit):
     """
-    Velocity() represents the intensity with which a key is pressed.
+    Velocity() represents the velocity with which a key is pressed.
     
     Parameters
     ----------
     first : integer_like
         A key velocity varies from 0 to 127 with 100 being normally the default
+    """
+    def __init__(self, velocity: int = None):
+        super().__init__(velocity)
+
+class Pressure(Unit):
+    """
+    Pressure() represents the intensity with which a key is pressed while down.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A key pressure varies from 0 to 127 with 0 being normally the default
     """
     def __init__(self, velocity: int = None):
         super().__init__(velocity)
