@@ -123,14 +123,14 @@ class Container(Operand):
     def __rrshift__(self, other_operand: Operand) -> Operand:
         return self
 
-    def __add__(self, operand: Operand) -> 'Many':
+    def __add__(self, operand: Operand) -> 'Sequence':
         import operand_element as oe
         self_copy = self.copy()
         match operand:
-            case Many():
-                return Many(self.copy() % list() + operand.copy() % list())
+            case Sequence():
+                return Sequence(self.copy() % list() + operand.copy() % list())
             case oe.Element():
-                return Many(self.copy() % list() + [operand.copy()])
+                return Sequence(self.copy() % list() + [operand.copy()])
             case Operand():
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
@@ -145,14 +145,14 @@ class Container(Operand):
             case ol.Null(): return ol.Null()
         return self_copy
 
-    def __sub__(self, operand: Operand) -> 'Many':
+    def __sub__(self, operand: Operand) -> 'Sequence':
         import operand_element as oe
         self_copy = self.copy()
         match operand:
-            case Many():
-                return Many(self.copy() % list() - operand.copy() % list())
+            case Sequence():
+                return Sequence(self.copy() % list() - operand.copy() % list())
             case oe.Element():
-                return Many(self.copy() % list() - [operand.copy()])
+                return Sequence(self.copy() % list() - [operand.copy()])
             case Operand():
                 operand_list = self_copy % list()
                 for single_operand in operand_list:
@@ -168,11 +168,11 @@ class Container(Operand):
         return self_copy
 
     # multiply with a scalar 
-    def __mul__(self, operand: Operand) -> 'Many':
+    def __mul__(self, operand: Operand) -> 'Sequence':
         import operand_element as oe
         self_copy = self.copy()
         match operand:
-            case Many():
+            case Sequence():
                 return self_copy
             case oe.Element():
                 return self_copy
@@ -181,7 +181,7 @@ class Container(Operand):
                 for single_operand in operand_list:
                     single_operand << single_operand * operand
             case int(): # repeat n times the last argument if any
-                many_operands = Many()    # empty list
+                many_operands = Sequence()    # empty list
                 while operand > 0:
                     many_operands += self
                     operand -= 1
@@ -189,11 +189,11 @@ class Container(Operand):
             case ol.Null(): return ol.Null()
         return self_copy
     
-    def __truediv__(self, operand: Operand) -> 'Many':
+    def __truediv__(self, operand: Operand) -> 'Sequence':
         import operand_element as oe
         self_copy = self.copy()
         match operand:
-            case Many():
+            case Sequence():
                 return self_copy
             case oe.Element():
                 return self_copy
@@ -211,7 +211,7 @@ class Container(Operand):
             case ol.Null(): return ol.Null()
         return self_copy
     
-    def __floordiv__(self, length: ot.Length) -> 'Many':
+    def __floordiv__(self, length: ot.Length) -> 'Sequence':
         if isinstance(length, ov.TimeUnit):
             length = ot.Length() << length
         match length:
@@ -227,7 +227,7 @@ class Container(Operand):
                             single_operand << ot.Position() << starting_position
         return self
 
-class Many(Container):  # Just a container of Elements
+class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
 
@@ -242,7 +242,7 @@ class Many(Container):  # Just a container of Elements
         import operand_element as oe
         play_list = []
         for single_operand in self % list():
-            if isinstance(single_operand, oe.Element) or isinstance(single_operand, Many):
+            if isinstance(single_operand, oe.Element) or isinstance(single_operand, Sequence):
                 play_list.extend(single_operand.getPlayList(position))
         return play_list
 
@@ -254,7 +254,7 @@ class Many(Container):  # Just a container of Elements
             import operand_element as oe
             match operand:
                 case ol.Null(): pass
-                case Many():
+                case Sequence():
                     other_last_element = self.lastOperand()
                     if type(other_last_element) != ol.Null:
                         other_last_element >> self_first_element

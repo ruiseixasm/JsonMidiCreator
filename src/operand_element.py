@@ -102,7 +102,7 @@ class Element(Operand):
     def __rrshift__(self, operand: Operand) -> 'Element':
         match operand:
             case ol.Null(): pass
-            case oc.Many():
+            case oc.Sequence():
                 last_element = operand.lastElement()
                 if type(last_element) != ol.Null:
                     self << last_element % ot.Position() + last_element % ot.Length()
@@ -115,8 +115,8 @@ class Element(Operand):
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self + (operand & self)
-            case Element():         return oc.Many(self_copy, operand.copy())
-            case oc.Many():         return oc.Many(self_copy, operand.copy() % list())
+            case Element():         return oc.Sequence(self_copy, operand.copy())
+            case oc.Sequence():         return oc.Sequence(self_copy, operand.copy() % list())
             case Operand():         return self_copy << self % operand + operand
         return self_copy
 
@@ -125,7 +125,7 @@ class Element(Operand):
         match operand:
             case of.Frame():        return self - (operand & self)
             case Element():         return self
-            case oc.Many():         return self
+            case oc.Sequence():         return self
             case Operand():         return self_copy << self % operand - operand
         return self_copy
 
@@ -134,7 +134,7 @@ class Element(Operand):
         match operand:
             case Element():
                 ...
-            case oc.Many():
+            case oc.Sequence():
                 ...
             case Operand():
                 return self_copy << self % operand * operand
@@ -145,7 +145,7 @@ class Element(Operand):
         match operand:
             case Element():
                 ...
-            case oc.Many():
+            case oc.Sequence():
                 ...
             case Operand():
                 return self_copy << self % operand / operand
@@ -371,13 +371,13 @@ class Note(Element):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: Operand) -> oc.Many | Element:
+    def __mul__(self, operand: Operand) -> oc.Sequence | Element:
         match operand:
             case int():
                 multi_notes = []
                 for _ in range(0, operand):
                     multi_notes.append(self.copy())
-                return oc.Many(multi_notes)
+                return oc.Sequence(multi_notes)
         return super().__mul__(self)
 
 class Note3(Note):
@@ -591,13 +591,13 @@ class ControlChange(Element):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: Operand) -> oc.Many | Element:
+    def __mul__(self, operand: Operand) -> oc.Sequence | Element:
         match operand:
             case int():
                 multi_control_changes = []
                 for _ in range(0, operand):
                     multi_control_changes.append(self.copy())
-                return oc.Many(multi_control_changes)
+                return oc.Sequence(multi_control_changes)
         return super().__mul__(self)
 
 class PitchBend(Element):
@@ -658,13 +658,13 @@ class PitchBend(Element):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: Operand) -> oc.Many | Element:
+    def __mul__(self, operand: Operand) -> oc.Sequence | Element:
         match operand:
             case int():
                 multi_pitch_ends = []
                 for _ in range(0, operand):
                     multi_pitch_ends.append(self.copy())
-                return oc.Many(multi_pitch_ends)
+                return oc.Sequence(multi_pitch_ends)
         return super().__mul__(self)
 
 class Triplet(Element):

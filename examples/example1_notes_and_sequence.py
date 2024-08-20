@@ -59,7 +59,7 @@ second_sequence /= Position() << Identity() << Step(2)
 second_sequence /= Duration() << Identity() << NoteValue(2)
 second_sequence >> Save("json/_Sequence_jsonMidiCreator.json")
 
-# Creations, aggregation of both Sequences in a Many element and respective Play
-all_elements = Many(first_sequence) + Many(second_sequence)
+# Creations, aggregation of both Sequences in a Sequence element and respective Play
+all_elements = Sequence(first_sequence) + Sequence(second_sequence)
 all_elements += (Length() << Beat(2) >> first_note) + single_clock
 all_elements >> Print() >> Play(1) >> Export("json/_Play_jsonMidiPlayer.json")
