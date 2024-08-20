@@ -257,12 +257,12 @@ class Scale(Unit):
     _scale_names = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
-        ["Major", "Maj", "maj", "Ionian", "ionian", "C", "1", "1st", "First"],
+        ["Major", "Maj", "maj", "M", "Ionian", "ionian", "C", "1", "1st", "First"],
         ["Dorian", "dorian", "D", "2", "2nd", "Second"],
         ["Phrygian", "phrygian", "E", "3", "3rd", "Third"],
         ["Lydian", "lydian", "F", "4", "4th", "Fourth"],
         ["Mixolydian", "mixolydian", "G", "5", "5th", "Fifth"],
-        ["minor", "min", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
+        ["minor", "min", "m", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
         ["Locrian", "locrian", "B", "7", "7th", "Seventh"],
         # Other Scales
         ["harmonic"],
@@ -330,14 +330,14 @@ class Mode(Unit):
         match mode:
             case str():
                 match mode.strip().lower():
-                    case "i":   mode = 1
-                    case "ii":  mode = 2
-                    case "iii": mode = 3
-                    case "iv":  mode = 4
-                    case "v":   mode = 5
-                    case "vi":  mode = 6
-                    case "vii": mode = 7
-                    case _:     mode = 1
+                    case "i"   | "tonic":           mode = 1
+                    case "ii"  | "subtonic":        mode = 2
+                    case "iii" | "mediant":         mode = 3
+                    case "iv"  | "subdominant":     mode = 4
+                    case "v"   | "dominant":        mode = 5
+                    case "vi"  | "submediant":      mode = 6
+                    case "vii" | "leading tone":    mode = 7
+                    case _:                         mode = 1
                 super().__init__(mode)
             case int() | float():
                 super().__init__(mode)

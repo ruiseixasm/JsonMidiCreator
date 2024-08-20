@@ -433,11 +433,11 @@ class Chord(Note):
             case int():                     self._size = size
             case str():
                 match size.strip():
-                    case '1' | "1st":       self._size = 1
-                    case '3' | "3rd":       self._size = 2
-                    case '5' | "5th":       self._size = 3
-                    case '7' | "7th":       self._size = 4
-                    case '9' | "9th":       self._size = 5
+                    case '1'  | "1st":      self._size = 1
+                    case '3'  | "3rd":      self._size = 2
+                    case '5'  | "5th":      self._size = 3
+                    case '7'  | "7th":      self._size = 4
+                    case '9'  | "9th":      self._size = 5
                     case '11' | "11th":     self._size = 6
                     case '13' | "13th":     self._size = 7
                     case _:                 self._size = 3
