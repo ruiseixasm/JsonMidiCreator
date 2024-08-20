@@ -116,7 +116,7 @@ class Element(Operand):
         match operand:
             case of.Frame():        return self + (operand & self)
             case Element():         return oc.Sequence(self_copy, operand.copy())
-            case oc.Sequence():         return oc.Sequence(self_copy, operand.copy() % list())
+            case oc.Sequence():     return oc.Sequence(self_copy, operand.copy() % list())
             case Operand():         return self_copy << self % operand + operand
         return self_copy
 
@@ -125,7 +125,7 @@ class Element(Operand):
         match operand:
             case of.Frame():        return self - (operand & self)
             case Element():         return self
-            case oc.Sequence():         return self
+            case oc.Sequence():     return self
             case Operand():         return self_copy << self % operand - operand
         return self_copy
 
@@ -172,8 +172,8 @@ class Clock(Element):
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        
         clock_position: ot.Position = self % ot.Position() + ot.Position() if position is None else position
+
         clock_length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int()) \
                 if self._length is None else self._length
         clock_mode = ClockModes.single if self._mode is None else self._mode
@@ -270,7 +270,9 @@ class Clock(Element):
         return self
 
 class Rest(Element):
-    pass
+    def __init__(self):
+        super().__init__()
+        self._duration: ot.Duration = ot.Duration() << os.global_staff % ot.Duration()
 
 class Note(Element):
     def __init__(self):
@@ -293,15 +295,15 @@ class Note(Element):
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        
-        note_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
         duration: ot.Duration       = self % ot.Duration()
         key_note_midi: int          = (self % og.KeyNote()).getMidi__key_note()
         velocity_int: int           = self % ou.Velocity() % int()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
 
-        on_time_ms = note_position.getTime_ms()
+        on_time_ms = self_position.getTime_ms()
         off_time_ms = on_time_ms + self._gate % float() * duration.getTime_ms()
         return [
                 {
@@ -393,21 +395,22 @@ class Note3(Note):
     """
     def __init__(self):
         super().__init__()
-        self._duration *= (2/3) # 3 instead of 2
+        self._duration  = self._duration * 2/3 # 3 instead of 2
         self._gate      = ov.Gate(.50)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ot.Duration():     return self._duration * (3/2)
-            case ov.NoteValue():    return self._duration * (3/2) % operand
+            case ot.Duration():     return self._duration * 3/2
+            case ov.NoteValue():    return self._duration * 3/2 % operand
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        note_position: ot.Position = ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
         triplet_playlist = []
         for _ in range(3):
-            triplet_playlist.extend(super().getPlayList(note_position))
-            note_position += self._duration
+            triplet_playlist.extend(super().getPlayList(self_position))
+            self_position += self._duration
         return triplet_playlist
     
     # CHAINABLE OPERATIONS
@@ -416,9 +419,9 @@ class Note3(Note):
         match operand:
             case Note3():
                 super().__lshift__(operand)
-                self._duration = operand % ot.Duration() * (2/3)
-            case ot.Duration():     self._duration = operand * (2/3)
-            case ov.NoteValue():    self._duration << operand * (2/3)
+                self._duration = operand % ot.Duration() * 2/3
+            case ot.Duration():     self._duration = operand * 2/3
+            case ov.NoteValue():    self._duration << operand * 2/3
             case _: super().__lshift__(operand)
         return self
 
@@ -451,7 +454,7 @@ class Chord(Note):
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        note_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
         root_key_note = self % og.KeyNote()
         chord_key_notes = []
@@ -473,7 +476,7 @@ class Chord(Note):
         chord_playlist = []
         for key_note in chord_key_notes:
             self << key_note
-            chord_playlist.extend(super().getPlayList(note_position))
+            chord_playlist.extend(super().getPlayList(self_position))
         self << root_key_note
 
         return chord_playlist
@@ -541,14 +544,14 @@ class ControlChange(Element):
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        
-        note_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
         midi_cc_int: int            = self % ou.MidiCC() % int()
         value_midi: int             = (self % ou.MidiValue()).getMidi__midi_value()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
 
-        on_time_ms = note_position.getTime_ms()
+        on_time_ms = self_position.getTime_ms()
         return [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -611,13 +614,13 @@ class PitchBend(Element):
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        
-        note_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
         pitch_list_midi: list[int]  = (self % ou.Pitch()).getMidi__pitch_pair()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
 
-        on_time_ms = note_position.getTime_ms()
+        on_time_ms = self_position.getTime_ms()
         return [
                 {
                     "time_ms": round(on_time_ms, 3),
@@ -667,25 +670,26 @@ class PitchBend(Element):
                 return oc.Sequence(multi_pitch_ends)
         return super().__mul__(self)
 
-class Triplet(Element):
+class Triplet(Rest):
     def __init__(self):
         super().__init__()
-        self._duration *= (2/3) # 3 instead of 2
+        self._duration = self._duration * 2/3   # 3 notes instead of 2
         self._elements: list[Element] = [Rest(), Rest(), Rest()]
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ot.Duration():     return self._duration * (3/2)
-            case ov.NoteValue():    return self._duration * (3/2) % operand
+            case ot.Duration():     return self._duration * 3/2
+            case ov.NoteValue():    return self._duration * 3/2 % operand
             case list():            return self._elements
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        element_position: ot.Position = ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
         triplet_playlist = []
         for element_i in range(3):
-            triplet_playlist.extend(self._elements[element_i].getPlayList(element_position))
-            element_position += self._duration
+            triplet_playlist.extend(self._elements[element_i].getPlayList(self_position))
+            self_position += self._duration
         return triplet_playlist
     
     def getSerialization(self):
@@ -715,10 +719,10 @@ class Triplet(Element):
         match operand:
             case Triplet():
                 super().__lshift__(operand)
-                self._duration = operand % ot.Duration() * (2/3)
+                self._duration = operand % ot.Duration() * 2/3
                 self._elements = operand % list()
-            case ot.Duration():     self._duration = operand * (2/3)
-            case ov.NoteValue():    self._duration << operand * (2/3)
+            case ot.Duration():     self._duration = operand * 2/3
+            case ov.NoteValue():    self._duration << operand * 2/3
             case list():
                 if len(operand) < 3:
                     for element_i in range(len(operand)):
@@ -729,12 +733,12 @@ class Triplet(Element):
             case _: super().__lshift__(operand)
         return self
 
-class Tuplet(Element):
+class Tuplet(Rest):
     def __init__(self, division: int = 3):
         super().__init__()
         self._division: int = division
         if self._division == 2:
-            self._duration *= (3/2) # from 3 notes to 2
+            self._duration *= 3/2 # from 3 notes to 2
             self._elements: list[Element] = [Rest(), Rest()]
         else:
             self._duration *= (2/self._division) # from 2 notes to division
@@ -745,17 +749,18 @@ class Tuplet(Element):
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case int():             return self._division
-            case ot.Duration():     return self._duration * (2/3) if self._division == 2 else (self._division/2)
-            case ov.NoteValue():    return self._duration * (2/3) if self._division == 2 else (self._division/2) % operand
+            case ot.Duration():     return self._duration * 2/3 if self._division == 2 else (self._division/2)
+            case ov.NoteValue():    return self._duration * 2/3 if self._division == 2 else (self._division/2) % operand
             case list():            return self._elements
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
-        element_position: ot.Position = ot.Position() if position is None else position
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+        
         triplet_playlist = []
         for element_i in range(self._division):
-            triplet_playlist.extend(self._elements[element_i].getPlayList(element_position))
-            element_position += self._duration
+            triplet_playlist.extend(self._elements[element_i].getPlayList(self_position))
+            self_position += self._duration
         return triplet_playlist
     
     def getSerialization(self):
@@ -787,11 +792,11 @@ class Tuplet(Element):
         match operand:
             case Tuplet():
                 super().__lshift__(operand)
-                self._duration = operand % ot.Duration() * (2/3) if self._division == 2 else (self._division/2)
+                self._duration = operand % ot.Duration() * 2/3 if self._division == 2 else (self._division/2)
                 self._elements = operand % list()
-            case int():             self._division = operand
-            case ot.Duration():     self._duration = operand * (2/3) if self._division == 2 else (self._division/2)
-            case ov.NoteValue():    self._duration << operand * (2/3) if self._division == 2 else (self._division/2)
+            case int():             self._division =  operand
+            case ot.Duration():     self._duration =  operand * 2/3 if self._division == 2 else (self._division/2)
+            case ov.NoteValue():    self._duration << operand * 2/3 if self._division == 2 else (self._division/2)
             case list():
                 if len(operand) < self._division:
                     for element_i in range(len(operand)):

@@ -290,7 +290,7 @@ class Dotted(NoteValue):
     """
     def __init__(self, value: float = None):
         super().__init__(value)
-        self._value *= 3/2  # It's just a wrapper for NoteValue
+        self._value = self._value * 3/2 # It's just a wrapper for NoteValue
 
     # CHAINABLE OPERATIONS
 
@@ -301,7 +301,7 @@ class Dotted(NoteValue):
         match operand:
             case of.Frame():        self << (operand & self)
             case Dotted():          self._value = operand % float()
-            # It's just a wrapper for NoteValue (3/2)
+            # It's just a wrapper for NoteValue 3/2
             case Value():           self._value = operand % float() * 3/2
             case float() | int():   self._value = round(1.0 * operand * 3/2, 12)
         return self
