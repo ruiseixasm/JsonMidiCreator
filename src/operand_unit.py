@@ -340,33 +340,45 @@ class Scale(Unit):
                     return scale_i
         return 0
 
-class Mode(Unit):
+class Degree(Unit):
     """
-    A Mode() represents its relation with a Tonic key on a scale
+    A Degree() represents its relation with a Tonic key on a scale
     and respective Progressions.
     
     Parameters
     ----------
     first : integer_like
-        Accepts a numeral (5) or the string (V) equivalent to the mode
+        Accepts a numeral (5) or the string (V) equivalent to the degree
     """
-    def __init__(self, mode: int | str = None):
-        match mode:
+    def __init__(self, degree: int | str = None):
+        match degree:
             case str():
-                match mode.strip().lower():
-                    case "i"   | "tonic":           mode = 1
-                    case "ii"  | "supertonic":      mode = 2
-                    case "iii" | "mediant":         mode = 3
-                    case "iv"  | "subdominant":     mode = 4
-                    case "v"   | "dominant":        mode = 5
-                    case "vi"  | "submediant":      mode = 6
-                    case "vii" | "leading tone":    mode = 7
-                    case _:                         mode = 1
-                super().__init__(mode)
+                match degree.strip().lower():
+                    case "i"   | "tonic":           degree = 1
+                    case "ii"  | "supertonic":      degree = 2
+                    case "iii" | "mediant":         degree = 3
+                    case "iv"  | "subdominant":     degree = 4
+                    case "v"   | "dominant":        degree = 5
+                    case "vi"  | "submediant":      degree = 6
+                    case "vii" | "leading tone":    degree = 7
+                    case _:                         degree = 1
+                super().__init__(degree)
             case int() | float():
-                super().__init__(mode)
+                super().__init__(degree)
             case _:
                 super().__init__( 1 )
+
+class Mode(Unit):
+    """
+    Mode() represents the Mode Number associated to a given Instrument.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A Mode Number varies from 0 to 127 with 0 being normally the default
+    """
+    def __init__(self, program: int = None):
+        super().__init__(program)
 
 class Operation(Unit):
     pass
@@ -393,8 +405,8 @@ class Progression(Operation):
         Accepts a numeral equivalent to the the Roman numerals,
         1 instead of I, 4 instead of IV and 5 instead of V
     """
-    def __init__(self, mode: int = None):
-        super().__init__(mode)
+    def __init__(self, degree: int = None):
+        super().__init__(degree)
 
 class Inversion(Operation):
     """

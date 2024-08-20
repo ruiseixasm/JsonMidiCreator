@@ -425,7 +425,7 @@ class Chord(Note):
     def __init__(self, size: int = None):   # 0xF2 - Song ot.Position
         super().__init__()
         self._scale: ou.Scale = os.global_staff % og.KeyScale() % ou.Scale()   # Default Scale for Chords
-        self._mode: ou.Mode = ou.Mode(1)    # 1 for Tonic
+        self._degree: ou.Degree = ou.Degree(1)    # 1 for Tonic
         self._inversion: ou.Inversion = ou.Inversion()
         self._size: int = 3
         match size:
@@ -444,7 +444,7 @@ class Chord(Note):
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case ou.Scale():        return self._scale
-            case ou.Mode():         return self._mode
+            case ou.Degree():       return self._degree
             case ou.Inversion():    return self._inversion
             case int():             return self._size
             case _:                 return super().__mod__(operand)
@@ -455,7 +455,7 @@ class Chord(Note):
         root_key_note = self % og.KeyNote()
         chord_key_notes = []
         for key_note_i in range(self._size):
-            chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i * 2)
+            chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_i * 2)
             chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
@@ -480,7 +480,7 @@ class Chord(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["scale"] = self._scale % int()
-        element_serialization["mode"] = self._mode % int()
+        element_serialization["degree"] = self._degree % int()
         element_serialization["inversion"] = self._inversion % int()
         element_serialization["size"] = self._size
         return element_serialization
@@ -489,29 +489,29 @@ class Chord(Note):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "scale" in serialization and "mode" in serialization and
+            "scale" in serialization and "degree" in serialization and
             "inversion" in serialization and "size" in serialization):
 
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["scale"])
-            self._mode = ou.Mode(serialization["mode"])
+            self._degree = ou.Degree(serialization["degree"])
             self._inversion = ou.Inversion(serialization["inversion"])
             self._size = serialization["size"]
         return self
       
     def copy(self) -> 'Chord':
-        return super().copy() << self._scale.copy() << self._mode.copy() << self._size
+        return super().copy() << self._scale.copy() << self._degree.copy() << self._size
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
             case Chord():
                 super().__lshift__(operand)
                 self._scale = operand % ou.Scale()
-                self._mode = operand % ou.Mode()
+                self._degree = operand % ou.Degree()
                 self._inversion = operand % ou.Inversion()
                 self._size = operand % int()
             case ou.Scale():                self._scale = operand
-            case ou.Mode():                 self._mode = operand
+            case ou.Degree():               self._degree = operand
             case ou.Inversion():            self._inversion = ou.Inversion(operand % int() % self._size)
             case int():                     self._size = operand
             case str():
