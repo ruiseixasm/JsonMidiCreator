@@ -981,6 +981,15 @@ class Panic:
         on_time_ms = self_position.getTime_ms()
         for key_note_midi in range(128):
             self_playlist.append(
+                {   # Needs the Note On first in order to the following Note Off not be considered redundant
+                    "time_ms": round(on_time_ms, 3),
+                    "midi_message": {
+                        "status_byte": 0x90 | 0x0F & max(channel_int - 1, 0),
+                        "data_byte_1": key_note_midi,
+                        "data_byte_2": 0,   # 0 means it will result in no sound
+                        "device": device_list
+                    }
+                },
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
