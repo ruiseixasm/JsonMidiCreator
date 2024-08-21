@@ -438,7 +438,7 @@ class Note3(Note):
 class KeyScale(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        self._scale: ou.Scale = ou.Scale()
+        self._scale: ou.Scale = os.global_staff % ou.Scale()    # default Staff scale
         self._mode: ou.Mode = ou.Mode()
 
     def __mod__(self, operand: Operand) -> Operand:

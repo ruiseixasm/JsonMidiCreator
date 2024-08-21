@@ -25,5 +25,5 @@ from JsonMidiCreator import *
 # Global Staff setting up
 global_staff << Tempo(120) << Measure(7)
 
-KeyScale() * 7 + Iterate()**Beat() + Iterate()**KeyNote() >> Play(True)
+KeyScale() * 13 + Iterate()**Beat() + Iterate()**KeyNote() >> Play(True)
 
