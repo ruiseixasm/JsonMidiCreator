@@ -241,7 +241,7 @@ class Scale(Unit):
     first : integer_like and string_like
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
-    def __init__(self, scale: str = "Chromatic"):
+    def __init__(self, scale: str = None):
         match scale:
             case str():
                 super().__init__(Scale.scaleStrToScaleUnit(scale))
@@ -250,7 +250,6 @@ class Scale(Unit):
             case _:
                 scale = os.global_staff % self % int() if scale is None else round(scale)
                 super().__init__(scale)
-        self._scale: list = [0] * 12
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -266,9 +265,7 @@ class Scale(Unit):
         return scale_len
 
     def transpose(self, interval: int = 1) -> int:
-        self_scale = self._scale
-        if self._unit != -1:
-            self_scale = Scale._scales[self % int() % len(Scale._scales)]
+        self_scale = Scale._scales[self % int() % len(Scale._scales)]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
@@ -281,44 +278,6 @@ class Scale(Unit):
                 if self_scale[chromatic_transposition % 12] == 1:
                     interval += 1
         return chromatic_transposition
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: Operand) -> 'Scale':
-        match operand:
-            case list():        self._scale = operand
-            case _: super().__lshift__(operand)
-        return self
-
-    def __add__(self, operand: Operand) -> 'Scale':
-        self_copy = self.copy()
-        match operand:
-            case int():
-                self_scale = self._scale
-                if self._unit != -1:
-                    self_scale = Scale._scales[self % int() % len(Scale._scales)]
-                copy_scale = [0] * 12
-                transposed_operand = self.transpose(operand)
-                for key_i in range(12):
-                    copy_scale[(key_i + transposed_operand) % 12] = self_scale[key_i]
-                self_copy << copy_scale
-                self_copy << -1 # -1 means self rotated scale
-        return self_copy
-
-    def __sub__(self, operand: Operand) -> 'Scale':
-        self_copy = self.copy()
-        match operand:
-            case int():
-                self_scale = self._scale
-                if self._unit != -1:
-                    self_scale = Scale._scales[self % int() % len(Scale._scales)]
-                copy_scale = [0] * 12
-                transposed_operand = self.transpose(operand)
-                for key_i in range(12):
-                    copy_scale[(key_i - transposed_operand) % 12] = self_scale[key_i]
-                self_copy << copy_scale
-                self_copy << -1 # -1 means self rotated scale
-        return self_copy
 
         # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
         # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
