@@ -527,7 +527,7 @@ class ControlValue(Unit):
     def __init__(self, value: int = None):
         super().__init__(value)
 
-    def getMidi__midi_value(self) -> int:
+    def getMidi__control_value(self) -> int:
         return max(min(self % int(), 127), 0)
     
 class ControlNumber(Unit):

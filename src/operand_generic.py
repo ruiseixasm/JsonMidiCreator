@@ -236,79 +236,79 @@ class KeyNote(Generic):
 
 class Controller(Generic):
     def __init__(self, number: int | str = None):
-        self._midi_cc: ou.ControlNumber     = ou.ControlNumber( number )
-        self._midi_value: ou.ControlValue   = ou.ControlValue( ou.ControlNumber.getDefault(self._midi_cc % int()) )
+        self._control_number: ou.ControlNumber  = ou.ControlNumber( number )
+        self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % int()) )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case of.Frame():            return self % (operand % Operand())
-            case ou.ControlNumber():    return self._midi_cc
-            case ou.ControlValue():     return self._midi_value
+            case ou.ControlNumber():    return self._control_number
+            case ou.ControlValue():     return self._control_value
             case ol.Null() | None:      return ol.Null()
             case _:                     return self
 
     def getMidi__cc_value(self) -> int:
-        return self._midi_value.getMidi__midi_value()
+        return self._control_value.getMidi__control_value()
     
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "midi_cc": self._midi_cc % int(),
-            "midi_value": self._midi_value % int()
+            "control_number": self._control_number % int(),
+            "control_value": self._control_value % int()
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "midi_cc" in serialization and "midi_value" in serialization):
+            "control_number" in serialization and "control_value" in serialization):
 
-            self._midi_cc = ou.ControlNumber(serialization["midi_cc"])
-            self._midi_value = ou.ControlValue(serialization["midi_value"])
+            self._control_number = ou.ControlNumber(serialization["control_number"])
+            self._control_value = ou.ControlValue(serialization["control_value"])
         return self
         
     def copy(self) -> 'Controller':
-        return Controller() << self._midi_cc.copy() << self._midi_value.copy()
+        return Controller() << self._control_number.copy() << self._control_value.copy()
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:
             case of.Frame():            self << (operand & self)
             case Controller():
-                self._midi_cc = operand % ou.ControlNumber()
-                self._midi_value = operand % ou.ControlValue()
-            case ou.ControlNumber():    self._midi_cc = operand
-            case ou.ControlValue():     self._midi_value = operand
+                self._control_number = operand % ou.ControlNumber()
+                self._control_value = operand % ou.ControlValue()
+            case ou.ControlNumber():    self._control_number = operand
+            case ou.ControlValue():     self._control_value = operand
         return self
 
     def __add__(self, operand) -> 'Controller':
-        midi_value_int: int = self._midi_value % int()
+        control_value_int: int = self._control_value % int()
         match operand:
             case of.Frame():
                 return self + (operand & self)
             case int():
-                midi_value_int += operand
+                control_value_int += operand
             case ou.ControlValue():
-                midi_value_int += operand % int()
+                control_value_int += operand % int()
             case Controller():
-                midi_value_int += operand % ou.ControlValue() % int()
+                control_value_int += operand % ou.ControlValue() % int()
             case _:
                 return self.copy()
-        return Controller() << ou.ControlNumber(self._midi_cc) << ou.ControlValue(midi_value_int)
+        return Controller() << ou.ControlNumber(self._control_number) << ou.ControlValue(control_value_int)
     
     def __sub__(self, operand) -> 'Controller':
-        midi_value_int: int = self._midi_value % int()
+        control_value_int: int = self._control_value % int()
         match operand:
             case of.Frame():
                 return self - (operand & self)
             case int():
-                midi_value_int -= operand
+                control_value_int -= operand
             case ou.ControlValue():
-                midi_value_int -= operand % int()
+                control_value_int -= operand % int()
             case Controller():
-                midi_value_int -= operand % ou.ControlValue() % int()
+                control_value_int -= operand % ou.ControlValue() % int()
             case _:
                 return self.copy()
-        return Controller() << ou.ControlNumber(self._midi_cc) << ou.ControlValue(midi_value_int)
+        return Controller() << ou.ControlNumber(self._control_number) << ou.ControlValue(control_value_int)
 
 class Yield(Generic):
     def __init__(self, value: float = 0):
