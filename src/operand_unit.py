@@ -356,7 +356,7 @@ class Degree(Unit):
     Parameters
     ----------
     first : integer_like
-        Accepts a numeral (5) or the string (V) equivalent to the degree
+        Accepts a numeral (5) or the string (V) with 1 as the default
     """
     def __init__(self, degree: int | str = None):
         match degree:

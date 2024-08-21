@@ -35,19 +35,7 @@ class Label(Operand):
         return self
 
 class Null(Label):
-    def __add__(self, operand: Operand) -> 'Operand':
-        match operand:
-            case Operand():     return operand.copy()
-            case _:             return operand
-        
-    def __sub__(self, operand: Operand) -> 'Operand':
-        return operand * (-1)
-    
-    def __mul__(self, operand: Operand) -> 'Operand':
-        return operand * 0
-    
-    def __truediv__(self, operand: Operand) -> 'Operand':
-        return operand * 0
+    pass
     
 class Dummy(Label):
     pass
