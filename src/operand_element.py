@@ -156,6 +156,14 @@ class Element(Operand):
                 return self_copy << self % operand / operand
         return self_copy
 
+    @staticmethod
+    def midi_128(midi_value: int = 0):
+        return min(max(midi_value, 0), 127)
+
+    @staticmethod
+    def midi_16(midi_value: int = 0):
+        return min(max(midi_value, 0), 15)
+
 class ClockModes(enum.Enum):
     single  = 1
     first   = 2
@@ -314,16 +322,16 @@ class Note(Element):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & max(channel_int - 1, 0),
+                        "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": key_note_midi,
-                        "data_byte_2": velocity_int,
+                        "data_byte_2": Element.midi_128(velocity_int),
                         "device": device_list
                     }
                 },
                 {
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & max(channel_int - 1, 0),
+                        "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
                         "device": device_list
@@ -776,8 +784,8 @@ class ControlChange(Element):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & max(channel_int - 1, 0),
-                        "data_byte_1": control_number_int,
+                        "status_byte": 0xB0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "data_byte_1": Element.midi_128(control_number_int),
                         "data_byte_2": control_value_midi,
                         "device": device_list
                     }
@@ -850,7 +858,7 @@ class PitchBend(Element):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xE0 | 0x0F & max(channel_int - 1, 0),
+                        "status_byte": 0xE0 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": pitch_list_midi[0],
                         "data_byte_2": pitch_list_midi[1],
                         "device": device_list
@@ -923,8 +931,8 @@ class Aftertouch(Element):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xD0 | 0x0F & max(channel_int - 1, 0),
-                        "data_byte_1": pressure_int,
+                        "status_byte": 0xD0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "data_byte_1": Element.midi_128(pressure_int),
                         "data_byte_2": None,
                         "device": device_list
                     }
@@ -998,9 +1006,9 @@ class PolyAftertouch(Aftertouch):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xA0 | 0x0F & max(channel_int - 1, 0),
+                        "status_byte": 0xA0 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": key_note_midi,
-                        "data_byte_2": pressure_int,
+                        "data_byte_2": Element.midi_128(pressure_int),
                         "device": device_list
                     }
                 }
@@ -1058,8 +1066,8 @@ class ProgramChange(Element):
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xC0 | 0x0F & max(channel_int - 1, 0),
-                        "data_byte_1": program_int,
+                        "status_byte": 0xC0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "data_byte_1": Element.midi_128(program_int),
                         "data_byte_2": None,
                         "device": device_list
                     }
@@ -1127,7 +1135,7 @@ class Panic:
                 {   # Needs the Note On first in order to the following Note Off not be considered redundant
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & max(channel_int - 1, 0),
+                        "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,   # 0 means it will result in no sound
                         "device": device_list
@@ -1136,7 +1144,7 @@ class Panic:
                 {
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & max(channel_int - 1, 0),
+                        "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
                         "device": device_list

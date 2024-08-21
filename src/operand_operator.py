@@ -25,8 +25,8 @@ import operand_frame as of
 class Operator(Operand):
     ...
 
-class Sine(Operator):
+class Oscillator(Operator):
     ...
     
-class Cosine(Operator):
+class Line(Operator):
     ...
