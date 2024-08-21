@@ -298,8 +298,9 @@ class Scale(Unit):
                 if self._unit != -1:
                     self_scale = Scale._scales[self % int() % len(Scale._scales)]
                 copy_scale = [0] * 12
+                transposed_operand = self.transpose(operand)
                 for key_i in range(12):
-                    copy_scale[(key_i + operand) % 12] = self_scale[key_i]
+                    copy_scale[(key_i + transposed_operand) % 12] = self_scale[key_i]
                 self_copy << copy_scale
                 self_copy << -1 # -1 means self rotated scale
         return self_copy
@@ -312,8 +313,9 @@ class Scale(Unit):
                 if self._unit != -1:
                     self_scale = Scale._scales[self % int() % len(Scale._scales)]
                 copy_scale = [0] * 12
+                transposed_operand = self.transpose(operand)
                 for key_i in range(12):
-                    copy_scale[(key_i - operand) % 12] = self_scale[key_i]
+                    copy_scale[(key_i - transposed_operand) % 12] = self_scale[key_i]
                 self_copy << copy_scale
                 self_copy << -1 # -1 means self rotated scale
         return self_copy
