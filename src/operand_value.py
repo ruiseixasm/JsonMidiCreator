@@ -320,7 +320,7 @@ class Step(TimeUnit):
 
     def getTime_ms(self):
         return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._value
-    
+
 class Swing(Value):
     def __init__(self, swing: float = None):
         super().__init__( 0.50 if swing is None else swing )
@@ -328,4 +328,12 @@ class Swing(Value):
 class Gate(Value):
     def __init__(self, gate: float = None):
         super().__init__( 0.90 if gate is None else gate )
+
+class Amplitude(Value):
+    def __init__(self, amplitude: float = None):
+        super().__init__(amplitude)
+
+class Offset(Value):
+    def __init__(self, offset: float = None):
+        super().__init__(offset)
 

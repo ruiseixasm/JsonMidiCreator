@@ -28,9 +28,6 @@ import operand_label as ol
 class Generic(Operand):
     pass
 
-class TimeSignature(Generic):
-    ...
-
 class KeyNote(Generic):
     def __init__(self, key: int | str = None):
         self._key: ou.Key = ou.Key(key)
@@ -217,28 +214,3 @@ class Controller(Generic):
             case _:
                 return self.copy()
         return Controller() << ou.ControlNumber(self._control_number) << ou.ControlValue(control_value_int)
-
-class Yield(Generic):
-    def __init__(self, value: float = 0):
-        super().__init__(value)
-
-class Default(Generic):
-    def __init__(self, operand: Operand):
-        self._operand: Operand = operand
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case of.Frame():                return self % (operand % Operand())
-            case self._operand.__class__(): return self._operand
-            case ol.Null() | None:          return ol.Null()
-            case _:                         return self
-
-class IntervalQuality(Generic):
-    def __init__(self, interval_quality: str = 0):
-        self._interval_quality: str = interval_quality
-
-        # Augmented (designated as A or +)
-        # Major (ma)
-        # Perfect (P)
-        # Minor (mi)
-        # Diminished (d or o)
