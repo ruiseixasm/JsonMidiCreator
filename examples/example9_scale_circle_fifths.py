@@ -25,9 +25,12 @@ from JsonMidiCreator import *
 # Global Staff setting up
 global_staff << Tempo(120) << Measure(7)
 
-KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
-KeyScale("C") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
 
-KeyScale("A") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)
-KeyScale("A") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)
+KeyScale("C") * 8 + Iterate()**Measure() + Iterate(5)**Scale("Major") << NoteValue(1) >> Play(True)
+
+KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
+# KeyScale("C") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
+
+# KeyScale("A") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)
+# KeyScale("A") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)
 
