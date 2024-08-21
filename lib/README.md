@@ -1,4 +1,4 @@
-# JsonMidiPlayer library file
+# JsonMidiPlayer library file to be placed here
 Go to the following link and follow the steps to compile the library: https://github.com/ruiseixasm/JsonMidiPlayer
 
 ## Library file naming
