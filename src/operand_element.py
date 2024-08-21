@@ -381,6 +381,8 @@ class Note(Element):
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
+            case ou.Key() | og.KeyNote():
+                self_copy << self._key_note + operand
             case int():         self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -388,6 +390,8 @@ class Note(Element):
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
+            case ou.Key() | og.KeyNote():
+                self_copy << self._key_note - operand
             case int():         self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -514,6 +518,8 @@ class KeyScale(Note):
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
+            case ou.Key() | og.KeyNote():
+                self_copy << self._key_note - operand % int()
             case ou.Transposition():
                 scale_transposition = operand % int()
                 chromatic_transposition = self._scale.transpose(scale_transposition)

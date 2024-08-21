@@ -25,14 +25,13 @@ from JsonMidiCreator import *
 # Global Staff setting up
 global_staff << Tempo(120) << Measure(7)
 
+# All Sharps(#) of the Major Scale on the Circle of Fifths
+(KeyScale("C") << Scale("Major")) * 8 + Iterate(Scale("Major") % Mode("5th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True)
+# All Fats(b) of the Major Scale on the Circle of Fifths
+(KeyScale("C") << Scale("Major")) * 8 + Iterate(Scale("Major") % Mode("4th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True)
 
-((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 + Iterate()**Measure() + Iterate(4)**Transposition() << Octave(2)) \
-+ (KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1)) \
->> Print() >> Play(True)
-
-# KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
-# KeyScale("C") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
-
-# KeyScale("A") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)
-# KeyScale("A") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)
+# All Sharps(#) of the minor Scale on the Circle of Fifths
+(KeyScale("A") << Scale("minor")) * 8 + Iterate(Scale("minor") % Mode("5th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True)
+# All Fats(b) of the minor Scale on the Circle of Fifths
+(KeyScale("A") << Scale("minor")) * 8 + Iterate(Scale("minor") % Mode("4th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True)
 

@@ -48,12 +48,21 @@ class Operand:
     def __add__(self, operand: 'Operand') -> 'Operand':
         return self.copy()
 
+    def __radd__(self, operand: 'Operand') -> 'Operand':
+        return self.__add__(operand)
+
     def __sub__(self, operand: 'Operand') -> 'Operand':
         return self.copy()
+
+    def __rsub__(self, operand: 'Operand') -> 'Operand':
+        return self.__mul__(-1).__add__(operand)
 
     def __mul__(self, operand: 'Operand') -> 'Operand':
         return self.copy()
     
+    def __rmul__(self, operand: 'Operand') -> 'Operand':
+        return self.__mul__(operand)
+
     def __truediv__(self, operand: 'Operand') -> 'Operand':
         return self.copy()
     

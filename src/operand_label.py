@@ -18,10 +18,11 @@ from typing import Union
 import json
 # Json Midi Creator Libraries
 import creator as c
-import operand as o
+from operand import Operand
+import operand_frame as of
 
 
-class Tag(o.Operand):
+class Label(Operand):
     
     def getSerialization(self):
         return {
@@ -33,8 +34,20 @@ class Tag(o.Operand):
     def loadSerialization(self, serialization: dict):
         return self
 
-class Null(Tag):
-    pass
-
-class Dummy(Tag):
+class Null(Label):
+    def __add__(self, operand: Operand) -> 'Operand':
+        match operand:
+            case Operand():     return operand.copy()
+            case _:             return operand
+        
+    def __sub__(self, operand: Operand) -> 'Operand':
+        return operand * (-1)
+    
+    def __mul__(self, operand: Operand) -> 'Operand':
+        return operand * 0
+    
+    def __truediv__(self, operand: Operand) -> 'Operand':
+        return operand * 0
+    
+class Dummy(Label):
     pass

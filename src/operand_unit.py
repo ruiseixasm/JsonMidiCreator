@@ -133,7 +133,7 @@ class Key(Unit):
     Parameters
     ----------
     first : integer_like or string_like
-        A read only Integer from 0 to 11 or the equivalent string key like "C#" or "Gb"
+        A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, key: int | str = None):
         match key:
@@ -253,9 +253,11 @@ class Scale(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case list():        return Scale.getScale(self % int() % len(Scale._scales))
-            case str():         return Scale.getScaleName(self % int() % len(Scale._scales))
-            case _:             return super().__mod__(operand)
+            case list():            return Scale.getScale(self % int() % len(Scale._scales))
+            case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
+            case Mode():            return Key("C") + self.transpose(operand % int() - 1)
+            case Transposition():   return Key("C") + self.transpose(operand % int())
+            case _:                 return super().__mod__(operand)
 
     def len(self) -> int:
         scale_len = 0
