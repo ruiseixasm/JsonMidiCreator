@@ -26,9 +26,11 @@ from JsonMidiCreator import *
 global_staff << Tempo(120) << Measure(7)
 
 
-(KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 + Iterate()**Measure() + Iterate(4)**Transposition() << Octave(4) >> Play(True)
+((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 + Iterate()**Measure() + Iterate(4)**Transposition() << Octave(2)) \
++ (KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1)) \
+>> Print() >> Play(True)
 
-KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
+# KeyScale("C") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
 # KeyScale("C") * 8 + Iterate()**Measure() + Iterate(5)**Key(0) << Scale("Major") << NoteValue(1) >> Play(True)
 
 # KeyScale("A") * 8 + Iterate()**Measure() + Iterate(7)**Key(0) << Scale("minor") << NoteValue(1) >> Play(True)

@@ -471,18 +471,18 @@ class KeyScale(Note):
         return self_playlist
     
     def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "scale": self._scale % int(),
-            "mode": self._mode % int()
-        }
+        element_serialization = super().getSerialization()
+        element_serialization["scale"] = self._scale % int()
+        element_serialization["mode"] = self._mode % int()
+        return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "mode" in serialization and "scale" in serialization):
-
+            
+            super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["scale"])
             self._mode = ou.Mode(serialization["mode"])
         return self
