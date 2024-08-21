@@ -378,6 +378,20 @@ class Note(Element):
             case _: super().__lshift__(operand)
         return self
 
+    def __add__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._key_note + operand
+            case _:             return super().__add__(operand)
+        return self_copy
+
+    def __sub__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._key_note - operand
+            case _:             return super().__sub__(operand)
+        return self_copy
+
 class Note3(Note):
     """
     A Note3() is the repetition of a given Note three times on a row
@@ -708,6 +722,20 @@ class ControlChange(Element):
             case _: super().__lshift__(operand)
         return self
 
+    def __add__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._controller + operand
+            case _:             return super().__add__(operand)
+        return self_copy
+
+    def __sub__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._controller - operand
+            case _:             return super().__sub__(operand)
+        return self_copy
+
 class PitchBend(Element):
     def __init__(self, pitch: int = None):
         super().__init__()
@@ -765,6 +793,20 @@ class PitchBend(Element):
                 self._pitch = operand
             case _: super().__lshift__(operand)
         return self
+
+    def __add__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._pitch + operand
+            case _:             return super().__add__(operand)
+        return self_copy
+
+    def __sub__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._pitch - operand
+            case _:             return super().__sub__(operand)
+        return self_copy
 
 class Aftertouch(Element):
     def __init__(self, pressure: int = None):
@@ -824,20 +866,30 @@ class Aftertouch(Element):
             case _: super().__lshift__(operand)
         return self
 
-class PolyAftertouch(Element):
+    def __add__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._pressure + operand
+            case _:             return super().__add__(operand)
+        return self_copy
+
+    def __sub__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._pressure - operand
+            case _:             return super().__sub__(operand)
+        return self_copy
+
+class PolyAftertouch(Aftertouch):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote()
-        self._pressure: ou.Pressure = ou.Pressure()
-        if key is not None:
-            self._key_note << ou.Key(key)
+        self._key_note: og.KeyNote  = og.KeyNote(key)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case og.KeyNote():  return self._key_note
             case ou.Key():      return self._key_note % ou.Key()
             case ou.Octave():   return self._key_note % ou.Octave()
-            case ou.Pressure(): return self._pressure
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -864,7 +916,6 @@ class PolyAftertouch(Element):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["key_note"] = self._key_note.getSerialization()
-        element_serialization["pressure"] = self._pressure % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -875,7 +926,6 @@ class PolyAftertouch(Element):
 
             super().loadSerialization(serialization)
             self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
-            self._pressure = ou.Pressure(serialization["pressure"])
         return self
       
     def copy(self) -> 'PolyAftertouch':
@@ -890,7 +940,6 @@ class PolyAftertouch(Element):
             case og.KeyNote():      self._key_note = operand
             case ou.Key():          self._key_note << operand
             case ou.Octave():       self._key_note << operand
-            case ou.Pressure():     self._pressure = operand
             case _:                 super().__lshift__(operand)
         return self
 
@@ -951,6 +1000,20 @@ class ProgramChange(Element):
                 self._program = operand
             case _: super().__lshift__(operand)
         return self
+
+    def __add__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._program + operand
+            case _:             return super().__add__(operand)
+        return self_copy
+
+    def __sub__(self, operand: Operand) -> 'Element':
+        self_copy = self.copy()
+        match operand:
+            case int():         self_copy << self._program - operand
+            case _:             return super().__sub__(operand)
+        return self_copy
 
 class Panic:
     def getPlayList(self, position: ot.Position = None):
