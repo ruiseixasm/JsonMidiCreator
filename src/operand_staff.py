@@ -58,6 +58,8 @@ class Staff(Operand):
             case ou.Octave():           return self._octave
             case ou.Velocity():         return self._velocity
             case og.Controller():       return self._controller
+            case ou.ControlNumber():    return self._controller % ou.ControlNumber()
+            case ou.ControlValue():     return self._controller % ou.ControlValue()
             case ou.Channel():          return self._channel
             case od.Device():           return self._device
             # Calculated Values
@@ -141,6 +143,8 @@ class Staff(Operand):
             case ou.Octave():           self._octave = operand
             case ou.Velocity():         self._velocity = operand
             case og.Controller():       self._controller = operand
+            case ou.ControlNumber():    self._controller << operand
+            case ou.ControlValue():     self._controller << operand
             case ou.Channel():          self._channel = operand
             case od.Device():           self._device = operand
             # Calculated Values
@@ -157,5 +161,5 @@ global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteV
 global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
     << (og.KeyScale() << ou.Key("C") << ou.Scale("Major")) << ov.Quantization(1/16) \
     << (ot.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
-    << ou.Velocity(100) << (og.Controller() << ou.MidiCC("Pan") << ou.MidiValue(64)) \
+    << ou.Velocity(100) << (og.Controller("Pan") << ou.ControlValue(64)) \
     << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])

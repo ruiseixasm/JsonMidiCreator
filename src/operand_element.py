@@ -649,20 +649,20 @@ class ControlChange(Element):
         super().__init__()
         self._controller: og.Controller = (os.global_staff % og.Controller()).copy()
         if number is not None:
-            self._controller << ou.MidiCC(number)
+            self._controller << ou.ControlNumber(number)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case og.Controller():   return self._controller
-            case ou.MidiCC():       return self._controller % ou.MidiCC()
-            case ou.MidiValue():    return self._controller % ou.MidiValue()
-            case _:                 return super().__mod__(operand)
+            case og.Controller():       return self._controller
+            case ou.ControlNumber():    return self._controller % ou.ControlNumber()
+            case ou.ControlValue():     return self._controller % ou.ControlValue()
+            case _:                     return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
-        midi_cc_int: int            = self % ou.MidiCC() % int()
-        value_midi: int             = (self % ou.MidiValue()).getMidi__midi_value()
+        midi_cc_int: int            = self % ou.ControlNumber() % int()
+        value_midi: int             = (self % ou.ControlValue()).getMidi__midi_value()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
 
@@ -704,7 +704,7 @@ class ControlChange(Element):
                 self._controller = operand % og.Controller()
             case og.Controller():
                 self._controller = operand
-            case ou.MidiCC() | ou.MidiValue():
+            case ou.ControlNumber() | ou.ControlValue():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
@@ -958,11 +958,11 @@ class Panic:
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
         self_playlist = []
-        self_playlist.extend((ControlChange(123) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(123) << ou.ControlValue(0)).getPlayList(self_position))
         self_playlist.extend(PitchBend(0).getPlayList(self_position))
-        self_playlist.extend((ControlChange(64) << ou.MidiValue(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(1) << ou.MidiValue(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(121) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(64) << ou.ControlValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(1) << ou.ControlValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(121) << ou.ControlValue(0)).getPlayList(self_position))
 
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
@@ -989,8 +989,8 @@ class Panic:
                 }
             )
 
-        self_playlist.extend((ControlChange(7) << ou.MidiValue(100)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(11) << ou.MidiValue(127)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(7) << ou.ControlValue(100)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(11) << ou.ControlValue(127)).getPlayList(self_position))
 
         return self_playlist
 

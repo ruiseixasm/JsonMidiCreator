@@ -515,42 +515,42 @@ class Print(Unit):
         print(json_formatted_str)
         return operand
 
-class MidiValue(Unit):
+class ControlValue(Unit):
     """
-    MidiValue() represents the Control Change value that is sent via Midi
+    ControlValue() represents the Control Change value that is sent via Midi
     
     Parameters
     ----------
     first : integer_like
-        The MidiValue shall be set from 0 to 127 accordingly to the range of CC Midi values
+        The ControlValue shall be set from 0 to 127 accordingly to the range of CC Midi values
     """
-    def __init__(self, midi_value: int = 64):
-        super().__init__(midi_value)
+    def __init__(self, value: int = None):
+        super().__init__(value)
 
     def getMidi__midi_value(self) -> int:
         return max(min(self % int(), 127), 0)
     
-class MidiCC(Unit):
+class ControlNumber(Unit):
     """
-    MidiCC() represents the number of the Control to be manipulated with the MidiValue values.
+    ControlNumber() represents the number of the Control to be manipulated with the ControlValue values.
     
     Parameters
     ----------
     first : integer_like and string_like
         Allows the direct set with a number or in alternative with a name relative to the Controller
     """
-    def __init__(self, name: str = "Pan"):
-        match name:
+    def __init__(self, number: str = "Pan"):
+        match number:
             case str():
-                super().__init__( MidiCC.nameToNumber(name) )
+                super().__init__( ControlNumber.nameToNumber(number) )
             case int() | float():
-                super().__init__(name)
+                super().__init__(number)
             case _:
                 super().__init__(None)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case str():         return MidiCC.numberToName(self % int())
+            case str():         return ControlNumber.numberToName(self % int())
             case _:             return super().__mod__(operand)
 
     _controllers = [
@@ -603,22 +603,22 @@ class MidiCC(Unit):
 
     @staticmethod
     def getDefault(number: int) -> int:
-        for controller in MidiCC._controllers:
+        for controller in ControlNumber._controllers:
             if controller["midi_number"] == number:
                 return controller["default_value"]
-        return os.global_staff % MidiCC() % int()
+        return os.global_staff % ControlNumber() % int()
 
     @staticmethod
-    def nameToNumber(name: str = "Pan") -> int:
-        for controller in MidiCC._controllers:
+    def nameToNumber(number: str = "Pan") -> int:
+        for controller in ControlNumber._controllers:
             for controller_name in controller["names"]:
-                if controller_name.lower().find(name.strip().lower()) != -1:
+                if controller_name.lower().find(number.strip().lower()) != -1:
                     return controller["midi_number"]
-        return os.global_staff % MidiCC() % int()
+        return os.global_staff % ControlNumber() % int()
 
     @staticmethod
     def numberToName(number: int) -> int:
-        for controller in MidiCC._controllers:
+        for controller in ControlNumber._controllers:
             if controller["midi_number"] == number:
                 return controller["names"][0]
-        return os.global_staff % MidiCC() % str()
+        return os.global_staff % ControlNumber() % str()

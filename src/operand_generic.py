@@ -235,17 +235,17 @@ class KeyNote(Generic):
         return KeyNote() << ou.Key(key_int) << ou.Octave(octave_int)
 
 class Controller(Generic):
-    def __init__(self):
-        self._midi_cc: ou.MidiCC        = ou.MidiCC()
-        self._midi_value: ou.MidiValue  = ou.MidiValue( ou.MidiCC.getDefault(self._midi_cc % int()) )
+    def __init__(self, number: int | str = None):
+        self._midi_cc: ou.ControlNumber     = ou.ControlNumber( number )
+        self._midi_value: ou.ControlValue   = ou.ControlValue( ou.ControlNumber.getDefault(self._midi_cc % int()) )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
-            case ou.MidiCC():       return self._midi_cc
-            case ou.MidiValue():    return self._midi_value
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case of.Frame():            return self % (operand % Operand())
+            case ou.ControlNumber():    return self._midi_cc
+            case ou.ControlValue():     return self._midi_value
+            case ol.Null() | None:      return ol.Null()
+            case _:                     return self
 
     def getMidi__cc_value(self) -> int:
         return self._midi_value.getMidi__midi_value()
@@ -263,8 +263,8 @@ class Controller(Generic):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "midi_cc" in serialization and "midi_value" in serialization):
 
-            self._midi_cc = ou.MidiCC(serialization["midi_cc"])
-            self._midi_value = ou.MidiValue(serialization["midi_value"])
+            self._midi_cc = ou.ControlNumber(serialization["midi_cc"])
+            self._midi_value = ou.ControlValue(serialization["midi_value"])
         return self
         
     def copy(self) -> 'Controller':
@@ -272,12 +272,12 @@ class Controller(Generic):
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:
-            case of.Frame():        self << (operand & self)
+            case of.Frame():            self << (operand & self)
             case Controller():
-                self._midi_cc = operand % ou.MidiCC()
-                self._midi_value = operand % ou.MidiValue()
-            case ou.MidiCC():       self._midi_cc = operand
-            case ou.MidiValue():    self._midi_value = operand
+                self._midi_cc = operand % ou.ControlNumber()
+                self._midi_value = operand % ou.ControlValue()
+            case ou.ControlNumber():    self._midi_cc = operand
+            case ou.ControlValue():     self._midi_value = operand
         return self
 
     def __add__(self, operand) -> 'Controller':
@@ -287,13 +287,13 @@ class Controller(Generic):
                 return self + (operand & self)
             case int():
                 midi_value_int += operand
-            case ou.MidiValue():
+            case ou.ControlValue():
                 midi_value_int += operand % int()
             case Controller():
-                midi_value_int += operand % ou.MidiValue() % int()
+                midi_value_int += operand % ou.ControlValue() % int()
             case _:
                 return self.copy()
-        return Controller() << ou.MidiCC(self._midi_cc) << ou.MidiValue(midi_value_int)
+        return Controller() << ou.ControlNumber(self._midi_cc) << ou.ControlValue(midi_value_int)
     
     def __sub__(self, operand) -> 'Controller':
         midi_value_int: int = self._midi_value % int()
@@ -302,13 +302,13 @@ class Controller(Generic):
                 return self - (operand & self)
             case int():
                 midi_value_int -= operand
-            case ou.MidiValue():
+            case ou.ControlValue():
                 midi_value_int -= operand % int()
             case Controller():
-                midi_value_int -= operand % ou.MidiValue() % int()
+                midi_value_int -= operand % ou.ControlValue() % int()
             case _:
                 return self.copy()
-        return Controller() << ou.MidiCC(self._midi_cc) << ou.MidiValue(midi_value_int)
+        return Controller() << ou.ControlNumber(self._midi_cc) << ou.ControlValue(midi_value_int)
 
 class Yield(Generic):
     def __init__(self, value: float = 0):
