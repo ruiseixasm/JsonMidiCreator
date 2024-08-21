@@ -439,7 +439,7 @@ class KeyScale(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
         self._scale: ou.Scale = ou.Scale()
-        self._mode: ou.Scale = ou.Mode()
+        self._mode: ou.Mode = ou.Mode()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -488,10 +488,14 @@ class KeyScale(Note):
         return self
         
     def copy(self) -> 'KeyScale':
-        return KeyScale() << self._scale.copy() << self._mode.copy()
+        return super().copy() << self._scale.copy() << self._mode.copy()
 
     def __lshift__(self, operand: Operand) -> 'KeyScale':
         match operand:
+            case KeyScale():
+                super().__lshift__(operand)
+                self._mode = operand % ou.Mode()
+                self._scale = operand % ou.Scale()
             case ou.Scale():        self._scale = operand
             case ou.Mode():         self._mode = operand
             case _: super().__lshift__(operand)
