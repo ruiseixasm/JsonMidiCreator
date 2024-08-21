@@ -250,7 +250,7 @@ class Scale(Unit):
             case _:
                 scale = os.global_staff % self % int() if scale is None else round(scale)
                 super().__init__(scale)
-        self._rotated_scale: list = [0] * 12
+        self._scale: list = [0] * 12
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -266,7 +266,7 @@ class Scale(Unit):
         return scale_len
 
     def transpose(self, interval: int = 1) -> int:
-        self_scale = self._rotated_scale
+        self_scale = self._scale
         if self._unit != -1:
             self_scale = Scale._scales[self % int() % len(Scale._scales)]
         chromatic_transposition = 0
@@ -284,22 +284,38 @@ class Scale(Unit):
 
     # CHAINABLE OPERATIONS
 
+    def __lshift__(self, operand: Operand) -> 'Scale':
+        match operand:
+            case list():        self._scale = operand
+            case _: super().__lshift__(operand)
+        return self
+
     def __add__(self, operand: Operand) -> 'Scale':
         self_copy = self.copy()
         match operand:
             case int():
+                self_scale = self._scale
+                if self._unit != -1:
+                    self_scale = Scale._scales[self % int() % len(Scale._scales)]
+                copy_scale = [0] * 12
                 for key_i in range(12):
-                    self._rotated_scale[(key_i + operand) % 12] = self._rotated_scale[key_i]
-                self._unit = -1 # -1 means self rotated scale
+                    copy_scale[(key_i + operand) % 12] = self_scale[key_i]
+                self_copy << copy_scale
+                self_copy << -1 # -1 means self rotated scale
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Scale':
         self_copy = self.copy()
         match operand:
             case int():
+                self_scale = self._scale
+                if self._unit != -1:
+                    self_scale = Scale._scales[self % int() % len(Scale._scales)]
+                copy_scale = [0] * 12
                 for key_i in range(12):
-                    self._rotated_scale[(key_i - operand) % 12] = self._rotated_scale[key_i]
-                self._unit = -1 # -1 means self rotated scale
+                    copy_scale[(key_i - operand) % 12] = self_scale[key_i]
+                self_copy << copy_scale
+                self_copy << -1 # -1 means self rotated scale
         return self_copy
 
         # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
