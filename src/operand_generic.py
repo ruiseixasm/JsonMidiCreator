@@ -29,8 +29,8 @@ class Generic(Operand):
     pass
 
 class KeyScale(Generic):
-    def __init__(self):
-        self._key: ou.Key = ou.Key()
+    def __init__(self, key: int | str = None):
+        self._key: ou.Key = ou.Key(key)
         self._scale: ou.Scale = ou.Scale()
 
     def __mod__(self, operand: Operand) -> Operand:
@@ -124,8 +124,8 @@ class TimeSignature(Generic):
     ...
 
 class KeyNote(Generic):
-    def __init__(self):
-        self._key: ou.Key = ou.Key()
+    def __init__(self, key: int | str = None):
+        self._key: ou.Key = ou.Key(key)
         self._octave: ou.Octave = ou.Octave()
 
     def __mod__(self, operand: Operand) -> Operand:

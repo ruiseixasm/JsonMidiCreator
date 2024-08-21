@@ -283,8 +283,7 @@ class Note(Element):
     def __init__(self, key: int | str = None):
         super().__init__()
         self._duration: ot.Duration = ot.Duration() << os.global_staff % ot.Duration()
-        self._key_note: og.KeyNote  = og.KeyNote() \
-            << ou.Key( os.global_staff % ou.Key() % int() if key is None else key ) \
+        self._key_note: og.KeyNote  = og.KeyNote( os.global_staff % ou.Key() % int() if key is None else key ) \
             << ou.Octave( os.global_staff % ou.Octave() % int() )
         self._velocity: ou.Velocity = ou.Velocity( os.global_staff % ou.Velocity() % int() )
         self._gate: ov.Gate         = ov.Gate(.90)
@@ -649,7 +648,7 @@ class ControlChange(Element):
         super().__init__()
         self._controller: og.Controller = (os.global_staff % og.Controller()).copy()
         if number is not None:
-            self._controller << ou.ControlNumber(number)
+            self._controller = og.Controller(number)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:

@@ -26,9 +26,9 @@ import operand_label as ol
 
 
 class Time(Operand):
-    def __init__(self):
+    def __init__(self, measure: float = None):
         # Default values already, no need to wrap them with Default()
-        self._measure       = ov.Measure(0)
+        self._measure       = ov.Measure( 0 if measure is None else measure )
         self._beat          = ov.Beat(0)
         self._note_value    = ov.NoteValue(0)
         self._step          = ov.Step(0)
@@ -159,13 +159,20 @@ class Time(Operand):
         return self_copy
 
 class Position(Time):
-    pass
+    def __init__(self, measure: float = None):
+        super().__init__(measure)
 
 class Duration(Time):
-    pass
+    def __init__(self, note_value: float = None):
+        super().__init__()
+        if note_value is not None:
+            self._note_value = note_value
 
 class Length(Time):
-    pass
+    def __init__(self, note_value: float = None):
+        super().__init__()
+        if note_value is not None:
+            self._note_value = note_value
     
 class Identity(Time):
     def __init__(self):
