@@ -458,7 +458,7 @@ class KeyScale(Note):
 
         root_key_note = self % og.KeyNote()
         scale_key_notes = []
-        for key_note_i in range(7): # presses entire scale, 7 keys
+        for key_note_i in range(self._scale.len()): # presses entire scale, 7 keys for diatonic scales
             chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i)
             scale_key_notes.append(root_key_note + chromatic_transposition)
 

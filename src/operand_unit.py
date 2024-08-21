@@ -253,12 +253,19 @@ class Scale(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case list():        return Scale.getScale(self % int())
-            case str():         return Scale.getScaleName(self % int())
+            case list():        return Scale.getScale(self % int() % len(Scale._scales))
+            case str():         return Scale.getScaleName(self % int() % len(Scale._scales))
             case _:             return super().__mod__(operand)
 
+    def len(self) -> int:
+        scale_len = 0
+        self_scale = Scale._scales[self % int() % len(Scale._scales)]
+        for key_i in self_scale:
+            scale_len += key_i
+        return scale_len
+
     def transpose(self, interval: int = 1) -> int:
-        self_scale = Scale._scales[self % int()]
+        self_scale = Scale._scales[self % int() % len(Scale._scales)]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
