@@ -74,10 +74,48 @@ class Data(Operand):
             case _:                 self._data = operand
         return self
 
+class ListScale(Data):
+    def __init__(self, list_scale: list[int] = None):
+        super().__init__( os.global_staff % ou.Scale() % list() if list_scale is None else list_scale )
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ou.Tonic():
+                tonic_note = operand % int()
+                transposed_scale = [0] * 12
+                self_scale = self._data
+                for key_i in range(12):
+                    transposed_scale[(tonic_note + key_i) % 12] = self_scale[key_i]
+                return ListScale(transposed_scale)
+            case ou.Mode():             return ou.Key("C") + self.transpose(operand % int() - 1)
+            case ou.Transposition():    return ou.Key("C") + self.transpose(operand % int())
+            case _:                     return super().__mod__(operand)
+
+    def len(self) -> int:
+        scale_len = 0
+        self_scale = self._data
+        for key in self_scale:
+            scale_len += key
+        return scale_len
+
+    def transpose(self, interval: int = 1) -> int:
+        self_scale = self._data
+        chromatic_transposition = 0
+        if interval > 0:
+            while interval != 0:
+                chromatic_transposition += 1
+                if self_scale[chromatic_transposition % 12] == 1:
+                    interval -= 1
+        elif interval < 0:
+            while interval != 0:
+                chromatic_transposition -= 1
+                if self_scale[chromatic_transposition % 12] == 1:
+                    interval += 1
+        return chromatic_transposition
+
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
-        super().__init__(device_list)
-        self._data = os.global_staff % self % list() if device_list is None else device_list
+        super().__init__( os.global_staff % self % list() if device_list is None else device_list )
 
 class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):

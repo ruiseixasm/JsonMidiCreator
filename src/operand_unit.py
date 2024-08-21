@@ -20,6 +20,7 @@ import json
 import creator as c
 from operand import Operand
 import operand_staff as os
+import operand_data as od
 import operand_numeric as on
 import operand_frame as of
 import operand_label as ol
@@ -270,7 +271,7 @@ class Scale(Unit):
                 self_scale = Scale._scales[self % int() % len(Scale._scales)]
                 for key_i in range(12):
                     transposed_scale[(tonic_note + key_i) % 12] = self_scale[key_i]
-                return transposed_scale
+                return od.ListScale(transposed_scale)
             case Mode():            return Key("C") + self.transpose(operand % int() - 1)
             case Transposition():   return Key("C") + self.transpose(operand % int())
             case _:                 return super().__mod__(operand)
@@ -457,7 +458,7 @@ class Transposition(Operation):
     Parameters
     ----------
     first : integer_like
-        Accepts a numeral equivalent to the scales playable positions
+        Transposition along the given Scale with 0 as default
     """
     def __init__(self, transposition: int = None):
         super().__init__(transposition)
