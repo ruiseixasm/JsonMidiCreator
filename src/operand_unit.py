@@ -169,6 +169,9 @@ class Root(Key):
 class Home(Key):
     pass
 
+class Tonic(Key):
+    pass
+
 class Octave(Unit):
     """
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
@@ -229,7 +232,13 @@ class Channel(Unit):
     def __init__(self, channel: int = None):
         super().__init__( os.global_staff % self % int() if channel is None else channel )
 
-class KeySignature(Unit):   # Sharps (+) and Flats (-)
+class KeySignature(Unit):       # Sharps (+) and Flats (-)
+    ...
+
+class Sharps(KeySignature):     # Sharps (#)
+    ...
+
+class Flats(KeySignature):      # Flats (b)
     ...
 
 class Scale(Unit):
@@ -255,6 +264,13 @@ class Scale(Unit):
         match operand:
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
             case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
+            case Tonic():
+                tonic_note = operand % int()
+                transposed_scale = [0] * 12
+                self_scale = Scale._scales[self % int() % len(Scale._scales)]
+                for key_i in range(12):
+                    transposed_scale[(tonic_note + key_i) % 12] = self_scale[key_i]
+                return transposed_scale
             case Mode():            return Key("C") + self.transpose(operand % int() - 1)
             case Transposition():   return Key("C") + self.transpose(operand % int())
             case _:                 return super().__mod__(operand)
@@ -262,8 +278,8 @@ class Scale(Unit):
     def len(self) -> int:
         scale_len = 0
         self_scale = Scale._scales[self % int() % len(Scale._scales)]
-        for key_i in self_scale:
-            scale_len += key_i
+        for key in self_scale:
+            scale_len += key
         return scale_len
 
     def transpose(self, interval: int = 1) -> int:
