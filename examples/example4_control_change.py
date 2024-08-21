@@ -25,4 +25,4 @@ from JsonMidiCreator import *
 # Global Staff setting up
 global_staff << Tempo(110) << Measure(6)
 
-single_cc = ControlChange() >> Play(1)
+single_cc = ControlChange("Pan") >> Play(1)

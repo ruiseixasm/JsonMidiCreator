@@ -164,10 +164,10 @@ class ClockModes(enum.Enum):
     resume  = 5
 
 class Clock(Element):
-    def __init__(self):
+    def __init__(self, mode: ClockModes = None):
         super().__init__()
         self._length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int())
-        self._mode: ClockModes = ClockModes.single
+        self._mode: ClockModes = ClockModes.single if mode is None else mode
         self._pulses_per_quarternote: int = 24
 
     def __mod__(self, operand: Operand) -> Operand:
@@ -645,9 +645,11 @@ class Tuplet(Rest):
         return self
 
 class ControlChange(Element):
-    def __init__(self):
+    def __init__(self, number: int | str = None):
         super().__init__()
-        self._controller: og.Controller = og.Controller() << os.global_staff % og.Controller()
+        self._controller: og.Controller = (os.global_staff % og.Controller()).copy()
+        if number is not None:
+            self._controller << ou.MidiCC(number)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -708,9 +710,9 @@ class ControlChange(Element):
         return self
 
 class PitchBend(Element):
-    def __init__(self):
+    def __init__(self, pitch: int = None):
         super().__init__()
-        self._pitch: ou.Pitch = ou.Pitch()
+        self._pitch: ou.Pitch = ou.Pitch( 0 if pitch is None else pitch )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -766,9 +768,9 @@ class PitchBend(Element):
         return self
 
 class Aftertouch(Element):
-    def __init__(self):
+    def __init__(self, pressure: int = None):
         super().__init__()
-        self._pressure: ou.Pressure = ou.Pressure()
+        self._pressure: ou.Pressure = ou.Pressure( 0 if pressure is None else pressure )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -824,14 +826,18 @@ class Aftertouch(Element):
         return self
 
 class PolyAftertouch(Element):
-    def __init__(self):
+    def __init__(self, key: int | str = None):
         super().__init__()
         self._key_note: og.KeyNote  = og.KeyNote()
         self._pressure: ou.Pressure = ou.Pressure()
+        if key is not None:
+            self._key_note << ou.Key(key)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case og.KeyNote():  return self._key_note
+            case ou.Key():      return self._key_note % ou.Key()
+            case ou.Octave():   return self._key_note % ou.Octave()
             case ou.Pressure(): return self._pressure
             case _:             return super().__mod__(operand)
 
@@ -883,14 +889,16 @@ class PolyAftertouch(Element):
                 self._key_note = operand % og.KeyNote()
                 self._pressure = operand % ou.Pressure()
             case og.KeyNote():      self._key_note = operand
+            case ou.Key():          self._key_note << operand
+            case ou.Octave():       self._key_note << operand
             case ou.Pressure():     self._pressure = operand
             case _:                 super().__lshift__(operand)
         return self
 
 class ProgramChange(Element):
-    def __init__(self):
+    def __init__(self, program: int = None):
         super().__init__()
-        self._program: ou.Program = ou.Program()
+        self._program: ou.Program = ou.Program( 0 if program is None else program )
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -950,11 +958,11 @@ class Panic:
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
         self_playlist = []
-        self_playlist.extend((ControlChange() << ou.MidiCC(123) << ou.MidiValue(0)).getPlayList(self_position))
-        self_playlist.extend((PitchBend() << ou.Pitch(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange() << ou.MidiCC(64) << ou.MidiValue(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange() << ou.MidiCC(1) << ou.MidiValue(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange() << ou.MidiCC(121) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(123) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend(PitchBend(0).getPlayList(self_position))
+        self_playlist.extend((ControlChange(64) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(1) << ou.MidiValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(121) << ou.MidiValue(0)).getPlayList(self_position))
 
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
@@ -981,8 +989,8 @@ class Panic:
                 }
             )
 
-        self_playlist.extend((ControlChange() << ou.MidiCC(7) << ou.MidiValue(100)).getPlayList(self_position))
-        self_playlist.extend((ControlChange() << ou.MidiCC(11) << ou.MidiValue(127)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(7) << ou.MidiValue(100)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(11) << ou.MidiValue(127)).getPlayList(self_position))
 
         return self_playlist
 
