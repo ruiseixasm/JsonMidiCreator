@@ -280,11 +280,12 @@ class Rest(Element):
         self._duration: ot.Duration = ot.Duration() << os.global_staff % ot.Duration()
 
 class Note(Element):
-    def __init__(self):
+    def __init__(self, key: int | str = None):
         super().__init__()
         self._duration: ot.Duration = ot.Duration() << os.global_staff % ot.Duration()
         self._key_note: og.KeyNote  = og.KeyNote() \
-            << ou.Key( os.global_staff % ou.Key() % int() ) << ou.Octave( os.global_staff % ou.Octave() % int() )
+            << ou.Key( os.global_staff % ou.Key() % int() if key is None else key ) \
+            << ou.Octave( os.global_staff % ou.Octave() % int() )
         self._velocity: ou.Velocity = ou.Velocity( os.global_staff % ou.Velocity() % int() )
         self._gate: ov.Gate         = ov.Gate(.90)
 
@@ -389,8 +390,8 @@ class Note3(Note):
         | 1/16T = (1/16 - 1/64)  = 3/64
         | 1/32T = (1/32 - 1/128) = 3/128
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, key: int | str = None):
+        super().__init__(key)
         self._duration  = self._duration * 2/3 # 3 instead of 2
         self._gate      = ov.Gate(.50)
 
@@ -422,31 +423,19 @@ class Note3(Note):
         return self
 
 class Chord(Note):
-    def __init__(self, size: int = None):   # 0xF2 - Song ot.Position
-        super().__init__()
+    def __init__(self, key: int | str = None):
+        super().__init__(key)
         self._scale: ou.Scale = os.global_staff % og.KeyScale() % ou.Scale()   # Default Scale for Chords
-        self._degree: ou.Degree = ou.Degree(1)    # 1 for Tonic
+        self._degree: ou.Degree = ou.Degree()
         self._inversion: ou.Inversion = ou.Inversion()
-        self._size: int = 3
-        match size:
-            case int():                     self._size = size
-            case str():
-                match size.strip():
-                    case '1'  | "1st":      self._size = 1
-                    case '3'  | "3rd":      self._size = 2
-                    case '5'  | "5th":      self._size = 3
-                    case '7'  | "7th":      self._size = 4
-                    case '9'  | "9th":      self._size = 5
-                    case '11' | "11th":     self._size = 6
-                    case '13' | "13th":     self._size = 7
-                    case _:                 self._size = 3
+        self._type: ou.Type = ou.Type()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case ou.Scale():        return self._scale
+            case ou.Type():         return self._type
             case ou.Degree():       return self._degree
             case ou.Inversion():    return self._inversion
-            case int():             return self._size
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -454,12 +443,12 @@ class Chord(Note):
 
         root_key_note = self % og.KeyNote()
         chord_key_notes = []
-        for key_note_i in range(self._size):
+        for key_note_i in range(self._type % int()):
             chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_i * 2)
             chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
-        first_key_note = chord_key_notes[self._inversion % int() % self._size]
+        first_key_note = chord_key_notes[self._inversion % int() % (self._type % int())]
         not_first_key_note = True
         while not_first_key_note:
             not_first_key_note = False
@@ -480,9 +469,9 @@ class Chord(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["scale"] = self._scale % int()
+        element_serialization["type"] = self._type % int()
         element_serialization["degree"] = self._degree % int()
         element_serialization["inversion"] = self._inversion % int()
-        element_serialization["size"] = self._size
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -490,40 +479,31 @@ class Chord(Note):
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
             "scale" in serialization and "degree" in serialization and
-            "inversion" in serialization and "size" in serialization):
+            "inversion" in serialization and "type" in serialization):
 
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["scale"])
+            self._type = ou.Type(serialization["type"])
             self._degree = ou.Degree(serialization["degree"])
             self._inversion = ou.Inversion(serialization["inversion"])
-            self._size = serialization["size"]
         return self
       
     def copy(self) -> 'Chord':
-        return super().copy() << self._scale.copy() << self._degree.copy() << self._size
+        return super().copy() << self._scale.copy() << self._type.copy() << self._degree.copy() << self._inversion.copy()
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
             case Chord():
                 super().__lshift__(operand)
                 self._scale = operand % ou.Scale()
+                self._type = operand % ou.Type()
                 self._degree = operand % ou.Degree()
                 self._inversion = operand % ou.Inversion()
-                self._size = operand % int()
             case ou.Scale():                self._scale = operand
+            case ou.Type():                 self._type = operand
             case ou.Degree():               self._degree = operand
-            case ou.Inversion():            self._inversion = ou.Inversion(operand % int() % self._size)
-            case int():                     self._size = operand
-            case str():
-                match operand.strip():
-                    case '1' | "1st":       self._size = 1
-                    case '3' | "3rd":       self._size = 2
-                    case '5' | "5th":       self._size = 3
-                    case '7' | "7th":       self._size = 4
-                    case '9' | "9th":       self._size = 5
-                    case '11' | "11th":     self._size = 6
-                    case '13' | "13th":     self._size = 7
-                    case _:                 self._size = 3
+            case ou.Inversion():            
+                self._inversion = ou.Inversion(operand % int() % (self._type % int()))
             case _: super().__lshift__(operand)
         return self
 

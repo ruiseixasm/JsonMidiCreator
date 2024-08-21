@@ -368,17 +368,45 @@ class Degree(Unit):
             case _:
                 super().__init__( 1 )
 
+class Type(Unit):
+    """
+    Type() represents the size of the Chord, like "7th", "9th", etc.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A Type Number varies from "1st" to "13th" with "3rd" being the triad default
+    """
+    def __init__(self, type: int = None):
+        match type:
+            case str():
+                match type.strip():
+                    case '1'  | "1st":              type = 1
+                    case '3'  | "3rd":              type = 2
+                    case '5'  | "5th":              type = 3
+                    case '7'  | "7th":              type = 4
+                    case '9'  | "9th":              type = 5
+                    case '11' | "11th":             type = 6
+                    case '13' | "13th":             type = 7
+                    case _:                         type = 3
+                super().__init__(type)
+            case int() | float():
+                super().__init__(type)
+            case _:
+                super().__init__( 3 )
+
 class Mode(Unit):
     """
-    Mode() represents the Mode Number associated to a given Instrument.
+    Mode() represents the different scales (e.g., Ionian, Dorian, Phrygian)
+    derived from the degrees of the major scale.
     
     Parameters
     ----------
     first : integer_like
-        A Mode Number varies from 0 to 127 with 0 being normally the default
+        A Mode Number varies from 1 to 7 with 1 being normally the default
     """
-    def __init__(self, program: int = None):
-        super().__init__(program)
+    def __init__(self, mode: int = None):
+        super().__init__(mode)
 
 class Operation(Unit):
     pass

@@ -25,12 +25,12 @@ from JsonMidiCreator import *
 # Global Staff setting up
 global_staff << Tempo(120) << Measure(7)
 
-Chord("7th") * 7 + Increment()**Beat() + Increment()**Degree(0) >> Play(True)
-(Chord() << Key("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Degree(0) \
+(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Degree(0) >> Play(True)
+(Chord("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Degree(0) \
     >> Play(True) >> Print(8) << Inversion(1) >> Play(True)
 
-Chord("13th") << Key("C") << Scale("Major") << Degree("Dominant") << Octave(3) << NoteValue(8) >> Print(8) >> Play()
-Chord("13th") << Key("G") << Scale("5th") << NoteValue(8) << Octave(3) >> Print(8) >> Play()
+Chord("C") << Type("13th") << Scale("Major") << Degree("Dominant") << Octave(3) << NoteValue(8) >> Print(8) >> Play()
+Chord("G") << Type("13th") << Scale("5th") << NoteValue(8) << Octave(3) >> Print(8) >> Play()
 
 
 
