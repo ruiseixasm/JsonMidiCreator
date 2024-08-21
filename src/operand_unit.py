@@ -227,8 +227,7 @@ class Channel(Unit):
         For a given device, there are 16 channels ranging from 1 to 16
     """
     def __init__(self, channel: int = None):
-        channel = os.global_staff % self % int() if channel is None else round(channel)
-        super().__init__(channel)
+        super().__init__( os.global_staff % self % int() if channel is None else channel )
 
 class KeySignature(Unit):   # Sharps (+) and Flats (-)
     ...

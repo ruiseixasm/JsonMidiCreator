@@ -809,9 +809,10 @@ class PitchBend(Element):
         return self_copy
 
 class Aftertouch(Element):
-    def __init__(self, pressure: int = None):
+    def __init__(self, channel: int = None):
         super().__init__()
-        self._pressure: ou.Pressure = ou.Pressure( 0 if pressure is None else pressure )
+        self._channel = ou.Channel(channel)
+        self._pressure: ou.Pressure = ou.Pressure()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:

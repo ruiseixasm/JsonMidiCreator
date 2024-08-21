@@ -1,0 +1,8 @@
+#!/bin/bash
+
+python3 examples/example1_notes_and_sequence.py
+python3 examples/example3_keynote_transpose_and_triplet.py
+python3 examples/example4_control_change.py
+python3 examples/example6_frame_filters.py
+python3 examples/example7_chord_inversions.py
+
