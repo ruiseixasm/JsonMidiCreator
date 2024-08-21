@@ -33,7 +33,7 @@ class Staff(Operand):
         self._beats_per_measure: ov.BeatsPerMeasure = None
         self._beat_note_value: ov.BeatNoteValue     = None
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._scale: og.KeyScale                    = None
+        self._scale: ou.Scale                       = None
         self._quantization: ov.Quantization         = None
         self._duration: ot.Duration                 = None
         self._key: ou.Key                           = None
@@ -51,7 +51,7 @@ class Staff(Operand):
             case ov.Tempo():            return self._tempo
             case ov.BeatsPerMeasure():  return self._beats_per_measure
             case ov.BeatNoteValue():    return self._beat_note_value
-            case og.KeyScale():         return self._scale
+            case ou.Scale():            return self._scale
             case ov.Quantization():     return self._quantization
             case ot.Duration():         return self._duration
             case ou.Key():              return self._key
@@ -104,7 +104,7 @@ class Staff(Operand):
             self._tempo = ov.Tempo(serialization["tempo"])
             self._beats_per_measure = ov.BeatsPerMeasure(serialization["beats_per_measure"])
             self._beat_note_value = ov.BeatNoteValue(serialization["beat_note_value"])
-            self._scale = og.KeyScale().loadSerialization(serialization["scale"])
+            self._scale = ou.Scale().loadSerialization(serialization["scale"])
             self._quantization = ov.Quantization(serialization["quantization"])
             self._duration = ot.Duration(serialization["duration"])
             self._key = ou.Key(serialization["key"])
@@ -123,7 +123,7 @@ class Staff(Operand):
                 self._tempo = operand % ov.Tempo()
                 self._beats_per_measure = operand % ov.BeatsPerMeasure()
                 self._beat_note_value = operand % ov.BeatNoteValue()
-                self._scale = operand % og.KeyScale()
+                self._scale = operand % ou.Scale()
                 self._quantization = operand % ov.Quantization()    # Note Value
                 self._duration = operand % ot.Duration()
                 self._key = operand % ou.Key()
@@ -136,7 +136,7 @@ class Staff(Operand):
             case ov.Tempo():            self._tempo = operand
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand
             case ov.BeatNoteValue():    self._beat_note_value = operand
-            case og.KeyScale():         self._scale = operand
+            case ou.Scale():            self._scale = operand
             case ov.Quantization():     self._quantization = operand    # Note Value
             case ot.Duration():         self._duration = operand
             case ou.Key():              self._key = operand
@@ -159,7 +159,7 @@ class Staff(Operand):
 # Set the Default Staff values here.
 global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
 global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
-    << (og.KeyScale() << ou.Key("C") << ou.Scale("Major")) << ov.Quantization(1/16) \
+    << ou.Scale("Major") << ov.Quantization(1/16) \
     << (ot.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
     << ou.Velocity(100) << (og.Controller("Pan") << ou.ControlValue(64)) \
     << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])

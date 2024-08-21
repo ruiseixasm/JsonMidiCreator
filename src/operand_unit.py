@@ -401,11 +401,26 @@ class Mode(Unit):
     
     Parameters
     ----------
-    first : integer_like
+    first : integer_like or string_like
         A Mode Number varies from 1 to 7 with 1 being normally the default
     """
-    def __init__(self, mode: int = None):
-        super().__init__(mode)
+    def __init__(self, mode: int | str = None):
+        match mode:
+            case str():
+                match mode.strip():
+                    case '1'  | "1st":              mode = 1
+                    case '2'  | "2nd":              mode = 2
+                    case '3'  | "3rd":              mode = 3
+                    case '4'  | "4th":              mode = 4
+                    case '5'  | "5th":              mode = 5
+                    case '6'  | "6th":              mode = 6
+                    case '7'  | "7th":              mode = 7
+                    case _:                         mode = 1
+                super().__init__(mode)
+            case int() | float():
+                super().__init__( (round(mode) - 1) % 7 + 1 )
+            case _:
+                super().__init__( 1 )
 
 class Operation(Unit):
     pass

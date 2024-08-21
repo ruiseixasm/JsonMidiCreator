@@ -435,10 +435,72 @@ class Note3(Note):
             case _: super().__lshift__(operand)
         return self
 
+class KeyScale(Note):
+    def __init__(self, key: int | str = None):
+        super().__init__(key)
+        self._scale: ou.Scale = ou.Scale()
+        self._mode: ou.Scale = ou.Mode()
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ou.Scale():        return self._scale
+            case ou.Mode():         return self._mode
+            case _:                 return super().__mod__(operand)
+
+    def getSharps(self, key: ou.Key = None) -> int:
+        ...
+
+    def getFlats(self, key: ou.Key = None) -> int:
+        ...
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
+
+        root_key_note = self % og.KeyNote()
+        scale_key_notes = []
+        for key_note_i in range(7): # presses entire scale, 7 keys
+            chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i)
+            scale_key_notes.append(root_key_note + chromatic_transposition)
+
+        self_playlist = []
+        for key_note in scale_key_notes:
+            self << key_note
+            self_playlist.extend(super().getPlayList(self_position))
+        self << root_key_note
+
+        return self_playlist
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "scale": self._scale % int(),
+            "mode": self._mode % int()
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'KeyScale':
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+            "mode" in serialization and "scale" in serialization):
+
+            self._scale = ou.Scale(serialization["scale"])
+            self._mode = ou.Mode(serialization["mode"])
+        return self
+        
+    def copy(self) -> 'KeyScale':
+        return KeyScale() << self._scale.copy() << self._mode.copy()
+
+    def __lshift__(self, operand: Operand) -> 'KeyScale':
+        match operand:
+            case ou.Scale():        self._scale = operand
+            case ou.Mode():         self._mode = operand
+            case _: super().__lshift__(operand)
+        return self
+
 class Chord(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        self._scale: ou.Scale = os.global_staff % og.KeyScale() % ou.Scale()   # Default Scale for Chords
+        self._scale: ou.Scale = os.global_staff % ou.Scale()   # Default Scale for Chords
         self._degree: ou.Degree = ou.Degree()
         self._inversion: ou.Inversion = ou.Inversion()
         self._type: ou.Type = ou.Type()
