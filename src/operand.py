@@ -34,6 +34,13 @@ class Operand:
     def copy(self):
         return self.__class__() << self
     
+    def __xor__(self, function):
+        import operand_label as ol
+        match function:
+            case ol.Copy():
+                return self.copy()
+        return self
+
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         return self
 

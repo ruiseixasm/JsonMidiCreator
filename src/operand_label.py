@@ -40,15 +40,29 @@ class Null(Label):
 class Dummy(Label):
     pass
 
-class MSB(Label):
+class MidiValue(Label):
+    pass
+
+class MSB(MidiValue):
     """
     MSB() represents the Most Significant Byte.
     """
     pass
 
-class LSB(Label):
+class LSB(MidiValue):
     """
     LSB() represents the Least Significant Byte.
     """
     pass
 
+class Function(Label):
+    pass
+
+class Copy(Function):
+    pass
+
+class Sort(Function):
+    pass
+
+class Reverse(Function):
+    pass
