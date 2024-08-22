@@ -37,39 +37,62 @@ class Operator(Operand):
     """
     def __init__(self, operand: Operand = None):
         self._operand = int() if operand is None else operand
+        self._operator_list: list[Operator] = []
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case of.Frame():        return self % (operand % Operand())
+            case list():            return self._operator_list
             case ol.Null() | None:  return ol.Null()
             case Operand():         return self._operand
             case _:                 return self
 
     def getSerialization(self):
+        operators_serialization = []
+        for single_operator in self % list():
+            operators_serialization.append(single_operator.getSerialization())
         return {
             "class": self.__class__.__name__,
-            "operand": self._operand.getSerialization()
+            "operand": self._operand.getSerialization(),
+            "operator_list": operators_serialization
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "operand" in serialization):
+            "operand" in serialization and "operator_list" in serialization):
 
             operand_class = serialization["operand"]["class"]
             self._operand = globals()[operand_class]().loadSerialization(serialization["operand"])
+            operator_list = []
+            operators_serialization = serialization["operator_list"]
+            for single_operator in operators_serialization:
+                class_name = single_operator["class"]
+                operator_list.append(globals()[class_name]().loadSerialization(single_operator))
+            self._operator_list = operator_list
         return self
   
     def copy(self) -> 'Operator':
-        return self.__class__(self._operators_list)
+        return self.__class__(self._operand)
 
     def __lshift__(self, operand: Operand) -> 'Operator':
         match operand:
             case of.Frame():        self << (operand & self)
+            case list():            self._operator_list = operand
             case ol.Null | None:    return self
-            case _:                 self._operators_list = operand
+            case _:                 self._operand = operand
         return self
+
+    def __or__(self, operand: 'Operand') -> 'Operand':
+        match operand:
+            case Operator():
+                self._operator_list.insert(operand)
+                return self
+            case Operand():
+                for single_operator in self._operator_list:
+                    operand = single_operator | operand
+        return operand
 
 class Oscillator(Operator):
     """
@@ -136,13 +159,9 @@ class Oscillator(Operator):
         return self
 
     def __or__(self, operand: 'Operand') -> 'Operand':
+        operand = super().__or__(operand)
         match operand:
-            case Operator():
-                self._operators_list.insert(operand)
-                return self
             case oe.Element():
-                for single_operator in self._operators_list:
-                    operand = single_operator | operand
                 element_position = operand % ot.Position()
                 wave_time_ms = element_position.getTime_ms() - self._position.getTime_ms()
                 wavelength_ms = self._length.getTime_ms()
@@ -151,7 +170,7 @@ class Oscillator(Operator):
                 if isinstance(self._operand, Operand):
                     return operand << self._operand << wave_time_amplitude_int
                 return operand << wave_time_amplitude_int
-            case _: return operand
+        return operand
 
 class Line(Operator):
     ...
