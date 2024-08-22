@@ -35,54 +35,40 @@ class Operator(Operand):
     first : Operand_like
         A Operand to be regulated
     """
-    def __init__(self, *operators):
-        self._operators_list = []
-        for single_operator in operators:
-            match single_operator:
-                case list():
-                    self._operators_list.extend(single_operator)
-                case Operator():
-                    self._operators_list.append(single_operator)
+    def __init__(self, operand: Operand = None):
+        self._operand = int() if operand is None else operand
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case of.Frame():        return self % (operand % Operand())
-            case list():            return self._operators_list
             case ol.Null() | None:  return ol.Null()
+            case Operand():         return self._operand
             case _:                 return self
 
     def getSerialization(self):
-        operators_serialization = []
-        for single_operator in self % list():
-            operators_serialization.append(single_operator.getSerialization())
         return {
             "class": self.__class__.__name__,
-            "operators": operators_serialization
+            "operand": self._operand.getSerialization()
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "operators" in serialization):
+            "operand" in serialization):
 
-            operators = []
-            operators_serialization = serialization["operators"]
-            for single_operator in operators_serialization:
-                class_name = single_operator["class"]
-                operators.append(globals()[class_name]().loadSerialization(single_operator))
-
-            self._operators_list = operators
+            operand_class = serialization["operand"]["class"]
+            self._operand = globals()[operand_class]().loadSerialization(serialization["operand"])
         return self
-       
+  
     def copy(self) -> 'Operator':
         return self.__class__(self._operators_list)
 
     def __lshift__(self, operand: Operand) -> 'Operator':
         match operand:
             case of.Frame():        self << (operand & self)
-            case list():            self._operators_list = operand
-            case _:                 self._operators_list << operand
+            case ol.Null | None:    return self
+            case _:                 self._operators_list = operand
         return self
 
 class Oscillator(Operator):
@@ -94,8 +80,8 @@ class Oscillator(Operator):
     first : Operand_like
         A Operand to be regulated
     """
-    def __init__(self, *operators):
-        super().__init__(*operators)
+    def __init__(self, operand: Operand = None):
+        super().__init__(operand)
         self._position: ot.Position     = ot.Position()
         self._length: ot.Length         = ot.Length()       # wavelength (360º)
         self._amplitude: ov.Amplitude   = ov.Amplitude()
@@ -161,7 +147,9 @@ class Oscillator(Operator):
                 wave_time_ms = element_position.getTime_ms() - self._position.getTime_ms()
                 wavelength_ms = self._length.getTime_ms()
                 wave_time_angle = 360 * wave_time_ms / wavelength_ms
-                wave_time_amplitude_int = round(self._amplitude % float() * math.sin(math.radians(wave_time_angle)))
+                wave_time_amplitude_int = self._amplitude % int() * math.sin(math.radians(wave_time_angle))
+                if isinstance(self._operand, Operand):
+                    return operand << self._operand << wave_time_amplitude_int
                 return operand << wave_time_amplitude_int
             case _: return operand
 
