@@ -166,13 +166,13 @@ class Duration(Time):
     def __init__(self, note_value: float = None):
         super().__init__()
         if note_value is not None:
-            self._note_value = note_value
+            self._note_value = ov.NoteValue(note_value)
 
 class Length(Time):
     def __init__(self, note_value: float = None):
         super().__init__()
         if note_value is not None:
-            self._note_value = note_value
+            self._note_value = ov.NoteValue(note_value)
     
 class Identity(Time):
     def __init__(self):

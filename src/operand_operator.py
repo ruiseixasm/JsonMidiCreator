@@ -23,6 +23,7 @@ import operand_time as ot
 import operand_value as ov
 import operand_label as ol
 import operand_frame as of
+import operand_container as oc
 import operand_element as oe
 
 
@@ -92,7 +93,7 @@ class Operator(Operand):
             case Operand():
                 for single_operator in self._operator_list:
                     operand = single_operator | operand
-                self._operator_list = []    # Saved operators are used only once
+                # self._operator_list = []    # Saved operators are used only once
         return operand
 
 class Oscillator(Operator):
@@ -107,9 +108,9 @@ class Oscillator(Operator):
     def __init__(self, operand: Operand = None):
         super().__init__(operand)
         self._position: ot.Position     = ot.Position()
-        self._length: ot.Length         = ot.Length()       # wavelength (360º)
-        self._amplitude: ov.Amplitude   = ov.Amplitude()
-        self._offset: ov.Offset         = ov.Offset()
+        self._length: ot.Length         = ot.Length(1/4)    # wavelength (360º)
+        self._amplitude: ov.Amplitude   = ov.Amplitude(16)
+        self._offset: ov.Offset         = ov.Offset(64)
         
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -162,15 +163,20 @@ class Oscillator(Operator):
     def __or__(self, operand: 'Operand') -> 'Operand':
         operand = super().__or__(operand)
         match operand:
+            case oc.Sequence():
+                for single_element in operand:
+                    self | single_element
             case oe.Element():
                 element_position = operand % ot.Position()
                 wave_time_ms = element_position.getTime_ms() - self._position.getTime_ms()
                 wavelength_ms = self._length.getTime_ms()
                 wave_time_angle = 360 * wave_time_ms / wavelength_ms
-                wave_time_amplitude_int = self._amplitude % int() * math.sin(math.radians(wave_time_angle))
+                wave_time_amplitude_int = round(self._amplitude % int() * math.sin(math.radians(wave_time_angle)))
+                wave_time_amplitude_int += self._offset % int()
                 if isinstance(self._operand, Operand):
-                    return operand << self._operand << wave_time_amplitude_int
-                return operand << wave_time_amplitude_int
+                    operand << (self._operand.copy() << wave_time_amplitude_int)
+                else:
+                    operand << wave_time_amplitude_int
         return operand
 
 class Line(Operator):

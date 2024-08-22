@@ -25,4 +25,6 @@ from JsonMidiCreator import *
 # Global Staff setting up
 global_staff << Tempo(110) << Measure(6)
 
-single_cc = ControlChange("Pan") >> Play(1)
+(Oscillator(ControlValue()) | ControlChange("Pan") * 20 + Iterate(1/4)**Step()) \
+    >> Play(1) >> Export("json/_Export_4.1_control_change.json")
+
