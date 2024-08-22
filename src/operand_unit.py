@@ -150,6 +150,16 @@ class Key(Unit):
             case str():         return Key.getKey(self % int())
             case _:             return super().__mod__(operand)
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: Operand) -> 'Unit':
+        match operand:
+            case of.Frame():        self << (operand & self)
+            case Key():             self._unit = operand % int()
+            case Unit():            self._unit = operand % int() % 12
+            case int() | float():   self._unit = round(operand) % 12
+        return self
+
     _keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
                         "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
     
@@ -501,12 +511,19 @@ class Pitch(Unit):
     def __init__(self, pitch: int = None):
         super().__init__(pitch)
 
-    def getMidi__pitch_pair(self) -> list[int]:
-        amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
-        amount = max(min(amount, 16383), 0)
-        lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-        msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-        return [msb, lsb]
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ol.MSB():
+                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+                amount = max(min(amount, 16383), 0) # midi safe
+                msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+                return msb
+            case ol.LSB():
+                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+                amount = max(min(amount, 16383), 0) # midi safe
+                lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+                return lsb
+            case _:             return super().__mod__(operand)
 
 #        bend down    center      bend up
 #     0 |<----------- |8192| ----------->| 16383

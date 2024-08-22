@@ -277,8 +277,9 @@ class Clock(Element):
                 super().__lshift__(operand)
                 self._mode = operand % ClockModes()
                 self._pulses_per_quarternote = operand % ou.PPQN()
-            case ClockModes():  self._mode = operand
-            case ou.PPQN():     self._pulses_per_quarternote = operand
+            case ClockModes():      self._mode = operand
+            case ou.PPQN():         self._pulses_per_quarternote = operand
+            case int() | float():   self._length = ot.Length(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -311,7 +312,7 @@ class Note(Element):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
         duration: ot.Duration       = self % ot.Duration()
-        key_note_midi: int          = (self % og.KeyNote()).getMidi__key_note()
+        key_note_int: int           = self % og.KeyNote() % int()
         velocity_int: int           = self % ou.Velocity() % int()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
@@ -323,7 +324,7 @@ class Note(Element):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": key_note_midi,
+                        "data_byte_1": Element.midi_128(key_note_int),
                         "data_byte_2": Element.midi_128(velocity_int),
                         "device": device_list
                     }
@@ -332,7 +333,7 @@ class Note(Element):
                     "time_ms": round(off_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": key_note_midi,
+                        "data_byte_1": Element.midi_128(key_note_int),
                         "data_byte_2": 0,
                         "device": device_list
                     }
@@ -362,11 +363,8 @@ class Note(Element):
         return self
       
     def copy(self) -> 'Note':
-        return super().copy() \
-            << self._duration.copy() \
-            << self._key_note.copy() \
-            << self._velocity.copy() \
-            << self._gate.copy()
+        return super().copy() << self._duration.copy() << self._key_note.copy() \
+            << self._velocity.copy() << self._gate.copy()
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
@@ -379,7 +377,7 @@ class Note(Element):
             case ot.Duration():     self._duration = operand
             case ov.NoteValue():    self._duration << operand
             case og.KeyNote():      self._key_note = operand
-            case ou.Key() | ou.Octave():
+            case ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity = operand
             case ov.Gate():         self._gate = operand
@@ -389,18 +387,16 @@ class Note(Element):
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Key() | og.KeyNote():
+            case ou.Key() | og.KeyNote() | int() | float():
                 self_copy << self._key_note + operand
-            case int():         self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Key() | og.KeyNote():
+            case ou.Key() | og.KeyNote() | int() | float():
                 self_copy << self._key_note - operand
-            case int():         self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
 
@@ -568,7 +564,7 @@ class Chord(Note):
             for key_note in chord_key_notes:
                 if key_note < first_key_note:
                     key_note << key_note % ou.Octave() + 1
-                    if key_note.getMidi__key_note() < 128:
+                    if key_note % int() < 128:
                         not_first_key_note = True
 
         self_playlist = []
@@ -849,7 +845,8 @@ class PitchBend(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
-        pitch_list_midi: list[int]  = (self % ou.Pitch()).getMidi__pitch_pair()
+        msb_midi: int               = self % ou.Pitch() % ol.MSB()
+        lsb_midi: int               = self % ou.Pitch() % ol.LSB()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
 
@@ -859,8 +856,8 @@ class PitchBend(Element):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0xE0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": pitch_list_midi[0],
-                        "data_byte_2": pitch_list_midi[1],
+                        "data_byte_1": msb_midi,
+                        "data_byte_2": lsb_midi,
                         "device": device_list
                     }
                 }
@@ -996,7 +993,7 @@ class PolyAftertouch(Aftertouch):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
-        key_note_midi: int  = (self % og.KeyNote()).getMidi__key_note()
+        key_note_int: int   = self % og.KeyNote() % int()
         pressure_int: int   = self % ou.Pressure() % int()
         channel_int: int    = self % ou.Channel() % int()
         device_list: list   = self % od.Device() % list()
@@ -1007,7 +1004,7 @@ class PolyAftertouch(Aftertouch):
                     "time_ms": round(on_time_ms, 3),
                     "midi_message": {
                         "status_byte": 0xA0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": key_note_midi,
+                        "data_byte_1": Element.midi_128(key_note_int),
                         "data_byte_2": Element.midi_128(pressure_int),
                         "device": device_list
                     }

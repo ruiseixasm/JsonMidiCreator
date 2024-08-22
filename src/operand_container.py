@@ -108,7 +108,7 @@ class Container(Operand):
                 self._operand_list = operand % list()
             case list():
                 self._operand_list = operand
-            case Operand():
+            case Operand() | int() | float():
                 for single_operand in self._operand_list:
                     single_operand << operand
             case od.Load():
@@ -309,6 +309,7 @@ class Chain(Container):
         match operand:
             case of.Frame():        self << (operand & self)
             case Chain():           self._operand_list = operand % list()
-            case Operand():         self._operand_list.append(operand)
+            case Operand() | int() | float():
+                self._operand_list.append(operand)
             case list():            self._operand_list.extend(operand)
         return self

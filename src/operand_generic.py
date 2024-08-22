@@ -38,6 +38,10 @@ class KeyNote(Generic):
             case of.Frame():        return self % (operand % Operand())
             case ou.Key():          return self._key
             case ou.Octave():       return self._octave
+            case int():
+                key = self._key % int()
+                octave = self._octave % int()
+                return 12 * (octave + 1) + key
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
@@ -63,11 +67,6 @@ class KeyNote(Generic):
     
     def __ge__(self, other: 'KeyNote') -> bool:
         return not (self < other)
-    
-    def getMidi__key_note(self) -> int:
-        key = self._key % int()
-        octave = self._octave % int()
-        return max(min(12 * (octave + 1) + key, 127), 0)
     
     def getSerialization(self):
         return {
@@ -97,6 +96,9 @@ class KeyNote(Generic):
                 self._octave = operand % ou.Octave()
             case ou.Key():          self._key = operand
             case ou.Octave():       self._octave = operand
+            case int():
+                self._key << operand    # key already does % 12
+                self._octave << operand // 12
         return self
 
     def __add__(self, operand) -> 'KeyNote':

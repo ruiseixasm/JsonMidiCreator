@@ -39,3 +39,16 @@ class Null(Label):
     
 class Dummy(Label):
     pass
+
+class MSB(Label):
+    """
+    MSB() represents the Most Significant Byte.
+    """
+    pass
+
+class LSB(Label):
+    """
+    LSB() represents the Least Significant Byte.
+    """
+    pass
+
