@@ -558,10 +558,10 @@ class Print(Unit):
     Parameters
     ----------
     first : integer_like
-        Sets the indent of the JSON print layout
+        Sets the indent of the JSON print layout with the default as 8
     """
-    def __init__(self, indent: int = 4):
-        super().__init__(indent)
+    def __init__(self, indent: int = None):
+        super().__init__( 8 if indent is None else indent )
 
     # CHAINABLE OPERATIONS
 
@@ -584,9 +584,6 @@ class ControlValue(Unit):
     def __init__(self, value: int = None):
         super().__init__(value)
 
-    def getMidi__control_value(self) -> int:
-        return max(min(self % int(), 127), 0)
-    
 class ControlNumber(Unit):
     """
     ControlNumber() represents the number of the Control to be manipulated with the ControlValue values.

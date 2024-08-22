@@ -616,7 +616,7 @@ class Chord(Note):
             case _: super().__lshift__(operand)
         return self
 
-class Triplet(Rest):
+class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self):
         super().__init__()
         self._duration = self._duration * 2/3   # 3 notes instead of 2
@@ -679,7 +679,7 @@ class Triplet(Rest):
             case _: super().__lshift__(operand)
         return self
 
-class Tuplet(Rest):
+class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self, division: int = 3):
         super().__init__()
         self._division: int = division
@@ -765,13 +765,14 @@ class ControlChange(Element):
             case og.Controller():       return self._controller
             case ou.ControlNumber():    return self._controller % ou.ControlNumber()
             case ou.ControlValue():     return self._controller % ou.ControlValue()
+            case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
 
         control_number_int: int     = self % ou.ControlNumber() % int()
-        control_value_midi: int     = (self % ou.ControlValue()).getMidi__control_value()
+        control_value_int: int      = self % ou.ControlValue() % int()
         channel_int: int            = self % ou.Channel() % int()
         device_list: list           = self % od.Device() % list()
 
@@ -782,7 +783,7 @@ class ControlChange(Element):
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": Element.midi_128(control_number_int),
-                        "data_byte_2": control_value_midi,
+                        "data_byte_2": Element.midi_128(control_value_int),
                         "device": device_list
                     }
                 }
@@ -813,7 +814,7 @@ class ControlChange(Element):
                 self._controller = operand % og.Controller()
             case og.Controller():
                 self._controller = operand
-            case ou.ControlNumber() | ou.ControlValue():
+            case ou.ControlNumber() | ou.ControlValue() | int() | float():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
@@ -839,8 +840,9 @@ class PitchBend(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Pitch():    return self._pitch
-            case _:             return super().__mod__(operand)
+            case ou.Pitch():        return self._pitch
+            case int() | float():   return self._pitch % int()
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
@@ -886,22 +888,24 @@ class PitchBend(Element):
             case PitchBend():
                 super().__lshift__(operand)
                 self._pitch = operand % ou.Pitch()
-            case ou.Pitch():
-                self._pitch = operand
+            case ou.Pitch():        self._pitch = operand
+            case int() | float():   self._pitch << operand
             case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._pitch + operand
+            case ou.Pitch() | int() | float():
+                self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._pitch - operand
+            case ou.Pitch() | int() | float():
+                self_copy << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self_copy
 
@@ -913,8 +917,9 @@ class Aftertouch(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Pressure(): return self._pressure
-            case _:             return super().__mod__(operand)
+            case ou.Pressure():     return self._pressure
+            case int() | float():   return self._pressure % int()
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
@@ -961,20 +966,24 @@ class Aftertouch(Element):
                 self._pressure = operand % ou.Pressure()
             case ou.Pressure():
                 self._pressure = operand
+            case int() | float():
+                self._pressure << operand
             case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._pressure + operand
+            case ou.Pressure | int() | float():
+                self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._pressure - operand
+            case ou.Pressure | int() | float():
+                self_copy << self._pressure - operand
             case _:             return super().__sub__(operand)
         return self_copy
 
@@ -1048,8 +1057,9 @@ class ProgramChange(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Program():  return self._program
-            case _:             return super().__mod__(operand)
+            case ou.Program():      return self._program
+            case int() | float():   return self._program % int()
+            case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self % ot.Position() + ot.Position() if position is None else position
@@ -1096,20 +1106,24 @@ class ProgramChange(Element):
                 self._program = operand % ou.Program()
             case ou.Program():
                 self._program = operand
+            case int() | float():
+                self._program << operand
             case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._program + operand
+            case ou.Program() | int() | float():
+                self_copy << self._program + operand
             case _:             return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._program - operand
+            case ou.Program() | int() | float():
+                self_copy << self._program - operand
             case _:             return super().__sub__(operand)
         return self_copy
 

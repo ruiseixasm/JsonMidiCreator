@@ -151,12 +151,10 @@ class Controller(Generic):
             case of.Frame():            return self % (operand % Operand())
             case ou.ControlNumber():    return self._control_number
             case ou.ControlValue():     return self._control_value
+            case int() | float():       return self._control_value % int()
             case ol.Null() | None:      return ol.Null()
             case _:                     return self
 
-    def getMidi__cc_value(self) -> int:
-        return self._control_value.getMidi__control_value()
-    
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -185,6 +183,7 @@ class Controller(Generic):
                 self._control_value = operand % ou.ControlValue()
             case ou.ControlNumber():    self._control_number = operand
             case ou.ControlValue():     self._control_value = operand
+            case int() | float():       self._control_value << operand
         return self
 
     def __add__(self, operand) -> 'Controller':
@@ -200,7 +199,7 @@ class Controller(Generic):
                 control_value_int += operand % ou.ControlValue() % int()
             case _:
                 return self.copy()
-        return Controller() << ou.ControlNumber(self._control_number) << ou.ControlValue(control_value_int)
+        return self.copy() << control_value_int
     
     def __sub__(self, operand) -> 'Controller':
         control_value_int: int = self._control_value % int()
@@ -215,4 +214,4 @@ class Controller(Generic):
                 control_value_int -= operand % ou.ControlValue() % int()
             case _:
                 return self.copy()
-        return Controller() << ou.ControlNumber(self._control_number) << ou.ControlValue(control_value_int)
+        return self.copy() << control_value_int

@@ -23,8 +23,10 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(110) << Measure(6)
+global_staff << Tempo(90)
 
-(Oscillator(ControlValue()) | ControlChange("Pan") * 20 + Iterate(1/4)**Step()) \
-    >> Play(1) >> Export("json/_Export_4.1_control_change.json")
+chord = Chord() << NoteValue(2)
+controller = Oscillator(ControlValue()) << Amplitude(50) | ControlChange("Pan") * 29 + Iterate()**Step()
+    
+chord + controller >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 
