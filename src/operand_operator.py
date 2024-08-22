@@ -92,6 +92,7 @@ class Operator(Operand):
             case Operand():
                 for single_operator in self._operator_list:
                     operand = single_operator | operand
+                self._operator_list = []    # Saved operators are used only once
         return operand
 
 class Oscillator(Operator):
