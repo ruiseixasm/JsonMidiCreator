@@ -225,6 +225,15 @@ class OperandFilter(Frame):
     def __init__(self):
         self._data = 0
 
+class Subject(OperandFilter):
+    def __and__(self, subject: Operand) -> Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if isinstance(self_operand, ol.Null):
+            return self_operand
+        return subject
+
 class Iterate(OperandFilter):
     def __init__(self, step: float = None):
         super().__init__()
