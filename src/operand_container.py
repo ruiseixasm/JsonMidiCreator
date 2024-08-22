@@ -34,10 +34,13 @@ class Container(Operand):
         self._operand_list = []
         for single_operand in operands:
             match single_operand:
+                case Container():
+                    self._operand_list.extend(single_operand.copy() % list())
                 case list():
-                    self._operand_list.extend(single_operand)
-                case _:
-                    self._operand_list.append(single_operand)
+                    for operand in single_operand:
+                        self._operand_list.append(operand.copy())
+                case Operand():
+                    self._operand_list.append(single_operand.copy())
         self._element_iterator = 0
         
     def __iter__(self):
@@ -100,7 +103,7 @@ class Container(Operand):
         many_operands: list[Operand] = []
         for single_operand in self._operand_list:
             many_operands.append(single_operand.copy())
-        return self.__class__(many_operands)
+        return self.__class__() << many_operands
 
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
@@ -120,7 +123,7 @@ class Container(Operand):
         return self
 
     # Element or a Sequence is the pusher
-    def __rrshift__(self, other_operand: Operand) -> Operand:
+    def __rrshift__(self, operand: Operand) -> Operand:
         return self
 
     def __add__(self, operand: Operand) -> 'Container':
@@ -136,6 +139,21 @@ class Container(Operand):
                     last_operand = self._operand_list[len(self._operand_list) - 1]
                     while operand > 0:
                         operand_list.append(last_operand.copy())
+                        operand -= 1
+            case ol.Null(): return ol.Null()
+        return self_copy
+    
+    def __radd__(self, operand: Operand) -> Operand:
+        self_copy = self.copy()
+        match operand:
+            case Operand():
+                self_copy._operand_list.insert(operand)
+            case int(): # repeat n times the first argument if any
+                operand_list = self_copy % list()
+                if len(self._operand_list) > 0:
+                    first_operand = self._operand_list[0]
+                    while operand > 0:
+                        operand_list.insert(first_operand.copy())
                         operand -= 1
             case ol.Null(): return ol.Null()
         return self_copy

@@ -677,7 +677,7 @@ class ControlNumber(Unit):
                 return controller["names"][0]
         return os.global_staff % ControlNumber() % str()
 
-class PPQN(Operation):
+class PPQN(Unit):
     """
     PPQN() represent Pulses Per Quarter Note for Midi clock.
     
