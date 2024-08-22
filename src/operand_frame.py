@@ -250,13 +250,16 @@ class Iterate(OperandFilter):
 class Wrapper(OperandFilter):
     def __init__(self, operand: Operand = None):
         super().__init__()
-        self._data = operand
+        self._data = operand    # data is the targeted operand
 
     def __and__(self, subject: Operand) -> Operand:
+        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        return (self._data << self_operand).copy()
+        match self_operand:
+            case oo.Operator(): return (self_operand | self._data).copy()
+            case _:             return (self._data << self_operand).copy()
 
 # 4. OPERAND EDITORS (ALTERS THE SOURCE OPERAND DATA)
 
