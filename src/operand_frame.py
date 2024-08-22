@@ -258,7 +258,7 @@ class Wrapper(OperandFilter):
         if isinstance(self_operand, Frame):
             self_operand &= subject
         match self_operand:
-            case oo.Operator(): return (self_operand | self._data).copy()
+            case oo.Operator(): return self._data | self_operand.copy()
             case _:             return (self._data << self_operand).copy()
 
 # 4. OPERAND EDITORS (ALTERS THE SOURCE OPERAND DATA)
