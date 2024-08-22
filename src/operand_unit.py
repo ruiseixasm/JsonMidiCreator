@@ -662,3 +662,15 @@ class ControlNumber(Unit):
             if controller["midi_number"] == number:
                 return controller["names"][0]
         return os.global_staff % ControlNumber() % str()
+
+class PPQN(Operation):
+    """
+    PPQN() represent Pulses Per Quarter Note for Midi clock.
+    
+    Parameters
+    ----------
+    first : integer_like
+        The typical amd the default value is 24, but it can be set multiples of 24
+    """
+    def __init__(self, pulses_per_quarternote: int = None):
+        super().__init__( 24 if pulses_per_quarternote is None else pulses_per_quarternote )

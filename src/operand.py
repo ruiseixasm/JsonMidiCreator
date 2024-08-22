@@ -76,4 +76,4 @@ class Operand:
         return self
 
     def __or__(self, operand: 'Operand') -> 'Operand':
-        return self
+        return operand

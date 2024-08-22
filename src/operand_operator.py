@@ -23,6 +23,7 @@ import operand_time as ot
 import operand_value as ov
 import operand_label as ol
 import operand_frame as of
+import operand_element as oe
 
 
 class Operator(Operand):
@@ -34,61 +35,55 @@ class Operator(Operand):
     first : Operand_like
         A Operand to be regulated
     """
-    def __init__(self, operand: Operand = None):
-        self._operand: Operand = ol.Null() if operand is None else operand
+    def __init__(self, *operators):
+        self._operators_list = []
+        for single_operator in operators:
+            match single_operator:
+                case list():
+                    self._operators_list.extend(single_operator)
+                case Operator():
+                    self._operators_list.append(single_operator)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case of.Frame():        return self % (operand % Operand())
+            case list():            return self._operators_list
             case ol.Null() | None:  return ol.Null()
-            case Operand():         return self._operand
             case _:                 return self
 
     def getSerialization(self):
+        operators_serialization = []
+        for single_operator in self % list():
+            operators_serialization.append(single_operator.getSerialization())
         return {
             "class": self.__class__.__name__,
-            "operand": self._operand.getSerialization()
+            "operators": operators_serialization
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "operand" in serialization):
+            "operators" in serialization):
 
-            operand_class = serialization["operand"]["class"]
-            self._operand = globals()[operand_class]().loadSerialization(serialization["operand"])
+            operators = []
+            operators_serialization = serialization["operators"]
+            for single_operator in operators_serialization:
+                class_name = single_operator["class"]
+                operators.append(globals()[class_name]().loadSerialization(single_operator))
+
+            self._operators_list = operators
         return self
-
+       
     def copy(self) -> 'Operator':
-        return self.__class__(self._operand)
+        return self.__class__(self._operators_list)
 
     def __lshift__(self, operand: Operand) -> 'Operator':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Operand():         self._operand = operand
-            case _:                 self._operand << operand
+            case list():            self._operators_list = operand
+            case _:                 self._operators_list << operand
         return self
-
-    def __add__(self, operand: Operand) -> 'Operand':
-        match operand:
-            case of.Frame():        return self + (operand & self)
-            case _:                 return self.copy() << self._operand + operand
-    
-    def __sub__(self, operand: Operand) -> 'Operand':
-        match operand:
-            case of.Frame():        return self - (operand & self)
-            case _:                 return self.copy() << self._operand - operand
-    
-    def __mul__(self, operand: Operand) -> 'Operand':
-        match operand:
-            case of.Frame():        return self * (operand & self)
-            case _:                 return self.copy() << self._operand * operand
-    
-    def __truediv__(self, operand: Operand) -> 'Operand':
-        match operand:
-            case of.Frame():        return self / (operand & self)
-            case _:                 return self.copy() << self._operand / operand
 
 class Oscillator(Operator):
     """
@@ -99,10 +94,10 @@ class Oscillator(Operator):
     first : Operand_like
         A Operand to be regulated
     """
-    def __init__(self, operand: Operand = None):
-        super().__init__(operand)
+    def __init__(self, *operators):
+        super().__init__(*operators)
         self._position: ot.Position     = ot.Position()
-        self._length: ot.Length         = ot.Length()
+        self._length: ot.Length         = ot.Length()       # wavelength (360º)
         self._amplitude: ov.Amplitude   = ov.Amplitude()
         self._offset: ov.Offset         = ov.Offset()
         
@@ -112,8 +107,6 @@ class Oscillator(Operator):
             case ot.Length():           return self._length
             case ov.Amplitude():        return self._amplitude
             case ov.Offset():           return self._offset
-            case self._operand.__class__():
-                print(math.sin(math.radians(30)))
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self):
@@ -155,6 +148,22 @@ class Oscillator(Operator):
             case ov.Offset():       self._offset = operand
             case _: super().__lshift__(operand)
         return self
+
+    def __or__(self, operand: 'Operand') -> 'Operand':
+        match operand:
+            case Operator():
+                self._operators_list.insert(operand)
+                return self
+            case oe.Element():
+                for single_operator in self._operators_list:
+                    operand = single_operator | operand
+                element_position = operand % ot.Position()
+                wave_time_ms = element_position.getTime_ms() - self._position.getTime_ms()
+                wavelength_ms = self._length.getTime_ms()
+                wave_time_angle = 360 * wave_time_ms / wavelength_ms
+                wave_time_amplitude_int = round(self._amplitude % float() * math.sin(math.radians(wave_time_angle)))
+                return operand << wave_time_amplitude_int
+            case _: return operand
 
 class Line(Operator):
     ...

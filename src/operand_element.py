@@ -176,12 +176,12 @@ class Clock(Element):
         super().__init__()
         self._length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int())
         self._mode: ClockModes = ClockModes.single if mode is None else mode
-        self._pulses_per_quarternote: int = 24
+        self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
             case ClockModes():  return self._mode
-            case int():         return self._pulses_per_quarternote
+            case ou.PPQN():     return self._pulses_per_quarternote
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -195,7 +195,7 @@ class Clock(Element):
             clock_length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int())
         device = self % od.Device()
 
-        pulses_per_note = 4 * self._pulses_per_quarternote
+        pulses_per_note = 4 * self._pulses_per_quarternote % int()
         pulses_per_beat = pulses_per_note * (os.global_staff % ov.BeatNoteValue() % float())
         pulses_per_measure = pulses_per_beat * (os.global_staff % ov.BeatsPerMeasure() % float())
         clock_pulses = round(pulses_per_measure * (clock_length % ov.Measure() % float()))
@@ -254,7 +254,7 @@ class Clock(Element):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["mode"] = self._mode.value
-        element_serialization["pulses_per_quarternote"] = self._pulses_per_quarternote
+        element_serialization["pulses_per_quarternote"] = self._pulses_per_quarternote % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -265,20 +265,20 @@ class Clock(Element):
 
             super().loadSerialization(serialization)
             self._mode = ClockModes(serialization["mode"])
-            self._pulses_per_quarternote = serialization["pulses_per_quarternote"]
+            self._pulses_per_quarternote = ou.PPQN(serialization["pulses_per_quarternote"])
         return self
 
     def copy(self) -> 'Clock':
-        return super().copy() << self._mode << self._device.copy() << self._pulses_per_quarternote
+        return super().copy() << self._mode << self._device.copy() << self._pulses_per_quarternote.copy()
 
     def __lshift__(self, operand: Operand) -> 'Clock':
         match operand:
             case Clock():
                 super().__lshift__(operand)
                 self._mode = operand % ClockModes()
-                self._pulses_per_quarternote = operand % int()
-            case ClockModes(): self._mode = operand
-            case int(): self._pulses_per_quarternote = operand
+                self._pulses_per_quarternote = operand % ou.PPQN()
+            case ClockModes():  self._mode = operand
+            case ou.PPQN():     self._pulses_per_quarternote = operand
             case _: super().__lshift__(operand)
         return self
 
