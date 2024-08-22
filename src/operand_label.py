@@ -54,15 +54,3 @@ class LSB(MidiValue):
     LSB() represents the Least Significant Byte.
     """
     pass
-
-class Function(Label):
-    pass
-
-class Copy(Function):
-    pass
-
-class Sort(Function):
-    pass
-
-class Reverse(Function):
-    pass

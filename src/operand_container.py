@@ -105,6 +105,43 @@ class Container(Operand):
             many_operands.append(single_operand.copy())
         return self.__class__() << many_operands
 
+    def sort(self, compare: Operand) -> 'Container':
+        for operand_i in range(self.len() - 1):
+            sorted_list = True
+            for operand_j in range(self.len() - 1 - operand_i):
+                if self._operand_list[operand_j - 1] % compare > self._operand_list[operand_j] % compare:
+                    temporary_operand = self._operand_list[operand_j - 1]
+                    self._operand_list[operand_j - 1] = self._operand_list[operand_j]
+                    self._operand_list[operand_j] = temporary_operand
+                    sorted_list = False
+            if sorted_list: break
+        return self
+
+    def reverse(self) -> 'Container':
+        for operand_i in range(self.len() // 2):
+            tail_operand = self._operand_list[self.len() - 1 - operand_i]
+            self._operand_list[self.len() - 1 - operand_i] = self._operand_list[operand_i]
+            self._operand_list[operand_i] = tail_operand
+        return self
+
+    def __xor__(self, function: 'od.Function'):
+        """
+        ^ calls the respective Operand's Function.
+        """
+        match function:
+            case od.Len():
+                return self.len()
+            case od.First():
+                return self.firstOperand()
+            case od.Last():
+                return self.lastOperand()
+            case od.Sort():
+                return self.sort(function % Operand())
+            case od.Reverse():
+                return self.reverse()
+            case _:
+                return super().__xor__(function)
+
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
             case Container():

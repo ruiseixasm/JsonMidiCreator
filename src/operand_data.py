@@ -31,9 +31,8 @@ class Data(Operand):
     def __mod__(self, operand: Operand):
         match operand:
             case of.Frame():                return self % (operand % Operand())
-            case self._data.__class__():    return self._data
             case ol.Null() | None:          return ol.Null()
-            case _:                         return self
+            case _:                         return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
         return self % bool() == other_data % bool()
@@ -180,3 +179,33 @@ class Import(Data):
                 self._others_playlist.extend(operand % list())
                 return self
         return self
+
+class Function(Data):
+    pass
+
+class Copy(Function):
+    """
+    Copy() does an total duplication of the Operand including its parts.
+    """
+    def __init__(self):
+        super().__init__(None)
+
+class Reverse(Function):
+    def __init__(self):
+        super().__init__(None)
+
+class First(Function):
+    def __init__(self):
+        super().__init__(None)
+
+class Last(Function):
+    def __init__(self):
+        super().__init__(None)
+
+class Len(Function):
+    def __init__(self):
+        super().__init__(None)
+
+class Sort(Function):
+    def __init__(self, compare: Operand):
+        super().__init__(compare)

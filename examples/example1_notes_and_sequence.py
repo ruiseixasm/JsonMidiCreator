@@ -43,7 +43,7 @@ base_note = Note() << (Duration() << Dotted(1/64))
 first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10)
 
 # Creation and configuration of second Sequencer
-second_sequence = first_sequence.copy()
+second_sequence = first_sequence ^ Copy()
 second_sequence << Measure(4)
 second_sequence /= Position() << Identity() << Step(2)
 second_sequence /= Duration() << Identity() << NoteValue(2)

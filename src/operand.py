@@ -34,10 +34,13 @@ class Operand:
     def copy(self):
         return self.__class__() << self
     
-    def __xor__(self, function):
-        import operand_label as ol
+    def __xor__(self, function: 'od.Function'):
+        """
+        ^ calls the respective Operand's Function.
+        """
+        import operand_data as od
         match function:
-            case ol.Copy():
+            case od.Copy():
                 return self.copy()
         return self
 
