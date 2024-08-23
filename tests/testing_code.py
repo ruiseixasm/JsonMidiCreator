@@ -245,10 +245,74 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # itsMeasure(SubMeasure)
 
 
-print(12 / 5)
-print(12 // 5)
+# print(12 / 5)
+# print(12 // 5)
 
+# print(-12 / 5)
+# print(-12 // 5)
 
-print(-12 / 5)
-print(-12 // 5)
+number = 1234567890.123456789
+print(f"{number:.16f}")  # This prints the number with 16 decimal places
+number = 1234567890.123456789
+print("{:.16f}".format(number))  # This prints the number with 16 decimal places
+number = 1234567890.123456789
+print("{:.20f}".format(number))  # This prints the number with up to 20 decimal places
+number = 1234567890.123456789
+print(repr(number))  # This prints the number with full precision
+number = 1234567890.123456789
+print(f"{number:.16f}")  # Example with f-string
 
+# 64-bit (Double Precision): Safe to round to 15 decimal places.
+# 32-bit (Single Precision): Safe to round to 7 decimal places.
+
+numbers = [1/10, 2/3, 5/3, 2/3]
+
+for number in numbers:
+    print("---------------------")
+    print(number)
+    print("{:.25f}".format(number))
+    print(round(number, 18))
+    print(round(number, 15))
+    print(round(number, 12))
+    print("---------------------")
+
+from fractions import Fraction
+
+print("-------FRACTIONS---------")
+for number in numbers:
+    print(Fraction(number))
+    print(Fraction(round(number, 12)))
+    print(Fraction(number).limit_denominator())
+    print()
+
+print(Fraction(2/3).limit_denominator())
+print(Fraction("2/3").limit_denominator())
+print(Fraction("1.5").limit_denominator())
+
+long_fraction = Fraction(2/3)
+print(float(long_fraction))
+print(round(float(long_fraction), 3))
+
+# Creating Fraction objects
+f1 = Fraction(1, 2)  # Represents 1/2
+f2 = Fraction(3, 4)  # Represents 3/4
+
+# Arithmetic operations
+sum_fractions = f1 + f2  # Adds the fractions (1/2 + 3/4)
+sub_fractions = f1 - f2  # Subtracts the fractions (1/2 - 3/4)
+mul_fractions = f1 * f2  # Multiplies the fractions (1/2 * 3/4)
+div_fractions = f1 / f2  # Divides the fractions (1/2 / 3/4)
+
+# Output results
+print(f"Sum: {sum_fractions}")       # Output: Sum: 5/4
+print(f"Difference: {sub_fractions}") # Output: Difference: -1/4
+print(f"Product: {mul_fractions}")    # Output: Product: 3/8
+print(f"Division: {div_fractions}")   # Output: Division: 2/3
+
+# Creating Fraction from float
+f3 = Fraction(0.5)  # Represents 1/2
+print(f"Fraction from float: {f3}")  # Output: Fraction from float: 1/2
+
+# Creating Fraction from string
+f4 = Fraction('1.25')  # Represents 5/4
+print(f"Fraction from string: {f4}")  # Output: Fraction from string: 5/4
