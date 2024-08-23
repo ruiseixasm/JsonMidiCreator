@@ -7,6 +7,5 @@ python3 examples/example4_control_change.py
 python3 examples/example5_diatonic_triads_chords.py
 python3 examples/example6_frame_filters.py
 python3 examples/example7_chord_inversions.py
-python3 examples\example8_Framed_left_shift.py
-python3 examples\example9_scale_circle_fifths.py
-
+python3 examples/example8_Framed_left_shift.py
+python3 examples/example9_scale_circle_fifths.py
