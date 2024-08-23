@@ -3,3 +3,4 @@ python examples\example3_keynote_transpose_and_triplet.py
 python examples\example4_control_change.py
 python examples\example6_frame_filters.py
 python examples\example7_chord_inversions.py
+python examples\example8_Framed_left_shift.py

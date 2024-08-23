@@ -49,6 +49,12 @@ class Element(Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
+    def start(self) -> ot.Position:
+        return self._position.copy()
+
+    def end(self) -> ot.Position:
+        return self._position + self._length
+
     def getPlayList(self, position: ot.Position = None) -> list:
         return []
 
@@ -76,6 +82,18 @@ class Element(Operand):
         
     def copy(self) -> 'Element':
         return self.__class__() << self._position.copy() << self._length.copy() << self._channel.copy() << self._device.copy()
+
+    def __xor__(self, function: 'od.Function'):
+        """
+        ^ calls the respective Operand's Function.
+        """
+        match function:
+            case od.Start():
+                return self.start()
+            case od.End():
+                return self.end()
+            case _:
+                return super().__xor__(function)
 
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:

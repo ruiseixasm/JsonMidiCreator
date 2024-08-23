@@ -65,12 +65,12 @@ class Container(Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
-    def firstOperand(self) -> Operand:
+    def first(self) -> Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[0]
         return ol.Null()
 
-    def lastOperand(self) -> Operand:
+    def last(self) -> Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[len(self._operand_list) - 1]
         return ol.Null()
@@ -132,9 +132,9 @@ class Container(Operand):
             case od.Len():
                 return self.len()
             case od.First():
-                return self.firstOperand()
+                return self.first()
             case od.Last():
-                return self.lastOperand()
+                return self.last()
             case od.Sort():
                 return self.sort(function % Operand())
             case od.Reverse():
@@ -250,12 +250,23 @@ class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
 
-    def getLastPosition(self) -> ot.Position:
-        last_position: ot.Position = ot.Position()
-        for single_operand in self._operand_list:
-            if single_operand % ot.Position() > last_position:
-                last_position = single_operand % ot.Position()
-        return last_position
+    def start(self) -> ot.Position:
+        if self.len() > 0:
+            start_position: ot.Position = self._operand_list[0] % ot.Position()
+            for single_element in self._operand_list:
+                if single_element % ot.Position() < start_position:
+                    start_position = single_element % ot.Position()
+            return start_position.copy()
+        return ol.Null()
+
+    def end(self) -> ot.Position:
+        if self.len() > 0:
+            end_position: ot.Position = self._operand_list[0] % ot.Position() + self._operand_list[0] % ot.Length()
+            for single_operand in self._operand_list:
+                if single_operand % ot.Position() + single_operand % ot.Length() > end_position:
+                    end_position = single_operand % ot.Position() + single_operand % ot.Length()
+            return end_position # already a copy (+)
+        return ol.Null()
 
     def getPlayList(self, position: ot.Position = None):
         import operand_element as oe
@@ -268,13 +279,13 @@ class Sequence(Container):  # Just a container of Elements
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: Operand) -> Operand:
-        self_first_element = self.firstOperand()
+        self_first_element = self.first()
         if type(self_first_element) != ol.Null:
             import operand_element as oe
             match operand:
                 case ol.Null(): pass
                 case Sequence():
-                    other_last_element = self.lastOperand()
+                    other_last_element = self.last()
                     if type(other_last_element) != ol.Null:
                         other_last_element >> self_first_element
                 case oe.Element(): operand % ot.Position() + operand % ot.Length() >> self_first_element
@@ -282,6 +293,18 @@ class Sequence(Container):  # Just a container of Elements
             for single_element_i in range(1, len(self._operand_list)):
                 self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
         return self
+
+    def __xor__(self, function: 'od.Function'):
+        """
+        ^ calls the respective Operand's Function.
+        """
+        match function:
+            case od.Start():
+                return self.start()
+            case od.End():
+                return self.end()
+            case _:
+                return super().__xor__(function)
 
     def __add__(self, operand: Operand) -> 'Sequence':
         import operand_element as oe
