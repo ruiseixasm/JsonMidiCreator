@@ -26,6 +26,14 @@ class Operand:
             "class": self.__class__.__name__
         }
 
+    def start(self) -> 'ot.Position':
+        import operand_label as ol
+        return ol.Null()
+
+    def end(self) -> 'ot.Position':
+        import operand_label as ol
+        return ol.Null()
+
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):

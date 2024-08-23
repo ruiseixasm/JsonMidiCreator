@@ -162,6 +162,12 @@ class Position(Time):
     def __init__(self, measure: float = None):
         super().__init__(measure)
 
+    def start(self) -> 'Position':
+        return self
+
+    def end(self) -> 'Position':
+        return self
+
 class Duration(Time):
     def __init__(self, note_value: float = None):
         super().__init__()

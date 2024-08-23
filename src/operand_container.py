@@ -160,10 +160,6 @@ class Container(Operand):
                     self << single_operand
         return self
 
-    # Element or a Sequence is the pusher
-    def __rrshift__(self, operand: Operand) -> Operand:
-        return self
-
     def __add__(self, operand: Operand) -> 'Container':
         self_copy = self.copy()
         match operand:
@@ -279,20 +275,16 @@ class Sequence(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
+    # operand is the pusher
     def __rrshift__(self, operand: Operand) -> Operand:
-        self_first_element = self.first()
-        if type(self_first_element) != ol.Null:
-            import operand_element as oe
-            match operand:
-                case ol.Null(): pass
-                case Sequence():
-                    other_last_element = self.last()
-                    if type(other_last_element) != ol.Null:
-                        other_last_element >> self_first_element
-                case oe.Element(): operand % ot.Position() + operand % ot.Length() >> self_first_element
-                case ot.Position() | ot.Length(): operand >> self_first_element
-            for single_element_i in range(1, len(self._operand_list)):
-                self._operand_list[single_element_i - 1] >> self._operand_list[single_element_i]
+        import operand_element as oe
+        if isinstance(operand, (ot.Position, oe.Element, Sequence)):
+            operand_end = operand.end()
+            self_start = self.start()
+            if type(operand_end) != ol.Null and type(self_start) != ol.Null:
+                self_drag = ot.Length() << operand_end - self_start
+                for single_element in self._operand_list:
+                    single_element << single_element % ot.Position() + self_drag
         return self
 
     def __xor__(self, function: 'od.Function'):
