@@ -66,16 +66,18 @@ class Time(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "measure": self._measure % float(),
-            "beat": self._beat % float(),
-            "note_value": self._note_value % float(),
-            "step": self._step % float()
+            "parameters": {
+                "measure": self._measure % float(),
+                "beat": self._beat % float(),
+                "note_value": self._note_value % float(),
+                "step": self._step % float()
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "measure" in serialization and "beat" in serialization and
             "note_value" in serialization and "step" in serialization):
 

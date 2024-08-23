@@ -54,14 +54,16 @@ class Operator(Operand):
             operators_serialization.append(single_operator.getSerialization())
         return {
             "class": self.__class__.__name__,
-            "operand": self._operand.getSerialization(),
-            "operator_list": operators_serialization
+            "parameters": {
+                "operand": self._operand.getSerialization(),
+                "operator_list": operators_serialization
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operand" in serialization and "operator_list" in serialization):
 
             operand_class = serialization["operand"]["class"]
@@ -125,16 +127,16 @@ class Oscillator(Operator):
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["position"] = self._position.getSerialization()
-        element_serialization["length"] = self._length.getSerialization()
-        element_serialization["amplitude"] = self._amplitude % float()
-        element_serialization["offset"] = self._offset % float()
+        element_serialization["parameters"]["position"] = self._position.getSerialization()
+        element_serialization["parameters"]["length"] = self._length.getSerialization()
+        element_serialization["parameters"]["amplitude"] = self._amplitude % float()
+        element_serialization["parameters"]["offset"] = self._offset % float()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Oscillator':
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization and "length" in serialization and
             "amplitude" in serialization and "offset" in serialization):
 

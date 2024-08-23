@@ -61,16 +61,18 @@ class Element(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "position": self._position.getSerialization(),
-            "length": self._length.getSerialization(),
-            "channel": self._channel % int(),
-            "device": self._device % list()
+            "parameters": {
+                "position": self._position.getSerialization(),
+                "length": self._length.getSerialization(),
+                "channel": self._channel % int(),
+                "device": self._device % list()
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization and "length" in serialization and
             "channel" in serialization and "device" in serialization):
 
@@ -268,14 +270,14 @@ class Clock(Element):
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["mode"] = self._mode.value
-        element_serialization["pulses_per_quarternote"] = self._pulses_per_quarternote % int()
+        element_serialization["parameters"]["mode"] = self._mode.value
+        element_serialization["parameters"]["pulses_per_quarternote"] = self._pulses_per_quarternote % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "mode" in serialization and "pulses_per_quarternote" in serialization):
 
             super().loadSerialization(serialization)
@@ -359,16 +361,16 @@ class Note(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["duration"] = self._duration.getSerialization()
-        element_serialization["key_note"] = self._key_note.getSerialization()
-        element_serialization["velocity"] = self._velocity % int()
-        element_serialization["gate"] = self._gate % float()
+        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
+        element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
+        element_serialization["parameters"]["velocity"] = self._velocity % int()
+        element_serialization["parameters"]["gate"] = self._gate % float()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "duration" in serialization and "key_note" in serialization and
             "velocity" in serialization and "gate" in serialization):
 
@@ -498,14 +500,14 @@ class KeyScale(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["scale"] = self._scale % int()
-        element_serialization["mode"] = self._mode % int()
+        element_serialization["parameters"]["scale"] = self._scale % int()
+        element_serialization["parameters"]["mode"] = self._mode % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "mode" in serialization and "scale" in serialization):
             
             super().loadSerialization(serialization)
@@ -595,16 +597,16 @@ class Chord(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["scale"] = self._scale % int()
-        element_serialization["type"] = self._type % int()
-        element_serialization["degree"] = self._degree % int()
-        element_serialization["inversion"] = self._inversion % int()
+        element_serialization["parameters"]["scale"] = self._scale % int()
+        element_serialization["parameters"]["type"] = self._type % int()
+        element_serialization["parameters"]["degree"] = self._degree % int()
+        element_serialization["parameters"]["inversion"] = self._inversion % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "scale" in serialization and "degree" in serialization and
             "inversion" in serialization and "type" in serialization):
 
@@ -659,14 +661,14 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["duration"] = self._duration.getSerialization()
-        element_serialization["elements"] = self._elements
+        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
+        element_serialization["parameters"]["elements"] = self._elements
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "duration" in serialization and "elements" in serialization):
 
             super().loadSerialization(serialization)
@@ -732,15 +734,15 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["division"] = self._division
-        element_serialization["duration"] = self._duration.getSerialization()
-        element_serialization["elements"] = self._elements
+        element_serialization["parameters"]["division"] = self._division
+        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
+        element_serialization["parameters"]["elements"] = self._elements
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "division" in serialization and "duration" in serialization and "elements" in serialization):
 
             super().loadSerialization(serialization)
@@ -812,13 +814,13 @@ class ControlChange(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["controller"] = self._controller.getSerialization()
+        element_serialization["parameters"]["controller"] = self._controller.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "controller" in serialization):
 
             super().loadSerialization(serialization)
@@ -888,13 +890,13 @@ class PitchBend(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["pitch"] = self._pitch % int()
+        element_serialization["parameters"]["pitch"] = self._pitch % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "pitch" in serialization):
 
             super().loadSerialization(serialization)
@@ -964,13 +966,13 @@ class Aftertouch(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["pressure"] = self._pressure % int()
+        element_serialization["parameters"]["pressure"] = self._pressure % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "pressure" in serialization):
 
             super().loadSerialization(serialization)
@@ -1043,13 +1045,13 @@ class PolyAftertouch(Aftertouch):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["key_note"] = self._key_note.getSerialization()
+        element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key_note" in serialization and "pressure" in serialization):
 
             super().loadSerialization(serialization)
@@ -1104,13 +1106,13 @@ class ProgramChange(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["program"] = self._program % int()
+        element_serialization["parameters"]["program"] = self._program % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "program" in serialization):
 
             super().loadSerialization(serialization)

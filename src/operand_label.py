@@ -23,16 +23,7 @@ import operand_frame as of
 
 
 class Label(Operand):
-    
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        return self
+    pass
 
 class Null(Label):
     pass

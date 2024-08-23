@@ -75,13 +75,15 @@ class Value(on.Numeric):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "value": self._value
+            "parameters": {
+                "value": self._value
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "value" in serialization):
 
             self._value = serialization["value"]

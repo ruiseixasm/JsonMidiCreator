@@ -53,13 +53,15 @@ class Data(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "data": self._data
+            "parameters": {
+                "data": self._data
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "data" in serialization):
 
             self._data = serialization["data"]
@@ -151,21 +153,8 @@ class Import(Data):
             case list():        return c.loadJsonMidiPlay(self._data)
             case _:             return super().__mod__(operand)
 
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "data": self._data
-        }
-
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
-            "data" in serialization):
-
-            self._data = serialization["data"]
-        return self
-   
     def __rshift__(self, operand: Operand) -> 'Operand':
         match operand:
             case ou.Play():

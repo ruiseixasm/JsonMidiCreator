@@ -72,13 +72,15 @@ class Frame(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "next_operand": self._next_operand.getSerialization()
+            "parameters": {
+                "next_operand": self._next_operand.getSerialization()
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "next_operand" in serialization):
 
             self._next_operand = Operand().loadSerialization(serialization)

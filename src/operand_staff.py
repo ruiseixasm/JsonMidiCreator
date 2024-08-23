@@ -75,25 +75,27 @@ class Staff(Operand):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "measures": self._measure % float(),
-            "tempo": self._tempo % int(),
-            "beats_per_measure": self._beats_per_measure % float(),
-            "beat_note_value": self._beat_note_value % float(),
-            "scale": self._scale.getSerialization(),
-            "quantization": self._quantization % float(),
-            "duration": self._duration.getSerialization(),
-            "key": self._key % int(),
-            "octave": self._octave % int(),
-            "velocity": self._velocity % int(),
-            "controller": self._controller.getSerialization(),
-            "channel": self._channel % int(),
-            "device": self._device % list()
+            "parameters": {
+                "measures": self._measure % float(),
+                "tempo": self._tempo % int(),
+                "beats_per_measure": self._beats_per_measure % float(),
+                "beat_note_value": self._beat_note_value % float(),
+                "scale": self._scale.getSerialization(),
+                "quantization": self._quantization % float(),
+                "duration": self._duration.getSerialization(),
+                "key": self._key % int(),
+                "octave": self._octave % int(),
+                "velocity": self._velocity % int(),
+                "controller": self._controller.getSerialization(),
+                "channel": self._channel % int(),
+                "device": self._device % list()
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "measures" in serialization and "tempo" in serialization and
             "quantization" in serialization and "beats_per_measure" in serialization and "beat_note_value" in serialization and
             "scale" in serialization and "duration" in serialization and "key" in serialization and

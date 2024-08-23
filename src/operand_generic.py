@@ -71,14 +71,16 @@ class KeyNote(Generic):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "key": self._key % int(),
-            "octave": self._octave % int()
+            "parameters": {
+                "key": self._key % int(),
+                "octave": self._octave % int()
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key" in serialization and "octave" in serialization):
 
             self._key = ou.Key(serialization["key"])
@@ -158,14 +160,16 @@ class Controller(Generic):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "control_number": self._control_number % int(),
-            "control_value": self._control_value % int()
+            "parameters": {
+                "control_number": self._control_number % int(),
+                "control_value": self._control_value % int()
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "control_number" in serialization and "control_value" in serialization):
 
             self._control_number = ou.ControlNumber(serialization["control_number"])

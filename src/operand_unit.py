@@ -77,13 +77,15 @@ class Unit(on.Numeric):
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
-            "unit": self._unit
+            "parameters": {
+                "unit": self._unit
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "unit" in serialization):
 
             self._unit = serialization["unit"]
@@ -558,10 +560,10 @@ class Print(Unit):
     Parameters
     ----------
     first : integer_like
-        Sets the indent of the JSON print layout with the default as 8
+        Sets the indent of the JSON print layout with the default as 4
     """
     def __init__(self, indent: int = None):
-        super().__init__( 8 if indent is None else indent )
+        super().__init__( 4 if indent is None else indent )
 
     # CHAINABLE OPERATIONS
 

@@ -81,13 +81,15 @@ class Container(Operand):
             operands_serialization.append(single_operand.getSerialization())
         return {
             "class": self.__class__.__name__,
-            "operands": operands_serialization
+            "parameters": {
+                "operands": operands_serialization
+            }
         }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and
+        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operands" in serialization):
 
             operands = []

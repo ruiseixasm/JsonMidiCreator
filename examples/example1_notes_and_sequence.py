@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 global_staff << Tempo(110) << Measure(6)
 
 # Set the default single Clock for the entire Staff Length
-single_clock = Clock() >> Save("json/_Clock_jsonMidiCreator.json") >> Print()
+single_clock = Clock() >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/_Note_jsonMidiCreator.json")

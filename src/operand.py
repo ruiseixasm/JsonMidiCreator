@@ -21,11 +21,6 @@ class Operand:
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
-    def getSerialization(self):
-        return { 
-            "class": self.__class__.__name__
-        }
-
     def start(self) -> 'ot.Position':
         import operand_label as ol
         return ol.Null()
@@ -33,6 +28,11 @@ class Operand:
     def end(self) -> 'ot.Position':
         import operand_label as ol
         return ol.Null()
+
+    def getSerialization(self):
+        return { 
+            "class": self.__class__.__name__
+        }
 
     # CHAINABLE OPERATIONS
 
