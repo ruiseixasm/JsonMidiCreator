@@ -56,19 +56,20 @@ class Value(on.Numeric):
         """
         match operand:
             case of.Frame():        return self % (operand % Operand())
-            case float():           return self._rational
+            case Fraction():        return self._rational
+            case float():           return float(self._rational)
             case int():             return round(self._rational)
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
     def __eq__(self, other_value: 'Value') -> bool:
-        return self % float() == other_value % float()
+        return self % Fraction() == other_value % Fraction()
     
     def __lt__(self, other_value: 'Value') -> bool:
-        return self % float() < other_value % float()
+        return self % Fraction() < other_value % Fraction()
     
     def __gt__(self, other_value: 'Value') -> bool:
-        return self % float() > other_value % float()
+        return self % Fraction() > other_value % Fraction()
     
     def __le__(self, other_value: 'Value') -> bool:
         return not (self > other_value)
@@ -99,7 +100,7 @@ class Value(on.Numeric):
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Value():           self._rational = operand % float()
+            case Value():           self._rational = operand % Fraction()
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
         return self
@@ -251,8 +252,8 @@ class Measure(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_rational(self):
-        return self._rational * Beat(1).getTime_rational() * (os.global_staff % BeatsPerMeasure() % float())
+    def getTime_rational(self) -> Fraction:
+        return self._rational * Beat(1).getTime_rational() * (os.global_staff % BeatsPerMeasure() % Fraction())
      
 class Beat(TimeUnit):
     """
@@ -266,8 +267,8 @@ class Beat(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_rational(self):
-        return self._rational / (os.global_staff % Tempo() % float()) * 60 * 1000
+    def getTime_rational(self) -> Fraction:
+        return self._rational / (os.global_staff % Tempo() % Fraction()) * 60 * 1000
     
 class NoteValue(TimeUnit):
     """
@@ -281,8 +282,8 @@ class NoteValue(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_rational(self):
-        return self._rational * Beat(1).getTime_rational() / (os.global_staff % BeatNoteValue() % float())
+    def getTime_rational(self) -> Fraction:
+        return self._rational * Beat(1).getTime_rational() / (os.global_staff % BeatNoteValue() % Fraction())
 
 class Dotted(NoteValue):
     """
@@ -312,10 +313,11 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Dotted():          self._rational = operand % float()
+            case Dotted():          self._rational = operand % Fraction()
             # It's just a wrapper for NoteValue 3/2
-            case Value():           self._rational = operand % float() * 3/2
-            case float() | int():   self._rational = round(1.0 * operand * 3/2, 12)
+            case Value():           self._rational = operand % Fraction() * 3/2
+            case Fraction():        self._rational = operand * 3/2
+            case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
         return self
 
 class Step(TimeUnit):
@@ -330,8 +332,8 @@ class Step(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_rational(self):
-        return self._rational * NoteValue(1).getTime_rational() / (os.global_staff % StepsPerNote() % float())
+    def getTime_rational(self) -> Fraction:
+        return self._rational * NoteValue(1).getTime_rational() / (os.global_staff % StepsPerNote() % Fraction())
 
 class Swing(Value):
     def __init__(self, value: float = None):

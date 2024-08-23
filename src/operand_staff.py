@@ -13,6 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+from fractions import Fraction
 # Json Midi Creator Libraries
 from operand import Operand
 import operand_unit as ou
@@ -64,11 +65,11 @@ class Staff(Operand):
             case od.Device():           return self._device
             # Calculated Values
             case ov.NotesPerMeasure():
-                return ov.NotesPerMeasure((self % ov.BeatsPerMeasure() % float()) * (self % ov.BeatNoteValue() % float()))
+                return ov.NotesPerMeasure((self % ov.BeatsPerMeasure() % Fraction()) * (self % ov.BeatNoteValue() % Fraction()))
             case ov.StepsPerMeasure():
-                return ov.StepsPerMeasure((self % ov.StepsPerNote() % float()) * (self % ov.NotesPerMeasure() % float()))
+                return ov.StepsPerMeasure((self % ov.StepsPerNote() % Fraction()) * (self % ov.NotesPerMeasure() % Fraction()))
             case ov.StepsPerNote():
-                return ov.StepsPerNote(1 / (self._quantization % float()))
+                return ov.StepsPerNote(1 / (self._quantization % Fraction()))
             case ol.Null() | None:      return ol.Null()
             case _:                     return self
 
@@ -76,12 +77,12 @@ class Staff(Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measures": float(self._measure % float()),
+                "measures": self._measure % float(),
                 "tempo": self._tempo % int(),
-                "beats_per_measure": float(self._beats_per_measure % float()),
-                "beat_note_value": float(self._beat_note_value % float()),
+                "beats_per_measure": self._beats_per_measure % float(),
+                "beat_note_value": self._beat_note_value % float(),
                 "scale": self._scale.getSerialization(),
-                "quantization": float(self._quantization % float()),
+                "quantization": self._quantization % float(),
                 "duration": self._duration.getSerialization(),
                 "key": self._key % int(),
                 "octave": self._octave % int(),
@@ -151,11 +152,11 @@ class Staff(Operand):
             case od.Device():           self._device = operand
             # Calculated Values
             case ov.NotesPerMeasure():
-                self._beat_note_value = ov.BeatNoteValue( (operand % float()) / (self % ov.BeatsPerMeasure()) )
+                self._beat_note_value = ov.BeatNoteValue( (operand % Fraction()) / (self % ov.BeatsPerMeasure()) )
             case ov.StepsPerMeasure():
-                self._quantization = ov.Quantization( (self % ov.NotesPerMeasure()) / (operand % float()) )
+                self._quantization = ov.Quantization( (self % ov.NotesPerMeasure()) / (operand % Fraction()) )
             case ov.StepsPerNote():
-                self._quantization = ov.Quantization( 1 / (operand % float()) )
+                self._quantization = ov.Quantization( 1 / (operand % Fraction()) )
         return self
 
 # Set the Default Staff values here.

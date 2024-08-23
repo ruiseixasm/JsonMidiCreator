@@ -23,13 +23,14 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(110) << Measure(6)
+global_staff << Tempo(120) << Measure(1)
+single_clock = Clock()
 
 single_note = Note() << (Duration() << Measure(2)) >> Play()
 note_transposed = single_note + Key(5) >> Play()
 
-triplet_sequence = (Note3() << Key("E") << NoteValue(1/16)) * 4 + Iterate(1/2)**(Beat()) \
-    >> Save("json/_Creator3.1_triple_note3.json") >> Play(True)
+(Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
+    >> Save("json/_Save_3.1_triple_note3.json") >> Play(True)
 
-triplet_sequence = (Note3() << Key("E") << NoteValue(1/16)) * 4 + Wrapper(Position())**Iterate(1/2)**(Beat()) \
-    >> Export("json/_Play3.1_triple_note3.json") >> Play(True)
+(Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position())**Iterate(1/2)**Beat() + single_clock \
+    >> Export("json/_Export_3.1_triple_note3.json") >> Play(True)

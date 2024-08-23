@@ -13,6 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+from fractions import Fraction
 # Json Midi Creator Libraries
 from operand import *
 from operand_staff import *

@@ -69,10 +69,10 @@ class Time(Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measure": float(self._measure % float()),
-                "beat": float(self._beat % float()),
-                "note_value": float(self._note_value % float()),
-                "step": float(self._step % float())
+                "measure": self._measure % float(),
+                "beat": self._beat % float(),
+                "note_value": self._note_value % float(),
+                "step": self._step % float()
             }
         }
 
@@ -105,7 +105,7 @@ class Time(Operand):
             case ov.Beat():         self._beat = operand
             case ov.NoteValue():    self._note_value = operand
             case ov.Step():         self._step = operand
-            case float() | int():
+            case Fraction() | float() | int():
                 self._measure       = ov.Measure(operand)
                 self._beat          = ov.Beat(operand)
                 self._note_value    = ov.NoteValue(operand)
@@ -148,7 +148,13 @@ class Time(Operand):
                                         << self._note_value * (operand % ov.NoteValue()) \
                                         << self._step * (operand % ov.Step())
             case ov.TimeUnit():     self_copy << self % operand * operand
+            case ov.Value() | Fraction() | float() | int():
+                self_copy << self._measure * operand << self._beat * operand \
+                          << self._note_value * operand << self._step * operand
         return self_copy
+    
+    def __rmul__(self, operand: Operand) -> 'Time':
+        return self * operand
     
     def __truediv__(self, operand: Operand) -> 'Time':
         self_copy = self.copy()
@@ -160,8 +166,14 @@ class Time(Operand):
                                         << self._note_value / (operand % ov.NoteValue()) \
                                         << self._step / (operand % ov.Step())
             case ov.TimeUnit():     self_copy << self % operand / operand
+            case ov.Value() | Fraction() | float() | int():
+                self_copy << self._measure / operand << self._beat / operand \
+                          << self._note_value / operand << self._step / operand
         return self_copy
 
+    def __rtruediv__(self, operand: Operand) -> 'Time':
+        return self / operand
+    
 class Position(Time):
     def __init__(self, measure: float = None):
         super().__init__(measure)
