@@ -105,7 +105,8 @@ class Container(Operand):
             many_operands.append(single_operand.copy())
         return self.__class__() << many_operands
 
-    def sort(self, compare: Operand) -> 'Container':
+    def sort(self, compare: Operand = None) -> 'Container':
+        compare = ot.Position() if compare is None else compare
         for operand_i in range(self.len() - 1):
             sorted_list = True
             for operand_j in range(self.len() - 1 - operand_i):

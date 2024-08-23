@@ -22,6 +22,7 @@ import operand_staff as os
 import operand_unit as ou
 import operand_frame as of
 import operand_label as ol
+import operand_time as ot
 
 
 class Data(Operand):
@@ -195,7 +196,7 @@ class Len(Function):
         super().__init__(None)
 
 class Sort(Function):
-    def __init__(self, compare: Operand):
+    def __init__(self, compare: Operand = None):
         super().__init__(compare)
 
 class Reverse(Function):
