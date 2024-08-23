@@ -138,12 +138,12 @@ class Key(Unit):
     first : integer_like or string_like
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
-    def __init__(self, key: int | str = None):
-        match key:
+    def __init__(self, unit: int | str = None):
+        match unit:
             case str():
-                super().__init__( Key.keyStrToKeyUnit(key) )
+                super().__init__( Key.keyStrToKeyUnit(unit) )
             case int() | float():
-                super().__init__( round(key) % 12 )
+                super().__init__( round(unit) % 12 )
             case _:
                 super().__init__( 0 )
 
@@ -194,8 +194,8 @@ class Octave(Unit):
     first : integer_like
         A read only Integer representing the full midi keyboard octave varying from -1 to 9
     """
-    def __init__(self, octave: int = None):
-        super().__init__(octave)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Velocity(Unit):
     """
@@ -206,8 +206,8 @@ class Velocity(Unit):
     first : integer_like
         A key velocity varies from 0 to 127 with 100 being normally the default
     """
-    def __init__(self, velocity: int = None):
-        super().__init__(velocity)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Pressure(Unit):
     """
@@ -218,8 +218,8 @@ class Pressure(Unit):
     first : integer_like
         A key pressure varies from 0 to 127 with 0 being normally the default
     """
-    def __init__(self, pressure: int = None):
-        super().__init__(pressure)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Program(Unit):
     """
@@ -230,8 +230,8 @@ class Program(Unit):
     first : integer_like
         A Program Number varies from 0 to 127 with 0 being normally the default
     """
-    def __init__(self, program: int = None):
-        super().__init__(program)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Channel(Unit):
     """
@@ -242,8 +242,8 @@ class Channel(Unit):
     first : integer_like
         For a given device, there are 16 channels ranging from 1 to 16
     """
-    def __init__(self, channel: int = None):
-        super().__init__( os.global_staff % self % int() if channel is None else channel )
+    def __init__(self, unit: int = None):
+        super().__init__( os.global_staff % self % int() if unit is None else unit )
 
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
     ...
@@ -263,15 +263,15 @@ class Scale(Unit):
     first : integer_like and string_like
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
-    def __init__(self, scale: str = None):
-        match scale:
+    def __init__(self, unit: str = None):
+        match unit:
             case str():
-                super().__init__(Scale.scaleStrToScaleUnit(scale))
+                super().__init__(Scale.scaleStrToScaleUnit(unit))
             case int() | float():
-                super().__init__(scale)
+                super().__init__(unit)
             case _:
-                scale = os.global_staff % self % int() if scale is None else round(scale)
-                super().__init__(scale)
+                unit = os.global_staff % self % int() if unit is None else round(unit)
+                super().__init__(unit)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -387,21 +387,21 @@ class Degree(Unit):
     first : integer_like
         Accepts a numeral (5) or the string (V) with 1 as the default
     """
-    def __init__(self, degree: int | str = None):
-        match degree:
+    def __init__(self, unit: int | str = None):
+        match unit:
             case str():
-                match degree.strip().lower():
-                    case "i"   | "tonic":           degree = 1
-                    case "ii"  | "supertonic":      degree = 2
-                    case "iii" | "mediant":         degree = 3
-                    case "iv"  | "subdominant":     degree = 4
-                    case "v"   | "dominant":        degree = 5
-                    case "vi"  | "submediant":      degree = 6
-                    case "vii" | "leading tone":    degree = 7
-                    case _:                         degree = 1
-                super().__init__(degree)
+                match unit.strip().lower():
+                    case "i"   | "tonic":           unit = 1
+                    case "ii"  | "supertonic":      unit = 2
+                    case "iii" | "mediant":         unit = 3
+                    case "iv"  | "subdominant":     unit = 4
+                    case "v"   | "dominant":        unit = 5
+                    case "vi"  | "submediant":      unit = 6
+                    case "vii" | "leading tone":    unit = 7
+                    case _:                         unit = 1
+                super().__init__(unit)
             case int() | float():
-                super().__init__(degree)
+                super().__init__(unit)
             case _:
                 super().__init__( 1 )
 
@@ -414,21 +414,21 @@ class Type(Unit):
     first : integer_like or string_like
         A Type Number varies from "1st" to "13th" with "3rd" being the triad default
     """
-    def __init__(self, type: int = None):
-        match type:
+    def __init__(self, unit: int = None):
+        match unit:
             case str():
-                match type.strip():
-                    case '1'  | "1st":              type = 1
-                    case '3'  | "3rd":              type = 2
-                    case '5'  | "5th":              type = 3
-                    case '7'  | "7th":              type = 4
-                    case '9'  | "9th":              type = 5
-                    case '11' | "11th":             type = 6
-                    case '13' | "13th":             type = 7
-                    case _:                         type = 3
-                super().__init__(type)
+                match unit.strip():
+                    case '1'  | "1st":              unit = 1
+                    case '3'  | "3rd":              unit = 2
+                    case '5'  | "5th":              unit = 3
+                    case '7'  | "7th":              unit = 4
+                    case '9'  | "9th":              unit = 5
+                    case '11' | "11th":             unit = 6
+                    case '13' | "13th":             unit = 7
+                    case _:                         unit = 3
+                super().__init__(unit)
             case int() | float():
-                super().__init__(type)
+                super().__init__(unit)
             case _:
                 super().__init__( 3 )
 
@@ -442,21 +442,21 @@ class Mode(Unit):
     first : integer_like or string_like
         A Mode Number varies from 1 to 7 with 1 being normally the default
     """
-    def __init__(self, mode: int | str = None):
-        match mode:
+    def __init__(self, unit: int | str = None):
+        match unit:
             case str():
-                match mode.strip():
-                    case '1'  | "1st":              mode = 1
-                    case '2'  | "2nd":              mode = 2
-                    case '3'  | "3rd":              mode = 3
-                    case '4'  | "4th":              mode = 4
-                    case '5'  | "5th":              mode = 5
-                    case '6'  | "6th":              mode = 6
-                    case '7'  | "7th":              mode = 7
-                    case _:                         mode = 1
-                super().__init__(mode)
+                match unit.strip():
+                    case '1'  | "1st":              unit = 1
+                    case '2'  | "2nd":              unit = 2
+                    case '3'  | "3rd":              unit = 3
+                    case '4'  | "4th":              unit = 4
+                    case '5'  | "5th":              unit = 5
+                    case '6'  | "6th":              unit = 6
+                    case '7'  | "7th":              unit = 7
+                    case _:                         unit = 1
+                super().__init__(unit)
             case int() | float():
-                super().__init__( (round(mode) - 1) % 7 + 1 )
+                super().__init__( (round(unit) - 1) % 7 + 1 )
             case _:
                 super().__init__( 1 )
 
@@ -472,8 +472,8 @@ class Transposition(Operation):
     first : integer_like
         Transposition along the given Scale with 0 as default
     """
-    def __init__(self, transposition: int = None):
-        super().__init__(transposition)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Progression(Operation):
     """
@@ -485,8 +485,8 @@ class Progression(Operation):
         Accepts a numeral equivalent to the the Roman numerals,
         1 instead of I, 4 instead of IV and 5 instead of V
     """
-    def __init__(self, degree: int = None):
-        super().__init__(degree)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Inversion(Operation):
     """
@@ -497,8 +497,8 @@ class Inversion(Operation):
     first : integer_like
         Inversion sets the degree of chords inversion starting by 0 meaning no inversion
     """
-    def __init__(self, inversion: int = None):
-        super().__init__(inversion)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class Pitch(Unit):
     """
@@ -510,8 +510,8 @@ class Pitch(Unit):
         Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
         this variation is 2 semi-tones bellow or above respectively
     """
-    def __init__(self, pitch: int = None):
-        super().__init__(pitch)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
@@ -583,8 +583,8 @@ class ControlValue(Unit):
     first : integer_like
         The ControlValue shall be set from 0 to 127 accordingly to the range of CC Midi values
     """
-    def __init__(self, value: int = None):
-        super().__init__(value)
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
 
 class ControlNumber(Unit):
     """
@@ -595,12 +595,12 @@ class ControlNumber(Unit):
     first : integer_like and string_like
         Allows the direct set with a number or in alternative with a name relative to the Controller
     """
-    def __init__(self, number: str = "Pan"):
-        match number:
+    def __init__(self, unit: str = "Pan"):
+        match unit:
             case str():
-                super().__init__( ControlNumber.nameToNumber(number) )
+                super().__init__( ControlNumber.nameToNumber(unit) )
             case int() | float():
-                super().__init__(number)
+                super().__init__(unit)
             case _:
                 super().__init__(None)
 
@@ -688,5 +688,5 @@ class PPQN(Unit):
     first : integer_like
         The typical amd the default value is 24, but it can be set multiples of 24
     """
-    def __init__(self, pulses_per_quarternote: int = None):
-        super().__init__( 24 if pulses_per_quarternote is None else pulses_per_quarternote )
+    def __init__(self, unit: int = None):
+        super().__init__( 24 if unit is None else unit )

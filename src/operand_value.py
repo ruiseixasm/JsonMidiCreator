@@ -144,8 +144,8 @@ class Quantization(Value):
     first : float_like
         By default it's configured without any verbose, set to 1 or True to enable verbose
     """
-    def __init__(self, quantization: float = None):
-        super().__init__(quantization)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class BeatsPerMeasure(Value):
     """
@@ -156,8 +156,8 @@ class BeatsPerMeasure(Value):
     first : float_like
         Time signature Beats per Measure, 3 for 3/4 or 4 for 4/4 
     """
-    def __init__(self, beats_per_measure: float = None):
-        super().__init__(beats_per_measure)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class BeatNoteValue(Value):
     """
@@ -168,8 +168,8 @@ class BeatNoteValue(Value):
     first : float_like
         Time signature Beat Note Value, 1/4 for 3/4 or 1/8 for 4/8 
     """
-    def __init__(self, beat_note_float_number: float = None):
-        super().__init__(beat_note_float_number)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class NotesPerMeasure(Value):
     """
@@ -180,8 +180,8 @@ class NotesPerMeasure(Value):
     first : float_like
         Represents 1 Note for a time signature of 4/4 and 1/2 Note for a time signature of 4/8 
     """
-    def __init__(self, notes_per_measure: float = None):
-        super().__init__(notes_per_measure)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class StepsPerMeasure(Value):
     """
@@ -193,8 +193,8 @@ class StepsPerMeasure(Value):
     first : float_like
         How many Steps in a Measure
     """
-    def __init__(self, steps_per_measure: float = None):
-        super().__init__(steps_per_measure)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class StepsPerNote(Value):
     """
@@ -205,8 +205,8 @@ class StepsPerNote(Value):
     first : float_like
         The inverse of the Quantization value
     """
-    def __init__(self, steps_per_note: float = None):
-        super().__init__(steps_per_note)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class Tempo(Value):
     """
@@ -217,8 +217,8 @@ class Tempo(Value):
     first : float_like
         Beats per Minute
     """
-    def __init__(self, tempo: int = None):
-        super().__init__(tempo)
+    def __init__(self, value: int = None):
+        super().__init__(value)
 
 class TimeUnit(Value):
     """
@@ -328,18 +328,18 @@ class Step(TimeUnit):
         return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._float_number
 
 class Swing(Value):
-    def __init__(self, swing: float = None):
-        super().__init__( 0.50 if swing is None else swing )
+    def __init__(self, value: float = None):
+        super().__init__( 0.50 if value is None else value )
 
 class Gate(Value):
-    def __init__(self, gate: float = None):
-        super().__init__( 0.90 if gate is None else gate )
+    def __init__(self, value: float = None):
+        super().__init__( 0.90 if value is None else value )
 
 class Amplitude(Value):
-    def __init__(self, amplitude: float = None):
-        super().__init__(amplitude)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
 class Offset(Value):
-    def __init__(self, offset: float = None):
-        super().__init__(offset)
+    def __init__(self, value: float = None):
+        super().__init__(value)
 
