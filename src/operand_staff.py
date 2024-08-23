@@ -162,4 +162,4 @@ global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.
     << ou.Scale("Major") << ov.Quantization(1/16) \
     << (ot.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
     << ou.Velocity(100) << (og.Controller("Pan") << ou.ControlValue(64)) \
-    << ou.Channel(1) << od.Device(["FLUID", "Midi", "Port", "Synth"])
+    << ou.Channel(1) << od.Device(["Microsoft", "FLUID", "Apple"])

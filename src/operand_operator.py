@@ -111,7 +111,7 @@ class Oscillator(Operator):
     def __init__(self, operand: Operand = None):
         super().__init__(operand)
         self._position: ot.Position     = ot.Position()
-        self._length: ot.Length         = ot.Length(1/4)    # wavelength (360º)
+        self._length: ot.Length         = ot.Length() << ov.Measure(1)  # wavelength (360º)
         self._amplitude: ov.Amplitude   = ov.Amplitude(16)
         self._offset: ov.Offset         = ov.Offset(64)
         
