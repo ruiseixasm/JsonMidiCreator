@@ -96,6 +96,9 @@ class Operator(Operand):
                 # self._operator_list = []    # Saved operators are used only once
         return operand
 
+    def __ror__(self, operand: Operand) -> Operand:
+        return self.__or__(operand)
+
 class Oscillator(Operator):
     """
     This Operator has a function returns the given Operand regulated accordingly to the Oscillator parameters.
