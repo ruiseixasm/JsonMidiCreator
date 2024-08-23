@@ -287,11 +287,13 @@ class Rest(Element):
     def __init__(self):
         super().__init__()
         self._duration: ot.Duration = ot.Duration() << os.global_staff % ot.Duration()
+        self._length << self._duration  # By default a note has the same Length as its Duration
 
 class Note(Element):
     def __init__(self, key: int | str = None):
         super().__init__()
         self._duration: ot.Duration = ot.Duration() << os.global_staff % ot.Duration()
+        self._length << self._duration  # By default a note has the same Length as its Duration
         self._key_note: og.KeyNote  = og.KeyNote( os.global_staff % ou.Key() % int() if key is None else key ) \
             << ou.Octave( os.global_staff % ou.Octave() % int() )
         self._velocity: ou.Velocity = ou.Velocity( os.global_staff % ou.Velocity() % int() )
@@ -413,7 +415,8 @@ class Note3(Note):
     """
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        self._duration  = self._duration * 2/3 # 3 instead of 2
+        self._duration  = self._duration * 2/3 # 3 instead of 2 for each played note
+        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
         self._gate      = ov.Gate(.50)
 
     def __mod__(self, operand: Operand) -> Operand:
@@ -620,6 +623,7 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self):
         super().__init__()
         self._duration = self._duration * 2/3   # 3 notes instead of 2
+        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
         self._elements: list[Element] = [Rest(), Rest(), Rest()]
 
     def __mod__(self, operand: Operand) -> Operand:
@@ -684,13 +688,15 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         super().__init__()
         self._division: int = division
         if self._division == 2:
-            self._duration *= 3/2 # from 3 notes to 2
+            self._duration = self._duration * 3/2 # from 3 notes to 2
+            self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
             self._elements: list[Element] = [Rest(), Rest()]
         else:
             self._duration *= (2/self._division) # from 2 notes to division
+            self._length << self._duration * self._division  # Length as the entire duration of the Note tuplet
             self._elements: list[Element] = []
             for _ in range(self._division):
-                self._elements.append(Rest())                
+                self._elements.append(Rest())         
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:

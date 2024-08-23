@@ -190,6 +190,14 @@ class Copy(Function):
     def __init__(self):
         super().__init__(None)
 
+class Len(Function):
+    def __init__(self):
+        super().__init__(None)
+
+class Sort(Function):
+    def __init__(self, compare: Operand):
+        super().__init__(compare)
+
 class Reverse(Function):
     def __init__(self):
         super().__init__(None)
@@ -202,10 +210,10 @@ class Last(Function):
     def __init__(self):
         super().__init__(None)
 
-class Len(Function):
+class Start(Function):
     def __init__(self):
         super().__init__(None)
 
-class Sort(Function):
-    def __init__(self, compare: Operand):
-        super().__init__(compare)
+class End(Function):
+    def __init__(self):
+        super().__init__(None)
