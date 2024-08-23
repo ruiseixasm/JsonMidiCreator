@@ -288,6 +288,8 @@ for number in numbers:
 print(Fraction(2/3).limit_denominator())
 print(Fraction("2/3").limit_denominator())
 print(Fraction("1.5").limit_denominator())
+print(round(Fraction("1.5").limit_denominator()))
+print(round(Fraction("2/3").limit_denominator()))
 
 long_fraction = Fraction(2/3)
 print(float(long_fraction))
@@ -316,3 +318,11 @@ print(f"Fraction from float: {f3}")  # Output: Fraction from float: 1/2
 # Creating Fraction from string
 f4 = Fraction('1.25')  # Represents 5/4
 print(f"Fraction from string: {f4}")  # Output: Fraction from string: 5/4
+
+time_ms_1 = 60 * 1000 / Fraction(120.0).limit_denominator() * Fraction(1.0).limit_denominator()
+time_ms_2 = Fraction(1.0).limit_denominator() / Fraction(120.0).limit_denominator() * 60 * 1000
+time_ms_3 = Fraction(time_ms_2).limit_denominator()
+
+print(time_ms_1)
+print(time_ms_2)
+print(time_ms_3)

@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
-import enum
+from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
 from operand import Operand
@@ -44,13 +44,13 @@ class Time(Operand):
             case _:                 return self
 
     def __eq__(self, other_length):
-        return round(self.getTime_ms(), 3) == round(other_length.getTime_ms(), 3)
+        return self.getTime_rational() == other_length.getTime_rational()
     
     def __lt__(self, other_length):
-        return round(self.getTime_ms(), 3) < round(other_length.getTime_ms(), 3)
+        return self.getTime_rational() < other_length.getTime_rational()
     
     def __gt__(self, other_length):
-        return round(self.getTime_ms(), 3) > round(other_length.getTime_ms(), 3)
+        return self.getTime_rational() > other_length.getTime_rational()
     
     def __le__(self, other_length):
         return not (self > other_length)
@@ -58,19 +58,21 @@ class Time(Operand):
     def __ge__(self, other_length):
         return not (self < other_length)
     
-    # Type hints as string literals to handle forward references
+    def getTime_rational(self):
+        return self._measure.getTime_rational() + self._beat.getTime_rational() \
+                + self._note_value.getTime_rational() + self._step.getTime_rational()
+        
     def getTime_ms(self):
-        return self._measure.getTime_ms() + self._beat.getTime_ms() \
-                + self._note_value.getTime_ms() + self._step.getTime_ms()
+        return round(float(self.getTime_rational()), 3)
         
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measure": self._measure % float(),
-                "beat": self._beat % float(),
-                "note_value": self._note_value % float(),
-                "step": self._step % float()
+                "measure": float(self._measure % float()),
+                "beat": float(self._beat % float()),
+                "note_value": float(self._note_value % float()),
+                "step": float(self._step % float())
             }
         }
 

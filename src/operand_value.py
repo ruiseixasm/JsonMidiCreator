@@ -36,11 +36,11 @@ class Value(on.Numeric):
         A read only Rational described as a Value
     """
     def __init__(self, value: float = None):
-        self._float_number: float = 0.0
-        self._float_number = os.global_staff % self % float() if value is None else round(1.0 * value, 12)  # rounding to 9 avoids floating-point errors
-
-        self._rational: Fraction = Fraction(0.0).limit_denominator()
-        self._rational = Fraction( os.global_staff % self % float() if value is None else value ).limit_denominator()
+        self._rational: Fraction = Fraction(0).limit_denominator()
+        if isinstance(value, Fraction):
+            self._rational: Fraction = value
+        elif isinstance(value, (int, float)):
+            self._rational: Fraction = Fraction(value).limit_denominator()
 
     def __mod__(self, operand: Operand) -> Operand:
         """
@@ -56,31 +56,31 @@ class Value(on.Numeric):
         """
         match operand:
             case of.Frame():        return self % (operand % Operand())
-            case float():           return round(1.0 * self._float_number, 12)  # rounding to 9 avoids floating-point errors
-            case int():             return round(self._float_number)
+            case float():           return self._rational
+            case int():             return round(self._rational)
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
-    def __eq__(self, other_float_number: 'Value') -> bool:
-        return self % float() == other_float_number % float()
+    def __eq__(self, other_value: 'Value') -> bool:
+        return self % float() == other_value % float()
     
-    def __lt__(self, other_float_number: 'Value') -> bool:
-        return self % float() < other_float_number % float()
+    def __lt__(self, other_value: 'Value') -> bool:
+        return self % float() < other_value % float()
     
-    def __gt__(self, other_float_number: 'Value') -> bool:
-        return self % float() > other_float_number % float()
+    def __gt__(self, other_value: 'Value') -> bool:
+        return self % float() > other_value % float()
     
-    def __le__(self, other_float_number: 'Value') -> bool:
-        return not (self > other_float_number)
+    def __le__(self, other_value: 'Value') -> bool:
+        return not (self > other_value)
     
-    def __ge__(self, other_float_number: 'Value') -> bool:
-        return not (self < other_float_number)
+    def __ge__(self, other_value: 'Value') -> bool:
+        return not (self < other_value)
     
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "value": self._float_number
+                "value": float(self._rational)
             }
         }
 
@@ -90,49 +90,56 @@ class Value(on.Numeric):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "value" in serialization["parameters"]):
 
-            self._float_number = serialization["parameters"]["value"]
+            self._rational = Fraction(serialization["parameters"]["value"]).limit_denominator()
         return self
 
     def copy(self) -> 'Value':
-        return self.__class__(self._float_number)
+        return self.__class__() << self._rational
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Value():           self._float_number = operand % float()
-            case float() | int():   self._float_number = round(1.0 * operand, 12)
+            case Value():           self._rational = operand % float()
+            case Fraction():        self._rational = operand
+            case float() | int():   self._rational = Fraction(operand).limit_denominator()
         return self
 
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self + (value & self)
-            case Value():           return self.__class__(self._float_number + value._float_number)
-            case float() | int():   return self.__class__(self._float_number + value)
+            case Value():           return self.__class__(self._rational + value._rational)
+            case Fraction():        return self.__class__(self._rational + value)
+            case float() | int():   return self.__class__(self._rational + Fraction(value).limit_denominator())
         return self.copy()
     
     def __sub__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self - (value & self)
-            case Value():           return self.__class__(self._float_number - value._float_number)
-            case float() | int():   return self.__class__(self._float_number - value)
+            case Value():           return self.__class__(self._rational - value._rational)
+            case Fraction():        return self.__class__(self._rational - value)
+            case float() | int():   return self.__class__(self._rational - Fraction(value).limit_denominator())
         return self.copy()
     
     def __mul__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self * (value & self)
-            case Value():           return self.__class__(self._float_number * value._float_number)
-            case float() | int():   return self.__class__(self._float_number * value)
+            case Value():           return self.__class__(self._rational * value._rational)
+            case Fraction():        return self.__class__(self._rational * value)
+            case float() | int():   return self.__class__(self._rational * Fraction(value).limit_denominator())
         return self.copy()
     
     def __truediv__(self, value: Union['Value', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self / (value & self)
             case Value():
-                if value._float_number != 0:
-                    return self.__class__(self._float_number / value._float_number)
-            case float() | int():
+                if value._rational != 0:
+                    return self.__class__(self._rational / value._rational)
+            case Fraction():
                 if value != 0:
-                    return self.__class__(self._float_number / value)
+                    return self.__class__(self._rational / value)
+            case float() | int():
+                if Fraction(value).limit_denominator() != 0:
+                    return self.__class__(self._rational / Fraction(value).limit_denominator())
         return self.copy()
 
 class Quantization(Value):
@@ -230,7 +237,6 @@ class TimeUnit(Value):
         Not intended to be set directly
     """
     def __init__(self, value: float = None):
-        value = 0 if value is None else round(1.0 * value, 12)  # rounding to 9 avoids floating-point errors
         super().__init__(value)
 
 class Measure(TimeUnit):
@@ -245,8 +251,8 @@ class Measure(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_ms(self):
-        return Beat(1).getTime_ms() * (os.global_staff % BeatsPerMeasure() % float()) * self._float_number
+    def getTime_rational(self):
+        return self._rational * Beat(1).getTime_rational() * (os.global_staff % BeatsPerMeasure() % float())
      
 class Beat(TimeUnit):
     """
@@ -260,8 +266,8 @@ class Beat(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_ms(self):
-        return 60.0 * 1000 / (os.global_staff % Tempo() % float()) * self._float_number
+    def getTime_rational(self):
+        return self._rational / (os.global_staff % Tempo() % float()) * 60 * 1000
     
 class NoteValue(TimeUnit):
     """
@@ -275,8 +281,8 @@ class NoteValue(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_ms(self):
-        return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._float_number
+    def getTime_rational(self):
+        return self._rational * Beat(1).getTime_rational() / (os.global_staff % BeatNoteValue() % float())
 
 class Dotted(NoteValue):
     """
@@ -296,7 +302,7 @@ class Dotted(NoteValue):
     """
     def __init__(self, value: float = None):
         super().__init__(value)
-        self._float_number = self._float_number * 3/2 # It's just a wrapper for NoteValue
+        self._rational = self._rational * 3/2 # It's just a wrapper for NoteValue
 
     # CHAINABLE OPERATIONS
 
@@ -306,10 +312,10 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Dotted():          self._float_number = operand % float()
+            case Dotted():          self._rational = operand % float()
             # It's just a wrapper for NoteValue 3/2
-            case Value():           self._float_number = operand % float() * 3/2
-            case float() | int():   self._float_number = round(1.0 * operand * 3/2, 12)
+            case Value():           self._rational = operand % float() * 3/2
+            case float() | int():   self._rational = round(1.0 * operand * 3/2, 12)
         return self
 
 class Step(TimeUnit):
@@ -324,8 +330,8 @@ class Step(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_ms(self):
-        return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._float_number
+    def getTime_rational(self):
+        return self._rational * NoteValue(1).getTime_rational() / (os.global_staff % StepsPerNote() % float())
 
 class Swing(Value):
     def __init__(self, value: float = None):

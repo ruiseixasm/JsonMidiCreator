@@ -271,7 +271,7 @@ class Sequence(Container):  # Just a container of Elements
         import operand_element as oe
         play_list = []
         for single_operand in self % list():
-            if isinstance(single_operand, oe.Element) or isinstance(single_operand, Sequence):
+            if isinstance(single_operand, oe.Element):
                 play_list.extend(single_operand.getPlayList(position))
         return play_list
 

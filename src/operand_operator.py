@@ -129,8 +129,8 @@ class Oscillator(Operator):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["position"] = self._position.getSerialization()
         element_serialization["parameters"]["length"] = self._length.getSerialization()
-        element_serialization["parameters"]["amplitude"] = self._amplitude % float()
-        element_serialization["parameters"]["offset"] = self._offset % float()
+        element_serialization["parameters"]["amplitude"] = float(self._amplitude % float())
+        element_serialization["parameters"]["offset"] = float(self._offset % float())
         return element_serialization
 
     # CHAINABLE OPERATIONS

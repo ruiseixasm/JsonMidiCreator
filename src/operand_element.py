@@ -217,7 +217,7 @@ class Clock(Element):
         pulses_per_measure = pulses_per_beat * (os.global_staff % ov.BeatsPerMeasure() % float())
         clock_pulses = round(pulses_per_measure * (clock_length % ov.Measure() % float()))
 
-        single_measure_ms = ov.Measure(1).getTime_ms()
+        single_measure_ms = (ot.Length() << ov.Measure(1)).getTime_ms()
         clock_start_ms = clock_position.getTime_ms()
         clock_stop_ms = clock_start_ms + clock_length.getTime_ms()
 
@@ -364,7 +364,7 @@ class Note(Element):
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         element_serialization["parameters"]["velocity"] = self._velocity % int()
-        element_serialization["parameters"]["gate"] = self._gate % float()
+        element_serialization["parameters"]["gate"] = float(self._gate % float())
         return element_serialization
 
     # CHAINABLE OPERATIONS

@@ -76,12 +76,12 @@ class Staff(Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measures": self._measure % float(),
+                "measures": float(self._measure % float()),
                 "tempo": self._tempo % int(),
-                "beats_per_measure": self._beats_per_measure % float(),
-                "beat_note_value": self._beat_note_value % float(),
+                "beats_per_measure": float(self._beats_per_measure % float()),
+                "beat_note_value": float(self._beat_note_value % float()),
                 "scale": self._scale.getSerialization(),
-                "quantization": self._quantization % float(),
+                "quantization": float(self._quantization % float()),
                 "duration": self._duration.getSerialization(),
                 "key": self._key % int(),
                 "octave": self._octave % int(),

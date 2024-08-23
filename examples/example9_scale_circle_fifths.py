@@ -26,7 +26,8 @@ from JsonMidiCreator import *
 global_staff << Tempo(120) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-(KeyScale("C") << Scale("Major")) * 8 + Iterate(Scale("Major") % Mode("5th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True)
+(KeyScale("C") << Scale("Major")) * 8 + Iterate(Scale("Major") % Mode("5th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True) \
+    >> Save("json/_Save_9.1_circle_fifths.json") >> Export("json/_Export_9.1_circle_fifths.json")
 # All Fats(b) of the Major Scale on the Circle of Fifths
 (KeyScale("C") << Scale("Major")) * 8 + Iterate(Scale("Major") % Mode("4th"))**Key() + Iterate()**Measure() << NoteValue(1) << Velocity(70) >> Play(True)
 

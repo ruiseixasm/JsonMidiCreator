@@ -568,6 +568,7 @@ class Print(Unit):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: Operand) -> Operand:
+        operand_serialization = operand.getSerialization()
         serialized_json_str = json.dumps(operand.getSerialization())
         json_object = json.loads(serialized_json_str)
         json_formatted_str = json.dumps(json_object, indent = self % int())
