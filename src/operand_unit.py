@@ -86,9 +86,9 @@ class Unit(on.Numeric):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "unit" in serialization):
+            "unit" in serialization["parameters"]):
 
-            self._unit = serialization["unit"]
+            self._unit = serialization["parameters"]["unit"]
         return self
 
     def copy(self) -> 'Unit':

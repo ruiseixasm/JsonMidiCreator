@@ -73,13 +73,13 @@ class Element(Operand):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization and "length" in serialization and
-            "channel" in serialization and "device" in serialization):
+            "position" in serialization["parameters"] and "length" in serialization["parameters"] and
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
-            self._position  = ot.Position().loadSerialization(serialization["position"])
-            self._length    = ot.Length().loadSerialization(serialization["length"])
-            self._channel   = ou.Channel(serialization["channel"])
-            self._device    = od.Device(serialization["device"])
+            self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
+            self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
+            self._channel   = ou.Channel(serialization["parameters"]["channel"])
+            self._device    = od.Device(serialization["parameters"]["device"])
         return self
         
     def copy(self) -> 'Element':
@@ -278,11 +278,11 @@ class Clock(Element):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization and "pulses_per_quarternote" in serialization):
+            "mode" in serialization["parameters"] and "pulses_per_quarternote" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._mode = ClockModes(serialization["mode"])
-            self._pulses_per_quarternote = ou.PPQN(serialization["pulses_per_quarternote"])
+            self._mode = ClockModes(serialization["parameters"]["mode"])
+            self._pulses_per_quarternote = ou.PPQN(serialization["parameters"]["pulses_per_quarternote"])
         return self
 
     def copy(self) -> 'Clock':
@@ -371,14 +371,14 @@ class Note(Element):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization and "key_note" in serialization and
-            "velocity" in serialization and "gate" in serialization):
+            "duration" in serialization["parameters"] and "key_note" in serialization["parameters"] and
+            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration = ot.Duration().loadSerialization(serialization["duration"])
-            self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
-            self._velocity = ou.Velocity(serialization["velocity"])
-            self._gate = ov.Gate(serialization["gate"])
+            self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._key_note = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
+            self._velocity = ou.Velocity(serialization["parameters"]["velocity"])
+            self._gate = ov.Gate(serialization["parameters"]["gate"])
         return self
       
     def copy(self) -> 'Note':
@@ -508,11 +508,11 @@ class KeyScale(Note):
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization and "scale" in serialization):
+            "mode" in serialization["parameters"] and "scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale = ou.Scale(serialization["scale"])
-            self._mode = ou.Mode(serialization["mode"])
+            self._scale = ou.Scale(serialization["parameters"]["scale"])
+            self._mode = ou.Mode(serialization["parameters"]["mode"])
         return self
         
     def copy(self) -> 'KeyScale':
@@ -607,14 +607,14 @@ class Chord(Note):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "scale" in serialization and "degree" in serialization and
-            "inversion" in serialization and "type" in serialization):
+            "scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
+            "inversion" in serialization["parameters"] and "type" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._scale = ou.Scale(serialization["scale"])
-            self._type = ou.Type(serialization["type"])
-            self._degree = ou.Degree(serialization["degree"])
-            self._inversion = ou.Inversion(serialization["inversion"])
+            self._scale = ou.Scale(serialization["parameters"]["scale"])
+            self._type = ou.Type(serialization["parameters"]["type"])
+            self._degree = ou.Degree(serialization["parameters"]["degree"])
+            self._inversion = ou.Inversion(serialization["parameters"]["inversion"])
         return self
       
     def copy(self) -> 'Chord':
@@ -669,11 +669,11 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization and "elements" in serialization):
+            "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration = ot.Duration().loadSerialization(serialization["duration"])
-            self._elements = serialization["elements"]
+            self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._elements = serialization["parameters"]["elements"]
         return self
       
     def copy(self) -> 'Triplet':
@@ -743,12 +743,12 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "division" in serialization and "duration" in serialization and "elements" in serialization):
+            "division" in serialization["parameters"] and "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._division = serialization["division"]
-            self._duration = ot.Duration().loadSerialization(serialization["duration"])
-            self._elements = serialization["elements"]
+            self._division = serialization["parameters"]["division"]
+            self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._elements = serialization["parameters"]["elements"]
         return self
       
     def copy(self) -> 'Tuplet':
@@ -821,10 +821,10 @@ class ControlChange(Element):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "controller" in serialization):
+            "controller" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._controller = og.Controller().loadSerialization(serialization["controller"])
+            self._controller = og.Controller().loadSerialization(serialization["parameters"]["controller"])
         return self
       
     def copy(self) -> 'ControlChange':
@@ -897,10 +897,10 @@ class PitchBend(Element):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pitch" in serialization):
+            "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch = ou.Pitch(serialization["pitch"])
+            self._pitch = ou.Pitch(serialization["parameters"]["pitch"])
         return self
       
     def copy(self) -> 'PitchBend':
@@ -973,10 +973,10 @@ class Aftertouch(Element):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pressure" in serialization):
+            "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure = ou.Pressure(serialization["pressure"])
+            self._pressure = ou.Pressure(serialization["parameters"]["pressure"])
         return self
       
     def copy(self) -> 'Aftertouch':
@@ -1052,10 +1052,10 @@ class PolyAftertouch(Aftertouch):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization and "pressure" in serialization):
+            "key_note" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._key_note = og.KeyNote().loadSerialization(serialization["key_note"])
+            self._key_note = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
         return self
       
     def copy(self) -> 'PolyAftertouch':
@@ -1113,10 +1113,10 @@ class ProgramChange(Element):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "program" in serialization):
+            "program" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._program = ou.Program(serialization["program"])
+            self._program = ou.Program(serialization["parameters"]["program"])
         return self
       
     def copy(self) -> 'ProgramChange':

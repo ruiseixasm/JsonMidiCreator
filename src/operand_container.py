@@ -90,10 +90,10 @@ class Container(Operand):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "operands" in serialization):
+            "operands" in serialization["parameters"]):
 
             operands = []
-            multi_elements_serialization = serialization["operands"]
+            multi_elements_serialization = serialization["parameters"]["operands"]
             for single_operand in multi_elements_serialization:
                 class_name = single_operand["class"]
                 operands.append(globals()[class_name]().loadSerialization(single_operand))

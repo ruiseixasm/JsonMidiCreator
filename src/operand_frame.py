@@ -81,9 +81,9 @@ class Frame(Operand):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "next_operand" in serialization):
+            "next_operand" in serialization["parameters"]):
 
-            self._next_operand = Operand().loadSerialization(serialization)
+            self._next_operand = Operand().loadSerialization(serialization["parameters"]["next_operand"])
         return self
     
     def pop(self, frame: 'Frame') -> 'Frame':

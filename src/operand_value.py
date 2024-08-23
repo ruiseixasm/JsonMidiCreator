@@ -84,9 +84,9 @@ class Value(on.Numeric):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization):
+            "value" in serialization["parameters"]):
 
-            self._value = serialization["value"]
+            self._value = serialization["parameters"]["value"]
         return self
 
     def copy(self) -> 'Value':

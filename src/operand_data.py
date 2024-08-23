@@ -62,9 +62,9 @@ class Data(Operand):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "data" in serialization):
+            "data" in serialization["parameters"]):
 
-            self._data = serialization["data"]
+            self._data = serialization["parameters"]["data"]
         return self
 
     def copy(self) -> 'Data':

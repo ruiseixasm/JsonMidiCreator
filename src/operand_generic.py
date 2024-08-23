@@ -81,10 +81,10 @@ class KeyNote(Generic):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key" in serialization and "octave" in serialization):
+            "key" in serialization["parameters"] and "octave" in serialization["parameters"]):
 
-            self._key = ou.Key(serialization["key"])
-            self._octave = ou.Octave(serialization["octave"])
+            self._key = ou.Key(serialization["parameters"]["key"])
+            self._octave = ou.Octave(serialization["parameters"]["octave"])
         return self
         
     def copy(self) -> 'KeyNote':
@@ -170,10 +170,10 @@ class Controller(Generic):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "control_number" in serialization and "control_value" in serialization):
+            "control_number" in serialization["parameters"] and "control_value" in serialization["parameters"]):
 
-            self._control_number = ou.ControlNumber(serialization["control_number"])
-            self._control_value = ou.ControlValue(serialization["control_value"])
+            self._control_number = ou.ControlNumber(serialization["parameters"]["control_number"])
+            self._control_value = ou.ControlValue(serialization["parameters"]["control_value"])
         return self
         
     def copy(self) -> 'Controller':

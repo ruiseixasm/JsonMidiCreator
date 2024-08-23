@@ -78,13 +78,13 @@ class Time(Operand):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "measure" in serialization and "beat" in serialization and
-            "note_value" in serialization and "step" in serialization):
+            "measure" in serialization["parameters"] and "beat" in serialization["parameters"] and
+            "note_value" in serialization["parameters"] and "step" in serialization["parameters"]):
 
-            self._measure = ov.Measure(serialization["measure"])
-            self._beat = ov.Beat(serialization["beat"])
-            self._note_value = ov.NoteValue(serialization["note_value"])
-            self._step = ov.Step(serialization["step"])
+            self._measure = ov.Measure(serialization["parameters"]["measure"])
+            self._beat = ov.Beat(serialization["parameters"]["beat"])
+            self._note_value = ov.NoteValue(serialization["parameters"]["note_value"])
+            self._step = ov.Step(serialization["parameters"]["step"])
 
         return self
         

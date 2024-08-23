@@ -64,12 +64,12 @@ class Operator(Operand):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "operand" in serialization and "operator_list" in serialization):
+            "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "operator_list" in serialization["parameters"]):
 
-            operand_class = serialization["operand"]["class"]
-            self._operand = globals()[operand_class]().loadSerialization(serialization["operand"])
+            operand_class = serialization["parameters"]["operand"]["class"]
+            self._operand = globals()[operand_class]().loadSerialization(serialization["parameters"]["operand"])
             operator_list = []
-            operators_serialization = serialization["operator_list"]
+            operators_serialization = serialization["parameters"]["operator_list"]
             for single_operator in operators_serialization:
                 class_name = single_operator["class"]
                 operator_list.append(globals()[class_name]().loadSerialization(single_operator))
@@ -137,14 +137,14 @@ class Oscillator(Operator):
 
     def loadSerialization(self, serialization: dict) -> 'Oscillator':
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization and "length" in serialization and
-            "amplitude" in serialization and "offset" in serialization):
+            "position" in serialization["parameters"] and "length" in serialization["parameters"] and
+            "amplitude" in serialization["parameters"] and "offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position = ot.Position().loadSerialization(serialization["position"])
-            self._length = ot.Length().loadSerialization(serialization["length"])
-            self._amplitude = ov.Amplitude(serialization["amplitude"])
-            self._offset = ov.Offset(serialization["offset"])
+            self._position = ot.Position().loadSerialization(serialization["parameters"]["position"])
+            self._length = ot.Length().loadSerialization(serialization["parameters"]["length"])
+            self._amplitude = ov.Amplitude(serialization["parameters"]["amplitude"])
+            self._offset = ov.Offset(serialization["parameters"]["offset"])
         return self
       
     def copy(self) -> 'Oscillator':
