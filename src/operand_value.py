@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
+from fractions import Fraction
 # Json Midi Creator Libraries
 from operand import Operand
 import operand_staff as os
@@ -34,9 +35,9 @@ class Value(on.Numeric):
     first : float_like
         A read only Rational described as a Value
     """
-    def __init__(self, value: float = None):
-        self._value: float = 0.0
-        self._value = os.global_staff % self % float() if value is None else round(1.0 * value, 12)  # rounding to 9 avoids floating-point errors
+    def __init__(self, float_number: float = None):
+        self._float_number: float = 0.0
+        self._float_number = os.global_staff % self % float() if float_number is None else round(1.0 * float_number, 12)  # rounding to 9 avoids floating-point errors
 
     def __mod__(self, operand: Operand) -> Operand:
         """
@@ -52,31 +53,31 @@ class Value(on.Numeric):
         """
         match operand:
             case of.Frame():        return self % (operand % Operand())
-            case float():           return round(1.0 * self._value, 12)  # rounding to 9 avoids floating-point errors
-            case int():             return round(self._value)
+            case float():           return round(1.0 * self._float_number, 12)  # rounding to 9 avoids floating-point errors
+            case int():             return round(self._float_number)
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
-    def __eq__(self, other_value: 'Value') -> bool:
-        return self % float() == other_value % float()
+    def __eq__(self, other_float_number: 'Value') -> bool:
+        return self % float() == other_float_number % float()
     
-    def __lt__(self, other_value: 'Value') -> bool:
-        return self % float() < other_value % float()
+    def __lt__(self, other_float_number: 'Value') -> bool:
+        return self % float() < other_float_number % float()
     
-    def __gt__(self, other_value: 'Value') -> bool:
-        return self % float() > other_value % float()
+    def __gt__(self, other_float_number: 'Value') -> bool:
+        return self % float() > other_float_number % float()
     
-    def __le__(self, other_value: 'Value') -> bool:
-        return not (self > other_value)
+    def __le__(self, other_float_number: 'Value') -> bool:
+        return not (self > other_float_number)
     
-    def __ge__(self, other_value: 'Value') -> bool:
-        return not (self < other_value)
+    def __ge__(self, other_float_number: 'Value') -> bool:
+        return not (self < other_float_number)
     
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "value": self._value
+                "float_number": self._float_number
             }
         }
 
@@ -84,51 +85,51 @@ class Value(on.Numeric):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"]):
+            "float_number" in serialization["parameters"]):
 
-            self._value = serialization["parameters"]["value"]
+            self._float_number = serialization["parameters"]["float_number"]
         return self
 
     def copy(self) -> 'Value':
-        return self.__class__(self._value)
+        return self.__class__(self._float_number)
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Value():           self._value = operand % float()
-            case float() | int():   self._value = round(1.0 * operand, 12)
+            case Value():           self._float_number = operand % float()
+            case float() | int():   self._float_number = round(1.0 * operand, 12)
         return self
 
-    def __add__(self, value: Union['Value', float, int]) -> 'Value':
-        match value:
-            case of.Frame():        return self + (value & self)
-            case Value():           return self.__class__(self._value + value._value)
-            case float() | int():   return self.__class__(self._value + value)
+    def __add__(self, float_number: Union['Value', float, int]) -> 'Value':
+        match float_number:
+            case of.Frame():        return self + (float_number & self)
+            case Value():           return self.__class__(self._float_number + float_number._float_number)
+            case float() | int():   return self.__class__(self._float_number + float_number)
         return self.copy()
     
-    def __sub__(self, value: Union['Value', float]) -> 'Value':
-        match value:
-            case of.Frame():        return self - (value & self)
-            case Value():           return self.__class__(self._value - value._value)
-            case float() | int():   return self.__class__(self._value - value)
+    def __sub__(self, float_number: Union['Value', float]) -> 'Value':
+        match float_number:
+            case of.Frame():        return self - (float_number & self)
+            case Value():           return self.__class__(self._float_number - float_number._float_number)
+            case float() | int():   return self.__class__(self._float_number - float_number)
         return self.copy()
     
-    def __mul__(self, value: Union['Value', float]) -> 'Value':
-        match value:
-            case of.Frame():        return self * (value & self)
-            case Value():           return self.__class__(self._value * value._value)
-            case float() | int():   return self.__class__(self._value * value)
+    def __mul__(self, float_number: Union['Value', float]) -> 'Value':
+        match float_number:
+            case of.Frame():        return self * (float_number & self)
+            case Value():           return self.__class__(self._float_number * float_number._float_number)
+            case float() | int():   return self.__class__(self._float_number * float_number)
         return self.copy()
     
-    def __truediv__(self, value: Union['Value', float]) -> 'Value':
-        match value:
-            case of.Frame():        return self / (value & self)
+    def __truediv__(self, float_number: Union['Value', float]) -> 'Value':
+        match float_number:
+            case of.Frame():        return self / (float_number & self)
             case Value():
-                if value._value != 0:
-                    return self.__class__(self._value / value._value)
+                if float_number._float_number != 0:
+                    return self.__class__(self._float_number / float_number._float_number)
             case float() | int():
-                if value != 0:
-                    return self.__class__(self._value / value)
+                if float_number != 0:
+                    return self.__class__(self._float_number / float_number)
         return self.copy()
 
 class Quantization(Value):
@@ -164,8 +165,8 @@ class BeatNoteValue(Value):
     first : float_like
         Time signature Beat Note Value, 1/4 for 3/4 or 1/8 for 4/8 
     """
-    def __init__(self, beat_note_value: float = None):
-        super().__init__(beat_note_value)
+    def __init__(self, beat_note_float_number: float = None):
+        super().__init__(beat_note_float_number)
 
 class NotesPerMeasure(Value):
     """
@@ -225,9 +226,9 @@ class TimeUnit(Value):
     first : float_like
         Not intended to be set directly
     """
-    def __init__(self, value: float = None):
-        value = 0 if value is None else round(1.0 * value, 12)  # rounding to 9 avoids floating-point errors
-        super().__init__(value)
+    def __init__(self, float_number: float = None):
+        float_number = 0 if float_number is None else round(1.0 * float_number, 12)  # rounding to 9 avoids floating-point errors
+        super().__init__(float_number)
 
 class Measure(TimeUnit):
     """
@@ -238,11 +239,11 @@ class Measure(TimeUnit):
     first : float_like
         Proportional value to a Measure on the Staff
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, float_number: float = None):
+        super().__init__(float_number)
 
     def getTime_ms(self):
-        return Beat(1).getTime_ms() * (os.global_staff % BeatsPerMeasure() % float()) * self._value
+        return Beat(1).getTime_ms() * (os.global_staff % BeatsPerMeasure() % float()) * self._float_number
      
 class Beat(TimeUnit):
     """
@@ -253,11 +254,11 @@ class Beat(TimeUnit):
     first : float_like
         Proportional value to a Beat on the Staff
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, float_number: float = None):
+        super().__init__(float_number)
 
     def getTime_ms(self):
-        return 60.0 * 1000 / (os.global_staff % Tempo() % float()) * self._value
+        return 60.0 * 1000 / (os.global_staff % Tempo() % float()) * self._float_number
     
 class NoteValue(TimeUnit):
     """
@@ -268,11 +269,11 @@ class NoteValue(TimeUnit):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, float_number: float = None):
+        super().__init__(float_number)
 
     def getTime_ms(self):
-        return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._value
+        return Beat(1).getTime_ms() / (os.global_staff % BeatNoteValue() % float()) * self._float_number
 
 class Dotted(NoteValue):
     """
@@ -290,9 +291,9 @@ class Dotted(NoteValue):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
-        self._value = self._value * 3/2 # It's just a wrapper for NoteValue
+    def __init__(self, float_number: float = None):
+        super().__init__(float_number)
+        self._float_number = self._float_number * 3/2 # It's just a wrapper for NoteValue
 
     # CHAINABLE OPERATIONS
 
@@ -302,10 +303,10 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Dotted():          self._value = operand % float()
+            case Dotted():          self._float_number = operand % float()
             # It's just a wrapper for NoteValue 3/2
-            case Value():           self._value = operand % float() * 3/2
-            case float() | int():   self._value = round(1.0 * operand * 3/2, 12)
+            case Value():           self._float_number = operand % float() * 3/2
+            case float() | int():   self._float_number = round(1.0 * operand * 3/2, 12)
         return self
 
 class Step(TimeUnit):
@@ -317,11 +318,11 @@ class Step(TimeUnit):
     first : float_like
         Steps as 1, 2, 4, 8
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, float_number: float = None):
+        super().__init__(float_number)
 
     def getTime_ms(self):
-        return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._value
+        return NoteValue(1).getTime_ms() / (os.global_staff % StepsPerNote() % float()) * self._float_number
 
 class Swing(Value):
     def __init__(self, swing: float = None):
