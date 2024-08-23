@@ -29,8 +29,16 @@ single_clock = Clock()
 single_note = Note() << (Duration() << Measure(2)) >> Play()
 note_transposed = single_note + Key(5) >> Play()
 
-(Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
+triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
     >> Save("json/_Save_3.1_triple_note3.json") >> Play(True)
 
-(Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position())**Iterate(1/2)**Beat() + single_clock \
+triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position())**Iterate(1/2)**Beat() + single_clock \
     >> Export("json/_Export_3.1_triple_note3.json") >> Play(True)
+
+global_staff << Measure(2)
+single_clock = Clock()
+
+# Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
+# A 1/16 triplet has a total length of a 1/8
+triplets_two = triplets_one << Length(1/8) >> triplets_two
+triplets_one + triplets_two + single_clock >> Play(True)
