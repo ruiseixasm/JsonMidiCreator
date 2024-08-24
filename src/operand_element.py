@@ -41,6 +41,12 @@ class Element(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ot.Position():     return self._position
+                    case ot.Length():       return self._length
+                    case ou.Channel():      return self._channel
+                    case od.Device():       return self._device
             case of.Frame():        return self % (operand % Operand())
             case ot.Position():     return self._position
             case ov.TimeUnit():     return self._position % operand
@@ -48,12 +54,6 @@ class Element(Operand):
             case ou.Channel():      return self._channel
             case od.Device():       return self._device
             case ol.Null() | None:  return ol.Null()
-            case od.OperandData():
-                match operand % Operand():
-                    case ot.Position():     return self._position
-                    case ot.Length():       return self._length
-                    case ou.Channel():      return self._channel
-                    case od.Device():       return self._device
             case _:                 return self
 
     def start(self) -> ot.Position:
@@ -210,13 +210,13 @@ class Clock(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ClockModes():  return self._mode
-            case ou.PPQN():     return self._pulses_per_quarternote
             case od.OperandData():
                 match operand % Operand():
                     case ClockModes():  return self._mode
                     case ou.PPQN():     return self._pulses_per_quarternote
                     case _:             return super().__mod__(operand)
+            case ClockModes():  return self._mode
+            case ou.PPQN():     return self._pulses_per_quarternote
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -341,13 +341,6 @@ class Note(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ot.Duration():     return self._duration
-            case ov.NoteValue():    return self._duration % operand
-            case og.KeyNote():      return self._key_note
-            case ou.Key() | ou.Octave():
-                                    return self._key_note % operand
-            case ou.Velocity():     return self._velocity
-            case ov.Gate():         return self._gate
             case od.OperandData():
                 match operand % Operand():
                     case ot.Duration():     return self._duration
@@ -355,6 +348,13 @@ class Note(Element):
                     case ou.Velocity():     return self._velocity
                     case ov.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
+            case ot.Duration():     return self._duration
+            case ov.NoteValue():    return self._duration % operand
+            case og.KeyNote():      return self._key_note
+            case ou.Key() | ou.Octave():
+                                    return self._key_note % operand
+            case ou.Velocity():     return self._velocity
+            case ov.Gate():         return self._gate
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -464,13 +464,13 @@ class KeyScale(Note):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Scale():        return self._scale
-            case ou.Mode():         return self._mode
             case od.OperandData():
                 match operand % Operand():
                     case ou.Scale():        return self._scale
                     case ou.Mode():         return self._mode
                     case _:                 return super().__mod__(operand)
+            case ou.Scale():        return self._scale
+            case ou.Mode():         return self._mode
             case _:                 return super().__mod__(operand)
 
     def getSharps(self, key: ou.Key = None) -> int:
@@ -564,10 +564,6 @@ class Chord(Note):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Scale():        return self._scale
-            case ou.Type():         return self._type
-            case ou.Degree():       return self._degree
-            case ou.Inversion():    return self._inversion
             case od.OperandData():
                 match operand % Operand():
                     case ou.Scale():        return self._scale
@@ -575,6 +571,10 @@ class Chord(Note):
                     case ou.Degree():       return self._degree
                     case ou.Inversion():    return self._inversion
                     case _:                 return super().__mod__(operand)
+            case ou.Scale():        return self._scale
+            case ou.Type():         return self._type
+            case ou.Degree():       return self._degree
+            case ou.Inversion():    return self._inversion
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -673,6 +673,7 @@ class Note3(Note):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():  return super().__mod__(operand)
             case ot.Duration():     return self._duration * 3/2
             case ov.NoteValue():    return self._duration * 3/2 % operand
             case _:                 return super().__mod__(operand)
@@ -714,13 +715,13 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ot.Duration():     return self._duration * 3/2
-            case ov.NoteValue():    return self._duration * 3/2 % operand
-            case list():            return self._elements
             case od.OperandData():
                 match operand % Operand():
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
+            case ot.Duration():     return self._duration * 3/2
+            case ov.NoteValue():    return self._duration * 3/2 % operand
+            case list():            return self._elements
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -797,6 +798,11 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case int():             return self._division
+                    case list():            return self._elements
+                    case _:                 return super().__mod__(operand)
             case int():             return self._division
             case ot.Duration():
                 if self._division == 2: return self._duration * 2/3  
@@ -805,11 +811,6 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
                 if self._division == 2: return self._duration * 2/3 % operand
                 return self._duration * self._division / 2 % operand
             case list():            return self._elements
-            case od.OperandData():
-                match operand % Operand():
-                    case int():             return self._division
-                    case list():            return self._elements
-                    case _:                 return super().__mod__(operand)
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -884,14 +885,14 @@ class ControlChange(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case og.Controller():       return self._controller
-            case ou.ControlNumber():    return self._controller % ou.ControlNumber()
-            case ou.ControlValue():     return self._controller % ou.ControlValue()
-            case int() | float():       return self._controller % operand
             case od.OperandData():
                 match operand % Operand():
                     case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
+            case og.Controller():       return self._controller
+            case ou.ControlNumber():    return self._controller % ou.ControlNumber()
+            case ou.ControlValue():     return self._controller % ou.ControlValue()
+            case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -970,12 +971,12 @@ class PitchBend(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Pitch():        return self._pitch
-            case int() | float():   return self._pitch % int()
             case od.OperandData():
                 match operand % Operand():
                     case ou.Pitch():        return self._pitch
                     case _:                 return super().__mod__(operand)
+            case ou.Pitch():        return self._pitch
+            case int() | float():   return self._pitch % int()
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -1055,12 +1056,12 @@ class Aftertouch(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Pressure():     return self._pressure
-            case int() | float():   return self._pressure % int()
             case od.OperandData():
                 match operand % Operand():
                     case ou.Pressure():     return self._pressure
                     case _:                 return super().__mod__(operand)
+            case ou.Pressure():     return self._pressure
+            case int() | float():   return self._pressure % int()
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -1140,13 +1141,13 @@ class PolyAftertouch(Aftertouch):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case og.KeyNote():  return self._key_note
-            case ou.Key():      return self._key_note % ou.Key()
-            case ou.Octave():   return self._key_note % ou.Octave()
             case od.OperandData():
                 match operand % Operand():
                     case og.KeyNote():  return self._key_note
                     case _:             return super().__mod__(operand)
+            case og.KeyNote():  return self._key_note
+            case ou.Key():      return self._key_note % ou.Key()
+            case ou.Octave():   return self._key_note % ou.Octave()
             case _:             return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -1211,12 +1212,12 @@ class ProgramChange(Element):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case ou.Program():      return self._program
-            case int() | float():   return self._program % int()
             case od.OperandData():
                 match operand % Operand():
                     case ou.Program():      return self._program
                     case _:                 return super().__mod__(operand)
+            case ou.Program():      return self._program
+            case int() | float():   return self._program % int()
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):

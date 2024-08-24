@@ -56,12 +56,12 @@ class Value(on.Numeric):
         0.25
         """
         match operand:
+            case od.OperandData():  return self._rational
             case of.Frame():        return self % (operand % Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return round(self._rational)
             case ol.Null() | None:  return ol.Null()
-            case od.OperandData():  return self._rational
             case _:                 return self
 
     def __eq__(self, other_value: 'Value') -> bool:

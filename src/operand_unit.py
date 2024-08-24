@@ -54,11 +54,11 @@ class Unit(on.Numeric):
         12
         """
         match operand:
+            case od.OperandData():  return self._unit
             case of.Frame():        return self % (operand % Operand())
             case int():             return round(self._unit)
             case float():           return round(1.0 * self._unit, 12)   # rounding to 9 avoids floating-point errors
             case ol.Null() | None:  return ol.Null()
-            case od.OperandData():  return self._unit
             case _:                 return self
 
     def __eq__(self, other_unit: 'Unit') -> bool:
@@ -154,8 +154,9 @@ class Key(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case str():         return Key.getKey(self % int())
-            case _:             return super().__mod__(operand)
+            case od.OperandData():      return super().__mod__(operand)
+            case str():                 return Key.getKey(self % int())
+            case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
@@ -281,6 +282,7 @@ class Scale(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():  return super().__mod__(operand)
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
             case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
             case Tonic():
@@ -521,6 +523,7 @@ class Pitch(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():  return super().__mod__(operand)
             case ol.MSB():
                 amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
                 amount = max(min(amount, 16383), 0) # midi safe
@@ -531,7 +534,7 @@ class Pitch(Unit):
                 amount = max(min(amount, 16383), 0) # midi safe
                 lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
                 return lsb
-            case _:             return super().__mod__(operand)
+            case _:                 return super().__mod__(operand)
 
 #        bend down    center      bend up
 #     0 |<----------- |8192| ----------->| 16383
@@ -613,8 +616,9 @@ class ControlNumber(Unit):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case str():         return ControlNumber.numberToName(self % int())
-            case _:             return super().__mod__(operand)
+            case od.OperandData():      return super().__mod__(operand)
+            case str():                 return ControlNumber.numberToName(self % int())
+            case _:                     return super().__mod__(operand)
 
     _controllers = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },

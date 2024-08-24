@@ -32,9 +32,9 @@ class Data(Operand):
 
     def __mod__(self, operand: Operand):
         match operand:
+            case OperandData():             return self._data
             case of.Frame():                return self % (operand % Operand())
             case ol.Null() | None:          return ol.Null()
-            case OperandData():             return self._data
             case _:                         return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
@@ -98,6 +98,7 @@ class ListScale(Data):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case OperandData():         return super().__mod__(operand)
             case ou.Tonic():
                 tonic_note = operand % int()
                 transposed_scale = [0] * 12

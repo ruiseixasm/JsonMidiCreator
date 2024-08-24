@@ -61,10 +61,10 @@ class Container(Operand):
 
     def __mod__(self, operand: list) -> list:
         match operand:
+            case od.OperandData():  return self._operand_list
             case of.Frame():        return self % (operand % Operand())
             case list():            return self._operand_list
             case ol.Null() | None:  return ol.Null()
-            case od.OperandData():  return self._operand_list
             case _:                 return self
 
     def first(self) -> Operand:

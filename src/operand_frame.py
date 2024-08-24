@@ -56,12 +56,12 @@ class Frame(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():      return self._next_operand
             case Frame():
                 for single_operand in self:
                     if isinstance(single_operand, operand.__class__):
                         return single_operand
             case ol.Null() | None:      return ol.Null()
-            case od.OperandData():      return self._next_operand
             case _:
                 for single_operand in self:
                     match single_operand:

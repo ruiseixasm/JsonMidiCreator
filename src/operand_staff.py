@@ -46,6 +46,21 @@ class Staff(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ov.Measure():          return self._measure
+                    case ov.Tempo():            return self._tempo
+                    case ov.BeatsPerMeasure():  return self._beats_per_measure
+                    case ov.BeatNoteValue():    return self._beat_note_value
+                    case ou.Scale():            return self._scale
+                    case ov.Quantization():     return self._quantization
+                    case ot.Duration():         return self._duration
+                    case ou.Key():              return self._key
+                    case ou.Octave():           return self._octave
+                    case ou.Velocity():         return self._velocity
+                    case og.Controller():       return self._controller
+                    case ou.Channel():          return self._channel
+                    case od.Device():           return self._device
             case of.Frame():            return self % (operand % Operand())
             # Direct Values
             case ov.Measure():          return self._measure
@@ -71,21 +86,6 @@ class Staff(Operand):
             case ov.StepsPerNote():
                 return ov.StepsPerNote(1 / (self._quantization % Fraction()))
             case ol.Null() | None:      return ol.Null()
-            case od.OperandData():
-                match operand % Operand():
-                    case ov.Measure():          return self._measure
-                    case ov.Tempo():            return self._tempo
-                    case ov.BeatsPerMeasure():  return self._beats_per_measure
-                    case ov.BeatNoteValue():    return self._beat_note_value
-                    case ou.Scale():            return self._scale
-                    case ov.Quantization():     return self._quantization
-                    case ot.Duration():         return self._duration
-                    case ou.Key():              return self._key
-                    case ou.Octave():           return self._octave
-                    case ou.Velocity():         return self._velocity
-                    case og.Controller():       return self._controller
-                    case ou.Channel():          return self._channel
-                    case od.Device():           return self._device
             case _:                     return self
 
     def getSerialization(self):

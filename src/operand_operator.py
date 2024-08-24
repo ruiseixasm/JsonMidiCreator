@@ -44,13 +44,13 @@ class Operator(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
-            case list():            return self._operator_list
-            case ol.Null() | None:  return ol.Null()
             case od.OperandData():
                 match operand % Operand():
                     case list():            return self._operator_list
                     case Operand():         return self._operand
+            case of.Frame():        return self % (operand % Operand())
+            case list():            return self._operator_list
+            case ol.Null() | None:  return ol.Null()
             case Operand():         return self._operand
             case _:                 return self
 
@@ -129,6 +129,7 @@ class Oscillator(Operator):
         
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
+            case od.OperandData():      return super().__mod__(operand)
             case ot.Position():         return self._position
             case ot.Length():           return self._length
             case ov.Amplitude():        return self._amplitude

@@ -36,18 +36,18 @@ class Time(Operand):
 
     def __mod__(self, operand: Operand) -> Operand:
         match operand:
-            case of.Frame():        return self % (operand % Operand())
-            case ov.Measure():      return self._measure
-            case ov.Beat():         return self._beat
-            case ov.NoteValue():    return self._note_value
-            case ov.Step():         return self._step
-            case ol.Null() | None:  return ol.Null()
             case od.OperandData():
                 match operand % Operand():
                     case ov.Measure():      return self._measure
                     case ov.Beat():         return self._beat
                     case ov.NoteValue():    return self._note_value
                     case ov.Step():         return self._step
+            case of.Frame():        return self % (operand % Operand())
+            case ov.Measure():      return self._measure
+            case ov.Beat():         return self._beat
+            case ov.NoteValue():    return self._note_value
+            case ov.Step():         return self._step
+            case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
     def __eq__(self, other_length):
