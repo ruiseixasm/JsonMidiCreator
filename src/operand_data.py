@@ -77,6 +77,10 @@ class Data(Operand):
             case _:                 self._data = operand
         return self
 
+class OperandData(Data):
+    def __init__(self, operand: Operand = None):
+        super().__init__(operand)
+
 class ListScale(Data):
     def __init__(self, list_scale: list[int] = None):
         super().__init__( os.global_staff % ou.Scale() % list() if list_scale is None else list_scale )
