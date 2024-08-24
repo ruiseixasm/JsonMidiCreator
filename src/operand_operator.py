@@ -194,7 +194,7 @@ class Oscillator(Operator):
             case oc.Sequence():
                 for single_element in operand:
                     self | single_element
-            case oe.Element():
+            case oe.Element() | ot.Position():
                 element_position: ot.Position = operand % ot.Position()
                 wave_time_rational = element_position.getTime_rational() - self._position.getTime_rational()
                 wavelength_rational = self._length.getTime_rational()
