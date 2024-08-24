@@ -120,6 +120,23 @@ class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__( os.global_staff % self % list() if device_list is None else device_list )
 
+class PlayList(Data):
+    def __init__(self):
+        super().__init__([])
+
+    def getPlayList(self):
+        return self._data
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand) -> Operand:
+        import operand_container as oc
+        import operand_element as oe
+        match operand:
+            case oc.Sequence() | oe.Element():
+                self._data.extend(operand.getPlayList())
+        return self
+
 class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
         super().__init__(file_name)
