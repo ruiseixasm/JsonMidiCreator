@@ -268,6 +268,7 @@ class Beat(TimeUnit):
         super().__init__(value)
 
     def getTime_rational(self) -> Fraction:
+        # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
         return self._rational / (os.global_staff % Tempo() % Fraction()) * 60 * 1000
     
 class NoteValue(TimeUnit):
