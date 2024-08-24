@@ -70,11 +70,11 @@ class Data(Operand):
         return self
 
     def copy(self) -> 'Data':
-        return self.__class__(self._data)
+        return self.__class__() << OperandData( self._data.copy() )
 
     def __lshift__(self, operand: Operand) -> 'Data':
         match operand:
-            case Data():            self._data = operand % Operand()
+            case Data():            self._data = operand % OperandData( Operand() )
             case OperandData():     self._data = operand % Operand()
             case _:                 self._data = operand
         return self

@@ -101,7 +101,9 @@ class Time(Operand):
         return self
         
     def copy(self) -> 'Time':
-        return self.__class__() << self._measure.copy() << self._beat.copy() << self._note_value.copy() << self._step.copy()
+        return self.__class__() \
+            << od.OperandData( self._measure.copy() ) << od.OperandData( self._beat.copy() ) \
+            << od.OperandData( self._note_value.copy() ) << od.OperandData( self._step.copy() )
 
     def __lshift__(self, operand: Operand) -> 'Time':
         match operand:
@@ -111,12 +113,12 @@ class Time(Operand):
                     case ov.Beat():         self._beat = operand % Operand()
                     case ov.NoteValue():    self._note_value = operand % Operand()
                     case ov.Step():         self._step = operand % Operand()
-            case of.Frame():        self << (operand & self)
             case Time():
-                self._measure       = operand % ov.Measure()
-                self._beat          = operand % ov.Beat()
-                self._note_value    = operand % ov.NoteValue()
-                self._step          = operand % ov.Step()
+                self._measure       = operand % od.OperandData( ov.Measure() )
+                self._beat          = operand % od.OperandData( ov.Beat() )
+                self._note_value    = operand % od.OperandData( ov.NoteValue() )
+                self._step          = operand % od.OperandData( ov.Step() )
+            case of.Frame():        self << (operand & self)
             case ov.Measure():      self._measure = operand
             case ov.Beat():         self._beat = operand
             case ov.NoteValue():    self._note_value = operand

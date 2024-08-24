@@ -152,21 +152,21 @@ class Staff(Operand):
                     case ou.ControlValue():     self._controller << operand % Operand()
                     case ou.Channel():          self._channel = operand % Operand()
                     case od.Device():           self._device = operand % Operand()
-            case of.Frame():            self << (operand & self)
             case Staff():
-                self._measure = operand % ov.Measure()
-                self._tempo = operand % ov.Tempo()
-                self._beats_per_measure = operand % ov.BeatsPerMeasure()
-                self._beat_note_value = operand % ov.BeatNoteValue()
-                self._scale = operand % ou.Scale()
-                self._quantization = operand % ov.Quantization()    # Note Value
-                self._duration = operand % ot.Duration()
-                self._key = operand % ou.Key()
-                self._octave = operand % ou.Octave()
-                self._velocity = operand % ou.Velocity()
-                self._controller = operand % og.Controller()
-                self._channel = operand % ou.Channel()
-                self._device = operand % od.Device()
+                self._measure           = operand % od.OperandData( ov.Measure() )
+                self._tempo             = operand % od.OperandData( ov.Tempo() )
+                self._beats_per_measure = operand % od.OperandData( ov.BeatsPerMeasure() )
+                self._beat_note_value   = operand % od.OperandData( ov.BeatNoteValue() )
+                self._scale             = operand % od.OperandData( ou.Scale() )
+                self._quantization      = operand % od.OperandData( ov.Quantization() ) # Note Value
+                self._duration          = operand % od.OperandData( ot.Duration() )
+                self._key               = operand % od.OperandData( ou.Key() )
+                self._octave            = operand % od.OperandData( ou.Octave() )
+                self._velocity          = operand % od.OperandData( ou.Velocity() )
+                self._controller        = operand % od.OperandData( og.Controller() )
+                self._channel           = operand % od.OperandData( ou.Channel() )
+                self._device            = operand % od.OperandData( od.Device() )
+            case of.Frame():            self << (operand & self)
             case ov.Measure():          self._measure = operand
             case ov.Tempo():            self._tempo = operand
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand

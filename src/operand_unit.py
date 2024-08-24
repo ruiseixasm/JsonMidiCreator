@@ -94,15 +94,15 @@ class Unit(on.Numeric):
         return self
 
     def copy(self) -> 'Unit':
-        return self.__class__(self._unit)
+        return self.__class__() << od.OperandData( self._unit )
 
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:
             case od.OperandData():
                 match operand % Operand():
                     case int():             self._unit = operand % Operand()
+            case Unit():            self._unit = operand % od.OperandData( int() )
             case of.Frame():        self << (operand & self)
-            case Unit():            self._unit = operand % int()
             case int() | float():   self._unit = round(operand)
         return self
 
@@ -163,8 +163,8 @@ class Key(Unit):
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:
             case od.OperandData():  super().__lshift__(operand)
+            case Key():             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
-            case Key():             self._unit = operand % int()
             case Unit():            self._unit = operand % int() % 12
             case int() | float():   self._unit = round(operand) % 12
         return self

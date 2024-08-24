@@ -94,7 +94,7 @@ class KeyNote(Generic):
         return self
         
     def copy(self) -> 'KeyNote':
-        return KeyNote() << self._key.copy() << self._octave.copy()
+        return KeyNote() << od.OperandData( self._key.copy() ) << od.OperandData( self._octave.copy() )
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
         match operand:
@@ -102,10 +102,10 @@ class KeyNote(Generic):
                 match operand % Operand():
                     case ou.Key():          self._key = operand % Operand()
                     case ou.Octave():       self._octave = operand % Operand()
-            case of.Frame():        self << (operand & self)
             case KeyNote():
-                self._key = operand % ou.Key()
-                self._octave = operand % ou.Octave()
+                self._key = operand % od.OperandData( ou.Key() )
+                self._octave = operand % od.OperandData( ou.Octave() )
+            case of.Frame():        self << (operand & self)
             case ou.Key():          self._key = operand
             case ou.Octave():       self._octave = operand
             case int():
@@ -188,7 +188,7 @@ class Controller(Generic):
         return self
         
     def copy(self) -> 'Controller':
-        return Controller() << self._control_number.copy() << self._control_value.copy()
+        return Controller() << od.OperandData( self._control_number.copy() ) << od.OperandData( self._control_value.copy() )
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:
@@ -196,10 +196,10 @@ class Controller(Generic):
                 match operand % Operand():
                     case ou.ControlNumber():    self._control_number = operand % Operand()
                     case ou.ControlValue():     self._control_value = operand % Operand()
-            case of.Frame():            self << (operand & self)
             case Controller():
-                self._control_number = operand % ou.ControlNumber()
-                self._control_value = operand % ou.ControlValue()
+                self._control_number = operand % od.OperandData( ou.ControlNumber() )
+                self._control_value = operand % od.OperandData( ou.ControlValue() )
+            case of.Frame():            self << (operand & self)
             case ou.ControlNumber():    self._control_number = operand
             case ou.ControlValue():     self._control_value = operand
             case int() | float():       self._control_value << operand

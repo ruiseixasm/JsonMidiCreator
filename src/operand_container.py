@@ -153,7 +153,7 @@ class Container(Operand):
                 match operand % Operand():
                     case list():        self._operand_list = operand % Operand()
             case Container():
-                self._operand_list = operand % list()
+                self._operand_list = operand % od.OperandData( list() )
             case list():
                 self._operand_list = operand
             case Operand() | int() | float():
@@ -389,8 +389,8 @@ class Chain(Container):
                 match operand % Operand():
                     case list():        self._operand_list = operand % Operand()
                     case _:             super().__lshift__(operand)
+            case Chain():           self._operand_list = operand % od.OperandData( list() )
             case of.Frame():        self << (operand & self)
-            case Chain():           self._operand_list = operand % list()
             case Operand() | int() | float():
                 self._operand_list.append(operand)
             case list():            self._operand_list.extend(operand)
