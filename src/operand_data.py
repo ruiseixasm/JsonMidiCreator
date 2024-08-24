@@ -80,6 +80,15 @@ class Data(Operand):
         return self
 
 class OperandData(Data):
+    """
+    OperandData() allows the direct extraction (%) or setting (<<)
+    of the given Operand without the normal processing.
+    
+    Parameters
+    ----------
+    first : Operand_like
+        The Operand intended to be directly extracted or set
+    """
     def __init__(self, operand: Operand = None):
         super().__init__( Operand() if operand is None else operand )
 
@@ -138,6 +147,11 @@ class PlayList(Data):
     def __rrshift__(self, operand) -> Operand:
         return PlayList(operand.getPlayList() + self._data)
 
+    def __add__(self, operand: Operand) -> 'PlayList':
+        match operand:
+            case list():        return PlayList( self._data + operand )
+            case _:             return PlayList( self._data + operand.getPlayList() )
+
 class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
         super().__init__(file_name)
@@ -164,21 +178,16 @@ class Export(Data):
 
 class Import(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
-        super().__init__(file_name)
-        self._others_playlist: list = []
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case list():        return c.loadJsonMidiPlay(self._data)
-            case _:             return super().__mod__(operand)
+        loaded_list = c.loadJsonMidiPlay(file_name)
+        super().__init__( PlayList(loaded_list) )
 
     def getPlayList(self):
-        return c.loadJsonMidiPlay(self._data)
+        return self._data.getPlayList()
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: Operand) -> Operand:
-        return PlayList(operand.getPlayList() + self.getPlayList())
+    def __rrshift__(self, operand: Operand) -> PlayList:
+        return self._data + operand
 
 class Function(Data):
     pass

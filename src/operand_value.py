@@ -329,7 +329,7 @@ class Dotted(NoteValue):
     # CHAINABLE OPERATIONS
 
     def copy(self) -> 'Value':
-        return self.__class__() << self
+        return self.__class__() << od.OperandData( self % od.OperandData() )
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
