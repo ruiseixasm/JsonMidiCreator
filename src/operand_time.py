@@ -58,12 +58,15 @@ class Time(Operand):
     def __ge__(self, other_length):
         return not (self < other_length)
     
-    def getTime_rational(self):
+    def getTime_rational(self) -> Fraction:
         return self._measure.getTime_rational() + self._beat.getTime_rational() \
                 + self._note_value.getTime_rational() + self._step.getTime_rational()
         
-    def getTime_ms(self):
-        return round(float(self.getTime_rational()), 3)
+    def getTime_ms(self) -> float:
+        # int * float results in a float
+        # Fraction * float results in a float
+        # Fraction * Fraction results in a Fraction
+        return round(1.0 * self.getTime_rational(), 3)
         
     def getSerialization(self):
         return {

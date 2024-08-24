@@ -455,7 +455,7 @@ class Note3(Note):
     # CHAINABLE OPERATIONS
 
     def copy(self) -> 'Note3':
-        return super().copy() << self % ot.Duration()   # Extremely Critical
+        return super().copy() << (self % ot.Duration()).copy()  # Extremely Critical
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
@@ -686,7 +686,7 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
         elements = []
         for single_element in self._elements:
             elements.append(single_element.copy())
-        return super().copy() << self._duration.copy() << elements
+        return super().copy() << (self % ot.Duration()).copy() << elements
 
     def __lshift__(self, operand: Operand) -> 'Triplet':
         match operand:
@@ -761,7 +761,7 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         elements = []
         for single_element in self._elements:
             elements.append(single_element.copy())
-        return super().copy() << self._division << self._duration.copy() << elements
+        return super().copy() << self._division << (self % ot.Duration()).copy() << elements
 
     def __lshift__(self, operand: Operand) -> 'Tuplet':
         match operand:

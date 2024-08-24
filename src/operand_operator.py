@@ -173,11 +173,14 @@ class Oscillator(Operator):
                 for single_element in operand:
                     self | single_element
             case oe.Element():
-                element_position = operand % ot.Position()
-                wave_time_ms = element_position.getTime_ms() - self._position.getTime_ms()
-                wavelength_ms = self._length.getTime_ms()
-                wave_time_angle = 360 * wave_time_ms / wavelength_ms
-                wave_time_amplitude_int = round(self._amplitude % int() * math.sin(math.radians(wave_time_angle)))
+                element_position: ot.Position = operand % ot.Position()
+                wave_time_rational = element_position.getTime_rational() - self._position.getTime_rational()
+                wavelength_rational = self._length.getTime_rational()
+                wave_time_angle = wave_time_rational / wavelength_rational * 360 # degrees
+                # int * float results in a float
+                # Fraction * float results in a float
+                # Fraction * Fraction results in a Fraction
+                wave_time_amplitude_int = round(self._amplitude % Fraction() * math.sin(math.radians(wave_time_angle)))
                 wave_time_amplitude_int += self._offset % int()
                 if isinstance(self._operand, Operand):
                     operand << (self._operand.copy() << wave_time_amplitude_int)
