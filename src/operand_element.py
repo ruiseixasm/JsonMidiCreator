@@ -989,8 +989,8 @@ class PitchBend(Element):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0xE0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": msb_midi,
-                        "data_byte_2": lsb_midi,
+                        "data_byte_1": lsb_midi,
+                        "data_byte_2": msb_midi,
                         "device": device_list
                     }
                 }

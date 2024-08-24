@@ -127,8 +127,8 @@ class Oscillator(Operator):
         super().__init__(operand)
         self._position: ot.Position     = ot.Position()
         self._length: ot.Length         = ot.Length() << ov.Measure(1)  # wavelength (360º)
-        self._amplitude: ov.Amplitude   = ov.Amplitude(16)
-        self._offset: ov.Offset         = ov.Offset(64)
+        self._amplitude: ov.Amplitude   = ov.Amplitude(0)
+        self._offset: ov.Offset         = ov.Offset(0)
         
     def __mod__(self, operand: Operand) -> Operand:
         match operand:

@@ -22,4 +22,4 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-Import("json/_Play2_jsonMidiPlayer.json") >> Import("json/_Play_jsonMidiPlayer.json") >> Play(1)
+Import("json/_Export_1.1_sequence.json") >> Import("json/_Export_1.2_all_elements.json") >> Play(1)

@@ -29,13 +29,13 @@ global_staff << Tempo(110) << Measure(6)
 single_clock = Clock() >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequentially played
-first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/_Note_jsonMidiCreator.json")
-multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("json/_Many_jsonMidiCreator.json") >> Export("json/_Play2_jsonMidiPlayer.json")
+first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/_Save_1.1_first_note.json")
+multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequence.json") >> Export("json/_Export_1.1_sequence.json")
 
 first_note << Key("F") >> Play()
-first_note << Load("_Note_jsonMidiCreator.json")
+first_note << Load("json/_Save_1.1_first_note.json")
 
-Note3() << (Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.2_note3.json")
+Note3() << (Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
@@ -47,9 +47,9 @@ second_sequence = first_sequence ^ Copy()
 second_sequence << Measure(4)
 second_sequence /= Position() << Identity() << Step(2)
 second_sequence /= Duration() << Identity() << NoteValue(2)
-second_sequence >> Save("json/_Sequence_jsonMidiCreator.json")
+second_sequence >> Save("json/_Save_1.4_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Sequence(first_sequence) + Sequence(second_sequence)
 all_elements += (Length() << Beat(2) >> first_note) + single_clock
-all_elements >> Print() >> Play(1) >> Export("json/_Play_jsonMidiPlayer.json")
+all_elements >> Print() >> Play(1) >> Export("json/_Export_1.2_all_elements.json")
