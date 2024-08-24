@@ -22,6 +22,7 @@ import creator as c
 from operand import Operand
 
 import operand_unit as ou
+import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
@@ -44,6 +45,10 @@ class KeyNote(Generic):
                 octave = self._octave % int()
                 return 12 * (octave + 1) + key
             case ol.Null() | None:  return ol.Null()
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Key():          return self._key
+                    case ou.Octave():       return self._octave
             case _:                 return self
 
     def __eq__(self, other: 'KeyNote') -> bool:

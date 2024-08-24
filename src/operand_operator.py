@@ -22,6 +22,7 @@ import creator as c
 from operand import Operand
 import operand_time as ot
 import operand_value as ov
+import operand_data as od
 import operand_label as ol
 import operand_frame as of
 import operand_container as oc
@@ -46,6 +47,10 @@ class Operator(Operand):
             case of.Frame():        return self % (operand % Operand())
             case list():            return self._operator_list
             case ol.Null() | None:  return ol.Null()
+            case od.OperandData():
+                match operand % Operand():
+                    case list():            return self._operator_list
+                    case Operand():         return self._operand
             case Operand():         return self._operand
             case _:                 return self
 

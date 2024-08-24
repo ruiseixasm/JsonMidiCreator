@@ -21,6 +21,7 @@ from operand import Operand
 import operand_staff as os
 import operand_numeric as on
 import operand_unit as ou
+import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
@@ -60,6 +61,7 @@ class Value(on.Numeric):
             case float():           return float(self._rational)
             case int():             return round(self._rational)
             case ol.Null() | None:  return ol.Null()
+            case od.OperandData():  return self._rational
             case _:                 return self
 
     def __eq__(self, other_value: 'Value') -> bool:
@@ -286,6 +288,21 @@ class NoteValue(TimeUnit):
     def getTime_rational(self) -> Fraction:
         return self._rational * Beat(1).getTime_rational() / (os.global_staff % BeatNoteValue() % Fraction())
 
+class Step(TimeUnit):
+    """
+    A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
+    
+    Parameters
+    ----------
+    first : float_like
+        Steps as 1, 2, 4, 8
+    """
+    def __init__(self, value: float = None):
+        super().__init__(value)
+
+    def getTime_rational(self) -> Fraction:
+        return self._rational * NoteValue(1).getTime_rational() / (os.global_staff % StepsPerNote() % Fraction())
+
 class Dotted(NoteValue):
     """
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
@@ -314,27 +331,12 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
             case of.Frame():        self << (operand & self)
-            case Dotted():          self._rational = operand % Fraction()
+            case Dotted():          self._rational = operand % od.OperandData()
             # It's just a wrapper for NoteValue 3/2
             case Value():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
         return self
-
-class Step(TimeUnit):
-    """
-    A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
-    
-    Parameters
-    ----------
-    first : float_like
-        Steps as 1, 2, 4, 8
-    """
-    def __init__(self, value: float = None):
-        super().__init__(value)
-
-    def getTime_rational(self) -> Fraction:
-        return self._rational * NoteValue(1).getTime_rational() / (os.global_staff % StepsPerNote() % Fraction())
 
 class Swing(Value):
     def __init__(self, value: float = None):

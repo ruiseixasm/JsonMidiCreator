@@ -58,6 +58,7 @@ class Unit(on.Numeric):
             case int():             return round(self._unit)
             case float():           return round(1.0 * self._unit, 12)   # rounding to 9 avoids floating-point errors
             case ol.Null() | None:  return ol.Null()
+            case od.OperandData():  return self._unit
             case _:                 return self
 
     def __eq__(self, other_unit: 'Unit') -> bool:

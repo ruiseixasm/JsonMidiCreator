@@ -64,6 +64,7 @@ class Container(Operand):
             case of.Frame():        return self % (operand % Operand())
             case list():            return self._operand_list
             case ol.Null() | None:  return ol.Null()
+            case od.OperandData():  return self._operand_list
             case _:                 return self
 
     def first(self) -> Operand:

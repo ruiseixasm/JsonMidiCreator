@@ -21,6 +21,7 @@ import creator as c
 from operand import Operand
 import operand_staff as os
 import operand_value as ov
+import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
@@ -41,6 +42,12 @@ class Time(Operand):
             case ov.NoteValue():    return self._note_value
             case ov.Step():         return self._step
             case ol.Null() | None:  return ol.Null()
+            case od.OperandData():
+                match operand % Operand():
+                    case ov.Measure():      return self._measure
+                    case ov.Beat():         return self._beat
+                    case ov.NoteValue():    return self._note_value
+                    case ov.Step():         return self._step
             case _:                 return self
 
     def __eq__(self, other_length):

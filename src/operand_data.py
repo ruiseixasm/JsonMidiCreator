@@ -34,6 +34,7 @@ class Data(Operand):
         match operand:
             case of.Frame():                return self % (operand % Operand())
             case ol.Null() | None:          return ol.Null()
+            case OperandData():             return self._data
             case _:                         return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
@@ -79,7 +80,7 @@ class Data(Operand):
 
 class OperandData(Data):
     def __init__(self, operand: Operand = None):
-        super().__init__(operand)
+        super().__init__( Operand() if operand is None else operand )
 
 class ListScale(Data):
     def __init__(self, list_scale: list[int] = None):
@@ -125,8 +126,8 @@ class Device(Data):
         super().__init__( os.global_staff % self % list() if device_list is None else device_list )
 
 class PlayList(Data):
-    def __init__(self):
-        super().__init__([])
+    def __init__(self, play_list: list = None):
+        super().__init__( [] if play_list is None else play_list )
 
     def getPlayList(self):
         return self._data
@@ -175,22 +176,13 @@ class Import(Data):
             case list():        return c.loadJsonMidiPlay(self._data)
             case _:             return super().__mod__(operand)
 
+    def getPlayList(self):
+        return c.loadJsonMidiPlay(self._data)
+
     # CHAINABLE OPERATIONS
 
-    def __rshift__(self, operand: Operand) -> 'Operand':
-        match operand:
-            case ou.Play():
-                play_list = c.loadJsonMidiPlay(self._data)
-                c.jsonMidiPlay(self._others_playlist + play_list, operand % int())
-                return self
-            case _: return operand.__rrshift__(self)
-
     def __rrshift__(self, operand: Operand) -> Operand:
-        match operand:
-            case Import():
-                self._others_playlist.extend(operand % list())
-                return self
-        return self
+        return PlayList(operand.getPlayList() + self.getPlayList())
 
 class Function(Data):
     pass
