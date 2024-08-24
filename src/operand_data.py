@@ -75,6 +75,7 @@ class Data(Operand):
     def __lshift__(self, operand: Operand) -> 'Data':
         match operand:
             case Data():            self._data = operand % Operand()
+            case OperandData():     self._data = operand % Operand()
             case _:                 self._data = operand
         return self
 

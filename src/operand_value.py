@@ -105,6 +105,9 @@ class Value(on.Numeric):
             case Value():           self._rational = operand % Fraction()
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
+            case od.OperandData():
+                match operand % Operand():
+                    case Fraction():        self._rational = operand % Operand()
         return self
 
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
@@ -336,6 +339,7 @@ class Dotted(NoteValue):
             case Value():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
+            case _: super().__lshift__(operand)
         return self
 
 class Swing(Value):

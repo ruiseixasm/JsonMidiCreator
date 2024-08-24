@@ -90,6 +90,10 @@ class Operator(Operand):
             case of.Frame():        self << (operand & self)
             case list():            self._operator_list = operand
             case ol.Null | None:    return self
+            case od.OperandData():
+                match operand % Operand():
+                    case list():            self._operator_list = operand % Operand()
+                    case _:                 self._operand = operand % Operand()
             case _:                 self._operand = operand
         return self
 
@@ -168,6 +172,13 @@ class Oscillator(Operator):
             case ot.Length():       self._length = operand
             case ov.Amplitude():    self._amplitude = operand
             case ov.Offset():       self._offset = operand
+            case od.OperandData():
+                match operand % Operand():
+                    case ot.Position():     self._position = operand % Operand()
+                    case ot.Length():       self._length = operand % Operand()
+                    case ov.Amplitude():    self._amplitude = operand % Operand()
+                    case ov.Offset():       self._offset = operand % Operand()
+                    case _:                 super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 

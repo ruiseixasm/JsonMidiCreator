@@ -120,6 +120,12 @@ class Time(Operand):
                 self._beat          = ov.Beat(operand)
                 self._note_value    = ov.NoteValue(operand)
                 self._step          = ov.Step(operand)
+            case od.OperandData():
+                match operand % Operand():
+                    case ov.Measure():      self._measure = operand % Operand()
+                    case ov.Beat():         self._beat = operand % Operand()
+                    case ov.NoteValue():    self._note_value = operand % Operand()
+                    case ov.Step():         self._step = operand % Operand()
         return self
 
     # adding two lengths 

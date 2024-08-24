@@ -172,6 +172,23 @@ class Staff(Operand):
                 self._quantization = ov.Quantization( (self % ov.NotesPerMeasure()) / (operand % Fraction()) )
             case ov.StepsPerNote():
                 self._quantization = ov.Quantization( 1 / (operand % Fraction()) )
+            case od.OperandData():
+                match operand % Operand():
+                    case ov.Measure():          self._measure = operand % Operand()
+                    case ov.Tempo():            self._tempo = operand % Operand()
+                    case ov.BeatsPerMeasure():  self._beats_per_measure = operand % Operand()
+                    case ov.BeatNoteValue():    self._beat_note_value = operand % Operand()
+                    case ou.Scale():            self._scale = operand % Operand()
+                    case ov.Quantization():     self._quantization = operand % Operand()    # Note Value
+                    case ot.Duration():         self._duration = operand % Operand()
+                    case ou.Key():              self._key = operand % Operand()
+                    case ou.Octave():           self._octave = operand % Operand()
+                    case ou.Velocity():         self._velocity = operand % Operand()
+                    case og.Controller():       self._controller = operand % Operand()
+                    case ou.ControlNumber():    self._controller << operand % Operand()
+                    case ou.ControlValue():     self._controller << operand % Operand()
+                    case ou.Channel():          self._channel = operand % Operand()
+                    case od.Device():           self._device = operand % Operand()
         return self
 
 # Set the Default Staff values here.

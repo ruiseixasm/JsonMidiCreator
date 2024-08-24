@@ -101,6 +101,9 @@ class Unit(on.Numeric):
             case of.Frame():        self << (operand & self)
             case Unit():            self._unit = operand % int()
             case int() | float():   self._unit = round(operand)
+            case od.OperandData():
+                match operand % Operand():
+                    case int():             self._unit = operand % Operand()
         return self
 
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':

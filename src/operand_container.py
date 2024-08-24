@@ -162,6 +162,9 @@ class Container(Operand):
             case Chain():
                 for single_operand in operand:
                     self << single_operand
+            case od.OperandData():
+                match operand % Operand():
+                    case list():        self._operand_list = operand % Operand()
         return self
 
     def __add__(self, operand: Operand) -> 'Container':
