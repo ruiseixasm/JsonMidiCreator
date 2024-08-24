@@ -420,55 +420,6 @@ class Note(Element):
             case _:             return super().__sub__(operand)
         return self_copy
 
-class Note3(Note):
-    """
-    A Note3() is the repetition of a given Note three times on a row
-    Triplets have each Note Duration set to the following Values:
-        | 1T    = (1    - 1/4)   = 3/4
-        | 1/2T  = (1/2  - 1/8)   = 3/8
-        | 1/4T  = (1/4  - 1/16)  = 3/16
-        | 1/8T  = (1/8  - 1/32)  = 3/32
-        | 1/16T = (1/16 - 1/64)  = 3/64
-        | 1/32T = (1/32 - 1/128) = 3/128
-    """
-    def __init__(self, key: int | str = None):
-        super().__init__(key)
-        self._duration  = self._duration * 2/3 # 3 instead of 2 for each played note
-        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
-        self._gate      = ov.Gate(.50)
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case ot.Duration():     return self._duration * 3/2
-            case ov.NoteValue():    return self._duration * 3/2 % operand
-            case _:                 return super().__mod__(operand)
-
-    def getPlayList(self, position: ot.Position = None):
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
-
-        self_playlist = []
-        for _ in range(3):
-            self_playlist.extend(super().getPlayList(self_position))
-            self_position += self._duration
-        return self_playlist
-    
-    # CHAINABLE OPERATIONS
-
-    def copy(self) -> 'Note3':
-        return super().copy() << (self % ot.Duration()).copy()  # Extremely Critical
-
-    def __lshift__(self, operand: Operand) -> 'Note':
-        match operand:
-            case Note3():
-                super().__lshift__(operand)
-                self._duration = operand % ot.Duration() * 2/3
-            case ot.Duration():
-                self._duration = operand * 2/3
-            case ov.NoteValue():
-                self._duration = ot.Duration() << operand * 2/3
-            case _: super().__lshift__(operand)
-        return self
-
 class KeyScale(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
@@ -642,6 +593,56 @@ class Chord(Note):
             case _: super().__lshift__(operand)
         return self
 
+class Note3(Note):
+    """
+    A Note3() is the repetition of a given Note three times on a row
+    Triplets have each Note Duration set to the following Values:
+        | 1T    = (1    - 1/4)   = 3/4
+        | 1/2T  = (1/2  - 1/8)   = 3/8
+        | 1/4T  = (1/4  - 1/16)  = 3/16
+        | 1/8T  = (1/8  - 1/32)  = 3/32
+        | 1/16T = (1/16 - 1/64)  = 3/64
+        | 1/32T = (1/32 - 1/128) = 3/128
+    """
+    def __init__(self, key: int | str = None):
+        super().__init__(key)
+        self._duration  = self._duration * 2/3 # 3 instead of 2 for each played note
+        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
+        self._gate      = ov.Gate(.50)
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case ot.Duration():     return self._duration * 3/2
+            case ov.NoteValue():    return self._duration * 3/2 % operand
+            case _:                 return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+
+        self_playlist = []
+        for _ in range(3):
+            self_playlist.extend(super().getPlayList(self_position))
+            self_position += self._duration
+        return self_playlist
+    
+    # CHAINABLE OPERATIONS
+
+    def copy(self) -> 'Note3':
+        # No need for "(self % ot.Duration()).copy()" because the << has a multiplication (* 2/3) that results in a copy
+        return super().copy() << self % ot.Duration()  # Extremely Critical
+
+    def __lshift__(self, operand: Operand) -> 'Note':
+        match operand:
+            case Note3():
+                super().__lshift__(operand)
+                self._duration = operand % ot.Duration() * 2/3
+            case ot.Duration():
+                self._duration = operand * 2/3
+            case ov.NoteValue():
+                self._duration = ot.Duration() << operand * 2/3
+            case _: super().__lshift__(operand)
+        return self
+
 class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self):
         super().__init__()
@@ -686,7 +687,8 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
         elements = []
         for single_element in self._elements:
             elements.append(single_element.copy())
-        return super().copy() << (self % ot.Duration()).copy() << elements
+        # No need for "(self % ot.Duration()).copy()" because the << has a multiplication (* 2/3) that results in a copy
+        return super().copy() << self % ot.Duration() << elements
 
     def __lshift__(self, operand: Operand) -> 'Triplet':
         match operand:
@@ -761,7 +763,8 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         elements = []
         for single_element in self._elements:
             elements.append(single_element.copy())
-        return super().copy() << self._division << (self % ot.Duration()).copy() << elements
+        # No need for "(self % ot.Duration()).copy()" because the << has a multiplication (* 2/3) that results in a copy
+        return super().copy() << self._division << self % ot.Duration() << elements
 
     def __lshift__(self, operand: Operand) -> 'Tuplet':
         match operand:
