@@ -106,6 +106,12 @@ class Element(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Element':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ot.Position():     self._position = operand % Operand()
+                    case ot.Length():       self._length = operand % Operand()
+                    case ou.Channel():      self._channel = operand % Operand()
+                    case od.Device():       self._device = operand % Operand()
             case of.Frame():        self << (operand & self)
             case Element():
                 self._position      = operand % ot.Position()
@@ -123,12 +129,6 @@ class Element(Operand):
             case oc.Chain():
                 for single_operand in operand:
                     self << single_operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ot.Position():     self._position = operand % Operand()
-                    case ot.Length():       self._length = operand % Operand()
-                    case ou.Channel():      self._channel = operand % Operand()
-                    case od.Device():       self._device = operand % Operand()
         return self
 
     # operand is the pusher
@@ -308,6 +308,11 @@ class Clock(Element):
 
     def __lshift__(self, operand: Operand) -> 'Clock':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ClockModes():      self._mode = operand % Operand()
+                    case ou.PPQN():         self._pulses_per_quarternote = operand % Operand()
+                    case _:                 super().__lshift__(operand)
             case Clock():
                 super().__lshift__(operand)
                 self._mode = operand % ClockModes()
@@ -315,11 +320,6 @@ class Clock(Element):
             case ClockModes():      self._mode = operand
             case ou.PPQN():         self._pulses_per_quarternote = operand
             case int() | float():   self._length = ot.Length(operand)
-            case od.OperandData():
-                match operand % Operand():
-                    case ClockModes():      self._mode = operand % Operand()
-                    case ou.PPQN():         self._pulses_per_quarternote = operand % Operand()
-                    case _:                 super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -417,6 +417,13 @@ class Note(Element):
 
     def __lshift__(self, operand: Operand) -> 'Note':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ot.Duration():     self._duration = operand % Operand()
+                    case og.KeyNote():      self._key_note = operand % Operand()
+                    case ou.Velocity():     self._velocity = operand % Operand()
+                    case ov.Gate():         self._gate = operand % Operand()
+                    case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
                 self._duration      = operand % ot.Duration()
@@ -430,13 +437,6 @@ class Note(Element):
                                     self._key_note << operand
             case ou.Velocity():     self._velocity = operand
             case ov.Gate():         self._gate = operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ot.Duration():     self._duration = operand % Operand()
-                    case og.KeyNote():      self._key_note = operand % Operand()
-                    case ou.Velocity():     self._velocity = operand % Operand()
-                    case ov.Gate():         self._gate = operand % Operand()
-                    case _:                 super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -518,17 +518,17 @@ class KeyScale(Note):
 
     def __lshift__(self, operand: Operand) -> 'KeyScale':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Scale():        self._scale = operand % Operand()
+                    case ou.Mode():         self._mode = operand % Operand()
+                    case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
                 self._scale = operand % ou.Scale()
                 self._mode = operand % ou.Mode()
             case ou.Scale():        self._scale = operand
             case ou.Mode():         self._mode = operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.Scale():        self._scale = operand % Operand()
-                    case ou.Mode():         self._mode = operand % Operand()
-                    case _:                 super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -632,6 +632,13 @@ class Chord(Note):
 
     def __lshift__(self, operand: Operand) -> 'Chord':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Scale():                self._scale = operand % Operand()
+                    case ou.Type():                 self._type = operand % Operand()
+                    case ou.Degree():               self._degree = operand % Operand()
+                    case ou.Inversion():            self._inversion = operand % Operand()
+                    case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
                 self._scale = operand % ou.Scale()
@@ -643,13 +650,6 @@ class Chord(Note):
             case ou.Degree():               self._degree = operand
             case ou.Inversion():            
                 self._inversion = ou.Inversion(operand % int() % (self._type % int()))
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.Scale():                self._scale = operand % Operand()
-                    case ou.Type():                 self._type = operand % Operand()
-                    case ou.Degree():               self._degree = operand % Operand()
-                    case ou.Inversion():            self._inversion = operand % Operand()
-                    case _:                         super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -758,6 +758,10 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 
     def __lshift__(self, operand: Operand) -> 'Triplet':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case list():            self._elements = operand % Operand()
+                    case _:                 super().__lshift__(operand)
             case Triplet():
                 super().__lshift__(operand)
                 self._duration = operand % ot.Duration() * 2/3
@@ -771,10 +775,6 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
                 else:
                     for element_i in range(3):
                         self._elements[element_i] = operand[element_i]
-            case od.OperandData():
-                match operand % Operand():
-                    case list():            self._elements = operand % Operand()
-                    case _:                 super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -849,6 +849,11 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
 
     def __lshift__(self, operand: Operand) -> 'Tuplet':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case int():                 self._division = operand % Operand()
+                    case list():                self._elements = operand % Operand()
+                    case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
                 self._duration = operand % ot.Duration() * 3/2 if self._division == 2 else (self._division/2)
@@ -867,11 +872,6 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
                 else:
                     for element_i in range(self._division):
                         self._elements[element_i] = operand[element_i]
-            case od.OperandData():
-                match operand % Operand():
-                    case int():                 self._division = operand % Operand()
-                    case list():                self._elements = operand % Operand()
-                    case _:                     super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -935,6 +935,10 @@ class ControlChange(Element):
 
     def __lshift__(self, operand: Operand) -> 'ControlChange':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case og.Controller():       self._controller = operand % Operand()
+                    case _:                     super().__lshift__(operand)
             case ControlChange():
                 super().__lshift__(operand)
                 self._controller = operand % og.Controller()
@@ -942,10 +946,6 @@ class ControlChange(Element):
                 self._controller = operand
             case ou.ControlNumber() | ou.ControlValue() | int() | float():
                 self._controller << operand
-            case od.OperandData():
-                match operand % Operand():
-                    case og.Controller():       self._controller = operand % Operand()
-                    case _:                     super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -1019,15 +1019,15 @@ class PitchBend(Element):
 
     def __lshift__(self, operand: Operand) -> 'PitchBend':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Pitch():            self._pitch = operand % Operand()
+                    case _:                     super().__lshift__(operand)
             case PitchBend():
                 super().__lshift__(operand)
                 self._pitch = operand % ou.Pitch()
             case ou.Pitch():        self._pitch = operand
             case int() | float():   self._pitch << operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.Pitch():            self._pitch = operand % Operand()
-                    case _:                     super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -1103,6 +1103,10 @@ class Aftertouch(Element):
 
     def __lshift__(self, operand: Operand) -> 'Aftertouch':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Pressure():         self._pressure = operand % Operand()
+                    case _:                     super().__lshift__(operand)
             case Aftertouch():
                 super().__lshift__(operand)
                 self._pressure = operand % ou.Pressure()
@@ -1110,10 +1114,6 @@ class Aftertouch(Element):
                 self._pressure = operand
             case int() | float():
                 self._pressure << operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.Pressure():         self._pressure = operand % Operand()
-                    case _:                     super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 
@@ -1190,6 +1190,10 @@ class PolyAftertouch(Aftertouch):
 
     def __lshift__(self, operand: Operand) -> 'PolyAftertouch':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case og.KeyNote():          self._key_note = operand % Operand()
+                    case _:                     super().__lshift__(operand)
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._key_note = operand % og.KeyNote()
@@ -1197,10 +1201,6 @@ class PolyAftertouch(Aftertouch):
             case og.KeyNote():      self._key_note = operand
             case ou.Key():          self._key_note << operand
             case ou.Octave():       self._key_note << operand
-            case od.OperandData():
-                match operand % Operand():
-                    case og.KeyNote():          self._key_note = operand % Operand()
-                    case _:                     super().__lshift__(operand)
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1259,6 +1259,10 @@ class ProgramChange(Element):
 
     def __lshift__(self, operand: Operand) -> 'ProgramChange':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Program():          self._program = operand % Operand()
+                    case _:                     super().__lshift__(operand)
             case ProgramChange():
                 super().__lshift__(operand)
                 self._program = operand % ou.Program()
@@ -1266,10 +1270,6 @@ class ProgramChange(Element):
                 self._program = operand
             case int() | float():
                 self._program << operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.Program():          self._program = operand % Operand()
-                    case _:                     super().__lshift__(operand)
             case _: super().__lshift__(operand)
         return self
 

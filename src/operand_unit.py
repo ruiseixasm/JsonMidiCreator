@@ -98,12 +98,12 @@ class Unit(on.Numeric):
 
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:
-            case of.Frame():        self << (operand & self)
-            case Unit():            self._unit = operand % int()
-            case int() | float():   self._unit = round(operand)
             case od.OperandData():
                 match operand % Operand():
                     case int():             self._unit = operand % Operand()
+            case of.Frame():        self << (operand & self)
+            case Unit():            self._unit = operand % int()
+            case int() | float():   self._unit = round(operand)
         return self
 
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
@@ -161,6 +161,7 @@ class Key(Unit):
 
     def __lshift__(self, operand: Operand) -> 'Unit':
         match operand:
+            case od.OperandData():  super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             case Key():             self._unit = operand % int()
             case Unit():            self._unit = operand % int() % 12

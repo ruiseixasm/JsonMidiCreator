@@ -101,13 +101,13 @@ class Value(on.Numeric):
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case Fraction():        self._rational = operand % Operand()
             case of.Frame():        self << (operand & self)
             case Value():           self._rational = operand % Fraction()
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
-            case od.OperandData():
-                match operand % Operand():
-                    case Fraction():        self._rational = operand % Operand()
         return self
 
     def __add__(self, value: Union['Value', float, int]) -> 'Value':
@@ -333,7 +333,11 @@ class Dotted(NoteValue):
 
     def __lshift__(self, operand: Operand) -> 'Value':
         match operand:
+            case od.OperandData():  super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
+            # Fraction objects are immutable, so modifications create new objects rather than changing existing ones.
+            # Assignments and passing around fractions involve copying references, not duplicating the actual object data.
+            # Due to immutability, you can safely assume Fraction behaves with value semantics—modifications don't affect the original object.
             case Dotted():          self._rational = operand % od.OperandData()
             # It's just a wrapper for NoteValue 3/2
             case Value():           self._rational = operand % Fraction() * 3/2

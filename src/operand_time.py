@@ -105,6 +105,12 @@ class Time(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Time':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ov.Measure():      self._measure = operand % Operand()
+                    case ov.Beat():         self._beat = operand % Operand()
+                    case ov.NoteValue():    self._note_value = operand % Operand()
+                    case ov.Step():         self._step = operand % Operand()
             case of.Frame():        self << (operand & self)
             case Time():
                 self._measure       = operand % ov.Measure()
@@ -120,12 +126,6 @@ class Time(Operand):
                 self._beat          = ov.Beat(operand)
                 self._note_value    = ov.NoteValue(operand)
                 self._step          = ov.Step(operand)
-            case od.OperandData():
-                match operand % Operand():
-                    case ov.Measure():      self._measure = operand % Operand()
-                    case ov.Beat():         self._beat = operand % Operand()
-                    case ov.NoteValue():    self._note_value = operand % Operand()
-                    case ov.Step():         self._step = operand % Operand()
         return self
 
     # adding two lengths 

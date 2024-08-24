@@ -98,6 +98,10 @@ class KeyNote(Generic):
 
     def __lshift__(self, operand: Operand) -> 'KeyNote':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.Key():          self._key = operand % Operand()
+                    case ou.Octave():       self._octave = operand % Operand()
             case of.Frame():        self << (operand & self)
             case KeyNote():
                 self._key = operand % ou.Key()
@@ -107,10 +111,6 @@ class KeyNote(Generic):
             case int():
                 self._key << operand    # key already does % 12
                 self._octave << operand // 12
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.Key():          self._key = operand % Operand()
-                    case ou.Octave():       self._octave = operand % Operand()
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -191,6 +191,10 @@ class Controller(Generic):
 
     def __lshift__(self, operand: Operand) -> 'Controller':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case ou.ControlNumber():    self._control_number = operand % Operand()
+                    case ou.ControlValue():     self._control_value = operand % Operand()
             case of.Frame():            self << (operand & self)
             case Controller():
                 self._control_number = operand % ou.ControlNumber()
@@ -198,10 +202,6 @@ class Controller(Generic):
             case ou.ControlNumber():    self._control_number = operand
             case ou.ControlValue():     self._control_value = operand
             case int() | float():       self._control_value << operand
-            case od.OperandData():
-                match operand % Operand():
-                    case ou.ControlNumber():    self._control_number = operand % Operand()
-                    case ou.ControlValue():     self._control_value = operand % Operand()
         return self
 
     def __add__(self, operand) -> 'Controller':

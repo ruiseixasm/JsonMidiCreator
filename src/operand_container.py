@@ -107,7 +107,7 @@ class Container(Operand):
         many_operands: list[Operand] = []
         for single_operand in self._operand_list:
             many_operands.append(single_operand.copy())
-        return self.__class__() << many_operands
+        return self.__class__() << od.OperandData( many_operands )
 
     def sort(self, compare: Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare
@@ -149,6 +149,9 @@ class Container(Operand):
 
     def __lshift__(self, operand: Operand) -> 'Container':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case list():        self._operand_list = operand % Operand()
             case Container():
                 self._operand_list = operand % list()
             case list():
@@ -162,9 +165,6 @@ class Container(Operand):
             case Chain():
                 for single_operand in operand:
                     self << single_operand
-            case od.OperandData():
-                match operand % Operand():
-                    case list():        self._operand_list = operand % Operand()
         return self
 
     def __add__(self, operand: Operand) -> 'Container':
@@ -385,6 +385,10 @@ class Chain(Container):
 
     def __lshift__(self, operand: Operand) -> 'Chain':
         match operand:
+            case od.OperandData():
+                match operand % Operand():
+                    case list():        self._operand_list = operand % Operand()
+                    case _:             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             case Chain():           self._operand_list = operand % list()
             case Operand() | int() | float():
