@@ -136,12 +136,7 @@ class PlayList(Data):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand) -> Operand:
-        import operand_container as oc
-        import operand_element as oe
-        match operand:
-            case oc.Sequence() | oe.Element():
-                self._data.extend(operand.getPlayList())
-        return self
+        return PlayList(operand.getPlayList() + self._data)
 
 class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):

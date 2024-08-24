@@ -191,10 +191,10 @@ class Time(Operand):
         return self / operand
     
 class Position(Time):
-    def __init__(self, step: float = None):
+    def __init__(self, measure: float = None):
         super().__init__()
-        if step is not None:
-            self._step = ov.Step(step)
+        if measure is not None:
+            self._measure = ov.Measure(measure)
 
     def start(self) -> 'Position':
         return self
