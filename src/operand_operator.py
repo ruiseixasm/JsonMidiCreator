@@ -19,7 +19,7 @@ from fractions import Fraction
 import math
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 import operand_time as ot
 import operand_value as ov
 import operand_data as od
@@ -29,29 +29,29 @@ import operand_container as oc
 import operand_element as oe
 
 
-class Operator(Operand):
+class Operator(o.Operand):
     """
     An Operator processes an Operand with an Integer input and an Operand output.
 
     Parameters
     ----------
-    first : Operand_like
+    first : o.Operand_like
         A Operand to be regulated
     """
-    def __init__(self, operand: Operand = None):
+    def __init__(self, operand: o.Operand = None):
         self._operand = int() if operand is None else operand
         self._operator_list: list[Operator] = []
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():
-                match operand % Operand():
+                match operand % o.Operand():
                     case list():            return self._operator_list
-                    case Operand():         return self._operand
-            case of.Frame():        return self % (operand % Operand())
+                    case o.Operand():         return self._operand
+            case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operator_list
             case ol.Null() | None:  return ol.Null()
-            case Operand():         return self._operand
+            case o.Operand():         return self._operand
             case _:                 return self
 
     def getSerialization(self):
@@ -85,15 +85,15 @@ class Operator(Operand):
     def copy(self) -> 'Operator':
         return self.__class__() << od.OperandData( self._operand ) << od.OperandData( self._operator_list )
 
-    def __lshift__(self, operand: Operand) -> 'Operator':
+    def __lshift__(self, operand: o.Operand) -> 'Operator':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case list():            self._operator_list = operand % Operand()
-                    case _:                 self._operand = operand % Operand()
+                match operand % o.Operand():
+                    case list():            self._operator_list = operand % o.Operand()
+                    case _:                 self._operand = operand % o.Operand()
             case Operator():
                 self._operator_list = operand % od.OperandData( list() )
-                self._operand       = operand % od.OperandData( Operand() )
+                self._operand       = operand % od.OperandData( o.Operand() )
             case of.Frame():        self << (operand & self)
             case list():            self._operator_list = operand
             case ol.Null | None:    return self
@@ -105,13 +105,13 @@ class Operator(Operand):
             case Operator():
                 self._operator_list.insert(operand)
                 return self
-            case Operand():
+            case o.Operand():
                 for single_operator in self._operator_list:
                     operand = single_operator | operand
                 # self._operator_list = []    # Saved operators are used only once
         return operand
 
-    def __ror__(self, operand: Operand) -> Operand:
+    def __ror__(self, operand: o.Operand) -> o.Operand:
         return self.__or__(operand)
 
 class Oscillator(Operator):
@@ -120,17 +120,17 @@ class Oscillator(Operator):
 
     Parameters
     ----------
-    first : Operand_like
+    first : o.Operand_like
         A Operand to be regulated
     """
-    def __init__(self, operand: Operand = None):
+    def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
         self._position: ot.Position     = ot.Position()
         self._length: ot.Length         = ot.Length() << ov.Measure(1)  # wavelength (360º)
         self._amplitude: ov.Amplitude   = ov.Amplitude(0)
         self._offset: ov.Offset         = ov.Offset(0)
         
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():      return super().__mod__(operand)
             case ot.Position():         return self._position
@@ -166,14 +166,14 @@ class Oscillator(Operator):
             << od.OperandData( self._position.copy() ) << od.OperandData( self._length.copy() ) \
             << od.OperandData( self._amplitude.copy() ) << od.OperandData( self._offset.copy() )
 
-    def __lshift__(self, operand: Operand) -> 'Oscillator':
+    def __lshift__(self, operand: o.Operand) -> 'Oscillator':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case ot.Position():     self._position = operand % Operand()
-                    case ot.Length():       self._length = operand % Operand()
-                    case ov.Amplitude():    self._amplitude = operand % Operand()
-                    case ov.Offset():       self._offset = operand % Operand()
+                match operand % o.Operand():
+                    case ot.Position():     self._position = operand % o.Operand()
+                    case ot.Length():       self._length = operand % o.Operand()
+                    case ov.Amplitude():    self._amplitude = operand % o.Operand()
+                    case ov.Offset():       self._offset = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Oscillator():
                 super().__lshift__(operand)
@@ -204,7 +204,7 @@ class Oscillator(Operator):
                 # Fraction * Fraction results in a Fraction
                 wave_time_amplitude_int = round(self._amplitude % Fraction() * math.sin(math.radians(wave_time_angle)))
                 wave_time_amplitude_int += self._offset % int()
-                if isinstance(self._operand, Operand):
+                if isinstance(self._operand, o.Operand):
                     operand << (self._operand.copy() << wave_time_amplitude_int)
                 else:
                     operand << wave_time_amplitude_int

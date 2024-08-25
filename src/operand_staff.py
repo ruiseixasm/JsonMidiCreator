@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from fractions import Fraction
 # Json Midi Creator Libraries
-from operand import Operand
+import operand as o
 import operand_unit as ou
 import operand_value as ov
 import operand_time as ot
@@ -25,7 +25,7 @@ import operand_frame as of
 import operand_label as ol
 
 
-class Staff(Operand):
+class Staff(o.Operand):
     def __init__(self):
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: ov.Measure                   = None
@@ -44,10 +44,10 @@ class Staff(Operand):
         self._channel: ou.Channel                   = None
         self._device: od.Device                     = None
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():
-                match operand % Operand():
+                match operand % o.Operand():
                     case ov.Measure():          return self._measure
                     case ov.Tempo():            return self._tempo
                     case ov.BeatsPerMeasure():  return self._beats_per_measure
@@ -61,7 +61,7 @@ class Staff(Operand):
                     case og.Controller():       return self._controller
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
-            case of.Frame():            return self % (operand % Operand())
+            case of.Frame():            return self % (operand % o.Operand())
             # Direct Values
             case ov.Measure():          return self._measure
             case ov.Tempo():            return self._tempo
@@ -133,25 +133,25 @@ class Staff(Operand):
             self._device = od.Device(serialization["parameters"]["device"])
         return self
         
-    def __lshift__(self, operand: Operand) -> 'Staff':
+    def __lshift__(self, operand: o.Operand) -> 'Staff':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case ov.Measure():          self._measure = operand % Operand()
-                    case ov.Tempo():            self._tempo = operand % Operand()
-                    case ov.BeatsPerMeasure():  self._beats_per_measure = operand % Operand()
-                    case ov.BeatNoteValue():    self._beat_note_value = operand % Operand()
-                    case ou.Scale():            self._scale = operand % Operand()
-                    case ov.Quantization():     self._quantization = operand % Operand()    # Note Value
-                    case ot.Duration():         self._duration = operand % Operand()
-                    case ou.Key():              self._key = operand % Operand()
-                    case ou.Octave():           self._octave = operand % Operand()
-                    case ou.Velocity():         self._velocity = operand % Operand()
-                    case og.Controller():       self._controller = operand % Operand()
-                    case ou.ControlNumber():    self._controller << operand % Operand()
-                    case ou.ControlValue():     self._controller << operand % Operand()
-                    case ou.Channel():          self._channel = operand % Operand()
-                    case od.Device():           self._device = operand % Operand()
+                match operand % o.Operand():
+                    case ov.Measure():          self._measure = operand % o.Operand()
+                    case ov.Tempo():            self._tempo = operand % o.Operand()
+                    case ov.BeatsPerMeasure():  self._beats_per_measure = operand % o.Operand()
+                    case ov.BeatNoteValue():    self._beat_note_value = operand % o.Operand()
+                    case ou.Scale():            self._scale = operand % o.Operand()
+                    case ov.Quantization():     self._quantization = operand % o.Operand()    # Note Value
+                    case ot.Duration():         self._duration = operand % o.Operand()
+                    case ou.Key():              self._key = operand % o.Operand()
+                    case ou.Octave():           self._octave = operand % o.Operand()
+                    case ou.Velocity():         self._velocity = operand % o.Operand()
+                    case og.Controller():       self._controller = operand % o.Operand()
+                    case ou.ControlNumber():    self._controller << operand % o.Operand()
+                    case ou.ControlValue():     self._controller << operand % o.Operand()
+                    case ou.Channel():          self._channel = operand % o.Operand()
+                    case od.Device():           self._device = operand % o.Operand()
             case Staff():
                 self._measure           = operand % od.OperandData( ov.Measure() )
                 self._tempo             = operand % od.OperandData( ov.Tempo() )

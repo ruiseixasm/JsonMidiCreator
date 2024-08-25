@@ -17,7 +17,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 from fractions import Fraction
 # Json Midi Creator Libraries
-from operand import Operand
+import operand as o
 import operand_staff as os
 import operand_numeric as on
 import operand_unit as ou
@@ -50,7 +50,7 @@ class Value(on.Numeric):
         elif isinstance(value, (int, float)):
             self._rational: Fraction = Fraction(value).limit_denominator()
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract the Value, because a Value is an Rational
         it should be used in conjugation with float(). If used with a int() it
@@ -64,7 +64,7 @@ class Value(on.Numeric):
         """
         match operand:
             case od.OperandData():  return self._rational
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return round(self._rational)
@@ -106,11 +106,11 @@ class Value(on.Numeric):
     def copy(self) -> 'Value':
         return self.__class__() << od.OperandData( self._rational )
 
-    def __lshift__(self, operand: Operand) -> 'Value':
+    def __lshift__(self, operand: o.Operand) -> 'Value':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case Fraction():        self._rational = operand % Operand()
+                match operand % o.Operand():
+                    case Fraction():        self._rational = operand % o.Operand()
             case Value():           self._rational = operand % od.OperandData( Fraction() )
             case of.Frame():        self << (operand & self)
             case Fraction():        self._rational = operand
@@ -338,7 +338,7 @@ class Dotted(NoteValue):
     def copy(self) -> 'Value':
         return self.__class__() << od.OperandData( self % od.OperandData() )
 
-    def __lshift__(self, operand: Operand) -> 'Value':
+    def __lshift__(self, operand: o.Operand) -> 'Value':
         match operand:
             case od.OperandData():  super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)

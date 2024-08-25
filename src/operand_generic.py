@@ -19,7 +19,7 @@ from fractions import Fraction
 import enum
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 
 import operand_unit as ou
 import operand_data as od
@@ -27,7 +27,7 @@ import operand_frame as of
 import operand_label as ol
 
 
-class Generic(Operand):
+class Generic(o.Operand):
     pass
 
 class KeyNote(Generic):
@@ -35,13 +35,13 @@ class KeyNote(Generic):
         self._key: ou.Key = ou.Key(key)
         self._octave: ou.Octave = ou.Octave()
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():
-                match operand % Operand():
+                match operand % o.Operand():
                     case ou.Key():          return self._key
                     case ou.Octave():       return self._octave
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand % o.Operand())
             case ou.Key():          return self._key
             case ou.Octave():       return self._octave
             case int():
@@ -96,12 +96,12 @@ class KeyNote(Generic):
     def copy(self) -> 'KeyNote':
         return KeyNote() << od.OperandData( self._key.copy() ) << od.OperandData( self._octave.copy() )
 
-    def __lshift__(self, operand: Operand) -> 'KeyNote':
+    def __lshift__(self, operand: o.Operand) -> 'KeyNote':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case ou.Key():          self._key = operand % Operand()
-                    case ou.Octave():       self._octave = operand % Operand()
+                match operand % o.Operand():
+                    case ou.Key():          self._key = operand % o.Operand()
+                    case ou.Octave():       self._octave = operand % o.Operand()
             case KeyNote():
                 self._key = operand % od.OperandData( ou.Key() )
                 self._octave = operand % od.OperandData( ou.Octave() )
@@ -158,10 +158,10 @@ class Controller(Generic):
         self._control_number: ou.ControlNumber  = ou.ControlNumber( number )
         self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % int()) )
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():      return super().__mod__(operand)
-            case of.Frame():            return self % (operand % Operand())
+            case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number
             case ou.ControlValue():     return self._control_value
             case int() | float():       return self._control_value % int()
@@ -190,12 +190,12 @@ class Controller(Generic):
     def copy(self) -> 'Controller':
         return Controller() << od.OperandData( self._control_number.copy() ) << od.OperandData( self._control_value.copy() )
 
-    def __lshift__(self, operand: Operand) -> 'Controller':
+    def __lshift__(self, operand: o.Operand) -> 'Controller':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case ou.ControlNumber():    self._control_number = operand % Operand()
-                    case ou.ControlValue():     self._control_value = operand % Operand()
+                match operand % o.Operand():
+                    case ou.ControlNumber():    self._control_number = operand % o.Operand()
+                    case ou.ControlValue():     self._control_value = operand % o.Operand()
             case Controller():
                 self._control_number = operand % od.OperandData( ou.ControlNumber() )
                 self._control_value = operand % od.OperandData( ou.ControlValue() )

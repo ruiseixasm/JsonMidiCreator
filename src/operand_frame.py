@@ -20,7 +20,7 @@ from fractions import Fraction
 import enum
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 
 import operand_numeric as on
 import operand_unit as ou
@@ -32,7 +32,7 @@ import operand_label as ol
 
 
 # Works as a traditional C list (chained)
-class Frame(Operand):
+class Frame(o.Operand):
     def __init__(self):
         self._next_operand: Optional[Operand] = ol.Dummy()
         
@@ -54,7 +54,7 @@ class Frame(Operand):
             list_size += 1
         return list_size
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():      return self._next_operand
             case Frame():
@@ -86,7 +86,7 @@ class Frame(Operand):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "next_operand" in serialization["parameters"]):
 
-            self._next_operand = Operand().loadSerialization(serialization["parameters"]["next_operand"])
+            self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])
         return self
     
     def pop(self, frame: 'Frame') -> 'Frame':
@@ -101,30 +101,30 @@ class Frame(Operand):
                     previous_frame = single_frame
         return self      
    
-    def __pow__(self, operand: Operand) -> 'Frame':
+    def __pow__(self, operand: o.Operand) -> 'Frame':
         match operand:
-            case Operand(): self._next_operand = operand
+            case o.Operand(): self._next_operand = operand
             case _:         self._next_operand = ol.Dummy()
         return self
 
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
 
 class FrameFilter(Frame):
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         for operand in subject:
             if self == operand:
                 return self._next_operand & subject
         return ol.Null()
         
-    def __eq__(self, other: Operand) -> bool:
+    def __eq__(self, other: o.Operand) -> bool:
         return self.__class__ == other.__class__
 
 class Canvas(FrameFilter):
-    def __and__(self, subject: Operand) -> Operand:
-        return self % Operand()
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        return self % o.Operand()
 
 class Blank(FrameFilter):
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         return ol.Null()
 
 class Inner(FrameFilter):
@@ -137,7 +137,7 @@ class Odd(FrameFilter):
     def __init__(self):
         self._call: int = 0
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call % 2 == 1:
             return self._next_operand & subject
@@ -148,7 +148,7 @@ class Even(FrameFilter):
     def __init__(self):
         self._call: int = 0
         
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call % 2 == 0:
             return self._next_operand & subject
@@ -160,7 +160,7 @@ class Nths(FrameFilter):
         self._call: int = 0
         self._nths: int = nths
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call % self._nths == 0:
             return self._next_operand & subject
@@ -172,7 +172,7 @@ class Nth(FrameFilter):
         self._call: int = 0
         self._nth: int = nth
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call == self._nth:
             return self._next_operand & subject
@@ -186,11 +186,11 @@ class SubjectFilter(Frame):
         self._data = 0
 
 class Equal(SubjectFilter):
-    def __init__(self, operand: Operand):
+    def __init__(self, operand: o.Operand):
         super().__init__()
-        self._operand: Operand = operand
+        self._operand: o.Operand = operand
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
@@ -199,11 +199,11 @@ class Equal(SubjectFilter):
         return ol.Null()
 
 class Greater(SubjectFilter):
-    def __init__(self, operand: Operand):
+    def __init__(self, operand: o.Operand):
         super().__init__()
-        self._operand: Operand = operand
+        self._operand: o.Operand = operand
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
@@ -212,11 +212,11 @@ class Greater(SubjectFilter):
         return ol.Null()
 
 class Lower(SubjectFilter):
-    def __init__(self, operand: Operand):
+    def __init__(self, operand: o.Operand):
         super().__init__()
-        self._operand: Operand = operand
+        self._operand: o.Operand = operand
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
@@ -231,7 +231,7 @@ class OperandFilter(Frame):
         self._data = 0
 
 class Subject(OperandFilter):
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
@@ -244,7 +244,7 @@ class Iterate(OperandFilter):
         super().__init__()
         self._step: float = 1 if step is None else step
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
@@ -253,11 +253,11 @@ class Iterate(OperandFilter):
         return stepped_operand
     
 class Wrapper(OperandFilter):
-    def __init__(self, operand: Operand = None):
+    def __init__(self, operand: o.Operand = None):
         super().__init__()
         self._data = operand    # data is the targeted operand
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
@@ -267,11 +267,11 @@ class Wrapper(OperandFilter):
             case _:             return (self._data << self_operand).copy()
 
 class Extractor(OperandFilter):
-    def __init__(self, operand: Operand = None):
+    def __init__(self, operand: o.Operand = None):
         super().__init__()
         self._data = operand    # data is the targeted operand
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
@@ -289,7 +289,7 @@ class Increment(OperandEditor):
         super().__init__()
         self._step: float = 1 if step is None else step
 
-    def __and__(self, subject: Operand) -> Operand:
+    def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject

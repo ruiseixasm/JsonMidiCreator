@@ -18,7 +18,7 @@ from typing import Union
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 
-class Numeric(Operand):
+class Numeric(o.Operand):
     pass

@@ -19,11 +19,11 @@ from fractions import Fraction
 import json
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 import operand_frame as of
 
 
-class Label(Operand):
+class Label(o.Operand):
     pass
 
 class Null(Label):

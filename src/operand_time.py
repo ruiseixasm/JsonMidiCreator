@@ -18,7 +18,7 @@ from typing import Union
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 import operand_staff as os
 import operand_value as ov
 import operand_data as od
@@ -26,7 +26,7 @@ import operand_frame as of
 import operand_label as ol
 
 
-class Time(Operand):
+class Time(o.Operand):
     def __init__(self):
         # Default values already, no need to wrap them with Default()
         self._measure       = ov.Measure()
@@ -34,15 +34,15 @@ class Time(Operand):
         self._note_value    = ov.NoteValue()
         self._step          = ov.Step()
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():
-                match operand % Operand():
+                match operand % o.Operand():
                     case ov.Measure():      return self._measure
                     case ov.Beat():         return self._beat
                     case ov.NoteValue():    return self._note_value
                     case ov.Step():         return self._step
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand % o.Operand())
             case ov.Measure():      return self._measure
             case ov.Beat():         return self._beat
             case ov.NoteValue():    return self._note_value
@@ -102,14 +102,14 @@ class Time(Operand):
             << od.OperandData( self._measure.copy() ) << od.OperandData( self._beat.copy() ) \
             << od.OperandData( self._note_value.copy() ) << od.OperandData( self._step.copy() )
 
-    def __lshift__(self, operand: Operand) -> 'Time':
+    def __lshift__(self, operand: o.Operand) -> 'Time':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case ov.Measure():      self._measure = operand % Operand()
-                    case ov.Beat():         self._beat = operand % Operand()
-                    case ov.NoteValue():    self._note_value = operand % Operand()
-                    case ov.Step():         self._step = operand % Operand()
+                match operand % o.Operand():
+                    case ov.Measure():      self._measure = operand % o.Operand()
+                    case ov.Beat():         self._beat = operand % o.Operand()
+                    case ov.NoteValue():    self._note_value = operand % o.Operand()
+                    case ov.Step():         self._step = operand % o.Operand()
             case Time():
                 self._measure       = operand % od.OperandData( ov.Measure() )
                 self._beat          = operand % od.OperandData( ov.Beat() )
@@ -128,7 +128,7 @@ class Time(Operand):
         return self
 
     # adding two lengths 
-    def __add__(self, operand: Operand) -> 'Time':
+    def __add__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self + (operand & self)
@@ -141,7 +141,7 @@ class Time(Operand):
         return self_copy
     
     # subtracting two lengths 
-    def __sub__(self, operand: Operand) -> 'Time':
+    def __sub__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self - (operand & self)
@@ -153,7 +153,7 @@ class Time(Operand):
             case ov.TimeUnit():     self_copy << self % operand - operand
         return self_copy
     
-    def __mul__(self, operand: Operand) -> 'Time':
+    def __mul__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self * (operand & self)
@@ -168,10 +168,10 @@ class Time(Operand):
                           << self._note_value * operand << self._step * operand
         return self_copy
     
-    def __rmul__(self, operand: Operand) -> 'Time':
+    def __rmul__(self, operand: o.Operand) -> 'Time':
         return self * operand
     
-    def __truediv__(self, operand: Operand) -> 'Time':
+    def __truediv__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         match operand:
             case of.Frame():        return self / (operand & self)
@@ -186,7 +186,7 @@ class Time(Operand):
                           << self._note_value / operand << self._step / operand
         return self_copy
 
-    def __rtruediv__(self, operand: Operand) -> 'Time':
+    def __rtruediv__(self, operand: o.Operand) -> 'Time':
         return self / operand
     
 class Position(Time):

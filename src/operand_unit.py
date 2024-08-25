@@ -19,7 +19,7 @@ from fractions import Fraction
 import json
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 import operand_staff as os
 import operand_data as od
 import operand_numeric as on
@@ -41,7 +41,7 @@ class Unit(on.Numeric):
     def __init__(self, unit: int = None):
         self._unit: int = 0 if unit is None else round(unit)
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract the Unit, because a Unit is an Integer
         it should be used in conjugation with int(). If used with a float() it
@@ -55,7 +55,7 @@ class Unit(on.Numeric):
         """
         match operand:
             case od.OperandData():  return self._unit
-            case of.Frame():        return self % (operand % Operand())
+            case of.Frame():        return self % (operand % o.Operand())
             case int():             return round(self._unit)
             case float():           return float(self._unit)
             case ol.Null() | None:  return ol.Null()
@@ -96,11 +96,11 @@ class Unit(on.Numeric):
     def copy(self) -> 'Unit':
         return self.__class__() << od.OperandData( self._unit )
 
-    def __lshift__(self, operand: Operand) -> 'Unit':
+    def __lshift__(self, operand: o.Operand) -> 'Unit':
         match operand:
             case od.OperandData():
-                match operand % Operand():
-                    case int():             self._unit = operand % Operand()
+                match operand % o.Operand():
+                    case int():             self._unit = operand % o.Operand()
             case Unit():            self._unit = operand % od.OperandData( int() )
             case of.Frame():        self << (operand & self)
             case int() | float():   self._unit = round(operand)
@@ -152,7 +152,7 @@ class Key(Unit):
             case _:
                 super().__init__( 0 )
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():      return super().__mod__(operand)
             case str():                 return Key.getKey(self % int())
@@ -160,7 +160,7 @@ class Key(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: Operand) -> 'Unit':
+    def __lshift__(self, operand: o.Operand) -> 'Unit':
         match operand:
             case od.OperandData():  super().__lshift__(operand)
             case Key():             super().__lshift__(operand)
@@ -232,7 +232,7 @@ class Scale(Unit):
                 unit = os.global_staff % self % int() if unit is None else round(unit)
                 super().__init__(unit)
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():  return super().__mod__(operand)
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
@@ -474,7 +474,7 @@ class Play(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: Operand) -> Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         c.jsonMidiPlay(operand.getPlayList(), False if self % int() == 0 else True )
         return operand
 
@@ -492,7 +492,7 @@ class Print(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: Operand) -> Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         operand_serialization = operand.getSerialization()
         serialized_json_str = json.dumps(operand.getSerialization())
         json_object = json.loads(serialized_json_str)
@@ -576,7 +576,7 @@ class Pitch(Midi):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():  return super().__mod__(operand)
             case ol.MSB():
@@ -634,7 +634,7 @@ class ControlNumber(Midi):
             case _:
                 super().__init__(None)
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.OperandData():      return super().__mod__(operand)
             case str():                 return ControlNumber.numberToName(self % int())

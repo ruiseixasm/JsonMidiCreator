@@ -18,7 +18,7 @@ from typing import Union
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
-from operand import Operand
+import operand as o
 import operand_staff as os
 import operand_unit as ou
 import operand_frame as of
@@ -26,11 +26,11 @@ import operand_label as ol
 import operand_time as ot
 
 
-class Data(Operand):
+class Data(o.Operand):
     def __init__(self, data = None):
         self._data = data
 
-    def __mod__(self, operand: Operand):
+    def __mod__(self, operand: o.Operand):
         """
         The % symbol is used to extract a Parameter, because a Data has
         only one type of Parameters that's a generic type of Parameter
@@ -38,13 +38,13 @@ class Data(Operand):
 
         Examples
         --------
-        >>> some_data = Data(Pitch(8191)) % Operand()
+        >>> some_data = Data(Pitch(8191)) % o.Operand()
         >>> print(some_data)
         <operand_unit.Pitch object at 0x00000135E6437290>
         """
         match operand:
             case OperandData():             return self._data
-            case of.Frame():                return self % (operand % Operand())
+            case of.Frame():                return self % (operand % o.Operand())
             case ol.Null() | None:          return ol.Null()
             case _:                         return self._data
 
@@ -83,10 +83,10 @@ class Data(Operand):
     def copy(self) -> 'Data':
         return self.__class__() << OperandData( self._data.copy() )
 
-    def __lshift__(self, operand: Operand) -> 'Data':
+    def __lshift__(self, operand: o.Operand) -> 'Data':
         match operand:
-            case Data():            self._data = operand % OperandData( Operand() )
-            case OperandData():     self._data = operand % Operand()
+            case Data():            self._data = operand % OperandData( o.Operand() )
+            case OperandData():     self._data = operand % o.Operand()
             case _:                 self._data = operand
         return self
 
@@ -97,17 +97,17 @@ class OperandData(Data):
     
     Parameters
     ----------
-    first : Operand_like
+    first : o.Operand_like
         The Operand intended to be directly extracted or set
     """
-    def __init__(self, operand: Operand = None):
-        super().__init__( Operand() if operand is None else operand )
+    def __init__(self, operand: o.Operand = None):
+        super().__init__( o.Operand() if operand is None else operand )
 
 class ListScale(Data):
     def __init__(self, list_scale: list[int] = None):
         super().__init__( os.global_staff % ou.Scale() % list() if list_scale is None else list_scale )
 
-    def __mod__(self, operand: Operand) -> Operand:
+    def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, a ListScale has many extraction modes
         one type of extraction is its list() type of Parameter representing a scale
@@ -167,10 +167,10 @@ class PlayList(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand) -> Operand:
+    def __rrshift__(self, operand) -> o.Operand:
         return PlayList(operand.getPlayList() + self._data)
 
-    def __add__(self, operand: Operand) -> 'PlayList':
+    def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
             case list():        return PlayList( self._data + operand )
             case _:             return PlayList( self._data + operand.getPlayList() )
@@ -181,7 +181,7 @@ class Save(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: Operand) -> Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         c.saveJsonMidiCreator(operand.getSerialization(), self % str())
         return operand
 
@@ -195,7 +195,7 @@ class Export(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: Operand) -> Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         c.saveJsonMidiPlay(operand.getPlayList(), self % str())
         return operand
 
@@ -209,7 +209,7 @@ class Import(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: Operand) -> PlayList:
+    def __rrshift__(self, operand: o.Operand) -> PlayList:
         return self._data + operand
 
 class Function(Data):
@@ -227,7 +227,7 @@ class Len(Function):
         super().__init__(None)
 
 class Sort(Function):
-    def __init__(self, compare: Operand = None):
+    def __init__(self, compare: o.Operand = None):
         super().__init__(compare)
 
 class Reverse(Function):
