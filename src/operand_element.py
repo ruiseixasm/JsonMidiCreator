@@ -57,6 +57,14 @@ class Element(o.Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if type(self) != type(other_element):
+            return False
+        return  self._position == other_element % od.DataSource( ot.Position() ) \
+            and self._length == other_element % od.DataSource( ot.Length() ) \
+            and self._channel == other_element % od.DataSource( ou.Channel() ) \
+            and self._device == other_element % od.DataSource( od.Device() )
+    
     def start(self) -> ot.Position:
         return self._position.copy()
 
@@ -217,6 +225,12 @@ class Clock(Element):
             case ou.PPQN():     return self._pulses_per_quarternote.copy()
             case _:             return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._mode == other_element % od.DataSource( ClockModes.single ) \
+                and self._pulses_per_quarternote == other_element % od.DataSource( ou.PPQN() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -322,7 +336,7 @@ class Rest(Element):
     def __init__(self):
         super().__init__()
         self._duration: ot.Duration = (os.global_staff % ot.Duration()).copy()
-        self._length << self._duration.copy()  # By default a note has the same Length as its Duration
+        self._length << self._duration  # By default a note has the same Length as its Duration
 
 class Note(Element):
     def __init__(self, key: int | str = None):
@@ -352,6 +366,14 @@ class Note(Element):
             case ov.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._duration == other_element % od.DataSource( ot.Duration() ) \
+                and self._key_note == other_element % od.DataSource( og.KeyNote() ) \
+                and self._velocity == other_element % od.DataSource( ou.Velocity() ) \
+                and self._gate == other_element % od.DataSource( ov.Gate() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -464,6 +486,12 @@ class KeyScale(Note):
             case ou.Mode():         return self._mode.copy()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._scale == other_element % od.DataSource( ou.Scale() ) \
+                and self._mode == other_element % od.DataSource( ou.Mode() )
+        return False
+    
     def getSharps(self, key: ou.Key = None) -> int:
         ...
 
@@ -565,6 +593,14 @@ class Chord(Note):
             case ou.Inversion():    return self._inversion.copy()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._scale == other_element % od.DataSource( ou.Scale() ) \
+                and self._type == other_element % od.DataSource( ou.Type() ) \
+                and self._degree == other_element % od.DataSource( ou.Degree() ) \
+                and self._inversion == other_element % od.DataSource( ou.Inversion() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -704,6 +740,11 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
             # case list():            return self._elements.copy()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._elements == other_element % od.DataSource( list() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -789,6 +830,12 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
             # case list():            return self._elements.copy()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._division == other_element % od.DataSource( int() ) \
+                and self._elements == other_element % od.DataSource( list() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
@@ -866,6 +913,11 @@ class ControlChange(Element):
             case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._controller == other_element % od.DataSource( og.Controller() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -947,6 +999,11 @@ class PitchBend(Element):
             case int() | float():   return self._pitch % int()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._pitch == other_element % od.DataSource( ou.Pitch() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -1029,6 +1086,11 @@ class Aftertouch(Element):
             case int() | float():   return self._pressure % int()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._pressure == other_element % od.DataSource( ou.Pressure() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -1112,6 +1174,11 @@ class PolyAftertouch(Aftertouch):
             case ou.Octave():   return self._key_note % ou.Octave()
             case _:             return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._key_note == other_element % od.DataSource( og.KeyNote() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -1178,6 +1245,11 @@ class ProgramChange(Element):
             case int() | float():   return self._program % int()
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other_element: 'Element') -> bool:
+        if super().__eq__(other_element):
+            return  self._program == other_element % od.DataSource( ou.Program() )
+        return False
+    
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 

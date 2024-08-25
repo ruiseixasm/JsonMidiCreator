@@ -90,6 +90,8 @@ class Staff(o.Operand):
             case _:                     return self.copy()
 
     def __eq__(self, other_staff: 'Staff') -> bool:
+        if type(self) != type(other_staff):
+            return False
         return  self._measure == other_staff % od.DataSource( ov.Measure() ) \
             and self._tempo == other_staff % od.DataSource( ov.Tempo() ) \
             and self._beats_per_measure == other_staff % od.DataSource( ov.BeatsPerMeasure() ) \
