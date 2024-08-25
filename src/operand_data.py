@@ -43,10 +43,23 @@ class Data(o.Operand):
         <operand_unit.Pitch object at 0x00000135E6437290>
         """
         match operand:
-            case DataSource():             return self._data
+            case DataSource():              return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case ol.Null() | None:          return ol.Null()
-            case _:                         return self._data
+            case _:
+                match self._data:
+                    case o.Operand():
+                        return self._data.copy()
+                    case list():
+                        many_operands: list = []
+                        for single_operand in self._data:
+                            match single_operand:
+                                case o.Operand():
+                                    many_operands.append(single_operand.copy())
+                                case _:
+                                    many_operands.append(single_operand)
+                        return many_operands
+                    case _: return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
         return self % bool() == other_data % bool()
@@ -85,9 +98,35 @@ class Data(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
         match operand:
-            case Data():            self._data = operand % DataSource( o.Operand() )
-            case DataSource():     self._data = operand % o.Operand()
-            case _:                 self._data = operand
+            case Data():
+                operand_data = operand % DataSource( o.Operand() )
+                match operand_data:
+                    case o.Operand():
+                        self._data = operand_data.copy()
+                    case list():
+                        many_operands: list = []
+                        for single_operand in operand_data:
+                            match single_operand:
+                                case o.Operand():
+                                    many_operands.append(single_operand.copy())
+                                case _:
+                                    many_operands.append(single_operand)
+                        self._data = many_operands
+                    case _:
+                        self._data = operand_data
+            case DataSource():      self._data = operand % o.Operand()
+            case o.Operand():
+                self._data = self._data.copy()
+            case list():
+                many_operands: list = []
+                for single_operand in self._data:
+                    match single_operand:
+                        case o.Operand():
+                            many_operands.append(single_operand.copy())
+                        case _:
+                            many_operands.append(single_operand)
+                self._data = many_operands
+            case _: self._data = operand
         return self
 
 class DataSource(Data):
