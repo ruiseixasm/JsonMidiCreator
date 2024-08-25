@@ -76,14 +76,14 @@ class Container(o.Operand):
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operand_list.copy()
             # case list():
-            #     many_operands: list[o.Operand] = []
+            #     operands: list[o.Operand] = []
             #     for single_operand in self._operand_list:
             #         match single_operand:
             #             case o.Operand():
-            #                 many_operands.append(single_operand.copy())
+            #                 operands.append(single_operand.copy())
             #             case _:
-            #                 many_operands.append(single_operand)
-            #     return many_operands
+            #                 operands.append(single_operand)
+            #     return operands
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
