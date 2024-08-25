@@ -64,21 +64,21 @@ class Staff(o.Operand):
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             # Direct Values
-            case ov.Measure():          return self._measure
-            case ov.Tempo():            return self._tempo
-            case ov.BeatsPerMeasure():  return self._beats_per_measure
-            case ov.BeatNoteValue():    return self._beat_note_value
-            case ou.Scale():            return self._scale
-            case ov.Quantization():     return self._quantization
-            case ot.Duration():         return self._duration
-            case ou.Key():              return self._key
-            case ou.Octave():           return self._octave
-            case ou.Velocity():         return self._velocity
-            case og.Controller():       return self._controller
+            case ov.Measure():          return self._measure.copy()
+            case ov.Tempo():            return self._tempo.copy()
+            case ov.BeatsPerMeasure():  return self._beats_per_measure.copy()
+            case ov.BeatNoteValue():    return self._beat_note_value.copy()
+            case ou.Scale():            return self._scale.copy()
+            case ov.Quantization():     return self._quantization.copy()
+            case ot.Duration():         return self._duration.copy()
+            case ou.Key():              return self._key.copy()
+            case ou.Octave():           return self._octave.copy()
+            case ou.Velocity():         return self._velocity.copy()
+            case og.Controller():       return self._controller.copy()
             case ou.ControlNumber():    return self._controller % ou.ControlNumber()
             case ou.ControlValue():     return self._controller % ou.ControlValue()
-            case ou.Channel():          return self._channel
-            case od.Device():           return self._device
+            case ou.Channel():          return self._channel.copy()
+            case od.Device():           return self._device.copy()
             # Calculated Values
             case ov.NotesPerMeasure():
                 return ov.NotesPerMeasure((self % ov.BeatsPerMeasure() % Fraction()) * (self % ov.BeatNoteValue() % Fraction()))

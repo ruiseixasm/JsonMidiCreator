@@ -142,9 +142,12 @@ class DataSource(Data):
     def __init__(self, operand: o.Operand = None):
         super().__init__( o.Operand() if operand is None else operand )
 
+    def __mod__(self, operand: o.Operand):
+        return self._data
+
 class ListScale(Data):
     def __init__(self, list_scale: list[int] = None):
-        super().__init__( os.global_staff % ou.Scale() % list() if list_scale is None else list_scale )
+        super().__init__( os.global_staff % DataSource( ou.Scale() ) % list() if list_scale is None else list_scale )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -195,7 +198,7 @@ class ListScale(Data):
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
-        super().__init__( os.global_staff % self % list() if device_list is None else device_list )
+        super().__init__( os.global_staff % DataSource( self ) % list() if device_list is None else device_list )
 
 class PlayList(Data):
     def __init__(self, play_list: list = None):
