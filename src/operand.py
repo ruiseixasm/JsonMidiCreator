@@ -19,7 +19,7 @@ class Operand:
         import operand_label as ol
         match operand:
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def start(self) -> 'ot.Position':
         import operand_label as ol

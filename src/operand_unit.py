@@ -54,12 +54,12 @@ class Unit(on.Numeric):
         12
         """
         match operand:
-            case od.DataSource():  return self._unit
+            case od.DataSource():   return self._unit
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return round(self._unit)
             case float():           return float(self._unit)
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def __eq__(self, other_unit: 'Unit') -> bool:
         return self % int() == other_unit % int()
@@ -154,7 +154,7 @@ class Key(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():      return super().__mod__(operand)
+            case od.DataSource():       return super().__mod__(operand)
             case str():                 return Key.getKey(self % int())
             case _:                     return super().__mod__(operand)
 
@@ -234,7 +234,7 @@ class Scale(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():  return super().__mod__(operand)
+            case od.DataSource():   return super().__mod__(operand)
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
             case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
             case od.ListScale():    return od.ListScale( Scale._scales[self % int() % len(Scale._scales)].copy() )
@@ -579,7 +579,7 @@ class Pitch(Midi):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():  return super().__mod__(operand)
+            case od.DataSource():   return super().__mod__(operand)
             case ol.MSB():
                 amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
                 amount = max(min(amount, 16383), 0) # midi safe
@@ -637,7 +637,7 @@ class ControlNumber(Midi):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():      return super().__mod__(operand)
+            case od.DataSource():       return super().__mod__(operand)
             case str():                 return ControlNumber.numberToName(self % int())
             case _:                     return super().__mod__(operand)
 

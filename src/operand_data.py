@@ -159,7 +159,7 @@ class ListScale(Data):
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
         match operand:
-            case DataSource():         return super().__mod__(operand)
+            case DataSource():          return super().__mod__(operand)
             case ou.Tonic():
                 tonic_note = operand % int()
                 transposed_scale = [0] * 12

@@ -54,7 +54,7 @@ class Element(o.Operand):
             case ou.Channel():      return self._channel
             case od.Device():       return self._device
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def start(self) -> ot.Position:
         return self._position.copy()

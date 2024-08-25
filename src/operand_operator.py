@@ -47,12 +47,12 @@ class Operator(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case list():            return self._operator_list
-                    case o.Operand():         return self._operand
+                    case o.Operand():       return self._operand
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operator_list
             case ol.Null() | None:  return ol.Null()
-            case o.Operand():         return self._operand
-            case _:                 return self
+            case o.Operand():       return self._operand
+            case _:                 return self.copy()
 
     def getSerialization(self):
         operators_serialization = []
@@ -132,7 +132,7 @@ class Oscillator(Operator):
         
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():      return super().__mod__(operand)
+            case od.DataSource():       return super().__mod__(operand)
             case ot.Position():         return self._position
             case ot.Length():           return self._length
             case ov.Amplitude():        return self._amplitude

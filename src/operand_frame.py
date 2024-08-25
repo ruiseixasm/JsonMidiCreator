@@ -67,7 +67,7 @@ class Frame(o.Operand):
                     match single_operand:
                         case Frame():   continue
                         case operand:   return single_operand
-        return self
+        return self.copy()
     
     def __eq__(self, frame: 'Frame') -> bool:
         return isinstance(self, frame.__class__)

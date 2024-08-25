@@ -48,7 +48,7 @@ class Time(o.Operand):
             case ov.NoteValue():    return self._note_value
             case ov.Step():         return self._step
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def __eq__(self, other_length):
         return self.getTime_rational() == other_length.getTime_rational()

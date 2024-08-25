@@ -49,7 +49,7 @@ class KeyNote(Generic):
                 octave = self._octave % int()
                 return 12 * (octave + 1) + key
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def __eq__(self, other: 'KeyNote') -> bool:
         if self % ou.Octave() == other % ou.Octave() and self % ou.Key() == other % ou.Key():
@@ -160,13 +160,13 @@ class Controller(Generic):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():      return super().__mod__(operand)
+            case od.DataSource():       return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number
             case ou.ControlValue():     return self._control_value
             case int() | float():       return self._control_value % int()
             case ol.Null() | None:      return ol.Null()
-            case _:                     return self
+            case _:                     return self.copy()
 
     def getSerialization(self):
         return {

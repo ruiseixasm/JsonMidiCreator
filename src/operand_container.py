@@ -76,7 +76,7 @@ class Container(o.Operand):
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operand_list
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def first(self) -> o.Operand:
         if len(self._operand_list) > 0:

@@ -63,13 +63,13 @@ class Value(on.Numeric):
         0.25
         """
         match operand:
-            case od.DataSource():  return self._rational
+            case od.DataSource():   return self._rational
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return round(self._rational)
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self
+            case _:                 return self.copy()
 
     def __eq__(self, other_value: 'Value') -> bool:
         return self % Fraction() == other_value % Fraction()
