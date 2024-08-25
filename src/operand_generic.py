@@ -41,9 +41,10 @@ class KeyNote(Generic):
                 match operand % o.Operand():
                     case ou.Key():          return self._key
                     case ou.Octave():       return self._octave
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case ou.Key():          return self._key
-            case ou.Octave():       return self._octave
+            case ou.Key():          return self._key.copy()
+            case ou.Octave():       return self._octave.copy()
             case int():
                 key = self._key % int()
                 octave = self._octave % int()
@@ -160,10 +161,14 @@ class Controller(Generic):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():       return super().__mod__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.ControlNumber():    return self._control_number
+                    case ou.ControlValue():     return self._control_value
+                    case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
-            case ou.ControlNumber():    return self._control_number
-            case ou.ControlValue():     return self._control_value
+            case ou.ControlNumber():    return self._control_number.copy()
+            case ou.ControlValue():     return self._control_value.copy()
             case int() | float():       return self._control_value % int()
             case ol.Null() | None:      return ol.Null()
             case _:                     return self.copy()

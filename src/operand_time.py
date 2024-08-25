@@ -42,11 +42,12 @@ class Time(o.Operand):
                     case ov.Beat():         return self._beat
                     case ov.NoteValue():    return self._note_value
                     case ov.Step():         return self._step
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case ov.Measure():      return self._measure
-            case ov.Beat():         return self._beat
-            case ov.NoteValue():    return self._note_value
-            case ov.Step():         return self._step
+            case ov.Measure():      return self._measure.copy()
+            case ov.Beat():         return self._beat.copy()
+            case ov.NoteValue():    return self._note_value.copy()
+            case ov.Step():         return self._step.copy()
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 

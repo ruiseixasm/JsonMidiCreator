@@ -48,10 +48,12 @@ class Operator(o.Operand):
                 match operand % o.Operand():
                     case list():            return self._operator_list
                     case o.Operand():       return self._operand
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case list():            return self._operator_list
+            case list():            return self._operator_list.copy()
+            # case list():            return self._operator_list.copy()
             case ol.Null() | None:  return ol.Null()
-            case o.Operand():       return self._operand
+            case o.Operand():       return self._operand.copy()
             case _:                 return self.copy()
 
     def getSerialization(self):
@@ -132,11 +134,17 @@ class Oscillator(Operator):
         
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():       return super().__mod__(operand)
-            case ot.Position():         return self._position
-            case ot.Length():           return self._length
-            case ov.Amplitude():        return self._amplitude
-            case ov.Offset():           return self._offset
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ot.Position():         return self._position
+                    case ot.Length():           return self._length
+                    case ov.Amplitude():        return self._amplitude
+                    case ov.Offset():           return self._offset
+                    case _:                     return super().__mod__(operand)
+            case ot.Position():         return self._position.copy()
+            case ot.Length():           return self._length.copy()
+            case ov.Amplitude():        return self._amplitude.copy()
+            case ov.Offset():           return self._offset.copy()
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self):
