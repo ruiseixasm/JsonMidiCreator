@@ -93,9 +93,6 @@ class Unit(on.Numeric):
             self._unit = serialization["parameters"]["unit"]
         return self
 
-    def copy(self) -> 'Unit':
-        return self.__class__() << od.DataSource( self._unit )
-
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         match operand:
             case od.DataSource():

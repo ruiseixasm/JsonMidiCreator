@@ -93,9 +93,6 @@ class Data(o.Operand):
             self._data = serialization["parameters"]["data"]
         return self
 
-    def copy(self) -> 'Data':
-        return self.__class__() << DataSource( self._data.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Data':
         match operand:
             case Data():

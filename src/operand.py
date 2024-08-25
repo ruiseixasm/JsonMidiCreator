@@ -39,7 +39,7 @@ class Operand:
     def loadSerialization(self, serialization: dict):
         return self
        
-    def copy(self):
+    def copy(self) -> 'Operand':
         return self.__class__() << self
     
     def __xor__(self, function: 'od.Function'):

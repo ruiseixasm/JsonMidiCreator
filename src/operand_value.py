@@ -103,9 +103,6 @@ class Value(on.Numeric):
             self._rational = Fraction(serialization["parameters"]["value"]).limit_denominator()
         return self
 
-    def copy(self) -> 'Value':
-        return self.__class__() << od.DataSource( self._rational )
-
     def __lshift__(self, operand: o.Operand) -> 'Value':
         match operand:
             case od.DataSource():
@@ -335,12 +332,9 @@ class Dotted(NoteValue):
 
     # CHAINABLE OPERATIONS
 
-    def copy(self) -> 'Value':
-        return self.__class__() << od.DataSource( self % od.DataSource() )
-
     def __lshift__(self, operand: o.Operand) -> 'Value':
         match operand:
-            case od.DataSource():  super().__lshift__(operand)
+            case od.DataSource():   super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             # It's just a wrapper for NoteValue 3/2

@@ -94,9 +94,6 @@ class KeyNote(Generic):
             self._octave = ou.Octave(serialization["parameters"]["octave"])
         return self
         
-    def copy(self) -> 'KeyNote':
-        return KeyNote() << od.DataSource( self._key.copy() ) << od.DataSource( self._octave.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
         match operand:
             case od.DataSource():
@@ -104,8 +101,8 @@ class KeyNote(Generic):
                     case ou.Key():          self._key = operand % o.Operand()
                     case ou.Octave():       self._octave = operand % o.Operand()
             case KeyNote():
-                self._key = operand % od.DataSource( ou.Key() )
-                self._octave = operand % od.DataSource( ou.Octave() )
+                self._key = (operand % od.DataSource( ou.Key() )).copy()
+                self._octave = (operand % od.DataSource( ou.Octave() )).copy()
             case of.Frame():        self << (operand & self)
             case ou.Key():          self._key = operand
             case ou.Octave():       self._octave = operand
@@ -192,9 +189,6 @@ class Controller(Generic):
             self._control_value = ou.ControlValue(serialization["parameters"]["control_value"])
         return self
         
-    def copy(self) -> 'Controller':
-        return Controller() << od.DataSource( self._control_number.copy() ) << od.DataSource( self._control_value.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Controller':
         match operand:
             case od.DataSource():
@@ -202,8 +196,8 @@ class Controller(Generic):
                     case ou.ControlNumber():    self._control_number = operand % o.Operand()
                     case ou.ControlValue():     self._control_value = operand % o.Operand()
             case Controller():
-                self._control_number = operand % od.DataSource( ou.ControlNumber() )
-                self._control_value = operand % od.DataSource( ou.ControlValue() )
+                self._control_number = (operand % od.DataSource( ou.ControlNumber() )).copy()
+                self._control_value = (operand % od.DataSource( ou.ControlValue() )).copy()
             case of.Frame():            self << (operand & self)
             case ou.ControlNumber():    self._control_number = operand
             case ou.ControlValue():     self._control_value = operand
