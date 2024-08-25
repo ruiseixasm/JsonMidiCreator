@@ -31,6 +31,17 @@ class Data(Operand):
         self._data = data
 
     def __mod__(self, operand: Operand):
+        """
+        The % symbol is used to extract a Parameter, because a Data has
+        only one type of Parameters that's a generic type of Parameter
+        it should be used in conjugation with Operand() to extract it.
+
+        Examples
+        --------
+        >>> some_data = Data(Pitch(8191)) % Operand()
+        >>> print(some_data)
+        <operand_unit.Pitch object at 0x00000135E6437290>
+        """
         match operand:
             case OperandData():             return self._data
             case of.Frame():                return self % (operand % Operand())
@@ -97,6 +108,17 @@ class ListScale(Data):
         super().__init__( os.global_staff % ou.Scale() % list() if list_scale is None else list_scale )
 
     def __mod__(self, operand: Operand) -> Operand:
+        """
+        The % symbol is used to extract a Parameter, a ListScale has many extraction modes
+        one type of extraction is its list() type of Parameter representing a scale
+        but it's also possible to extract the same scale on other Tonic() key based on C.
+
+        Examples
+        --------
+        >>> tonic_a_scale = ListScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
+        >>> print(tonic_a_scale)
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+        """
         match operand:
             case OperandData():         return super().__mod__(operand)
             case ou.Tonic():
@@ -104,7 +126,7 @@ class ListScale(Data):
                 transposed_scale = [0] * 12
                 self_scale = self._data
                 for key_i in range(12):
-                    transposed_scale[(tonic_note + key_i) % 12] = self_scale[key_i]
+                    transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return ListScale(transposed_scale)
             case ou.Mode():             return ou.Key("C") + self.transpose(operand % int() - 1)
             case ou.Transposition():    return ou.Key("C") + self.transpose(operand % int())

@@ -30,13 +30,13 @@ import operand_label as ol
 # Units have never None values and are also const, with no setters
 class Unit(on.Numeric):
     """
-    This is a read only type of Operand that has associated an Integer.
-    This class is intended to represent parameters that are whole numbers like in midi messages from 0 to 127
+    This type of Operand is associated to an Integer.
+    This class is intended to represent parameters that are whole numbers like midi messages from 0 to 127
 
     Parameters
     ----------
     first : integer_like
-        A read only Integer described as a Unit
+        An Integer described as a Unit
     """
     def __init__(self, unit: int = None):
         self._unit: int = 0 if unit is None else round(unit)
@@ -57,7 +57,7 @@ class Unit(on.Numeric):
             case od.OperandData():  return self._unit
             case of.Frame():        return self % (operand % Operand())
             case int():             return round(self._unit)
-            case float():           return round(1.0 * self._unit, 12)   # rounding to 9 avoids floating-point errors
+            case float():           return float(self._unit)
             case ol.Null() | None:  return ol.Null()
             case _:                 return self
 
@@ -199,58 +199,10 @@ class Octave(Unit):
     Parameters
     ----------
     first : integer_like
-        A read only Integer representing the full midi keyboard octave varying from -1 to 9
+        An Integer representing the full midi keyboard octave varying from -1 to 9
     """
     def __init__(self, unit: int = None):
         super().__init__(unit)
-
-class Velocity(Unit):
-    """
-    Velocity() represents the velocity with which a key is pressed.
-    
-    Parameters
-    ----------
-    first : integer_like
-        A key velocity varies from 0 to 127 with 100 being normally the default
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
-
-class Pressure(Unit):
-    """
-    Pressure() represents the intensity with which a key is pressed while down.
-    
-    Parameters
-    ----------
-    first : integer_like
-        A key pressure varies from 0 to 127 with 0 being normally the default
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
-
-class Program(Unit):
-    """
-    Program() represents the Program Number associated to a given Instrument.
-    
-    Parameters
-    ----------
-    first : integer_like
-        A Program Number varies from 0 to 127 with 0 being normally the default
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
-
-class Channel(Unit):
-    """
-    A Channel() is an identifier normally associated to an instrument in a given midi device.
-    
-    Parameters
-    ----------
-    first : integer_like
-        For a given device, there are 16 channels ranging from 1 to 16
-    """
-    def __init__(self, unit: int = None):
-        super().__init__( os.global_staff % self % int() if unit is None else unit )
 
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
     ...
@@ -290,7 +242,7 @@ class Scale(Unit):
                 transposed_scale = [0] * 12
                 self_scale = Scale._scales[self % int() % len(Scale._scales)]
                 for key_i in range(12):
-                    transposed_scale[(tonic_note + key_i) % 12] = self_scale[key_i]
+                    transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return od.ListScale(transposed_scale)
             case Mode():            return Key("C") + self.transpose(operand % int() - 1)
             case Transposition():   return Key("C") + self.transpose(operand % int())
@@ -508,42 +460,6 @@ class Inversion(Operation):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class Pitch(Unit):
-    """
-    Pitch() sets the variation in the pitch to be associated to the PitchBend() Element.
-    
-    Parameters
-    ----------
-    first : integer_like
-        Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
-        this variation is 2 semi-tones bellow or above respectively
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
-
-    def __mod__(self, operand: Operand) -> Operand:
-        match operand:
-            case od.OperandData():  return super().__mod__(operand)
-            case ol.MSB():
-                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
-                amount = max(min(amount, 16383), 0) # midi safe
-                msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-                return msb
-            case ol.LSB():
-                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
-                amount = max(min(amount, 16383), 0) # midi safe
-                lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-                return lsb
-            case _:                 return super().__mod__(operand)
-
-#        bend down    center      bend up
-#     0 |<----------- |8192| ----------->| 16383
-# -8192                   0                 8191
-# 14 bits resolution (MSB, LSB). Value = 128 * MSB + LSB
-# min : The maximum negative swing is achieved with data byte values of 00, 00. Value = 0
-# center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
-# max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
-
 class Play(Unit):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
@@ -584,7 +500,111 @@ class Print(Unit):
         print(json_formatted_str)
         return operand
 
-class ControlValue(Unit):
+class PPQN(Unit):
+    """
+    PPQN() represent Pulses Per Quarter Note for Midi clock.
+    
+    Parameters
+    ----------
+    first : integer_like
+        The typical amd the default value is 24, but it can be set multiples of 24
+    """
+    def __init__(self, unit: int = None):
+        super().__init__( 24 if unit is None else unit )
+
+class Midi(Unit):
+    pass
+
+class Velocity(Midi):
+    """
+    Velocity() represents the velocity or strength by which a key is pressed.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A key velocity varies from 0 to 127
+    """
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
+
+class Pressure(Midi):
+    """
+    Pressure() represents the intensity with which a key is pressed after being down.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A key pressure varies from 0 to 127
+    """
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
+
+class Program(Midi):
+    """
+    Program() represents the Program Number associated to a given Instrument.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A Program Number varies from 0 to 127
+    """
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
+
+class Channel(Midi):
+    """
+    A Channel() is an identifier normally associated to an instrument in a given midi device.
+    
+    Parameters
+    ----------
+    first : integer_like
+        For a given device, there are 16 channels ranging from 1 to 16
+    """
+    def __init__(self, unit: int = None):
+        super().__init__( os.global_staff % self % int() if unit is None else unit )
+
+class Pitch(Midi):
+    """
+    Pitch() sets the variation in the pitch to be associated to the PitchBend() Element.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
+        this variation is 2 semi-tones bellow or above respectively
+    """
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
+
+    def __mod__(self, operand: Operand) -> Operand:
+        match operand:
+            case od.OperandData():  return super().__mod__(operand)
+            case ol.MSB():
+                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+                amount = max(min(amount, 16383), 0) # midi safe
+                msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+                return msb
+            case ol.LSB():
+                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+                amount = max(min(amount, 16383), 0) # midi safe
+                lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+                return lsb
+            case _:                 return super().__mod__(operand)
+
+# For example, if the pitch bend range is set to ±2 half-tones (which is common), then:
+#     8192 (center value) means no pitch change.
+#     0 means maximum downward bend (−2 half-tones).
+#     16383 means maximum upward bend (+2 half-tones).
+
+#        bend down    center      bend up
+#     0 |<----------- |8192| ----------->| 16383
+# -8192                   0                 8191
+# 14 bits resolution (MSB, LSB). Value = 128 * MSB + LSB
+# min : The maximum negative swing is achieved with data byte values of 00, 00. Value = 0
+# center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
+# max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
+
+class ControlValue(Midi):
     """
     ControlValue() represents the Control Change value that is sent via Midi
     
@@ -596,7 +616,7 @@ class ControlValue(Unit):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class ControlNumber(Unit):
+class ControlNumber(Midi):
     """
     ControlNumber() represents the number of the Control to be manipulated with the ControlValue values.
     
@@ -689,15 +709,3 @@ class ControlNumber(Unit):
             if controller["midi_number"] == number:
                 return controller["names"][0]
         return os.global_staff % ControlNumber() % str()
-
-class PPQN(Unit):
-    """
-    PPQN() represent Pulses Per Quarter Note for Midi clock.
-    
-    Parameters
-    ----------
-    first : integer_like
-        The typical amd the default value is 24, but it can be set multiples of 24
-    """
-    def __init__(self, unit: int = None):
-        super().__init__( 24 if unit is None else unit )

@@ -29,16 +29,19 @@ import operand_label as ol
 # Fraction objects are immutable, so modifications create new objects rather than changing existing ones.
 # Assignments and passing around fractions involve copying references, not duplicating the actual object data.
 # Due to immutability, you can safely assume Fraction behaves with value semantics—modifications don't affect the original object.
+    # int * float results in a float
+    # Fraction * float results in a float
+    # Fraction * Fraction results in a Fraction
 
 class Value(on.Numeric):
     """
-    This is a read only type of Operand that has associated a Rational number.
+    This is a type of Operand that has associated to a Fractional number.
     This class is intended to represent time based variables that are ratios like the typical 1/4 note value
 
     Parameters
     ----------
     first : float_like
-        A read only Rational described as a Value
+        A fraction like 1/4 or 0.9 or 1.24
     """
     def __init__(self, value: float = None):
         self._rational: Fraction = Fraction(0).limit_denominator()

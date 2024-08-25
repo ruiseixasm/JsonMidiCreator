@@ -60,6 +60,17 @@ class Container(Operand):
         return len(self._operand_list)
 
     def __mod__(self, operand: list) -> list:
+        """
+        The % symbol is used to extract a Parameter, because a Container has
+        only one type of Parameters it should be used in conjugation with list()
+        to extract the Parameter list.
+
+        Examples
+        --------
+        >>> sequence_list = Sequence(Note("A"), Note("B")) % list()
+        >>> print(sequence_list)
+        [<operand_element.Note object at 0x00000135E7FAEE90>, <operand_element.Note object at 0x00000135E7FAF110>]
+        """
         match operand:
             case od.OperandData():  return self._operand_list
             case of.Frame():        return self % (operand % Operand())

@@ -70,10 +70,7 @@ class Time(Operand):
                 + self._note_value.getTime_rational() + self._step.getTime_rational()
         
     def getTime_ms(self) -> float:
-        # int * float results in a float
-        # Fraction * float results in a float
-        # Fraction * Fraction results in a Fraction
-        return round(1.0 * self.getTime_rational(), 3)
+        return round(float(self.getTime_rational), 3)
         
     def getSerialization(self):
         return {
