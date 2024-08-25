@@ -62,13 +62,13 @@ class Data(o.Operand):
                     case _: return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
-        return self % bool() == other_data % bool()
+        return self % DataSource() == other_data % DataSource()
     
     def __lt__(self, other_data: 'Data') -> bool:
-        return self % int() < other_data % int()
+        return self % DataSource() < other_data % DataSource()
     
     def __gt__(self, other_data: 'Data') -> bool:
-        return self % int() > other_data % int()
+        return self % DataSource() > other_data % DataSource()
     
     def __le__(self, other_data: 'Data') -> bool:
         return not (self > other_data)

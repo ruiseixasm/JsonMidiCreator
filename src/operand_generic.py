@@ -170,6 +170,11 @@ class Controller(Generic):
             case ol.Null() | None:      return ol.Null()
             case _:                     return self.copy()
 
+    def __eq__(self, other: 'Controller') -> bool:
+        if self % ou.ControlNumber() == other % ou.ControlNumber() and self % ou.ControlValue() == other % ou.ControlValue():
+            return True
+        return False
+    
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,

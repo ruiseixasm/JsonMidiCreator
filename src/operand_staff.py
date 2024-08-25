@@ -89,6 +89,21 @@ class Staff(o.Operand):
             case ol.Null() | None:      return ol.Null()
             case _:                     return self.copy()
 
+    def __eq__(self, other_staff: 'Staff') -> bool:
+        return  self._measure == other_staff % od.DataSource( ov.Measure() ) \
+            and self._tempo == other_staff % od.DataSource( ov.Tempo() ) \
+            and self._beats_per_measure == other_staff % od.DataSource( ov.BeatsPerMeasure() ) \
+            and self._beat_note_value == other_staff % od.DataSource( ov.BeatNoteValue() ) \
+            and self._scale == other_staff % od.DataSource( ou.Scale() ) \
+            and self._quantization == other_staff % od.DataSource( ov.Quantization() ) \
+            and self._duration == other_staff % od.DataSource( ot.Duration() ) \
+            and self._key == other_staff % od.DataSource( ou.Key() ) \
+            and self._octave == other_staff % od.DataSource( ou.Octave() ) \
+            and self._velocity == other_staff % od.DataSource( ou.Velocity() ) \
+            and self._controller == other_staff % od.DataSource( og.Controller() ) \
+            and self._channel == other_staff % od.DataSource( ou.Channel() ) \
+            and self._device == other_staff % od.DataSource( od.Device() )
+    
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,

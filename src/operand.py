@@ -21,6 +21,21 @@ class Operand:
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
+    def __eq__(self, operand: 'Operand') -> bool:
+        return False
+    
+    def __lt__(self, operand: 'Operand') -> bool:
+        return False
+    
+    def __gt__(self, operand: 'Operand') -> bool:
+        return False
+    
+    def __le__(self, operand: 'Operand') -> bool:
+        return False
+    
+    def __ge__(self, operand: 'Operand') -> bool:
+        return False
+    
     def start(self) -> 'ot.Position':
         import operand_label as ol
         return ol.Null()
