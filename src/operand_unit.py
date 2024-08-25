@@ -237,6 +237,7 @@ class Scale(Unit):
             case od.OperandData():  return super().__mod__(operand)
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
             case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
+            case od.ListScale():    return od.ListScale( Scale._scales[self % int() % len(Scale._scales)].copy() )
             case Tonic():
                 tonic_note = operand % int()
                 transposed_scale = [0] * 12
