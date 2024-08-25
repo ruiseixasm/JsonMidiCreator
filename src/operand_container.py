@@ -87,6 +87,11 @@ class Container(o.Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
+    def __eq__(self, other_container: 'Container') -> bool:
+        if type(self) == type(other_container):
+            return  self._operand_list == other_container % od.DataSource( list() )
+        return False
+    
     def first(self) -> o.Operand:
         if len(self._operand_list) > 0:
             return self._operand_list[0]

@@ -83,8 +83,16 @@ class Frame(o.Operand):
                         case _:         return single_operand
         return self.copy()
     
-    def __eq__(self, frame: 'Frame') -> bool:
-        return isinstance(self, frame.__class__)
+    def __eq__(self, other_frame: 'Frame') -> bool:
+        if type(self) == type(other_frame):
+            self_operand_list: list = []
+            for single_operand in self:
+                self_operand_list.append(single_operand)
+            other_operand_list: list = []
+            for single_operand in other_frame:
+                other_operand_list.append(single_operand)
+            return self_operand_list == other_operand_list
+        return False
     
     def getSerialization(self):
         return {

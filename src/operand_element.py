@@ -58,12 +58,12 @@ class Element(o.Operand):
             case _:                 return self.copy()
 
     def __eq__(self, other_element: 'Element') -> bool:
-        if type(self) != type(other_element):
-            return False
-        return  self._position == other_element % od.DataSource( ot.Position() ) \
-            and self._length == other_element % od.DataSource( ot.Length() ) \
-            and self._channel == other_element % od.DataSource( ou.Channel() ) \
-            and self._device == other_element % od.DataSource( od.Device() )
+        if type(self) == type(other_element):
+            return  self._position == other_element % od.DataSource( ot.Position() ) \
+                and self._length == other_element % od.DataSource( ot.Length() ) \
+                and self._channel == other_element % od.DataSource( ou.Channel() ) \
+                and self._device == other_element % od.DataSource( od.Device() )
+        return False
     
     def start(self) -> ot.Position:
         return self._position.copy()

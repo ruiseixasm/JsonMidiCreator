@@ -62,9 +62,9 @@ class Data(o.Operand):
                     case _: return self._data
 
     def __eq__(self, other_data: 'Data') -> bool:
-        if type(self._data) != type(other_data % DataSource()):
-            return False
-        return self._data == other_data % DataSource()
+        if type(self._data) == type(other_data % DataSource()):
+            return self._data == other_data % DataSource()
+        return False
     
     def __lt__(self, other_data: 'Data') -> bool:
         if type(self._data) != type(other_data % DataSource()):

@@ -56,6 +56,12 @@ class Operator(o.Operand):
             case o.Operand():       return self._operand.copy()
             case _:                 return self.copy()
 
+    def __eq__(self, other_operator: 'Operator') -> bool:
+        if type(self) == type(other_operator):
+            return  self._operator_list == other_operator % od.DataSource( list() ) \
+                and self._operand == other_operator % od.DataSource( o.Operand() )
+        return False
+    
     def getSerialization(self):
         operators_serialization = []
         for single_operator in self % list():
@@ -147,6 +153,14 @@ class Oscillator(Operator):
             case ov.Offset():           return self._offset.copy()
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other_operator: 'Operator') -> bool:
+        if super().__eq__(other_operator):
+            return  self._position == other_operator % od.DataSource( ot.Position() ) \
+                and self._length == other_operator % od.DataSource( ot.Length() ) \
+                and self._amplitude == other_operator % od.DataSource( ov.Amplitude() ) \
+                and self._offset == other_operator % od.DataSource( ov.Offset() )
+        return False
+    
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["position"] = self._position.getSerialization()
