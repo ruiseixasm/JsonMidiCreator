@@ -41,7 +41,7 @@ class Element(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     return self._position
                     case ot.Length():       return self._length
@@ -91,8 +91,8 @@ class Element(o.Operand):
         
     def copy(self) -> 'Element':
         return self.__class__() \
-            << od.OperandData( self._position.copy() ) << od.OperandData( self._length.copy() ) \
-            << od.OperandData( self._channel.copy() ) << od.OperandData( self._device.copy() )
+            << od.DataSource( self._position.copy() ) << od.DataSource( self._length.copy() ) \
+            << od.DataSource( self._channel.copy() ) << od.DataSource( self._device.copy() )
     
     def __xor__(self, function: 'od.Function'):
         """
@@ -108,17 +108,17 @@ class Element(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
                     case ou.Channel():      self._channel = operand % o.Operand()
                     case od.Device():       self._device = operand % o.Operand()
             case Element():
-                self._position      = operand % od.OperandData( ot.Position() )
-                self._length        = operand % od.OperandData( ot.Length() )
-                self._channel       = operand % od.OperandData( ou.Channel() )
-                self._device        = operand % od.OperandData( od.Device() )
+                self._position      = operand % od.DataSource( ot.Position() )
+                self._length        = operand % od.DataSource( ot.Length() )
+                self._channel       = operand % od.DataSource( ou.Channel() )
+                self._device        = operand % od.DataSource( od.Device() )
             case of.Frame():        self << (operand & self)
             case ot.Position():     self._position = operand
             case ov.TimeUnit():     self._position << operand
@@ -212,7 +212,7 @@ class Clock(Element):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ClockModes():  return self._mode
                     case ou.PPQN():     return self._pulses_per_quarternote
@@ -306,20 +306,20 @@ class Clock(Element):
         return self
 
     def copy(self) -> 'Clock':
-        return super().copy() << od.OperandData( self._mode ) \
-            << od.OperandData( self._device.copy() ) << od.OperandData( self._pulses_per_quarternote.copy() )
+        return super().copy() << od.DataSource( self._mode ) \
+            << od.DataSource( self._device.copy() ) << od.DataSource( self._pulses_per_quarternote.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Clock':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ClockModes():      self._mode = operand % o.Operand()
                     case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Clock():
                 super().__lshift__(operand)
-                self._mode = operand % od.OperandData( ClockModes() )
-                self._pulses_per_quarternote = operand % od.OperandData( ou.PPQN() )
+                self._mode = operand % od.DataSource( ClockModes() )
+                self._pulses_per_quarternote = operand % od.DataSource( ou.PPQN() )
             case ClockModes():      self._mode = operand
             case ou.PPQN():         self._pulses_per_quarternote = operand
             case int() | float():   self._length = ot.Length(operand)
@@ -344,7 +344,7 @@ class Note(Element):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ot.Duration():     return self._duration
                     case og.KeyNote():      return self._key_note
@@ -416,12 +416,12 @@ class Note(Element):
       
     def copy(self) -> 'Note':
         return super().copy() \
-            << od.OperandData( self._duration.copy() ) << od.OperandData( self._key_note.copy() ) \
-            << od.OperandData( self._velocity.copy() ) << od.OperandData( self._gate.copy() )
+            << od.DataSource( self._duration.copy() ) << od.DataSource( self._key_note.copy() ) \
+            << od.DataSource( self._velocity.copy() ) << od.DataSource( self._gate.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Note':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ot.Duration():     self._duration = operand % o.Operand()
                     case og.KeyNote():      self._key_note = operand % o.Operand()
@@ -430,10 +430,10 @@ class Note(Element):
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
-                self._duration      = operand % od.OperandData( ot.Duration() )
-                self._key_note      = operand % od.OperandData( og.KeyNote() )
-                self._velocity      = operand % od.OperandData( ou.Velocity() )
-                self._gate          = operand % od.OperandData( ov.Gate() )
+                self._duration      = operand % od.DataSource( ot.Duration() )
+                self._key_note      = operand % od.DataSource( og.KeyNote() )
+                self._velocity      = operand % od.DataSource( ou.Velocity() )
+                self._gate          = operand % od.DataSource( ov.Gate() )
             case ot.Duration():     self._duration = operand
             case ov.NoteValue():    self._duration = ot.Duration() << operand
             case og.KeyNote():      self._key_note = operand
@@ -468,7 +468,7 @@ class KeyScale(Note):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        return self._scale
                     case ou.Mode():         return self._mode
@@ -518,19 +518,19 @@ class KeyScale(Note):
         return self
         
     def copy(self) -> 'KeyScale':
-        return super().copy() << od.OperandData( self._scale.copy() ) << od.OperandData( self._mode.copy() )
+        return super().copy() << od.DataSource( self._scale.copy() ) << od.DataSource( self._mode.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        self._scale = operand % o.Operand()
                     case ou.Mode():         self._mode = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
-                self._scale = operand % od.OperandData( ou.Scale() )
-                self._mode = operand % od.OperandData( ou.Mode() )
+                self._scale = operand % od.DataSource( ou.Scale() )
+                self._mode = operand % od.DataSource( ou.Mode() )
             case ou.Scale():        self._scale = operand
             case ou.Mode():         self._mode = operand
             case _: super().__lshift__(operand)
@@ -568,7 +568,7 @@ class Chord(Note):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        return self._scale
                     case ou.Type():         return self._type
@@ -633,12 +633,12 @@ class Chord(Note):
       
     def copy(self) -> 'Chord':
         return super().copy() \
-            << od.OperandData( self._scale.copy() ) << od.OperandData( self._type.copy() ) \
-            << od.OperandData( self._degree.copy() ) << od.OperandData( self._inversion.copy() )
+            << od.DataSource( self._scale.copy() ) << od.DataSource( self._type.copy() ) \
+            << od.DataSource( self._degree.copy() ) << od.DataSource( self._inversion.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Chord':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():                self._scale = operand % o.Operand()
                     case ou.Type():                 self._type = operand % o.Operand()
@@ -647,10 +647,10 @@ class Chord(Note):
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
-                self._scale = operand % od.OperandData( ou.Scale() )
-                self._type = operand % od.OperandData( ou.Type() )
-                self._degree = operand % od.OperandData( ou.Degree() )
-                self._inversion = operand % od.OperandData( ou.Inversion() )
+                self._scale = operand % od.DataSource( ou.Scale() )
+                self._type = operand % od.DataSource( ou.Type() )
+                self._degree = operand % od.DataSource( ou.Degree() )
+                self._inversion = operand % od.DataSource( ou.Inversion() )
             case ou.Scale():                self._scale = operand
             case ou.Type():                 self._type = operand
             case ou.Degree():               self._degree = operand
@@ -679,7 +679,7 @@ class Note3(Note):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():  return super().__mod__(operand)
+            case od.DataSource():  return super().__mod__(operand)
             case ot.Duration():     return self._duration * 3/2
             case ov.NoteValue():    return self._duration * 3/2 % operand
             case _:                 return super().__mod__(operand)
@@ -697,7 +697,7 @@ class Note3(Note):
 
     def __lshift__(self, operand: o.Operand) -> 'Note3':
         match operand:
-            case od.OperandData():  super().__lshift__(operand)
+            case od.DataSource():  super().__lshift__(operand)
             case ot.Duration():
                 self._duration = operand * 2/3
             case ov.NoteValue():
@@ -715,7 +715,7 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
@@ -754,17 +754,17 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
         elements = []
         for single_element in self._elements:
             elements.append(single_element.copy())
-        return super().copy() << od.OperandData( elements )
+        return super().copy() << od.DataSource( elements )
 
     def __lshift__(self, operand: o.Operand) -> 'Triplet':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case list():            self._elements = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Triplet():
                 super().__lshift__(operand)
-                self._elements = operand % od.OperandData( list() )
+                self._elements = operand % od.DataSource( list() )
             case ot.Duration():     self._duration = operand * 2/3
             case ov.NoteValue():    self._duration = ot.Duration() << operand * 2/3
             case list():
@@ -796,7 +796,7 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case int():             return self._division
                     case list():            return self._elements
@@ -843,18 +843,18 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         elements = []
         for single_element in self._elements:
             elements.append(single_element.copy())
-        return super().copy() << od.OperandData( self._division ) << od.OperandData( elements )
+        return super().copy() << od.DataSource( self._division ) << od.DataSource( elements )
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case int():                 self._division = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
-                self._elements = operand % od.OperandData( list() )
+                self._elements = operand % od.DataSource( list() )
             case int():                 self._division = operand
             case ot.Duration():
                 if self._division == 2: self._duration = operand * 3/2
@@ -881,7 +881,7 @@ class ControlChange(Element):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
@@ -928,17 +928,17 @@ class ControlChange(Element):
         return self
       
     def copy(self) -> 'ControlChange':
-        return super().copy() << od.OperandData( self._controller.copy() )
+        return super().copy() << od.DataSource( self._controller.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case og.Controller():       self._controller = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case ControlChange():
                 super().__lshift__(operand)
-                self._controller = operand % od.OperandData( og.Controller() )
+                self._controller = operand % od.DataSource( og.Controller() )
             case og.Controller():
                 self._controller = operand
             case ou.ControlNumber() | ou.ControlValue() | int() | float():
@@ -967,7 +967,7 @@ class PitchBend(Element):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Pitch():        return self._pitch
                     case _:                 return super().__mod__(operand)
@@ -1012,17 +1012,17 @@ class PitchBend(Element):
         return self
       
     def copy(self) -> 'PitchBend':
-        return super().copy() << od.OperandData( self._pitch.copy() )
+        return super().copy() << od.DataSource( self._pitch.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Pitch():            self._pitch = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case PitchBend():
                 super().__lshift__(operand)
-                self._pitch = operand % od.OperandData( ou.Pitch() )
+                self._pitch = operand % od.DataSource( ou.Pitch() )
             case ou.Pitch():        self._pitch = operand
             case int() | float():   self._pitch << operand
             case _: super().__lshift__(operand)
@@ -1052,7 +1052,7 @@ class Aftertouch(Element):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Pressure():     return self._pressure
                     case _:                 return super().__mod__(operand)
@@ -1096,17 +1096,17 @@ class Aftertouch(Element):
         return self
       
     def copy(self) -> 'Aftertouch':
-        return super().copy() << od.OperandData( self._pressure.copy() )
+        return super().copy() << od.DataSource( self._pressure.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Pressure():         self._pressure = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Aftertouch():
                 super().__lshift__(operand)
-                self._pressure = operand % od.OperandData( ou.Pressure() )
+                self._pressure = operand % od.DataSource( ou.Pressure() )
             case ou.Pressure():
                 self._pressure = operand
             case int() | float():
@@ -1137,7 +1137,7 @@ class PolyAftertouch(Aftertouch):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():  return self._key_note
                     case _:             return super().__mod__(operand)
@@ -1183,17 +1183,17 @@ class PolyAftertouch(Aftertouch):
         return self
       
     def copy(self) -> 'PolyAftertouch':
-        return super().copy() << od.OperandData( self._key_note.copy() )
+        return super().copy() << od.DataSource( self._key_note.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():          self._key_note = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case PolyAftertouch():
                 super().__lshift__(operand)
-                self._key_note = operand % od.OperandData( og.KeyNote() )
+                self._key_note = operand % od.DataSource( og.KeyNote() )
             case og.KeyNote():      self._key_note = operand
             case ou.Key():          self._key_note << operand
             case ou.Octave():       self._key_note << operand
@@ -1207,7 +1207,7 @@ class ProgramChange(Element):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Program():      return self._program
                     case _:                 return super().__mod__(operand)
@@ -1251,17 +1251,17 @@ class ProgramChange(Element):
         return self
       
     def copy(self) -> 'ProgramChange':
-        return super().copy() << od.OperandData( self._program.copy() )
+        return super().copy() << od.DataSource( self._program.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Program():          self._program = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case ProgramChange():
                 super().__lshift__(operand)
-                self._program = operand % od.OperandData( ou.Program() )
+                self._program = operand % od.DataSource( ou.Program() )
             case ou.Program():
                 self._program = operand
             case int() | float():

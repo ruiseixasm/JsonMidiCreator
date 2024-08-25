@@ -36,7 +36,7 @@ class Time(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ov.Measure():      return self._measure
                     case ov.Beat():         return self._beat
@@ -99,22 +99,22 @@ class Time(o.Operand):
         
     def copy(self) -> 'Time':
         return self.__class__() \
-            << od.OperandData( self._measure.copy() ) << od.OperandData( self._beat.copy() ) \
-            << od.OperandData( self._note_value.copy() ) << od.OperandData( self._step.copy() )
+            << od.DataSource( self._measure.copy() ) << od.DataSource( self._beat.copy() ) \
+            << od.DataSource( self._note_value.copy() ) << od.DataSource( self._step.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Time':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ov.Measure():      self._measure = operand % o.Operand()
                     case ov.Beat():         self._beat = operand % o.Operand()
                     case ov.NoteValue():    self._note_value = operand % o.Operand()
                     case ov.Step():         self._step = operand % o.Operand()
             case Time():
-                self._measure       = operand % od.OperandData( ov.Measure() )
-                self._beat          = operand % od.OperandData( ov.Beat() )
-                self._note_value    = operand % od.OperandData( ov.NoteValue() )
-                self._step          = operand % od.OperandData( ov.Step() )
+                self._measure       = operand % od.DataSource( ov.Measure() )
+                self._beat          = operand % od.DataSource( ov.Beat() )
+                self._note_value    = operand % od.DataSource( ov.NoteValue() )
+                self._step          = operand % od.DataSource( ov.Step() )
             case of.Frame():        self << (operand & self)
             case ov.Measure():      self._measure = operand
             case ov.Beat():         self._beat = operand

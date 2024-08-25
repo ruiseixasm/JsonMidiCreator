@@ -72,7 +72,7 @@ class Container(o.Operand):
         [<operand_element.Note object at 0x00000135E7FAEE90>, <operand_element.Note object at 0x00000135E7FAF110>]
         """
         match operand:
-            case od.OperandData():  return self._operand_list
+            case od.DataSource():  return self._operand_list
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operand_list
             case ol.Null() | None:  return ol.Null()
@@ -118,7 +118,7 @@ class Container(o.Operand):
         many_operands: list[Operand] = []
         for single_operand in self._operand_list:
             many_operands.append(single_operand.copy())
-        return self.__class__() << od.OperandData( many_operands )
+        return self.__class__() << od.DataSource( many_operands )
 
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare
@@ -160,11 +160,11 @@ class Container(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Container':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case list():        self._operand_list = operand % o.Operand()
             case Container():
-                self._operand_list = operand % od.OperandData( list() )
+                self._operand_list = operand % od.DataSource( list() )
             case list():
                 self._operand_list = operand
             case o.Operand() | int() | float():
@@ -396,11 +396,11 @@ class Chain(Container):
 
     def __lshift__(self, operand: o.Operand) -> 'Chain':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case list():        self._operand_list = operand % o.Operand()
                     case _:             super().__lshift__(operand)
-            case Chain():           self._operand_list = operand % od.OperandData( list() )
+            case Chain():           self._operand_list = operand % od.DataSource( list() )
             case of.Frame():        self << (operand & self)
             case o.Operand() | int() | float():
                 self._operand_list.append(operand)

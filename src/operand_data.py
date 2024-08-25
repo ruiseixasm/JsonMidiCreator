@@ -43,7 +43,7 @@ class Data(o.Operand):
         <operand_unit.Pitch object at 0x00000135E6437290>
         """
         match operand:
-            case OperandData():             return self._data
+            case DataSource():             return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case ol.Null() | None:          return ol.Null()
             case _:                         return self._data
@@ -81,18 +81,18 @@ class Data(o.Operand):
         return self
 
     def copy(self) -> 'Data':
-        return self.__class__() << OperandData( self._data.copy() )
+        return self.__class__() << DataSource( self._data.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
         match operand:
-            case Data():            self._data = operand % OperandData( o.Operand() )
-            case OperandData():     self._data = operand % o.Operand()
+            case Data():            self._data = operand % DataSource( o.Operand() )
+            case DataSource():     self._data = operand % o.Operand()
             case _:                 self._data = operand
         return self
 
-class OperandData(Data):
+class DataSource(Data):
     """
-    OperandData() allows the direct extraction (%) or setting (<<)
+    DataSource() allows the direct extraction (%) or setting (<<)
     of the given Operand without the normal processing.
     
     Parameters
@@ -120,7 +120,7 @@ class ListScale(Data):
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
         match operand:
-            case OperandData():         return super().__mod__(operand)
+            case DataSource():         return super().__mod__(operand)
             case ou.Tonic():
                 tonic_note = operand % int()
                 transposed_scale = [0] * 12

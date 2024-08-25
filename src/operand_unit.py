@@ -54,7 +54,7 @@ class Unit(on.Numeric):
         12
         """
         match operand:
-            case od.OperandData():  return self._unit
+            case od.DataSource():  return self._unit
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return round(self._unit)
             case float():           return float(self._unit)
@@ -94,14 +94,14 @@ class Unit(on.Numeric):
         return self
 
     def copy(self) -> 'Unit':
-        return self.__class__() << od.OperandData( self._unit )
+        return self.__class__() << od.DataSource( self._unit )
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case int():             self._unit = operand % o.Operand()
-            case Unit():            self._unit = operand % od.OperandData( int() )
+            case Unit():            self._unit = operand % od.DataSource( int() )
             case of.Frame():        self << (operand & self)
             case int() | float():   self._unit = round(operand)
         return self
@@ -154,7 +154,7 @@ class Key(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():      return super().__mod__(operand)
+            case od.DataSource():      return super().__mod__(operand)
             case str():                 return Key.getKey(self % int())
             case _:                     return super().__mod__(operand)
 
@@ -162,7 +162,7 @@ class Key(Unit):
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         match operand:
-            case od.OperandData():  super().__lshift__(operand)
+            case od.DataSource():  super().__lshift__(operand)
             case Key():             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             case Unit():            self._unit = operand % int() % 12
@@ -234,7 +234,7 @@ class Scale(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():  return super().__mod__(operand)
+            case od.DataSource():  return super().__mod__(operand)
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
             case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
             case od.ListScale():    return od.ListScale( Scale._scales[self % int() % len(Scale._scales)].copy() )
@@ -579,7 +579,7 @@ class Pitch(Midi):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():  return super().__mod__(operand)
+            case od.DataSource():  return super().__mod__(operand)
             case ol.MSB():
                 amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
                 amount = max(min(amount, 16383), 0) # midi safe
@@ -637,7 +637,7 @@ class ControlNumber(Midi):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():      return super().__mod__(operand)
+            case od.DataSource():      return super().__mod__(operand)
             case str():                 return ControlNumber.numberToName(self % int())
             case _:                     return super().__mod__(operand)
 

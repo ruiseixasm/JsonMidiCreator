@@ -37,7 +37,7 @@ class KeyNote(Generic):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Key():          return self._key
                     case ou.Octave():       return self._octave
@@ -94,17 +94,17 @@ class KeyNote(Generic):
         return self
         
     def copy(self) -> 'KeyNote':
-        return KeyNote() << od.OperandData( self._key.copy() ) << od.OperandData( self._octave.copy() )
+        return KeyNote() << od.DataSource( self._key.copy() ) << od.DataSource( self._octave.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.Key():          self._key = operand % o.Operand()
                     case ou.Octave():       self._octave = operand % o.Operand()
             case KeyNote():
-                self._key = operand % od.OperandData( ou.Key() )
-                self._octave = operand % od.OperandData( ou.Octave() )
+                self._key = operand % od.DataSource( ou.Key() )
+                self._octave = operand % od.DataSource( ou.Octave() )
             case of.Frame():        self << (operand & self)
             case ou.Key():          self._key = operand
             case ou.Octave():       self._octave = operand
@@ -160,7 +160,7 @@ class Controller(Generic):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():      return super().__mod__(operand)
+            case od.DataSource():      return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number
             case ou.ControlValue():     return self._control_value
@@ -188,17 +188,17 @@ class Controller(Generic):
         return self
         
     def copy(self) -> 'Controller':
-        return Controller() << od.OperandData( self._control_number.copy() ) << od.OperandData( self._control_value.copy() )
+        return Controller() << od.DataSource( self._control_number.copy() ) << od.DataSource( self._control_value.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Controller':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ou.ControlNumber():    self._control_number = operand % o.Operand()
                     case ou.ControlValue():     self._control_value = operand % o.Operand()
             case Controller():
-                self._control_number = operand % od.OperandData( ou.ControlNumber() )
-                self._control_value = operand % od.OperandData( ou.ControlValue() )
+                self._control_number = operand % od.DataSource( ou.ControlNumber() )
+                self._control_value = operand % od.DataSource( ou.ControlValue() )
             case of.Frame():            self << (operand & self)
             case ou.ControlNumber():    self._control_number = operand
             case ou.ControlValue():     self._control_value = operand

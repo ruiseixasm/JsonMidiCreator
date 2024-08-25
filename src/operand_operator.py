@@ -44,7 +44,7 @@ class Operator(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case list():            return self._operator_list
                     case o.Operand():         return self._operand
@@ -83,17 +83,17 @@ class Operator(o.Operand):
         return self
   
     def copy(self) -> 'Operator':
-        return self.__class__() << od.OperandData( self._operand ) << od.OperandData( self._operator_list )
+        return self.__class__() << od.DataSource( self._operand ) << od.DataSource( self._operator_list )
 
     def __lshift__(self, operand: o.Operand) -> 'Operator':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case list():            self._operator_list = operand % o.Operand()
                     case _:                 self._operand = operand % o.Operand()
             case Operator():
-                self._operator_list = operand % od.OperandData( list() )
-                self._operand       = operand % od.OperandData( o.Operand() )
+                self._operator_list = operand % od.DataSource( list() )
+                self._operand       = operand % od.DataSource( o.Operand() )
             case of.Frame():        self << (operand & self)
             case list():            self._operator_list = operand
             case ol.Null | None:    return self
@@ -132,7 +132,7 @@ class Oscillator(Operator):
         
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():      return super().__mod__(operand)
+            case od.DataSource():      return super().__mod__(operand)
             case ot.Position():         return self._position
             case ot.Length():           return self._length
             case ov.Amplitude():        return self._amplitude
@@ -163,12 +163,12 @@ class Oscillator(Operator):
       
     def copy(self) -> 'Oscillator':
         return super().copy() \
-            << od.OperandData( self._position.copy() ) << od.OperandData( self._length.copy() ) \
-            << od.OperandData( self._amplitude.copy() ) << od.OperandData( self._offset.copy() )
+            << od.DataSource( self._position.copy() ) << od.DataSource( self._length.copy() ) \
+            << od.DataSource( self._amplitude.copy() ) << od.DataSource( self._offset.copy() )
 
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
@@ -177,10 +177,10 @@ class Oscillator(Operator):
                     case _:                 super().__lshift__(operand)
             case Oscillator():
                 super().__lshift__(operand)
-                self._position      = operand % od.OperandData( ot.Position() )
-                self._length        = operand % od.OperandData( ot.Length() )
-                self._amplitude     = operand % od.OperandData( ov.Amplitude() )
-                self._offset        = operand % od.OperandData( ov.Offset() )
+                self._position      = operand % od.DataSource( ot.Position() )
+                self._length        = operand % od.DataSource( ot.Length() )
+                self._amplitude     = operand % od.DataSource( ov.Amplitude() )
+                self._offset        = operand % od.DataSource( ov.Offset() )
             case ot.Position():     self._position = operand
             case ot.Length():       self._length = operand
             case ov.Amplitude():    self._amplitude = operand

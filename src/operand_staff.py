@@ -46,7 +46,7 @@ class Staff(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ov.Measure():          return self._measure
                     case ov.Tempo():            return self._tempo
@@ -135,7 +135,7 @@ class Staff(o.Operand):
         
     def __lshift__(self, operand: o.Operand) -> 'Staff':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case ov.Measure():          self._measure = operand % o.Operand()
                     case ov.Tempo():            self._tempo = operand % o.Operand()
@@ -153,19 +153,19 @@ class Staff(o.Operand):
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
             case Staff():
-                self._measure           = operand % od.OperandData( ov.Measure() )
-                self._tempo             = operand % od.OperandData( ov.Tempo() )
-                self._beats_per_measure = operand % od.OperandData( ov.BeatsPerMeasure() )
-                self._beat_note_value   = operand % od.OperandData( ov.BeatNoteValue() )
-                self._scale             = operand % od.OperandData( ou.Scale() )
-                self._quantization      = operand % od.OperandData( ov.Quantization() ) # Note Value
-                self._duration          = operand % od.OperandData( ot.Duration() )
-                self._key               = operand % od.OperandData( ou.Key() )
-                self._octave            = operand % od.OperandData( ou.Octave() )
-                self._velocity          = operand % od.OperandData( ou.Velocity() )
-                self._controller        = operand % od.OperandData( og.Controller() )
-                self._channel           = operand % od.OperandData( ou.Channel() )
-                self._device            = operand % od.OperandData( od.Device() )
+                self._measure           = operand % od.DataSource( ov.Measure() )
+                self._tempo             = operand % od.DataSource( ov.Tempo() )
+                self._beats_per_measure = operand % od.DataSource( ov.BeatsPerMeasure() )
+                self._beat_note_value   = operand % od.DataSource( ov.BeatNoteValue() )
+                self._scale             = operand % od.DataSource( ou.Scale() )
+                self._quantization      = operand % od.DataSource( ov.Quantization() ) # Note Value
+                self._duration          = operand % od.DataSource( ot.Duration() )
+                self._key               = operand % od.DataSource( ou.Key() )
+                self._octave            = operand % od.DataSource( ou.Octave() )
+                self._velocity          = operand % od.DataSource( ou.Velocity() )
+                self._controller        = operand % od.DataSource( og.Controller() )
+                self._channel           = operand % od.DataSource( ou.Channel() )
+                self._device            = operand % od.DataSource( od.Device() )
             case of.Frame():            self << (operand & self)
             case ov.Measure():          self._measure = operand
             case ov.Tempo():            self._tempo = operand

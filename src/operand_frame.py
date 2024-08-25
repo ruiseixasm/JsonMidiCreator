@@ -56,7 +56,7 @@ class Frame(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.OperandData():      return self._next_operand
+            case od.DataSource():      return self._next_operand
             case Frame():
                 for single_operand in self:
                     if isinstance(single_operand, operand.__class__):

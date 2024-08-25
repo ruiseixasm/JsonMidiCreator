@@ -63,7 +63,7 @@ class Value(on.Numeric):
         0.25
         """
         match operand:
-            case od.OperandData():  return self._rational
+            case od.DataSource():  return self._rational
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
@@ -104,14 +104,14 @@ class Value(on.Numeric):
         return self
 
     def copy(self) -> 'Value':
-        return self.__class__() << od.OperandData( self._rational )
+        return self.__class__() << od.DataSource( self._rational )
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
         match operand:
-            case od.OperandData():
+            case od.DataSource():
                 match operand % o.Operand():
                     case Fraction():        self._rational = operand % o.Operand()
-            case Value():           self._rational = operand % od.OperandData( Fraction() )
+            case Value():           self._rational = operand % od.DataSource( Fraction() )
             case of.Frame():        self << (operand & self)
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
@@ -336,11 +336,11 @@ class Dotted(NoteValue):
     # CHAINABLE OPERATIONS
 
     def copy(self) -> 'Value':
-        return self.__class__() << od.OperandData( self % od.OperandData() )
+        return self.__class__() << od.DataSource( self % od.DataSource() )
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
         match operand:
-            case od.OperandData():  super().__lshift__(operand)
+            case od.DataSource():  super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             # It's just a wrapper for NoteValue 3/2
