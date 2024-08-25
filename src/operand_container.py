@@ -72,9 +72,18 @@ class Container(o.Operand):
         [<operand_element.Note object at 0x00000135E7FAEE90>, <operand_element.Note object at 0x00000135E7FAF110>]
         """
         match operand:
-            case od.DataSource():  return self._operand_list
+            case od.DataSource():   return self._operand_list
             case of.Frame():        return self % (operand % o.Operand())
-            case list():            return self._operand_list
+            case list():            return self._operand_list.copy()
+            # case list():
+            #     many_operands: list[o.Operand] = []
+            #     for single_operand in self._operand_list:
+            #         match single_operand:
+            #             case o.Operand():
+            #                 many_operands.append(single_operand.copy())
+            #             case _:
+            #                 many_operands.append(single_operand)
+            #     return many_operands
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
