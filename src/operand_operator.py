@@ -91,10 +91,10 @@ class Operator(o.Operand):
                     case list():            self._operator_list = operand % o.Operand()
                     case _:                 self._operand = operand % o.Operand()
             case Operator():
-                self_operator_list = []
+                operator_list = []
                 for single_operand in operand % od.DataSource( list() ):
-                    self_operator_list.append(single_operand.copy())
-                self._operator_list = self_operator_list
+                    operator_list.append(single_operand.copy())
+                self._operator_list = operator_list
                 self._operand       = (operand % od.DataSource( o.Operand() )).copy()
             case of.Frame():        self << (operand & self)
             case list():            self._operator_list = operand

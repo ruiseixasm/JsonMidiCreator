@@ -90,11 +90,6 @@ class Element(o.Operand):
             self._device    = od.Device(serialization["parameters"]["device"])
         return self
         
-    def copy(self) -> 'Element':
-        return self.__class__() \
-            << od.DataSource( self._position.copy() ) << od.DataSource( self._length.copy() ) \
-            << od.DataSource( self._channel.copy() ) << od.DataSource( self._device.copy() )
-    
     def __xor__(self, function: 'od.Function'):
         """
         ^ calls the respective Operand's Function.
@@ -116,10 +111,10 @@ class Element(o.Operand):
                     case ou.Channel():      self._channel = operand % o.Operand()
                     case od.Device():       self._device = operand % o.Operand()
             case Element():
-                self._position      = operand % od.DataSource( ot.Position() )
-                self._length        = operand % od.DataSource( ot.Length() )
-                self._channel       = operand % od.DataSource( ou.Channel() )
-                self._device        = operand % od.DataSource( od.Device() )
+                self._position      = (operand % od.DataSource( ot.Position() )).copy()
+                self._length        = (operand % od.DataSource( ot.Length() )).copy()
+                self._channel       = (operand % od.DataSource( ou.Channel() )).copy()
+                self._device        = (operand % od.DataSource( od.Device() )).copy()
             case of.Frame():        self << (operand & self)
             case ot.Position():     self._position = operand
             case ov.TimeUnit():     self._position << operand
@@ -306,10 +301,6 @@ class Clock(Element):
             self._pulses_per_quarternote = ou.PPQN(serialization["parameters"]["pulses_per_quarternote"])
         return self
 
-    def copy(self) -> 'Clock':
-        return super().copy() << od.DataSource( self._mode ) \
-            << od.DataSource( self._device.copy() ) << od.DataSource( self._pulses_per_quarternote.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Clock':
         match operand:
             case od.DataSource():
@@ -319,8 +310,8 @@ class Clock(Element):
                     case _:                 super().__lshift__(operand)
             case Clock():
                 super().__lshift__(operand)
-                self._mode = operand % od.DataSource( ClockModes() )
-                self._pulses_per_quarternote = operand % od.DataSource( ou.PPQN() )
+                self._mode = operand % od.DataSource( ClockModes.single )
+                self._pulses_per_quarternote = (operand % od.DataSource( ou.PPQN() )).copy()
             case ClockModes():      self._mode = operand
             case ou.PPQN():         self._pulses_per_quarternote = operand
             case int() | float():   self._length = ot.Length(operand)
@@ -415,11 +406,6 @@ class Note(Element):
             self._gate = ov.Gate(serialization["parameters"]["gate"])
         return self
       
-    def copy(self) -> 'Note':
-        return super().copy() \
-            << od.DataSource( self._duration.copy() ) << od.DataSource( self._key_note.copy() ) \
-            << od.DataSource( self._velocity.copy() ) << od.DataSource( self._gate.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Note':
         match operand:
             case od.DataSource():
@@ -431,10 +417,10 @@ class Note(Element):
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
-                self._duration      = operand % od.DataSource( ot.Duration() )
-                self._key_note      = operand % od.DataSource( og.KeyNote() )
-                self._velocity      = operand % od.DataSource( ou.Velocity() )
-                self._gate          = operand % od.DataSource( ov.Gate() )
+                self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
+                self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
+                self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
+                self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
             case ot.Duration():     self._duration = operand
             case ov.NoteValue():    self._duration = ot.Duration() << operand
             case og.KeyNote():      self._key_note = operand
@@ -518,9 +504,6 @@ class KeyScale(Note):
             self._mode = ou.Mode(serialization["parameters"]["mode"])
         return self
         
-    def copy(self) -> 'KeyScale':
-        return super().copy() << od.DataSource( self._scale.copy() ) << od.DataSource( self._mode.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
         match operand:
             case od.DataSource():
@@ -530,8 +513,8 @@ class KeyScale(Note):
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
-                self._scale = operand % od.DataSource( ou.Scale() )
-                self._mode = operand % od.DataSource( ou.Mode() )
+                self._scale = (operand % od.DataSource( ou.Scale() )).copy()
+                self._mode  = (operand % od.DataSource( ou.Mode() )).copy()
             case ou.Scale():        self._scale = operand
             case ou.Mode():         self._mode = operand
             case _: super().__lshift__(operand)
@@ -632,11 +615,6 @@ class Chord(Note):
             self._inversion = ou.Inversion(serialization["parameters"]["inversion"])
         return self
       
-    def copy(self) -> 'Chord':
-        return super().copy() \
-            << od.DataSource( self._scale.copy() ) << od.DataSource( self._type.copy() ) \
-            << od.DataSource( self._degree.copy() ) << od.DataSource( self._inversion.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Chord':
         match operand:
             case od.DataSource():
@@ -648,10 +626,10 @@ class Chord(Note):
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
-                self._scale = operand % od.DataSource( ou.Scale() )
-                self._type = operand % od.DataSource( ou.Type() )
-                self._degree = operand % od.DataSource( ou.Degree() )
-                self._inversion = operand % od.DataSource( ou.Inversion() )
+                self._scale     = (operand % od.DataSource( ou.Scale() )).copy()
+                self._type      = (operand % od.DataSource( ou.Type() )).copy()
+                self._degree    = (operand % od.DataSource( ou.Degree() )).copy()
+                self._inversion = (operand % od.DataSource( ou.Inversion() )).copy()
             case ou.Scale():                self._scale = operand
             case ou.Type():                 self._type = operand
             case ou.Degree():               self._degree = operand
@@ -751,12 +729,6 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
             self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._elements = serialization["parameters"]["elements"]
         return self
-      
-    def copy(self) -> 'Triplet':
-        elements = []
-        for single_element in self._elements:
-            elements.append(single_element.copy())
-        return super().copy() << od.DataSource( elements )
 
     def __lshift__(self, operand: o.Operand) -> 'Triplet':
         match operand:
@@ -766,7 +738,10 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
                     case _:                 super().__lshift__(operand)
             case Triplet():
                 super().__lshift__(operand)
-                self._elements = operand % od.DataSource( list() )
+                elements = []
+                for single_element in operand % od.DataSource( list() ):
+                    elements.append(single_element.copy())
+                self._elements = elements
             case ot.Duration():     self._duration = operand * 2/3
             case ov.NoteValue():    self._duration = ot.Duration() << operand * 2/3
             case list():
@@ -841,12 +816,6 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
             self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._elements = serialization["parameters"]["elements"]
         return self
-      
-    def copy(self) -> 'Tuplet':
-        elements = []
-        for single_element in self._elements:
-            elements.append(single_element.copy())
-        return super().copy() << od.DataSource( self._division ) << od.DataSource( elements )
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
         match operand:
@@ -857,7 +826,10 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
-                self._elements = operand % od.DataSource( list() )
+                elements = []
+                for single_element in operand % od.DataSource( list() ):
+                    elements.append(single_element.copy())
+                self._elements = elements
             case int():                 self._division = operand
             case ot.Duration():
                 if self._division == 2: self._duration = operand * 3/2
@@ -930,9 +902,6 @@ class ControlChange(Element):
             self._controller = og.Controller().loadSerialization(serialization["parameters"]["controller"])
         return self
       
-    def copy(self) -> 'ControlChange':
-        return super().copy() << od.DataSource( self._controller.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
         match operand:
             case od.DataSource():
@@ -941,7 +910,7 @@ class ControlChange(Element):
                     case _:                     super().__lshift__(operand)
             case ControlChange():
                 super().__lshift__(operand)
-                self._controller = operand % od.DataSource( og.Controller() )
+                self._controller = (operand % od.DataSource( og.Controller() )).copy()
             case og.Controller():
                 self._controller = operand
             case ou.ControlNumber() | ou.ControlValue() | int() | float():
@@ -1014,9 +983,6 @@ class PitchBend(Element):
             self._pitch = ou.Pitch(serialization["parameters"]["pitch"])
         return self
       
-    def copy(self) -> 'PitchBend':
-        return super().copy() << od.DataSource( self._pitch.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
         match operand:
             case od.DataSource():
@@ -1025,7 +991,7 @@ class PitchBend(Element):
                     case _:                     super().__lshift__(operand)
             case PitchBend():
                 super().__lshift__(operand)
-                self._pitch = operand % od.DataSource( ou.Pitch() )
+                self._pitch = (operand % od.DataSource( ou.Pitch() )).copy()
             case ou.Pitch():        self._pitch = operand
             case int() | float():   self._pitch << operand
             case _: super().__lshift__(operand)
@@ -1098,9 +1064,6 @@ class Aftertouch(Element):
             self._pressure = ou.Pressure(serialization["parameters"]["pressure"])
         return self
       
-    def copy(self) -> 'Aftertouch':
-        return super().copy() << od.DataSource( self._pressure.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
         match operand:
             case od.DataSource():
@@ -1109,7 +1072,7 @@ class Aftertouch(Element):
                     case _:                     super().__lshift__(operand)
             case Aftertouch():
                 super().__lshift__(operand)
-                self._pressure = operand % od.DataSource( ou.Pressure() )
+                self._pressure = (operand % od.DataSource( ou.Pressure() )).copy()
             case ou.Pressure():
                 self._pressure = operand
             case int() | float():
@@ -1185,9 +1148,6 @@ class PolyAftertouch(Aftertouch):
             self._key_note = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
         return self
       
-    def copy(self) -> 'PolyAftertouch':
-        return super().copy() << od.DataSource( self._key_note.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
         match operand:
             case od.DataSource():
@@ -1196,7 +1156,7 @@ class PolyAftertouch(Aftertouch):
                     case _:                     super().__lshift__(operand)
             case PolyAftertouch():
                 super().__lshift__(operand)
-                self._key_note = operand % od.DataSource( og.KeyNote() )
+                self._key_note = (operand % od.DataSource( og.KeyNote() )).copy()
             case og.KeyNote():      self._key_note = operand
             case ou.Key():          self._key_note << operand
             case ou.Octave():       self._key_note << operand
@@ -1253,9 +1213,6 @@ class ProgramChange(Element):
             self._program = ou.Program(serialization["parameters"]["program"])
         return self
       
-    def copy(self) -> 'ProgramChange':
-        return super().copy() << od.DataSource( self._program.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
         match operand:
             case od.DataSource():
@@ -1264,7 +1221,7 @@ class ProgramChange(Element):
                     case _:                     super().__lshift__(operand)
             case ProgramChange():
                 super().__lshift__(operand)
-                self._program = operand % od.DataSource( ou.Program() )
+                self._program = (operand % od.DataSource( ou.Program() )).copy()
             case ou.Program():
                 self._program = operand
             case int() | float():
