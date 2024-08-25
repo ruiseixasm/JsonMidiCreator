@@ -124,7 +124,7 @@ class Container(o.Operand):
         return self
        
     def copy(self) -> 'Container':
-        many_operands: list[Operand] = []
+        many_operands: list[o.Operand] = []
         for single_operand in self._operand_list:
             many_operands.append(single_operand.copy())
         return self.__class__() << od.DataSource( many_operands )

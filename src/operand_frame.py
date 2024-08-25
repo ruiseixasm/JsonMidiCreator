@@ -34,10 +34,10 @@ import operand_label as ol
 # Works as a traditional C list (chained)
 class Frame(o.Operand):
     def __init__(self):
-        self._next_operand: Optional[Operand] = ol.Dummy()
+        self._next_operand: Optional[o.Operand] = ol.Dummy()
         
     def __iter__(self):
-        self._current_node: Optional[Operand] = self    # Reset to the start node on new iteration
+        self._current_node: Optional[o.Operand] = self    # Reset to the start node on new iteration
         return self
     
     def __next__(self):
@@ -56,17 +56,31 @@ class Frame(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():      return self._next_operand
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Frame():
+                        for single_operand in self:
+                            if isinstance(single_operand, operand.__class__): # checks if it's the same Frame
+                                return single_operand   # It's a Frame
+                    case ol.Null() | None:      return ol.Null()
+                    case ol.Dummy():
+                        return self._next_operand
+                    case _:
+                        for single_operand in self:
+                            match single_operand:
+                                case Frame():   continue
+                                case _:         return single_operand
             case Frame():
                 for single_operand in self:
-                    if isinstance(single_operand, operand.__class__):
-                        return single_operand
+                    if isinstance(single_operand, operand.__class__): # checks if it's the same Frame
+                        return single_operand.copy()    # It's a Frame
             case ol.Null() | None:      return ol.Null()
             case _:
                 for single_operand in self:
                     match single_operand:
                         case Frame():   continue
-                        case operand:   return single_operand
+                        case o.Operand: return single_operand.copy()
+                        case _:         return single_operand
         return self.copy()
     
     def __eq__(self, frame: 'Frame') -> bool:
