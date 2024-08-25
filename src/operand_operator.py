@@ -84,9 +84,6 @@ class Operator(o.Operand):
             self._operator_list = operator_list
         return self
   
-    def copy(self) -> 'Operator':
-        return self.__class__() << od.DataSource( self._operand ) << od.DataSource( self._operator_list )
-
     def __lshift__(self, operand: o.Operand) -> 'Operator':
         match operand:
             case od.DataSource():
@@ -94,8 +91,11 @@ class Operator(o.Operand):
                     case list():            self._operator_list = operand % o.Operand()
                     case _:                 self._operand = operand % o.Operand()
             case Operator():
-                self._operator_list = operand % od.DataSource( list() )
-                self._operand       = operand % od.DataSource( o.Operand() )
+                self_operator_list = []
+                for single_operand in operand % od.DataSource( list() ):
+                    self_operator_list.append(single_operand.copy())
+                self._operator_list = self_operator_list
+                self._operand       = (operand % od.DataSource( o.Operand() )).copy()
             case of.Frame():        self << (operand & self)
             case list():            self._operator_list = operand
             case ol.Null | None:    return self
@@ -169,11 +169,6 @@ class Oscillator(Operator):
             self._offset = ov.Offset(serialization["parameters"]["offset"])
         return self
       
-    def copy(self) -> 'Oscillator':
-        return super().copy() \
-            << od.DataSource( self._position.copy() ) << od.DataSource( self._length.copy() ) \
-            << od.DataSource( self._amplitude.copy() ) << od.DataSource( self._offset.copy() )
-
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':
         match operand:
             case od.DataSource():
@@ -185,10 +180,10 @@ class Oscillator(Operator):
                     case _:                 super().__lshift__(operand)
             case Oscillator():
                 super().__lshift__(operand)
-                self._position      = operand % od.DataSource( ot.Position() )
-                self._length        = operand % od.DataSource( ot.Length() )
-                self._amplitude     = operand % od.DataSource( ov.Amplitude() )
-                self._offset        = operand % od.DataSource( ov.Offset() )
+                self._position      = (operand % od.DataSource( ot.Position() )).copy()
+                self._length        = (operand % od.DataSource( ot.Length() )).copy()
+                self._amplitude     = (operand % od.DataSource( ov.Amplitude() )).copy()
+                self._offset        = (operand % od.DataSource( ov.Offset() )).copy()
             case ot.Position():     self._position = operand
             case ot.Length():       self._length = operand
             case ov.Amplitude():    self._amplitude = operand
