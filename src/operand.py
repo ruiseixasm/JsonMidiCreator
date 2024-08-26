@@ -24,6 +24,11 @@ class Operand:
     def __eq__(self, operand: 'Operand') -> bool:
         return False
     
+    def __ne__(self, operand: 'Operand') -> bool:
+        if self == operand:
+            return False
+        return True
+    
     def __lt__(self, operand: 'Operand') -> bool:
         return False
     

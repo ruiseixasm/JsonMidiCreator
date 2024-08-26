@@ -74,22 +74,27 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._operand_list
             case of.Frame():        return self % (operand % o.Operand())
-            case list():            return self._operand_list.copy()
-            # case list():
-            #     operands: list[o.Operand] = []
-            #     for single_operand in self._operand_list:
-            #         match single_operand:
-            #             case o.Operand():
-            #                 operands.append(single_operand.copy())
-            #             case _:
-            #                 operands.append(single_operand)
-            #     return operands
+            case list():
+                operands: list[o.Operand] = []
+                for single_operand in self._operand_list:
+                    match single_operand:
+                        case o.Operand():
+                            operands.append(single_operand.copy())
+                        case _:
+                            operands.append(single_operand)
+                return operands
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
     def __eq__(self, other_container: 'Container') -> bool:
         if type(self) == type(other_container):
-            return  self._operand_list == other_container % od.DataSource( list() )
+            return self._operand_list == other_container % od.DataSource( list() )
+            # When comparing lists containing objects in Python using the == operator,
+            # Python will call the __eq__ method on the objects if it is defined,
+            # rather than comparing their references directly.
+            # If the __eq__ method is not defined for the objects, then the default behavior
+            # (which usually involves comparing object identities, like references,
+            # using the is operator) will be used.
         return False
     
     def first(self) -> o.Operand:
@@ -128,12 +133,6 @@ class Container(o.Operand):
             self._operand_list = operands
         return self
        
-    def copy(self) -> 'Container':
-        many_operands: list[o.Operand] = []
-        for single_operand in self._operand_list:
-            many_operands.append(single_operand.copy())
-        return self.__class__() << od.DataSource( many_operands )
-
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare
         for operand_i in range(self.len() - 1):
@@ -178,9 +177,23 @@ class Container(o.Operand):
                 match operand % o.Operand():
                     case list():        self._operand_list = operand % o.Operand()
             case Container():
-                self._operand_list = operand % od.DataSource( list() )
+                operands: list[o.Operand] = []
+                for single_operand in operand % od.DataSource( list() ):
+                    match single_operand:
+                        case o.Operand():
+                            operands.append(single_operand.copy())
+                        case _:
+                            operands.append(single_operand)
+                self._operand_list = operands
             case list():
-                self._operand_list = operand
+                operands: list[o.Operand] = []
+                for single_operand in operand:
+                    match single_operand:
+                        case o.Operand():
+                            operands.append(single_operand.copy())
+                        case _:
+                            operands.append(single_operand)
+                self._operand_list = operands
             case o.Operand() | int() | float():
                 for single_operand in self._operand_list:
                     single_operand << operand
@@ -338,7 +351,7 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 self_copy = super().__add__(operand)
             case o.Operand():
-                for single_operand in self_copy % list():
+                for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand + operand
             case _: self_copy = super().__add__(operand)
         return self_copy
@@ -350,7 +363,7 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                for single_operand in self_copy % list():
+                for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand - operand
             case _: self_copy = super().__add__(operand)
         return self_copy
@@ -363,7 +376,7 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                for single_operand in self_copy % list():
+                for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand * operand
             case _: self_copy = super().__add__(operand)
         return self_copy
@@ -375,7 +388,7 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                for single_operand in self_copy % list():
+                for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand / operand
             case _: self_copy = super().__add__(operand)
         return self_copy

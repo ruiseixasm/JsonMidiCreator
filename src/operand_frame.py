@@ -125,8 +125,8 @@ class Frame(o.Operand):
    
     def __pow__(self, operand: o.Operand) -> 'Frame':
         match operand:
-            case o.Operand(): self._next_operand = operand
-            case _:         self._next_operand = ol.Dummy()
+            case o.Operand():   self._next_operand = operand
+            case _:             self._next_operand = ol.Dummy()
         return self
 
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
@@ -286,7 +286,7 @@ class Wrapper(OperandFilter):
             self_operand &= subject
         match self._data:
             case oo.Operator(): return self._data | self_operand.copy()
-            case _:             return (self._data << self_operand).copy()
+            case _:             return self._data.copy() << self_operand
 
 class Extractor(OperandFilter):
     def __init__(self, operand: o.Operand = None):
