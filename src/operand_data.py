@@ -251,7 +251,17 @@ class PlayList(Data):
     def __rrshift__(self, operand) -> o.Operand:
         match operand:
             case ot.Position():
-                ...
+                if len(self._data) > 0:
+                    position_ms: float = operand.getTime_ms()
+                    starting_position = self._data[0]["time_ms"]
+                    for midi_element in self._data:
+                        if "time_ms" in midi_element and midi_element["time_ms"] < starting_position:
+                            starting_position = midi_element["time_ms"]
+                    increase_ms = starting_position - position_ms
+                    for midi_element in self._data:
+                        if "time_ms" in midi_element:
+                            midi_element["time_ms"] = round(midi_element["time_ms"] + increase_ms, 3)
+                return self
             case _:
                 return PlayList(operand.getPlayList() + self._data)
 
@@ -259,6 +269,29 @@ class PlayList(Data):
         match operand:
             case list():        return PlayList( self._data + operand )
             case _:             return PlayList( self._data + operand.getPlayList() )
+
+# class Serialization(Data):
+#     def __init__(self, serialization: list = None):
+#         super().__init__( [] if serialization is None else serialization )
+
+#     # CHAINABLE OPERATIONS
+
+#     def __rrshift__(self, operand) -> o.Operand:
+#         match operand:
+#             case ot.Position():
+#                 if len(self._data) > 0:
+#                     position_ms: float = operand.getTime_ms()
+#                     starting_position = self._data[0]["time_ms"]
+#                     for midi_element in self._data:
+#                         if "time_ms" in midi_element and midi_element["time_ms"] < starting_position:
+#                             starting_position = midi_element["time_ms"]
+#                     increase_ms = starting_position - position_ms
+#                     for midi_element in self._data:
+#                         if "time_ms" in midi_element:
+#                             midi_element["time_ms"] = round(midi_element["time_ms"] + increase_ms, 3)
+#                 return self
+#             case _:
+#                 return self
 
 class Save(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
