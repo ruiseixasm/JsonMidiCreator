@@ -110,6 +110,8 @@ class Value(on.Numeric):
                     case Fraction():        self._rational = operand % o.Operand()
             case Value():           self._rational = operand % od.DataSource( Fraction() )
             case of.Frame():        self << (operand & self)
+            case od.Load():
+                self.loadSerialization(operand % od.DataSource())
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
         return self
@@ -337,6 +339,8 @@ class Dotted(NoteValue):
             case od.DataSource():   super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
+            case od.Load():
+                self.loadSerialization(operand % od.DataSource())
             # It's just a wrapper for NoteValue 3/2
             case Value():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2

@@ -185,6 +185,8 @@ class Staff(o.Operand):
                 self._channel           = operand % od.DataSource( ou.Channel() )
                 self._device            = operand % od.DataSource( od.Device() )
             case of.Frame():            self << (operand & self)
+            case od.Load():
+                self.loadSerialization(operand % od.DataSource())
             case ov.Measure():          self._measure = operand.copy()
             case ov.Tempo():            self._tempo = operand.copy()
             case ov.BeatsPerMeasure():  self._beats_per_measure = operand.copy()

@@ -100,6 +100,8 @@ class Unit(on.Numeric):
                     case int():             self._unit = operand % o.Operand()
             case Unit():            self._unit = operand % od.DataSource( int() )
             case of.Frame():        self << (operand & self)
+            case od.Load():
+                self.loadSerialization(operand % od.DataSource())
             case int() | float():   self._unit = round(operand)
         return self
 
@@ -162,6 +164,8 @@ class Key(Unit):
             case od.DataSource():  super().__lshift__(operand)
             case Key():             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
+            case od.Load():
+                self.loadSerialization(operand % od.DataSource())
             case Unit():            self._unit = operand % int() % 12
             case int() | float():   self._unit = round(operand) % 12
         return self

@@ -105,6 +105,7 @@ class Data(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
         match operand:
+            case DataSource():      self._data = operand % o.Operand()
             case Data():
                 operand_data = operand % DataSource( o.Operand() )
                 match operand_data:
@@ -121,7 +122,9 @@ class Data(o.Operand):
                         self._data = many_operands
                     case _:
                         self._data = operand_data
-            case DataSource():      self._data = operand % o.Operand()
+            case of.Frame():        self << (operand & self)
+            case Load():
+                self.loadSerialization(operand % DataSource())
             case o.Operand():
                 self._data = self._data.copy()
             case list():

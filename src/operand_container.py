@@ -185,6 +185,9 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_operand)
                 self._operand_list = operands
+            case of.Frame():        self << (operand & self)
+            case od.Load():
+                self.loadSerialization(operand % od.DataSource())
             case list():
                 operands: list[o.Operand] = []
                 for single_operand in operand:
@@ -194,12 +197,9 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_operand)
                 self._operand_list = operands
-            case o.Operand() | int() | float():
+            case o.Operand() | int() | float(): # Works for Frame too
                 for single_operand in self._operand_list:
                     single_operand << operand
-            case od.Load():
-                serialization = c.loadJsonMidiCreator(operand % str())
-                self.loadSerialization(serialization)
             case Chain():
                 for single_operand in operand:
                     self << single_operand
