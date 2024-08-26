@@ -627,6 +627,7 @@ class Chord(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
         self._scale: ou.Scale = os.global_staff % ou.Scale()   # Default Scale for Chords
+        self._data_scale: od.DataScale = od.DataScale()
         self._degree: ou.Degree = ou.Degree()
         self._inversion: ou.Inversion = ou.Inversion()
         self._type: ou.Type = ou.Type()
@@ -636,11 +637,13 @@ class Chord(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        return self._scale
+                    case od.DataScale():    return self._data_scale
                     case ou.Type():         return self._type
                     case ou.Degree():       return self._degree
                     case ou.Inversion():    return self._inversion
                     case _:                 return super().__mod__(operand)
             case ou.Scale():        return self._scale.copy()
+            case od.DataScale():    return self._data_scale.copy()
             case ou.Type():         return self._type.copy()
             case ou.Degree():       return self._degree.copy()
             case ou.Inversion():    return self._inversion.copy()
@@ -709,19 +712,22 @@ class Chord(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():                self._scale = operand % o.Operand()
+                    case od.DataScale():            self._data_scale = operand % o.Operand()
                     case ou.Type():                 self._type = operand % o.Operand()
                     case ou.Degree():               self._degree = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
-                self._scale     = (operand % od.DataSource( ou.Scale() )).copy()
-                self._type      = (operand % od.DataSource( ou.Type() )).copy()
-                self._degree    = (operand % od.DataSource( ou.Degree() )).copy()
-                self._inversion = (operand % od.DataSource( ou.Inversion() )).copy()
-            case ou.Scale():                self._scale = operand
-            case ou.Type():                 self._type = operand
-            case ou.Degree():               self._degree = operand
+                self._scale         = (operand % od.DataSource( ou.Scale() )).copy()
+                self._data_scale    = (operand % od.DataSource( od.DataScale() )).copy()
+                self._type          = (operand % od.DataSource( ou.Type() )).copy()
+                self._degree        = (operand % od.DataSource( ou.Degree() )).copy()
+                self._inversion     = (operand % od.DataSource( ou.Inversion() )).copy()
+            case ou.Scale():                self._scale = operand.copy()
+            case od.DataScale():            self._data_scale = operand.copy()
+            case ou.Type():                 self._type = operand.copy()
+            case ou.Degree():               self._degree = operand.copy()
             case ou.Inversion():            
                 self._inversion = ou.Inversion(operand % int() % (self._type % int()))
             case _: super().__lshift__(operand)
@@ -841,10 +847,10 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
             case list():
                 if len(operand) < 3:
                     for element_i in range(len(operand)):
-                        self._elements[element_i] = operand[element_i]
+                        self._elements[element_i] = operand[element_i].copy()
                 else:
                     for element_i in range(3):
-                        self._elements[element_i] = operand[element_i]
+                        self._elements[element_i] = operand[element_i].copy()
             case _: super().__lshift__(operand)
         return self
 
@@ -940,10 +946,10 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
             case list():
                 if len(operand) < self._division:
                     for element_i in range(len(operand)):
-                        self._elements[element_i] = operand[element_i]
+                        self._elements[element_i] = operand[element_i].copy()
                 else:
                     for element_i in range(self._division):
-                        self._elements[element_i] = operand[element_i]
+                        self._elements[element_i] = operand[element_i].copy()
             case _: super().__lshift__(operand)
         return self
 
@@ -1017,7 +1023,7 @@ class ControlChange(Element):
                 super().__lshift__(operand)
                 self._controller = (operand % od.DataSource( og.Controller() )).copy()
             case og.Controller():
-                self._controller = operand
+                self._controller = operand.copy()
             case ou.ControlNumber() | ou.ControlValue() | int() | float():
                 self._controller << operand
             case _: super().__lshift__(operand)
@@ -1102,7 +1108,7 @@ class PitchBend(Element):
             case PitchBend():
                 super().__lshift__(operand)
                 self._pitch = (operand % od.DataSource( ou.Pitch() )).copy()
-            case ou.Pitch():        self._pitch = operand
+            case ou.Pitch():        self._pitch = operand.copy()
             case int() | float():   self._pitch << operand
             case _: super().__lshift__(operand)
         return self
@@ -1189,7 +1195,7 @@ class Aftertouch(Element):
                 super().__lshift__(operand)
                 self._pressure = (operand % od.DataSource( ou.Pressure() )).copy()
             case ou.Pressure():
-                self._pressure = operand
+                self._pressure = operand.copy()
             case int() | float():
                 self._pressure << operand
             case _: super().__lshift__(operand)
@@ -1277,7 +1283,7 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._key_note = (operand % od.DataSource( og.KeyNote() )).copy()
-            case og.KeyNote():      self._key_note = operand
+            case og.KeyNote():      self._key_note = operand.copy()
             case ou.Key():          self._key_note << operand
             case ou.Octave():       self._key_note << operand
             case _:                 super().__lshift__(operand)
@@ -1348,7 +1354,7 @@ class ProgramChange(Element):
                 super().__lshift__(operand)
                 self._program = (operand % od.DataSource( ou.Program() )).copy()
             case ou.Program():
-                self._program = operand
+                self._program = operand.copy()
             case int() | float():
                 self._program << operand
             case _: super().__lshift__(operand)

@@ -104,8 +104,8 @@ class KeyNote(Generic):
                 self._key = (operand % od.DataSource( ou.Key() )).copy()
                 self._octave = (operand % od.DataSource( ou.Octave() )).copy()
             case of.Frame():        self << (operand & self)
-            case ou.Key():          self._key = operand
-            case ou.Octave():       self._octave = operand
+            case ou.Key():          self._key = operand.copy()
+            case ou.Octave():       self._octave = operand.copy()
             case int():
                 self._key << operand    # key already does % 12
                 self._octave << operand // 12
@@ -204,8 +204,8 @@ class Controller(Generic):
                 self._control_number = (operand % od.DataSource( ou.ControlNumber() )).copy()
                 self._control_value = (operand % od.DataSource( ou.ControlValue() )).copy()
             case of.Frame():            self << (operand & self)
-            case ou.ControlNumber():    self._control_number = operand
-            case ou.ControlValue():     self._control_value = operand
+            case ou.ControlNumber():    self._control_number = operand.copy()
+            case ou.ControlValue():     self._control_value = operand.copy()
             case int() | float():       self._control_value << operand
         return self
 
