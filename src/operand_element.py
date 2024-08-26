@@ -700,7 +700,7 @@ class Chord(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"] = self._scale % int()
-        element_serialization["parameters"]["data_scale"] = self._scale % list()
+        element_serialization["parameters"]["data_scale"] = self._data_scale % list()
         element_serialization["parameters"]["type"] = self._type % int()
         element_serialization["parameters"]["degree"] = self._degree % int()
         element_serialization["parameters"]["inversion"] = self._inversion % int()
