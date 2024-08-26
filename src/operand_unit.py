@@ -234,14 +234,14 @@ class Scale(Unit):
             case od.DataSource():   return super().__mod__(operand)
             case list():            return Scale.getScale(self % int() % len(Scale._scales))
             case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
-            case od.ListScale():    return od.ListScale( Scale._scales[self % int() % len(Scale._scales)].copy() )
+            case od.DataScale():    return od.DataScale( Scale._scales[self % int() % len(Scale._scales)].copy() )
             case Tonic():
                 tonic_note = operand % int()
                 transposed_scale = [0] * 12
                 self_scale = Scale._scales[self % int() % len(Scale._scales)]
                 for key_i in range(12):
                     transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
-                return od.ListScale(transposed_scale)
+                return od.DataScale(transposed_scale)
             case Mode():            return Key("C") + self.transpose(operand % int() - 1)
             case Transposition():   return Key("C") + self.transpose(operand % int())
             case _:                 return super().__mod__(operand)
@@ -691,7 +691,7 @@ class ControlNumber(Midi):
         for controller in ControlNumber._controllers:
             if controller["midi_number"] == number:
                 return controller["default_value"]
-        return os.global_staff % ControlNumber() % int()
+        return 0
 
     @staticmethod
     def nameToNumber(number: str = "Pan") -> int:
@@ -699,11 +699,11 @@ class ControlNumber(Midi):
             for controller_name in controller["names"]:
                 if controller_name.lower().find(number.strip().lower()) != -1:
                     return controller["midi_number"]
-        return os.global_staff % ControlNumber() % int()
+        return 0
 
     @staticmethod
-    def numberToName(number: int) -> int:
+    def numberToName(number: int) -> str:
         for controller in ControlNumber._controllers:
             if controller["midi_number"] == number:
                 return controller["names"][0]
-        return os.global_staff % ControlNumber() % str()
+        return "Bank Select"

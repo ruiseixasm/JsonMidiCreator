@@ -28,21 +28,21 @@ import operand_label as ol
 class Staff(o.Operand):
     def __init__(self):
         # Set Global Staff Defaults at the end of this file bottom bellow
-        self._measure: ov.Measure                   = None
-        self._tempo: ov.Tempo                       = None
+        self._measure: ov.Measure                   = ov.Measure(8)
+        self._tempo: ov.Tempo                       = ov.Tempo(120.0)
         # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
-        self._beats_per_measure: ov.BeatsPerMeasure = None
-        self._beat_note_value: ov.BeatNoteValue     = None
+        self._beats_per_measure: ov.BeatsPerMeasure = ov.BeatsPerMeasure(4)
+        self._beat_note_value: ov.BeatNoteValue     = ov.BeatNoteValue(1/4)
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._scale: ou.Scale                       = None
-        self._quantization: ov.Quantization         = None
-        self._duration: ot.Duration                 = None
-        self._key: ou.Key                           = None
-        self._octave: ou.Octave                     = None
-        self._velocity: ou.Velocity                 = None
-        self._controller: og.Controller             = None
-        self._channel: ou.Channel                   = None
-        self._device: od.Device                     = None
+        self._scale: ou.Scale                       = ou.Scale("Major")
+        self._quantization: ov.Quantization         = ov.Quantization(1/16)
+        self._duration: ot.Duration                 = ot.Duration() << ov.NoteValue(1/4)
+        self._key: ou.Key                           = ou.Key("C")
+        self._octave: ou.Octave                     = ou.Octave(4)
+        self._velocity: ou.Velocity                 = ou.Velocity(100)
+        self._controller: og.Controller             = og.Controller("Pan") << ou.ControlValue( ou.ControlNumber.getDefault("Pan") )
+        self._channel: ou.Channel                   = ou.Channel(1)
+        self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -185,21 +185,21 @@ class Staff(o.Operand):
                 self._channel           = operand % od.DataSource( ou.Channel() )
                 self._device            = operand % od.DataSource( od.Device() )
             case of.Frame():            self << (operand & self)
-            case ov.Measure():          self._measure = operand
-            case ov.Tempo():            self._tempo = operand
-            case ov.BeatsPerMeasure():  self._beats_per_measure = operand
-            case ov.BeatNoteValue():    self._beat_note_value = operand
-            case ou.Scale():            self._scale = operand
-            case ov.Quantization():     self._quantization = operand    # Note Value
-            case ot.Duration():         self._duration = operand
-            case ou.Key():              self._key = operand
-            case ou.Octave():           self._octave = operand
-            case ou.Velocity():         self._velocity = operand
-            case og.Controller():       self._controller = operand
+            case ov.Measure():          self._measure = operand.copy()
+            case ov.Tempo():            self._tempo = operand.copy()
+            case ov.BeatsPerMeasure():  self._beats_per_measure = operand.copy()
+            case ov.BeatNoteValue():    self._beat_note_value = operand.copy()
+            case ou.Scale():            self._scale = operand.copy()
+            case ov.Quantization():     self._quantization = operand.copy() # Note Value
+            case ot.Duration():         self._duration = operand.copy()
+            case ou.Key():              self._key = operand.copy()
+            case ou.Octave():           self._octave = operand.copy()
+            case ou.Velocity():         self._velocity = operand.copy()
+            case og.Controller():       self._controller = operand.copy()
             case ou.ControlNumber():    self._controller << operand
             case ou.ControlValue():     self._controller << operand
-            case ou.Channel():          self._channel = operand
-            case od.Device():           self._device = operand
+            case ou.Channel():          self._channel = operand.copy()
+            case od.Device():           self._device = operand.copy()
             # Calculated Values
             case ov.NotesPerMeasure():
                 self._beat_note_value = ov.BeatNoteValue( (operand % Fraction()) / (self % ov.BeatsPerMeasure()) )
@@ -210,9 +210,4 @@ class Staff(o.Operand):
         return self
 
 # Set the Default Staff values here.
-global_staff: Staff = Staff() #    Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4!
-global_staff << ov.Measure(8) << ov.Tempo(120.0) << ov.BeatsPerMeasure(4) << ov.BeatNoteValue(1/4) \
-    << ou.Scale("Major") << ov.Quantization(1/16) \
-    << (ot.Duration() << ov.NoteValue(1/4)) << ou.Key("C") << ou.Octave(4) \
-    << ou.Velocity(100) << (og.Controller("Pan") << ou.ControlValue(64)) \
-    << ou.Channel(1) << od.Device(["Microsoft", "FLUID", "Apple"])
+global_staff: Staff = Staff()

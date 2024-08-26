@@ -38,7 +38,7 @@ class Data(o.Operand):
 
         Examples
         --------
-        >>> some_data = Data(Pitch(8191)) % o.Operand()
+        >>> some_data = Data(Pitch(8191)) % Operand()
         >>> print(some_data)
         <operand_unit.Pitch object at 0x00000135E6437290>
         """
@@ -139,44 +139,73 @@ class Data(o.Operand):
 class DataSource(Data):
     """
     DataSource() allows the direct extraction (%) or setting (<<)
-    of the given Operand without the normal processing.
+    of the given Operand parameters without the normal processing.
     
     Parameters
     ----------
-    first : o.Operand_like
+    first : Operand_like
         The Operand intended to be directly extracted or set
+
+    Examples
+    --------
+    >>> single_note = Note()
+    >>> position_source = single_note % DataSource( Position() )
+    >>> position_copy = single_note % Position()
+    >>> print(id(position_source))
+    >>> print(id(position_copy))
+    1941569818512
+    1941604026545
     """
     def __init__(self, operand: o.Operand = None):
         super().__init__( o.Operand() if operand is None else operand )
 
     def __mod__(self, operand: o.Operand):
+        """
+        The % symbol will extract the data source value.
+
+        Examples
+        --------
+        >>> data_source = DataSource( Position() )
+        >>> print(data_source % Operand())
+        <operand_time.Position object at 0x000001C4109E4F10>
+        """
         return self._data
 
-class ListScale(Data):
+class DataScale(Data):
     def __init__(self, list_scale: list[int] = None):
-        super().__init__( os.global_staff % DataSource( ou.Scale() ) % list() if list_scale is None else list_scale )
+        super().__init__( [] )  # By default there is no scale set
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract a Parameter, a ListScale has many extraction modes
+        The % symbol is used to extract a Parameter, a DataScale has many extraction modes
         one type of extraction is its list() type of Parameter representing a scale
         but it's also possible to extract the same scale on other Tonic() key based on C.
 
         Examples
         --------
-        >>> tonic_a_scale = ListScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
+        >>> tonic_a_scale = DataScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
         >>> print(tonic_a_scale)
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
         match operand:
             case DataSource():          return super().__mod__(operand)
+            case bool():
+                if isinstance(self._data, list) and len(self._data) == 12:
+                    return True
+                return False
+            case list():
+                if self % bool():       return self._data.copy()
+                return []
+            case str():                 return "Data"
             case ou.Tonic():
-                tonic_note = operand % int()
-                transposed_scale = [0] * 12
-                self_scale = self._data
-                for key_i in range(12):
-                    transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
-                return ListScale(transposed_scale)
+                transposed_scale = []
+                if self % bool():
+                    tonic_note = operand % int()
+                    transposed_scale = [0] * 12
+                    self_scale = self._data
+                    for key_i in range(12):
+                        transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
+                return DataScale(transposed_scale)
             case ou.Mode():             return ou.Key("C") + self.transpose(operand % int() - 1)
             case ou.Transposition():    return ou.Key("C") + self.transpose(operand % int())
             case _:                     return super().__mod__(operand)

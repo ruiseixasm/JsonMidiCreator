@@ -112,10 +112,10 @@ class Time(o.Operand):
                 self._note_value    = (operand % od.DataSource( ov.NoteValue() )).copy()
                 self._step          = (operand % od.DataSource( ov.Step() )).copy()
             case of.Frame():        self << (operand & self)
-            case ov.Measure():      self._measure = operand
-            case ov.Beat():         self._beat = operand
-            case ov.NoteValue():    self._note_value = operand
-            case ov.Step():         self._step = operand
+            case ov.Measure():      self._measure = operand.copy()
+            case ov.Beat():         self._beat = operand.copy()
+            case ov.NoteValue():    self._note_value = operand.copy()
+            case ov.Step():         self._step = operand.copy()
             case Fraction() | float() | int():
                 self._measure       = ov.Measure(operand)
                 self._beat          = ov.Beat(operand)
@@ -211,8 +211,5 @@ class Length(Time):
     
 class Identity(Time):
     def __init__(self):
-        self._measure       = ov.Measure(1)
-        self._beat          = ov.Beat(1)
-        self._note_value    = ov.NoteValue(1)
-        self._step          = ov.Step(1)
+        self << 1
   

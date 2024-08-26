@@ -40,6 +40,16 @@ class Element(o.Operand):
         self._device: od.Device             = od.Device()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of an Element,
+        those Parameters can be Position, Length, midi Channel and midi Device
+
+        Examples
+        --------
+        >>> default_element = Element()
+        >>> print(default_element % Device() % list())
+        ['loopMIDI', 'Microsoft']
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -124,11 +134,11 @@ class Element(o.Operand):
                 self._channel       = (operand % od.DataSource( ou.Channel() )).copy()
                 self._device        = (operand % od.DataSource( od.Device() )).copy()
             case of.Frame():        self << (operand & self)
-            case ot.Position():     self._position = operand
+            case ot.Position():     self._position = operand.copy()
             case ov.TimeUnit():     self._position << operand
-            case ot.Length():       self._length = operand
-            case ou.Channel():      self._channel = operand
-            case od.Device():       self._device = operand
+            case ot.Length():       self._length = operand.copy()
+            case ou.Channel():      self._channel = operand.copy()
+            case od.Device():       self._device = operand.copy()
             case od.Load():
                 serialization = c.loadJsonMidiCreator(operand % str())
                 self.loadSerialization(serialization)
@@ -215,6 +225,17 @@ class Clock(Element):
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Clock,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the Mode and Pulses Per Quarter Note, the last one as 24 by default.
+
+        Examples
+        --------
+        >>> middle_clock = Clock(ClockModes.middle)
+        >>> print(middle_clock % ClockModes.single)
+        ClockModes.middle
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -327,7 +348,7 @@ class Clock(Element):
                 self._mode = operand % od.DataSource( ClockModes.single )
                 self._pulses_per_quarternote = (operand % od.DataSource( ou.PPQN() )).copy()
             case ClockModes():      self._mode = operand
-            case ou.PPQN():         self._pulses_per_quarternote = operand
+            case ou.PPQN():         self._pulses_per_quarternote = operand.copy()
             case int() | float():   self._length = ot.Length(operand)
             case _: super().__lshift__(operand)
         return self
@@ -349,6 +370,17 @@ class Note(Element):
         self._gate: ov.Gate         = ov.Gate(.90)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Note,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the Duration, KeyNote, Velocity and Gate, the last one as 0.90 by default.
+
+        Examples
+        --------
+        >>> some_note = Note("F")
+        >>> print(some_note % Key() % str())
+        F
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -443,13 +475,13 @@ class Note(Element):
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
-            case ot.Duration():     self._duration = operand
+            case ot.Duration():     self._duration = operand.copy()
             case ov.NoteValue():    self._duration = ot.Duration() << operand
-            case og.KeyNote():      self._key_note = operand
+            case og.KeyNote():      self._key_note = operand.copy()
             case ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
-            case ou.Velocity():     self._velocity = operand
-            case ov.Gate():         self._gate = operand
+            case ou.Velocity():     self._velocity = operand.copy()
+            case ov.Gate():         self._gate = operand.copy()
             case _: super().__lshift__(operand)
         return self
 
@@ -473,16 +505,34 @@ class KeyScale(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
         self._scale: ou.Scale = os.global_staff % ou.Scale()    # default Staff scale
+        self._data_scale: od.DataScale = od.DataScale()
         self._mode: ou.Mode = ou.Mode()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a KeyScale,
+        those Parameters are the ones of the Element, like Position and Length,
+        together with the ones of a Note, like Duration and KeyNote,
+        plus the Scale and Mode, the last one as 1 by default.
+
+        Examples
+        --------
+        >>> entire_scale = KeyScale()
+        >>> entire_scale << Scale("minor")
+        >>> print(entire_scale % str())
+        minor
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        return self._scale
+                    case od.DataScale():    return self._data_scale
                     case ou.Mode():         return self._mode
                     case _:                 return super().__mod__(operand)
             case ou.Scale():        return self._scale.copy()
+            case od.DataScale():    return self._data_scale.copy()
+            case list():            return self._scale % list()
+            case str():             return self._scale % str()
             case ou.Mode():         return self._mode.copy()
             case _:                 return super().__mod__(operand)
 
@@ -537,14 +587,17 @@ class KeyScale(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        self._scale = operand % o.Operand()
+                    case od.DataScale():    self._data_scale = operand % o.Operand()
                     case ou.Mode():         self._mode = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
                 self._scale = (operand % od.DataSource( ou.Scale() )).copy()
+                self._data_scale = (operand % od.DataSource( od.DataScale() )).copy()
                 self._mode  = (operand % od.DataSource( ou.Mode() )).copy()
-            case ou.Scale():        self._scale = operand
-            case ou.Mode():         self._mode = operand
+            case ou.Scale():        self._scale = operand.copy()
+            case od.DataScale():    self._data_scale = operand.copy()
+            case ou.Mode():         self._mode = operand.copy()
             case _: super().__lshift__(operand)
         return self
 

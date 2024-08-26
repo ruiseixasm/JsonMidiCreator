@@ -98,12 +98,17 @@ class Operator(o.Operand):
                     case _:                 self._operand = operand % o.Operand()
             case Operator():
                 operator_list = []
-                for single_operand in operand % od.DataSource( list() ):
-                    operator_list.append(single_operand.copy())
+                for single_operator in operand % od.DataSource( list() ):
+                    operator_list.append(single_operator.copy())
                 self._operator_list = operator_list
                 self._operand       = (operand % od.DataSource( o.Operand() )).copy()
             case of.Frame():        self << (operand & self)
-            case list():            self._operator_list = operand
+            case list():
+                operator_list = []
+                for single_operator in operand:
+                    operator_list.append(single_operator.copy())
+                self._operator_list = operator_list
+            case o.Operand():       self._operand = operand.copy()
             case ol.Null | None:    return self
             case _:                 self._operand = operand
         return self
