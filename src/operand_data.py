@@ -246,7 +246,11 @@ class PlayList(Data):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand) -> o.Operand:
-        return PlayList(operand.getPlayList() + self._data)
+        match operand:
+            case ot.Position():
+                ...
+            case _:
+                return PlayList(operand.getPlayList() + self._data)
 
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
@@ -265,7 +269,7 @@ class Save(Data):
 
 class Load(Data):
     def __init__(self, file_name: str = "_jsonMidiCreator.json"):
-        super().__init__(file_name)
+        super().__init__(c.loadJsonMidiCreator(file_name))
 
 class Export(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
@@ -288,7 +292,11 @@ class Import(Data):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> PlayList:
-        return self._data + operand
+        match operand:
+            case ot.Position():
+                return operand >> self._data    # _data is a PlayList
+            case _:
+                return self._data + operand     # _data is a PlayList
 
 class Function(Data):
     pass

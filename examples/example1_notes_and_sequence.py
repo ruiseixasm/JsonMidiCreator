@@ -33,7 +33,7 @@ first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteVa
 multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequence.json") >> Export("json/_Export_1.1_sequence.json")
 
 first_note << Key("F") >> Play()
-first_note << Load("json/_Save_1.1_first_note.json")
+first_note << Load("json/_Save_1.1_first_note.json") >> Play()
 
 Note3() << (Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.3_note_triad.json")
 

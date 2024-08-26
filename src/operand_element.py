@@ -140,8 +140,7 @@ class Element(o.Operand):
             case ou.Channel():      self._channel = operand.copy()
             case od.Device():       self._device = operand.copy()
             case od.Load():
-                serialization = c.loadJsonMidiCreator(operand % str())
-                self.loadSerialization(serialization)
+                self.loadSerialization(operand % od.DataSource())
             case oc.Chain():
                 for single_operand in operand:
                     self << single_operand
