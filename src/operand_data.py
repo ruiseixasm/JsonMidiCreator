@@ -252,15 +252,15 @@ class PlayList(Data):
         match operand:
             case ot.Position():
                 if len(self._data) > 0:
-                    position_ms: float = operand.getTime_ms()
-                    starting_position = self._data[0]["time_ms"]
+                    input_position_ms: float = operand.getTime_ms()
+                    starting_position_ms = self._data[0]["time_ms"]
                     for midi_element in self._data:
-                        if "time_ms" in midi_element and midi_element["time_ms"] < starting_position:
-                            starting_position = midi_element["time_ms"]
-                    increase_ms = starting_position - position_ms
+                        if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
+                            starting_position_ms = midi_element["time_ms"]
+                    increase_position_ms = input_position_ms - starting_position_ms
                     for midi_element in self._data:
                         if "time_ms" in midi_element:
-                            midi_element["time_ms"] = round(midi_element["time_ms"] + increase_ms, 3)
+                            midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
                 return self
             case _:
                 return PlayList(operand.getPlayList() + self._data)
@@ -272,31 +272,40 @@ class PlayList(Data):
 
 class Serialization(Data):
     def __init__(self, serialization: list = None):
-        super().__init__( [] if serialization is None else serialization )
+        super().__init__( { } if serialization is None else serialization )
 
-    def getStart(self, start: ot.Position = ol.Null()):
-        
-        ...
+    def getStart(self, start: ot.Position = None, dictionary = None):
+        if dictionary == None: dictionary = self._data
+        if "parameters" in dictionary:
+            if "position" in dictionary["parameters"]:
+                if start is None or start > ot.Position().loadSerialization(dictionary["parameters"]["position"]):
+                    return ot.Position().loadSerialization(dictionary["parameters"]["position"])
+                return start
+            if "operands" in dictionary["parameters"]:
+                for operand_dictionary in dictionary["parameters"]["operands"]:
+                    start = self.getStart(start, operand_dictionary)
+        return start
 
-    def setStart(self):
-        ...
+    def setStart(self, increase_position: ot.Length, dictionary = None):
+        if dictionary == None: dictionary = self._data
+        if "parameters" in dictionary:
+            if "position" in dictionary["parameters"]:
+                operand_position = ot.Position().loadSerialization(dictionary["parameters"]["position"])
+                new_operand_position = operand_position + increase_position
+                return new_operand_position.getSerialization()
+            if "operands" in dictionary["parameters"]:
+                for operand_dictionary in dictionary["parameters"]["operands"]:
+                    operand_dictionary["position"] = self.setStart(increase_position, operand_dictionary)
+        return self
 
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand) -> o.Operand:
         match operand:
             case ot.Position():
-                if len(self._data) > 0:
-                    position_ms: float = operand.getTime_ms()
-                    starting_position = self._data[0]["time_ms"]
-                    for midi_element in self._data:
-                        if "time_ms" in midi_element and midi_element["time_ms"] < starting_position:
-                            starting_position = midi_element["time_ms"]
-                    increase_ms = starting_position - position_ms
-                    for midi_element in self._data:
-                        if "time_ms" in midi_element:
-                            midi_element["time_ms"] = round(midi_element["time_ms"] + increase_ms, 3)
-                return self
+                start_position = self.getStart()
+                increase_position = operand - start_position
+                return self.setStart(increase_position)
             case _:
                 return self
 
