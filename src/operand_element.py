@@ -534,6 +534,7 @@ class KeyScale(Note):
             case list():            return self._scale % list()
             case str():             return self._scale % str()
             case ou.Mode():         return self._mode.copy()
+            case bool():            return self._data_scale % bool()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -655,6 +656,7 @@ class Chord(Note):
             case ou.Type():         return self._type.copy()
             case ou.Degree():       return self._degree.copy()
             case ou.Inversion():    return self._inversion.copy()
+            case bool():            return self._data_scale % bool()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
