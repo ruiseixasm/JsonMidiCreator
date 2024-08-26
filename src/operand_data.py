@@ -126,7 +126,7 @@ class Data(o.Operand):
                 self._data = self._data.copy()
             case list():
                 many_operands: list = []
-                for single_operand in self._data:
+                for single_operand in operand:
                     match single_operand:
                         case o.Operand():
                             many_operands.append(single_operand.copy())

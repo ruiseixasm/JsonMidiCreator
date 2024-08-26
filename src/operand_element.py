@@ -612,6 +612,7 @@ class KeyScale(Note):
                 self._mode  = (operand % od.DataSource( ou.Mode() )).copy()
             case ou.Scale():        self._scale = operand.copy()
             case od.DataScale():    self._data_scale = operand.copy()
+            case list():            self._data_scale << operand
             case ou.Mode():         self._mode = operand.copy()
             case _: super().__lshift__(operand)
         return self
@@ -757,6 +758,7 @@ class Chord(Note):
                 self._inversion     = (operand % od.DataSource( ou.Inversion() )).copy()
             case ou.Scale():                self._scale = operand.copy()
             case od.DataScale():            self._data_scale = operand.copy()
+            case list():                    self._data_scale << operand
             case ou.Type():                 self._type = operand.copy()
             case ou.Degree():               self._degree = operand.copy()
             case ou.Inversion():            
