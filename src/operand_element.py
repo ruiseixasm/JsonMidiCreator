@@ -539,6 +539,7 @@ class KeyScale(Note):
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
             return  self._scale == other_element % od.DataSource( ou.Scale() ) \
+                and self._data_scale == other_element % od.DataSource( od.DataScale() ) \
                 and self._mode == other_element % od.DataSource( ou.Mode() )
         return False
     
@@ -553,9 +554,14 @@ class KeyScale(Note):
 
         root_key_note = self % og.KeyNote()
         scale_key_notes = []
-        for key_note_i in range(self._scale.len()): # presses entire scale, 7 keys for diatonic scales
-            chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i)
-            scale_key_notes.append(root_key_note + chromatic_transposition)
+        if self._data_scale % bool():
+            for key_note_i in range(self._data_scale.len()): # presses entire scale, 7 keys for diatonic scales
+                chromatic_transposition = self._data_scale.transpose((self._mode % int() - 1) + key_note_i)
+                scale_key_notes.append(root_key_note + chromatic_transposition)
+        else:
+            for key_note_i in range(self._scale.len()): # presses entire scale, 7 keys for diatonic scales
+                chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i)
+                scale_key_notes.append(root_key_note + chromatic_transposition)
 
         self_playlist = []
         for key_note in scale_key_notes:
@@ -568,6 +574,7 @@ class KeyScale(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"] = self._scale % int()
+        element_serialization["parameters"]["data_scale"] = self._data_scale % list()
         element_serialization["parameters"]["mode"] = self._mode % int()
         return element_serialization
 
@@ -575,10 +582,11 @@ class KeyScale(Note):
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "mode" in serialization["parameters"] and "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["parameters"]["scale"])
+            self._data_scale = od.DataScale(serialization["parameters"]["data_scale"])
             self._mode = ou.Mode(serialization["parameters"]["mode"])
         return self
         
@@ -652,6 +660,7 @@ class Chord(Note):
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
             return  self._scale == other_element % od.DataSource( ou.Scale() ) \
+                and self._data_scale == other_element % od.DataSource( od.DataScale() ) \
                 and self._type == other_element % od.DataSource( ou.Type() ) \
                 and self._degree == other_element % od.DataSource( ou.Degree() ) \
                 and self._inversion == other_element % od.DataSource( ou.Inversion() )
@@ -663,7 +672,10 @@ class Chord(Note):
         root_key_note = self % og.KeyNote()
         chord_key_notes = []
         for key_note_i in range(self._type % int()):
-            chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_i * 2)
+            if self._data_scale % bool():
+                chromatic_transposition = self._data_scale.transpose((self._degree % int() - 1) + key_note_i * 2)
+            else:
+                chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_i * 2)
             chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
@@ -688,6 +700,7 @@ class Chord(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"] = self._scale % int()
+        element_serialization["parameters"]["data_scale"] = self._scale % list()
         element_serialization["parameters"]["type"] = self._type % int()
         element_serialization["parameters"]["degree"] = self._degree % int()
         element_serialization["parameters"]["inversion"] = self._inversion % int()
@@ -697,11 +710,12 @@ class Chord(Note):
 
     def loadSerialization(self, serialization: dict):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
+            "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
             "inversion" in serialization["parameters"] and "type" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["parameters"]["scale"])
+            self._data_scale = ou.Scale(serialization["parameters"]["data_scale"])
             self._type = ou.Type(serialization["parameters"]["type"])
             self._degree = ou.Degree(serialization["parameters"]["degree"])
             self._inversion = ou.Inversion(serialization["parameters"]["inversion"])
