@@ -531,8 +531,14 @@ class KeyScale(Note):
                     case _:                 return super().__mod__(operand)
             case ou.Scale():        return self._scale.copy()
             case od.DataScale():    return self._data_scale.copy()
-            case list():            return self._scale % list()
-            case str():             return self._scale % str()
+            case list():
+                if self._data_scale % bool():
+                    return self._data_scale % list()
+                return self._scale % list()
+            case str():
+                if self._data_scale % bool():
+                    return self._data_scale % str()
+                return self._scale % str()
             case ou.Mode():         return self._mode.copy()
             case bool():            return self._data_scale % bool()
             case _:                 return super().__mod__(operand)
