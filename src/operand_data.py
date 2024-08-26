@@ -325,18 +325,26 @@ class PlayList(Data):
                         if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
                             starting_position_ms = midi_element["time_ms"]
                     increase_position_ms = input_position_ms - starting_position_ms
-                    for midi_element in self._data:
+                    playlist_copy = PlayList.copyPlayList(self._data)
+                    for midi_element in playlist_copy:
                         if "time_ms" in midi_element:
                             midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-                return self
+                return PlayList( playlist_copy )
             case _:
-                return PlayList( operand.getPlayList() + self._data.copy() )
+                return PlayList( operand.getPlayList() + PlayList.copyPlayList(self._data) )
 
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
-            case list():        return PlayList( self._data.copy() + operand )
-            case o.Operand():   return PlayList( self._data.copy() + operand.getPlayList() )
-            case _:             return PlayList( self._data.copy() )
+            case list():        return PlayList( PlayList.copyPlayList(self._data) + PlayList.copyPlayList(operand) )
+            case o.Operand():   return PlayList( PlayList.copyPlayList(self._data) + PlayList.copyPlayList(operand.getPlayList()) )
+            case _:             return PlayList( PlayList.copyPlayList(self._data) )
+
+    @staticmethod
+    def copyPlayList(play_list: list):
+        copy_play_list = []
+        for single_dict in play_list:
+            copy_play_list.append(single_dict.copy())
+        return copy_play_list
 
 class Import(PlayList):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
