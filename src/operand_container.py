@@ -185,7 +185,6 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_operand)
                 self._operand_list = operands
-            case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization(operand % od.DataSource())
             case list():
