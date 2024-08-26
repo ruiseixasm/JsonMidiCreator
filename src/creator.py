@@ -75,7 +75,7 @@ def loadJsonMidiCreator(filename):
                 json_file_dict["filetype"] == "Json Midi Creator" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiCreator":
             return json_file_dict["content"]
     except Exception as e:
-        print(f"Unable to open the file: {filename}")
+        print(f"Unable to Load the file: {filename}")
     return []
 
 def saveJsonMidiPlay(play_list, filename):
@@ -95,7 +95,7 @@ def loadJsonMidiPlay(filename):
                 json_file_dict["filetype"] == "Json Midi Player" and json_file_dict["url"] == "https://github.com/ruiseixasm/JsonMidiPlayer":
             return json_file_dict["content"]
     except Exception as e:
-        print(f"Unable to open the file: {filename}")
+        print(f"Unable to Import the file: {filename}")
     return []
         
 def jsonMidiPlay(play_list, verbose: bool = False):

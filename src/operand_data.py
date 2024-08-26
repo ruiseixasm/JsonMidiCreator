@@ -240,7 +240,7 @@ class Device(Data):
         super().__init__( os.global_staff % DataSource( self ) % list() if device_list is None else device_list )
 
 class Save(Data):
-    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
+    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
 
     # CHAINABLE OPERATIONS
@@ -293,11 +293,11 @@ class Serialization(Data):
                 return self
 
 class Load(Serialization):
-    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
+    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__( c.loadJsonMidiCreator(file_name) )
 
 class Export(Data):
-    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
+    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
         super().__init__(file_name)
 
     # CHAINABLE OPERATIONS
@@ -311,7 +311,7 @@ class PlayList(Data):
         super().__init__( [] if play_list is None else play_list )
 
     def getPlayList(self):
-        return self._data
+        return self._data.copy()
 
     # CHAINABLE OPERATIONS
 
@@ -330,29 +330,17 @@ class PlayList(Data):
                             midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
                 return self
             case _:
-                return PlayList(operand.getPlayList() + self._data)
+                return PlayList( operand.getPlayList() + self._data.copy() )
 
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
-            case list():        return PlayList( self._data + operand )
-            case _:             return PlayList( self._data + operand.getPlayList() )
+            case list():        return PlayList( self._data.copy() + operand )
+            case o.Operand():   return PlayList( self._data.copy() + operand.getPlayList() )
+            case _:             return PlayList( self._data.copy() )
 
-class Import(Data):
-    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
-        loaded_list = c.loadJsonMidiPlay(file_name)
-        super().__init__( PlayList(loaded_list) )
-
-    def getPlayList(self):
-        return self._data.getPlayList()
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> PlayList:
-        match operand:
-            case ot.Position():
-                return operand >> self._data    # _data is a PlayList
-            case _:
-                return self._data + operand     # _data is a PlayList
+class Import(PlayList):
+    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
+        super().__init__( c.loadJsonMidiPlay(file_name) )
 
 class Function(Data):
     pass
