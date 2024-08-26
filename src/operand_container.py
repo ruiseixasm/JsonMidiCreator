@@ -185,8 +185,8 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_operand)
                 self._operand_list = operands
-            case od.Load():
-                self.loadSerialization(operand % od.DataSource())
+            case od.Load() | od.Serialization():
+                self.loadSerialization(operand.getSerialization())
             case list():
                 operands: list[o.Operand] = []
                 for single_operand in operand:

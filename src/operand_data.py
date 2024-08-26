@@ -239,6 +239,73 @@ class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__( os.global_staff % DataSource( self ) % list() if device_list is None else device_list )
 
+class Save(Data):
+    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        c.saveJsonMidiCreator(operand.getSerialization(), self % str())
+        return operand
+
+class Serialization(Data):
+    def __init__(self, serialization: list = None):
+        super().__init__( { } if serialization is None else serialization )
+
+    def getStart(self, start: ot.Position = None, dictionary = None):
+        if dictionary == None: dictionary = self._data
+        if "parameters" in dictionary:
+            if "position" in dictionary["parameters"]:
+                if start is None or start > ot.Position().loadSerialization(dictionary["parameters"]["position"]):
+                    return ot.Position().loadSerialization(dictionary["parameters"]["position"])
+                return start
+            if "operands" in dictionary["parameters"]:
+                for operand_dictionary in dictionary["parameters"]["operands"]:
+                    start = self.getStart(start, operand_dictionary)
+        return start
+
+    def setStart(self, increase_position: ot.Length, dictionary = None):
+        if dictionary == None: dictionary = self._data
+        if "parameters" in dictionary:
+            if "position" in dictionary["parameters"]:
+                operand_position = ot.Position().loadSerialization(dictionary["parameters"]["position"])
+                new_operand_position = operand_position + increase_position
+                return new_operand_position.getSerialization()
+            if "operands" in dictionary["parameters"]:
+                for operand_dictionary in dictionary["parameters"]["operands"]:
+                    operand_dictionary["position"] = self.setStart(increase_position, operand_dictionary)
+        return self
+
+    def getSerialization(self):
+        return self._data
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand) -> o.Operand:
+        match operand:
+            case ot.Position():
+                start_position = self.getStart()
+                increase_position = operand - start_position
+                return self.setStart(increase_position)
+            case _:
+                self._data = operand.getSerialization()
+                return self
+
+class Load(Serialization):
+    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
+        super().__init__( c.loadJsonMidiCreator(file_name) )
+
+class Export(Data):
+    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        c.saveJsonMidiPlay(operand.getPlayList(), self % str())
+        return operand
+
 class PlayList(Data):
     def __init__(self, play_list: list = None):
         super().__init__( [] if play_list is None else play_list )
@@ -269,69 +336,6 @@ class PlayList(Data):
         match operand:
             case list():        return PlayList( self._data + operand )
             case _:             return PlayList( self._data + operand.getPlayList() )
-
-class Serialization(Data):
-    def __init__(self, serialization: list = None):
-        super().__init__( { } if serialization is None else serialization )
-
-    def getStart(self, start: ot.Position = None, dictionary = None):
-        if dictionary == None: dictionary = self._data
-        if "parameters" in dictionary:
-            if "position" in dictionary["parameters"]:
-                if start is None or start > ot.Position().loadSerialization(dictionary["parameters"]["position"]):
-                    return ot.Position().loadSerialization(dictionary["parameters"]["position"])
-                return start
-            if "operands" in dictionary["parameters"]:
-                for operand_dictionary in dictionary["parameters"]["operands"]:
-                    start = self.getStart(start, operand_dictionary)
-        return start
-
-    def setStart(self, increase_position: ot.Length, dictionary = None):
-        if dictionary == None: dictionary = self._data
-        if "parameters" in dictionary:
-            if "position" in dictionary["parameters"]:
-                operand_position = ot.Position().loadSerialization(dictionary["parameters"]["position"])
-                new_operand_position = operand_position + increase_position
-                return new_operand_position.getSerialization()
-            if "operands" in dictionary["parameters"]:
-                for operand_dictionary in dictionary["parameters"]["operands"]:
-                    operand_dictionary["position"] = self.setStart(increase_position, operand_dictionary)
-        return self
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand) -> o.Operand:
-        match operand:
-            case ot.Position():
-                start_position = self.getStart()
-                increase_position = operand - start_position
-                return self.setStart(increase_position)
-            case _:
-                return self
-
-class Save(Data):
-    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.saveJsonMidiCreator(operand.getSerialization(), self % str())
-        return operand
-
-class Load(Data):
-    def __init__(self, file_name: str = "_jsonMidiCreator.json"):
-        super().__init__(c.loadJsonMidiCreator(file_name))
-
-class Export(Data):
-    def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.saveJsonMidiPlay(operand.getPlayList(), self % str())
-        return operand
 
 class Import(Data):
     def __init__(self, file_name: str = "_jsonMidiPlayer.json"):
