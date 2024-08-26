@@ -253,8 +253,7 @@ class Serialization(Data):
     def __init__(self, serialization: list = None):
         super().__init__( { } if serialization is None else serialization )
 
-    def getStart(self, start: ot.Position = None, dictionary = None):
-        if dictionary == None: dictionary = self._data
+    def getStart(self, dictionary: dict, start: ot.Position = None):
         if "parameters" in dictionary:
             if "position" in dictionary["parameters"]:
                 if start is None or start > ot.Position().loadSerialization(dictionary["parameters"]["position"]):
@@ -265,8 +264,7 @@ class Serialization(Data):
                     start = self.getStart(start, operand_dictionary)
         return start
 
-    def setStart(self, increase_position: ot.Length, dictionary = None):
-        if dictionary == None: dictionary = self._data
+    def setStart(self, dictionary: dict, increase_position: ot.Length):
         if "parameters" in dictionary:
             if "position" in dictionary["parameters"]:
                 operand_position = ot.Position().loadSerialization(dictionary["parameters"]["position"])
@@ -275,22 +273,63 @@ class Serialization(Data):
             if "operands" in dictionary["parameters"]:
                 for operand_dictionary in dictionary["parameters"]["operands"]:
                     operand_dictionary["position"] = self.setStart(increase_position, operand_dictionary)
-        return self
+        return dictionary
 
-    def getSerialization(self):
-        return self._data
+    def getSerialization(self) -> dict:
+        return Serialization.copySerialization(self._data)
 
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand) -> o.Operand:
         match operand:
             case ot.Position():
-                start_position = self.getStart()
+                copy_serialization = Serialization.copySerialization(self._data)
+                start_position = self.getStart(copy_serialization)
                 increase_position = operand - start_position
-                return self.setStart(increase_position)
+                return self.setStart(copy_serialization, increase_position)
             case _:
                 self._data = operand.getSerialization()
                 return self
+
+    @staticmethod
+    def copySerialization(serialization: any) -> any:
+        if isinstance(serialization, dict):
+            # Create a new dictionary
+            copy_dict = {}
+            for key, value in serialization.items():
+                # Recursively copy each value
+                copy_dict[key] = Serialization.copySerialization(value)
+            return copy_dict
+        elif isinstance(serialization, list):
+            # Create a new list and recursively copy each element
+            return [Serialization.copySerialization(element) for element in serialization]
+        else:
+            # Base case: return the value directly if it's neither a list nor a dictionary
+            return serialization
+
+    # def deep_copy_dict(data):
+    #     """
+    #     Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
+
+    #     Args:
+    #         data (dict): The dictionary to copy.
+
+    #     Returns:
+    #         dict: A deep copy of the original dictionary.
+    #     """
+    #     if isinstance(data, dict):
+    #         # Create a new dictionary
+    #         copy_dict = {}
+    #         for key, value in data.items():
+    #             # Recursively copy each value
+    #             copy_dict[key] = deep_copy_dict(value)
+    #         return copy_dict
+    #     elif isinstance(data, list):
+    #         # Create a new list and recursively copy each element
+    #         return [deep_copy_dict(element) for element in data]
+    #     else:
+    #         # Base case: return the value directly if it's neither a list nor a dictionary
+    #         return data
 
 class Load(Serialization):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
@@ -310,8 +349,8 @@ class PlayList(Data):
     def __init__(self, play_list: list = None):
         super().__init__( [] if play_list is None else play_list )
 
-    def getPlayList(self):
-        return self._data.copy()
+    def getPlayList(self) -> list:
+        return PlayList.copyPlayList(self._data)
 
     # CHAINABLE OPERATIONS
 
