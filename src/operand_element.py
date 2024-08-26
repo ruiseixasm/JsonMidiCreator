@@ -669,14 +669,23 @@ class Chord(Note):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
+        max_type = self._scale.len()
+        if self._data_scale % bool():
+            max_type = self._data_scale.len()
+        if max_type % 2 == 0:
+            max_type //= 2
+        max_type = min(self._type % int(), max_type)
+
         root_key_note = self % og.KeyNote()
         chord_key_notes = []
-        for key_note_i in range(self._type % int()):
-            if self._data_scale % bool():
+        if self._data_scale % bool():
+            for key_note_i in range(max_type):
                 chromatic_transposition = self._data_scale.transpose((self._degree % int() - 1) + key_note_i * 2)
-            else:
+                chord_key_notes.append(root_key_note + chromatic_transposition)
+        else:
+            for key_note_i in range(max_type):
                 chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_i * 2)
-            chord_key_notes.append(root_key_note + chromatic_transposition)
+                chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
         first_key_note = chord_key_notes[self._inversion % int() % (self._type % int())]
