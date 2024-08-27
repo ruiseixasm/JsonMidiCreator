@@ -162,15 +162,15 @@ class Container(o.Operand):
         ^ calls the respective Operand's method by name.
         """
         match operand:
-            case od.Len():
+            case ol.Len():
                 return self.len()
-            case od.First():
+            case ol.First():
                 return self.first()
-            case od.Last():
+            case ol.Last():
                 return self.last()
             case od.Sort():
                 return self.sort(operand % o.Operand())
-            case od.Reverse():
+            case ol.Reverse():
                 return self.reverse()
             case _:
                 return super().__xor__(operand)
@@ -340,9 +340,9 @@ class Sequence(Container):  # Just a container of Elements
         ^ calls the respective Operand's method by name.
         """
         match operand:
-            case od.Start():
+            case ol.Start():
                 return self.start()
-            case od.End():
+            case ol.End():
                 return self.end()
             case _:
                 return super().__xor__(operand)

@@ -75,8 +75,9 @@ class Operand:
         """
         import operand_data as od
         import operand_time as ot
+        import operand_label as ol
         match operand:
-            case od.Copy():
+            case ol.Copy():
                 return self.copy()
             case od.Serialization():
                 return self.getSerialization()

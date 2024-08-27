@@ -115,9 +115,9 @@ class Element(o.Operand):
         ^ calls the respective Operand's method by name.
         """
         match operand:
-            case od.Start():
+            case ol.Start():
                 return self.start()
-            case od.End():
+            case ol.End():
                 return self.end()
             case _:
                 return super().__xor__(operand)
