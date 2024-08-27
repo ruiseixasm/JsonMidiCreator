@@ -704,7 +704,8 @@ class Chord(Note):
                 chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
-        first_key_note = chord_key_notes[self._inversion % int() % (self._type % int())]
+        inversion = min(self._inversion % int(), self._type % int() - 1)
+        first_key_note = chord_key_notes[inversion]
         not_first_key_note = True
         while not_first_key_note:
             not_first_key_note = False
@@ -772,8 +773,7 @@ class Chord(Note):
             case list():                    self._data_scale << operand
             case ou.Type():                 self._type = operand.copy()
             case ou.Degree():               self._degree = operand.copy()
-            case ou.Inversion():            
-                self._inversion = ou.Inversion(operand % int() % (self._type % int()))  # CONDITION TO BE PLACED ON GETPLAYLIST !!!
+            case ou.Inversion():            self._inversion = operand.copy()
             case ou.Sus():                  self._sus = operand.copy()
             case _: super().__lshift__(operand)
         return self
