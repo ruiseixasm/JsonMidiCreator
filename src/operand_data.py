@@ -253,28 +253,6 @@ class Serialization(Data):
     def __init__(self, serialization: list = None):
         super().__init__( { } if serialization is None else serialization )
 
-    def getStart(self, dictionary: dict, start: ot.Position = None):
-        if "parameters" in dictionary:
-            if "position" in dictionary["parameters"]:
-                if start is None or start > ot.Position().loadSerialization(dictionary["parameters"]["position"]):
-                    return ot.Position().loadSerialization(dictionary["parameters"]["position"])
-                return start
-            if "operands" in dictionary["parameters"]:
-                for operand_dictionary in dictionary["parameters"]["operands"]:
-                    start = self.getStart(start, operand_dictionary)
-        return start
-
-    def setStart(self, dictionary: dict, increase_position: ot.Length):
-        if "parameters" in dictionary:
-            if "position" in dictionary["parameters"]:
-                operand_position = ot.Position().loadSerialization(dictionary["parameters"]["position"])
-                new_operand_position = operand_position + increase_position
-                return new_operand_position.getSerialization()
-            if "operands" in dictionary["parameters"]:
-                for operand_dictionary in dictionary["parameters"]["operands"]:
-                    operand_dictionary["position"] = self.setStart(increase_position, operand_dictionary)
-        return dictionary
-
     def getSerialization(self) -> dict:
         return Serialization.copySerialization(self._data)
 
@@ -283,13 +261,80 @@ class Serialization(Data):
     def __rrshift__(self, operand) -> o.Operand:
         match operand:
             case ot.Position():
-                copy_serialization = Serialization.copySerialization(self._data)
-                start_position = self.getStart(copy_serialization)
+                start_position = Serialization.getStart(self._data)
                 increase_position = operand - start_position
-                return self.setStart(copy_serialization, increase_position)
+                return Serialization( Serialization.setStart(self._data, increase_position) )
             case _:
                 self._data = operand.getSerialization()
                 return self
+                # return Serialization( operand.getSerialization() + Serialization.copyPlayList(self._data) )
+
+    @staticmethod
+    def getStart(serialization: any) -> any:
+        min_position: ot.Position = None
+
+        if isinstance(serialization, dict):
+            for key, value in serialization.items():
+                # Recursively copy each value
+                if isinstance(value, dict) and "class" in value and "Position" in value["class"]:
+                    # {
+                    #     "class": "Position",
+                    #     "parameters": {
+                    #         "measure": 0.0,
+                    #         "beat": 0.0,
+                    #         "note_value": 0.0,
+                    #         "step": 0.0
+                    #     }
+                    # }
+                    value_position = ot.Position().loadSerialization(value) # It's a leaf value (no children, not a node)
+                    if min_position is None or value_position < min_position:
+                        min_position = value_position
+                else:
+                    # Recursively check nested structures
+                    nested_min = Serialization.getStart(value)
+                    if nested_min is not None and (min_position is None or nested_min < min_position):
+                        min_position = nested_min
+
+        elif isinstance(serialization, list):
+            for element in serialization:
+                nested_min = Serialization.getStart(element)
+                if nested_min is not None and (min_position is None or nested_min < min_position):
+                    min_position = nested_min
+
+        return min_position     # Final exit point
+
+    @staticmethod
+    def setStart(serialization: any, increase_position: ot.Length) -> any:
+        if isinstance(serialization, dict):
+            # Create a new dictionary
+            copy_dict = {}
+            for key, value in serialization.items():
+                # Recursively copy each value
+                if isinstance(value, dict) and "class" in value and "Position" in value["class"]:
+                    # {
+                    #     "class": "Position",
+                    #     "parameters": {
+                    #         "measure": 0.0,
+                    #         "beat": 0.0,
+                    #         "note_value": 0.0,
+                    #         "step": 0.0
+                    #     }
+                    # }
+                    value_position = ot.Position().loadSerialization(value)
+                    new_position = value_position + increase_position
+                    new_position_dict = new_position.getSerialization()
+                    value["parameters"] = new_position_dict["parameters"]
+
+                copy_dict[key] = Serialization.setStart(value, increase_position)
+
+            return copy_dict    # Final exit point
+        
+        elif isinstance(serialization, list):
+            # Create a new list and recursively copy each element
+            return [Serialization.setStart(element, increase_position) for element in serialization]
+        else:
+            # Base case: return the value directly if it's neither a list nor a dictionary
+            return serialization
 
     @staticmethod
     def copySerialization(serialization: any) -> any:
@@ -299,7 +344,9 @@ class Serialization(Data):
             for key, value in serialization.items():
                 # Recursively copy each value
                 copy_dict[key] = Serialization.copySerialization(value)
-            return copy_dict
+
+            return copy_dict    # Final exit point
+        
         elif isinstance(serialization, list):
             # Create a new list and recursively copy each element
             return [Serialization.copySerialization(element) for element in serialization]
@@ -307,29 +354,30 @@ class Serialization(Data):
             # Base case: return the value directly if it's neither a list nor a dictionary
             return serialization
 
-    # def deep_copy_dict(data):
-    #     """
-    #     Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
+    @staticmethod
+    def deep_copy_dict(data):
+        """
+        Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
 
-    #     Args:
-    #         data (dict): The dictionary to copy.
+        Args:
+            data (dict): The dictionary to copy.
 
-    #     Returns:
-    #         dict: A deep copy of the original dictionary.
-    #     """
-    #     if isinstance(data, dict):
-    #         # Create a new dictionary
-    #         copy_dict = {}
-    #         for key, value in data.items():
-    #             # Recursively copy each value
-    #             copy_dict[key] = deep_copy_dict(value)
-    #         return copy_dict
-    #     elif isinstance(data, list):
-    #         # Create a new list and recursively copy each element
-    #         return [deep_copy_dict(element) for element in data]
-    #     else:
-    #         # Base case: return the value directly if it's neither a list nor a dictionary
-    #         return data
+        Returns:
+            dict: A deep copy of the original dictionary.
+        """
+        if isinstance(data, dict):
+            # Create a new dictionary
+            copy_dict = {}
+            for key, value in data.items():
+                # Recursively copy each value
+                copy_dict[key] = Serialization.deep_copy_dict(value)
+            return copy_dict
+        elif isinstance(data, list):
+            # Create a new list and recursively copy each element
+            return [Serialization.deep_copy_dict(element) for element in data]
+        else:
+            # Base case: return the value directly if it's neither a list nor a dictionary
+            return data
 
 class Load(Serialization):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
