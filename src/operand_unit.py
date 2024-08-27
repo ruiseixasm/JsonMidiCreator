@@ -22,13 +22,13 @@ import creator as c
 import operand as o
 import operand_staff as os
 import operand_data as od
-import operand_numeric as on
+import operand_names as on
 import operand_frame as of
 import operand_label as ol
 
 
 # Units have never None values and are also const, with no setters
-class Unit(on.Numeric):
+class Unit(o.Operand):
     """
     This type of Operand is associated to an Integer.
     This class is intended to represent parameters that are whole numbers like midi messages from 0 to 127

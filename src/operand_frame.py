@@ -22,13 +22,13 @@ import enum
 import creator as c
 import operand as o
 
-import operand_numeric as on
 import operand_unit as ou
 import operand_value as ov
 import operand_data as od
 import operand_time as ot
 import operand_frame as of
 import operand_label as ol
+import operand_names as on
 
 
 # Works as a traditional C list (chained)

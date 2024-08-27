@@ -27,6 +27,7 @@ import operand_label as ol
 import operand_frame as of
 import operand_container as oc
 import operand_element as oe
+import operand_names as on
 
 
 class Operator(o.Operand):

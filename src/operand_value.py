@@ -19,7 +19,7 @@ from fractions import Fraction
 # Json Midi Creator Libraries
 import operand as o
 import operand_staff as os
-import operand_numeric as on
+import operand_names as on
 import operand_unit as ou
 import operand_data as od
 import operand_frame as of
@@ -33,7 +33,7 @@ import operand_label as ol
     # Fraction * float results in a float
     # Fraction * Fraction results in a Fraction
 
-class Value(on.Numeric):
+class Value(o.Operand):
     """
     This is a type of Operand that has associated to a Fractional number.
     This class is intended to represent time based variables that are ratios like the typical 1/4 note value

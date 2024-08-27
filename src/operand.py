@@ -62,6 +62,10 @@ class Operand:
     def copy(self) -> 'Operand':
         return self.__class__() << self
     
+    def newOperand(self, operand_name: str) -> 'Operand':
+        import operand_names as on
+        return on.Names().newOperand(operand_name)
+    
     def __xor__(self, function: 'od.Function'):
         """
         ^ calls the respective Operand's Function.

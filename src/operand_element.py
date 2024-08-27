@@ -31,6 +31,7 @@ import operand_frame as of
 import operand_generic as og
 import operand_container as oc
 import operand_frame as of
+import operand_names as on
 
 
 class Element(o.Operand):
@@ -1453,26 +1454,6 @@ class Panic(Element):
         return self_playlist
 
     # CHAINABLE OPERATIONS
-
-
-
-global_elements: dict[Element] = {
-    "Element":          Element(),
-    "Clock":            Clock(),
-    "Rest":             Rest(),
-    "Note":             Note(),
-    "KeyScale":         KeyScale(),
-    "Chord":            Chord(),
-    "Note3":            Note3(),
-    "Triplet":          Triplet(),
-    "Tuplet":           Tuplet(),
-    "ControlChange":    ControlChange(),
-    "PitchBend":        PitchBend(),
-    "Aftertouch":       Aftertouch(),
-    "PolyAftertouch":   PolyAftertouch(),
-    "ProgramChange":    ProgramChange(),
-    "Panic":            Panic()
-}
 
 
 
