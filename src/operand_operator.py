@@ -87,7 +87,9 @@ class Operator(o.Operand):
             operators_serialization = serialization["parameters"]["operator_list"]
             for single_operator_serialization in operators_serialization:
                 operator_class_name = single_operator_serialization["class"]
-                operator_list.append( self.newOperand(operator_class_name).loadSerialization(single_operator_serialization) )
+                single_operator = self.newOperand(operator_class_name)
+                if not isinstance(single_operator, ol.Null):
+                    operator_list.append( single_operator.loadSerialization(single_operator_serialization) )
             self._operator_list = operator_list
         return self
   
