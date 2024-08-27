@@ -131,8 +131,7 @@ class Container(o.Operand):
             for operand_serialization in multi_operands_serialization:
                 if "class" in operand_serialization:
                     operand = self.getOperand(operand_serialization["class"])
-                    if operand:
-                        operands.append(operand.loadSerialization(operand_serialization))
+                    if operand: operands.append(operand.loadSerialization(operand_serialization))
 
             self._operand_list = operands
         return self
