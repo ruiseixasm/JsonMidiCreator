@@ -433,7 +433,7 @@ class Mode(Unit):
                     case _:                         unit = 1
                 super().__init__(unit)
             case int() | float():
-                super().__init__( (round(unit) - 1) % 7 + 1 )
+                super().__init__( (round(unit) - 1) % 8 + 1 )
             case _:
                 super().__init__( 1 )
 
@@ -460,11 +460,11 @@ class Sus(Unit):
                     case "sus2":            unit = 1
                     case "sus4":            unit = 2
                     case _:                 unit = 0
-                super().__init__(unit)
+                super().__init__( unit )
             case int() | float():
-                super().__init__( (round(unit) - 1) % 7 + 1 )
+                super().__init__( unit )
             case _:
-                super().__init__( 1 )
+                super().__init__( 0 )
 
     _sus_str = ["None" , "sus2", "sus4"]
 

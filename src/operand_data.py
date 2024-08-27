@@ -279,7 +279,7 @@ class Load(Data):
         --------
         >>> loaded_chord = Load("json/_Save_Chord_jsonMidiCreator.json")
         >>> print(loaded_chord % Type() % str())
-        3
+        7th
         """
         if operand.__class__ == o.Operand:
             return self._data

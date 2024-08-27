@@ -741,7 +741,7 @@ class Chord(Note):
 
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["parameters"]["scale"])
-            self._data_scale = ou.Scale(serialization["parameters"]["data_scale"])
+            self._data_scale = od.DataScale(serialization["parameters"]["data_scale"])
             self._type = ou.Type(serialization["parameters"]["type"])
             self._degree = ou.Degree(serialization["parameters"]["degree"])
             self._inversion = ou.Inversion(serialization["parameters"]["inversion"])
