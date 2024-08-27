@@ -300,9 +300,13 @@ class Serialization(Data):
                 return Serialization.copySerialization(self._data)
 
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
-        operand_serialization = operand.getSerialization()
-        added_serializations = Serialization.addSequences(self._data, operand_serialization)
-        return Serialization(added_serializations)
+        match operand:
+            case ot.Length():
+                return Serialization( Serialization.setStart(self._data, operand) )
+            case _:
+                operand_serialization = operand.getSerialization()
+                added_serializations = Serialization.addSequences(self._data, operand_serialization)
+                return Serialization(added_serializations)
 
     @staticmethod
     def addSequences(left_sequence: dict, right_sequence: dict) -> dict:
@@ -483,8 +487,24 @@ class PlayList(Data):
             case _:
                 return PlayList( operand.getPlayList() + PlayList.copyPlayList(self._data) )
 
+    def __add__(self, operand: 'o.Operand') -> 'o.Operand':
+        match operand:
+            case ot.Length():
+                return Serialization( Serialization.setStart(self._data, operand) )
+            case _:
+                operand_serialization = operand.getSerialization()
+                added_serializations = Serialization.addSequences(self._data, operand_serialization)
+                return Serialization(added_serializations)
+
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
+            case ot.Length():
+                playlist_copy = PlayList.copyPlayList(self._data)
+                increase_position_ms: float = operand.getTime_ms()
+                for midi_element in playlist_copy:
+                    if "time_ms" in midi_element:
+                        midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
+                return PlayList( playlist_copy )
             case list():        return PlayList( PlayList.copyPlayList(self._data) + PlayList.copyPlayList(operand) )
             case o.Operand():   return PlayList( PlayList.copyPlayList(self._data) + PlayList.copyPlayList(operand.getPlayList()) )
             case _:             return PlayList( PlayList.copyPlayList(self._data) )
