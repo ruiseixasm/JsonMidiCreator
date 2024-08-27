@@ -27,6 +27,7 @@ class Names(o.Operand):
         import operand_element as oe
         import operand_frame as of
         import operand_generic as og
+        import operand_label as ol
         import operand_operator as oo
         import operand_staff as os
         import operand_time as ot
@@ -108,6 +109,14 @@ class Names(o.Operand):
             "Generic":          og.Generic,
             "KeyNote":          og.KeyNote,
             "Controller":       og.Controller,
+
+            # Label class operands (ol)
+            "Label":            ol.Label,
+            "Null":             ol.Null,
+            "Dummy":            ol.Dummy,
+            "MidiValue":        ol.MidiValue,
+            "MSB":              ol.MSB,
+            "LSB":              ol.LSB,
 
             # Operator class operands (oo)
             "Operator":         oo.Operator,
