@@ -253,21 +253,63 @@ class Serialization(Data):
     def __init__(self, serialization: list = None):
         super().__init__( { } if serialization is None else serialization )
 
+    def getPlayList(self) -> dict:
+        import operand_container as oc
+        sequence_serialization = {
+                "class": "Sequence",
+                "parameters": {
+                    "operands": [self._data]
+                }
+            }
+        if Serialization.isSequence(self._data):
+            sequence_serialization = self._data
+        return oc.Sequence().loadSerialization( sequence_serialization ).getPlayList()
+
     def getSerialization(self) -> dict:
         return Serialization.copySerialization(self._data)
 
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand) -> o.Operand:
+        import operand_container as oc
+        import operand_element as oe
         match operand:
             case ot.Position():
                 start_position = Serialization.getStart(self._data)
                 increase_position = operand - start_position
                 return Serialization( Serialization.setStart(self._data, increase_position) )
+            case Serialization() | oc.Sequence() | oe.Element():
+                return Serialization( Serialization.addSequences(operand.getSerialization(), self._data) )
             case _:
-                self._data = operand.getSerialization()
-                return self
-                # return Serialization( operand.getSerialization() + Serialization.copyPlayList(self._data) )
+                return Serialization.copySerialization(self._data)
+
+    @staticmethod
+    def addSequences(left_sequence: dict, right_sequence: dict) -> dict:
+        if Serialization.isSequence(left_sequence) and Serialization.isSequence(right_sequence):
+            added_sequence = Serialization.copySerialization(left_sequence)
+            added_sequence["parameters"]["operands"] += right_sequence["parameters"]["operands"]
+            return Serialization.copySerialization(added_sequence)
+        if Serialization.isSequence(left_sequence):
+            added_sequence = Serialization.copySerialization(left_sequence)
+            added_sequence["parameters"]["operands"] += [ right_sequence ]
+            return Serialization.copySerialization(added_sequence)
+        if Serialization.isSequence(right_sequence):
+            added_sequence = Serialization.copySerialization(left_sequence)
+            added_sequence["parameters"]["operands"] = [ right_sequence ] + added_sequence["parameters"]["operands"]
+            return Serialization.copySerialization(added_sequence)
+        added_sequence = {
+                "class": "Sequence",
+                "parameters": {
+                    "operands": [left_sequence, left_sequence]
+                }
+            }
+        return Serialization.copySerialization(added_sequence)
+
+    @staticmethod
+    def isSequence(serialization: dict) -> bool:
+        if isinstance(serialization, dict) and "class" in serialization and serialization["class"] == "Sequence":
+            return True
+        return False
 
     @staticmethod
     def getStart(serialization: any) -> any:

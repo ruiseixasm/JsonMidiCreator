@@ -121,14 +121,16 @@ class Container(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
+        import operand_element as oe
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operands" in serialization["parameters"]):
 
             operands = []
             multi_elements_serialization = serialization["parameters"]["operands"]
             for single_operand in multi_elements_serialization:
-                class_name = single_operand["class"]
-                operands.append(globals()[class_name]().loadSerialization(single_operand))
+                if "class" in single_operand and single_operand["class"] in oe.global_elements:
+                    element_copy = oe.global_elements[ single_operand["class"] ].copy()
+                    operands.append(element_copy.loadSerialization(single_operand))
 
             self._operand_list = operands
         return self
