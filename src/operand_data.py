@@ -274,7 +274,7 @@ class Serialization(Data):
     def getOperand(self) -> o.Operand:
         if isinstance(self._data, dict) and "class" in self._data:
             operand_class_name = self._data["class"]
-            return self.newOperand(operand_class_name)
+            return self.newOperand(operand_class_name).loadSerialization(self._data)
         return ol.Null()
    
     def __xor__(self, function: 'od.Function'):
