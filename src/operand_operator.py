@@ -81,13 +81,13 @@ class Operator(o.Operand):
         if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "operator_list" in serialization["parameters"]):
 
-            operand_class = serialization["parameters"]["operand"]["class"]
-            self._operand = globals()[operand_class]().loadSerialization(serialization["parameters"]["operand"])
+            operand_class_name = serialization["parameters"]["operand"]["class"]
+            self._operand = self.newOperand(operand_class_name).loadSerialization(serialization["parameters"]["operand"])
             operator_list = []
             operators_serialization = serialization["parameters"]["operator_list"]
-            for single_operator in operators_serialization:
-                class_name = single_operator["class"]
-                operator_list.append(globals()[class_name]().loadSerialization(single_operator))
+            for single_operator_serialization in operators_serialization:
+                operator_class_name = single_operator_serialization["class"]
+                operator_list.append( self.newOperand(operator_class_name).loadSerialization(single_operator_serialization) )
             self._operator_list = operator_list
         return self
   
