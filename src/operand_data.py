@@ -270,6 +270,8 @@ class Load(Data):
                 super().__init__( ol.Null() )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        if operand.__class__ == o.Operand:
+            return self._data
         return self._data % operand
 
     def __eq__(self, other_operand: 'o.Operand') -> bool:
