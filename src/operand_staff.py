@@ -122,7 +122,7 @@ class Staff(o.Operand):
                 "velocity": self._velocity % int(),
                 "controller": self._controller.getSerialization(),
                 "channel": self._channel % int(),
-                "device": self._device % list()
+                "device": self._device % od.DataSource()
             }
         }
 
