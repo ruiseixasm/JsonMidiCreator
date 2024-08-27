@@ -62,13 +62,13 @@ class Unit(o.Operand):
             case _:                 return self.copy()
 
     def __eq__(self, other_unit: 'Unit') -> bool:
-        return self % int() == other_unit % int()
+        return self._unit == other_unit % od.DataSource()
     
     def __lt__(self, other_unit: 'Unit') -> bool:
-        return self % int() < other_unit % int()
+        return self._unit < other_unit % od.DataSource()
     
     def __gt__(self, other_unit: 'Unit') -> bool:
-        return self % int() > other_unit % int()
+        return self._unit > other_unit % od.DataSource()
     
     def __le__(self, other_unit: 'Unit') -> bool:
         return not (self > other_unit)
@@ -98,38 +98,38 @@ class Unit(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case int():             self._unit = operand % o.Operand()
-            case Unit():            self._unit = operand % od.DataSource( int() )
+            case Unit():            self._unit = operand % od.DataSource()
             case of.Frame():        self << (operand & self)
             case od.Load():
-                self.loadSerialization(operand % od.DataSource())
+                self.loadSerialization( operand.getSerialization() )
             case int() | float():   self._unit = round(operand)
         return self
 
     def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self + (unit & self)
-            case Unit():            return self.__class__(self._unit + unit._unit)
+            case Unit():            return self.__class__(self._unit + unit % od.DataSource())
             case int() | float():   return self.__class__(self._unit + unit)
         return self.copy()
     
     def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self - (unit & self)
-            case Unit():            return self.__class__(self._unit - unit._unit)
+            case Unit():            return self.__class__(self._unit - unit % od.DataSource())
             case int() | float():   return self.__class__(self._unit - unit)
         return self.copy()
     
     def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self * (unit & self)
-            case Unit():            return self.__class__(self._unit * unit._unit)
+            case Unit():            return self.__class__(self._unit * unit % od.DataSource())
             case int() | float():   return self.__class__(self._unit * unit)
         return self.copy()
     
     def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
         match unit:
             case of.Frame():        return self / (unit & self)
-            case Unit():            return self.__class__(self._unit / unit._unit)
+            case Unit():            return self.__class__(self._unit / unit % od.DataSource())
             case int() | float():   return self.__class__(self._unit / unit)
         return self.copy()
     
@@ -154,7 +154,7 @@ class Key(Unit):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():       return super().__mod__(operand)
-            case str():                 return Key.getKey(self % int())
+            case str():                 return Key.getKey(self._unit)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -165,7 +165,7 @@ class Key(Unit):
             case Key():             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             case od.Load():
-                self.loadSerialization(operand % od.DataSource())
+                self.loadSerialization( operand.getSerialization() )
             case Unit():            self._unit = operand % int() % 12
             case int() | float():   self._unit = round(operand) % 12
         return self
@@ -236,13 +236,13 @@ class Scale(Unit):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():   return super().__mod__(operand)
-            case list():            return Scale.getScale(self % int() % len(Scale._scales))
-            case str():             return Scale.getScaleName(self % int() % len(Scale._scales))
-            case od.DataScale():    return od.DataScale( Scale._scales[self % int() % len(Scale._scales)].copy() )
+            case list():            return Scale.getScale(self._unit % len(Scale._scales))
+            case str():             return Scale.getScaleName(self._unit % len(Scale._scales))
+            case od.DataScale():    return od.DataScale( Scale._scales[self._unit % len(Scale._scales)].copy() )
             case Tonic():
                 tonic_note = operand % int()
                 transposed_scale = [0] * 12
-                self_scale = Scale._scales[self % int() % len(Scale._scales)]
+                self_scale = Scale._scales[self._unit % len(Scale._scales)]
                 for key_i in range(12):
                     transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return od.DataScale(transposed_scale)
@@ -252,13 +252,13 @@ class Scale(Unit):
 
     def len(self) -> int:
         scale_len = 0
-        self_scale = Scale._scales[self % int() % len(Scale._scales)]
+        self_scale = Scale._scales[self._unit % len(Scale._scales)]
         for key in self_scale:
             scale_len += key
         return scale_len
 
     def transpose(self, interval: int = 1) -> int:
-        self_scale = Scale._scales[self % int() % len(Scale._scales)]
+        self_scale = Scale._scales[self._unit % len(Scale._scales)]
         chromatic_transposition = 0
         if interval > 0:
             while interval != 0:
@@ -371,7 +371,7 @@ class Degree(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._degrees_str[self % int() % len(__class__._degrees_str)]
+            case str():         return __class__._degrees_str[self._unit % len(__class__._degrees_str)]
             case _:             return super().__mod__(operand)
 
 class Type(Unit):
@@ -405,7 +405,7 @@ class Type(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._types_str[self % int() % len(__class__._types_str)]
+            case str():         return __class__._types_str[self._unit % len(__class__._types_str)]
             case _:             return super().__mod__(operand)
 
 class Mode(Unit):
@@ -441,7 +441,7 @@ class Mode(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._modes_str[self % int() % len(__class__._modes_str)]
+            case str():         return __class__._modes_str[self._unit % len(__class__._modes_str)]
             case _:             return super().__mod__(operand)
 
 class Sus(Unit):
@@ -470,7 +470,7 @@ class Sus(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._sus_str[self % int() % len(__class__._sus_str)]
+            case str():         return __class__._sus_str[self._unit % len(__class__._sus_str)]
             case _:             return super().__mod__(operand)
 
 
@@ -529,7 +529,7 @@ class Play(Unit):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.jsonMidiPlay(operand.getPlayList(), False if self % int() == 0 else True )
+        c.jsonMidiPlay(operand.getPlayList(), False if self._unit == 0 else True )
         return operand
 
 class Print(Unit):
@@ -550,7 +550,7 @@ class Print(Unit):
         operand_serialization = operand.getSerialization()
         serialized_json_str = json.dumps(operand.getSerialization())
         json_object = json.loads(serialized_json_str)
-        json_formatted_str = json.dumps(json_object, indent = self % int())
+        json_formatted_str = json.dumps(json_object, indent = self._unit)
         print(json_formatted_str)
         return operand
 
@@ -634,12 +634,12 @@ class Pitch(Midi):
         match operand:
             case od.DataSource():   return super().__mod__(operand)
             case ol.MSB():
-                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+                amount = 8192 + self._unit    # 2^14 = 16384, 16384 / 2 = 8192
                 amount = max(min(amount, 16383), 0) # midi safe
                 msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
                 return msb
             case ol.LSB():
-                amount = 8192 + self % int()    # 2^14 = 16384, 16384 / 2 = 8192
+                amount = 8192 + self._unit    # 2^14 = 16384, 16384 / 2 = 8192
                 amount = max(min(amount, 16383), 0) # midi safe
                 lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
                 return lsb
@@ -691,7 +691,7 @@ class ControlNumber(Midi):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():       return super().__mod__(operand)
-            case str():                 return ControlNumber.numberToName(self % int())
+            case str():                 return ControlNumber.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
     _controllers = [

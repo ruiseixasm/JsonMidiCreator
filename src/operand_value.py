@@ -72,13 +72,13 @@ class Value(o.Operand):
             case _:                 return self.copy()
 
     def __eq__(self, other_value: 'Value') -> bool:
-        return self % Fraction() == other_value % Fraction()
+        return self._rational() == other_value % od.DataSource()
     
     def __lt__(self, other_value: 'Value') -> bool:
-        return self % Fraction() < other_value % Fraction()
+        return self._rational() < other_value % od.DataSource()
     
     def __gt__(self, other_value: 'Value') -> bool:
-        return self % Fraction() > other_value % Fraction()
+        return self._rational() > other_value % od.DataSource()
     
     def __le__(self, other_value: 'Value') -> bool:
         return not (self > other_value)
@@ -111,7 +111,7 @@ class Value(o.Operand):
             case Value():           self._rational = operand % od.DataSource( Fraction() )
             case of.Frame():        self << (operand & self)
             case od.Load():
-                self.loadSerialization(operand % od.DataSource())
+                self.loadSerialization( operand.getSerialization() )
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
         return self
@@ -344,7 +344,7 @@ class Dotted(NoteValue):
             case Dotted():          super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             case od.Load():
-                self.loadSerialization(operand % od.DataSource())
+                self.loadSerialization( operand.getSerialization() )
             # It's just a wrapper for NoteValue 3/2
             case Value():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2

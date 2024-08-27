@@ -110,7 +110,7 @@ class Operator(o.Operand):
                 self._operand       = (operand % od.DataSource( o.Operand() )).copy()
             case of.Frame():        self << (operand & self)
             case od.Load():
-                self.loadSerialization(operand % od.DataSource())
+                self.loadSerialization( operand.getSerialization() )
             case list():
                 operator_list = []
                 for single_operator in operand:
