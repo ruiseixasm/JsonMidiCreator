@@ -49,6 +49,10 @@ def find_missing_classes(base_class, class_dict):
 
 operand_names = Names()._names
 
+for key, value in operand_names.items():
+    if value.__name__ != key:
+        print(f"Mismatch '{key}' name and the class '{value.__name__}'!")
+
 # Check which classes are missing
 missing_classes, unmatched_names = find_missing_classes(Operand, operand_names)
 
