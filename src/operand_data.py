@@ -487,15 +487,6 @@ class PlayList(Data):
             case _:
                 return PlayList( operand.getPlayList() + PlayList.copyPlayList(self._data) )
 
-    def __add__(self, operand: 'o.Operand') -> 'o.Operand':
-        match operand:
-            case ot.Length():
-                return Serialization( Serialization.setStart(self._data, operand) )
-            case _:
-                operand_serialization = operand.getSerialization()
-                added_serializations = Serialization.addSequences(self._data, operand_serialization)
-                return Serialization(added_serializations)
-
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
             case ot.Length():
