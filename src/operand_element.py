@@ -92,7 +92,7 @@ class Element(o.Operand):
             "parameters": {
                 "position": self._position.getSerialization(),
                 "length": self._length.getSerialization(),
-                "channel": self._channel % int(),
+                "channel": self._channel % od.DataSource(),
                 "device": self._device % od.DataSource()
             }
         }
@@ -415,7 +415,7 @@ class Note(Element):
         duration: ot.Duration       = self._duration
         key_note_int: int           = self._key_note % int()
         velocity_int: int           = self._velocity % int()
-        channel_int: int            = self._channel % int()
+        channel_int: int            = self._channel % od.DataSource()
         device_list: list           = self._device % od.DataSource()
 
         on_time_ms = self_position.getTime_ms()
@@ -1039,7 +1039,7 @@ class ControlChange(Element):
 
         control_number_int: int     = self % ou.ControlNumber() % int()
         control_value_int: int      = self % ou.ControlValue() % int()
-        channel_int: int            = self._channel % int()
+        channel_int: int            = self._channel % od.DataSource()
         device_list: list           = self._device % od.DataSource()
 
         on_time_ms = self_position.getTime_ms()
@@ -1125,7 +1125,7 @@ class PitchBend(Element):
 
         msb_midi: int               = self._pitch % ol.MSB()
         lsb_midi: int               = self._pitch % ol.LSB()
-        channel_int: int            = self._channel % int()
+        channel_int: int            = self._channel % od.DataSource()
         device_list: list           = self._device % od.DataSource()
 
         on_time_ms = self_position.getTime_ms()
@@ -1211,7 +1211,7 @@ class Aftertouch(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         pressure_int: int   = self._pressure % int()
-        channel_int: int    = self._channel % int()
+        channel_int: int    = self._channel % od.DataSource()
         device_list: list   = self._device % od.DataSource()
 
         on_time_ms = self_position.getTime_ms()
@@ -1300,7 +1300,7 @@ class PolyAftertouch(Aftertouch):
 
         key_note_int: int   = self._key_note % int()
         pressure_int: int   = self._pressure % int()
-        channel_int: int    = self._channel % int()
+        channel_int: int    = self._channel % od.DataSource()
         device_list: list   = self._device % od.DataSource()
 
         on_time_ms = self_position.getTime_ms()
@@ -1370,7 +1370,7 @@ class ProgramChange(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         program_int: int    = self._program % int()
-        channel_int: int    = self._channel % int()
+        channel_int: int    = self._channel % od.DataSource()
         device_list: list   = self._device % od.DataSource()
 
         on_time_ms = self_position.getTime_ms()
@@ -1444,7 +1444,7 @@ class Panic(Element):
         self_playlist.extend((ControlChange(1) << ou.ControlValue(0)).getPlayList(self_position))
         self_playlist.extend((ControlChange(121) << ou.ControlValue(0)).getPlayList(self_position))
 
-        channel_int: int            = self._channel % int()
+        channel_int: int            = self._channel % od.DataSource()
         device_list: list           = self._device % od.DataSource()
         on_time_ms = self_position.getTime_ms()
         for key_note_midi in range(128):
