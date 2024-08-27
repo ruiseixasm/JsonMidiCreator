@@ -49,6 +49,9 @@ class Operand:
         import operand_label as ol
         return ol.Null()
     
+    def name(self) -> str:
+        return self.__class__.__name__
+
     def getPlayList(self):
         return []
 
@@ -82,7 +85,7 @@ class Operand:
         # If no matching subclass is found, return None
         return None
     
-    def __xor__(self, operand: 'Operand'):
+    def __xor__(self, operand: 'Operand') -> any:
         """
         ^ calls the respective Operand's method by name.
         """
@@ -90,6 +93,8 @@ class Operand:
         import operand_time as ot
         import operand_label as ol
         match operand:
+            case ol.Name():
+                return self.name()
             case ol.Copy():
                 return self.copy()
             case od.Serialization():

@@ -70,3 +70,6 @@ class Start(Label):
 
 class End(Label):
     pass
+
+class Name(Label):
+    pass
