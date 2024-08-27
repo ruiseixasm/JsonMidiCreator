@@ -729,9 +729,9 @@ class Chord(Note):
 
         self_playlist = []
         for key_note in chord_key_notes:
-            self << key_note
+            self._key_note = key_note
             self_playlist.extend(super().getPlayList(self_position))
-        self << root_key_note
+        self._key_note = root_key_note
 
         return self_playlist
     

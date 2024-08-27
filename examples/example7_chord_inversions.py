@@ -29,4 +29,4 @@ Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) >> P
 (Chord() * 4 << Type("7th")) + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/_Export_7.1_chord_inversion.json") >> Play(True)
 
 
-(Chord() * 5 << Type("9th") << Sus("sus2") << Gate(1)) + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) >> Play(True)
+(Chord() * 4 << Type("7th") << Sus("sus2") << Gate(1)) + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) >> Play(True)
