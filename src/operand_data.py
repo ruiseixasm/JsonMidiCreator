@@ -252,17 +252,29 @@ class Save(Data):
 
 class Load(Data):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
-        serialization = c.loadJsonMidiCreator(file_name)
-        if isinstance(serialization, dict) and "class" in serialization:
-            operand_class_name = serialization["class"]
-            operand = self.getOperand(operand_class_name)
-            if operand:
-                super().__init__( operand.loadSerialization(serialization) )
-            else:
+        match file_name:
+            case o.Operand():
+                self._data = file_name
+            case str():
+                serialization = c.loadJsonMidiCreator(file_name)
+                if isinstance(serialization, dict) and "class" in serialization:
+                    operand_class_name = serialization["class"]
+                    operand = self.getOperand(operand_class_name)
+                    if operand:
+                        super().__init__( operand.loadSerialization(serialization) )
+                    else:
+                        super().__init__( ol.Null() )
+                else:
+                    super().__init__( ol.Null() )
+            case _:
                 super().__init__( ol.Null() )
-        else:
-            super().__init__( ol.Null() )
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        return self._data % operand
+
+    def __eq__(self, other_operand: 'o.Operand') -> bool:
+        return self._data == other_operand
+    
     def getPlayList(self, position: ot.Position = None) -> dict:
         return self._data.getPlayList(position)
 
@@ -271,14 +283,33 @@ class Load(Data):
 
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        self._data.loadSerialization(serialization)
+        return self
+        
     def copy(self):
-        return self.__class__().loadSerialization( self.getSerialization() )
+        return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
+
+    def __lshift__(self, operand: o.Operand) -> 'o.Operand':
+        return self._data << operand
 
     def __rrshift__(self, operand) -> o.Operand:
         return operand >> self._data
 
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
-        return operand + self._data
+        return self._data + operand
+
+    def __sub__(self, operand: o.Operand) -> 'o.Operand':
+        return self._data - operand
+
+    def __mul__(self, operand: o.Operand) -> 'o.Operand':
+        return self._data * operand
+
+    def __truediv__(self, operand: o.Operand) -> 'o.Operand':
+        return self._data / operand
+
+    def __floordiv__(self, length: ot.Length) -> 'o.Operand':
+        return self._data // length
 
 class Export(Data):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
