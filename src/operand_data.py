@@ -284,6 +284,11 @@ class Serialization(Data):
             case _:
                 return Serialization.copySerialization(self._data)
 
+    def __add__(self, operand: 'o.Operand') -> 'o.Operand':
+        operand_serialization = operand.getSerialization()
+        added_serializations = Serialization.addSequences(self._data, operand_serialization)
+        return Serialization(added_serializations)
+
     @staticmethod
     def addSequences(left_sequence: dict, right_sequence: dict) -> dict:
         if Serialization.isSequence(left_sequence) and Serialization.isSequence(right_sequence):
@@ -301,7 +306,7 @@ class Serialization(Data):
         added_sequence = {
                 "class": "Sequence",
                 "parameters": {
-                    "operands": [left_sequence, left_sequence]
+                    "operands": [left_sequence, right_sequence]
                 }
             }
         return Serialization.copySerialization(added_sequence)

@@ -154,6 +154,7 @@ class Names(o.Operand):
 
             # Value class operands (ov)
             "Value":            ov.Value,
+            "Negative":         ov.Negative,
             "Quantization":     ov.Quantization,
             "BeatsPerMeasure":  ov.BeatsPerMeasure,
             "BeatNoteValue":    ov.BeatNoteValue,

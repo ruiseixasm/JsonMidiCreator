@@ -154,6 +154,10 @@ class Value(o.Operand):
                     return self.__class__(self._rational / Fraction(value).limit_denominator())
         return self.copy()
 
+class Negative(Value):
+    def __init__(self, value: float = None):
+        super().__init__(value * (-1))
+
 class Quantization(Value):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.

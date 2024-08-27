@@ -48,6 +48,9 @@ class Operand:
     def end(self) -> 'ot.Position':
         import operand_label as ol
         return ol.Null()
+    
+    def getPlayList(self):
+        return []
 
     def getSerialization(self):
         return { 
@@ -71,9 +74,17 @@ class Operand:
         ^ calls the respective Operand's Function.
         """
         import operand_data as od
+        import operand_time as ot
         match function:
             case od.Copy():
                 return self.copy()
+            case od.Serialization():
+                return self.getSerialization()
+            case od.PlayList():
+                position = function % ot.Position()
+                if isinstance(position, ot.Position):
+                    return self.getPlayList(position)
+                return self.getPlayList()
         return self
 
     def __lshift__(self, operand: 'Operand') -> 'Operand':
