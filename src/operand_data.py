@@ -271,6 +271,22 @@ class Serialization(Data):
 
     # CHAINABLE OPERATIONS
 
+    def getOperand(self) -> o.Operand:
+        if isinstance(self._data, dict) and "class" in self._data:
+            operand_class_name = self._data["class"]
+            return self.newOperand(operand_class_name)
+        return ol.Null()
+   
+    def __xor__(self, function: 'od.Function'):
+        """
+        ^ calls the respective Operand's Function.
+        """
+        match function:
+            case o.Operand():
+                return self.getOperand()
+            case _:
+                return super().__xor__(function)
+
     def __rrshift__(self, operand) -> o.Operand:
         import operand_container as oc
         import operand_element as oe
