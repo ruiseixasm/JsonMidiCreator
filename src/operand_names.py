@@ -55,15 +55,7 @@ class Names(o.Operand):
             "Export":           od.Export,
             "PlayList":         od.PlayList,
             "Import":           od.Import,
-            "Function":         od.Function,
-            "Copy":             od.Copy,
-            "Len":              od.Len,
             "Sort":             od.Sort,
-            "Reverse":          od.Reverse,
-            "First":            od.First,
-            "Last":             od.Last,
-            "Start":            od.Start,
-            "End":              od.End,
 
             # Element class operands (oe)
             "Element":          oe.Element,
@@ -117,6 +109,16 @@ class Names(o.Operand):
             "MidiValue":        ol.MidiValue,
             "MSB":              ol.MSB,
             "LSB":              ol.LSB,
+            "Copy":             ol.Copy,
+            "Len":              ol.Len,
+            "Reverse":          ol.Reverse,
+            "First":            ol.First,
+            "Last":             ol.Last,
+            "Start":            ol.Start,
+            "End":              ol.End,
+
+            # Names class operands (on)
+            "Names":            Names,
 
             # Operator class operands (oo)
             "Operator":         oo.Operator,
@@ -152,6 +154,8 @@ class Names(o.Operand):
             "Progression":      ou.Progression,
             "Inversion":        ou.Inversion,
             "Play":             ou.Play,
+            "Print":            ou.Print,
+            "PPQN":             ou.PPQN,
             "Midi":             ou.Midi,
             "Velocity":         ou.Velocity,
             "Pressure":         ou.Pressure,

@@ -110,17 +110,17 @@ class Element(o.Operand):
             self._device    = od.Device(serialization["parameters"]["device"])
         return self
         
-    def __xor__(self, function: 'od.Function'):
+    def __xor__(self, operand: o.Operand):
         """
-        ^ calls the respective Operand's Function.
+        ^ calls the respective Operand's method by name.
         """
-        match function:
+        match operand:
             case od.Start():
                 return self.start()
             case od.End():
                 return self.end()
             case _:
-                return super().__xor__(function)
+                return super().__xor__(operand)
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
         match operand:

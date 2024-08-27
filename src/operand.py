@@ -69,19 +69,19 @@ class Operand:
         import operand_names as on
         return on.Names().newOperand(operand_name)
     
-    def __xor__(self, function: 'od.Function'):
+    def __xor__(self, operand: 'Operand'):
         """
-        ^ calls the respective Operand's Function.
+        ^ calls the respective Operand's method by name.
         """
         import operand_data as od
         import operand_time as ot
-        match function:
+        match operand:
             case od.Copy():
                 return self.copy()
             case od.Serialization():
                 return self.getSerialization()
             case od.PlayList():
-                position = function % ot.Position()
+                position = operand % ot.Position()
                 if isinstance(position, ot.Position):
                     return self.getPlayList(position)
                 return self.getPlayList()

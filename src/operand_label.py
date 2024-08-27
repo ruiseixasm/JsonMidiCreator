@@ -46,3 +46,27 @@ class LSB(MidiValue):
     LSB() represents the Least Significant Byte.
     """
     pass
+
+class Copy(Label):
+    """
+    Copy() does an total duplication of the Operand including its parts.
+    """
+    pass
+
+class Len(Label):
+    pass
+
+class Reverse(Label):
+    pass
+
+class First(Label):
+    pass
+
+class Last(Label):
+    pass
+
+class Start(Label):
+    pass
+
+class End(Label):
+    pass

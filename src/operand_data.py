@@ -277,15 +277,15 @@ class Serialization(Data):
             return self.newOperand(operand_class_name).loadSerialization(self._data)
         return ol.Null()
    
-    def __xor__(self, function: 'od.Function'):
+    def __xor__(self, operand: o.Operand):
         """
-        ^ calls the respective Operand's Function.
+        ^ calls the respective Operand's method by name.
         """
-        match function:
+        match operand:
             case o.Operand():
                 return self.getOperand()
             case _:
-                return super().__xor__(function)
+                return super().__xor__(operand)
 
     def __rrshift__(self, operand) -> o.Operand:
         import operand_container as oc
@@ -501,40 +501,6 @@ class Import(PlayList):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
         super().__init__( c.loadJsonMidiPlay(file_name) )
 
-class Function(Data):
-    pass
-
-class Copy(Function):
-    """
-    Copy() does an total duplication of the Operand including its parts.
-    """
-    def __init__(self):
-        super().__init__(None)
-
-class Len(Function):
-    def __init__(self):
-        super().__init__(None)
-
-class Sort(Function):
+class Sort(Data):
     def __init__(self, compare: o.Operand = None):
         super().__init__(compare)
-
-class Reverse(Function):
-    def __init__(self):
-        super().__init__(None)
-
-class First(Function):
-    def __init__(self):
-        super().__init__(None)
-
-class Last(Function):
-    def __init__(self):
-        super().__init__(None)
-
-class Start(Function):
-    def __init__(self):
-        super().__init__(None)
-
-class End(Function):
-    def __init__(self):
-        super().__init__(None)
