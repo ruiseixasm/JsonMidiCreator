@@ -36,8 +36,8 @@ note_3 = Note() << (Position(3) >> first_load)
 note_0 + note_1 + note_2 + note_3 >> Save ("json/_Save_2.1_multiple_notes.json") >> Print() >> Play(True)
 
 # Process Loaded files as Serialization
-load_0 = Position(0) >> first_load
-load_1 = Position(1) >> first_load
-load_2 = Position(2) >> first_load
-load_3 = Position(3) >> first_load
+load_0 = Position(0) >> first_load ^ Copy()
+load_1 = Position(1) >> first_load ^ Copy()
+load_2 = Position(2) >> first_load ^ Copy()
+load_3 = Position(3) >> first_load ^ Copy()
 load_0 + load_1 + load_2 + load_3 >> Save ("json/_Save_2.2_sequence_notes.json") >> Print() >> Play(True)

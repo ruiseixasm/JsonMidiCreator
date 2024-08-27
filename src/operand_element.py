@@ -136,8 +136,8 @@ class Element(o.Operand):
                 self._channel       = (operand % od.DataSource( ou.Channel() )).copy()
                 self._device        = (operand % od.DataSource( od.Device() )).copy()
             case of.Frame():        self << (operand & self)
-            case od.Load() | od.Serialization():
-                self.loadSerialization(operand % od.DataSource())
+            case od.Load():
+                self.loadSerialization( operand.getSerialization() )
             case ot.Position():     self._position = operand.copy()
             case ov.TimeUnit():     self._position << operand
             case ot.Length():       self._length = operand.copy()
