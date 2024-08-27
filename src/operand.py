@@ -16,6 +16,18 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 class Operand:
     def __mod__(self, operand: 'Operand') -> 'Operand':
+        """
+        The % symbol is used to extract a Parameter, each Operand
+        has different types of Parameters, as an example, the
+        Operand Note() has the Parameters Velocity and Duration,
+        and recursively, the Operands' Parameters themselves.
+
+        Examples
+        --------
+        >>> given_operand = Note("A") << Duration(1/2)
+        >>> print(given_operand % Duration() % NoteValue() % float())
+        0.5
+        """
         import operand_label as ol
         match operand:
             case ol.Null() | None:  return ol.Null()
@@ -93,8 +105,6 @@ class Operand:
         import operand_time as ot
         import operand_label as ol
         match operand:
-            case ol.Name():
-                return self.name()
             case ol.Copy():
                 return self.copy()
             case od.Serialization():
@@ -104,6 +114,8 @@ class Operand:
                 if isinstance(position, ot.Position):
                     return self.getPlayList(position)
                 return self.getPlayList()
+            case ol.Name():
+                return self.name()
         return self
 
     def __lshift__(self, operand: 'Operand') -> 'Operand':

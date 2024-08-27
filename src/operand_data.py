@@ -98,7 +98,7 @@ class Data(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "data" in serialization["parameters"]):
 
             self._data = serialization["parameters"]["data"]
@@ -270,6 +270,17 @@ class Load(Data):
                 super().__init__( ol.Null() )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, for the case of a Load(),
+        those Operands are pass right away to the self Data Operand, with the
+        exception of "% Operand()", that returns the self Data operand.
+
+        Examples
+        --------
+        >>> loaded_chord = Load("json/_Save_Chord_jsonMidiCreator.json")
+        >>> print(loaded_chord % Type() % str())
+        3
+        """
         if operand.__class__ == o.Operand:
             return self._data
         return self._data % operand

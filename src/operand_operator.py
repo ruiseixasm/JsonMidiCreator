@@ -78,7 +78,7 @@ class Operator(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "operator_list" in serialization["parameters"]):
 
             operand_class_name = serialization["parameters"]["operand"]["class"]
@@ -185,7 +185,7 @@ class Oscillator(Operator):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Oscillator':
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "length" in serialization["parameters"] and
             "amplitude" in serialization["parameters"] and "offset" in serialization["parameters"]):
 

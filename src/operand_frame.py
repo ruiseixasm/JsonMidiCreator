@@ -105,7 +105,7 @@ class Frame(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "next_operand" in serialization["parameters"]):
 
             self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])

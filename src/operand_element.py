@@ -100,7 +100,7 @@ class Element(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "length" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
@@ -331,7 +331,7 @@ class Clock(Element):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "mode" in serialization["parameters"] and "pulses_per_quarternote" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -452,7 +452,7 @@ class Note(Element):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "duration" in serialization["parameters"] and "key_note" in serialization["parameters"] and
             "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
@@ -591,7 +591,7 @@ class KeyScale(Note):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "mode" in serialization["parameters"] and "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
@@ -650,6 +650,7 @@ class Chord(Note):
         self._degree: ou.Degree = ou.Degree()
         self._inversion: ou.Inversion = ou.Inversion()
         self._type: ou.Type = ou.Type()
+        self._sus: ou.Sus = ou.Sus()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -660,12 +661,14 @@ class Chord(Note):
                     case ou.Type():         return self._type
                     case ou.Degree():       return self._degree
                     case ou.Inversion():    return self._inversion
+                    case ou.Sus():          return self._sus
                     case _:                 return super().__mod__(operand)
             case ou.Scale():        return self._scale.copy()
             case od.DataScale():    return self._data_scale.copy()
             case ou.Type():         return self._type.copy()
             case ou.Degree():       return self._degree.copy()
             case ou.Inversion():    return self._inversion.copy()
+            case ou.Sus():          return self._sus.copy()
             case bool():            return self._data_scale % bool()
             case _:                 return super().__mod__(operand)
 
@@ -675,7 +678,8 @@ class Chord(Note):
                 and self._data_scale == other_element % od.DataSource( od.DataScale() ) \
                 and self._type == other_element % od.DataSource( ou.Type() ) \
                 and self._degree == other_element % od.DataSource( ou.Degree() ) \
-                and self._inversion == other_element % od.DataSource( ou.Inversion() )
+                and self._inversion == other_element % od.DataSource( ou.Inversion() ) \
+                and self._sus == other_element % od.DataSource( ou.Sus() )
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -725,14 +729,15 @@ class Chord(Note):
         element_serialization["parameters"]["type"] = self._type % int()
         element_serialization["parameters"]["degree"] = self._degree % int()
         element_serialization["parameters"]["inversion"] = self._inversion % int()
+        element_serialization["parameters"]["sus"] = self._sus % int()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
-            "inversion" in serialization["parameters"] and "type" in serialization["parameters"]):
+            "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._scale = ou.Scale(serialization["parameters"]["scale"])
@@ -740,6 +745,7 @@ class Chord(Note):
             self._type = ou.Type(serialization["parameters"]["type"])
             self._degree = ou.Degree(serialization["parameters"]["degree"])
             self._inversion = ou.Inversion(serialization["parameters"]["inversion"])
+            self._sus = ou.Sus(serialization["parameters"]["sus"])
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Chord':
@@ -751,6 +757,7 @@ class Chord(Note):
                     case ou.Type():                 self._type = operand % o.Operand()
                     case ou.Degree():               self._degree = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
+                    case ou.Sus():                  self._sus = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
@@ -759,13 +766,15 @@ class Chord(Note):
                 self._type          = (operand % od.DataSource( ou.Type() )).copy()
                 self._degree        = (operand % od.DataSource( ou.Degree() )).copy()
                 self._inversion     = (operand % od.DataSource( ou.Inversion() )).copy()
+                self._sus           = (operand % od.DataSource( ou.Sus() )).copy()
             case ou.Scale():                self._scale = operand.copy()
             case od.DataScale():            self._data_scale = operand.copy()
             case list():                    self._data_scale << operand
             case ou.Type():                 self._type = operand.copy()
             case ou.Degree():               self._degree = operand.copy()
             case ou.Inversion():            
-                self._inversion = ou.Inversion(operand % int() % (self._type % int()))
+                self._inversion = ou.Inversion(operand % int() % (self._type % int()))  # CONDITION TO BE PLACED ON GETPLAYLIST !!!
+            case ou.Sus():                  self._sus = operand.copy()
             case _: super().__lshift__(operand)
         return self
 
@@ -858,7 +867,7 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -950,7 +959,7 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "division" in serialization["parameters"] and "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1042,7 +1051,7 @@ class ControlChange(Element):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "controller" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1128,7 +1137,7 @@ class PitchBend(Element):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1214,7 +1223,7 @@ class Aftertouch(Element):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1303,7 +1312,7 @@ class PolyAftertouch(Aftertouch):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key_note" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
@@ -1373,7 +1382,7 @@ class ProgramChange(Element):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "program" in serialization["parameters"]):
 
             super().loadSerialization(serialization)

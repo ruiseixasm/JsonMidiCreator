@@ -87,7 +87,7 @@ class Unit(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "unit" in serialization["parameters"]):
 
             self._unit = serialization["parameters"]["unit"]
@@ -353,19 +353,26 @@ class Degree(Unit):
         match unit:
             case str():
                 match unit.strip().lower():
-                    case "i"   | "tonic":           unit = 1
-                    case "ii"  | "supertonic":      unit = 2
-                    case "iii" | "mediant":         unit = 3
-                    case "iv"  | "subdominant":     unit = 4
-                    case "v"   | "dominant":        unit = 5
-                    case "vi"  | "submediant":      unit = 6
-                    case "vii" | "leading tone":    unit = 7
-                    case _:                         unit = 1
+                    case "i"   | "tonic":                   unit = 1
+                    case "ii"  | "supertonic":              unit = 2
+                    case "iii" | "mediant":                 unit = 3
+                    case "iv"  | "subdominant":             unit = 4
+                    case "v"   | "dominant":                unit = 5
+                    case "vi"  | "submediant":              unit = 6
+                    case "vii" | "viiº" | "leading tone":   unit = 7
+                    case _:                                 unit = 1
                 super().__init__(unit)
             case int() | float():
                 super().__init__(unit)
             case _:
                 super().__init__( 1 )
+
+    _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "viiº"]
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__._degrees_str[self % int() % len(__class__._degrees_str)]
+            case _:             return super().__mod__(operand)
 
 class Type(Unit):
     """
@@ -376,10 +383,10 @@ class Type(Unit):
     first : integer_like or string_like
         A Type Number varies from "1st" to "13th" with "3rd" being the triad default
     """
-    def __init__(self, unit: int = None):
+    def __init__(self, unit: int | str = None):
         match unit:
             case str():
-                match unit.strip():
+                match unit.strip().lower():
                     case '1'  | "1st":              unit = 1
                     case '3'  | "3rd":              unit = 2
                     case '5'  | "5th":              unit = 3
@@ -394,6 +401,13 @@ class Type(Unit):
             case _:
                 super().__init__( 3 )
 
+    _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__._types_str[self % int() % len(__class__._types_str)]
+            case _:             return super().__mod__(operand)
+
 class Mode(Unit):
     """
     Mode() represents the different scales (e.g., Ionian, Dorian, Phrygian)
@@ -407,7 +421,7 @@ class Mode(Unit):
     def __init__(self, unit: int | str = None):
         match unit:
             case str():
-                match unit.strip():
+                match unit.strip().lower():
                     case '1'  | "1st":              unit = 1
                     case '2'  | "2nd":              unit = 2
                     case '3'  | "3rd":              unit = 3
@@ -415,12 +429,50 @@ class Mode(Unit):
                     case '5'  | "5th":              unit = 5
                     case '6'  | "6th":              unit = 6
                     case '7'  | "7th":              unit = 7
+                    case '8'  | "8th":              unit = 8
                     case _:                         unit = 1
                 super().__init__(unit)
             case int() | float():
                 super().__init__( (round(unit) - 1) % 7 + 1 )
             case _:
                 super().__init__( 1 )
+
+    _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__._modes_str[self % int() % len(__class__._modes_str)]
+            case _:             return super().__mod__(operand)
+
+class Sus(Unit):
+    """
+    Sus() represents the suspended chord flavor, sus2 or sus4.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A sus Number can be 0, 1 or 2 with 0 being normal not suspended chord
+    """
+    def __init__(self, unit: int | str = None):
+        match unit:
+            case str():
+                match unit.strip().lower():
+                    case "sus2":            unit = 1
+                    case "sus4":            unit = 2
+                    case _:                 unit = 0
+                super().__init__(unit)
+            case int() | float():
+                super().__init__( (round(unit) - 1) % 7 + 1 )
+            case _:
+                super().__init__( 1 )
+
+    _sus_str = ["None" , "sus2", "sus4"]
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__._sus_str[self % int() % len(__class__._sus_str)]
+            case _:             return super().__mod__(operand)
+
 
 class Operation(Unit):
     pass

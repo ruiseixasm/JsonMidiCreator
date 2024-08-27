@@ -123,7 +123,7 @@ class Container(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         import operand_element as oe
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operands" in serialization["parameters"]):
 
             operands = []

@@ -87,7 +87,7 @@ class KeyNote(Generic):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key" in serialization["parameters"] and "octave" in serialization["parameters"]):
 
             self._key = ou.Key(serialization["parameters"]["key"])
@@ -189,7 +189,7 @@ class Controller(Generic):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "control_number" in serialization["parameters"] and "control_value" in serialization["parameters"]):
 
             self._control_number = ou.ControlNumber(serialization["parameters"]["control_number"])

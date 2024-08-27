@@ -129,7 +129,7 @@ class Staff(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and
             "quantization" in serialization["parameters"] and "beats_per_measure" in serialization["parameters"] and "beat_note_value" in serialization["parameters"] and
             "scale" in serialization["parameters"] and "duration" in serialization["parameters"] and "key" in serialization["parameters"] and

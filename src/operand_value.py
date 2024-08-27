@@ -97,7 +97,7 @@ class Value(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        if ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "value" in serialization["parameters"]):
 
             self._rational = Fraction(serialization["parameters"]["value"]).limit_denominator()
