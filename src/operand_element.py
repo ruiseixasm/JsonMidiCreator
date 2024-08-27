@@ -692,15 +692,27 @@ class Chord(Note):
             max_type //= 2
         max_type = min(self._type % int(), max_type)
 
-        root_key_note = self % og.KeyNote()
+        root_key_note = self._key_note
         chord_key_notes = []
-        if self._data_scale % bool():
+        if self._data_scale % bool():   # For the DataScale case
             for key_note_i in range(max_type):
-                chromatic_transposition = self._data_scale.transpose((self._degree % int() - 1) + key_note_i * 2)
+                key_note_nth = key_note_i * 2
+                if key_note_nth == 2:
+                    if self._sus % od.DataSource() == 1:
+                        key_note_nth -= 1
+                    if self._sus % od.DataSource() == 2:
+                        key_note_nth += 1
+                chromatic_transposition = self._data_scale.transpose((self._degree % int() - 1) + key_note_nth)
                 chord_key_notes.append(root_key_note + chromatic_transposition)
         else:
             for key_note_i in range(max_type):
-                chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_i * 2)
+                key_note_nth = key_note_i * 2
+                if key_note_nth == 2:
+                    if self._sus % od.DataSource() == 1:
+                        key_note_nth -= 1
+                    if self._sus % od.DataSource() == 2:
+                        key_note_nth += 1
+                chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_nth)
                 chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
