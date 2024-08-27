@@ -31,7 +31,7 @@ import operand_frame as of
 import operand_generic as og
 import operand_container as oc
 import operand_frame as of
-import operand_names as on
+
 
 
 class Element(o.Operand):

@@ -29,7 +29,7 @@ import operand_data as od
 import operand_label as ol
 import operand_generic as og
 import operand_frame as of
-import operand_names as on
+
 
 class Container(o.Operand):
     def __init__(self, *operands):
@@ -130,8 +130,8 @@ class Container(o.Operand):
             multi_operands_serialization = serialization["parameters"]["operands"]
             for operand_serialization in multi_operands_serialization:
                 if "class" in operand_serialization:
-                    operand = self.newOperand(operand_serialization["class"])
-                    if not isinstance(operand, ol.Null):
+                    operand = self.getOperand(operand_serialization["class"])
+                    if operand:
                         operands.append(operand.loadSerialization(operand_serialization))
 
             self._operand_list = operands

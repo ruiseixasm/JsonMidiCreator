@@ -27,7 +27,7 @@ import operand_label as ol
 import operand_frame as of
 import operand_container as oc
 import operand_element as oe
-import operand_names as on
+
 
 
 class Operator(o.Operand):
@@ -82,12 +82,12 @@ class Operator(o.Operand):
             "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "operator_list" in serialization["parameters"]):
 
             operand_class_name = serialization["parameters"]["operand"]["class"]
-            self._operand = self.newOperand(operand_class_name).loadSerialization(serialization["parameters"]["operand"])
+            self._operand = self.getOperand(operand_class_name).loadSerialization(serialization["parameters"]["operand"])
             operator_list = []
             operators_serialization = serialization["parameters"]["operator_list"]
             for single_operator_serialization in operators_serialization:
                 operator_class_name = single_operator_serialization["class"]
-                single_operator = self.newOperand(operator_class_name)
+                single_operator = self.getOperand(operator_class_name)
                 if not isinstance(single_operator, ol.Null):
                     operator_list.append( single_operator.loadSerialization(single_operator_serialization) )
             self._operator_list = operator_list

@@ -24,7 +24,7 @@ import operand_unit as ou
 import operand_frame as of
 import operand_label as ol
 import operand_time as ot
-import operand_names as on
+
 
 
 class Data(o.Operand):
@@ -274,7 +274,8 @@ class Serialization(Data):
     def getOperand(self) -> o.Operand:
         if isinstance(self._data, dict) and "class" in self._data:
             operand_class_name = self._data["class"]
-            return self.newOperand(operand_class_name).loadSerialization(self._data)
+            operand_class = super().getOperand(operand_class_name)
+            if operand_class: return operand_class.loadSerialization(self._data)
         return ol.Null()
    
     def __xor__(self, operand: o.Operand):
@@ -282,10 +283,8 @@ class Serialization(Data):
         ^ calls the respective Operand's method by name.
         """
         match operand:
-            case o.Operand():
-                return self.getOperand()
-            case _:
-                return super().__xor__(operand)
+            case o.Operand():   return self.getOperand()
+            case _:             return super().__xor__(operand)
 
     def __rrshift__(self, operand) -> o.Operand:
         import operand_container as oc

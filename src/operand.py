@@ -65,9 +65,22 @@ class Operand:
     def copy(self) -> 'Operand':
         return self.__class__() << self
     
-    def newOperand(self, operand_name: str) -> 'Operand':
-        import operand_names as on
-        return on.Names().newOperand(operand_name)
+    def getOperand(self, operand_name: str) -> 'Operand':
+        return Operand.find_subclass_by_name(Operand, operand_name)()
+    
+    @staticmethod
+    def find_subclass_by_name(root_class, name: str):
+        # Check if the current class matches the name
+        if root_class.__name__ == name:
+            return root_class
+        
+        # Recursively search in all subclasses
+        for subclass in root_class.__subclasses__():
+            found = __class__.find_subclass_by_name(subclass, name)
+            if found: return found
+        
+        # If no matching subclass is found, return None
+        return None
     
     def __xor__(self, operand: 'Operand'):
         """
