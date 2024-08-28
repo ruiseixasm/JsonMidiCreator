@@ -474,7 +474,6 @@ class Sus(Unit):
             case str():         return __class__._sus_str[self._unit % len(__class__._sus_str)]
             case _:             return super().__mod__(operand)
 
-
 class Division(Unit):
     """
     A Division() is used in conjugation with a Tuplet as not the usual 3 of the Triplet.
@@ -572,6 +571,18 @@ class Print(Unit):
             case _: print(operand)
         return operand
 
+class Middle(Unit):
+    """
+    Middle() represent the Nth Operand in a Container or Sequence.
+    
+    Parameters
+    ----------
+    first : integer_like
+        The Nth Operand in a Container like 2 for the 2nd Operand
+    """
+    def __init__(self, unit: int = None):
+        super().__init__( 1 if unit is None else unit )
+
 class PPQN(Unit):
     """
     PPQN() represent Pulses Per Quarter Note for Midi clock.
@@ -579,7 +590,7 @@ class PPQN(Unit):
     Parameters
     ----------
     first : integer_like
-        The typical amd the default value is 24, but it can be set multiples of 24
+        The typical and the default value is 24, but it can be set multiples of 24
     """
     def __init__(self, unit: int = None):
         super().__init__( 24 if unit is None else unit )

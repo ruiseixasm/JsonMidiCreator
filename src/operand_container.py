@@ -107,6 +107,13 @@ class Container(o.Operand):
         if len(self._operand_list) > 0:
             return self._operand_list[len(self._operand_list) - 1]
         return ol.Null()
+
+    def middle(self, nth: int) -> o.Operand:
+        if nth > 0:
+            index = nth - 1
+            if len(self._operand_list) > index:
+                return self._operand_list[index]
+        return ol.Null()
  
     def getSerialization(self):
         operands_serialization = []
@@ -166,6 +173,8 @@ class Container(o.Operand):
                 return self.first()
             case ol.Last():
                 return self.last()
+            case ou.Middle():
+                return self.middle(operand % int())
             case _:
                 return super().__xor__(operand)
 
