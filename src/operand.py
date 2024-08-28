@@ -115,8 +115,6 @@ class Operand:
         match operand:
             case ol.Copy():
                 return self.copy()
-            case od.Serialization():
-                return self.getSerialization()
             case od.PlayList():
                 position = operand % ot.Position()
                 if isinstance(position, ot.Position):
