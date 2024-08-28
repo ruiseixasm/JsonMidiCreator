@@ -542,7 +542,9 @@ class Play(Unit):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.jsonMidiPlay(operand.getPlayList(), False if self._unit == 0 else True )
+        match operand:
+            case o.Operand():
+                c.jsonMidiPlay(operand.getPlayList(), False if self._unit == 0 else True )
         return operand
 
 class Print(Unit):
