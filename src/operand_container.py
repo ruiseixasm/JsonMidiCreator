@@ -127,12 +127,11 @@ class Container(o.Operand):
             "operands" in serialization["parameters"]):
 
             operands = []
-            multi_operands_serialization = serialization["parameters"]["operands"]
-            for operand_serialization in multi_operands_serialization:
-                if "class" in operand_serialization:
-                    operand = self.getOperand(operand_serialization["class"])
-                    if operand: operands.append(operand.loadSerialization(operand_serialization))
-
+            operands_serialization = serialization["parameters"]["operands"]
+            for single_operand_serialization in operands_serialization:
+                if "class" in single_operand_serialization:
+                    operand = self.getOperand(single_operand_serialization["class"])
+                    if operand: operands.append(operand.loadSerialization(single_operand_serialization))
             self._operand_list = operands
         return self
        

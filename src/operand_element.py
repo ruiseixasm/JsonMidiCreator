@@ -33,7 +33,6 @@ import operand_container as oc
 import operand_frame as of
 
 
-
 class Element(o.Operand):
     def __init__(self):
         self._position: ot.Position         = ot.Position()
@@ -872,7 +871,10 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
-        element_serialization["parameters"]["elements"] = self._elements    # NEEDS TO BE DEVELOPED !!!
+        elements = []
+        for single_element in self._elements:
+            elements.append(single_element.getSerialization())
+        element_serialization["parameters"]["elements"] = elements
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -883,7 +885,14 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 
             super().loadSerialization(serialization)
             self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-            self._elements = serialization["parameters"]["elements"]        # NEEDS TO BE DEVELOPED !!!
+            
+            elements = []
+            elements_serialization = serialization["parameters"]["elements"]
+            for single_element_serialization in elements_serialization:
+                if isinstance(single_element_serialization, dict) and "class" in single_element_serialization:
+                    element = self.getOperand(single_element_serialization["class"])
+                    if element: elements.append(element.loadSerialization(single_element_serialization))
+            self._elements = elements
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Triplet':
@@ -962,9 +971,12 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["division"] = self._division
+        element_serialization["parameters"]["division"] = self._division    # HAS TO CREATE CLASS DIVISION AS OU
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
-        element_serialization["parameters"]["elements"] = self._elements
+        elements = []
+        for single_element in self._elements:
+            elements.append(single_element.getSerialization())
+        element_serialization["parameters"]["elements"] = elements
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -976,7 +988,14 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
             super().loadSerialization(serialization)
             self._division = serialization["parameters"]["division"]
             self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-            self._elements = serialization["parameters"]["elements"]
+            
+            elements = []
+            elements_serialization = serialization["parameters"]["elements"]
+            for single_element_serialization in elements_serialization:
+                if isinstance(single_element_serialization, dict) and "class" in single_element_serialization:
+                    element = self.getOperand(single_element_serialization["class"])
+                    if element: elements.append(element.loadSerialization(single_element_serialization))
+            self._elements = elements
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
