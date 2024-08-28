@@ -185,10 +185,10 @@ class Oscillator(Operator):
             "amplitude" in serialization["parameters"] and "offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position = ot.Position().loadSerialization(serialization["parameters"]["position"])
-            self._length = ot.Length().loadSerialization(serialization["parameters"]["length"])
-            self._amplitude = ov.Amplitude(serialization["parameters"]["amplitude"])
-            self._offset = ov.Offset(serialization["parameters"]["offset"])
+            self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
+            self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
+            self._amplitude = ov.Amplitude()    << od.DataSource( serialization["parameters"]["amplitude"] )
+            self._offset    = ov.Offset()       << od.DataSource( serialization["parameters"]["offset"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':

@@ -114,7 +114,7 @@ class Staff(o.Operand):
                 "tempo": self._tempo % int(),
                 "beats_per_measure": self._beats_per_measure % float(),
                 "beat_note_value": self._beat_note_value % float(),
-                "scale": self._scale.getSerialization(),
+                "scale": self._scale % int(),
                 "quantization": self._quantization % float(),
                 "duration": self._duration.getSerialization(),
                 "key": self._key % int(),
@@ -136,19 +136,19 @@ class Staff(o.Operand):
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
-            self._measures = ov.Measure(serialization["parameters"]["measures"])
-            self._tempo = ov.Tempo(serialization["parameters"]["tempo"])
-            self._beats_per_measure = ov.BeatsPerMeasure(serialization["parameters"]["beats_per_measure"])
-            self._beat_note_value = ov.BeatNoteValue(serialization["parameters"]["beat_note_value"])
-            self._scale = ou.Scale().loadSerialization(serialization["parameters"]["scale"])
-            self._quantization = ov.Quantization(serialization["parameters"]["quantization"])
-            self._duration = ot.Duration(serialization["parameters"]["duration"])
-            self._key = ou.Key(serialization["parameters"]["key"])
-            self._octave = ou.Octave(serialization["parameters"]["octave"])
-            self._velocity = ou.Velocity(serialization["parameters"]["velocity"])
-            self._controller = og.Controller().loadSerialization(serialization["parameters"]["controller"])
-            self._channel = ou.Channel(serialization["parameters"]["channel"])
-            self._device = od.Device(serialization["parameters"]["device"])
+            self._measures          = ov.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
+            self._tempo             = ov.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
+            self._beats_per_measure = ov.BeatsPerMeasure()  << od.DataSource( serialization["parameters"]["beats_per_measure"] )
+            self._beat_note_value   = ov.BeatNoteValue()    << od.DataSource( serialization["parameters"]["beat_note_value"] )
+            self._scale             = ou.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
+            self._quantization      = ov.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
+            self._duration          = ot.Duration()         << od.DataSource( serialization["parameters"]["duration"] )
+            self._key               = ou.Key()              << od.DataSource( serialization["parameters"]["key"] )
+            self._octave            = ou.Octave()           << od.DataSource( serialization["parameters"]["octave"] )
+            self._velocity          = ou.Velocity()         << od.DataSource( serialization["parameters"]["velocity"] )
+            self._controller        = og.Controller().loadSerialization(serialization["parameters"]["controller"])
+            self._channel           = ou.Channel()          << od.DataSource( serialization["parameters"]["channel"] )
+            self._device            = od.Device()           << od.DataSource( serialization["parameters"]["device"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Staff':

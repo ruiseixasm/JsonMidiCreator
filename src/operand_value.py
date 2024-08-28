@@ -63,11 +63,16 @@ class Value(o.Operand):
         0.25
         """
         match operand:
-            case od.DataSource():   return self._rational
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Fraction():        return self._rational
+                    case float():           return float(self._rational)
+                    case int():             return int(self._rational)
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
-            case int():             return round(self._rational)
+            case int():             return int(self._rational)
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -108,6 +113,7 @@ class Value(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case Fraction():        self._rational = operand % o.Operand()
+                    case float() | int():   self._rational = Fraction(operand % o.Operand()).limit_denominator()
             case Value():           self._rational = operand % od.DataSource( Fraction() )
             case of.Frame():        self << (operand & self)
             case od.Load():

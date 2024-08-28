@@ -90,8 +90,8 @@ class KeyNote(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key" in serialization["parameters"] and "octave" in serialization["parameters"]):
 
-            self._key = ou.Key(serialization["parameters"]["key"])
-            self._octave = ou.Octave(serialization["parameters"]["octave"])
+            self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
+            self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
@@ -192,8 +192,8 @@ class Controller(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "control_number" in serialization["parameters"] and "control_value" in serialization["parameters"]):
 
-            self._control_number = ou.ControlNumber(serialization["parameters"]["control_number"])
-            self._control_value = ou.ControlValue(serialization["parameters"]["control_value"])
+            self._control_number    = ou.ControlNumber()    << od.DataSource( serialization["parameters"]["control_number"] )
+            self._control_value     = ou.ControlValue()     << od.DataSource( serialization["parameters"]["control_value"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':

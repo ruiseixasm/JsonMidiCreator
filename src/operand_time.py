@@ -91,10 +91,10 @@ class Time(o.Operand):
             "measure" in serialization["parameters"] and "beat" in serialization["parameters"] and
             "note_value" in serialization["parameters"] and "step" in serialization["parameters"]):
 
-            self._measure = ov.Measure(serialization["parameters"]["measure"])
-            self._beat = ov.Beat(serialization["parameters"]["beat"])
-            self._note_value = ov.NoteValue(serialization["parameters"]["note_value"])
-            self._step = ov.Step(serialization["parameters"]["step"])
+            self._measure       = ov.Measure()      << od.DataSource( serialization["parameters"]["measure"] )
+            self._beat          = ov.Beat()         << od.DataSource( serialization["parameters"]["beat"] )
+            self._note_value    = ov.NoteValue()    << od.DataSource( serialization["parameters"]["note_value"] )
+            self._step          = ov.Step()         << od.DataSource( serialization["parameters"]["step"] )
 
         return self
         
