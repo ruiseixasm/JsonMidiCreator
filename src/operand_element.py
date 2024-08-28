@@ -887,6 +887,7 @@ class Triplet(Element):    # WILL REQUIRE INNER FRAME PROCESSING
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case ot.Duration():     return self._duration
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ot.Duration():     return self._duration * 3/2
@@ -945,10 +946,12 @@ class Triplet(Element):    # WILL REQUIRE INNER FRAME PROCESSING
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case ot.Duration():     self._duration = operand % o.Operand()
                     case list():            self._elements = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Triplet():
                 super().__lshift__(operand)
+                self._duration = (operand % od.DataSource( ot.Duration() )).copy()
                 self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
             case ot.Duration():
                 self._duration = operand * 2/3
@@ -962,33 +965,40 @@ class Triplet(Element):    # WILL REQUIRE INNER FRAME PROCESSING
             case _: super().__lshift__(operand)
         return self
 
-class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
-    def __init__(self, division: int = 3):
+class Tuplet(Element):     # WILL REQUIRE INNER FRAME PROCESSING
+    def __init__(self, division: int = None):
         super().__init__()
-        self._division: ou.Division = ou.Division()
+        self._duration: ot.Duration = os.global_staff % ot.Duration()
+        self._division: ou.Division = ou.Division() << (3 if division is None else division)
+        self._elements: list[Element] = [Note("B"), Note("F")]
         if self._division % od.DataSource() == 2:
             # Can't be "*= 3/2" in order to preserve the Fraction!
             self._duration = self._duration * 3/2 # from 3 notes to 2
             self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
-            self._elements: list[Element] = [Rest(), Rest()]
         else:
             # Can't be "*= 2 / self._division" in order to preserve the Fraction!
             self._duration = self._duration * 2 / (self._division % od.DataSource()) # from 2 notes to division
             self._length << self._duration * (self._division % od.DataSource())  # Length as the entire duration of the Note tuplet
-            self._elements: list[Element] = []
+            self._elements = []
             for _ in range(self._division % od.DataSource()):
-                self._elements.append(Rest())         
+                self._elements.append(Note())
+        self.set_elements_duration()
+
+    def set_elements_duration(self):
+        for single_element in self._elements:
+            single_element << self._duration
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case ot.Duration():     return self._duration
                     case ou.Division():     return self._division
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ot.Duration():
                 if self._division == 2: return self._duration * 2/3  
-                return self._duration * self._division / 2
+                return self._duration * (self._division % od.DataSource()) / 2
             case ov.NoteValue():
                 if self._division == 2: return self._duration * 2/3 % operand
                 return self._duration * self._division / 2 % operand
@@ -1011,14 +1021,14 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
         self_playlist = []
-        for element_i in range(self._division):
+        for element_i in range(self._division % od.DataSource()):
             self_playlist.extend(self._elements[element_i].getPlayList(self_position))
             self_position += self._duration
         return self_playlist
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["division"] = self._division    # HAS TO CREATE CLASS DIVISION AS OU
+        element_serialization["parameters"]["division"] = self._division % od.DataSource()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         elements = []
         for single_element in self._elements:
@@ -1033,8 +1043,8 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
             "division" in serialization["parameters"] and "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._division = serialization["parameters"]["division"]
-            self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
+            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
@@ -1049,30 +1059,31 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case ot.Duration():         self._duration = operand % o.Operand()
                     case ou.Division():         self._division = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
-                elements = []
-                for single_element in operand % od.DataSource( list() ):
-                    elements.append(single_element.copy())
-                self._elements = elements
+                self._duration = (operand % od.DataSource( ot.Duration() )).copy()
+                self._division = (operand % od.DataSource( ou.Division() )).copy()
+                self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
             case ot.Duration():
-                if self._division == 2: self._duration = operand * 3/2
-                else:                   self._duration = operand * 2/self._division
+                if self._division % int() == 2:
+                        self._duration = operand * 3/2
+                else:   self._duration = operand * 2/(self._division % int())
+                self.set_elements_duration()
             case ov.NoteValue():
-                if self._division == 2: self._duration = ot.Duration() << operand * 3/2
-                else:                   self._duration = ot.Duration() << operand * 2/self._division
+                if self._division % int() == 2:
+                        self._duration = ot.Duration() << operand * 3/2
+                else:   self._duration = ot.Duration() << operand * 2/(self._division % int())
+                self.set_elements_duration()
             case ou.Division():         self._division = operand.copy()
             case int():                 self._division = ou.Division() << operand
             case list():
-                if len(operand) < self._division:
-                    for element_i in range(len(operand)):
-                        self._elements[element_i] = operand[element_i].copy()
-                else:
-                    for element_i in range(self._division):
-                        self._elements[element_i] = operand[element_i].copy()
+                if len(operand) == self._division % int() \
+                    and all(isinstance(single_element, Element) for single_element in operand):
+                    self._elements = o.Operand.copy_operands_list(operand)
             case _: super().__lshift__(operand)
         return self
 
