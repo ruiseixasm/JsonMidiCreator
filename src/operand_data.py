@@ -359,14 +359,16 @@ class PlayList(Data):
 
     def __rrshift__(self, operand) -> o.Operand:
         match operand:
-            case ot.Position():
+            case ot.Position() | ot.Length():
                 if len(self._data) > 0:
-                    input_position_ms: float = operand.getTime_ms()
-                    starting_position_ms = self._data[0]["time_ms"]
-                    for midi_element in self._data:
-                        if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
-                            starting_position_ms = midi_element["time_ms"]
-                    increase_position_ms = input_position_ms - starting_position_ms
+                    increase_position_ms: float = operand.getTime_ms()
+                    if isinstance(operand, ot.Position):
+                        input_position_ms: float = operand.getTime_ms()
+                        starting_position_ms = self._data[0]["time_ms"]
+                        for midi_element in self._data:
+                            if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
+                                starting_position_ms = midi_element["time_ms"]
+                        increase_position_ms = input_position_ms - starting_position_ms
                     playlist_copy = PlayList.copyPlayList(self._data)
                     for midi_element in playlist_copy:
                         if "time_ms" in midi_element:
