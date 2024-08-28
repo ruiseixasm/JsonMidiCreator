@@ -113,8 +113,6 @@ class Operand:
         import operand_time as ot
         import operand_label as ol
         match operand:
-            case ol.Copy():
-                return self.copy()
             case od.PlayList():
                 position = operand % ot.Position()
                 if isinstance(position, ot.Position):

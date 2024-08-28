@@ -166,10 +166,6 @@ class Container(o.Operand):
                 return self.first()
             case ol.Last():
                 return self.last()
-            case od.Sort():
-                return self.sort(operand % o.Operand())
-            case ol.Reverse():
-                return self.reverse()
             case _:
                 return super().__xor__(operand)
 
