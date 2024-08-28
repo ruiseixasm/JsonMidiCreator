@@ -35,3 +35,6 @@ global_staff << Tempo(90) << Measure(7)
 
 single_triplet = Triplet(Note("B"), Note("F"), Note("G")) << Gate(0.75)
 single_triplet >> Play(True)
+
+single_triplet = Triplet() << Gate(0.75)
+single_triplet >> Play(True)

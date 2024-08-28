@@ -860,7 +860,7 @@ class Triplet(Element):    # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self, *elements: Element):
         super().__init__()
         self._duration: ot.Duration = os.global_staff % ot.Duration()
-        self._elements: list[Element] = [Rest(), Rest(), Rest()]
+        self._elements: list[Element] = [Note("B"), Note("F"), Note("G")]
         if len(elements) == 3 and all(isinstance(single_element, Element) for single_element in elements):
             self._elements = o.Operand.copy_operands_list(elements)
         # Can't be "*= 2/3" in order to preserve the Fraction!
