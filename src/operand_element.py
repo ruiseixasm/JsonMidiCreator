@@ -291,7 +291,7 @@ class Clock(Element):
                     "midi_message": {
                         "status_byte": 0xFA if clock_mode == ClockModes.single or clock_mode == ClockModes.first
                             else 0xFB if clock_mode == ClockModes.resume else 0xF8,
-                        "device": device % list()
+                        "device": device % od.DataSource()
                     }
                 }
             ]
@@ -303,7 +303,7 @@ class Clock(Element):
                                      * (clock_length % ov.Measure() % od.DataSource()) * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8,
-                        "device": device % list()
+                        "device": device % od.DataSource()
                     }
                 }
             )
@@ -314,7 +314,7 @@ class Clock(Element):
                     "time_ms": round(clock_stop_ms, 3),
                     "midi_message": {
                         "status_byte": 0xFC,
-                        "device": device % list()
+                        "device": device % od.DataSource()
                     }
                 }
             )
@@ -583,7 +583,7 @@ class KeyScale(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
-        element_serialization["parameters"]["data_scale"]   = self._data_scale % list()
+        element_serialization["parameters"]["data_scale"]   = self._data_scale % od.DataSource()
         element_serialization["parameters"]["mode"]         = self._mode % od.DataSource()
         return element_serialization
 
@@ -737,7 +737,7 @@ class Chord(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
-        element_serialization["parameters"]["data_scale"]   = self._data_scale % list()
+        element_serialization["parameters"]["data_scale"]   = self._data_scale % od.DataSource()
         element_serialization["parameters"]["type"]         = self._type % od.DataSource()
         element_serialization["parameters"]["degree"]       = self._degree % od.DataSource()
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource()
