@@ -799,6 +799,66 @@ class Chord(Note):
             case _: super().__lshift__(operand)
         return self
 
+class Retrigger(Note):
+    def __init__(self, key: int | str = None):
+        super().__init__(key)
+        self._division  = ou.Division(16)
+        self._duration  = self._duration * 2/(self._division % int())
+        self._length   << self._duration * (self._division % int())
+        self._gate      = ov.Gate(.50)
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Division():     return self._division
+                    case _:                 return super().__mod__(operand)
+            case ou.Division():     return self._division.copy()
+            case int():             return self._division % int()
+            case ot.Duration():     return self._duration * (self._division % int())/2
+            case ov.NoteValue():    return self._duration * (self._division % int())/2 % operand
+            case _:                 return super().__mod__(operand)
+
+    def getPlayList(self, position: ot.Position = None):
+        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+
+        self_playlist = []
+        for _ in range(self._division % od.DataSource()):
+            self_playlist.extend(super().getPlayList(self_position))
+            self_position += self._duration
+        return self_playlist
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["division"] = self._division % od.DataSource()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "division" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'Retrigger':
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Division():             self._division = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case Retrigger():
+                super().__lshift__(operand)
+                self._division = (operand % od.DataSource( ou.Division() )).copy()
+            case ot.Duration():
+                self._duration = operand * 2/(self._division % int())
+            case ov.NoteValue():
+                self._duration = ot.Duration() << operand * 2/(self._division % int())
+            case _:                 super().__lshift__(operand)
+        return self
+
 class Note3(Note):
     """
     A Note3() is the repetition of a given Note three times on a row
@@ -830,7 +890,7 @@ class Note3(Note):
         0.5
         """
         match operand:
-            case od.DataSource():  return super().__mod__(operand)
+            case od.DataSource():   return super().__mod__(operand)
             case ot.Duration():     return self._duration * 3/2
             case ov.NoteValue():    return self._duration * 3/2 % operand
             case _:                 return super().__mod__(operand)
