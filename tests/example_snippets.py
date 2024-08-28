@@ -22,9 +22,11 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-entire_scale = KeyScale("A")
-entire_scale << Mode("5th")
-print(entire_scale % list())
-print(entire_scale % str())
+# entire_scale = KeyScale("A")
+# entire_scale << Mode("5th")
+# print(entire_scale % list())
+# print(entire_scale % str())
 
 
+single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
+single_chord >> Play()

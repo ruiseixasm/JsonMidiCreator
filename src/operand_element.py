@@ -365,7 +365,7 @@ class Note(Element):
         super().__init__()
         self._duration: ot.Duration = (os.global_staff % ot.Duration()).copy()
         self._length << self._duration.copy()  # By default a note has the same Length as its Duration
-        self._key_note: og.KeyNote  = og.KeyNote()  << (os.global_staff % ou.Key() if key is None else key) \
+        self._key_note: og.KeyNote  = og.KeyNote()  << (os.global_staff % ou.Key() if key is None else ou.Key(key)) \
                                                     <<  os.global_staff % ou.Octave()
         self._velocity: ou.Velocity = os.global_staff % ou.Velocity()
         self._gate: ov.Gate         = ov.Gate(.90)
@@ -651,6 +651,17 @@ class Chord(Note):
         self._sus: ou.Sus = ou.Sus()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Chord,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the ones of a Note, and the Scale, Degree, Inversion and others.
+
+        Examples
+        --------
+        >>> single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
+        >>> single_chord >> Play()
+        <operand_element.Chord object at 0x00000204EBB94310>
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():

@@ -110,6 +110,7 @@ class KeyNote(Generic):
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Key():          self._key = operand.copy()
+            case str():             self._key = ou.Key(operand)
             case ou.Octave():       self._octave = operand.copy()
             case int():
                 self._key << operand    # key already does % 12
