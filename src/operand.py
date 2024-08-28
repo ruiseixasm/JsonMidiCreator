@@ -172,3 +172,11 @@ class Operand:
 
     def __ror__(self, operand: 'Operand') -> 'Operand':
         return self
+    
+    @staticmethod
+    def copy_operands_list(operands_list: list['Operand'] | tuple['Operand']) -> list:
+        copy_list: list[Operand] = []
+        for single_operand in operands_list:
+            if isinstance(single_operand, Operand):
+                copy_list.append(single_operand.copy())
+        return copy_list

@@ -659,8 +659,8 @@ class Chord(Note):
         Examples
         --------
         >>> single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
-        >>> single_chord >> Play()
-        <operand_element.Chord object at 0x00000204EBB94310>
+        >>> print(single_chord % Degree() % str())
+        I
         """
         match operand:
             case od.DataSource():
@@ -818,6 +818,17 @@ class Note3(Note):
         self._gate      = ov.Gate(.50)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Note Triplet,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the ones of a Note.
+
+        Examples
+        --------
+        >>> note_triplet = Note3("G") << NoteValue(1/2) << Gate(0.75)
+        >>> print(note_triplet % NoteValue() % float())
+        0.5
+        """
         match operand:
             case od.DataSource():  return super().__mod__(operand)
             case ot.Duration():     return self._duration * 3/2
@@ -846,14 +857,27 @@ class Note3(Note):
         return self
 
 class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
-    def __init__(self):
+    def __init__(self, *elements: Element):
         super().__init__()
         # Can't be "*= 2/3" in order to preserve the Fraction!
         self._duration = self._duration * 2/3   # 3 notes instead of 2
         self._length << self._duration * 3  # Length as the entire duration of the Note triplet
         self._elements: list[Element] = [Rest(), Rest(), Rest()]
+        if len(elements) == 3 and all(isinstance(single_element, Element) for single_element in elements):
+            self._elements = o.Operand.copy_operands_list(elements)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Triplet,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the ones of a Note and the list of Elements to be played as Triplet.
+
+        Examples
+        --------
+        >>> single_triplet = Triplet( Note("B"), Note("F"), Note("G") ) << Gate(0.75)
+        >>> print(note_triplet % NoteValue() % float())
+        0.5
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -861,8 +885,11 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
                     case _:                 return super().__mod__(operand)
             case ot.Duration():     return self._duration * 3/2
             case ov.NoteValue():    return self._duration * 3/2 % operand
-            case list():            return self._elements.copy()
-            # case list():            return self._elements.copy()
+            case list():
+                elements = []
+                for single_element in self._elements:
+                    elements.append(single_element.copy())
+                return elements
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:

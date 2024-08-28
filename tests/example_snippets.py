@@ -22,11 +22,16 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
+# Global Staff setting up
+global_staff << Tempo(120) << Measure(7)
+
 # entire_scale = KeyScale("A")
 # entire_scale << Mode("5th")
 # print(entire_scale % list())
 # print(entire_scale % str())
 
+# single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
+# single_chord >> Play()
 
-single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
-single_chord >> Play()
+single_triplet = Triplet(Note("B"), Note("F"), Note("G")) << Gate(0.75)
+single_triplet >> Play(True)
