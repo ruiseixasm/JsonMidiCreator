@@ -59,6 +59,9 @@ class Copy(Label):
 class Len(Label):
     pass
 
+class Serialization(Label):
+    pass
+
 class Reverse(Label):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc

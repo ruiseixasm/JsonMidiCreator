@@ -79,7 +79,8 @@ class Operator(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "operator_list" in serialization["parameters"]):
+            "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "parameters" in serialization["parameters"]["operand"]
+            and "operator_list" in serialization["parameters"]):
 
             self._operand = o.Operand().loadSerialization(serialization["parameters"]["operand"])
             operator_list = []

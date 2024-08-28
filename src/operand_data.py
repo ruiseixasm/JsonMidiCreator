@@ -263,7 +263,7 @@ class Load(Data):
                 self._data = file_name
             case str():
                 serialization = c.loadJsonMidiCreator(file_name)
-                if isinstance(serialization, dict) and "class" in serialization:
+                if isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
                     operand_class_name = serialization["class"]
                     operand = self.getOperand(operand_class_name)
                     if operand:
@@ -343,6 +343,14 @@ class Export(Data):
 class PlayList(Data):
     def __init__(self, play_list: list = None):
         super().__init__( [] if play_list is None else play_list )
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case ot.Position():
+                if isinstance(self._data, ot.Position):
+                    return self._data
+                return None
+            case _:                 return None
 
     def getPlayList(self) -> list:
         return PlayList.copyPlayList(self._data)

@@ -69,7 +69,8 @@ class Operand:
 
     def getSerialization(self):
         return { 
-            "class": self.__class__.__name__
+            "class": self.__class__.__name__,
+            "parameters": {}
         }
 
     # CHAINABLE OPERATIONS
@@ -115,9 +116,10 @@ class Operand:
         match operand:
             case od.PlayList():
                 position = operand % ot.Position()
-                if isinstance(position, ot.Position):
-                    return self.getPlayList(position)
+                if position: return self.getPlayList(position)
                 return self.getPlayList()
+            case ol.Serialization():
+                return self.getSerialization()
             case ol.Name():
                 return self.name()
         return self
