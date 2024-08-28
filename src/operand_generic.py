@@ -41,7 +41,10 @@ class KeyNote(Generic):
                 match operand % o.Operand():
                     case ou.Key():          return self._key
                     case ou.Octave():       return self._octave
-                    case _:                 return ol.Null()
+                    case _:
+                        key = self._key % od.DataSource()
+                        octave = self._octave % od.DataSource()
+                        return 12 * (octave + 1) + key
             case of.Frame():        return self % (operand % o.Operand())
             case ou.Key():          return self._key.copy()
             case ou.Octave():       return self._octave.copy()

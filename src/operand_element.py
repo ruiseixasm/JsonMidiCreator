@@ -412,8 +412,8 @@ class Note(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % int()
-        velocity_int: int           = self._velocity % int()
+        key_note_int: int           = self._key_note % od.DataSource()
+        velocity_int: int           = self._velocity % od.DataSource()
         channel_int: int            = self._channel % od.DataSource()
         device_list: list           = self._device % od.DataSource()
 
@@ -444,7 +444,7 @@ class Note(Element):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
-        element_serialization["parameters"]["velocity"] = self._velocity % int()
+        element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource()
         element_serialization["parameters"]["gate"] = self._gate % float()
         return element_serialization
 
@@ -565,11 +565,11 @@ class KeyScale(Note):
         scale_key_notes = []
         if self._data_scale % bool():
             for key_note_i in range(self._data_scale.len()): # presses entire scale, 7 keys for diatonic scales
-                chromatic_transposition = self._data_scale.transpose((self._mode % int() - 1) + key_note_i)
+                chromatic_transposition = self._data_scale.transpose((self._mode % od.DataSource() - 1) + key_note_i)
                 scale_key_notes.append(root_key_note + chromatic_transposition)
         else:
             for key_note_i in range(self._scale.len()): # presses entire scale, 7 keys for diatonic scales
-                chromatic_transposition = self._scale.transpose((self._mode % int() - 1) + key_note_i)
+                chromatic_transposition = self._scale.transpose((self._mode % od.DataSource() - 1) + key_note_i)
                 scale_key_notes.append(root_key_note + chromatic_transposition)
 
         self_playlist = []
@@ -582,9 +582,9 @@ class KeyScale(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"] = self._scale % int()
-        element_serialization["parameters"]["data_scale"] = self._data_scale % list()
-        element_serialization["parameters"]["mode"] = self._mode % int()
+        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
+        element_serialization["parameters"]["data_scale"]   = self._data_scale % list()
+        element_serialization["parameters"]["mode"]         = self._mode % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -623,7 +623,7 @@ class KeyScale(Note):
         self_copy = self.copy()
         match operand:
             case ou.Transposition():
-                scale_transposition = operand % int()
+                scale_transposition = operand % od.DataSource()
                 chromatic_transposition = self._scale.transpose(scale_transposition)
                 self_copy << self._key_note + chromatic_transposition
             case _:         return super().__add__(operand)
@@ -633,9 +633,9 @@ class KeyScale(Note):
         self_copy = self.copy()
         match operand:
             case ou.Key() | og.KeyNote():
-                self_copy << self._key_note - operand % int()
+                self_copy << self._key_note - operand % od.DataSource()
             case ou.Transposition():
-                scale_transposition = operand % int()
+                scale_transposition = operand % od.DataSource()
                 chromatic_transposition = self._scale.transpose(scale_transposition)
                 self_copy << self._key_note - chromatic_transposition
             case _:         return super().__sub__(operand)
@@ -689,7 +689,7 @@ class Chord(Note):
             max_type = self._data_scale.len()
         if max_type % 2 == 0:
             max_type //= 2
-        max_type = min(self._type % int(), max_type)
+        max_type = min(self._type % od.DataSource(), max_type)
 
         root_key_note = self._key_note
         chord_key_notes = []
@@ -701,7 +701,7 @@ class Chord(Note):
                         key_note_nth -= 1
                     if self._sus % od.DataSource() == 2:
                         key_note_nth += 1
-                chromatic_transposition = self._data_scale.transpose((self._degree % int() - 1) + key_note_nth)
+                chromatic_transposition = self._data_scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
                 chord_key_notes.append(root_key_note + chromatic_transposition)
         else:
             for key_note_i in range(max_type):
@@ -711,11 +711,11 @@ class Chord(Note):
                         key_note_nth -= 1
                     if self._sus % od.DataSource() == 2:
                         key_note_nth += 1
-                chromatic_transposition = self._scale.transpose((self._degree % int() - 1) + key_note_nth)
+                chromatic_transposition = self._scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
                 chord_key_notes.append(root_key_note + chromatic_transposition)
 
         # Where the inversions are done
-        inversion = min(self._inversion % int(), self._type % int() - 1)
+        inversion = min(self._inversion % od.DataSource(), self._type % od.DataSource() - 1)
         first_key_note = chord_key_notes[inversion]
         not_first_key_note = True
         while not_first_key_note:
@@ -723,7 +723,7 @@ class Chord(Note):
             for key_note in chord_key_notes:
                 if key_note < first_key_note:
                     key_note << key_note % ou.Octave() + 1
-                    if key_note % int() < 128:
+                    if key_note % od.DataSource() < 128:
                         not_first_key_note = True
 
         self_playlist = []
@@ -736,12 +736,12 @@ class Chord(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"] = self._scale % int()
-        element_serialization["parameters"]["data_scale"] = self._data_scale % list()
-        element_serialization["parameters"]["type"] = self._type % int()
-        element_serialization["parameters"]["degree"] = self._degree % int()
-        element_serialization["parameters"]["inversion"] = self._inversion % int()
-        element_serialization["parameters"]["sus"] = self._sus % int()
+        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
+        element_serialization["parameters"]["data_scale"]   = self._data_scale % list()
+        element_serialization["parameters"]["type"]         = self._type % od.DataSource()
+        element_serialization["parameters"]["degree"]       = self._degree % od.DataSource()
+        element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource()
+        element_serialization["parameters"]["sus"]          = self._sus % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -1036,8 +1036,8 @@ class ControlChange(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        control_number_int: int     = self % ou.ControlNumber() % int()
-        control_value_int: int      = self % ou.ControlValue() % int()
+        control_number_int: int     = self % ou.ControlNumber() % od.DataSource()
+        control_value_int: int      = self % ou.ControlValue() % od.DataSource()
         channel_int: int            = self._channel % od.DataSource()
         device_list: list           = self._device % od.DataSource()
 
@@ -1111,7 +1111,7 @@ class PitchBend(Element):
                     case ou.Pitch():        return self._pitch
                     case _:                 return super().__mod__(operand)
             case ou.Pitch():        return self._pitch.copy()
-            case int() | float():   return self._pitch % int()
+            case int() | float():   return self._pitch % od.DataSource()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -1142,7 +1142,7 @@ class PitchBend(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pitch"] = self._pitch % int()
+        element_serialization["parameters"]["pitch"] = self._pitch % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -1198,7 +1198,7 @@ class Aftertouch(Element):
                     case ou.Pressure():     return self._pressure
                     case _:                 return super().__mod__(operand)
             case ou.Pressure():     return self._pressure.copy()
-            case int() | float():   return self._pressure % int()
+            case int() | float():   return self._pressure % od.DataSource()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -1209,7 +1209,7 @@ class Aftertouch(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        pressure_int: int   = self._pressure % int()
+        pressure_int: int   = self._pressure % od.DataSource()
         channel_int: int    = self._channel % od.DataSource()
         device_list: list   = self._device % od.DataSource()
 
@@ -1228,7 +1228,7 @@ class Aftertouch(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pressure"] = self._pressure % int()
+        element_serialization["parameters"]["pressure"] = self._pressure % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -1297,8 +1297,8 @@ class PolyAftertouch(Aftertouch):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_int: int   = self._key_note % int()
-        pressure_int: int   = self._pressure % int()
+        key_note_int: int   = self._key_note % od.DataSource()
+        pressure_int: int   = self._pressure % od.DataSource()
         channel_int: int    = self._channel % od.DataSource()
         device_list: list   = self._device % od.DataSource()
 
@@ -1357,7 +1357,7 @@ class ProgramChange(Element):
                     case ou.Program():      return self._program
                     case _:                 return super().__mod__(operand)
             case ou.Program():      return self._program.copy()
-            case int() | float():   return self._program % int()
+            case int() | float():   return self._program % od.DataSource()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -1368,7 +1368,7 @@ class ProgramChange(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        program_int: int    = self._program % int()
+        program_int: int    = self._program % od.DataSource()
         channel_int: int    = self._channel % od.DataSource()
         device_list: list   = self._device % od.DataSource()
 
@@ -1387,7 +1387,7 @@ class ProgramChange(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["program"] = self._program % int()
+        element_serialization["parameters"]["program"] = self._program % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
