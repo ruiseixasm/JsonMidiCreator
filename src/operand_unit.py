@@ -475,6 +475,18 @@ class Sus(Unit):
             case _:             return super().__mod__(operand)
 
 
+class Division(Unit):
+    """
+    A Division() is used in conjugation with a Tuplet as not the usual 3 of the Triplet.
+    
+    Parameters
+    ----------
+    first : integer_like
+        The amount of notes grouped together with the default of 3 (Triplet)
+    """
+    def __init__(self, unit: int = None):
+        super().__init__(3 if unit is None else unit)
+
 class Operation(Unit):
     pass
 

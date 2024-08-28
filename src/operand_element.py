@@ -922,41 +922,45 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self, division: int = 3):
         super().__init__()
-        self._division: int = division
-        if self._division == 2:
+        self._division: ou.Division = ou.Division()
+        if self._division % od.DataSource() == 2:
             # Can't be "*= 3/2" in order to preserve the Fraction!
             self._duration = self._duration * 3/2 # from 3 notes to 2
             self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
             self._elements: list[Element] = [Rest(), Rest()]
         else:
             # Can't be "*= 2 / self._division" in order to preserve the Fraction!
-            self._duration = self._duration * 2 / self._division # from 2 notes to division
-            self._length << self._duration * self._division  # Length as the entire duration of the Note tuplet
+            self._duration = self._duration * 2 / (self._division % od.DataSource()) # from 2 notes to division
+            self._length << self._duration * (self._division % od.DataSource())  # Length as the entire duration of the Note tuplet
             self._elements: list[Element] = []
-            for _ in range(self._division):
+            for _ in range(self._division % od.DataSource()):
                 self._elements.append(Rest())         
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case int():             return self._division
+                    case ou.Division():     return self._division
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case int():             return self._division
             case ot.Duration():
                 if self._division == 2: return self._duration * 2/3  
                 return self._duration * self._division / 2
             case ov.NoteValue():
                 if self._division == 2: return self._duration * 2/3 % operand
                 return self._duration * self._division / 2 % operand
-            case list():            return self._elements.copy()
-            # case list():            return self._elements.copy()
+            case ou.Division:       return self._division.copy()
+            case int():             return self._division % int()
+            case list():
+                elements = []
+                for single_element in self._elements:
+                    elements.append(single_element.copy())
+                return elements
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
-            return  self._division == other_element % od.DataSource( int() ) \
+            return  self._division == other_element % od.DataSource( ou.Division() ) \
                 and self._elements == other_element % od.DataSource( list() )
         return False
     
@@ -1002,7 +1006,7 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case int():                 self._division = operand % o.Operand()
+                    case ou.Division():         self._division = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
@@ -1011,13 +1015,14 @@ class Tuplet(Rest):     # WILL REQUIRE INNER FRAME PROCESSING
                 for single_element in operand % od.DataSource( list() ):
                     elements.append(single_element.copy())
                 self._elements = elements
-            case int():                 self._division = operand
             case ot.Duration():
                 if self._division == 2: self._duration = operand * 3/2
                 else:                   self._duration = operand * 2/self._division
             case ov.NoteValue():
                 if self._division == 2: self._duration = ot.Duration() << operand * 3/2
                 else:                   self._duration = ot.Duration() << operand * 2/self._division
+            case ou.Division():         self._division = operand.copy()
+            case int():                 self._division = ou.Division() << operand
             case list():
                 if len(operand) < self._division:
                     for element_i in range(len(operand)):
