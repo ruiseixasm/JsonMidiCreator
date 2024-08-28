@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(120) << Measure(7)
+global_staff << Tempo(90) << Measure(7)
 
 # entire_scale = KeyScale("A")
 # entire_scale << Mode("5th")

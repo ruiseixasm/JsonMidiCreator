@@ -357,14 +357,14 @@ class Clock(Element):
 class Rest(Element):
     def __init__(self):
         super().__init__()
-        self._duration: ot.Duration = (os.global_staff % ot.Duration()).copy()
+        self._duration: ot.Duration = os.global_staff % ot.Duration()
         self._length << self._duration  # By default a note has the same Length as its Duration
 
 class Note(Element):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._duration: ot.Duration = (os.global_staff % ot.Duration()).copy()
-        self._length << self._duration.copy()  # By default a note has the same Length as its Duration
+        self._duration: ot.Duration = os.global_staff % ot.Duration()
+        self._length << self._duration  # By default a note has the same Length as its Duration
         self._key_note: og.KeyNote  = og.KeyNote()  << (os.global_staff % ou.Key() if key is None else ou.Key(key)) \
                                                     <<  os.global_staff % ou.Octave()
         self._velocity: ou.Velocity = os.global_staff % ou.Velocity()
@@ -856,15 +856,21 @@ class Note3(Note):
             case _:                 super().__lshift__(operand)
         return self
 
-class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
+class Triplet(Element):    # WILL REQUIRE INNER FRAME PROCESSING
     def __init__(self, *elements: Element):
         super().__init__()
-        # Can't be "*= 2/3" in order to preserve the Fraction!
-        self._duration = self._duration * 2/3   # 3 notes instead of 2
-        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
+        self._duration: ot.Duration = os.global_staff % ot.Duration()
         self._elements: list[Element] = [Rest(), Rest(), Rest()]
         if len(elements) == 3 and all(isinstance(single_element, Element) for single_element in elements):
             self._elements = o.Operand.copy_operands_list(elements)
+        # Can't be "*= 2/3" in order to preserve the Fraction!
+        self._duration = self._duration * 2/3   # 3 notes instead of 2
+        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
+        self.set_elements_duration()
+
+    def set_elements_duration(self):
+        for single_element in self._elements:
+            single_element << self._duration
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -933,7 +939,9 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
             self._elements = elements
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Triplet':
+    def __lshift__(self, operand: o.Operand | list[Element]) -> 'Triplet':
+        for single_element in self._elements:
+            single_element << operand
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -941,19 +949,16 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
                     case _:                 super().__lshift__(operand)
             case Triplet():
                 super().__lshift__(operand)
-                elements = []
-                for single_element in operand % od.DataSource( list() ):
-                    elements.append(single_element.copy())
-                self._elements = elements
-            case ot.Duration():     self._duration = operand * 2/3
-            case ov.NoteValue():    self._duration = ot.Duration() << operand * 2/3
+                self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
+            case ot.Duration():
+                self._duration = operand * 2/3
+                self.set_elements_duration()
+            case ov.NoteValue():
+                self._duration = ot.Duration() << operand * 2/3
+                self.set_elements_duration()
             case list():
-                if len(operand) < 3:
-                    for element_i in range(len(operand)):
-                        self._elements[element_i] = operand[element_i].copy()
-                else:
-                    for element_i in range(3):
-                        self._elements[element_i] = operand[element_i].copy()
+                if len(operand) == 3 and all(isinstance(single_element, Element) for single_element in operand):
+                    self._elements = o.Operand.copy_operands_list(operand)
             case _: super().__lshift__(operand)
         return self
 
