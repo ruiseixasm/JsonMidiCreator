@@ -51,13 +51,20 @@ class Copy(Label):
     """
     Copy() does an total duplication of the Operand including its parts.
     """
-    pass
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            return operand.copy()
+        return operand
 
 class Len(Label):
     pass
 
 class Reverse(Label):
-    pass
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.reverse()
+        return operand
 
 class First(Label):
     pass

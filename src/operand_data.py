@@ -394,3 +394,9 @@ class Import(PlayList):
 class Sort(Data):
     def __init__(self, compare: o.Operand = None):
         super().__init__(compare)
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.sort()
+        return operand
