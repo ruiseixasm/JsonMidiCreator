@@ -560,11 +560,14 @@ class Print(Unit):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        operand_serialization = operand.getSerialization()
-        serialized_json_str = json.dumps(operand.getSerialization())
-        json_object = json.loads(serialized_json_str)
-        json_formatted_str = json.dumps(json_object, indent = self._unit)
-        print(json_formatted_str)
+        match operand:
+            case o.Operand():
+                operand_serialization = operand.getSerialization()
+                serialized_json_str = json.dumps(operand.getSerialization())
+                json_object = json.loads(serialized_json_str)
+                json_formatted_str = json.dumps(json_object, indent = self._unit)
+                print(json_formatted_str)
+            case _: print(operand)
         return operand
 
 class PPQN(Unit):
