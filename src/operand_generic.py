@@ -82,8 +82,8 @@ class KeyNote(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "key": self._key % int(),
-                "octave": self._octave % int()
+                "key":      self._key % int(),
+                "octave":   self._octave % int()
             }
         }
 
@@ -167,7 +167,7 @@ class Controller(Generic):
                 match operand % o.Operand():
                     case ou.ControlNumber():    return self._control_number
                     case ou.ControlValue():     return self._control_value
-                    case _:                     return super().__mod__(operand)
+                    case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number.copy()
             case ou.ControlValue():     return self._control_value.copy()
@@ -184,8 +184,8 @@ class Controller(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "control_number": self._control_number % int(),
-                "control_value": self._control_value % int()
+                "control_number":   self._control_number % int(),
+                "control_value":    self._control_value % int()
             }
         }
 

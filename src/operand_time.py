@@ -77,10 +77,10 @@ class Time(o.Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measure": self._measure % float(),
-                "beat": self._beat % float(),
-                "note_value": self._note_value % float(),
-                "step": self._step % float()
+                "measure":      self._measure % od.DataSource( float() ),
+                "beat":         self._beat % od.DataSource( float() ),
+                "note_value":   self._note_value % od.DataSource( float() ),
+                "step":         self._step % od.DataSource( float() )
             }
         }
 

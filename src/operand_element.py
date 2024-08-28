@@ -91,9 +91,9 @@ class Element(o.Operand):
             "class": self.__class__.__name__,
             "parameters": {
                 "position": self._position.getSerialization(),
-                "length": self._length.getSerialization(),
-                "channel": self._channel % od.DataSource(),
-                "device": self._device % od.DataSource()
+                "length":   self._length.getSerialization(),
+                "channel":  self._channel % od.DataSource(),
+                "device":   self._device % od.DataSource()
             }
         }
 
@@ -323,8 +323,8 @@ class Clock(Element):
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["mode"] = self._mode.value
-        element_serialization["parameters"]["pulses_per_quarternote"] = self._pulses_per_quarternote % od.DataSource()
+        element_serialization["parameters"]["mode"]                     = self._mode.value
+        element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -445,7 +445,7 @@ class Note(Element):
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource()
-        element_serialization["parameters"]["gate"] = self._gate % float()
+        element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
         return element_serialization
 
     # CHAINABLE OPERATIONS

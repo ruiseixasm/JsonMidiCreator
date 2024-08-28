@@ -92,37 +92,37 @@ class Staff(o.Operand):
     def __eq__(self, other_staff: 'Staff') -> bool:
         if type(self) != type(other_staff):
             return False
-        return  self._measure == other_staff % od.DataSource( ov.Measure() ) \
-            and self._tempo == other_staff % od.DataSource( ov.Tempo() ) \
+        return  self._measure           == other_staff % od.DataSource( ov.Measure() ) \
+            and self._tempo             == other_staff % od.DataSource( ov.Tempo() ) \
             and self._beats_per_measure == other_staff % od.DataSource( ov.BeatsPerMeasure() ) \
-            and self._beat_note_value == other_staff % od.DataSource( ov.BeatNoteValue() ) \
-            and self._scale == other_staff % od.DataSource( ou.Scale() ) \
-            and self._quantization == other_staff % od.DataSource( ov.Quantization() ) \
-            and self._duration == other_staff % od.DataSource( ot.Duration() ) \
-            and self._key == other_staff % od.DataSource( ou.Key() ) \
-            and self._octave == other_staff % od.DataSource( ou.Octave() ) \
-            and self._velocity == other_staff % od.DataSource( ou.Velocity() ) \
-            and self._controller == other_staff % od.DataSource( og.Controller() ) \
-            and self._channel == other_staff % od.DataSource( ou.Channel() ) \
-            and self._device == other_staff % od.DataSource( od.Device() )
+            and self._beat_note_value   == other_staff % od.DataSource( ov.BeatNoteValue() ) \
+            and self._scale             == other_staff % od.DataSource( ou.Scale() ) \
+            and self._quantization      == other_staff % od.DataSource( ov.Quantization() ) \
+            and self._duration          == other_staff % od.DataSource( ot.Duration() ) \
+            and self._key               == other_staff % od.DataSource( ou.Key() ) \
+            and self._octave            == other_staff % od.DataSource( ou.Octave() ) \
+            and self._velocity          == other_staff % od.DataSource( ou.Velocity() ) \
+            and self._controller        == other_staff % od.DataSource( og.Controller() ) \
+            and self._channel           == other_staff % od.DataSource( ou.Channel() ) \
+            and self._device            == other_staff % od.DataSource( od.Device() )
     
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measures": self._measure % float(),
-                "tempo": self._tempo % int(),
-                "beats_per_measure": self._beats_per_measure % float(),
-                "beat_note_value": self._beat_note_value % float(),
-                "scale": self._scale % int(),
-                "quantization": self._quantization % float(),
-                "duration": self._duration.getSerialization(),
-                "key": self._key % int(),
-                "octave": self._octave % int(),
-                "velocity": self._velocity % int(),
-                "controller": self._controller.getSerialization(),
-                "channel": self._channel % od.DataSource(),
-                "device": self._device % od.DataSource()
+                "measures":             self._measure % od.DataSource( float() ),
+                "tempo":                self._tempo % od.DataSource( float() ),
+                "beats_per_measure":    self._beats_per_measure % od.DataSource( float() ),
+                "beat_note_value":      self._beat_note_value % od.DataSource( float() ),
+                "scale":                self._scale % od.DataSource(),
+                "quantization":         self._quantization % od.DataSource( float() ),
+                "duration":             self._duration.getSerialization(),
+                "key":                  self._key % od.DataSource(),
+                "octave":               self._octave % od.DataSource(),
+                "velocity":             self._velocity % od.DataSource(),
+                "controller":           self._controller.getSerialization(),
+                "channel":              self._channel % od.DataSource(),
+                "device":               self._device % od.DataSource()
             }
         }
 

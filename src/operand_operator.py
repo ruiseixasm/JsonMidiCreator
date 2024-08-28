@@ -70,8 +70,8 @@ class Operator(o.Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "operand": self._operand.getSerialization(),
-                "operator_list": operators_serialization
+                "operand":          self._operand.getSerialization(),
+                "operator_list":    operators_serialization
             }
         }
 
@@ -171,10 +171,10 @@ class Oscillator(Operator):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["position"] = self._position.getSerialization()
-        element_serialization["parameters"]["length"] = self._length.getSerialization()
-        element_serialization["parameters"]["amplitude"] = self._amplitude % float()
-        element_serialization["parameters"]["offset"] = self._offset % float()
+        element_serialization["parameters"]["position"]     = self._position.getSerialization()
+        element_serialization["parameters"]["length"]       = self._length.getSerialization()
+        element_serialization["parameters"]["amplitude"]    = self._amplitude % od.DataSource( float() )
+        element_serialization["parameters"]["offset"]       = self._offset % od.DataSource( float() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
