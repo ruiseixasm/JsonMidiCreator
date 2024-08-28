@@ -65,10 +65,9 @@ class Value(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case Fraction():        return self._rational
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
-                    case _:                 return ol.Null()
+                    case _:                 return self._rational
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
