@@ -223,7 +223,7 @@ class ClockModes(enum.Enum):
 class Clock(Element):
     def __init__(self, mode: ClockModes = None):
         super().__init__()
-        self._length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int())
+        self._length = ot.Length() << os.global_staff % ov.Measure()
         self._mode: ClockModes = ClockModes.single if mode is None else mode
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
@@ -258,15 +258,14 @@ class Clock(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        clock_length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int()) \
-                if self._length is None else self._length
+        clock_length = ot.Length() << os.global_staff % ov.Measure() if self._length is None else self._length
         clock_mode = ClockModes.single if self._mode is None else self._mode
         if clock_mode == ClockModes.single:
             self_position = ot.Position()
-            clock_length = ot.Length() << ov.Measure(os.global_staff % ov.Measure() % int())
+            clock_length = ot.Length() << os.global_staff % ov.Measure()
         device = self % od.Device()
 
-        pulses_per_note = 4 * self._pulses_per_quarternote % int()
+        pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource()
         pulses_per_beat = pulses_per_note * (os.global_staff % ov.BeatNoteValue() % Fraction())
         pulses_per_measure = pulses_per_beat * (os.global_staff % ov.BeatsPerMeasure() % Fraction())
         clock_pulses = round(pulses_per_measure * (clock_length % ov.Measure() % Fraction()))
@@ -301,7 +300,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_ms \
-                                     * (clock_length % ov.Measure() % int()) * clock_pulse / clock_pulses, 3),
+                                     * (clock_length % ov.Measure() % od.DataSource()) * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8,
                         "device": device % list()
@@ -325,7 +324,7 @@ class Clock(Element):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["mode"] = self._mode.value
-        element_serialization["parameters"]["pulses_per_quarternote"] = self._pulses_per_quarternote % int()
+        element_serialization["parameters"]["pulses_per_quarternote"] = self._pulses_per_quarternote % od.DataSource()
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -367,9 +366,9 @@ class Note(Element):
         super().__init__()
         self._duration: ot.Duration = (os.global_staff % ot.Duration()).copy()
         self._length << self._duration.copy()  # By default a note has the same Length as its Duration
-        self._key_note: og.KeyNote  = og.KeyNote( os.global_staff % ou.Key() % int() if key is None else key ) \
-            << ou.Octave( os.global_staff % ou.Octave() % int() )
-        self._velocity: ou.Velocity = ou.Velocity( os.global_staff % ou.Velocity() % int() )
+        self._key_note: og.KeyNote  = og.KeyNote()  << (os.global_staff % ou.Key() if key is None else key) \
+                                                    <<  os.global_staff % ou.Octave()
+        self._velocity: ou.Velocity = os.global_staff % ou.Velocity()
         self._gate: ov.Gate         = ov.Gate(.90)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
