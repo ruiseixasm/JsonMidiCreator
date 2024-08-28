@@ -75,13 +75,21 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        return self
+        import operand_label as ol
+        if isinstance(serialization, dict) and ("class" in serialization and "parameters" in serialization):
+            operand_name = serialization["class"]
+            operand_class = Operand.find_subclass_by_name(Operand, operand_name)
+            if operand_class == __class__: return operand_class()   # avoids infinite recursion
+            if operand_class: return operand_class().loadSerialization(serialization)
+        return ol.Null()
        
     def copy(self) -> 'Operand':
         return self.__class__() << self
     
     def getOperand(self, operand_name: str) -> 'Operand':
-        return Operand.find_subclass_by_name(Operand, operand_name)()
+        operand_class = Operand.find_subclass_by_name(Operand, operand_name)
+        if operand_class: return operand_class()
+        return operand_class
     
     @staticmethod
     def find_subclass_by_name(root_class, name: str):

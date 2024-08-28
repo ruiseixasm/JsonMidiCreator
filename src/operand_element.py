@@ -106,8 +106,8 @@ class Element(o.Operand):
 
             self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
             self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
-            self._channel   = ou.Channel(serialization["parameters"]["channel"])
-            self._device    = od.Device(serialization["parameters"]["device"])
+            self._channel   = ou.Channel()  << od.DataSource( serialization["parameters"]["channel"] )
+            self._device    = od.Device()   << od.DataSource( serialization["parameters"]["device"] )
         return self
         
     def __xor__(self, operand: o.Operand):
@@ -336,7 +336,7 @@ class Clock(Element):
 
             super().loadSerialization(serialization)
             self._mode = ClockModes(serialization["parameters"]["mode"])
-            self._pulses_per_quarternote = ou.PPQN(serialization["parameters"]["pulses_per_quarternote"])
+            self._pulses_per_quarternote    = ou.PPQN() << od.DataSource( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Clock':
@@ -457,10 +457,10 @@ class Note(Element):
             "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-            self._key_note = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
-            self._velocity = ou.Velocity(serialization["parameters"]["velocity"])
-            self._gate = ov.Gate(serialization["parameters"]["gate"])
+            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
+            self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
+            self._gate      = ov.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
@@ -595,9 +595,9 @@ class KeyScale(Note):
             "mode" in serialization["parameters"] and "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale = ou.Scale(serialization["parameters"]["scale"])
-            self._data_scale = od.DataScale(serialization["parameters"]["data_scale"])
-            self._mode = ou.Mode(serialization["parameters"]["mode"])
+            self._scale         = ou.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
+            self._data_scale    = od.DataScale()    << od.DataSource( serialization["parameters"]["data_scale"] )
+            self._mode          = ou.Mode()         << od.DataSource( serialization["parameters"]["mode"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -753,12 +753,12 @@ class Chord(Note):
             "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._scale = ou.Scale(serialization["parameters"]["scale"])
-            self._data_scale = od.DataScale(serialization["parameters"]["data_scale"])
-            self._type = ou.Type(serialization["parameters"]["type"])
-            self._degree = ou.Degree(serialization["parameters"]["degree"])
-            self._inversion = ou.Inversion(serialization["parameters"]["inversion"])
-            self._sus = ou.Sus(serialization["parameters"]["sus"])
+            self._scale         = ou.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
+            self._data_scale    = od.DataScale()    << od.DataSource( serialization["parameters"]["data_scale"] )
+            self._type          = ou.Type()         << od.DataSource( serialization["parameters"]["type"] )
+            self._degree        = ou.Degree()       << od.DataSource( serialization["parameters"]["degree"] )
+            self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
+            self._sus           = ou.Sus()          << od.DataSource( serialization["parameters"]["sus"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Chord':
@@ -873,7 +873,7 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
-        element_serialization["parameters"]["elements"] = self._elements
+        element_serialization["parameters"]["elements"] = self._elements    # NEEDS TO BE DEVELOPED !!!
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -884,7 +884,7 @@ class Triplet(Rest):    # WILL REQUIRE INNER FRAME PROCESSING
 
             super().loadSerialization(serialization)
             self._duration = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-            self._elements = serialization["parameters"]["elements"]
+            self._elements = serialization["parameters"]["elements"]        # NEEDS TO BE DEVELOPED !!!
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Triplet':
@@ -1153,7 +1153,7 @@ class PitchBend(Element):
             "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch = ou.Pitch(serialization["parameters"]["pitch"])
+            self._pitch     = ou.Pitch()    << od.DataSource( serialization["parameters"]["pitch"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
@@ -1239,7 +1239,7 @@ class Aftertouch(Element):
             "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure = ou.Pressure(serialization["parameters"]["pressure"])
+            self._pressure  = ou.Pressure() << od.DataSource( serialization["parameters"]["pressure"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
@@ -1398,7 +1398,7 @@ class ProgramChange(Element):
             "program" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._program = ou.Program(serialization["parameters"]["program"])
+            self._program   = ou.Program()  << od.DataSource( serialization["parameters"]["program"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':

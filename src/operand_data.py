@@ -88,12 +88,16 @@ class Data(o.Operand):
         return not (self < other_data)
 
     def getSerialization(self):
-        return {
+        serialization = {
             "class": self.__class__.__name__,
             "parameters": {
                 "data": self._data
             }
         }
+        if isinstance (self._data, o.Operand):
+            serialization["parameters"]["data"] = self._data.getSerialization()
+
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -102,6 +106,8 @@ class Data(o.Operand):
             "data" in serialization["parameters"]):
 
             self._data = serialization["parameters"]["data"]
+            if isinstance(self._data, dict) and "class" in self._data:
+                self._data      = o.Operand().loadSerialization(self._data)
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Data':

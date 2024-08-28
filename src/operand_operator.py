@@ -81,12 +81,7 @@ class Operator(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "operator_list" in serialization["parameters"]):
 
-            operand_class_name = serialization["parameters"]["operand"]["class"]
-            self._operand = self.getOperand(operand_class_name)
-            if self._operand:
-                self._operand.loadSerialization(serialization["parameters"]["operand"])
-            else:
-                self._operand = ol.Null()
+            self._operand = o.Operand().loadSerialization(serialization["parameters"]["operand"])
             operator_list = []
             operators_serialization = serialization["parameters"]["operator_list"]
             for single_operator_serialization in operators_serialization:
