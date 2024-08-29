@@ -75,20 +75,47 @@ class Value(o.Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
-    def __eq__(self, other_value: 'Value') -> bool:
-        return self._rational() == other_value % od.DataSource()
+    def __eq__(self, other_number: any) -> bool:
+        match other_number:
+            case Value():
+                return self._rational == other_number % od.DataSource()
+            case ou.Unit():
+                other_rational = Fraction( other_number % od.DataSource() ).limit_denominator()
+                return self._rational == other_rational
+            case int() | float():
+                other_rational = Fraction( other_number ).limit_denominator()
+                return self._rational == other_rational
+        return False
     
-    def __lt__(self, other_value: 'Value') -> bool:
-        return self._rational() < other_value % od.DataSource()
+    def __lt__(self, other_number: any) -> bool:
+        match other_number:
+            case Value():
+                return self._rational < other_number % od.DataSource()
+            case ou.Unit():
+                other_rational = Fraction( other_number % od.DataSource() ).limit_denominator()
+                return self._rational < other_rational
+            case int() | float():
+                other_rational = Fraction( other_number ).limit_denominator()
+                return self._rational < other_rational
+        return False
     
-    def __gt__(self, other_value: 'Value') -> bool:
-        return self._rational() > other_value % od.DataSource()
+    def __gt__(self, other_number: any) -> bool:
+        match other_number:
+            case Value():
+                return self._rational > other_number % od.DataSource()
+            case ou.Unit():
+                other_rational = Fraction( other_number % od.DataSource() ).limit_denominator()
+                return self._rational > other_rational
+            case int() | float():
+                other_rational = Fraction( other_number ).limit_denominator()
+                return self._rational > other_rational
+        return False
     
-    def __le__(self, other_value: 'Value') -> bool:
-        return not (self > other_value)
+    def __le__(self, other_number: any) -> bool:
+        return self == other_number and self < other_number
     
-    def __ge__(self, other_value: 'Value') -> bool:
-        return not (self < other_value)
+    def __ge__(self, other_number: any) -> bool:
+        return self == other_number and self > other_number
     
     def getSerialization(self):
         return {

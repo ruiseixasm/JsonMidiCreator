@@ -61,20 +61,47 @@ class Unit(o.Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
-    def __eq__(self, other_unit: 'Unit') -> bool:
-        return self._unit == other_unit % od.DataSource()
+    def __eq__(self, other_number: any) -> bool:
+        import operand_value as ov
+        match other_number:
+            case Unit():
+                return self._unit == other_number % od.DataSource()
+            case ov.Value():
+                other_unit = other_number % od.DataSource( float() )
+                return self._unit == other_unit
+            case int() | float():
+                return self._unit == other_number
+        return False
     
-    def __lt__(self, other_unit: 'Unit') -> bool:
-        return self._unit < other_unit % od.DataSource()
+    def __lt__(self, other_number: any) -> bool:
+        import operand_value as ov
+        match other_number:
+            case Unit():
+                return self._unit < other_number % od.DataSource()
+            case ov.Value():
+                other_unit = other_number % od.DataSource( float() )
+                return self._unit < other_unit
+            case int() | float():
+                return self._unit < other_number
+        return False
     
-    def __gt__(self, other_unit: 'Unit') -> bool:
-        return self._unit > other_unit % od.DataSource()
+    def __gt__(self, other_number: any) -> bool:
+        import operand_value as ov
+        match other_number:
+            case Unit():
+                return self._unit > other_number % od.DataSource()
+            case ov.Value():
+                other_unit = other_number % od.DataSource( float() )
+                return self._unit > other_unit
+            case int() | float():
+                return self._unit > other_number
+        return False
     
-    def __le__(self, other_unit: 'Unit') -> bool:
-        return not (self > other_unit)
+    def __le__(self, other_number: any) -> bool:
+        return self == other_number and self < other_number
     
-    def __ge__(self, other_unit: 'Unit') -> bool:
-        return not (self < other_unit)
+    def __ge__(self, other_number: any) -> bool:
+        return self == other_number and self > other_number
     
     def getSerialization(self):
         return {

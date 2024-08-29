@@ -42,3 +42,6 @@ staff << Tempo(90) << Measure(7)
 tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
 tuplet % Division() % int() >> Print()
 
+retrigger = Retrigger("G")
+retrigger << NoteValue(1)
+retrigger << Swing(.75) >> Play(True)
