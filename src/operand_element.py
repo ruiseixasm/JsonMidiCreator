@@ -879,9 +879,7 @@ class Retrigger(Note):
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
-            case ot.Duration():
-                self._duration = operand * 2/(self._division % int())
-            case ov.NoteValue():
+            case ot.Duration() | ov.NoteValue():
                 self._duration << operand * 2/(self._division % int())
             case _:                 super().__lshift__(operand)
         return self
