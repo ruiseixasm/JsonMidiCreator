@@ -806,6 +806,7 @@ class Retrigger(Note):
         self._duration  = self._duration * 2/(self._division % int())
         self._length   << self._duration * (self._division % int())
         self._gate      = ov.Gate(.50)
+        self._swing     = ov.Swing(.50)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -823,9 +824,11 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():     return self._division
+                    case ov.Swing():        return self._swing
                     case _:                 return super().__mod__(operand)
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
+            case ov.Swing():        return self._swing.copy()
             case ot.Duration():     return self._duration * (self._division % int())/2
             case ov.NoteValue():    return self._duration * (self._division % int())/2 % operand
             case _:                 return super().__mod__(operand)
@@ -842,6 +845,7 @@ class Retrigger(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["division"] = self._division % od.DataSource()
+        element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -852,6 +856,7 @@ class Retrigger(Note):
 
             super().loadSerialization(serialization)
             self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
+            self._swing     = ov.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
@@ -859,12 +864,15 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():             self._division = operand % o.Operand()
+                    case ov.Swing():                self._swing = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Retrigger():
                 super().__lshift__(operand)
-                self._division = (operand % od.DataSource( ou.Division() )).copy()
+                self._division  = (operand % od.DataSource( ou.Division() )).copy()
+                self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
             case ou.Division():     self._division = operand.copy()
             case int():             self._division = ou.Division() << operand
+            case ov.Swing():        self._swing = operand.copy()
             case ot.Duration():
                 self._duration = operand * 2/(self._division % int())
             case ov.NoteValue():
@@ -900,6 +908,7 @@ class Tuplet(Element):
     def __init__(self, *elements: Element):
         super().__init__()
         self._duration: ot.Duration = os.staff % ot.Duration()
+        self._swing     = ov.Swing(.50)
         self._elements: list[Element] = []
         if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
             self._elements = o.Operand.copy_operands_list(elements)
@@ -933,6 +942,7 @@ class Tuplet(Element):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Duration():     return self._duration
+                    case ov.Swing():        return self._swing
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ot.Duration():
@@ -943,6 +953,7 @@ class Tuplet(Element):
                 if len(self._elements) == 2:    return self._duration * 2/3 % operand
                 elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2 % operand
                 return self._duration % operand
+            case ov.Swing():        return self._swing.copy()
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
             case list():            return o.Operand.copy_operands_list(self._elements)
@@ -950,8 +961,9 @@ class Tuplet(Element):
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
-            return  self._duration == other_element % od.DataSource( ot.Duration() ) \
-                and self._elements == other_element % od.DataSource( list() )
+            return  self._duration  == other_element % od.DataSource( ot.Duration() ) \
+                and self._swing     == other_element % od.DataSource( ov.Swing() ) \
+                and self._elements  == other_element % od.DataSource( list() )
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -966,6 +978,7 @@ class Tuplet(Element):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
+        element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
         elements = []
         for single_element in self._elements:
             elements.append(single_element.getSerialization())
@@ -976,10 +989,11 @@ class Tuplet(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
+            "duration" in serialization["parameters"] and "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._swing     = ov.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
             for single_element_serialization in elements_serialization:
@@ -996,11 +1010,13 @@ class Tuplet(Element):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Duration():         self._duration = operand % o.Operand()
+                    case ov.Swing():            self._swing = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
                 self._duration = (operand % od.DataSource( ot.Duration() )).copy()
+                self._swing = (operand % od.DataSource( ov.Swing() )).copy()
                 self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
             case ot.Duration():
                 if len(self._elements) == 2:
@@ -1018,6 +1034,7 @@ class Tuplet(Element):
                 else:
                     self._duration =  ot.Duration() << operand
                 self.set_elements_duration()
+            case ov.Swing():        self._swing = operand.copy()
             case list():
                 elements: list[Element] = operand
                 if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
@@ -1060,13 +1077,13 @@ class ControlChange(Element):
         """
         The % symbol is used to extract a Parameter, in the case of a ControlChange,
         those Parameters are the ones of the Element, like Position and Length,
-        and the Division and a List of Elements.
+        and the Controller Number and Value as ControlNumber and ControlValue.
 
         Examples
         --------
-        >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
-        >>> tuplet % Division() % int() >> Print()
-        4
+        >>> controller = Controller("Modulation")
+        >>> controller % ControlNumber() % int() >> Print()
+        1
         """
         match operand:
             case od.DataSource():

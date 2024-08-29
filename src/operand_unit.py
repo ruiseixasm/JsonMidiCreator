@@ -725,7 +725,7 @@ class ControlNumber(Midi):
 
     _controllers = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },
-        {   "midi_number": 1,   "default_value": 0,     "names": ["Modulation Wheel"]    },
+        {   "midi_number": 1,   "default_value": 0,     "names": ["Modulation Wheel", "Modulation"]    },
         {   "midi_number": 2,   "default_value": 0,     "names": ["Breath Controller"]    },
         
         {   "midi_number": 4,   "default_value": 0,     "names": ["Foot Controller", "Foot Pedal"]    },

@@ -211,5 +211,5 @@ class Staff(o.Operand):
                 self._quantization = ov.Quantization( 1 / (operand % Fraction()) )
         return self
 
-# Set the Default Staff values here.
+# Instantiate the Global Staff here.
 staff: Staff = Staff()
