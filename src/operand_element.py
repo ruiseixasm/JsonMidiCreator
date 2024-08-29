@@ -863,6 +863,8 @@ class Retrigger(Note):
             case Retrigger():
                 super().__lshift__(operand)
                 self._division = (operand % od.DataSource( ou.Division() )).copy()
+            case ou.Division():     self._division = operand.copy()
+            case int():             self._division = ou.Division() << operand
             case ot.Duration():
                 self._duration = operand * 2/(self._division % int())
             case ov.NoteValue():
@@ -889,7 +891,8 @@ class Note3(Retrigger):
 
     def __lshift__(self, operand: o.Operand) -> 'Note3':
         match operand:
-            case ou.Division():     return self # disables the setting of Division, always 3
+            case ou.Division() | int():
+                return self # disables the setting of Division, always 3
             case _:                 super().__lshift__(operand)
         return self
 
