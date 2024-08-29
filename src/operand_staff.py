@@ -212,4 +212,4 @@ class Staff(o.Operand):
         return self
 
 # Set the Default Staff values here.
-global_staff: Staff = Staff()
+staff: Staff = Staff()

@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(120) << Measure(1)
+staff << Tempo(120) << Measure(1)
 single_clock = Clock()
 
 single_note = Note() << (Duration() << Measure(2)) >> Play()
@@ -35,7 +35,7 @@ triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat
 triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position())**Iterate(1/2)**Beat() + single_clock \
     >> Export("json/_Export_3.1_triple_note3.json") >> Play(True)
 
-global_staff << Measure(2)
+staff << Measure(2)
 single_clock = Clock()
 
 # Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!

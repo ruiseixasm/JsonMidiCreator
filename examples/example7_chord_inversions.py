@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(120)
+staff << Tempo(120)
 
 Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) >> Play(True)
 (Chord() * 4 << Type("7th")) + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/_Export_7.1_chord_inversion.json") >> Play(True)

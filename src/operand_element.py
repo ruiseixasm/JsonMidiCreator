@@ -222,7 +222,7 @@ class ClockModes(enum.Enum):
 class Clock(Element):
     def __init__(self, mode: ClockModes = None):
         super().__init__()
-        self._length = ot.Length() << os.global_staff % ov.Measure()
+        self._length = ot.Length() << os.staff % ov.Measure()
         self._mode: ClockModes = ClockModes.single if mode is None else mode
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
@@ -257,16 +257,16 @@ class Clock(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        clock_length = ot.Length() << os.global_staff % ov.Measure() if self._length is None else self._length
+        clock_length = ot.Length() << os.staff % ov.Measure() if self._length is None else self._length
         clock_mode = ClockModes.single if self._mode is None else self._mode
         if clock_mode == ClockModes.single:
             self_position = ot.Position()
-            clock_length = ot.Length() << os.global_staff % ov.Measure()
+            clock_length = ot.Length() << os.staff % ov.Measure()
         device = self % od.Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource()
-        pulses_per_beat = pulses_per_note * (os.global_staff % ov.BeatNoteValue() % Fraction())
-        pulses_per_measure = pulses_per_beat * (os.global_staff % ov.BeatsPerMeasure() % Fraction())
+        pulses_per_beat = pulses_per_note * (os.staff % ov.BeatNoteValue() % Fraction())
+        pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % Fraction())
         clock_pulses = round(pulses_per_measure * (clock_length % ov.Measure() % Fraction()))
 
         single_measure_ms = (ot.Length() << ov.Measure(1)).getTime_ms()
@@ -357,17 +357,17 @@ class Clock(Element):
 class Rest(Element):
     def __init__(self):
         super().__init__()
-        self._duration: ot.Duration = os.global_staff % ot.Duration()
+        self._duration: ot.Duration = os.staff % ot.Duration()
         self._length << self._duration  # By default a note has the same Length as its Duration
 
 class Note(Element):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._duration: ot.Duration = os.global_staff % ot.Duration()
+        self._duration: ot.Duration = os.staff % ot.Duration()
         self._length << self._duration  # By default a note has the same Length as its Duration
-        self._key_note: og.KeyNote  = og.KeyNote()  << (os.global_staff % ou.Key() if key is None else ou.Key(key)) \
-                                                    <<  os.global_staff % ou.Octave()
-        self._velocity: ou.Velocity = os.global_staff % ou.Velocity()
+        self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() if key is None else ou.Key(key)) \
+                                                    <<  os.staff % ou.Octave()
+        self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ov.Gate         = ov.Gate(.90)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -505,7 +505,7 @@ class Note(Element):
 class KeyScale(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        self._scale: ou.Scale = os.global_staff % ou.Scale()    # default Staff scale
+        self._scale: ou.Scale = os.staff % ou.Scale()    # default Staff scale
         self._data_scale: od.DataScale = od.DataScale()
         self._mode: ou.Mode = ou.Mode()
 
@@ -643,7 +643,7 @@ class KeyScale(Note):
 class Chord(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        self._scale: ou.Scale = os.global_staff % ou.Scale()   # Default Scale for Chords
+        self._scale: ou.Scale = os.staff % ou.Scale()   # Default Scale for Chords
         self._data_scale: od.DataScale = od.DataScale()
         self._degree: ou.Degree = ou.Degree()
         self._inversion: ou.Inversion = ou.Inversion()
@@ -899,7 +899,7 @@ class Note3(Retrigger):
 class Tuplet(Element):
     def __init__(self, *elements: Element):
         super().__init__()
-        self._duration: ot.Duration = os.global_staff % ot.Duration()
+        self._duration: ot.Duration = os.staff % ot.Duration()
         self._elements: list[Element] = []
         if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
             self._elements = o.Operand.copy_operands_list(elements)
@@ -1052,11 +1052,22 @@ class Triplet(Tuplet):
 class ControlChange(Element):
     def __init__(self, number: int | str = None):
         super().__init__()
-        self._controller: og.Controller = (os.global_staff % og.Controller()).copy()
+        self._controller: og.Controller = (os.staff % og.Controller()).copy()
         if number is not None:
             self._controller = og.Controller(number)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a ControlChange,
+        those Parameters are the ones of the Element, like Position and Length,
+        and the Division and a List of Elements.
+
+        Examples
+        --------
+        >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
+        >>> tuplet % Division() % int() >> Print()
+        4
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():

@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(110) << Measure(6)
+staff << Tempo(110) << Measure(6)
 
 # Set the default single Clock for the entire Staff Length
 single_clock = Clock() >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()

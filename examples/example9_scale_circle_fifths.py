@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-global_staff << Tempo(120) << Measure(7)
+staff << Tempo(120) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Position(0) >> (KeyScale("C") << Scale("Major")) * 8 \

@@ -32,8 +32,8 @@ from operand_element import *
 import platform
 current_os = platform.system()
 if current_os == "Windows":
-    global_staff << Device(["loopMIDI", "Microsoft"])   # Microsoft GS Wavetable Synth
+    staff << Device(["loopMIDI", "Microsoft"])   # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
-    global_staff << Device(["IAC Bus", "Apple"])        # Apple DLS Synthesizer
+    staff << Device(["IAC Bus", "Apple"])        # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    global_staff << Device(["VMPK", "FLUID"])           # FLUID Synth
+    staff << Device(["VMPK", "FLUID"])           # FLUID Synth

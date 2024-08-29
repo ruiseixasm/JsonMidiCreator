@@ -231,7 +231,7 @@ class Scale(Unit):
             case int() | float():
                 super().__init__(unit)
             case _:
-                unit = os.global_staff % od.DataSource( self ) % int() if unit is None else round(unit)
+                unit = os.staff % od.DataSource( self ) % int() if unit is None else round(unit)
                 super().__init__(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -644,7 +644,7 @@ class Channel(Midi):
         For a given device, there are 16 channels ranging from 1 to 16
     """
     def __init__(self, unit: int = None):
-        super().__init__( os.global_staff % od.DataSource( self ) % int() if unit is None else unit )
+        super().__init__( os.staff % od.DataSource( self ) % int() if unit is None else unit )
 
 class Pitch(Midi):
     """
