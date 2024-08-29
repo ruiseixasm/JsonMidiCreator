@@ -148,41 +148,47 @@ class Value(o.Operand):
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
         return self
 
-    def __add__(self, value: Union['Value', float, int]) -> 'Value':
+    def __add__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self + (value & self)
-            case Value():           return self.__class__() << self._rational + value % od.DataSource()
-            case Fraction():        return self.__class__() << self._rational + value
-            case float() | int():   return self.__class__() << self._rational + Fraction(value).limit_denominator()
+            case Value():           return self.__class__() << od.DataSource( self._rational + value % od.DataSource() )
+            case ou.Unit():         return self.__class__() << od.DataSource( self._rational + Fraction(value % od.DataSource()).limit_denominator() )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __sub__(self, value: Union['Value', float, int]) -> 'Value':
+    def __sub__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self - (value & self)
-            case Value():           return self.__class__() << self._rational - value % od.DataSource()
-            case Fraction():        return self.__class__() << self._rational - value
-            case float() | int():   return self.__class__() << self._rational - Fraction(value).limit_denominator()
+            case Value():           return self.__class__() << od.DataSource( self._rational - value % od.DataSource() )
+            case ou.Unit():         return self.__class__() << od.DataSource( self._rational - Fraction(value % od.DataSource()).limit_denominator() )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __mul__(self, value: Union['Value', float, int]) -> 'Value':
+    def __mul__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self * (value & self)
-            case Value():           return self.__class__() << self._rational * (value % od.DataSource())
-            case Fraction():        return self.__class__() << self._rational * value
-            case float() | int():   return self.__class__() << self._rational * Fraction(value).limit_denominator()
+            case Value():           return self.__class__() << od.DataSource( self._rational * (value % od.DataSource()) )
+            case ou.Unit():         return self.__class__() << od.DataSource( self._rational * Fraction(value % od.DataSource()).limit_denominator() )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __truediv__(self, value: Union['Value', float, int]) -> 'Value':
+    def __truediv__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
         match value:
             case of.Frame():        return self / (value & self)
             case Value():
-                if value._rational != 0:
-                    return self.__class__() << self._rational / (value % od.DataSource())
+                if value % od.DataSource() != 0:
+                    return self.__class__() << od.DataSource( self._rational / (value % od.DataSource()) )
+            case ou.Unit():
+                if value % od.DataSource() != 0:
+                    return self.__class__() << od.DataSource( self._rational / Fraction(value % od.DataSource()).limit_denominator() )
             case Fraction():
-                if value != 0: return self.__class__() << self._rational / value
+                if value != 0: return self.__class__() << od.DataSource( self._rational / value )
             case float() | int():
                 if Fraction(value).limit_denominator() != 0:
-                    return self.__class__() << self._rational / Fraction(value).limit_denominator()
+                    return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
         return self.copy()
 
 class Negative(Value):

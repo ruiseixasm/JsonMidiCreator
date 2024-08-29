@@ -45,3 +45,8 @@ staff << Tempo(90) << Measure(7)
 retrigger = Retrigger("G")
 retrigger << NoteValue(1) >> Play(True) >> Export("json/_Export_s.1_snippets_retirgger.json")
 retrigger << Swing(.75) >> Play(True) >> Export("json/_Export_s.2_snippets_retirgger.json")
+
+retrigger << Division(5) >> Play(True) >> Export("json/_Export_s.3_snippets_retirgger.json")
+
+
+
