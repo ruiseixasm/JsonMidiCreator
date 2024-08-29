@@ -113,8 +113,8 @@ class KeyNote(Generic):
             case str():             self._key = ou.Key(operand)
             case ou.Octave():       self._octave = operand.copy()
             case int():
-                self._key << operand    # key already does % 12
-                self._octave << operand // 12
+                self._key       << operand    # key already does % 12
+                self._octave    << operand // 12
         return self
 
     def __add__(self, operand) -> 'KeyNote':

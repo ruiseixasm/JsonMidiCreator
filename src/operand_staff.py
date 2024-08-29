@@ -166,8 +166,6 @@ class Staff(o.Operand):
                     case ou.Octave():           self._octave = operand % o.Operand()
                     case ou.Velocity():         self._velocity = operand % o.Operand()
                     case og.Controller():       self._controller = operand % o.Operand()
-                    case ou.ControlNumber():    self._controller << operand % o.Operand()
-                    case ou.ControlValue():     self._controller << operand % o.Operand()
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
             case Staff():

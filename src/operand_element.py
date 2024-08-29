@@ -477,7 +477,7 @@ class Note(Element):
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
             case ot.Duration():     self._duration = operand.copy()
-            case ov.NoteValue():    self._duration = ot.Duration() << operand
+            case ov.NoteValue():    self._duration << operand
             case og.KeyNote():      self._key_note = operand.copy()
             case ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
@@ -876,7 +876,7 @@ class Retrigger(Note):
                 self._division  = (operand % od.DataSource( ou.Division() )).copy()
                 self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
             case ou.Division():     self._division = operand.copy()
-            case int():             self._division = ou.Division() << operand
+            case int():             self._division << operand
             case ov.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
@@ -884,7 +884,7 @@ class Retrigger(Note):
             case ot.Duration():
                 self._duration = operand * 2/(self._division % int())
             case ov.NoteValue():
-                self._duration = ot.Duration() << operand * 2/(self._division % int())
+                self._duration << operand * 2/(self._division % int())
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1041,11 +1041,11 @@ class Tuplet(Element):
                 self.set_elements_duration()
             case ov.NoteValue():
                 if len(self._elements) == 2:
-                    self._duration = (ot.Duration() << operand) * 3/2
+                    self._duration << operand * 3/2
                 elif len(self._elements) > 0:
-                    self._duration = (ot.Duration() << operand) * 2/len(self._elements)
+                    self._duration << operand * 2/len(self._elements)
                 else:
-                    self._duration =  ot.Duration() << operand
+                    self._duration << operand
                 self.set_elements_duration()
             case ov.Swing():
                 if operand < 0:     self._swing << 0
