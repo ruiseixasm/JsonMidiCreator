@@ -927,7 +927,7 @@ class Tuplet(Element):
         --------
         >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
         >>> tuplet % Division() % int() >> Print()
-        16
+        4
         """
         match operand:
             case od.DataSource():
