@@ -126,6 +126,7 @@ class Unit(o.Operand):
                 match operand % o.Operand():
                     case int():             self._unit = operand % o.Operand()
                     case float():           self._unit = round(operand % o.Operand())
+                    case Fraction():        self._unit = round(operand % o.Operand())
             case Unit():            self._unit = operand % od.DataSource()
             case of.Frame():        self << (operand & self)
             case od.Load():
@@ -133,32 +134,40 @@ class Unit(o.Operand):
             case int() | float():   self._unit = round(operand)
         return self
 
-    def __add__(self, unit: Union['Unit', int, float]) -> 'Unit':
-        match unit:
-            case of.Frame():        return self + (unit & self)
-            case Unit():            return self.__class__(self._unit + unit % od.DataSource())
-            case int() | float():   return self.__class__(self._unit + unit)
+    def __add__(self, number: any) -> 'Unit':
+        import operand_value as ov
+        match number:
+            case of.Frame():            return self + (number & self)
+            case Unit() | ov.Value():   return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
+            case int() | float():       return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
     
-    def __sub__(self, unit: Union['Unit', int, float]) -> 'Unit':
-        match unit:
-            case of.Frame():        return self - (unit & self)
-            case Unit():            return self.__class__(self._unit - unit % od.DataSource())
-            case int() | float():   return self.__class__(self._unit - unit)
+    def __sub__(self, number: any) -> 'Unit':
+        import operand_value as ov
+        match number:
+            case of.Frame():            return self - (number & self)
+            case Unit() | ov.Value():   return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
+            case int() | float():       return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
     
-    def __mul__(self, unit: Union['Unit', int, float]) -> 'Unit':
-        match unit:
-            case of.Frame():        return self * (unit & self)
-            case Unit():            return self.__class__(self._unit * unit % od.DataSource())
-            case int() | float():   return self.__class__(self._unit * unit)
+    def __mul__(self, number: any) -> 'Unit':
+        import operand_value as ov
+        match number:
+            case of.Frame():            return self * (number & self)
+            case Unit() | ov.Value():   return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
+            case int() | float():       return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
     
-    def __truediv__(self, unit: Union['Unit', int, float]) -> 'Unit':
-        match unit:
-            case of.Frame():        return self / (unit & self)
-            case Unit():            return self.__class__(self._unit / unit % od.DataSource())
-            case int() | float():   return self.__class__(self._unit / unit)
+    def __truediv__(self, number: any) -> 'Unit':
+        import operand_value as ov
+        match number:
+            case of.Frame():            return self / (number & self)
+            case Unit() | ov.Value():
+                if number % od.DataSource() != 0:
+                    return self.__class__() << od.DataSource( self._unit / (number % od.DataSource()) )
+            case int() | float():
+                if number != 0:
+                    return self.__class__() << od.DataSource( self._unit / number )
         return self.copy()
     
 class Key(Unit):

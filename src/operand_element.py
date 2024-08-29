@@ -839,7 +839,7 @@ class Retrigger(Note):
         original_duration = self._duration
         for _ in range(self._division % od.DataSource()):
             swing_ratio = self._swing % od.DataSource()
-            if self_iteration % 2 == 0: swing_ratio = 1 - swing_ratio
+            if self_iteration % 2 == 1: swing_ratio = 1 - swing_ratio
             self._duration = original_duration * 2 * swing_ratio
             self_playlist.extend(super().getPlayList(self_position))
             self_position += self._duration
@@ -982,7 +982,7 @@ class Tuplet(Element):
         for element_i in range(len(self._elements)):
             self_playlist.extend(self._elements[element_i].getPlayList(self_position))
             swing_ratio = self._swing % od.DataSource()
-            if self_iteration % 2 == 0: swing_ratio = 1 - swing_ratio
+            if self_iteration % 2 == 1: swing_ratio = 1 - swing_ratio
             self_position += self._duration * 2 * swing_ratio
             self_iteration += 1
         return self_playlist

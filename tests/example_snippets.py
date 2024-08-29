@@ -42,7 +42,7 @@ staff << Tempo(90) << Measure(7)
 # tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
 # tuplet % Division() % int() >> Print()
 
-retrigger = Retrigger("G")
+retrigger = Retrigger("G") << Gate(.9)
 retrigger << NoteValue(1) >> Play(True) >> Export("json/_Export_s.1_snippets_retirgger.json")
 retrigger << Swing(.75) >> Play(True) >> Export("json/_Export_s.2_snippets_retirgger.json")
 
