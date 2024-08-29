@@ -213,8 +213,8 @@ class Controller(Generic):
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
             case ou.ControlNumber():    self._control_number = operand.copy()
-            case ou.ControlValue():     self._control_value = operand.copy()
-            case int() | float():       self._control_value << operand
+            case ou.ControlValue() | int() | float():
+                                        self._control_value << operand
         return self
 
     def __add__(self, operand) -> 'Controller':

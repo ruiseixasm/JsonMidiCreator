@@ -137,8 +137,8 @@ class Element(o.Operand):
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Position():     self._position = operand.copy()
-            case ov.TimeUnit():     self._position << operand
+            case ot.Position() | ov.TimeUnit():
+                                    self._position << operand
             case ot.Length():       self._length = operand.copy()
             case ou.Channel():      self._channel = operand.copy()
             case od.Device():       self._device = operand.copy()
@@ -476,10 +476,9 @@ class Note(Element):
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
-            case ot.Duration():     self._duration = operand.copy()
-            case ov.NoteValue():    self._duration << operand
-            case og.KeyNote():      self._key_note = operand.copy()
-            case ou.Key() | ou.Octave() | int() | float():
+            case ot.Duration() | ov.NoteValue():
+                                    self._duration << operand
+            case og.KeyNote() | ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity = operand.copy()
             case ov.Gate():         self._gate = operand.copy()
@@ -612,8 +611,8 @@ class KeyScale(Note):
                 self._data_scale = (operand % od.DataSource( od.DataScale() )).copy()
                 self._mode  = (operand % od.DataSource( ou.Mode() )).copy()
             case ou.Scale():        self._scale = operand.copy()
-            case od.DataScale():    self._data_scale = operand.copy()
-            case list():            self._data_scale << operand
+            case od.DataScale() | list():
+                                    self._data_scale << operand
             case ou.Mode():         self._mode = operand.copy()
             case _: super().__lshift__(operand)
         return self
@@ -790,8 +789,7 @@ class Chord(Note):
                 self._inversion     = (operand % od.DataSource( ou.Inversion() )).copy()
                 self._sus           = (operand % od.DataSource( ou.Sus() )).copy()
             case ou.Scale():                self._scale = operand.copy()
-            case od.DataScale():            self._data_scale = operand.copy()
-            case list():                    self._data_scale << operand
+            case od.DataScale() | list():   self._data_scale << operand
             case ou.Type():                 self._type = operand.copy()
             case ou.Degree():               self._degree = operand.copy()
             case ou.Inversion():            self._inversion = operand.copy()
@@ -875,8 +873,8 @@ class Retrigger(Note):
                 super().__lshift__(operand)
                 self._division  = (operand % od.DataSource( ou.Division() )).copy()
                 self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
-            case ou.Division():     self._division = operand.copy()
-            case int():             self._division << operand
+            case ou.Division() | int():
+                                    self._division << operand
             case ov.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
@@ -1031,15 +1029,7 @@ class Tuplet(Element):
                 self._duration = (operand % od.DataSource( ot.Duration() )).copy()
                 self._swing = (operand % od.DataSource( ov.Swing() )).copy()
                 self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
-            case ot.Duration():
-                if len(self._elements) == 2:
-                    self._duration = operand * 3/2
-                elif len(self._elements) > 0:
-                    self._duration = operand * 2/len(self._elements)
-                else:
-                    self._duration = operand.copy()
-                self.set_elements_duration()
-            case ov.NoteValue():
+            case ot.Duration() | ov.NoteValue():
                 if len(self._elements) == 2:
                     self._duration << operand * 3/2
                 elif len(self._elements) > 0:
@@ -1162,9 +1152,7 @@ class ControlChange(Element):
             case ControlChange():
                 super().__lshift__(operand)
                 self._controller = (operand % od.DataSource( og.Controller() )).copy()
-            case og.Controller():
-                self._controller = operand.copy()
-            case ou.ControlNumber() | ou.ControlValue() | int() | float():
+            case og.Controller() | ou.ControlNumber() | ou.ControlValue() | int() | float():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
@@ -1248,8 +1236,7 @@ class PitchBend(Element):
             case PitchBend():
                 super().__lshift__(operand)
                 self._pitch = (operand % od.DataSource( ou.Pitch() )).copy()
-            case ou.Pitch():        self._pitch = operand.copy()
-            case int() | float():   self._pitch << operand
+            case ou.Pitch() | int() | float():  self._pitch << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -1334,9 +1321,7 @@ class Aftertouch(Element):
             case Aftertouch():
                 super().__lshift__(operand)
                 self._pressure = (operand % od.DataSource( ou.Pressure() )).copy()
-            case ou.Pressure():
-                self._pressure = operand.copy()
-            case int() | float():
+            case ou.Pressure() | int() | float():
                 self._pressure << operand
             case _: super().__lshift__(operand)
         return self
@@ -1423,10 +1408,9 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._key_note = (operand % od.DataSource( og.KeyNote() )).copy()
-            case og.KeyNote():      self._key_note = operand.copy()
-            case ou.Key():          self._key_note << operand
-            case ou.Octave():       self._key_note << operand
-            case _:                 super().__lshift__(operand)
+            case og.KeyNote() | ou.Key() | ou.Octave():
+                                self._key_note << operand
+            case _:             super().__lshift__(operand)
         return self
 
 class ProgramChange(Element):
@@ -1493,9 +1477,7 @@ class ProgramChange(Element):
             case ProgramChange():
                 super().__lshift__(operand)
                 self._program = (operand % od.DataSource( ou.Program() )).copy()
-            case ou.Program():
-                self._program = operand.copy()
-            case int() | float():
+            case ou.Program() | int() | float():
                 self._program << operand
             case _: super().__lshift__(operand)
         return self

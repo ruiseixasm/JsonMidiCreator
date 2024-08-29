@@ -195,9 +195,8 @@ class Staff(o.Operand):
             case ou.Key():              self._key = operand.copy()
             case ou.Octave():           self._octave = operand.copy()
             case ou.Velocity():         self._velocity = operand.copy()
-            case og.Controller():       self._controller = operand.copy()
-            case ou.ControlNumber():    self._controller << operand
-            case ou.ControlValue():     self._controller << operand
+            case og.Controller() | ou.ControlNumber() | ou.ControlValue():
+                                        self._controller << operand
             case ou.Channel():          self._channel = operand.copy()
             case od.Device():           self._device = operand.copy()
             # Calculated Values
