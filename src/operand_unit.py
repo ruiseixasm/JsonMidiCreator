@@ -67,8 +67,8 @@ class Unit(o.Operand):
             case Unit():
                 return self._unit == other_number % od.DataSource()
             case ov.Value():
-                other_unit = other_number % od.DataSource( float() )
-                return self._unit == other_unit
+                self_rational = Fraction( self._unit ).limit_denominator()
+                return self_rational == other_number % od.DataSource()
             case int() | float():
                 return self._unit == other_number
         return False
@@ -79,8 +79,8 @@ class Unit(o.Operand):
             case Unit():
                 return self._unit < other_number % od.DataSource()
             case ov.Value():
-                other_unit = other_number % od.DataSource( float() )
-                return self._unit < other_unit
+                self_rational = Fraction( self._unit ).limit_denominator()
+                return self_rational < other_number % od.DataSource()
             case int() | float():
                 return self._unit < other_number
         return False
@@ -91,8 +91,8 @@ class Unit(o.Operand):
             case Unit():
                 return self._unit > other_number % od.DataSource()
             case ov.Value():
-                other_unit = other_number % od.DataSource( float() )
-                return self._unit > other_unit
+                self_rational = Fraction( self._unit ).limit_denominator()
+                return self_rational > other_number % od.DataSource()
             case int() | float():
                 return self._unit > other_number
         return False
