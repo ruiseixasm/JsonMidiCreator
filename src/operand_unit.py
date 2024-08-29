@@ -565,6 +565,10 @@ class Inversion(Operation):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
+class Transpose(Unit):
+    def __init__(self, intervals: int = None):
+        super().__init__(intervals)
+
 class Play(Unit):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.

@@ -411,7 +411,3 @@ class Sort(Data):
             return operand.sort()
         return operand
 
-class Transpose(Data):
-    def __init__(self, intervals: int = None):
-        super().__init__(intervals)
-
