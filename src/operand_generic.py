@@ -109,8 +109,7 @@ class KeyNote(Generic):
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Key():          self._key << operand
-            case str():             self._key = ou.Key(operand)
+            case ou.Key() | str():  self._key << operand
             case ou.Octave():       self._octave << operand
             case int():
                 self._key       << operand    # key already does % 12

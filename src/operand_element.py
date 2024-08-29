@@ -559,7 +559,7 @@ class KeyScale(Note):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        root_key_note = self % og.KeyNote()
+        root_key_note = self._key_note.copy()
         scale_key_notes = []
         if self._data_scale % bool():
             for key_note_i in range(self._data_scale.len()): # presses entire scale, 7 keys for diatonic scales

@@ -198,13 +198,16 @@ class Key(Unit):
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         match operand:
-            case od.DataSource():  super().__lshift__(operand)
+            case od.DataSource():
+                super().__lshift__(operand)
+                self._unit %= 12    # makes sure it's one of the Octave's key
             case Key():             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
             case Unit():            self._unit = operand % int() % 12
             case int() | float():   self._unit = round(operand) % 12
+            case str():             self._unit = __class__.keyStrToKeyUnit(operand)
         return self
 
     _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
@@ -591,8 +594,8 @@ class Print(Unit):
     first : integer_like
         Sets the indent of the JSON print layout with the default as 4
     """
-    def __init__(self, indent: int = None):
-        super().__init__( 4 if indent is None else indent )
+    def __init__(self, formatted: bool = None):
+        super().__init__( 1 if formatted is None else formatted )
 
     # CHAINABLE OPERATIONS
 
@@ -600,10 +603,13 @@ class Print(Unit):
         match operand:
             case o.Operand():
                 operand_serialization = operand.getSerialization()
-                serialized_json_str = json.dumps(operand.getSerialization())
-                json_object = json.loads(serialized_json_str)
-                json_formatted_str = json.dumps(json_object, indent = self._unit)
-                print(json_formatted_str)
+                if self._unit:
+                    serialized_json_str = json.dumps(operand_serialization)
+                    json_object = json.loads(serialized_json_str)
+                    json_formatted_str = json.dumps(json_object, indent=4)
+                    print(json_formatted_str)
+                else:
+                    print(operand_serialization)
             case _: print(operand)
         return operand
 
