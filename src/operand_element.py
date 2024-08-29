@@ -837,9 +837,14 @@ class Retrigger(Note):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         self_playlist = []
+        self_iteration = 0
         for _ in range(self._division % od.DataSource()):
             self_playlist.extend(super().getPlayList(self_position))
-            self_position += self._duration
+            self_iteration += 1
+            if self_iteration % 2 == 0:
+                self_position += self._duration * 2 * (1 - self._swing % Fraction())
+            else:
+                self_position += self._duration * 2 * (self._swing % Fraction())
         return self_playlist
     
     def getSerialization(self):
@@ -872,7 +877,10 @@ class Retrigger(Note):
                 self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
             case ou.Division():     self._division = operand.copy()
             case int():             self._division = ou.Division() << operand
-            case ov.Swing():        self._swing = operand.copy()
+            case ov.Swing():
+                if operand < 0:     self._swing << 0
+                elif operand > 1:   self._swing << 1
+                else:               self._swing << operand
             case ot.Duration():
                 self._duration = operand * 2/(self._division % int())
             case ov.NoteValue():
@@ -970,9 +978,14 @@ class Tuplet(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
         self_playlist = []
+        self_iteration = 0
         for element_i in range(len(self._elements)):
             self_playlist.extend(self._elements[element_i].getPlayList(self_position))
-            self_position += self._duration
+            self_iteration += 1
+            if self_iteration % 2 == 0:
+                self_position += self._duration * 2 * (1 - self._swing % Fraction())
+            else:
+                self_position += self._duration * 2 * (self._swing % Fraction())
         return self_playlist
     
     def getSerialization(self):
@@ -1034,7 +1047,10 @@ class Tuplet(Element):
                 else:
                     self._duration =  ot.Duration() << operand
                 self.set_elements_duration()
-            case ov.Swing():        self._swing = operand.copy()
+            case ov.Swing():
+                if operand < 0:     self._swing << 0
+                elif operand > 1:   self._swing << 1
+                else:               self._swing << operand
             case list():
                 elements: list[Element] = operand
                 if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
