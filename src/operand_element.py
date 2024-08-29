@@ -836,16 +836,15 @@ class Retrigger(Note):
 
         self_playlist = []
         self_iteration = 0
-        self_note_duration = self._duration
+        original_duration = self._duration
         for _ in range(self._division % od.DataSource()):
-            if self_iteration % 2 == 0:
-                self._duration = self_note_duration * 2 * (1 - self._swing % od.DataSource())
-            else:
-                self._duration = self_note_duration * 2 * (self._swing % od.DataSource())
+            swing_ratio = self._swing % od.DataSource()
+            if self_iteration % 2 == 0: swing_ratio = 1 - swing_ratio
+            self._duration = original_duration * 2 * swing_ratio
             self_playlist.extend(super().getPlayList(self_position))
-            self_iteration += 1
             self_position += self._duration
-        self._duration << self_note_duration
+            self_iteration += 1
+        self._duration << original_duration
         return self_playlist
     
     def getSerialization(self):
@@ -978,15 +977,12 @@ class Tuplet(Element):
         
         self_playlist = []
         self_iteration = 0
-        element_duration = ot.Duration()
         for element_i in range(len(self._elements)):
             self_playlist.extend(self._elements[element_i].getPlayList(self_position))
-            if self_iteration % 2 == 0:
-                element_duration = self._duration * 2 * (1 - self._swing % od.DataSource())
-            else:
-                element_duration = self._duration * 2 * (self._swing % od.DataSource())
+            swing_ratio = self._swing % od.DataSource()
+            if self_iteration % 2 == 0: swing_ratio = 1 - swing_ratio
+            self_position += self._duration * 2 * swing_ratio
             self_iteration += 1
-            self_position += element_duration
         return self_playlist
     
     def getSerialization(self):
