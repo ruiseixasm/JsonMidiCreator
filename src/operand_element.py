@@ -870,7 +870,7 @@ class Retrigger(Note):
             case _:                 super().__lshift__(operand)
         return self
 
-class Note3(Note):
+class Note3(Retrigger):
     """
     A Note3() is the repetition of a given Note three times on a row
     Triplets have each Note Duration set to the following Values:
@@ -883,47 +883,13 @@ class Note3(Note):
     """
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        # Can't be "*= 2/3" in order to preserve the Fraction!
-        self._duration  = self._duration * 2/3 # 3 instead of 2 for each played note
-        self._length << self._duration * 3  # Length as the entire duration of the Note triplet
-        self._gate      = ov.Gate(.50)
+        self._division  << ou.Division(3)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Note Triplet,
-        those Parameters are the ones of the Element, like Position and Length,
-        plus the ones of a Note.
-
-        Examples
-        --------
-        >>> note_triplet = Note3("G") << NoteValue(1/2) << Gate(0.75)
-        >>> print(note_triplet % NoteValue() % float())
-        0.5
-        """
-        match operand:
-            case od.DataSource():   return super().__mod__(operand)
-            case ot.Duration():     return self._duration * 3/2
-            case ov.NoteValue():    return self._duration * 3/2 % operand
-            case _:                 return super().__mod__(operand)
-
-    def getPlayList(self, position: ot.Position = None):
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
-
-        self_playlist = []
-        for _ in range(3):
-            self_playlist.extend(super().getPlayList(self_position))
-            self_position += self._duration
-        return self_playlist
-    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Note3':
         match operand:
-            case od.DataSource():  super().__lshift__(operand)
-            case ot.Duration():
-                self._duration = operand * 2/3
-            case ov.NoteValue():
-                self._duration = ot.Duration() << operand * 2/3
+            case ou.Division():     return self # disables the setting of Division, always 3
             case _:                 super().__lshift__(operand)
         return self
 
