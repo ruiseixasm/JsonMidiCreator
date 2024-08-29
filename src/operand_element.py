@@ -1090,7 +1090,7 @@ class Tuplet(Element):     # WILL REQUIRE INNER FRAME PROCESSING
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
-            return  self._division == other_element % od.DataSource( ou.Division() ) \
+            return  self._duration == other_element % od.DataSource( ot.Duration() ) \
                 and self._elements == other_element % od.DataSource( list() )
         return False
     
@@ -1098,14 +1098,13 @@ class Tuplet(Element):     # WILL REQUIRE INNER FRAME PROCESSING
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
         self_playlist = []
-        for element_i in range(self._division % od.DataSource()):
+        for element_i in range(len(self._elements)):
             self_playlist.extend(self._elements[element_i].getPlayList(self_position))
             self_position += self._duration
         return self_playlist
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["division"] = self._division % od.DataSource()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         elements = []
         for single_element in self._elements:
@@ -1117,12 +1116,10 @@ class Tuplet(Element):     # WILL REQUIRE INNER FRAME PROCESSING
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "division" in serialization["parameters"] and "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
+            "duration" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
             self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-            
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
             for single_element_serialization in elements_serialization:
@@ -1137,30 +1134,29 @@ class Tuplet(Element):     # WILL REQUIRE INNER FRAME PROCESSING
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Duration():         self._duration = operand % o.Operand()
-                    case ou.Division():         self._division = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
                 self._duration = (operand % od.DataSource( ot.Duration() )).copy()
-                self._division = (operand % od.DataSource( ou.Division() )).copy()
                 self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
             case ot.Duration():
-                if self._division % int() == 2:
-                        self._duration = operand * 3/2
-                else:   self._duration = operand * 2/(self._division % int())
+                if len(self._elements) == 2:
+                    self._duration = operand * 3/2
+                elif len(self._elements) > 0:
+                    self._duration = operand * 2/len(self._elements)
+                else:
+                    self._duration = operand.copy()
                 self.set_elements_duration()
             case ov.NoteValue():
-                if self._division % int() == 2:
-                        self._duration = ot.Duration() << operand * 3/2
-                else:   self._duration = ot.Duration() << operand * 2/(self._division % int())
+                if len(self._elements) == 2:
+                    self._duration = (ot.Duration() << operand) * 3/2
+                elif len(self._elements) > 0:
+                    self._duration = (ot.Duration() << operand) * 2/len(self._elements)
+                else:
+                    self._duration =  ot.Duration() << operand
                 self.set_elements_duration()
-            case ou.Division():         self._division = operand.copy()
-            case int():                 self._division = ou.Division() << operand
-            case list():
-                if len(operand) == self._division % int() \
-                    and all(isinstance(single_element, Element) for single_element in operand):
-                    self._elements = o.Operand.copy_operands_list(operand)
+            case list():    self._elements = o.Operand.copy_operands_list(operand)
             case _: super().__lshift__(operand)
         return self
 
