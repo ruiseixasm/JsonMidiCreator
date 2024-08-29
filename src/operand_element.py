@@ -139,9 +139,9 @@ class Element(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ot.Position() | ov.TimeUnit():
                                     self._position << operand
-            case ot.Length():       self._length = operand.copy()
-            case ou.Channel():      self._channel = operand.copy()
-            case od.Device():       self._device = operand.copy()
+            case ot.Length():       self._length << operand
+            case ou.Channel():      self._channel << operand
+            case od.Device():       self._device << operand
             case od.Load():
                 self.loadSerialization(operand.getSerialization())
             case oc.Chain():
@@ -349,7 +349,7 @@ class Clock(Element):
                 self._mode = operand % od.DataSource( ClockModes.single )
                 self._pulses_per_quarternote = (operand % od.DataSource( ou.PPQN() )).copy()
             case ClockModes():      self._mode = operand
-            case ou.PPQN():         self._pulses_per_quarternote = operand.copy()
+            case ou.PPQN():         self._pulses_per_quarternote << operand
             case int() | float():   self._length = ot.Length(operand)
             case _: super().__lshift__(operand)
         return self
@@ -480,8 +480,8 @@ class Note(Element):
                                     self._duration << operand
             case og.KeyNote() | ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
-            case ou.Velocity():     self._velocity = operand.copy()
-            case ov.Gate():         self._gate = operand.copy()
+            case ou.Velocity():     self._velocity << operand
+            case ov.Gate():         self._gate << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -610,10 +610,10 @@ class KeyScale(Note):
                 self._scale = (operand % od.DataSource( ou.Scale() )).copy()
                 self._data_scale = (operand % od.DataSource( od.DataScale() )).copy()
                 self._mode  = (operand % od.DataSource( ou.Mode() )).copy()
-            case ou.Scale():        self._scale = operand.copy()
+            case ou.Scale():        self._scale << operand
             case od.DataScale() | list():
                                     self._data_scale << operand
-            case ou.Mode():         self._mode = operand.copy()
+            case ou.Mode():         self._mode << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -788,12 +788,12 @@ class Chord(Note):
                 self._degree        = (operand % od.DataSource( ou.Degree() )).copy()
                 self._inversion     = (operand % od.DataSource( ou.Inversion() )).copy()
                 self._sus           = (operand % od.DataSource( ou.Sus() )).copy()
-            case ou.Scale():                self._scale = operand.copy()
+            case ou.Scale():                self._scale << operand
             case od.DataScale() | list():   self._data_scale << operand
-            case ou.Type():                 self._type = operand.copy()
-            case ou.Degree():               self._degree = operand.copy()
-            case ou.Inversion():            self._inversion = operand.copy()
-            case ou.Sus():                  self._sus = operand.copy()
+            case ou.Type():                 self._type << operand
+            case ou.Degree():               self._degree << operand
+            case ou.Inversion():            self._inversion << operand
+            case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
         return self
 

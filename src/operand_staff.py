@@ -185,20 +185,20 @@ class Staff(o.Operand):
             case of.Frame():            self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case ov.Measure():          self._measure = operand.copy()
-            case ov.Tempo():            self._tempo = operand.copy()
-            case ov.BeatsPerMeasure():  self._beats_per_measure = operand.copy()
-            case ov.BeatNoteValue():    self._beat_note_value = operand.copy()
-            case ou.Scale():            self._scale = operand.copy()
-            case ov.Quantization():     self._quantization = operand.copy() # Note Value
-            case ot.Duration():         self._duration = operand.copy()
-            case ou.Key():              self._key = operand.copy()
-            case ou.Octave():           self._octave = operand.copy()
-            case ou.Velocity():         self._velocity = operand.copy()
+            case ov.Measure():          self._measure << operand
+            case ov.Tempo():            self._tempo << operand
+            case ov.BeatsPerMeasure():  self._beats_per_measure << operand
+            case ov.BeatNoteValue():    self._beat_note_value << operand
+            case ou.Scale():            self._scale << operand
+            case ov.Quantization():     self._quantization << operand # Note Value
+            case ot.Duration():         self._duration << operand
+            case ou.Key():              self._key << operand
+            case ou.Octave():           self._octave << operand
+            case ou.Velocity():         self._velocity << operand
             case og.Controller() | ou.ControlNumber() | ou.ControlValue():
                                         self._controller << operand
-            case ou.Channel():          self._channel = operand.copy()
-            case od.Device():           self._device = operand.copy()
+            case ou.Channel():          self._channel << operand
+            case od.Device():           self._device << operand
             # Calculated Values
             case ov.NotesPerMeasure():
                 self._beat_note_value = ov.BeatNoteValue( (operand % Fraction()) / (self % ov.BeatsPerMeasure()) )

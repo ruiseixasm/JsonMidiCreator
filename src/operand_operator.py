@@ -112,7 +112,7 @@ class Operator(o.Operand):
                 for single_operator in operand:
                     operator_list.append(single_operator.copy())
                 self._operator_list = operator_list
-            case o.Operand():       self._operand = operand.copy()
+            case o.Operand():       self._operand << operand
             case ol.Null() | None:  return self
             case _:                 self._operand = operand
         return self
@@ -207,10 +207,10 @@ class Oscillator(Operator):
                 self._length        = (operand % od.DataSource( ot.Length() )).copy()
                 self._amplitude     = (operand % od.DataSource( ov.Amplitude() )).copy()
                 self._offset        = (operand % od.DataSource( ov.Offset() )).copy()
-            case ot.Position():     self._position = operand.copy()
-            case ot.Length():       self._length = operand.copy()
-            case ov.Amplitude():    self._amplitude = operand.copy()
-            case ov.Offset():       self._offset = operand.copy()
+            case ot.Position():     self._position << operand
+            case ot.Length():       self._length << operand
+            case ov.Amplitude():    self._amplitude << operand
+            case ov.Offset():       self._offset << operand
             case _: super().__lshift__(operand)
         return self
 

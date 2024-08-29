@@ -109,9 +109,9 @@ class KeyNote(Generic):
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Key():          self._key = operand.copy()
+            case ou.Key():          self._key << operand
             case str():             self._key = ou.Key(operand)
-            case ou.Octave():       self._octave = operand.copy()
+            case ou.Octave():       self._octave << operand
             case int():
                 self._key       << operand    # key already does % 12
                 self._octave    << operand // 12
@@ -212,7 +212,7 @@ class Controller(Generic):
             case of.Frame():            self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.ControlNumber():    self._control_number = operand.copy()
+            case ou.ControlNumber():    self._control_number << operand
             case ou.ControlValue() | int() | float():
                                         self._control_value << operand
         return self

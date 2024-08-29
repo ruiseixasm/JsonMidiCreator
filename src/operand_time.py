@@ -114,10 +114,10 @@ class Time(o.Operand):
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case ov.Measure():      self._measure = operand.copy()
-            case ov.Beat():         self._beat = operand.copy()
-            case ov.NoteValue():    self._note_value = operand.copy()
-            case ov.Step():         self._step = operand.copy()
+            case ov.Measure():      self._measure << operand
+            case ov.Beat():         self._beat << operand
+            case ov.NoteValue():    self._note_value << operand
+            case ov.Step():         self._step << operand
             case Fraction() | float() | int():
                 self._measure       = ov.Measure(operand)
                 self._beat          = ov.Beat(operand)
