@@ -876,7 +876,7 @@ class Retrigger(Note):
                 self._division  = (operand % od.DataSource( ou.Division() )).copy()
                 self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
             case ou.Division() | int():
-                if operand != 0:
+                if operand > 0:
                     self._duration << self._duration * self._division/operand
                     self._division << operand
             case ov.Swing():
