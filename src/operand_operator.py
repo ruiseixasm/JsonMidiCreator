@@ -113,7 +113,7 @@ class Operator(o.Operand):
                     operator_list.append(single_operator.copy())
                 self._operator_list = operator_list
             case o.Operand():       self._operand = operand.copy()
-            case ol.Null | None:    return self
+            case ol.Null() | None:  return self
             case _:                 self._operand = operand
         return self
 

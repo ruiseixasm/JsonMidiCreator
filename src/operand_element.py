@@ -815,9 +815,9 @@ class Retrigger(Note):
 
         Examples
         --------
-        >>> note_retrigger = Retrigger("G") << Division(32)
-        >>> note_retrigger % Division() % int() >> Print()
-        16
+        >>> retrigger = Retrigger("G") << Division(32)
+        >>> retrigger % Division() % int() >> Print()
+        32
         """
         match operand:
             case od.DataSource():
@@ -925,8 +925,8 @@ class Tuplet(Element):
 
         Examples
         --------
-        >>> tuplet = Tuplet(16) << [Note("C"), Note("F"), Note("G"), Note("C")]
-        >>> note_retrigger % Division() % int() >> Print()
+        >>> tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
+        >>> tuplet % Division() % int() >> Print()
         16
         """
         match operand:
@@ -943,7 +943,7 @@ class Tuplet(Element):
                 if len(self._elements) == 2:    return self._duration * 2/3 % operand
                 elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2 % operand
                 return self._duration % operand
-            case ou.Division:       return ou.Division() << len(self._elements)
+            case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
             case list():            return o.Operand.copy_operands_list(self._elements)
             case _:                 return super().__mod__(operand)
@@ -1300,7 +1300,7 @@ class Aftertouch(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pressure | int() | float():
+            case ou.Pressure() | int() | float():
                 self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1308,7 +1308,7 @@ class Aftertouch(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pressure | int() | float():
+            case ou.Pressure() | int() | float():
                 self_copy << self._pressure - operand
             case _:             return super().__sub__(operand)
         return self_copy

@@ -33,8 +33,12 @@ global_staff << Tempo(90) << Measure(7)
 # single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
 # single_chord >> Play()
 
-single_triplet = Triplet(Note("B"), Note("F"), Note("G")) << Gate(0.75)
-single_triplet >> Play(True)
+# single_triplet = Triplet(Note("B"), Note("F"), Note("G")) << Gate(0.75)
+# single_triplet >> Play(True)
 
-single_triplet = Triplet(Note("C"), Note("G"), Note("F")) << Gate(0.75)
-single_triplet >> Play(True)
+# single_triplet = Triplet(Note("C"), Note("G"), Note("F")) << Gate(0.75)
+# single_triplet >> Play(True)
+
+tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
+tuplet % Division() % int() >> Print()
+

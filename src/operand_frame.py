@@ -78,9 +78,9 @@ class Frame(o.Operand):
             case _:
                 for single_operand in self:
                     match single_operand:
-                        case Frame():   continue
-                        case o.Operand: return single_operand.copy()
-                        case _:         return single_operand
+                        case Frame():       continue
+                        case o.Operand():   return single_operand.copy()
+                        case _:             return single_operand
         return self.copy()
     
     def __eq__(self, other_frame: 'Frame') -> bool:
