@@ -39,9 +39,9 @@ staff << Tempo(90) << Measure(7)
 # single_triplet = Triplet(Note("C"), Note("G"), Note("F")) << Gate(0.75)
 # single_triplet >> Play(True)
 
-tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
-tuplet % Division() % int() >> Print()
+# tuplet = Tuplet( Note("C"), Note("F"), Note("G"), Note("C") )
+# tuplet % Division() % int() >> Print()
 
 retrigger = Retrigger("G")
-retrigger << NoteValue(1)
-retrigger << Swing(.75) >> Play(True)
+retrigger << NoteValue(1) >> Play(True) >> Export("json/_Export_s.1_snippets_retirgger.json")
+retrigger << Swing(.75) >> Play(True) >> Export("json/_Export_s.2_snippets_retirgger.json")
