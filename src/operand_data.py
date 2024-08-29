@@ -410,3 +410,8 @@ class Sort(Data):
         if isinstance(operand, oc.Container):
             return operand.sort()
         return operand
+
+class Transpose(Data):
+    def __init__(self, intervals: int = None):
+        super().__init__(intervals)
+
