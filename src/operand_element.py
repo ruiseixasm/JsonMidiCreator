@@ -876,9 +876,9 @@ class Retrigger(Note):
                 self._division  = (operand % od.DataSource( ou.Division() )).copy()
                 self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
             case ou.Division() | int():
-                original_division = self._division.copy()
-                self._division << operand
-                self._duration << self._duration * original_division/self._division
+                if operand != 0:
+                    self._duration << self._duration * self._division/operand
+                    self._division << operand
             case ov.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
@@ -1045,15 +1045,16 @@ class Tuplet(Element):
             case list():
                 elements: list[Element] = operand
                 if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
-                    self._elements = o.Operand.copy_operands_list(elements)
-                    if len(self._elements) == 2:
+                    net_duration = self % ot.Duration()
+                    if len(elements) == 2:
                         # Can't be "*= 3/2" in order to preserve the Fraction!
-                        self._duration = self._duration * 3/2 # from 3 notes to 2
+                        self._duration = net_duration * 3/2 # from 3 notes to 2
                         self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
-                    elif len(self._elements) > 0:
+                    elif len(elements) > 0:
                         # Can't be "*= 2 / self._division" in order to preserve the Fraction!
-                        self._duration = self._duration * 2 / len(self._elements) # from 2 notes to division
-                        self._length << self._duration * len(self._elements)  # Length as the entire duration of the Note tuplet
+                        self._duration = net_duration * 2 / len(elements) # from 2 notes to division
+                        self._length << self._duration * len(elements)  # Length as the entire duration of the Note tuplet
+                    self._elements = o.Operand.copy_operands_list(elements)
                     self.set_elements_duration()
             case _: super().__lshift__(operand)
         return self
