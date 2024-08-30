@@ -314,17 +314,16 @@ class Scale(Unit):
 
     def transposition(self, mode: int | str = "5th") -> int:
         transposition = 0
-        if isinstance(self._data, list) and len(self._data) == 12:
-            mode = Mode(mode) % od.DataSource()
-            self_scale = Scale._scales[self._unit % len(Scale._scales)]
-            while mode > 0:
-                transposition += 1
-                if self_scale[transposition % 12]:
-                    mode -= 1
-            while mode < 0:
-                transposition -= 1
-                if self_scale[transposition % 12]:
-                    mode += 1
+        mode_transpose = Mode(mode) % od.DataSource() - 1
+        self_scale = Scale._scales[self._unit % len(Scale._scales)]
+        while mode_transpose > 0:
+            transposition += 1
+            if self_scale[transposition % 12]:
+                mode_transpose -= 1
+        while mode_transpose < 0:
+            transposition -= 1
+            if self_scale[transposition % 12]:
+                mode_transpose += 1
         return transposition
 
     def modulate(self, mode: int | str = "5th") -> 'od.DataScale': # AKA as remode (remoding)

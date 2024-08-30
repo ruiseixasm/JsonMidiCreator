@@ -230,15 +230,15 @@ class DataScale(Data):
     def transposition(self, mode: int | str = "5th") -> int:
         transposition = 0
         if isinstance(self._data, list) and len(self._data) == 12:
-            mode = ou.Mode(mode) % DataSource()
-            while mode > 0:
+            mode_transpose = ou.Mode(mode) % DataSource() - 1
+            while mode_transpose > 0:
                 transposition += 1
                 if self._data[transposition % 12]:
-                    mode -= 1
-            while mode < 0:
+                    mode_transpose -= 1
+            while mode_transpose < 0:
                 transposition -= 1
                 if self._data[transposition % 12]:
-                    mode += 1
+                    mode_transpose += 1
         return transposition
 
     def modulate(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
