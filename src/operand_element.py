@@ -688,8 +688,8 @@ class Chord(Note):
                         key_note_nth -= 1
                     if self._sus % od.DataSource() == 2:
                         key_note_nth += 1
-                chromatic_transposition = self._data_scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
-                chord_key_notes.append(root_key_note + chromatic_transposition)
+                transposition = self._data_scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
+                chord_key_notes.append(root_key_note + transposition)
         else:
             for key_note_i in range(max_type):
                 key_note_nth = key_note_i * 2
@@ -698,8 +698,8 @@ class Chord(Note):
                         key_note_nth -= 1
                     if self._sus % od.DataSource() == 2:
                         key_note_nth += 1
-                chromatic_transposition = self._scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
-                chord_key_notes.append(root_key_note + chromatic_transposition)
+                transposition = self._scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
+                chord_key_notes.append(root_key_note + transposition)
 
         # Where the inversions are done
         inversion = min(self._inversion % od.DataSource(), self._type % od.DataSource() - 1)
