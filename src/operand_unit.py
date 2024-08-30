@@ -303,12 +303,12 @@ class Scale(Unit):
         if interval > 0:
             while interval != 0:
                 chromatic_transposition += 1
-                if self_scale[chromatic_transposition % 12] == 1:
+                if self_scale[chromatic_transposition % 12]:
                     interval -= 1
         elif interval < 0:
             while interval != 0:
                 chromatic_transposition -= 1
-                if self_scale[chromatic_transposition % 12] == 1:
+                if self_scale[chromatic_transposition % 12]:
                     interval += 1
         return chromatic_transposition
 
