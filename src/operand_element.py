@@ -617,28 +617,6 @@ class KeyScale(Note):
             case _: super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
-        match operand:
-            case ou.Transposition():
-                scale_transposition = operand % od.DataSource()
-                chromatic_transposition = self._scale.transpose(scale_transposition)
-                self_copy << self._key_note + chromatic_transposition
-            case _:         return super().__add__(operand)
-        return self_copy
-
-    def __sub__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
-        match operand:
-            case ou.Key() | og.KeyNote():
-                self_copy << self._key_note - operand % od.DataSource()
-            case ou.Transposition():
-                scale_transposition = operand % od.DataSource()
-                chromatic_transposition = self._scale.transpose(scale_transposition)
-                self_copy << self._key_note - chromatic_transposition
-            case _:         return super().__sub__(operand)
-        return self_copy
-
 class Chord(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
