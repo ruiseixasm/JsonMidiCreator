@@ -180,7 +180,7 @@ class DataSource(Data):
         """
         return self._data
 
-class GenericScale(Data):
+class Scale(Data):
     """
     A Scale() represents a given scale rooted in the key of C.
     
@@ -197,13 +197,13 @@ class GenericScale(Data):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract a Parameter, a GenericScale has many extraction modes
+        The % symbol is used to extract a Parameter, a Scale has many extraction modes
         one type of extraction is its list() type of Parameter representing a scale
         but it's also possible to extract the same scale on other Tonic() key based on C.
 
         Examples
         --------
-        >>> tonic_a_scale = GenericScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
+        >>> tonic_a_scale = Scale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
         >>> print(tonic_a_scale)
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
@@ -242,11 +242,11 @@ class GenericScale(Data):
 
     # CHAINABLE OPERATIONS
 
-    def modulate(self, mode: int | str = "5th") -> 'GenericScale': # AKA as remode (remoding)
+    def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
         self._data = self.modulation(mode)
         return self
 
-    def __lshift__(self, operand: any) -> 'GenericScale':
+    def __lshift__(self, operand: any) -> 'Scale':
         match operand:
             case list() | str() | int():
                 self_scale = __class__.get_scale(operand)

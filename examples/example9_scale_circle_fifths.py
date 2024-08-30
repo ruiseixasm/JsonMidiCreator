@@ -25,24 +25,24 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-# All Sharps(#) of the Major GenericScale on the Circle of Fifths
-play_list_1 = Position(0) >> (KeyScale("C") << GenericScale("Major")) * 8 \
-    + Iterate(GenericScale("Major") % Transposition("5th"))**Key() + Iterate()**Measure() \
+# All Sharps(#) of the Major Scale on the Circle of Fifths
+play_list_1 = Position(0) >> (KeyScale("C") << Scale("Major")) * 8 \
+    + Iterate(Scale("Major") % Transposition("5th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
-# All Fats(b) of the Major GenericScale on the Circle of Fifths
-play_list_2 = Position(8) >> (KeyScale("C") << GenericScale("Major")) * 8 \
-    + Iterate(GenericScale("Major") % Transposition("4th"))**Key() + Iterate()**Measure() \
+# All Fats(b) of the Major Scale on the Circle of Fifths
+play_list_2 = Position(8) >> (KeyScale("C") << Scale("Major")) * 8 \
+    + Iterate(Scale("Major") % Transposition("4th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
-# All Sharps(#) of the minor GenericScale on the Circle of Fifths
-play_list_3 = Position(16) >> (KeyScale("A") << GenericScale("minor")) * 8 \
-    + Iterate(GenericScale("minor") % Transposition("5th"))**Key() + Iterate()**Measure() \
+# All Sharps(#) of the minor Scale on the Circle of Fifths
+play_list_3 = Position(16) >> (KeyScale("A") << Scale("minor")) * 8 \
+    + Iterate(Scale("minor") % Transposition("5th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
-# All Fats(b) of the minor GenericScale on the Circle of Fifths
-play_list_4 = Position(24) >> (KeyScale("A") << GenericScale("minor")) * 8 \
-    + Iterate(GenericScale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() \
+# All Fats(b) of the minor Scale on the Circle of Fifths
+play_list_4 = Position(24) >> (KeyScale("A") << Scale("minor")) * 8 \
+    + Iterate(Scale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
 play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)

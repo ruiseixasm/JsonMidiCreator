@@ -423,7 +423,7 @@ class Transposition(Operation):
 
 # class Transpose(Unit):
 #     """
-#     Transpose() does a modal Transpose of a given Scale or GenericScale.
+#     Transpose() does a modal Transpose of a given Scale or Scale.
     
 #     Parameters
 #     ----------
@@ -436,7 +436,7 @@ class Transposition(Operation):
 
 class Modulation(Operation):    # Modal Modulation
     """
-    A Modulation() is used to return a modulated GenericScale from a given Scale or GenericScale.
+    A Modulation() is used to return a modulated Scale from a given Scale or Scale.
     
     Parameters
     ----------
@@ -449,7 +449,7 @@ class Modulation(Operation):    # Modal Modulation
 
 class Modulate(Operation):    # Modal Modulation
     """
-    Modulate() is used to modulate the self Scale or GenericScale.
+    Modulate() is used to modulate the self Scale or Scale.
     
     Parameters
     ----------

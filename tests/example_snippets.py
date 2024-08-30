@@ -30,7 +30,7 @@ staff << Tempo(90) << Measure(7)
 # print(entire_scale % list())
 # print(entire_scale % str())
 
-# single_chord = Chord("A") << GenericScale("minor") << Type("7th") << NoteValue(1/2)
+# single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
 # single_chord >> Play()
 
 # single_triplet = Triplet(Note("B"), Note("F"), Note("G")) << Gate(0.75)
@@ -47,10 +47,10 @@ staff << Tempo(90) << Measure(7)
 # retrigger << Swing(.75) >> Play(True) >> Export("json/_Export_s.2_snippets_retirgger.json")
 # retrigger << Division(5) >> Play(True) >> Export("json/_Export_s.3_snippets_retirgger.json")
 
-scale = GenericScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1])
+scale = Scale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1])
 scale % list() >> Print()
 scale % str() >> Print()
 scale % Modulation("6th") >> Print()
-(GenericScale() << scale % Modulation("6th")) % str() >> Print()
+(Scale() << scale % Modulation("6th")) % str() >> Print()
 (scale >> Copy() >> Modulate("6th")) % str() >> Print()
 
