@@ -181,6 +181,153 @@ class DataSource(Data):
         """
         return self._data
 
+class GenericScale(Data):
+    """
+    A Scale() represents a given scale rooted in the key of C.
+    
+    Parameters
+    ----------
+    first : integer_like and string_like
+        It can have the name of a scale as input, like, "Major" or "Melodic"
+    """
+    def __init__(self, scale: list[int] | str | int = None):
+        self_scale = os.staff % DataSource( self ) % int() if scale is None else round(scale)
+        match scale:
+            case list():
+                if len(scale) == 12:
+                    self_scale = scale.copy()
+            case str():
+                scale_number = __class__.get_scale_number(scale)
+                if scale_number >= 0:
+                    self_scale = __class__._scales[scale_number].copy()
+            case int():
+                total_scales = len(__class__._scales)
+                if scale >= 0 and scale < total_scales:
+                    self_scale = __class__._scales[scale].copy()
+        super().__init__(self_scale)
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, a DataScale has many extraction modes
+        one type of extraction is its list() type of Parameter representing a scale
+        but it's also possible to extract the same scale on other Tonic() key based on C.
+
+        Examples
+        --------
+        >>> tonic_a_scale = DataScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
+        >>> print(tonic_a_scale)
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+        """
+        match operand:
+            case DataSource():          return super().__mod__(operand)
+            case list():                return self._data.copy()
+            case str():                 return __class__.get_scale_name(self._data)
+            case int():                 return __class__.get_scale_number(self._data)
+            case ou.Transposition():    return self.transposition(operand % int())
+            case ou.Modulation():       return self.modulation(operand % int())
+            case _:                     return super().__mod__(operand)
+
+    def keys(self) -> int:
+        scale_keys = 0
+        self_scale = self._data
+        for key in self_scale:
+            scale_keys += key
+        return scale_keys
+
+    def transposition(self, mode: int | str = "5th") -> int:
+        transposition = 0
+        mode_transpose = ou.Mode(mode) % DataSource() - 1
+        while mode_transpose > 0:
+            transposition += 1
+            if self._data[transposition % 12]:
+                mode_transpose -= 1
+        return transposition
+
+    def modulation(self, mode: int | str = "5th") -> 'GenericScale': # AKA as remode (remoding)
+        self_scale = self._data.copy()
+        transposition = self.transposition(mode)
+        if transposition != 0:
+            for key_i in range(12):
+                self_scale[key_i] = self._data[(key_i + transposition) % 12]
+        return self_scale
+
+    def modulate(self, mode: int | str = "5th") -> 'GenericScale': # AKA as remode (remoding)
+        self._data = self.modulation(mode)
+        return self
+
+    _names = [
+        ["Chromatic", "chromatic"],
+        # Diatonic Scales
+        ["Major", "Maj", "maj", "M", "Ionian", "ionian", "C", "1", "1st", "First"],
+        ["Dorian", "dorian", "D", "2", "2nd", "Second"],
+        ["Phrygian", "phrygian", "E", "3", "3rd", "Third"],
+        ["Lydian", "lydian", "F", "4", "4th", "Fourth"],
+        ["Mixolydian", "mixolydian", "G", "5", "5th", "Fifth"],
+        ["minor", "min", "m", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
+        ["Locrian", "locrian", "B", "7", "7th", "Seventh"],
+        # Other Scales
+        ["harmonic"],
+        ["melodic"],
+        ["octatonic_hw"],
+        ["octatonic_wh"],
+        ["pentatonic_maj", "Pentatonic"],
+        ["pentatonic_min", "pentatonic"],
+        ["diminished"],
+        ["augmented"],
+        ["blues"]
+    ]
+    _scales = [
+    #       Db    Eb       Gb    Ab    Bb
+    #       C#    D#       F#    G#    A#
+    #    C     D     E  F     G     A     B
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        # Diatonic Scales
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+        [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+        [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0],
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+        [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
+        # Other Scales
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],
+        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0],
+        [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
+        [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0]
+    ]
+
+    @staticmethod
+    def get_scale_number(scale: int | str | list = 0) -> int:
+        match scale:
+            case int():
+                total_scales = len(__class__._scales)
+                if scale >= 0 and scale < total_scales:
+                    return scale
+            case str():
+                for scale_i in range(len(__class__._names)):
+                    for scale_j in range(len(__class__._names[scale_i])):
+                        if scale.strip() == __class__._names[scale_i][scale_j]:
+                            return scale_i
+            case list():
+                if len(scale) == 12:
+                    for scale_i in range(len(__class__._scales)):
+                        if __class__._scales[scale_i] == scale:
+                            return scale_i
+        return -1
+
+    @staticmethod
+    def get_scale_name(scale: int | str | list = 0) -> str:
+        scale_number = __class__.get_scale_number(scale)
+        if scale_number < 0:
+            return "Unknown Scale!"
+        else:
+            return __class__._names[scale_number][0]
+
 class DataScale(Data):
     def __init__(self, list_scale: list[int] = None):
         if list_scale is None or not (isinstance(list_scale, list) and len(list_scale) == 12):
