@@ -505,7 +505,6 @@ class KeyScale(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
         self._scale: ou.Scale = os.staff % ou.Scale()    # default Staff scale
-        self._data_scale: od.DataScale = od.DataScale()
         self._mode: ou.Mode = ou.Mode()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -526,27 +525,17 @@ class KeyScale(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        return self._scale
-                    case od.DataScale():    return self._data_scale
                     case ou.Mode():         return self._mode
                     case _:                 return super().__mod__(operand)
             case ou.Scale():        return self._scale.copy()
-            case od.DataScale():    return self._data_scale.copy()
-            case list():
-                if self._data_scale % bool():
-                    return self._data_scale % list()
-                return self._scale % list()
-            case str():
-                if self._data_scale % bool():
-                    return self._data_scale % str()
-                return self._scale % str()
+            case list():            return self._scale % list()
+            case str():             return self._scale % str()
             case ou.Mode():         return self._mode.copy()
-            case bool():            return self._data_scale % bool()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
             return  self._scale == other_element % od.DataSource( ou.Scale() ) \
-                and self._data_scale == other_element % od.DataSource( od.DataScale() ) \
                 and self._mode == other_element % od.DataSource( ou.Mode() )
         return False
     
@@ -561,14 +550,9 @@ class KeyScale(Note):
 
         root_key_note = self._key_note.copy()
         scale_key_notes = []
-        if self._data_scale % bool():
-            for key_note_i in range(self._data_scale.keys()): # presses entire scale, 7 keys for diatonic scales
-                transposition = self._data_scale.transposition(self._mode % od.DataSource() + key_note_i)
-                scale_key_notes.append(root_key_note + transposition)
-        else:
-            for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
-                transposition = self._scale.transposition(self._mode % od.DataSource() + key_note_i)
-                scale_key_notes.append(root_key_note + transposition)
+        for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
+            transposition = self._scale.transposition(self._mode % od.DataSource() + key_note_i)
+            scale_key_notes.append(root_key_note + transposition)
 
         self_playlist = []
         for key_note in scale_key_notes:
@@ -581,7 +565,6 @@ class KeyScale(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
-        element_serialization["parameters"]["data_scale"]   = self._data_scale % od.DataSource()
         element_serialization["parameters"]["mode"]         = self._mode % od.DataSource()
         return element_serialization
 
@@ -589,11 +572,10 @@ class KeyScale(Note):
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"] and "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"]):
+            "mode" in serialization["parameters"] and "scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
             self._scale         = ou.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
-            self._data_scale    = od.DataScale()    << od.DataSource( serialization["parameters"]["data_scale"] )
             self._mode          = ou.Mode()         << od.DataSource( serialization["parameters"]["mode"] )
         return self
         
@@ -602,18 +584,14 @@ class KeyScale(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        self._scale = operand % o.Operand()
-                    case od.DataScale():    self._data_scale = operand % o.Operand()
                     case ou.Mode():         self._mode = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
                 self._scale = (operand % od.DataSource( ou.Scale() )).copy()
-                self._data_scale = (operand % od.DataSource( od.DataScale() )).copy()
                 self._mode  = (operand % od.DataSource( ou.Mode() )).copy()
-            case ou.Scale():        self._scale << operand
-            case od.DataScale() | list():
-                                    self._data_scale << operand
-            case ou.Mode():         self._mode << operand
+            case ou.Scale() | list():   self._scale << operand
+            case ou.Mode():             self._mode << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -621,7 +599,6 @@ class Chord(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
         self._scale: ou.Scale = os.staff % ou.Scale()   # Default Scale for Chords
-        self._data_scale: od.DataScale = od.DataScale()
         self._degree: ou.Degree = ou.Degree()
         self._inversion: ou.Inversion = ou.Inversion()
         self._type: ou.Type = ou.Type()
@@ -643,25 +620,21 @@ class Chord(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():        return self._scale
-                    case od.DataScale():    return self._data_scale
                     case ou.Type():         return self._type
                     case ou.Degree():       return self._degree
                     case ou.Inversion():    return self._inversion
                     case ou.Sus():          return self._sus
                     case _:                 return super().__mod__(operand)
             case ou.Scale():        return self._scale.copy()
-            case od.DataScale():    return self._data_scale.copy()
             case ou.Type():         return self._type.copy()
             case ou.Degree():       return self._degree.copy()
             case ou.Inversion():    return self._inversion.copy()
             case ou.Sus():          return self._sus.copy()
-            case bool():            return self._data_scale % bool()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
             return  self._scale == other_element % od.DataSource( ou.Scale() ) \
-                and self._data_scale == other_element % od.DataSource( od.DataScale() ) \
                 and self._type == other_element % od.DataSource( ou.Type() ) \
                 and self._degree == other_element % od.DataSource( ou.Degree() ) \
                 and self._inversion == other_element % od.DataSource( ou.Inversion() ) \
@@ -672,34 +645,21 @@ class Chord(Note):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         max_type = self._scale.keys()
-        if self._data_scale % bool():
-            max_type = self._data_scale.keys()
         if max_type % 2 == 0:
             max_type //= 2
         max_type = min(self._type % od.DataSource(), max_type)
 
         root_key_note = self._key_note
         chord_key_notes = []
-        if self._data_scale % bool():   # For the DataScale case
-            for key_note_i in range(max_type):
-                key_note_nth = key_note_i * 2
-                if key_note_nth == 2:
-                    if self._sus % od.DataSource() == 1:
-                        key_note_nth -= 1
-                    if self._sus % od.DataSource() == 2:
-                        key_note_nth += 1
-                transposition = self._data_scale.transposition(self._degree % od.DataSource() + key_note_nth)
-                chord_key_notes.append(root_key_note + transposition)
-        else:
-            for key_note_i in range(max_type):
-                key_note_nth = key_note_i * 2
-                if key_note_nth == 2:
-                    if self._sus % od.DataSource() == 1:
-                        key_note_nth -= 1
-                    if self._sus % od.DataSource() == 2:
-                        key_note_nth += 1
-                transposition = self._scale.transposition(self._degree % od.DataSource() + key_note_nth)
-                chord_key_notes.append(root_key_note + transposition)
+        for key_note_i in range(max_type):
+            key_note_nth = key_note_i * 2
+            if key_note_nth == 2:
+                if self._sus % od.DataSource() == 1:
+                    key_note_nth -= 1
+                if self._sus % od.DataSource() == 2:
+                    key_note_nth += 1
+            transposition = self._scale.transposition(self._degree % od.DataSource() + key_note_nth)
+            chord_key_notes.append(root_key_note + transposition)
 
         # Where the inversions are done
         inversion = min(self._inversion % od.DataSource(), self._type % od.DataSource() - 1)
@@ -724,7 +684,6 @@ class Chord(Note):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
-        element_serialization["parameters"]["data_scale"]   = self._data_scale % od.DataSource()
         element_serialization["parameters"]["type"]         = self._type % od.DataSource()
         element_serialization["parameters"]["degree"]       = self._degree % od.DataSource()
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource()
@@ -735,12 +694,11 @@ class Chord(Note):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "scale" in serialization["parameters"] and "data_scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
+            "scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
             "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._scale         = ou.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
-            self._data_scale    = od.DataScale()    << od.DataSource( serialization["parameters"]["data_scale"] )
             self._type          = ou.Type()         << od.DataSource( serialization["parameters"]["type"] )
             self._degree        = ou.Degree()       << od.DataSource( serialization["parameters"]["degree"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
@@ -752,7 +710,6 @@ class Chord(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Scale():                self._scale = operand % o.Operand()
-                    case od.DataScale():            self._data_scale = operand % o.Operand()
                     case ou.Type():                 self._type = operand % o.Operand()
                     case ou.Degree():               self._degree = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
@@ -761,13 +718,11 @@ class Chord(Note):
             case Chord():
                 super().__lshift__(operand)
                 self._scale         = (operand % od.DataSource( ou.Scale() )).copy()
-                self._data_scale    = (operand % od.DataSource( od.DataScale() )).copy()
                 self._type          = (operand % od.DataSource( ou.Type() )).copy()
                 self._degree        = (operand % od.DataSource( ou.Degree() )).copy()
                 self._inversion     = (operand % od.DataSource( ou.Inversion() )).copy()
                 self._sus           = (operand % od.DataSource( ou.Sus() )).copy()
-            case ou.Scale():                self._scale << operand
-            case od.DataScale() | list():   self._data_scale << operand
+            case ou.Scale() | list():       self._scale << operand
             case ou.Type():                 self._type << operand
             case ou.Degree():               self._degree << operand
             case ou.Inversion():            self._inversion << operand
