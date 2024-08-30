@@ -190,10 +190,10 @@ class GenericScale(Data):
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
     def __init__(self, scale: list[int] | str | int = None):
-        self_scale = __class__.get_scale(scale).copy()
+        self_scale = __class__.get_scale(scale)
         if self_scale == []:
-            self_scale = os.staff % DataSource( self ) % list()
-        super().__init__( self_scale )
+            self_scale = os.staff % DataSource( self ) % DataSource()
+        super().__init__( self_scale.copy() )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -232,7 +232,7 @@ class GenericScale(Data):
                 mode_transpose -= 1
         return transposition
 
-    def modulation(self, mode: int | str = "5th") -> 'GenericScale': # AKA as remode (remoding)
+    def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
         self_scale = self._data.copy()
         transposition = self.transposition(mode)
         if transposition != 0:
@@ -248,17 +248,10 @@ class GenericScale(Data):
 
     def __lshift__(self, operand: any) -> 'GenericScale':
         match operand:
-            case list():
-                if len(operand) == 12:
-                    self._data = operand.copy()
-            case str():
-                scale_number = __class__.get_scale_number(operand)
-                if scale_number >= 0:
-                    self._data = __class__._scales[scale_number].copy()
-            case int():
-                total_scales = len(__class__._scales)
-                if operand >= 0 and operand < total_scales:
-                    self._data = __class__._scales[operand].copy()
+            case list() | str() | int():
+                self_scale = __class__.get_scale(operand)
+                if len(self_scale) == 12:
+                    self._data = self_scale.copy()
             case _: super().__lshift__(operand)
         return self
 
