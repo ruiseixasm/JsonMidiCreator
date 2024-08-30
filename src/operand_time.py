@@ -74,6 +74,16 @@ class Time(o.Operand):
     def getTime_ms(self) -> float:
         return round(float(self.getTime_rational()), 3)
         
+    def getPlayList(self, position: 'Position' = None) -> list:
+        self_position: Position  = self + Position() if position is None else position
+        
+        return [
+                {
+                    "time_ms": self_position.getTime_ms()
+                }
+            ]
+
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,

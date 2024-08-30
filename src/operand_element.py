@@ -83,7 +83,13 @@ class Element(o.Operand):
         return self._position + self._length
 
     def getPlayList(self, position: ot.Position = None) -> list:
-        return []
+        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+        
+        return [
+                {
+                    "time_ms": self_position.getTime_ms()
+                }
+            ]
 
     def getSerialization(self):
         return {

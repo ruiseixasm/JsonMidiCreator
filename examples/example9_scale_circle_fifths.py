@@ -23,26 +23,26 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measure(7)
+staff << Tempo(240) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-play_list_1 = Position(0) >> (KeyScale("C") << Scale("Major")) * 8 \
-    + Iterate(Scale("Major") % Transposition("5th"))**Key() + Iterate()**Measure() \
-    << NoteValue(1) << Velocity(70) >> PlayList()
+play_list_1 = PlayList() << (Position(0) >> (KeyScale("C") << Scale("Major")) * 8 
+    + Iterate(Scale("Major") % Transposition("5th"))**Key() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
-play_list_2 = Position(8) >> (KeyScale("C") << Scale("Major")) * 8 \
-    + Iterate(Scale("Major") % Transposition("4th"))**Key() + Iterate()**Measure() \
-    << NoteValue(1) << Velocity(70) >> PlayList()
+play_list_2 = PlayList() << (Position(8) >> (KeyScale("C") << Scale("Major")) * 8 
+    + Iterate(Scale("Major") % Transposition("4th"))**Key() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
-play_list_3 = Position(16) >> (KeyScale("A") << Scale("minor")) * 8 \
-    + Iterate(Scale("minor") % Transposition("5th"))**Key() + Iterate()**Measure() \
-    << NoteValue(1) << Velocity(70) >> PlayList()
+play_list_3 = PlayList() << (Position(16) >> (KeyScale("A") << Scale("minor")) * 8 
+    + Iterate(Scale("minor") % Transposition("5th"))**Key() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
-play_list_4 = Position(24) >> (KeyScale("A") << Scale("minor")) * 8 \
-    + Iterate(Scale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() \
-    << NoteValue(1) << Velocity(70) >> PlayList()
+play_list_4 = PlayList() << (Position(24) >> (KeyScale("A") << Scale("minor")) * 8 
+    + Iterate(Scale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70))
 
-play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)
+play_list_1 + play_list_2 + play_list_3 + play_list_4 >> Play(True)

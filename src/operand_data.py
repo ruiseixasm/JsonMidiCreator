@@ -450,25 +450,33 @@ class PlayList(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand) -> o.Operand:
-        match operand:
-            case ot.Position() | ot.Length():
-                if len(self._data) > 0:
-                    increase_position_ms: float = operand.getTime_ms()
-                    if isinstance(operand, ot.Position):
-                        input_position_ms: float = operand.getTime_ms()
-                        starting_position_ms = self._data[0]["time_ms"]
-                        for midi_element in self._data:
-                            if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
-                                starting_position_ms = midi_element["time_ms"]
-                        increase_position_ms = input_position_ms - starting_position_ms
-                    playlist_copy = PlayList.copyPlayList(self._data)
-                    for midi_element in playlist_copy:
-                        if "time_ms" in midi_element:
-                            midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-                return PlayList( playlist_copy )
-            case _:
-                return PlayList( operand.getPlayList() + PlayList.copyPlayList(self._data) )
+    def __lshift__(self, operand: o.Operand) -> 'PlayList':
+        import operand_container as oc
+        import operand_element as oe
+        if isinstance(operand, (oc.Sequence, oe.Element, PlayList, ot.Position, ot.Length)):
+            self._data = operand.getPlayList()
+        return self
+
+    def __rrshift__(self, operand) -> 'PlayList':
+        import operand_container as oc
+        import operand_element as oe
+        if len(self._data) > 0 and isinstance(operand, (oc.Sequence, oe.Element, PlayList, ot.Position, ot.Length)):
+            operand_play_list = operand.getPlayList()
+            ending_position_ms = operand_play_list[0]["time_ms"]
+            for midi_element in operand_play_list:
+                if "time_ms" in midi_element and midi_element["time_ms"] > ending_position_ms:
+                    ending_position_ms = midi_element["time_ms"]
+            increase_position_ms = ending_position_ms
+            if not isinstance(operand, ot.Length):
+                starting_position_ms = self._data[0]["time_ms"]
+                for midi_element in self._data:
+                    if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
+                        starting_position_ms = midi_element["time_ms"]
+                increase_position_ms = ending_position_ms - starting_position_ms
+            for midi_element in self._data:
+                if "time_ms" in midi_element:
+                    midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
+        return self
 
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
@@ -484,7 +492,7 @@ class PlayList(Data):
             case _:             return PlayList( PlayList.copyPlayList(self._data) )
 
     @staticmethod
-    def copyPlayList(play_list: list):
+    def copyPlayList(play_list: list[dict]) -> list[dict]:
         copy_play_list = []
         for single_dict in play_list:
             copy_play_list.append(single_dict.copy())
