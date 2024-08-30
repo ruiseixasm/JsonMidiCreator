@@ -287,6 +287,7 @@ class Scale(Unit):
                     transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return od.DataScale(transposed_scale)
             case Transposition():   return self.transposition(operand % int())
+            case Modulation():      return self.modulation(operand % int())
             case _:                 return super().__mod__(operand)
 
     def keys(self) -> int:
@@ -306,14 +307,22 @@ class Scale(Unit):
                 mode_transpose -= 1
         return transposition
 
-    def modulate(self, mode: int | str = "5th") -> 'od.DataScale': # AKA as remode (remoding)
+    def modulation(self, mode: int | str = "5th") -> 'od.DataScale': # AKA as remode (remoding)
         self_scale = Scale._scales[self._unit % len(Scale._scales)]
         self_scale_copy = self_scale.copy()
         transposition = self.transposition(mode)
         if transposition != 0:
             for key_i in range(12):
                 self_scale_copy[key_i] = self_scale[(key_i + transposition) % 12]
-        return od.DataScale() << od.DataSource( self_scale_copy )
+        return self_scale_copy
+
+    def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
+        modulated_scale = self.modulation(mode)
+        for scale_i in range(len(__class__._scales)):
+            if __class__._scales[scale_i] == modulated_scale:
+                self._unit = scale_i
+                break
+        return self
 
     _scale_names = [
         ["Chromatic", "chromatic"],
@@ -538,7 +547,46 @@ class Transposition(Operation):
     Parameters
     ----------
     first : integer_like
-        Transposition along the given Scale with 1 ("1st") as default mode
+        Transposition along the given Scale with 1 ("1st") as the default mode
+    """
+    def __init__(self, mode: int | str = None):
+        unit = Mode(mode) % od.DataSource()
+        super().__init__(unit)
+
+# class Transpose(Unit):
+#     """
+#     Transpose() does a modal Transpose of a given Scale or DataScale.
+    
+#     Parameters
+#     ----------
+#     first : integer_like
+#         Transpose a given Scale to 1 ("1st") as the default mode
+#     """
+#     def __init__(self, mode: int = None):
+#         unit = Mode(mode) % od.DataSource()
+#         super().__init__(unit)
+
+class Modulation(Operation):
+    """
+    A Modulation() is used to return a modulated DataScale from a given Scale or DataScale.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Modulation of a given Scale with 1 ("1st") as the default mode
+    """
+    def __init__(self, mode: int | str = None):
+        unit = Mode(mode) % od.DataSource()
+        super().__init__(unit)
+
+class Modulate(Operation):
+    """
+    Modulate() is used to modulate the self Scale or DataScale.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Modulate a given Scale to 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
         unit = Mode(mode) % od.DataSource()
@@ -568,10 +616,6 @@ class Inversion(Operation):
     """
     def __init__(self, unit: int = None):
         super().__init__(unit)
-
-class Transpose(Unit):
-    def __init__(self, intervals: int = None):
-        super().__init__(intervals)
 
 class Play(Unit):
     """

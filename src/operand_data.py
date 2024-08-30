@@ -217,6 +217,7 @@ class DataScale(Data):
                         transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return DataScale(transposed_scale)
             case ou.Transposition():    return self.transposition(operand % int())
+            case ou.Modulation():       return self.modulation(operand % int())
             case _:                     return super().__mod__(operand)
 
     def keys(self) -> int:
@@ -240,12 +241,16 @@ class DataScale(Data):
                     mode_transpose += 1
         return transposition
 
-    def modulate(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
+    def modulation(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
+        self_scale = self._data.copy()
         transposition = self.transposition(mode)
         if transposition != 0:
-            self_scale = self._data.copy()
             for key_i in range(12):
-                self._data[key_i] = self_scale[(key_i + transposition) % 12]
+                self_scale[key_i] = self._data[(key_i + transposition) % 12]
+        return self_scale
+
+    def modulate(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
+        self._data = self.modulation(mode)
         return self
 
 class Device(Data):
