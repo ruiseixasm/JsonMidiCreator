@@ -27,22 +27,22 @@ staff << Tempo(120) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Position(0) >> (KeyScale("C") << Scale("Major")) * 8 \
-    + Iterate(Scale("Major") % Mode("5th"))**Key() + Iterate()**Measure() \
+    + Iterate(Scale("Major") % Transposition("5th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
 play_list_2 = Position(8) >> (KeyScale("C") << Scale("Major")) * 8 \
-    + Iterate(Scale("Major") % Mode("4th"))**Key() + Iterate()**Measure() \
+    + Iterate(Scale("Major") % Transposition("4th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
 play_list_3 = Position(16) >> (KeyScale("A") << Scale("minor")) * 8 \
-    + Iterate(Scale("minor") % Mode("5th"))**Key() + Iterate()**Measure() \
+    + Iterate(Scale("minor") % Transposition("5th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
 play_list_4 = Position(24) >> (KeyScale("A") << Scale("minor")) * 8 \
-    + Iterate(Scale("minor") % Mode("4th"))**Key() + Iterate()**Measure() \
+    + Iterate(Scale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() \
     << NoteValue(1) << Velocity(70) >> PlayList()
 
 play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)

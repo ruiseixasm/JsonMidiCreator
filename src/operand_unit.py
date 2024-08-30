@@ -286,7 +286,6 @@ class Scale(Unit):
                 for key_i in range(12):
                     transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return od.DataScale(transposed_scale)
-            case Mode():            return Key("C") + self.transposition(operand % int())
             case Transposition():   return Key("C") + self.transposition(operand % int())
             case _:                 return super().__mod__(operand)
 
@@ -534,14 +533,15 @@ class Operation(Unit):
 
 class Transposition(Operation):
     """
-    A Transposition() is used to do a Transposition along a given Scale.
+    A Transposition() is used to do a modal Transposition along a given Scale.
     
     Parameters
     ----------
     first : integer_like
-        Transposition along the given Scale with 0 as default
+        Transposition along the given Scale with 1 ("1st") as default mode
     """
-    def __init__(self, unit: int = None):
+    def __init__(self, mode: int | str = None):
+        unit = Mode(mode) % od.DataSource()
         super().__init__(unit)
 
 class Progression(Operation):
