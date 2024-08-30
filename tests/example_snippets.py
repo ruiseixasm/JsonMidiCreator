@@ -47,10 +47,10 @@ staff << Tempo(90) << Measure(7)
 # retrigger << Swing(.75) >> Play(True) >> Export("json/_Export_s.2_snippets_retirgger.json")
 # retrigger << Division(5) >> Play(True) >> Export("json/_Export_s.3_snippets_retirgger.json")
 
-scale = DataScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1])
+scale = GenericScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1])
 scale % list() >> Print()
 scale % str() >> Print()
 scale % Modulation("6th") >> Print()
-(DataScale() << scale % Modulation("6th")) % str() >> Print()
+(GenericScale() << scale % Modulation("6th")) % str() >> Print()
 (scale >> Copy() >> Modulate("6th")) % str() >> Print()
 

@@ -278,7 +278,6 @@ class Scale(Unit):
             case od.DataSource():   return super().__mod__(operand)
             case list():            return Scale.get_scale(self._unit % len(Scale._scales))
             case str():             return Scale.get_scale_name(self._unit % len(Scale._scales))
-            case od.DataScale():    return od.DataScale() << Scale._scales[self._unit % len(Scale._scales)]
             case Transposition():   return self.transposition(operand % int())
             case Modulation():      return self.modulation(operand % int())
             case _:                 return super().__mod__(operand)
@@ -300,7 +299,7 @@ class Scale(Unit):
                 mode_transpose -= 1
         return transposition
 
-    def modulation(self, mode: int | str = "5th") -> 'od.DataScale': # AKA as remode (remoding)
+    def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
         self_scale = Scale._scales[self._unit % len(Scale._scales)]
         self_scale_copy = self_scale.copy()
         transposition = self.transposition(mode)
@@ -558,7 +557,7 @@ class Transposition(Operation):
 
 # class Transpose(Unit):
 #     """
-#     Transpose() does a modal Transpose of a given Scale or DataScale.
+#     Transpose() does a modal Transpose of a given Scale or GenericScale.
     
 #     Parameters
 #     ----------
@@ -571,7 +570,7 @@ class Transposition(Operation):
 
 class Modulation(Operation):    # Modal Modulation
     """
-    A Modulation() is used to return a modulated DataScale from a given Scale or DataScale.
+    A Modulation() is used to return a modulated GenericScale from a given Scale or GenericScale.
     
     Parameters
     ----------
@@ -584,7 +583,7 @@ class Modulation(Operation):    # Modal Modulation
 
 class Modulate(Operation):    # Modal Modulation
     """
-    Modulate() is used to modulate the self Scale or DataScale.
+    Modulate() is used to modulate the self Scale or GenericScale.
     
     Parameters
     ----------
@@ -598,7 +597,7 @@ class Modulate(Operation):    # Modal Modulation
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, (Scale, od.DataScale)):
+        if isinstance(operand, Scale):
             operand.modulate(self._unit)
         return operand
 

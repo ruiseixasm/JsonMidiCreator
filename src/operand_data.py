@@ -208,13 +208,13 @@ class GenericScale(Data):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract a Parameter, a DataScale has many extraction modes
+        The % symbol is used to extract a Parameter, a GenericScale has many extraction modes
         one type of extraction is its list() type of Parameter representing a scale
         but it's also possible to extract the same scale on other Tonic() key based on C.
 
         Examples
         --------
-        >>> tonic_a_scale = DataScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
+        >>> tonic_a_scale = GenericScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
         >>> print(tonic_a_scale)
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
@@ -334,71 +334,6 @@ class GenericScale(Data):
         if scale_number >= 0:
             return __class__._scales[scale_number]
         return []
-
-class DataScale(Data):
-    def __init__(self, list_scale: list[int] = None):
-        if list_scale is None or not (isinstance(list_scale, list) and len(list_scale) == 12):
-            list_scale = []  # By default it's an empty list
-        super().__init__( list_scale )
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, a DataScale has many extraction modes
-        one type of extraction is its list() type of Parameter representing a scale
-        but it's also possible to extract the same scale on other Tonic() key based on C.
-
-        Examples
-        --------
-        >>> tonic_a_scale = DataScale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
-        >>> print(tonic_a_scale)
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
-        """
-        match operand:
-            case DataSource():          return super().__mod__(operand)
-            case bool():
-                if isinstance(self._data, list) and len(self._data) == 12:
-                    return True
-                return False
-            case list():
-                if self % bool():       return self._data.copy()
-                return []
-            case str():                 return ou.Scale.get_scale_name(self._data)
-            case ou.Transposition():    return self.transposition(operand % int())
-            case ou.Modulation():       return self.modulation(operand % int())
-            case _:                     return super().__mod__(operand)
-
-    def keys(self) -> int:
-        scale_keys = 0
-        self_scale = self._data
-        for key in self_scale:
-            scale_keys += key
-        return scale_keys
-
-    def transposition(self, mode: int | str = "5th") -> int:
-        transposition = 0
-        if isinstance(self._data, list) and len(self._data) == 12:
-            mode_transpose = ou.Mode(mode) % DataSource() - 1
-            while mode_transpose > 0:
-                transposition += 1
-                if self._data[transposition % 12]:
-                    mode_transpose -= 1
-            while mode_transpose < 0:
-                transposition -= 1
-                if self._data[transposition % 12]:
-                    mode_transpose += 1
-        return transposition
-
-    def modulation(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
-        self_scale = self._data.copy()
-        transposition = self.transposition(mode)
-        if transposition != 0:
-            for key_i in range(12):
-                self_scale[key_i] = self._data[(key_i + transposition) % 12]
-        return self_scale
-
-    def modulate(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
-        self._data = self.modulation(mode)
-        return self
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
