@@ -212,11 +212,11 @@ class DataScale(Data):
             case _:                     return super().__mod__(operand)
 
     def keys(self) -> int:
-        scale_len = 0
+        scale_keys = 0
         self_scale = self._data
         for key in self_scale:
-            scale_len += key
-        return scale_len
+            scale_keys += key
+        return scale_keys
 
     def transposition(self, mode: int | str = "5th") -> int:
         transposition = 0
