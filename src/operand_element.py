@@ -688,7 +688,7 @@ class Chord(Note):
                         key_note_nth -= 1
                     if self._sus % od.DataSource() == 2:
                         key_note_nth += 1
-                transposition = self._data_scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
+                transposition = self._data_scale.transposition(self._degree % od.DataSource() + key_note_nth)
                 chord_key_notes.append(root_key_note + transposition)
         else:
             for key_note_i in range(max_type):
@@ -698,7 +698,7 @@ class Chord(Note):
                         key_note_nth -= 1
                     if self._sus % od.DataSource() == 2:
                         key_note_nth += 1
-                transposition = self._scale.transpose((self._degree % od.DataSource() - 1) + key_note_nth)
+                transposition = self._scale.transposition(self._degree % od.DataSource() + key_note_nth)
                 chord_key_notes.append(root_key_note + transposition)
 
         # Where the inversions are done

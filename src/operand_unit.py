@@ -286,8 +286,8 @@ class Scale(Unit):
                 for key_i in range(12):
                     transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return od.DataScale(transposed_scale)
-            case Mode():            return Key("C") + self.transpose(operand % int() - 1)
-            case Transposition():   return Key("C") + self.transpose(operand % int())
+            case Mode():            return Key("C") + self.transposition(operand % int())
+            case Transposition():   return Key("C") + self.transposition(operand % int())
             case _:                 return super().__mod__(operand)
 
     def keys(self) -> int:
@@ -297,21 +297,6 @@ class Scale(Unit):
             scale_len += key
         return scale_len
 
-    def transpose(self, interval: int = 1) -> int:
-        self_scale = Scale._scales[self._unit % len(Scale._scales)]
-        chromatic_transposition = 0
-        if interval > 0:
-            while interval != 0:
-                chromatic_transposition += 1
-                if self_scale[chromatic_transposition % 12]:
-                    interval -= 1
-        elif interval < 0:
-            while interval != 0:
-                chromatic_transposition -= 1
-                if self_scale[chromatic_transposition % 12]:
-                    interval += 1
-        return chromatic_transposition
-
     def transposition(self, mode: int | str = "5th") -> int:
         transposition = 0
         mode_transpose = Mode(mode) % od.DataSource() - 1
@@ -320,10 +305,6 @@ class Scale(Unit):
             transposition += 1
             if self_scale[transposition % 12]:
                 mode_transpose -= 1
-        while mode_transpose < 0:
-            transposition -= 1
-            if self_scale[transposition % 12]:
-                mode_transpose += 1
         return transposition
 
     def modulate(self, mode: int | str = "5th") -> 'od.DataScale': # AKA as remode (remoding)
@@ -489,9 +470,9 @@ class Mode(Unit):
                     case '7'  | "7th":              unit = 7
                     case '8'  | "8th":              unit = 8
                     case _:                         unit = 1
-                super().__init__(unit)
+                super().__init__( unit )
             case int() | float():
-                super().__init__( (round(unit) - 1) % 8 + 1 )
+                super().__init__( unit )
             case _:
                 super().__init__( 1 )
 
