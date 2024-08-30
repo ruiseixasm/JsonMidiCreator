@@ -94,7 +94,7 @@ class Data(o.Operand):
                 "data": self._data
             }
         }
-        if isinstance (self._data, o.Operand):
+        if isinstance(self._data, o.Operand):
             serialization["parameters"]["data"] = self._data.getSerialization()
 
         return serialization
@@ -106,7 +106,7 @@ class Data(o.Operand):
             "data" in serialization["parameters"]):
 
             self._data = serialization["parameters"]["data"]
-            if isinstance(self._data, dict) and "class" in self._data:
+            if isinstance(self._data, dict) and "class" in self._data and "parameters" in self._data:
                 self._data      = o.Operand().loadSerialization(self._data)
         return self
 
@@ -183,7 +183,9 @@ class DataSource(Data):
 
 class DataScale(Data):
     def __init__(self, list_scale: list[int] = None):
-        super().__init__( [] )  # By default there is no scale set
+        if list_scale is None or not (isinstance(list_scale, list) and len(list_scale) == 12):
+            list_scale = []  # By default it's an empty list
+        super().__init__( list_scale )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

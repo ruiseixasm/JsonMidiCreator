@@ -599,7 +599,7 @@ class Modulate(Operation):
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, (Scale, od.DataScale)):
-            operand.modulate()
+            operand.modulate(self._unit)
         return operand
 
 class Progression(Operation):
