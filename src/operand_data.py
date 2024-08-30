@@ -227,20 +227,27 @@ class DataScale(Data):
             scale_len += key
         return scale_len
 
-    def transpose(self, interval: int = 1) -> int:
-        self_scale = self._data
-        chromatic_transposition = 0
-        if interval > 0:
-            while interval != 0:
-                chromatic_transposition += 1
-                if self_scale[chromatic_transposition % 12] == 1:
-                    interval -= 1
-        elif interval < 0:
-            while interval != 0:
-                chromatic_transposition -= 1
-                if self_scale[chromatic_transposition % 12] == 1:
-                    interval += 1
-        return chromatic_transposition
+    def transposition(self, mode: int | str = "5th") -> int:
+        transposition = 0
+        if isinstance(self._data, list) and len(self._data) == 12:
+            mode = ou.Mode(mode) % DataSource()
+            while mode > 0:
+                transposition += 1
+                if self._data[transposition % 12]:
+                    mode -= 1
+            while mode < 0:
+                transposition -= 1
+                if self._data[transposition % 12]:
+                    mode += 1
+        return transposition
+
+    def modulate(self, mode: int | str = "5th") -> 'DataScale': # AKA as remode (remoding)
+        transposition = self.transposition(mode)
+        if transposition != 0:
+            self_scale = self._data.copy()
+            for key_i in range(12):
+                self._data[key_i] = self_scale[(key_i + transposition) % 12]
+        return self
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
