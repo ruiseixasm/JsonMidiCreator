@@ -251,8 +251,26 @@ class GenericScale(Data):
                 self_scale[key_i] = self._data[(key_i + transposition) % 12]
         return self_scale
 
+    # CHAINABLE OPERATIONS
+
     def modulate(self, mode: int | str = "5th") -> 'GenericScale': # AKA as remode (remoding)
         self._data = self.modulation(mode)
+        return self
+
+    def __lshift__(self, operand: any) -> 'GenericScale':
+        match operand:
+            case list():
+                if len(operand) == 12:
+                    self._data = operand.copy()
+            case str():
+                scale_number = __class__.get_scale_number(operand)
+                if scale_number >= 0:
+                    self._data = __class__._scales[scale_number].copy()
+            case int():
+                total_scales = len(__class__._scales)
+                if operand >= 0 and operand < total_scales:
+                    self._data = __class__._scales[operand].copy()
+            case _: super().__lshift__(operand)
         return self
 
     _names = [
