@@ -48,5 +48,3 @@ retrigger << Swing(.75) >> Play(True) >> Export("json/_Export_s.2_snippets_retir
 
 retrigger << Division(5) >> Play(True) >> Export("json/_Export_s.3_snippets_retirgger.json")
 
-
-
