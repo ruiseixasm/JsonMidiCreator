@@ -276,16 +276,9 @@ class Scale(Unit):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():   return super().__mod__(operand)
-            case list():            return Scale.getScale(self._unit % len(Scale._scales))
-            case str():             return Scale.getScaleName(self._unit % len(Scale._scales))
-            case od.DataScale():    return od.DataScale( Scale._scales[self._unit % len(Scale._scales)].copy() )
-            case Tonic():
-                tonic_note = operand % int()
-                transposed_scale = [0] * 12
-                self_scale = Scale._scales[self._unit % len(Scale._scales)]
-                for key_i in range(12):
-                    transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
-                return od.DataScale(transposed_scale)
+            case list():            return Scale.get_scale(self._unit % len(Scale._scales))
+            case str():             return Scale.get_scale_name(self._unit % len(Scale._scales))
+            case od.DataScale():    return od.DataScale() << Scale._scales[self._unit % len(Scale._scales)]
             case Transposition():   return self.transposition(operand % int())
             case Modulation():      return self.modulation(operand % int())
             case _:                 return super().__mod__(operand)
@@ -371,12 +364,22 @@ class Scale(Unit):
     ]
 
     @staticmethod
-    def getScale(scale_unit: int = 0):
+    def get_scale(scale_unit: int = 0):
         return Scale._scales[scale_unit % len(Scale._scales)]
 
     @staticmethod
-    def getScaleName(scale_unit: int = 0):
-        return Scale._scale_names[scale_unit % len(Scale._scales)][0]
+    def get_scale_name(scale_unit: int | list = 0) -> str:
+        match scale_unit:
+            case int():
+                return Scale._scale_names[scale_unit % len(Scale._scales)][0]
+            case list():
+                if len(scale_unit) == 12:
+                    for scale_i in range(len(__class__._scales)):
+                        if __class__._scales[scale_i] == scale_unit:
+                            return Scale._scale_names[scale_i][0]
+                else:
+                    return "Empty Scale!"
+        return "Unknown Scale!"
 
     @staticmethod
     def scaleStrToScaleUnit(scale_name: str = "Chromatic") -> int:
@@ -591,6 +594,13 @@ class Modulate(Operation):
     def __init__(self, mode: int | str = None):
         unit = Mode(mode) % od.DataSource()
         super().__init__(unit)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, (Scale, od.DataScale)):
+            operand.modulate()
+        return operand
 
 class Progression(Operation):
     """

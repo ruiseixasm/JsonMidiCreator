@@ -206,16 +206,7 @@ class DataScale(Data):
             case list():
                 if self % bool():       return self._data.copy()
                 return []
-            case str():                 return "Data"
-            case ou.Tonic():
-                transposed_scale = []
-                if self % bool():
-                    tonic_note = operand % int()
-                    transposed_scale = [0] * 12
-                    self_scale = self._data
-                    for key_i in range(12):
-                        transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
-                return DataScale(transposed_scale)
+            case str():                 return ou.Scale.get_scale_name(self._data)
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
             case _:                     return super().__mod__(operand)
