@@ -26,11 +26,9 @@ from JsonMidiCreator import *
 staff << Tempo(120) << Measure(7)
 
 (Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Degree(0) >> Play(True)
-(Chord("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Degree(0) \
+(Chord("A") << GenericScale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Degree(0) \
     >> Play(True) >> Print() << Inversion(1) >> Play(True)
 
-Chord("C") << Type("13th") << Scale("Major") << Degree("Dominant") << Octave(3) << NoteValue(8) >> Print() >> Play()
-Chord("G") << Type("13th") << Scale("5th") << NoteValue(8) << Octave(3) >> Print() >> Play()
-
-
+Chord("C") << Type("13th") << GenericScale("Major") << Degree("Dominant") << Octave(3) << NoteValue(8) >> Print() >> Play()
+Chord("G") << Type("13th") << GenericScale("5th") << NoteValue(8) << Octave(3) >> Print() >> Play()
 

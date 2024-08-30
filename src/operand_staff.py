@@ -34,7 +34,7 @@ class Staff(o.Operand):
         self._beats_per_measure: ov.BeatsPerMeasure = ov.BeatsPerMeasure(4)
         self._beat_note_value: ov.BeatNoteValue     = ov.BeatNoteValue(1/4)
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._scale: ou.Scale                       = ou.Scale("Major")
+        self._scale: od.GenericScale                       = od.GenericScale("Major")
         self._quantization: ov.Quantization         = ov.Quantization(1/16)
         self._duration: ot.Duration                 = ot.Duration() << ov.NoteValue(1/4)
         self._key: ou.Key                           = ou.Key("C")
@@ -52,7 +52,7 @@ class Staff(o.Operand):
                     case ov.Tempo():            return self._tempo
                     case ov.BeatsPerMeasure():  return self._beats_per_measure
                     case ov.BeatNoteValue():    return self._beat_note_value
-                    case ou.Scale():            return self._scale
+                    case od.GenericScale():            return self._scale
                     case ov.Quantization():     return self._quantization
                     case ot.Duration():         return self._duration
                     case ou.Key():              return self._key
@@ -68,7 +68,7 @@ class Staff(o.Operand):
             case ov.Tempo():            return self._tempo.copy()
             case ov.BeatsPerMeasure():  return self._beats_per_measure.copy()
             case ov.BeatNoteValue():    return self._beat_note_value.copy()
-            case ou.Scale():            return self._scale.copy()
+            case od.GenericScale():            return self._scale.copy()
             case ov.Quantization():     return self._quantization.copy()
             case ot.Duration():         return self._duration.copy()
             case ou.Key():              return self._key.copy()
@@ -96,7 +96,7 @@ class Staff(o.Operand):
             and self._tempo             == other_staff % od.DataSource( ov.Tempo() ) \
             and self._beats_per_measure == other_staff % od.DataSource( ov.BeatsPerMeasure() ) \
             and self._beat_note_value   == other_staff % od.DataSource( ov.BeatNoteValue() ) \
-            and self._scale             == other_staff % od.DataSource( ou.Scale() ) \
+            and self._scale             == other_staff % od.DataSource( od.GenericScale() ) \
             and self._quantization      == other_staff % od.DataSource( ov.Quantization() ) \
             and self._duration          == other_staff % od.DataSource( ot.Duration() ) \
             and self._key               == other_staff % od.DataSource( ou.Key() ) \
@@ -140,7 +140,7 @@ class Staff(o.Operand):
             self._tempo             = ov.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
             self._beats_per_measure = ov.BeatsPerMeasure()  << od.DataSource( serialization["parameters"]["beats_per_measure"] )
             self._beat_note_value   = ov.BeatNoteValue()    << od.DataSource( serialization["parameters"]["beat_note_value"] )
-            self._scale             = ou.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
+            self._scale             = od.GenericScale()            << od.DataSource( serialization["parameters"]["scale"] )
             self._quantization      = ov.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
             self._duration          = ot.Duration()         << od.DataSource( serialization["parameters"]["duration"] )
             self._key               = ou.Key()              << od.DataSource( serialization["parameters"]["key"] )
@@ -159,7 +159,7 @@ class Staff(o.Operand):
                     case ov.Tempo():            self._tempo = operand % o.Operand()
                     case ov.BeatsPerMeasure():  self._beats_per_measure = operand % o.Operand()
                     case ov.BeatNoteValue():    self._beat_note_value = operand % o.Operand()
-                    case ou.Scale():            self._scale = operand % o.Operand()
+                    case od.GenericScale():            self._scale = operand % o.Operand()
                     case ov.Quantization():     self._quantization = operand % o.Operand()    # Note Value
                     case ot.Duration():         self._duration = operand % o.Operand()
                     case ou.Key():              self._key = operand % o.Operand()
@@ -173,7 +173,7 @@ class Staff(o.Operand):
                 self._tempo             = operand % od.DataSource( ov.Tempo() )
                 self._beats_per_measure = operand % od.DataSource( ov.BeatsPerMeasure() )
                 self._beat_note_value   = operand % od.DataSource( ov.BeatNoteValue() )
-                self._scale             = operand % od.DataSource( ou.Scale() )
+                self._scale             = operand % od.DataSource( od.GenericScale() )
                 self._quantization      = operand % od.DataSource( ov.Quantization() ) # Note Value
                 self._duration          = operand % od.DataSource( ot.Duration() )
                 self._key               = operand % od.DataSource( ou.Key() )
@@ -189,7 +189,7 @@ class Staff(o.Operand):
             case ov.Tempo():            self._tempo << operand
             case ov.BeatsPerMeasure():  self._beats_per_measure << operand
             case ov.BeatNoteValue():    self._beat_note_value << operand
-            case ou.Scale():            self._scale << operand
+            case od.GenericScale():            self._scale << operand
             case ov.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand
             case ou.Key():              self._key << operand

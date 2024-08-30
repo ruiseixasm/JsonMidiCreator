@@ -30,7 +30,7 @@ staff << Tempo(90) << Measure(7)
 # print(entire_scale % list())
 # print(entire_scale % str())
 
-# single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
+# single_chord = Chord("A") << GenericScale("minor") << Type("7th") << NoteValue(1/2)
 # single_chord >> Play()
 
 # single_triplet = Triplet(Note("B"), Note("F"), Note("G")) << Gate(0.75)
