@@ -131,7 +131,8 @@ def loadJsonMidiPlay(filename):
         
 def jsonMidiPlay(play_list, verbose: bool = False):
     global lib
-    if not lib: loadLibrary()
+    global not_found_library_message_already_shown
+    if not lib and not not_found_library_message_already_shown: loadLibrary()
     if lib:
         if verbose: print() # Avoids verbose cluttering
         json_file_dict = {
