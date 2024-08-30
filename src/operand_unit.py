@@ -569,7 +569,7 @@ class Transposition(Operation):
 #         unit = Mode(mode) % od.DataSource()
 #         super().__init__(unit)
 
-class Modulation(Operation):
+class Modulation(Operation):    # Modal Modulation
     """
     A Modulation() is used to return a modulated DataScale from a given Scale or DataScale.
     
@@ -582,7 +582,7 @@ class Modulation(Operation):
         unit = Mode(mode) % od.DataSource()
         super().__init__(unit)
 
-class Modulate(Operation):
+class Modulate(Operation):    # Modal Modulation
     """
     Modulate() is used to modulate the self Scale or DataScale.
     
