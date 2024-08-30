@@ -566,7 +566,7 @@ class KeyScale(Note):
                 chromatic_transposition = self._data_scale.transpose((self._mode % od.DataSource() - 1) + key_note_i)
                 scale_key_notes.append(root_key_note + chromatic_transposition)
         else:
-            for key_note_i in range(self._scale.len()): # presses entire scale, 7 keys for diatonic scales
+            for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
                 chromatic_transposition = self._scale.transpose((self._mode % od.DataSource() - 1) + key_note_i)
                 scale_key_notes.append(root_key_note + chromatic_transposition)
 
@@ -693,7 +693,7 @@ class Chord(Note):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        max_type = self._scale.len()
+        max_type = self._scale.keys()
         if self._data_scale % bool():
             max_type = self._data_scale.len()
         if max_type % 2 == 0:

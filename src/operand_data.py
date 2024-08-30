@@ -220,7 +220,7 @@ class DataScale(Data):
             case ou.Transposition():    return ou.Key("C") + self.transpose(operand % int())
             case _:                     return super().__mod__(operand)
 
-    def len(self) -> int:
+    def keys(self) -> int:
         scale_len = 0
         self_scale = self._data
         for key in self_scale:

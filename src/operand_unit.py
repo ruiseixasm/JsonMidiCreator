@@ -290,7 +290,7 @@ class Scale(Unit):
             case Transposition():   return Key("C") + self.transpose(operand % int())
             case _:                 return super().__mod__(operand)
 
-    def len(self) -> int:
+    def keys(self) -> int:
         scale_len = 0
         self_scale = Scale._scales[self._unit % len(Scale._scales)]
         for key in self_scale:
@@ -312,10 +312,29 @@ class Scale(Unit):
                     interval += 1
         return chromatic_transposition
 
-        # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
-        # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
-        # 14 - Fourteenth, 15 - Fifteenth, 16 - Sixteenth, 17 - Seventeenth, 18 - Eighteenth,
-        # 19 - Nineteenth, 20 - Twentieth.
+    def transposition(self, mode: int | str = "5th") -> int:
+        transposition = 0
+        if isinstance(self._data, list) and len(self._data) == 12:
+            mode = Mode(mode) % od.DataSource()
+            self_scale = Scale._scales[self._unit % len(Scale._scales)]
+            while mode > 0:
+                transposition += 1
+                if self_scale[transposition % 12]:
+                    mode -= 1
+            while mode < 0:
+                transposition -= 1
+                if self_scale[transposition % 12]:
+                    mode += 1
+        return transposition
+
+    def modulate(self, mode: int | str = "5th") -> 'od.DataScale': # AKA as remode (remoding)
+        self_scale = Scale._scales[self._unit % len(Scale._scales)]
+        self_scale_copy = self_scale.copy()
+        transposition = self.transposition(mode)
+        if transposition != 0:
+            for key_i in range(12):
+                self_scale_copy[key_i] = self_scale[(key_i + transposition) % 12]
+        return od.DataScale() << od.DataSource( self_scale_copy )
 
     _scale_names = [
         ["Chromatic", "chromatic"],
@@ -476,6 +495,11 @@ class Mode(Unit):
                 super().__init__( (round(unit) - 1) % 8 + 1 )
             case _:
                 super().__init__( 1 )
+
+        # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
+        # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
+        # 14 - Fourteenth, 15 - Fifteenth, 16 - Sixteenth, 17 - Seventeenth, 18 - Eighteenth,
+        # 19 - Nineteenth, 20 - Twentieth.
 
     _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
 
