@@ -216,8 +216,7 @@ class DataScale(Data):
                     for key_i in range(12):
                         transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return DataScale(transposed_scale)
-            case ou.Mode():             return ou.Key("C") + self.transpose(operand % int() - 1)
-            case ou.Transposition():    return ou.Key("C") + self.transpose(operand % int())
+            case ou.Transposition():    return self.transposition(operand % int())
             case _:                     return super().__mod__(operand)
 
     def keys(self) -> int:

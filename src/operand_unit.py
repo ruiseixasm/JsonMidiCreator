@@ -286,7 +286,7 @@ class Scale(Unit):
                 for key_i in range(12):
                     transposed_scale[key_i] = self_scale[(tonic_note + key_i) % 12]
                 return od.DataScale(transposed_scale)
-            case Transposition():   return Key("C") + self.transposition(operand % int())
+            case Transposition():   return self.transposition(operand % int())
             case _:                 return super().__mod__(operand)
 
     def keys(self) -> int:
