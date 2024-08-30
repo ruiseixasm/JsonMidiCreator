@@ -26,7 +26,6 @@ import operand_label as ol
 import operand_time as ot
 
 
-
 class Data(o.Operand):
     def __init__(self, data = None):
         self._data = data
