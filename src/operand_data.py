@@ -190,20 +190,10 @@ class GenericScale(Data):
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
     def __init__(self, scale: list[int] | str | int = None):
-        self_scale = os.staff % DataSource( self ) % int() if scale is None else round(scale)
-        match scale:
-            case list():
-                if len(scale) == 12:
-                    self_scale = scale.copy()
-            case str():
-                scale_number = __class__.get_scale_number(scale)
-                if scale_number >= 0:
-                    self_scale = __class__._scales[scale_number].copy()
-            case int():
-                total_scales = len(__class__._scales)
-                if scale >= 0 and scale < total_scales:
-                    self_scale = __class__._scales[scale].copy()
-        super().__init__(self_scale)
+        self_scale = __class__.get_scale(scale).copy()
+        if self_scale == []:
+            self_scale = os.staff % DataSource( self ) % list()
+        super().__init__( self_scale )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
