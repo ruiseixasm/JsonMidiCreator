@@ -328,6 +328,13 @@ class GenericScale(Data):
         else:
             return __class__._names[scale_number][0]
 
+    @staticmethod
+    def get_scale(scale: int | str | list = 0) -> list:
+        scale_number = __class__.get_scale_number(scale)
+        if scale_number >= 0:
+            return __class__._scales[scale_number]
+        return []
+
 class DataScale(Data):
     def __init__(self, list_scale: list[int] = None):
         if list_scale is None or not (isinstance(list_scale, list) and len(list_scale) == 12):
