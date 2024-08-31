@@ -179,8 +179,11 @@ class DataSource(Data):
         <operand_time.Position object at 0x000001C4109E4F10>
         """
         return self._data
+    
+class SideEffects(Data):
+    pass
 
-class LeftShift(Data):
+class LeftShift(SideEffects):
     def __init__(self, operand: o.Operand):
         super().__init__( operand )
 
