@@ -375,6 +375,27 @@ class Dotted(NoteValue):
         super().__init__(value)
         self._rational = self._rational * 3/2 # It's just a wrapper for NoteValue
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract the Value, because a Value is an Rational
+        it should be used in conjugation with float(). If used with a int() it
+        will return the respective rounded value as int().
+
+        Examples
+        --------
+        >>> note_value_float = NoteValue(1/4) % float()
+        >>> print(note_value_float)
+        0.25
+        """
+        match operand:
+            case od.DataSource():   return super().__mod__(operand)
+            case Fraction():        return self._rational * 2/3
+            case float():           return float(self._rational * 2/3)
+            case int():             return round(self._rational * 2/3)
+            case ou.Unit():         return ou.Unit() << self._rational * 2/3
+            case ol.Null() | None:  return ol.Null()
+            case _:                 return super().__mod__(operand)
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
