@@ -460,7 +460,7 @@ class Note(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Key() | og.KeyNote() | int() | float():
+            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -468,7 +468,7 @@ class Note(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Key() | og.KeyNote() | int() | float():
+            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1067,14 +1067,16 @@ class ControlChange(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._controller + operand
+            case int() | float() | ou.Integer() | ov.Float():
+                self_copy << self._controller + operand
             case _:             return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int():         self_copy << self._controller - operand
+            case int() | float() | ou.Integer() | ov.Float():
+                self_copy << self._controller - operand
             case _:             return super().__sub__(operand)
         return self_copy
 
@@ -1150,7 +1152,7 @@ class PitchBend(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pitch() | int() | float():
+            case ou.Pitch() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1158,7 +1160,7 @@ class PitchBend(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pitch() | int() | float():
+            case ou.Pitch() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1236,7 +1238,7 @@ class Aftertouch(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pressure() | int() | float():
+            case ou.Pressure() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1244,7 +1246,7 @@ class Aftertouch(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pressure() | int() | float():
+            case ou.Pressure() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._pressure - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1392,7 +1394,7 @@ class ProgramChange(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Program() | int() | float():
+            case ou.Program() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._program + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1400,7 +1402,7 @@ class ProgramChange(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Program() | int() | float():
+            case ou.Program() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._program - operand
             case _:             return super().__sub__(operand)
         return self_copy

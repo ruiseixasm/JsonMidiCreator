@@ -147,7 +147,7 @@ class Time(o.Operand):
                                         << od.DataSource( self._note_value + operand % od.DataSource( ov.NoteValue() ) ) \
                                         << od.DataSource( self._step + operand % od.DataSource( ov.Step() ) )
             case ov.TimeUnit():     self_copy << od.DataSource( self % od.DataSource( operand ) + operand )
-            case ov.Value() | ou.Unit() | Fraction() | float() | int():
+            case int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._measure + operand << self._beat + operand \
                           << self._note_value + operand << self._step + operand
         return self_copy

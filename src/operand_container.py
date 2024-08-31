@@ -218,7 +218,7 @@ class Container(o.Operand):
                 self_copy << self_copy % list() + operand.copy() % list()
             case o.Operand():
                 self_copy._operand_list.append(operand)
-            case int(): # repeat n times the last argument if any
+            case int() | ou.Integer(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
                     last_operand = self._operand_list[len(self._operand_list) - 1]

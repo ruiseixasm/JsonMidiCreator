@@ -142,10 +142,10 @@ class KeyNote(Generic):
             case int():
                 key_int += operand
                 octave_int += key_int // 12
-            case float():
+            case float() | Fraction():
                 key_int += round(operand)
                 octave_int += key_int // 12
-            case ou.Unit() | ov.Value():
+            case ou.Integer() | ov.Float():
                 key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
             case _: return self.copy()
@@ -241,12 +241,12 @@ class Controller(Generic):
         match operand:
             case of.Frame():
                 return self + (operand & self)
-            case int():
-                control_value_int += operand
-            case ou.ControlValue():
-                control_value_int += operand % int()
             case Controller():
                 control_value_int += operand % ou.ControlValue() % int()
+            case ou.ControlValue():
+                control_value_int += operand % int()
+            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+                control_value_int += operand
             case _:
                 return self.copy()
         return self.copy() << control_value_int
@@ -256,12 +256,12 @@ class Controller(Generic):
         match operand:
             case of.Frame():
                 return self - (operand & self)
-            case int():
-                control_value_int -= operand
-            case ou.ControlValue():
-                control_value_int -= operand % int()
             case Controller():
                 control_value_int -= operand % ou.ControlValue() % int()
+            case ou.ControlValue():
+                control_value_int -= operand % int()
+            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+                control_value_int -= operand
             case _:
                 return self.copy()
         return self.copy() << control_value_int
