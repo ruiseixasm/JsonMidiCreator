@@ -128,7 +128,6 @@ class KeyNote(Generic):
                 octave_int += key_int // 12
             case ou.Key():
                 key_int += operand % int()
-                octave_int += key_int // 12
             case ou.Octave():
                 octave_int += operand % int()
             case KeyNote():
@@ -148,7 +147,6 @@ class KeyNote(Generic):
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case ou.Key():
                 key_int -= operand % int()
-                octave_int -= max(-1 * key_int + 11, 0) // 12
             case ou.Octave():
                 octave_int -= operand % int()
             case KeyNote():
