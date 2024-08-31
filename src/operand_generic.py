@@ -84,8 +84,8 @@ class KeyNote(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "key":      self._key % int(),
-                "octave":   self._octave % int()
+                "key":      self._key % od.DataSource(),
+                "octave":   self._octave % od.DataSource()
             }
         }
 
@@ -114,8 +114,16 @@ class KeyNote(Generic):
             case ou.Key() | str():  self._key << operand
             case ou.Octave():       self._octave << operand
             case int():
-                self._key       << operand    # key already does % 12
+                self._key       << operand      # key << already does % 12
                 self._octave    << operand // 12
+            case float():
+                number = round(operand)
+                self._key       << number       # key << already does % 12
+                self._octave    << number // 12
+            case ou.Unit() | ov.Value():
+                number = operand % od.DataSource( int() )
+                self._key       << number       # key << already does % 12
+                self._octave    << number // 12
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -137,10 +145,7 @@ class KeyNote(Generic):
             case float():
                 key_int += round(operand)
                 octave_int += key_int // 12
-            case ou.Unit():
-                key_int += operand % od.DataSource()
-                octave_int += key_int // 12
-            case ov.Value():
+            case ou.Unit() | ov.Value():
                 key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
             case _: return self.copy()
@@ -165,10 +170,7 @@ class KeyNote(Generic):
             case float():
                 key_int -= round(operand)
                 octave_int -= max(-1 * key_int + 11, 0) // 12
-            case ou.Unit():
-                key_int -= operand % od.DataSource()
-                octave_int -= max(-1 * key_int + 11, 0) // 12
-            case ov.Value():
+            case ou.Unit() | ov.Value():
                 key_int -= operand % od.DataSource( int() )
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case _: return self.copy()

@@ -55,7 +55,11 @@ class Unit(o.Operand):
         """
         import operand_value as ov
         match operand:
-            case od.DataSource():   return self._unit
+            case od.DataSource():
+                match operand % o.Operand():
+                    case float():           return float(self._unit)
+                    case int():             return round(self._unit)
+                    case _:                 return self._unit
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return round(self._unit)
             case float():           return float(self._unit)
