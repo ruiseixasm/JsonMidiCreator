@@ -107,10 +107,10 @@ class Unit(o.Operand):
         return False
     
     def __le__(self, other_number: any) -> bool:
-        return self == other_number and self < other_number
+        return self == other_number or self < other_number
     
     def __ge__(self, other_number: any) -> bool:
-        return self == other_number and self > other_number
+        return self == other_number or self > other_number
     
     def getSerialization(self):
         return {

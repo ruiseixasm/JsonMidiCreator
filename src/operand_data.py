@@ -61,30 +61,26 @@ class Data(o.Operand):
                         return many_operands
                     case _: return self._data
 
-    def __eq__(self, other_data: 'Data') -> bool:
-        if type(self._data) == type(other_data % DataSource()):
+    def __eq__(self, other_data: o.Operand) -> bool:
+        if isinstance(other_data, Data):
             return self._data == other_data % DataSource()
         return False
     
-    def __lt__(self, other_data: 'Data') -> bool:
-        if type(self._data) != type(other_data % DataSource()):
-            return False
-        return self._data < other_data % DataSource()
+    def __lt__(self, other_data: o.Operand) -> bool:
+        if isinstance(other_data, Data):
+            return self._data < other_data % DataSource()
+        return False
     
-    def __gt__(self, other_data: 'Data') -> bool:
-        if type(self._data) != type(other_data % DataSource()):
-            return False
-        return self._data > other_data % DataSource()
+    def __gt__(self, other_data: o.Operand) -> bool:
+        if isinstance(other_data, Data):
+            return self._data > other_data % DataSource()
+        return False
     
-    def __le__(self, other_data: 'Data') -> bool:
-        if type(self._data) != type(other_data % DataSource()):
-            return False
-        return not (self > other_data)
+    def __le__(self, other_data: o.Operand) -> bool:
+        return self == other_data or self < other_data
     
-    def __ge__(self, other_data: 'Data') -> bool:
-        if type(self._data) != type(other_data % DataSource()):
-            return False
-        return not (self < other_data)
+    def __ge__(self, other_data: o.Operand) -> bool:
+        return self == other_data or self > other_data
 
     def getSerialization(self):
         serialization = {

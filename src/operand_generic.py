@@ -57,28 +57,28 @@ class KeyNote(Generic):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
-    def __eq__(self, other: 'KeyNote') -> bool:
-        if self % ou.Octave() == other % ou.Octave() and self % ou.Key() == other % ou.Key():
+    def __eq__(self, other_keynote: 'KeyNote') -> bool:
+        if self % ou.Octave() == other_keynote % ou.Octave() and self % ou.Key() == other_keynote % ou.Key():
             return True
         return False
     
-    def __lt__(self, other: 'KeyNote') -> bool:
-        if self % ou.Octave() < other % ou.Octave():    return True
-        if self % ou.Octave() > other % ou.Octave():    return False
-        if self % ou.Key() < other % ou.Key():          return True
+    def __lt__(self, other_keynote: 'KeyNote') -> bool:
+        if self % ou.Octave() < other_keynote % ou.Octave():    return True
+        if self % ou.Octave() > other_keynote % ou.Octave():    return False
+        if self % ou.Key() < other_keynote % ou.Key():          return True
         return False
     
-    def __gt__(self, other: 'KeyNote') -> bool:
-        if self % ou.Octave() > other % ou.Octave():    return True
-        if self % ou.Octave() < other % ou.Octave():    return False
-        if self % ou.Key() > other % ou.Key():          return True
+    def __gt__(self, other_keynote: 'KeyNote') -> bool:
+        if self % ou.Octave() > other_keynote % ou.Octave():    return True
+        if self % ou.Octave() < other_keynote % ou.Octave():    return False
+        if self % ou.Key() > other_keynote % ou.Key():          return True
         return False
     
-    def __le__(self, other: 'KeyNote') -> bool:
-        return not (self > other)
+    def __le__(self, other_keynote: 'KeyNote') -> bool:
+        return self == other_keynote or self < other_keynote
     
-    def __ge__(self, other: 'KeyNote') -> bool:
-        return not (self < other)
+    def __ge__(self, other_keynote: 'KeyNote') -> bool:
+        return self == other_keynote or self > other_keynote
     
     def getSerialization(self):
         return {

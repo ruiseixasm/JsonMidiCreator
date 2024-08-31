@@ -62,10 +62,10 @@ class Time(o.Operand):
         return self.getTime_rational() > other_time.getTime_rational()
     
     def __le__(self, other_time):
-        return not (self > other_time)
+        return self == other_time or self < other_time
     
     def __ge__(self, other_time):
-        return not (self < other_time)
+        return self == other_time or self > other_time
     
     def getTime_rational(self) -> Fraction:
         return self._measure.getTime_rational() + self._beat.getTime_rational() \
