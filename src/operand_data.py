@@ -389,8 +389,13 @@ class Serialization(Data):
             return self._data
         return self._data % operand
 
-    def __eq__(self, other_operand: 'o.Operand') -> bool:
-        return self._data.getSerialization() == other_operand.getSerialization()
+    def __eq__(self, other_operand: any) -> bool:
+        match other_operand:
+            case dict():
+                return self._data.getSerialization() == other_operand
+            case o.Operand():
+                return self._data.getSerialization() == other_operand.getSerialization()
+        return super().__eq__(other_operand)
     
     def getPlayList(self, position: ot.Position = None) -> dict:
         return self._data.getPlayList(position)
