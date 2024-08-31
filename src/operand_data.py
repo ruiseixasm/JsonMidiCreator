@@ -390,7 +390,7 @@ class Serialization(Data):
         return self._data % operand
 
     def __eq__(self, other_operand: 'o.Operand') -> bool:
-        return self._data == other_operand
+        return self._data.getSerialization() == other_operand.getSerialization()
     
     def getPlayList(self, position: ot.Position = None) -> dict:
         return self._data.getPlayList(position)
@@ -459,6 +459,14 @@ class PlayList(Data):
                 return None
             case _:                 return None
 
+    def __eq__(self, other_operand: any) -> bool:
+        match other_operand:
+            case list():
+                return self._data == other_operand
+            case o.Operand():
+                return self._data == other_operand.getPlayList()
+        return super().__eq__(other_operand)
+    
     def getPlayList(self) -> list:
         return PlayList.copyPlayList(self._data)
 
