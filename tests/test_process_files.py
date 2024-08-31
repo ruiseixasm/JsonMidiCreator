@@ -23,10 +23,10 @@ from JsonMidiCreator import *
 
 ####### TEST1 ############
 
-reference_save_1    = Load("json/testing/_Save_Play_p.1_first_note.json")
-reference_export_1  = Import("json/testing/_Export_Play_p.1_sequence.json")
-result_save_1       = Serialization()
-result_export_1     = PlayList()
+reference_save_p1       = Load("json/testing/_Save_Play_p.1_first_note.json")
+reference_export_p1     = Import("json/testing/_Export_Play_p.1_sequence.json")
+result_save_p1          = Serialization()
+result_export_p1        = PlayList()
 
 # Global Staff setting up
 staff << Tempo(110) << Measure(6)
@@ -36,7 +36,7 @@ single_clock = Clock() >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Null() >> first_note * 3 >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
+multi_notes = Null() >> first_note * 3 >> od.LeftShift(result_save_p1) >> od.LeftShift(result_export_p1) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 
 first_note << Key("F") >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
