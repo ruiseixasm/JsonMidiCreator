@@ -136,7 +136,7 @@ class Unit(o.Operand):
                     case int():             self._unit = operand % o.Operand()
                     case float():           self._unit = round(operand % o.Operand())
                     case Fraction():        self._unit = round(operand % o.Operand())
-            case Unit():            self._unit = operand % od.DataSource()
+            case self.__class__():  self._unit = operand % od.DataSource()
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )

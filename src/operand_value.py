@@ -142,7 +142,7 @@ class Value(o.Operand):
                 match operand % o.Operand():
                     case Fraction():        self._rational = operand % o.Operand()
                     case float() | int():   self._rational = Fraction(operand % o.Operand()).limit_denominator()
-            case Value():           self._rational = operand % od.DataSource( Fraction() )
+            case self.__class__():  self._rational = operand % od.DataSource( Fraction() )
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
