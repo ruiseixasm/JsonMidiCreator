@@ -183,7 +183,7 @@ class Staff(o.Operand):
                 self._channel           = operand % od.DataSource( ou.Channel() )
                 self._device            = operand % od.DataSource( od.Device() )
             case of.Frame():            self << (operand & self)
-            case od.Load():
+            case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ov.Measure():          self._measure << operand
             case ov.Tempo():            self._tempo << operand

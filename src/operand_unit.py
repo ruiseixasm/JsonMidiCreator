@@ -138,7 +138,7 @@ class Unit(o.Operand):
                     case Fraction():        self._unit = round(operand % o.Operand())
             case self.__class__():  self._unit = operand % od.DataSource()
             case of.Frame():        self << (operand & self)
-            case od.Load():
+            case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
                 self._unit = round(operand)
@@ -218,7 +218,7 @@ class Key(Unit):
                 self._unit %= 12    # makes sure it's one of the Octave's key
             case Key():             super().__lshift__(operand)
             case of.Frame():        self << (operand & self)
-            case od.Load():
+            case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Unit():            self._unit = operand % int() % 12
             case int() | float():   self._unit = round(operand) % 12

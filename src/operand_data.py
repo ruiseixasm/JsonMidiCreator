@@ -129,7 +129,7 @@ class Data(o.Operand):
                     case _:
                         self._data = operand_data
             case of.Frame():        self << (operand & self)
-            case Load():
+            case Serialization():
                 self.loadSerialization(operand % DataSource())
             case o.Operand():
                 self._data = self._data.copy()
@@ -363,24 +363,19 @@ class Save(Data):
         c.saveJsonMidiCreator(operand.getSerialization(), self % str())
         return operand
 
-class Load(Data):
-    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
-        match file_name:
-            case o.Operand():
-                self._data = file_name
-            case str():
-                serialization = c.loadJsonMidiCreator(file_name)
-                if isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
-                    operand_class_name = serialization["class"]
-                    operand = self.getOperand(operand_class_name)
-                    if operand:
-                        super().__init__( operand.loadSerialization(serialization) )
-                    else:
-                        super().__init__( ol.Null() )
-                else:
-                    super().__init__( ol.Null() )
-            case _:
+class Serialization(Data):
+    def __init__(self, serialization: dict | o.Operand = None):
+        if isinstance(serialization, o.Operand):
+            self._data = serialization
+        elif isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
+            operand_class_name = serialization["class"]
+            operand = self.getOperand(operand_class_name)
+            if operand:
+                super().__init__( operand.loadSerialization(serialization) )
+            else:
                 super().__init__( ol.Null() )
+        else:
+            super().__init__( ol.Null() )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -436,6 +431,14 @@ class Load(Data):
 
     def __floordiv__(self, length: ot.Length) -> 'o.Operand':
         return self._data // length
+
+class Load(Serialization):
+    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
+        match file_name:
+            case str():
+                super().__init__( c.loadJsonMidiCreator(file_name) )
+            case _:
+                super().__init__( ol.Null() )
 
 class Export(Data):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
