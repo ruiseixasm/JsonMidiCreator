@@ -336,7 +336,10 @@ class Sequence(Container):  # Just a container of Elements
                 self_drag = ot.Length() << operand_end - self_start
                 for single_element in self._operand_list:
                     single_element << single_element % ot.Position() + self_drag
-        return self
+        if isinstance(operand, (Sequence, oe.Element)):
+            return operand + self
+        else:
+            return self.copy()
 
     def __xor__(self, operand: o.Operand):
         """
