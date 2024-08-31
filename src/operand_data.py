@@ -408,9 +408,8 @@ class Serialization(Data):
         return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
 
     def __lshift__(self, operand: o.Operand) -> 'o.Operand':
-        if isinstance(self._data, ol.Null):
-            self._data = operand.copy()
-        return self._data << operand
+        self._data = operand.copy()
+        return self._data
 
     def __rrshift__(self, operand) -> o.Operand:
         return operand >> self._data
