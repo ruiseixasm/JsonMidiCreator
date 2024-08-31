@@ -23,6 +23,7 @@ from JsonMidiCreator import *
 
 result_save         = Serialization()
 result_export       = PlayList()
+results_list        = []
 
 ####### TEST1 ############
 
@@ -38,19 +39,38 @@ original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Null() >> first_note * 3 >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
-print(f"TEST 1.1: {original_save == result_save} | {original_export == result_export}")
+results_list.append({
+    "test":     "TEST 1.1",
+    "save":     original_save == result_save,
+    "export":   original_export == result_export
+})
 
 original_save       = Load("json/testing/_Save_Play_p.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.2_sequence.json")
 first_note << Key("F") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
-print(f"TEST 1.2: {original_save == result_save} | {original_export == result_export}")
+results_list.append({
+    "test":     "TEST 1.2",
+    "save":     original_save == result_save,
+    "export":   original_export == result_export
+})
 
 original_save       = Load("json/testing/_Save_Play_p.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3_sequence.json")
 first_note << Load("json/testing/_Save_1.1_first_note.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
-print(f"TEST 1.3: {original_save == result_save} | {original_export == result_export}")
+results_list.append({
+    "test":     "TEST 1.3",
+    "save":     original_save == result_save,
+    "export":   original_export == result_export
+})
 
-Note3() << (Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
+original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
+original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
+Note3() << (Duration() << NoteValue(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json")
+results_list.append({
+    "test":     "TEST 1.4",
+    "save":     original_save == result_save,
+    "export":   original_export == result_export
+})
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
@@ -220,4 +240,9 @@ play_list_4 = PlayList() << (Position(24) >> (KeyScale("A") << Scale("minor")) *
 play_list_1 + play_list_2 + play_list_3 + play_list_4 \
     >> Save("json/testing/_Save_Play_p.21_first_note.json") >> Export("json/testing/_Export_Play_p.21_sequence.json")
 
+for test in results_list:
+    if test['save'] and test['export']:
+        print(f"{test['test']}: \t{test['save']} | {test['export']}")
+    else:
+        print(f"{test['test']}: \t\t\t{test['save']} | {test['export']}")
 
