@@ -151,7 +151,7 @@ class Value(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
             case float() | int():           self._rational = Fraction(operand).limit_denominator()
-            case Float() | ou.Integer():    self._rational = operand % Fraction()
+            case ou.Integer():              self._rational = operand % Fraction()
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
