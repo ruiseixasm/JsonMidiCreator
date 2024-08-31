@@ -218,84 +218,56 @@ class Element(o.Operand):
     def midi_16(midi_value: int = 0):
         return min(max(midi_value, 0), 15)
 
-class ClockModes(enum.Enum):
-    single  = 1
-    first   = 2
-    middle  = 3
-    last    = 4
-    resume  = 5
-
 class Clock(Element):
-    def __init__(self, mode: ClockModes = None):
+    def __init__(self, measure: float = None):
         super().__init__()
-        self._length = ot.Length() << os.staff % ov.Measure()
-        self._mode: ClockModes = ClockModes.single if mode is None else mode
+        self._length = ot.Length() << ov.Measure( os.staff % od.DataSource( ov.Measure() ) % float() if measure is None else measure )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Clock,
         those Parameters are the ones of the Element, like Position and Length,
-        plus the Mode and Pulses Per Quarter Note, the last one as 24 by default.
+        plus the Pulses Per Quarter Note, the last one as 24 by default.
 
         Examples
         --------
-        >>> middle_clock = Clock(ClockModes.middle)
-        >>> print(middle_clock % ClockModes.single)
-        ClockModes.middle
+        >>> clock = Clock(4)
+        >>> clock % Length() >> Print(0)
+        {'class': 'Length', 'parameters': {'measure': 4.0, 'beat': 0.0, 'note_value': 0.0, 'step': 0.0}}
         """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ClockModes():  return self._mode
                     case ou.PPQN():     return self._pulses_per_quarternote
                     case _:             return super().__mod__(operand)
-            case ClockModes():  return self._mode
             case ou.PPQN():     return self._pulses_per_quarternote.copy()
             case _:             return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
-            return  self._mode == other_element % od.DataSource( ClockModes.single ) \
-                and self._pulses_per_quarternote == other_element % od.DataSource( ou.PPQN() )
+            return self._pulses_per_quarternote == other_element % od.DataSource( ou.PPQN() )
         return False
     
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        clock_length = ot.Length() << os.staff % ov.Measure() if self._length is None else self._length
-        clock_mode = ClockModes.single if self._mode is None else self._mode
-        if clock_mode == ClockModes.single:
-            self_position = ot.Position()
-            clock_length = ot.Length() << os.staff % ov.Measure()
         device = self % od.Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource()
         pulses_per_beat = pulses_per_note * (os.staff % ov.BeatNoteValue() % Fraction())
         pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % Fraction())
-        clock_pulses = round(pulses_per_measure * (clock_length % ov.Measure() % Fraction()))
+        clock_pulses = round(pulses_per_measure * (self._length % ov.Measure() % Fraction()))
 
         single_measure_ms = (ot.Length() << ov.Measure(1)).getTime_ms()
         clock_start_ms = self_position.getTime_ms()
-        clock_stop_ms = clock_start_ms + clock_length.getTime_ms()
-
-        """
-            System Real-Time Message         Status Byte 
-            ------------------------         -----------
-            Timing Clock                         F8
-            Start Sequence                       FA
-            Continue Sequence                    FB
-            Stop Sequence                        FC
-            Active Sensing                       FE
-            System Reset                         FF
-        """
+        clock_stop_ms = clock_start_ms + self._length.getTime_ms()
 
         self_playlist = [
                 {
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
-                        "status_byte": 0xFA if clock_mode == ClockModes.single or clock_mode == ClockModes.first
-                            else 0xFB if clock_mode == ClockModes.resume else 0xF8,
+                        "status_byte": 0xFA,    # Start Sequence
                         "device": device % od.DataSource()
                     }
                 }
@@ -305,30 +277,28 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_ms \
-                                     * (clock_length % ov.Measure() % od.DataSource()) * clock_pulse / clock_pulses, 3),
+                                     * (self._length % ov.Measure() % od.DataSource()) * clock_pulse / clock_pulses, 3),
                     "midi_message": {
-                        "status_byte": 0xF8,
+                        "status_byte": 0xF8,    # Timing Clock
                         "device": device % od.DataSource()
                     }
                 }
             )
 
-        if clock_mode == ClockModes.single or clock_mode == ClockModes.last:
-            self_playlist.append(
-                {
-                    "time_ms": round(clock_stop_ms, 3),
-                    "midi_message": {
-                        "status_byte": 0xFC,
-                        "device": device % od.DataSource()
-                    }
+        self_playlist.append(
+            {
+                "time_ms": round(clock_stop_ms, 3),
+                "midi_message": {
+                    "status_byte": 0xFC,    # Stop Sequence
+                    "device": device % od.DataSource()
                 }
-            )
+            }
+        )
         
         return self_playlist
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["mode"]                     = self._mode.value
         element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource()
         return element_serialization
 
@@ -336,10 +306,9 @@ class Clock(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"] and "pulses_per_quarternote" in serialization["parameters"]):
+            "pulses_per_quarternote" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._mode = ClockModes(serialization["parameters"]["mode"])
             self._pulses_per_quarternote    = ou.PPQN() << od.DataSource( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
@@ -347,14 +316,11 @@ class Clock(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ClockModes():      self._mode = operand % o.Operand()
                     case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Clock():
                 super().__lshift__(operand)
-                self._mode = operand % od.DataSource( ClockModes.single )
                 self._pulses_per_quarternote = (operand % od.DataSource( ou.PPQN() )).copy()
-            case ClockModes():      self._mode = operand
             case ou.PPQN():         self._pulses_per_quarternote << operand
             case int() | float():   self._length = ot.Length(operand)
             case _: super().__lshift__(operand)
@@ -1494,3 +1460,11 @@ class Panic(Element):
 # Channel Pressure              Dx      Pressure value      None            
 # Pitch Bend                    Ex      MSB                 LSB
 
+# System Real-Time Message         Status Byte 
+# ------------------------         -----------
+# Timing Clock                         F8
+# Start Sequence                       FA
+# Continue Sequence                    FB
+# Stop Sequence                        FC
+# Active Sensing                       FE
+# System Reset                         FF
