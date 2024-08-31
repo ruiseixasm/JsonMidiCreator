@@ -471,7 +471,7 @@ class Modulate(Operation):    # Modal Modulation
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, Scale):
+        if isinstance(operand, od.Scale):
             operand.modulate(self._unit)
         return operand
 

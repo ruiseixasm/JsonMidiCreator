@@ -23,6 +23,7 @@ import operand as o
 
 import operand_staff as os
 import operand_unit as ou
+import operand_value as ov
 import operand_data as od
 import operand_frame as of
 import operand_label as ol
@@ -118,39 +119,57 @@ class KeyNote(Generic):
         return self
 
     def __add__(self, operand) -> 'KeyNote':
-        key_int: int = self._key % int()
-        octave_int: int = self._octave % int()
+        key_int: int = self._key % od.DataSource()
+        octave_int: int = self._octave % od.DataSource()
         match operand:
             case of.Frame():
                 return self + (operand & self)
             case KeyNote():
-                key_int += operand % ou.Key() % int()
-                octave_int += operand % ou.Octave() % int() + key_int // 12
+                key_int += operand % ou.Key() % od.DataSource()
+                octave_int += operand % ou.Octave() % od.DataSource() + key_int // 12
             case ou.Key():
-                key_int += operand % int()
+                key_int += operand % od.DataSource()
             case ou.Octave():
-                octave_int += operand % int()
+                octave_int += operand % od.DataSource()
             case int():
                 key_int += operand
+                octave_int += key_int // 12
+            case float():
+                key_int += round(operand)
+                octave_int += key_int // 12
+            case ou.Unit():
+                key_int += operand % od.DataSource()
+                octave_int += key_int // 12
+            case ov.Value():
+                key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
             case _: return self.copy()
         return KeyNote() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
-        key_int: int = self._key % int()
-        octave_int: int = self._octave % int()
+        key_int: int = self._key % od.DataSource()
+        octave_int: int = self._octave % od.DataSource()
         match operand:
             case of.Frame():
                 return self - (operand & self)
             case KeyNote():
-                key_int -= operand % ou.Key() % int()
-                octave_int -= operand % ou.Octave() % int() - max(-1 * key_int + 11, 0) // 12
+                key_int -= operand % ou.Key() % od.DataSource()
+                octave_int -= operand % ou.Octave() % od.DataSource() - max(-1 * key_int + 11, 0) // 12
             case ou.Key():
-                key_int -= operand % int()
+                key_int -= operand % od.DataSource()
             case ou.Octave():
-                octave_int -= operand % int()
+                octave_int -= operand % od.DataSource()
             case int():
                 key_int -= operand
+                octave_int -= max(-1 * key_int + 11, 0) // 12
+            case float():
+                key_int -= round(operand)
+                octave_int -= max(-1 * key_int + 11, 0) // 12
+            case ou.Unit():
+                key_int -= operand % od.DataSource()
+                octave_int -= max(-1 * key_int + 11, 0) // 12
+            case ov.Value():
+                key_int -= operand % od.DataSource( int() )
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case _: return self.copy()
         return KeyNote() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
@@ -158,7 +177,7 @@ class KeyNote(Generic):
 class Controller(Generic):
     def __init__(self, number: int | str = None):
         self._control_number: ou.ControlNumber  = ou.ControlNumber( number )
-        self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % int()) )
+        self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % od.DataSource()) )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -183,8 +202,8 @@ class Controller(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "control_number":   self._control_number % int(),
-                "control_value":    self._control_value % int()
+                "control_number":   self._control_number % od.DataSource(),
+                "control_value":    self._control_value % od.DataSource()
             }
         }
 
