@@ -53,11 +53,14 @@ class Unit(o.Operand):
         >>> print(channel_int)
         12
         """
+        import operand_value as ov
         match operand:
             case od.DataSource():   return self._unit
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return round(self._unit)
             case float():           return float(self._unit)
+            case Fraction():        return Fraction(self._unit).limit_denominator()
+            case ov.Value():        return ov.Value() << self._unit
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -121,6 +124,7 @@ class Unit(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
+        import operand_value as ov
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -131,7 +135,9 @@ class Unit(o.Operand):
             case of.Frame():        self << (operand & self)
             case od.Load():
                 self.loadSerialization( operand.getSerialization() )
-            case int() | float():   self._unit = round(operand)
+            case int() | float() | Fraction():
+                self._unit = round(operand)
+            case ov.Value():        self._unit = operand % int()
         return self
 
     def __add__(self, number: any) -> 'Unit':

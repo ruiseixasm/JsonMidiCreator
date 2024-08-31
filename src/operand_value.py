@@ -72,6 +72,7 @@ class Value(o.Operand):
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return round(self._rational)
+            case ou.Unit():         return ou.Unit() << self._rational
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -146,6 +147,7 @@ class Value(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():        self._rational = operand
             case float() | int():   self._rational = Fraction(operand).limit_denominator()
+            case ou.Unit():         self._rational = operand % Fraction()
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
@@ -386,6 +388,7 @@ class Dotted(NoteValue):
             case Value():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
+            case ou.Unit():         self._rational = operand % Fraction() * 3/2
             case _: super().__lshift__(operand)
         return self
 
