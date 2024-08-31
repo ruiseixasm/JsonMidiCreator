@@ -67,13 +67,15 @@ class Value(o.Operand):
                 match operand % o.Operand():
                     case float():           return float(self._rational)
                     case int():             return round(self._rational)
-                    case _:                 return self._rational
+                    case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
+                    case Float():           return Float() << od.DataSource( self._rational )
+                    case _:                 return self._rational           # returns a Fraction()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return round(self._rational)
-            case ou.Unit():         return ou.Unit() << self._rational
-            case Value():           return Value() << self._rational
+            case ou.Integer():      return ou.Integer() << self._rational
+            case Float():           return Float() << self._rational
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -140,15 +142,16 @@ class Value(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case Fraction():        self._rational = operand % o.Operand()
-                    case float() | int():   self._rational = Fraction(operand % o.Operand()).limit_denominator()
+                    case Fraction():                self._rational = operand % o.Operand()
+                    case float() | int():           self._rational = Fraction(operand % o.Operand()).limit_denominator()
+                    case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Value():           self._rational = operand % od.DataSource( Fraction() )
             case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Fraction():        self._rational = operand
-            case float() | int():   self._rational = Fraction(operand).limit_denominator()
-            case ou.Unit():         self._rational = operand % Fraction()
+            case Fraction():                self._rational = operand
+            case float() | int():           self._rational = Fraction(operand).limit_denominator()
+            case Float() | ou.Integer():    self._rational = operand % Fraction()
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
