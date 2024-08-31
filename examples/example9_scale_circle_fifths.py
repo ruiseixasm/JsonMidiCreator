@@ -41,4 +41,5 @@ play_list_3 = PlayList() << (Position(16) >> (KeyScale("A") << Scale("minor") <<
 play_list_4 = PlayList() << (Position(24) >> (KeyScale("A") << Scale("minor") << NoteValue(1) << Velocity(70)) * 8 
     + Iterate(Scale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() + Clock(8))
 
-play_list_1 + play_list_2 + play_list_3 + play_list_4 >> Play(True)
+# play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)
+play_list_2 >> Play(True)
