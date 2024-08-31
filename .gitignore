@@ -181,3 +181,4 @@ cython_debug/
 *.dll
 *.dylib
 json/*.json
+json/*/*.json
