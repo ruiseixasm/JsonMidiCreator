@@ -134,16 +134,15 @@ class Unit(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case int():             self._unit = operand % o.Operand()
-                    case float():           self._unit = round(operand % o.Operand())
-                    case Fraction():        self._unit = round(operand % o.Operand())
+                    case int():                 self._unit = operand % o.Operand()
+                    case float() | Fraction():  self._unit = round(operand % o.Operand())
             case Unit():            self._unit = operand % od.DataSource()
             case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
                 self._unit = round(operand)
-            case ov.Value() | Unit():
+            case Integer() | ov.Float():
                 self._unit = operand % int()
         return self
 
