@@ -149,25 +149,25 @@ class Unit(o.Operand):
     def __add__(self, number: any) -> 'Unit':
         import operand_value as ov
         match number:
-            case of.Frame():            return self + (number & self)
-            case Unit() | ov.Value():   return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
-            case int() | float():       return self.__class__() << od.DataSource( self._unit + number )
+            case of.Frame():                    return self + (number & self)
+            case Unit() | ov.Value():           return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
+            case int() | float() | Fraction():  return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
     
     def __sub__(self, number: any) -> 'Unit':
         import operand_value as ov
         match number:
-            case of.Frame():            return self - (number & self)
-            case Unit() | ov.Value():   return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
-            case int() | float():       return self.__class__() << od.DataSource( self._unit - number )
+            case of.Frame():                    return self - (number & self)
+            case Unit() | ov.Value():           return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
+            case int() | float() | Fraction():  return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
     
     def __mul__(self, number: any) -> 'Unit':
         import operand_value as ov
         match number:
-            case of.Frame():            return self * (number & self)
-            case Unit() | ov.Value():   return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
-            case int() | float():       return self.__class__() << od.DataSource( self._unit * number )
+            case of.Frame():                    return self * (number & self)
+            case Unit() | ov.Value():           return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
+            case int() | float() | Fraction():  return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
     
     def __truediv__(self, number: any) -> 'Unit':
@@ -177,7 +177,7 @@ class Unit(o.Operand):
             case Unit() | ov.Value():
                 if number % od.DataSource() != 0:
                     return self.__class__() << od.DataSource( self._unit / (number % od.DataSource()) )
-            case int() | float():
+            case int() | float() | Fraction():
                 if number != 0:
                     return self.__class__() << od.DataSource( self._unit / number )
         return self.copy()
