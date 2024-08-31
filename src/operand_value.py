@@ -73,6 +73,7 @@ class Value(o.Operand):
             case float():           return float(self._rational)
             case int():             return round(self._rational)
             case ou.Unit():         return ou.Unit() << self._rational
+            case Value():           return Value() << self._rational
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -392,6 +393,7 @@ class Dotted(NoteValue):
             case Fraction():        return self._rational * 2/3
             case float():           return float(self._rational * 2/3)
             case int():             return round(self._rational * 2/3)
+            case Value():           return Value() << self._rational * 2/3
             case ou.Unit():         return ou.Unit() << self._rational * 2/3
             case ol.Null() | None:  return ol.Null()
             case _:                 return super().__mod__(operand)

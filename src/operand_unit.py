@@ -61,6 +61,7 @@ class Unit(o.Operand):
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case ov.Value():        return ov.Value() << self._unit
+            case Unit():            return Unit() << self._unit
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -137,7 +138,8 @@ class Unit(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
                 self._unit = round(operand)
-            case ov.Value():        self._unit = operand % int()
+            case ov.Value() | Unit():
+                self._unit = operand % int()
         return self
 
     def __add__(self, number: any) -> 'Unit':
