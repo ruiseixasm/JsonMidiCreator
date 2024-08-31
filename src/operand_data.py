@@ -409,7 +409,7 @@ class Serialization(Data):
 
     def __lshift__(self, operand: o.Operand) -> 'o.Operand':
         self._data = operand.copy()
-        return self._data
+        return self
 
     def __rrshift__(self, operand) -> o.Operand:
         return operand >> self._data
