@@ -137,7 +137,7 @@ staff << Tempo(120) << Measure(7)
 Chord("C") << Type("13th") << Scale("Major") << Degree("Dominant") << Octave(3) << NoteValue(8) \
     >> Save("json/testing/_Save_Play_p.13.2_first_note.json") >> Export("json/testing/_Export_Play_p.13.2_sequence.json")
 Chord("G") << Type("13th") << Scale("5th") << NoteValue(8) << Octave(3) \
-    >> Save("json/testing/_Save_Play_p.13.2_first_note.json") >> Export("json/testing/_Export_Play_p.13.2_sequence.json")
+    >> Save("json/testing/_Save_Play_p.13.3_first_note.json") >> Export("json/testing/_Export_Play_p.13.3_sequence.json")
 
 
 ############### TEST6 #######################
