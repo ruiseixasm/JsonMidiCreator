@@ -57,6 +57,7 @@ class Unit(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case Fraction():        return Fraction(self._unit).limit_denominator()
                     case float():           return float(self._unit)
                     case int():             return round(self._unit)
                     case _:                 return self._unit
