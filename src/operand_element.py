@@ -163,7 +163,10 @@ class Element(o.Operand):
             if type(operand_end) != ol.Null and type(self_start) != ol.Null:
                 self_drag = ot.Length() << operand_end - self_start
                 self << self % ot.Position() + self_drag
-        return self
+        if isinstance(operand, (oc.Sequence, Element)):
+            return operand + self
+        else:
+            return self.copy()
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
