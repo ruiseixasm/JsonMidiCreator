@@ -181,7 +181,10 @@ class Unit(o.Operand):
                 if number != 0:
                     return self.__class__() << od.DataSource( self._unit / number )
         return self.copy()
-    
+
+class Integer(Unit):
+    pass
+
 class Key(Unit):
     """
     A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.

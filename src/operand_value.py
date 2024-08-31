@@ -194,6 +194,9 @@ class Value(o.Operand):
                     return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
         return self.copy()
 
+class Float(Value):
+    pass
+
 class Negative(Value):
     def __init__(self, value: float = None):
         super().__init__(value * (-1))
