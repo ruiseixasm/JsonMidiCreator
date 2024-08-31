@@ -104,7 +104,8 @@ second_import = Import("json/testing/_Export_1.2_all_elements.json")    # It has
 original_save       = Load("json/testing/_Save_Play_p.5_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.5_sequence.json")
 (Position(0) >> first_import) + (Position(1) >> first_import) + (Position(2) >> first_import) + (Position(3) >> first_import) + (Position(4) >> second_import) \
-    >> Export("json/testing/_Export_2.1_multiple_imports.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+    >> Export("json/testing/_Export_2.1_multiple_imports.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+    >> Save("json/testing/_Save_Play_p.5_first_note_compare.json") >> Export("json/testing/_Export_Play_p.5_sequence_compare.json")
 results_list.append({
     "test":     "TEST 2.1",
     "save":     original_save == result_save,

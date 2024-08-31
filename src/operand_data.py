@@ -446,7 +446,7 @@ class Serialization(Data):
         return self._data // length
 
 class Load(Serialization):
-    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
+    def __init__(self, file_name: str = None):
         match file_name:
             case str():
                 super().__init__( c.loadJsonMidiCreator(file_name) )
@@ -491,7 +491,7 @@ class PlayList(Data):
     def __lshift__(self, operand: o.Operand) -> 'PlayList':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, (oc.Sequence, oe.Element, PlayList, ot.Position, ot.Length)):
+        if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
             self._data = operand.getPlayList()
         return self
 
@@ -514,7 +514,10 @@ class PlayList(Data):
             for midi_element in self._data:
                 if "time_ms" in midi_element:
                     midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-        return self
+        if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
+            return operand + self
+        else:
+            return self.copy()
 
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
@@ -537,8 +540,8 @@ class PlayList(Data):
         return copy_play_list
 
 class Import(PlayList):
-    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
-        super().__init__( c.loadJsonMidiPlay(file_name) )
+    def __init__(self, file_name: str = None):
+        super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
 
 class Sort(Data):
     def __init__(self, compare: o.Operand = None):
