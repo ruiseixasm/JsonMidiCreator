@@ -65,8 +65,8 @@ class Unit(o.Operand):
             case int():             return round(self._unit)
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
-            case ov.Value():        return ov.Value() << self._unit
-            case Unit():            return Unit() << self._unit
+            case Integer():         return Integer() << self._unit
+            case ov.Float():        return ov.Float() << self._unit
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
