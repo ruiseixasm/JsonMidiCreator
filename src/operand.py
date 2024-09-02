@@ -27,8 +27,8 @@ class Operand:
         if isinstance(self._current_node, ol.Null): raise StopIteration
         previous_node = self._current_node
         match self._current_node:
-            case None:      self._current_node = ol.Null()
-            case _:         self._current_node = self._current_node._next_operand
+            case Operand(): self._current_node = self._current_node._next_operand
+            case _:         self._current_node = ol.Null()
         return previous_node
 
     def len(self) -> int:
