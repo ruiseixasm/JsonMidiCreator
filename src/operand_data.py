@@ -43,7 +43,10 @@ class Data(o.Operand):
         <operand_unit.Pitch object at 0x00000135E6437290>
         """
         match operand:
-            case DataSource():              return self._data
+            case DataSource():
+                match operand % o.Operand():
+                    case Data():                    return self
+                    case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case ol.Null() | None:          return ol.Null()
             case _:
