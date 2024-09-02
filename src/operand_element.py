@@ -386,10 +386,10 @@ class Note(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % od.DataSource()
-        velocity_int: int           = self._velocity % od.DataSource()
-        channel_int: int            = self._channel % od.DataSource()
-        device_list: list           = self._device % od.DataSource()
+        key_note_int: int           = self._key_note % od.DataSource( int() )
+        velocity_int: int           = self._velocity % od.DataSource( int () )
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         off_time_ms = (self_position + duration * self._gate).getTime_ms()
@@ -1278,10 +1278,10 @@ class PolyAftertouch(Aftertouch):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_int: int   = self._key_note % od.DataSource()
-        pressure_int: int   = self._pressure % od.DataSource()
-        channel_int: int    = self._channel % od.DataSource()
-        device_list: list   = self._device % od.DataSource()
+        key_note_int: int   = self._key_note % od.DataSource( int() )
+        pressure_int: int   = self._pressure % od.DataSource( int() )
+        channel_int: int    = self._channel % od.DataSource( int() )
+        device_list: list   = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         return [
