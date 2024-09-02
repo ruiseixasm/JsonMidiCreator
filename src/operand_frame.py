@@ -35,6 +35,11 @@ class Frame(o.Operand):
     def __init__(self):
         super().__init__()
         
+    # It has to include self, contrary to the Operand __next__ that excludes the self!!
+    def __iter__(self):
+        self._current_node: o.Operand = self    # Reset to the start node on new iteration
+        return self
+    
     def __next__(self):
         if isinstance(self._current_node, ol.Null): raise StopIteration
         previous_node = self._current_node

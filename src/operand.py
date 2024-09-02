@@ -17,11 +17,13 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 class Operand:
     def __init__(self):
         self._next_operand: Operand = None
-        
+
+    # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __iter__(self):
-        self._current_node: Operand = self    # Reset to the start node on new iteration
+        self._current_node: Operand = self._next_operand    # Reset to the start node on new iteration
         return self
     
+    # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __next__(self):
         import operand_label as ol
         if isinstance(self._current_node, ol.Null): raise StopIteration
