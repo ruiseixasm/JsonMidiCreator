@@ -83,11 +83,8 @@ class Value(o.Operand):
 
     def __eq__(self, other_number: any) -> bool:
         match other_number:
-            case Value():
-                return self._rational == other_number % od.DataSource()
-            case ou.Unit():
-                other_rational = Fraction( other_number % od.DataSource() ).limit_denominator()
-                return self._rational == other_rational
+            case Value() | ou.Unit():
+                return self._rational == other_number % od.DataSource( Fraction() )
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
                 return self._rational == other_rational
@@ -95,11 +92,8 @@ class Value(o.Operand):
     
     def __lt__(self, other_number: any) -> bool:
         match other_number:
-            case Value():
-                return self._rational < other_number % od.DataSource()
-            case ou.Unit():
-                other_rational = Fraction( other_number % od.DataSource() ).limit_denominator()
-                return self._rational < other_rational
+            case Value() | ou.Unit():
+                return self._rational < other_number % od.DataSource( Fraction() )
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
                 return self._rational < other_rational
@@ -107,11 +101,8 @@ class Value(o.Operand):
     
     def __gt__(self, other_number: any) -> bool:
         match other_number:
-            case Value():
-                return self._rational > other_number % od.DataSource()
-            case ou.Unit():
-                other_rational = Fraction( other_number % od.DataSource() ).limit_denominator()
-                return self._rational > other_rational
+            case Value() | ou.Unit():
+                return self._rational > other_number % od.DataSource( Fraction() )
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
                 return self._rational > other_rational

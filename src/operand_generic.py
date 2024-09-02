@@ -129,18 +129,18 @@ class KeyNote(Generic):
         return self
 
     def __add__(self, operand) -> 'KeyNote':
-        key_int: int = self._key % od.DataSource()
-        octave_int: int = self._octave % od.DataSource()
+        key_int: int = self._key % od.DataSource( int() )
+        octave_int: int = self._octave % od.DataSource( int() )
         match operand:
             case of.Frame():
                 return self + (operand & self)
             case KeyNote():
-                key_int += operand % ou.Key() % od.DataSource()
-                octave_int += operand % ou.Octave() % od.DataSource() + key_int // 12
+                key_int += operand % ou.Key() % od.DataSource( int() )
+                octave_int += operand % ou.Octave() % od.DataSource( int() ) + key_int // 12
             case ou.Key():
-                key_int += operand % od.DataSource()
+                key_int += operand % od.DataSource( int() )
             case ou.Octave():
-                octave_int += operand % od.DataSource()
+                octave_int += operand % od.DataSource( int() )
             case int():
                 key_int += operand
                 octave_int += key_int // 12
@@ -154,18 +154,18 @@ class KeyNote(Generic):
         return KeyNote() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
-        key_int: int = self._key % od.DataSource()
-        octave_int: int = self._octave % od.DataSource()
+        key_int: int = self._key % od.DataSource( int() )
+        octave_int: int = self._octave % od.DataSource( int() )
         match operand:
             case of.Frame():
                 return self - (operand & self)
             case KeyNote():
-                key_int -= operand % ou.Key() % od.DataSource()
-                octave_int -= operand % ou.Octave() % od.DataSource() - max(-1 * key_int + 11, 0) // 12
+                key_int -= operand % ou.Key() % od.DataSource( int() )
+                octave_int -= operand % ou.Octave() % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
             case ou.Key():
-                key_int -= operand % od.DataSource()
+                key_int -= operand % od.DataSource( int() )
             case ou.Octave():
-                octave_int -= operand % od.DataSource()
+                octave_int -= operand % od.DataSource( int() )
             case int():
                 key_int -= operand
                 octave_int -= max(-1 * key_int + 11, 0) // 12
@@ -181,7 +181,7 @@ class KeyNote(Generic):
 class Controller(Generic):
     def __init__(self, number: int | str = None):
         self._control_number: ou.ControlNumber  = ou.ControlNumber( number )
-        self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % od.DataSource()) )
+        self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % od.DataSource( int() )) )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:

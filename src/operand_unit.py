@@ -77,10 +77,10 @@ class Unit(o.Operand):
         import operand_value as ov
         match other_number:
             case Unit():
-                return self._unit == other_number % od.DataSource()
+                return self._unit == other_number % od.DataSource( int() )
             case ov.Value():
                 self_rational = Fraction( self._unit ).limit_denominator()
-                return self_rational == other_number % od.DataSource()
+                return self_rational == other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit == other_number
         return False
@@ -89,10 +89,10 @@ class Unit(o.Operand):
         import operand_value as ov
         match other_number:
             case Unit():
-                return self._unit < other_number % od.DataSource()
+                return self._unit < other_number % od.DataSource( int() )
             case ov.Value():
                 self_rational = Fraction( self._unit ).limit_denominator()
-                return self_rational < other_number % od.DataSource()
+                return self_rational < other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit < other_number
         return False
@@ -101,10 +101,10 @@ class Unit(o.Operand):
         import operand_value as ov
         match other_number:
             case Unit():
-                return self._unit > other_number % od.DataSource()
+                return self._unit > other_number % od.DataSource( int() )
             case ov.Value():
                 self_rational = Fraction( self._unit ).limit_denominator()
-                return self_rational > other_number % od.DataSource()
+                return self_rational > other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit > other_number
         return False
@@ -140,7 +140,7 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction():      self._unit = round(operand % o.Operand())
                     case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
-            case Unit():            self._unit = operand % od.DataSource()
+            case Unit():            self._unit = operand % od.DataSource( int() )
             case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
