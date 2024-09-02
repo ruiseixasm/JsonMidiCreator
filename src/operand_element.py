@@ -58,7 +58,7 @@ class Element(o.Operand):
                     case ot.Length():       return self._length
                     case ou.Channel():      return self._channel
                     case od.Device():       return self._device
-                    case _:                 return ol.Null()
+                    case _:                 return self
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
             case ov.TimeUnit():     return self._position % operand

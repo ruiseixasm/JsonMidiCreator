@@ -43,7 +43,7 @@ class Time(o.Operand):
                     case ov.Beat():         return self._beat
                     case ov.NoteValue():    return self._note_value
                     case ov.Step():         return self._step
-                    case _:                 return ol.Null()
+                    case _:                 return self
             case of.Frame():        return self % (operand % o.Operand())
             case ov.Measure():      return self._measure.copy()
             case ov.Beat():         return self._beat.copy()

@@ -187,7 +187,7 @@ class Controller(Generic):
                 match operand % o.Operand():
                     case ou.ControlNumber():    return self._control_number
                     case ou.ControlValue():     return self._control_value
-                    case _:                     return ol.Null()
+                    case _:                     return self
             case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number.copy()
             case ou.ControlValue():     return self._control_value.copy()
