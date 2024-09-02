@@ -352,9 +352,19 @@ class Step(TimeUnit):
     def getTime_rational(self) -> Fraction:
         return self._rational * NoteValue(1).getTime_rational() / (os.staff % StepsPerNote() % Fraction())
 
-                # beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
-                # value_floor = operand % Fraction() // beats_per_measure
-                # self._rational = operand % Fraction() - value_floor
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Step':
+        if self._next_operand is not None and operand != self._next_operand:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case int() | Fraction() | float():
+                    beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
+                    value_floor = operand // beats_per_measure
+                    self._rational = Fraction(operand - value_floor).limit_denominator()
+                case _: super().__lshift__(operand)
+        return self
         
 class NoteValue(TimeUnit):
     """

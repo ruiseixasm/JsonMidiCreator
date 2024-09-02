@@ -117,7 +117,7 @@ class Time(o.Operand):
             self._note_value    = ov.NoteValue()    << od.DataSource( serialization["parameters"]["note_value"] )
 
         return self
-        
+
     def __lshift__(self, operand: o.Operand) -> 'Time':
         if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
