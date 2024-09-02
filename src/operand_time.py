@@ -134,8 +134,12 @@ class Time(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ov.Measure():      self._measure << operand
-            case ov.Beat():         self._beat << operand
-            case ov.Step():         self._step << operand
+            case ov.Beat():
+                self._beat << operand
+                self._step << 0
+            case ov.Step():
+                self._beat << 0
+                self._step << operand
             case ov.NoteValue():    self._note_value << operand
             case int():
                 self._measure       << operand

@@ -36,7 +36,7 @@ single_clock = Clock() >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 # Multiple individual Notes creation and sequentially played
 original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
-first_note = Note() << (Position() << Beat(3) << Step(2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
+first_note = Note() << (Position() << Step(3*4 + 2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Null() >> first_note * 3 >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 results_list.append({
