@@ -28,12 +28,17 @@ import operand_label as ol
 
 
 class Time(o.Operand):
-    def __init__(self):
+    def __init__(self, time: int | float = None):
         # Default values already, no need to wrap them with Default()
         self._measure       = ov.Measure()
         self._beat          = ov.Beat()
         self._step          = ov.Step()
         self._note_value    = ov.NoteValue()
+        if time is not None:
+            if isinstance(time, int):
+                self._measure       << time
+            elif isinstance(time, (float, Fraction)):
+                self._note_value    << time
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -207,7 +212,7 @@ class Time(o.Operand):
         return self / operand
     
 class Position(Time):
-    def __init__(self, measure: float = None):
+    def __init__(self, measure: int = None):
         super().__init__()
         if measure is not None:
             self._measure = ov.Measure(measure)
