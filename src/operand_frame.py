@@ -15,7 +15,6 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
-from typing import Optional
 from fractions import Fraction
 import enum
 # Json Midi Creator Libraries
@@ -34,10 +33,10 @@ import operand_label as ol
 # Works as a traditional C list (chained)
 class Frame(o.Operand):
     def __init__(self):
-        self._next_operand: Optional[o.Operand] = ol.Dummy()
+        self._next_operand: o.Operand = ol.End()
         
     def __iter__(self):
-        self._current_node: Optional[o.Operand] = self    # Reset to the start node on new iteration
+        self._current_node: o.Operand = self    # Reset to the start node on new iteration
         return self
     
     def __next__(self):
@@ -63,7 +62,7 @@ class Frame(o.Operand):
                             if isinstance(single_operand, operand.__class__): # checks if it's the same Frame
                                 return single_operand   # It's a Frame
                     case ol.Null() | None:      return ol.Null()
-                    case ol.Dummy():
+                    case ol.End():
                         return self._next_operand
                     case _:
                         for single_operand in self:
@@ -126,7 +125,7 @@ class Frame(o.Operand):
     def __pow__(self, operand: o.Operand) -> 'Frame':
         match operand:
             case o.Operand():   self._next_operand = operand
-            case _:             self._next_operand = ol.Dummy()
+            case _:             self._next_operand = ol.End()
         return self
 
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA)

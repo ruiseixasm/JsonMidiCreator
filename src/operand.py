@@ -15,6 +15,34 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 
 class Operand:
+    def __init__(self):
+        self._next_operand: Operand = None
+        
+    def __iter__(self):
+        self._current_node: Operand = self    # Reset to the start node on new iteration
+        return self
+    
+    def __next__(self):
+        import operand_label as ol
+        if isinstance(self._current_node, ol.Null): raise StopIteration
+        previous_node = self._current_node
+        match self._current_node:
+            case None:      self._current_node = ol.Null()
+            case _:         self._current_node = self._current_node._next_operand
+        return previous_node
+
+    def len(self) -> int:
+        list_size = 0
+        for _ in self:
+            list_size += 1
+        return list_size
+
+    def __pow__(self, operand: 'Operand') -> 'Operand':
+        match operand:
+            case Operand():     self._next_operand = operand
+            case _:             self._next_operand = None
+        return self
+
     def __mod__(self, operand: 'Operand') -> 'Operand':
         """
         The % symbol is used to extract a Parameter, each Operand
