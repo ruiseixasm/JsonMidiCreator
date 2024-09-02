@@ -212,10 +212,8 @@ class Time(o.Operand):
         return self / operand
     
 class Position(Time):
-    def __init__(self, measure: int = None):
-        super().__init__()
-        if measure is not None:
-            self._measure = ov.Measure(measure)
+    def __init__(self, time: int | float = None):
+        super().__init__(time)
 
     def start(self) -> 'Position':
         return self
@@ -224,16 +222,12 @@ class Position(Time):
         return self
 
 class Duration(Time):
-    def __init__(self, note_value: float = None):
-        super().__init__()
-        if note_value is not None:
-            self._note_value = ov.NoteValue(note_value)
+    def __init__(self, time: int | float = None):
+        super().__init__(time)
 
 class Length(Time):
-    def __init__(self, note_value: float = None):
-        super().__init__()
-        if note_value is not None:
-            self._note_value = ov.NoteValue(note_value)
+    def __init__(self, time: int | float = None):
+        super().__init__(time)
     
 class Identity(Time):
     def __init__(self):
