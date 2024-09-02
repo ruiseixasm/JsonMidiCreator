@@ -208,41 +208,38 @@ class SubjectFilter(Frame):
         self._data = 0
 
 class Equal(SubjectFilter):
-    def __init__(self, operand: o.Operand):
+    def __init__(self):
         super().__init__()
-        self._operand: o.Operand = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand % self._operand == self._operand:
+        if subject % self_operand == self_operand:
             return self_operand
         return ol.Null()
 
 class Greater(SubjectFilter):
-    def __init__(self, operand: o.Operand):
+    def __init__(self):
         super().__init__()
-        self._operand: o.Operand = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand % self._operand > self._operand:
+        if subject % self_operand > self_operand:
             return self_operand
         return ol.Null()
 
 class Lower(SubjectFilter):
-    def __init__(self, operand: o.Operand):
+    def __init__(self):
         super().__init__()
-        self._operand: o.Operand = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand % self._operand < self._operand:
+        if subject % self_operand < self_operand:
             return self_operand
         return ol.Null()
 
