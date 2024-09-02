@@ -29,7 +29,9 @@ class Operand:
         0.5
         """
         import operand_label as ol
+        import operand_frame as of
         match operand:
+            case of.Frame():        return self % (operand % Operand())
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 

@@ -216,7 +216,7 @@ class Equal(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand == self._operand:
+        if self_operand % self._operand == self._operand:
             return self_operand
         return ol.Null()
 
@@ -229,7 +229,7 @@ class Greater(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand == self._operand:
+        if self_operand % self._operand > self._operand:
             return self_operand
         return ol.Null()
 
@@ -242,7 +242,7 @@ class Lower(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand == self._operand:
+        if self_operand % self._operand < self._operand:
             return self_operand
         return ol.Null()
 
