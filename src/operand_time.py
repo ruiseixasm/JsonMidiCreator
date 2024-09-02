@@ -32,8 +32,8 @@ class Time(o.Operand):
         # Default values already, no need to wrap them with Default()
         self._measure       = ov.Measure()
         self._beat          = ov.Beat()
-        self._note_value    = ov.NoteValue()
         self._step          = ov.Step()
+        self._note_value    = ov.NoteValue()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -42,15 +42,15 @@ class Time(o.Operand):
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case ov.Measure():      return self._measure
                     case ov.Beat():         return self._beat
-                    case ov.NoteValue():    return self._note_value
                     case ov.Step():         return self._step
+                    case ov.NoteValue():    return self._note_value
                     case ol.Null() | None:  return ol.Null()
                     case _:                 return self
             case of.Frame():        return self % (operand % o.Operand())
             case ov.Measure():      return self._measure.copy()
             case ov.Beat():         return self._beat.copy()
-            case ov.NoteValue():    return self._note_value.copy()
             case ov.Step():         return self._step.copy()
+            case ov.NoteValue():    return self._note_value.copy()
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
@@ -71,7 +71,7 @@ class Time(o.Operand):
     
     def getTime_rational(self) -> Fraction:
         return self._measure.getTime_rational() + self._beat.getTime_rational() \
-                + self._note_value.getTime_rational() + self._step.getTime_rational()
+                + self._step.getTime_rational() + self._note_value.getTime_rational()
         
     def getTime_ms(self, rounded = True) -> float:
         if rounded:
@@ -94,8 +94,8 @@ class Time(o.Operand):
             "parameters": {
                 "measure":      self._measure % od.DataSource( float() ),
                 "beat":         self._beat % od.DataSource( float() ),
-                "note_value":   self._note_value % od.DataSource( float() ),
-                "step":         self._step % od.DataSource( float() )
+                "step":         self._step % od.DataSource( float() ),
+                "note_value":   self._note_value % od.DataSource( float() )
             }
         }
 
@@ -108,8 +108,8 @@ class Time(o.Operand):
 
             self._measure       = ov.Measure()      << od.DataSource( serialization["parameters"]["measure"] )
             self._beat          = ov.Beat()         << od.DataSource( serialization["parameters"]["beat"] )
-            self._note_value    = ov.NoteValue()    << od.DataSource( serialization["parameters"]["note_value"] )
             self._step          = ov.Step()         << od.DataSource( serialization["parameters"]["step"] )
+            self._note_value    = ov.NoteValue()    << od.DataSource( serialization["parameters"]["note_value"] )
 
         return self
         
@@ -119,25 +119,25 @@ class Time(o.Operand):
                 match operand % o.Operand():
                     case ov.Measure():      self._measure = operand % o.Operand()
                     case ov.Beat():         self._beat = operand % o.Operand()
-                    case ov.NoteValue():    self._note_value = operand % o.Operand()
                     case ov.Step():         self._step = operand % o.Operand()
+                    case ov.NoteValue():    self._note_value = operand % o.Operand()
             case Time():
                 self._measure       = (operand % od.DataSource( ov.Measure() )).copy()
                 self._beat          = (operand % od.DataSource( ov.Beat() )).copy()
-                self._note_value    = (operand % od.DataSource( ov.NoteValue() )).copy()
                 self._step          = (operand % od.DataSource( ov.Step() )).copy()
+                self._note_value    = (operand % od.DataSource( ov.NoteValue() )).copy()
             case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ov.Measure():      self._measure << operand
             case ov.Beat():         self._beat << operand
-            case ov.NoteValue():    self._note_value << operand
             case ov.Step():         self._step << operand
+            case ov.NoteValue():    self._note_value << operand
             case Fraction() | float() | int():
                 self._measure       = ov.Measure(operand)
                 self._beat          = ov.Beat(operand)
-                self._note_value    = ov.NoteValue(operand)
                 self._step          = ov.Step(operand)
+                self._note_value    = ov.NoteValue(operand)
         return self
 
     # adding two lengths 
@@ -148,12 +148,12 @@ class Time(o.Operand):
             case Time():            self_copy \
                                         << od.DataSource( self._measure + operand % od.DataSource( ov.Measure() ) ) \
                                         << od.DataSource( self._beat + operand % od.DataSource( ov.Beat() ) ) \
-                                        << od.DataSource( self._note_value + operand % od.DataSource( ov.NoteValue() ) ) \
-                                        << od.DataSource( self._step + operand % od.DataSource( ov.Step() ) )
+                                        << od.DataSource( self._step + operand % od.DataSource( ov.Step() ) ) \
+                                        << od.DataSource( self._note_value + operand % od.DataSource( ov.NoteValue() ) )
             case ov.TimeUnit():     self_copy << od.DataSource( self % od.DataSource( operand ) + operand )
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
                 self_copy << self._measure + operand << self._beat + operand \
-                          << self._note_value + operand << self._step + operand
+                          << self._step + operand << self._note_value + operand
         return self_copy
     
     # subtracting two lengths 
@@ -164,12 +164,12 @@ class Time(o.Operand):
             case Time():            self_copy \
                                         << od.DataSource( self._measure - operand % od.DataSource( ov.Measure() ) ) \
                                         << od.DataSource( self._beat - operand % od.DataSource( ov.Beat() ) ) \
-                                        << od.DataSource( self._note_value - operand % od.DataSource( ov.NoteValue() ) ) \
-                                        << od.DataSource( self._step - operand % od.DataSource( ov.Step() ) )
+                                        << od.DataSource( self._step - operand % od.DataSource( ov.Step() ) ) \
+                                        << od.DataSource( self._note_value - operand % od.DataSource( ov.NoteValue() ) )
             case ov.TimeUnit():     self_copy << od.DataSource( self % od.DataSource( operand ) - operand )
             case ov.Value() | ou.Unit() | Fraction() | float() | int():
                 self_copy << self._measure - operand << self._beat - operand \
-                          << self._note_value - operand << self._step - operand
+                          << self._step - operand << self._note_value - operand
         return self_copy
     
     def __mul__(self, operand: o.Operand) -> 'Time':
@@ -179,12 +179,12 @@ class Time(o.Operand):
             case Time():            self_copy \
                                         << od.DataSource( self._measure * (operand % od.DataSource( ov.Measure() )) ) \
                                         << od.DataSource( self._beat * (operand % od.DataSource( ov.Beat() )) ) \
-                                        << od.DataSource( self._note_value * (operand % od.DataSource( ov.NoteValue() )) ) \
-                                        << od.DataSource( self._step * (operand % od.DataSource( ov.Step() )) )
+                                        << od.DataSource( self._step * (operand % od.DataSource( ov.Step() )) ) \
+                                        << od.DataSource( self._note_value * (operand % od.DataSource( ov.NoteValue() )) )
             case ov.TimeUnit():     self_copy << od.DataSource( self % od.DataSource( operand ) * operand )
             case ov.Value() | ou.Unit() | Fraction() | float() | int():
                 self_copy << self._measure * operand << self._beat * operand \
-                          << self._note_value * operand << self._step * operand
+                          << self._step * operand << self._note_value * operand
         return self_copy
     
     def __rmul__(self, operand: o.Operand) -> 'Time':
@@ -197,12 +197,12 @@ class Time(o.Operand):
             case Time():            self_copy \
                                         << od.DataSource( self._measure / (operand % od.DataSource( ov.Measure() )) ) \
                                         << od.DataSource( self._beat / (operand % od.DataSource( ov.Beat() )) ) \
-                                        << od.DataSource( self._note_value / (operand % od.DataSource( ov.NoteValue() )) ) \
-                                        << od.DataSource( self._step / (operand % od.DataSource( ov.Step() )) )
+                                        << od.DataSource( self._step / (operand % od.DataSource( ov.Step() )) ) \
+                                        << od.DataSource( self._note_value / (operand % od.DataSource( ov.NoteValue() )) )
             case ov.TimeUnit():     self_copy << od.DataSource( self % od.DataSource( operand ) / operand )
             case ov.Value() | ou.Unit() | Fraction() | float() | int():
                 self_copy << self._measure / operand << self._beat / operand \
-                          << self._note_value / operand << self._step / operand
+                          << self._step / operand << self._note_value / operand
         return self_copy
 
     def __rtruediv__(self, operand: o.Operand) -> 'Time':
