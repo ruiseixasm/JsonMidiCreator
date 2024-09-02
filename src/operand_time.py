@@ -133,11 +133,10 @@ class Time(o.Operand):
             case ov.Beat():         self._beat << operand
             case ov.Step():         self._step << operand
             case ov.NoteValue():    self._note_value << operand
-            case Fraction() | float() | int():
-                self._measure       = ov.Measure(operand)
-                self._beat          = ov.Beat(operand)
-                self._step          = ov.Step(operand)
-                self._note_value    = ov.NoteValue(operand)
+            case int():
+                self._measure       = ov.Measure() << operand
+            case Fraction() | float():
+                self._note_value    = ov.NoteValue() << operand
         return self
 
     # adding two lengths 
@@ -234,5 +233,6 @@ class Length(Time):
     
 class Identity(Time):
     def __init__(self):
+        super().__init__()
         self << 1
   
