@@ -87,7 +87,6 @@ class Time(o.Operand):
                 }
             ]
 
-
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -134,9 +133,9 @@ class Time(o.Operand):
             case ov.Step():         self._step << operand
             case ov.NoteValue():    self._note_value << operand
             case int():
-                self._measure       = ov.Measure() << operand
+                self._measure       << operand
             case Fraction() | float():
-                self._note_value    = ov.NoteValue() << operand
+                self._note_value    << operand
         return self
 
     # adding two lengths 
