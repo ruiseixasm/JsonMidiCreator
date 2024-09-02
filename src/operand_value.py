@@ -65,6 +65,7 @@ class Value(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case float():           return float(self._rational)
                     case int():             return round(self._rational)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
