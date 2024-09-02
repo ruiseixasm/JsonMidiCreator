@@ -295,7 +295,8 @@ class Scale(Data):
         ["pentatonic_min", "pentatonic"],
         ["diminished"],
         ["augmented"],
-        ["blues"]
+        ["blues"],
+        ["Whole-tone", "Whole tone", "Whole"]
     ]
     _scales = [
     #       Db    Eb       Gb    Ab    Bb
@@ -319,7 +320,8 @@ class Scale(Data):
         [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
         [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],
         [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
-        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0]
+        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0],
+        [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
     ]
 
     @staticmethod
