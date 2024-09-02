@@ -317,15 +317,37 @@ class Beat(TimeUnit):
         Proportional value to a Beat on the Staff
     """
     def __init__(self, value: float = None):
-        super().__init__(value)
-        # beats_per_measure = os.staff % BeatsPerMeasure() % int()
-        # value_floor = value // beats_per_measure
-        # super().__init__(value - value_floor)
+        if value is not None:
+            beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
+            value_floor = value // beats_per_measure
+            super().__init__(value - value_floor)
+        else:
+            super().__init__(value)
 
     def getTime_rational(self) -> Fraction:
         # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
         return self._rational / (os.staff % od.DataSource( Tempo() ) % Fraction()) * 60 * 1000
     
+class Step(TimeUnit):
+    """
+    A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
+    
+    Parameters
+    ----------
+    first : float_like
+        Steps as 1, 2, 4, 8
+    """
+    def __init__(self, value: float = None):
+        if value is not None:
+            steps_per_measure = os.staff % StepsPerMeasure() % int()
+            value_floor = value // steps_per_measure
+            super().__init__(value - value_floor)
+        else:
+            super().__init__(value)
+
+    def getTime_rational(self) -> Fraction:
+        return self._rational * NoteValue(1).getTime_rational() / (os.staff % StepsPerNote() % Fraction())
+
 class NoteValue(TimeUnit):
     """
     NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
@@ -340,21 +362,6 @@ class NoteValue(TimeUnit):
 
     def getTime_rational(self) -> Fraction:
         return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
-
-class Step(TimeUnit):
-    """
-    A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
-    
-    Parameters
-    ----------
-    first : float_like
-        Steps as 1, 2, 4, 8
-    """
-    def __init__(self, value: float = None):
-        super().__init__(value)
-
-    def getTime_rational(self) -> Fraction:
-        return self._rational * NoteValue(1).getTime_rational() / (os.staff % StepsPerNote() % Fraction())
 
 class Dotted(NoteValue):
     """
