@@ -192,6 +192,8 @@ class Operand:
         return self.copy()
 
     def __and__(self, operand: 'Operand') -> 'Operand':
+        # if self._next_operand is not None and operand != self._next_operand:
+        #     return self._next_operand & operand
         return self
 
     def __or__(self, operand: 'Operand') -> 'Operand':
