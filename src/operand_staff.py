@@ -159,7 +159,7 @@ class Staff(o.Operand):
         
     def __lshift__(self, operand: o.Operand) -> 'Staff':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():

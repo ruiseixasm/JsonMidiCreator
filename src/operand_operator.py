@@ -96,7 +96,7 @@ class Operator(o.Operand):
   
     def __lshift__(self, operand: o.Operand) -> 'Operator':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -199,7 +199,7 @@ class Oscillator(Operator):
       
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():

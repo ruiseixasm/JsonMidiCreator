@@ -120,7 +120,7 @@ class Time(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Time':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():

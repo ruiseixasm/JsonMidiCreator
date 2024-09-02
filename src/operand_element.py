@@ -131,7 +131,7 @@ class Element(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -324,7 +324,7 @@ class Clock(Element):
 
     def __lshift__(self, operand: o.Operand) -> 'Clock':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -448,7 +448,7 @@ class Note(Element):
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -569,7 +569,7 @@ class KeyScale(Note):
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -698,7 +698,7 @@ class Chord(Note):
       
     def __lshift__(self, operand: o.Operand) -> 'Chord':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -793,7 +793,7 @@ class Retrigger(Note):
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -837,7 +837,7 @@ class Note3(Retrigger):
 
     def __lshift__(self, operand: o.Operand) -> 'Note3':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case ou.Division() | int():
@@ -950,7 +950,7 @@ class Tuplet(Element):
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             for single_element in self._elements:
                 single_element << operand
@@ -1004,7 +1004,7 @@ class Triplet(Tuplet):
 
     def __lshift__(self, operand: o.Operand | list[Element]) -> 'Triplet':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case list():
@@ -1086,7 +1086,7 @@ class ControlChange(Element):
       
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -1175,7 +1175,7 @@ class PitchBend(Element):
       
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -1263,7 +1263,7 @@ class Aftertouch(Element):
       
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -1353,7 +1353,7 @@ class PolyAftertouch(Aftertouch):
       
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -1425,7 +1425,7 @@ class ProgramChange(Element):
       
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():

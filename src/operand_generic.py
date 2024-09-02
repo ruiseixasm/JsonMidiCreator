@@ -105,7 +105,7 @@ class KeyNote(Generic):
         
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -231,7 +231,7 @@ class Controller(Generic):
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():

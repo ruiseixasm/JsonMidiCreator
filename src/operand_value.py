@@ -135,7 +135,7 @@ class Value(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():
@@ -336,7 +336,7 @@ class Beat(TimeUnit):
 
     def __lshift__(self, operand: o.Operand) -> 'Step':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case int() | Fraction() | float():
@@ -409,7 +409,7 @@ class Step(TimeUnit):
 
     def __lshift__(self, operand: o.Operand) -> 'Step':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case int() | Fraction() | float():
@@ -480,7 +480,7 @@ class Dotted(NoteValue):
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case od.DataSource():   super().__lshift__(operand)

@@ -113,7 +113,7 @@ class Data(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case DataSource():      self._data = operand % o.Operand()
@@ -278,7 +278,7 @@ class Scale(Data):
 
     def __lshift__(self, operand: any) -> 'Scale':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             match operand:
                 case list() | str() | int():
@@ -439,7 +439,7 @@ class Serialization(Data):
 
     def __lshift__(self, operand: o.Operand) -> 'o.Operand':
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             self._data = operand.copy()
         return self
@@ -509,7 +509,7 @@ class PlayList(Data):
         import operand_container as oc
         import operand_element as oe
         if self._next_operand is not None and operand != self._next_operand:
-            self << self._next_operand << operand
+            self << (self._next_operand << operand)
         else:
             if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
                 self._data = operand.getPlayList()
