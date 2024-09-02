@@ -40,7 +40,8 @@ class Staff(o.Operand):
         self._key: ou.Key                           = ou.Key("C")
         self._octave: ou.Octave                     = ou.Octave(4)
         self._velocity: ou.Velocity                 = ou.Velocity(100)
-        self._controller: og.Controller             = og.Controller("Pan") << ou.ControlValue( ou.ControlNumber.getDefault("Pan") )
+        self._controller: og.Controller             = og.Controller("Pan") \
+                                                        << ou.ControlValue( ou.ControlNumber.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
 
@@ -83,11 +84,14 @@ class Staff(o.Operand):
             case od.Device():           return self._device.copy()
             # Calculated Values
             case ov.NotesPerMeasure():
-                return ov.NotesPerMeasure((self % ov.BeatsPerMeasure() % Fraction()) * (self % ov.BeatNoteValue() % Fraction()))
+                return ov.NotesPerMeasure() \
+                    << (self % ov.BeatsPerMeasure() % Fraction()) * (self % ov.BeatNoteValue() % Fraction())
             case ov.StepsPerMeasure():
-                return ov.StepsPerMeasure((self % ov.StepsPerNote() % Fraction()) * (self % ov.NotesPerMeasure() % Fraction()))
+                return ov.StepsPerMeasure() \
+                    << (self % ov.StepsPerNote() % Fraction()) * (self % ov.NotesPerMeasure() % Fraction())
             case ov.StepsPerNote():
-                return ov.StepsPerNote(1 / (self._quantization % Fraction()))
+                return ov.StepsPerNote() \
+                    << 1 / (self._quantization % Fraction())
             case ol.Null() | None:      return ol.Null()
             case _:                     return self.copy()
 
