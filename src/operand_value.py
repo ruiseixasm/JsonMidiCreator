@@ -152,7 +152,7 @@ class Value(o.Operand):
                 case ou.Integer():              self._rational = operand % Fraction()
         return self
 
-    def __add__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
+    def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         match value:
             case of.Frame():        return self + (value & self)
             case Value() | ou.Unit():
@@ -161,7 +161,7 @@ class Value(o.Operand):
             case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __sub__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
+    def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         match value:
             case of.Frame():        return self - (value & self)
             case Value() | ou.Unit():
@@ -170,7 +170,7 @@ class Value(o.Operand):
             case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __mul__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
+    def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         match value:
             case of.Frame():        return self * (value & self)
             case Value() | ou.Unit():
@@ -179,7 +179,7 @@ class Value(o.Operand):
             case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __truediv__(self, value: Union['Value', 'ou.Unit', float, int]) -> 'Value':
+    def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         match value:
             case of.Frame():        return self / (value & self)
             case Value() | ou.Unit():
@@ -345,6 +345,45 @@ class Beat(TimeUnit):
                     self._rational = Fraction(operand - value_floor).limit_denominator()
                 case _: super().__lshift__(operand)
         return self
+
+    # def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    #     beat_copy = super().__add__(value)
+    #     beat_rational = beat_copy % od.DataSource( Fraction() )
+    #     beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
+    #     value_floor = beat_rational // beats_per_measure
+    #     beat_copy << od.DataSource( beat_rational - value_floor )
+    #     return beat_copy
+    
+    # def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    #     match value:
+    #         case of.Frame():        return self - (value & self)
+    #         case Value() | ou.Unit():
+    #             return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
+    #         case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
+    #         case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
+    #     return self.copy()
+    
+    # def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    #     match value:
+    #         case of.Frame():        return self * (value & self)
+    #         case Value() | ou.Unit():
+    #             return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
+    #         case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
+    #         case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
+    #     return self.copy()
+    
+    # def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    #     match value:
+    #         case of.Frame():        return self / (value & self)
+    #         case Value() | ou.Unit():
+    #             if value % od.DataSource( Fraction() ) != 0:
+    #                 return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
+    #         case Fraction():
+    #             if value != 0: return self.__class__() << od.DataSource( self._rational / value )
+    #         case float() | int():
+    #             if Fraction(value).limit_denominator() != 0:
+    #                 return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
+    #     return self.copy()
 
 class Step(TimeUnit):
     """
