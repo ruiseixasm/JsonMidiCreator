@@ -97,8 +97,8 @@ class Element(o.Operand):
             "parameters": {
                 "position": self._position.getSerialization(),
                 "length":   self._length.getSerialization(),
-                "channel":  self._channel % od.DataSource(),
-                "device":   self._device % od.DataSource()
+                "channel":  self._channel % od.DataSource( int() ),
+                "device":   self._device % od.DataSource( list() )
             }
         }
 
@@ -257,7 +257,7 @@ class Clock(Element):
 
         device = self % od.Device()
 
-        pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource()
+        pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( int() )
         pulses_per_beat = pulses_per_note * (os.staff % ov.BeatNoteValue() % Fraction())
         pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % Fraction())
         clock_pulses = round(pulses_per_measure * (self._length % ov.Measure() % Fraction()))
@@ -271,7 +271,7 @@ class Clock(Element):
                     "time_ms": round(clock_start_ms, 3),
                     "midi_message": {
                         "status_byte": 0xFA,    # Start Sequence
-                        "device": device % od.DataSource()
+                        "device": device % od.DataSource( list() )
                     }
                 }
             ]
@@ -280,10 +280,10 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(clock_start_ms + single_measure_ms \
-                                     * (self._length % ov.Measure() % od.DataSource()) * clock_pulse / clock_pulses, 3),
+                                     * (self._length % ov.Measure() % od.DataSource( float() )) * clock_pulse / clock_pulses, 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
-                        "device": device % od.DataSource()
+                        "device": device % od.DataSource( list() )
                     }
                 }
             )
@@ -293,7 +293,7 @@ class Clock(Element):
                 "time_ms": round(clock_stop_ms, 3),
                 "midi_message": {
                     "status_byte": 0xFC,    # Stop Sequence
-                    "device": device % od.DataSource()
+                    "device": device % od.DataSource( list() )
                 }
             }
         )
@@ -645,7 +645,7 @@ class Chord(Note):
             for key_note in chord_key_notes:
                 if key_note < first_key_note:
                     key_note << key_note % ou.Octave() + 1
-                    if key_note % od.DataSource() < 128:
+                    if key_note % od.DataSource( int() ) < 128:
                         not_first_key_note = True
 
         self_playlist = []
@@ -658,11 +658,11 @@ class Chord(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
-        element_serialization["parameters"]["type"]         = self._type % od.DataSource()
-        element_serialization["parameters"]["degree"]       = self._degree % od.DataSource()
-        element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource()
-        element_serialization["parameters"]["sus"]          = self._sus % od.DataSource()
+        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource( list() )
+        element_serialization["parameters"]["type"]         = self._type % od.DataSource( int() )
+        element_serialization["parameters"]["degree"]       = self._degree % od.DataSource( int() )
+        element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
+        element_serialization["parameters"]["sus"]          = self._sus % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS

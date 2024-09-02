@@ -72,8 +72,10 @@ class Time(o.Operand):
         return self._measure.getTime_rational() + self._beat.getTime_rational() \
                 + self._note_value.getTime_rational() + self._step.getTime_rational()
         
-    def getTime_ms(self) -> float:
-        return round(float(self.getTime_rational()), 3)
+    def getTime_ms(self, rounded = True) -> float:
+        if rounded:
+            return round(float(self.getTime_rational()), 3)
+        return float(self.getTime_rational())
         
     def getPlayList(self, position: 'Position' = None) -> list:
         self_position: Position  = self + Position() if position is None else position
