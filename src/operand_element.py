@@ -35,6 +35,7 @@ import operand_frame as of
 
 class Element(o.Operand):
     def __init__(self):
+        super().__init__()
         self._position: ot.Position         = ot.Position()
         self._length: ot.Length             = ot.Length()
         self._channel: ou.Channel           = ou.Channel()

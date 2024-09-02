@@ -27,6 +27,7 @@ import operand_label as ol
 
 class Staff(o.Operand):
     def __init__(self):
+        super().__init__()
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: ov.Measure                   = ov.Measure(8)
         self._tempo: ov.Tempo                       = ov.Tempo(120.0)

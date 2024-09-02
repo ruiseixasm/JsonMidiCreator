@@ -44,6 +44,7 @@ class Value(o.Operand):
         A fraction like 1/4 or 0.9 or 1.24
     """
     def __init__(self, value: float = None):
+        super().__init__()
         self._rational: Fraction = Fraction(0).limit_denominator()
         if isinstance(value, Fraction):
             self._rational: Fraction = value

@@ -39,6 +39,7 @@ class Unit(o.Operand):
         An Integer described as a Unit
     """
     def __init__(self, unit: int = None):
+        super().__init__()
         self._unit: int = 0 if unit is None else round(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -135,20 +136,23 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         import operand_value as ov
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case int():                     self._unit = operand % o.Operand()
-                    case float() | Fraction():      self._unit = round(operand % o.Operand())
-                    case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
-            case Unit():            self._unit = operand % od.DataSource( int() )
-            case of.Frame():        self << (operand & self)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case int() | float() | Fraction():
-                self._unit = round(operand)
-            case ov.Float():
-                self._unit = operand % int()
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case od.DataSource():
+                    match operand % o.Operand():
+                        case int():                     self._unit = operand % o.Operand()
+                        case float() | Fraction():      self._unit = round(operand % o.Operand())
+                        case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                case Unit():            self._unit = operand % od.DataSource( int() )
+                case of.Frame():        self << (operand & self)
+                case od.Serialization():
+                    self.loadSerialization( operand.getSerialization() )
+                case int() | float() | Fraction():
+                    self._unit = round(operand)
+                case ov.Float():
+                    self._unit = operand % int()
         return self
 
     def __add__(self, number: any) -> 'Unit':

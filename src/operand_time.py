@@ -29,6 +29,7 @@ import operand_label as ol
 
 class Time(o.Operand):
     def __init__(self, time: int | float = None):
+        super().__init__()
         # Default values already, no need to wrap them with Default()
         self._measure       = ov.Measure()
         self._beat          = ov.Beat()

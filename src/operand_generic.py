@@ -34,6 +34,7 @@ class Generic(o.Operand):
 
 class KeyNote(Generic):
     def __init__(self, key: int | str = None):
+        super().__init__()
         self._key: ou.Key = ou.Key(key)
         self._octave: ou.Octave = ou.Octave()
 
@@ -181,6 +182,7 @@ class KeyNote(Generic):
 
 class Controller(Generic):
     def __init__(self, number: int | str = None):
+        super().__init__()
         self._control_number: ou.ControlNumber  = ou.ControlNumber( number )
         self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % od.DataSource( int() )) )
 
