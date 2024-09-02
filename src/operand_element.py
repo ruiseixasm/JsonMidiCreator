@@ -224,7 +224,8 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, measure: float = None):
         super().__init__()
-        self._length = ot.Length() << ov.Measure( os.staff % od.DataSource( ov.Measure() ) % float() if measure is None else measure )
+        self._length = ot.Length() << (ov.Measure() << \
+                        ( os.staff % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() ) if measure is None else measure ))
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -527,7 +528,7 @@ class KeyScale(Note):
         root_key_note = self._key_note.copy()
         scale_key_notes = []
         for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
-            transposition = self._scale.transposition(self._mode % od.DataSource() + key_note_i)
+            transposition = self._scale.transposition(self._mode % od.DataSource( int() ) + key_note_i)
             scale_key_notes.append(root_key_note + transposition)
 
         self_playlist = []
@@ -623,22 +624,22 @@ class Chord(Note):
         max_type = self._scale.keys()
         if max_type % 2 == 0:
             max_type //= 2
-        max_type = min(self._type % od.DataSource(), max_type)
+        max_type = min(self._type % od.DataSource( int() ), max_type)
 
         root_key_note = self._key_note
         chord_key_notes = []
         for key_note_i in range(max_type):
             key_note_nth = key_note_i * 2
             if key_note_nth == 2:
-                if self._sus % od.DataSource() == 1:
+                if self._sus % od.DataSource( int() ) == 1:
                     key_note_nth -= 1
-                if self._sus % od.DataSource() == 2:
+                if self._sus % od.DataSource( int() ) == 2:
                     key_note_nth += 1
-            transposition = self._scale.transposition(self._degree % od.DataSource() + key_note_nth)
+            transposition = self._scale.transposition(self._degree % od.DataSource( int() ) + key_note_nth)
             chord_key_notes.append(root_key_note + transposition)
 
         # Where the inversions are done
-        inversion = min(self._inversion % od.DataSource(), self._type % od.DataSource() - 1)
+        inversion = min(self._inversion % od.DataSource( int() ), self._type % od.DataSource( int() ) - 1)
         first_key_note = chord_key_notes[inversion]
         not_first_key_note = True
         while not_first_key_note:
@@ -746,8 +747,8 @@ class Retrigger(Note):
         self_playlist = []
         self_iteration = 0
         original_duration = self._duration
-        for _ in range(self._division % od.DataSource()):
-            swing_ratio = self._swing % od.DataSource()
+        for _ in range(self._division % od.DataSource( int() )):
+            swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
             self._duration = original_duration * 2 * swing_ratio
             self_playlist.extend(super().getPlayList(self_position))
@@ -890,7 +891,7 @@ class Tuplet(Element):
         self_iteration = 0
         for element_i in range(len(self._elements)):
             self_playlist.extend(self._elements[element_i].getPlayList(self_position))
-            swing_ratio = self._swing % od.DataSource()
+            swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
             self_position += self._duration * 2 * swing_ratio
             self_iteration += 1
@@ -1096,7 +1097,7 @@ class PitchBend(Element):
                     case ou.Pitch():        return self._pitch
                     case _:                 return super().__mod__(operand)
             case ou.Pitch():        return self._pitch.copy()
-            case int() | float():   return self._pitch % od.DataSource()
+            case int() | float():   return self._pitch % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -1109,8 +1110,8 @@ class PitchBend(Element):
 
         msb_midi: int               = self._pitch % ol.MSB()
         lsb_midi: int               = self._pitch % ol.LSB()
-        channel_int: int            = self._channel % od.DataSource()
-        device_list: list           = self._device % od.DataSource()
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( int() )
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1182,7 +1183,7 @@ class Aftertouch(Element):
                     case ou.Pressure():     return self._pressure
                     case _:                 return super().__mod__(operand)
             case ou.Pressure():     return self._pressure.copy()
-            case int() | float():   return self._pressure % od.DataSource()
+            case int() | float():   return self._pressure % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -1193,9 +1194,9 @@ class Aftertouch(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        pressure_int: int   = self._pressure % od.DataSource()
-        channel_int: int    = self._channel % od.DataSource()
-        device_list: list   = self._device % od.DataSource()
+        pressure_int: int   = self._pressure % od.DataSource( int() )
+        channel_int: int    = self._channel % od.DataSource( int() )
+        device_list: list   = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1338,7 +1339,7 @@ class ProgramChange(Element):
                     case ou.Program():      return self._program
                     case _:                 return super().__mod__(operand)
             case ou.Program():      return self._program.copy()
-            case int() | float():   return self._program % od.DataSource()
+            case int() | float():   return self._program % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_element: 'Element') -> bool:
@@ -1349,9 +1350,9 @@ class ProgramChange(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        program_int: int    = self._program % od.DataSource()
-        channel_int: int    = self._channel % od.DataSource()
-        device_list: list   = self._device % od.DataSource()
+        program_int: int    = self._program % od.DataSource( int() )
+        channel_int: int    = self._channel % od.DataSource( int() )
+        device_list: list   = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1422,8 +1423,8 @@ class Panic(Element):
         self_playlist.extend((ControlChange(1) << ou.ControlValue(0)).getPlayList(self_position))
         self_playlist.extend((ControlChange(121) << ou.ControlValue(0)).getPlayList(self_position))
 
-        channel_int: int            = self._channel % od.DataSource()
-        device_list: list           = self._device % od.DataSource()
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
         on_time_ms = self_position.getTime_ms()
         for key_note_midi in range(128):
             self_playlist.append(
