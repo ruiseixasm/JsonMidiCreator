@@ -215,7 +215,7 @@ class Equal(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if subject % self._filter_operand == self._filter_operand:
+        if subject % od.DataSource( self._filter_operand ) == self._filter_operand:
             return self_operand
         return ol.Null()
 
@@ -227,7 +227,7 @@ class NotEqual(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if subject % self._filter_operand != self._filter_operand:
+        if subject % od.DataSource( self._filter_operand ) != self._filter_operand:
             return self_operand
         return ol.Null()
 
@@ -239,7 +239,7 @@ class Greater(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if subject % self._filter_operand > self._filter_operand:
+        if subject % od.DataSource( self._filter_operand ) > self._filter_operand:
             return self_operand
         return ol.Null()
 
@@ -251,7 +251,7 @@ class Lower(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if subject % self._filter_operand < self._filter_operand:
+        if subject % od.DataSource( self._filter_operand ) < self._filter_operand:
             return self_operand
         return ol.Null()
 
@@ -263,7 +263,7 @@ class GreaterEqual(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if subject % self._filter_operand >= self._filter_operand:
+        if subject % od.DataSource( self._filter_operand ) >= self._filter_operand:
             return self_operand
         return ol.Null()
 
@@ -275,7 +275,7 @@ class LowerEqual(SubjectFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if subject % self._filter_operand <= self._filter_operand:
+        if subject % od.DataSource( self._filter_operand ) <= self._filter_operand:
             return self_operand
         return ol.Null()
 
