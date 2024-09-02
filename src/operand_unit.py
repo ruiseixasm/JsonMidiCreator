@@ -63,6 +63,7 @@ class Unit(o.Operand):
                     case Integer():         return Integer() << od.DataSource( self._unit )
                     case ov.Float():        return ov.Float() << od.DataSource( self._unit )
                     case Unit():            return self
+                    case ol.Null() | None:  return ol.Null()
                     case _:                 return self._unit           # returns a int()
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return self._unit

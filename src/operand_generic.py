@@ -48,6 +48,7 @@ class KeyNote(Generic):
                         key = self._key % od.DataSource( int() )
                         octave = self._octave % od.DataSource( int() )
                         return 12 * (octave + 1) + key
+                    case ol.Null() | None:  return ol.Null()
                     case _:                 return self
             case of.Frame():        return self % (operand % o.Operand())
             case ou.Key():          return self._key.copy()
@@ -190,6 +191,7 @@ class Controller(Generic):
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ou.ControlNumber():    return self._control_number
                     case ou.ControlValue():     return self._control_value
+                    case ol.Null() | None:      return ol.Null()
                     case _:                     return self
             case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number.copy()

@@ -47,6 +47,7 @@ class Data(o.Operand):
                 match operand % o.Operand():
                     case of.Frame():                return self % DataSource( operand % o.Operand() )
                     case Data():                    return self
+                    case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case ol.Null() | None:          return ol.Null()

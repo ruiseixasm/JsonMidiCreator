@@ -49,6 +49,7 @@ class Operator(o.Operand):
                 match operand % o.Operand():
                     case list():            return self._operator_list
                     case o.Operand():       return self._operand
+                    case ol.Null() | None:  return ol.Null()
                     case _:                 return self
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operator_list.copy()

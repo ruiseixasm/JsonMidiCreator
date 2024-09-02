@@ -62,6 +62,7 @@ class Staff(o.Operand):
                     case og.Controller():       return self._controller
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
+                    case ol.Null() | None:      return ol.Null()
                     case _:                     return self
             case of.Frame():            return self % (operand % o.Operand())
             # Direct Values
