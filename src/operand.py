@@ -191,9 +191,6 @@ class Operand:
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
         return self.copy()
 
-    def __pow__(self, operand: 'Operand') -> 'Operand':
-        return self
-    
     def __and__(self, operand: 'Operand') -> 'Operand':
         return self
 

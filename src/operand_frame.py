@@ -117,13 +117,6 @@ class Frame(o.Operand):
                     previous_frame = single_frame
         return self      
     
-    # STILL REQUIRED!!!
-    def __pow__(self, operand: o.Operand) -> 'Frame':
-        match operand:
-            case o.Operand():   self._next_operand = operand
-            case _:             self._next_operand = None
-        return self
-
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
 
 class FrameFilter(Frame):
