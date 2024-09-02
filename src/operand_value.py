@@ -318,6 +318,9 @@ class Beat(TimeUnit):
     """
     def __init__(self, value: float = None):
         super().__init__(value)
+        # beats_per_measure = os.staff % BeatsPerMeasure() % int()
+        # value_floor = value // beats_per_measure
+        # super().__init__(value - value_floor)
 
     def getTime_rational(self) -> Fraction:
         # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
