@@ -162,7 +162,9 @@ class Even(FrameFilter):
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call % 2 == 0:
-            return self._next_operand & subject
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
         else:
             return ol.Null()
 
@@ -174,7 +176,9 @@ class Nths(FrameFilter):
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call % self._nths == 0:
-            return self._next_operand & subject
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
         else:
             return ol.Null()
 
@@ -186,7 +190,9 @@ class Nth(FrameFilter):
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
         if self._call == self._nth:
-            return self._next_operand & subject
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
         else:
             return ol.Null()
 
