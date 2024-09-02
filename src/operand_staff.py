@@ -85,14 +85,12 @@ class Staff(o.Operand):
             # Calculated Values
             case ov.NotesPerMeasure():
                 return ov.NotesPerMeasure() \
-                    << (self % od.DataSource( ov.BeatsPerMeasure() ) % Fraction()) \
-                        * (self % od.DataSource( ov.BeatNoteValue() ) % Fraction())
-            case ov.StepsPerMeasure():
-                return ov.StepsPerMeasure() \
-                    << (self % od.DataSource( ov.StepsPerNote() ) % Fraction()) \
-                        * (self % od.DataSource( ov.NotesPerMeasure() ) % Fraction())
+                    << (self._beats_per_measure % Fraction()) * (self._beat_note_value % Fraction())
             case ov.StepsPerNote():
                 return ov.StepsPerNote() << 1 / (self._quantization % Fraction())
+            case ov.StepsPerMeasure():
+                return ov.StepsPerMeasure() \
+                    << (self % ov.StepsPerNote() % Fraction()) * (self % ov.NotesPerMeasure() % Fraction())
             case ol.Null() | None:      return ol.Null()
             case _:                     return self.copy()
 
