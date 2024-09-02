@@ -119,7 +119,7 @@ class Time(o.Operand):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Time':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:

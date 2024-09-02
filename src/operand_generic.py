@@ -104,7 +104,7 @@ class KeyNote(Generic):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -230,7 +230,7 @@ class Controller(Generic):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:

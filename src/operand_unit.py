@@ -136,7 +136,7 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         import operand_value as ov
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -221,7 +221,7 @@ class Key(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:

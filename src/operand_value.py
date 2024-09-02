@@ -134,7 +134,7 @@ class Value(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -416,7 +416,7 @@ class Dotted(NoteValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:

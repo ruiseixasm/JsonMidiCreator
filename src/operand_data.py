@@ -112,7 +112,7 @@ class Data(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -277,7 +277,7 @@ class Scale(Data):
         return self
 
     def __lshift__(self, operand: any) -> 'Scale':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -438,7 +438,7 @@ class Serialization(Data):
         return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
 
     def __lshift__(self, operand: o.Operand) -> 'o.Operand':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             self._data = operand.copy()
@@ -508,7 +508,7 @@ class PlayList(Data):
     def __lshift__(self, operand: o.Operand) -> 'PlayList':
         import operand_container as oc
         import operand_element as oe
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):

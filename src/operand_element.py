@@ -130,7 +130,7 @@ class Element(o.Operand):
                 return super().__xor__(operand)
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -323,7 +323,7 @@ class Clock(Element):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Clock':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -447,7 +447,7 @@ class Note(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -568,7 +568,7 @@ class KeyScale(Note):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -697,7 +697,7 @@ class Chord(Note):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Chord':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -792,7 +792,7 @@ class Retrigger(Note):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -836,7 +836,7 @@ class Note3(Retrigger):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Note3':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -949,7 +949,7 @@ class Tuplet(Element):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             for single_element in self._elements:
@@ -1003,7 +1003,7 @@ class Triplet(Tuplet):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand | list[Element]) -> 'Triplet':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -1085,7 +1085,7 @@ class ControlChange(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -1174,7 +1174,7 @@ class PitchBend(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -1262,7 +1262,7 @@ class Aftertouch(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -1352,7 +1352,7 @@ class PolyAftertouch(Aftertouch):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
@@ -1424,7 +1424,7 @@ class ProgramChange(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
-        if self._next_operand is not None:
+        if self._next_operand is not None and operand != self._next_operand:
             self << self._next_operand << operand
         else:
             match operand:
