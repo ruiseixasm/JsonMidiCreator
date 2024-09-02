@@ -221,17 +221,20 @@ class Key(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
-        match operand:
-            case od.DataSource():
-                super().__lshift__(operand)
-                self._unit %= 12    # makes sure it's one of the Octave's key
-            case Key():             super().__lshift__(operand)
-            case of.Frame():        self << (operand & self)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case Unit():            self._unit = operand % int() % 12
-            case int() | float():   self._unit = round(operand) % 12
-            case str():             self._unit = __class__.keyStrToKeyUnit(operand)
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case od.DataSource():
+                    super().__lshift__(operand)
+                    self._unit %= 12    # makes sure it's one of the Octave's key
+                case Key():             super().__lshift__(operand)
+                case of.Frame():        self << (operand & self)
+                case od.Serialization():
+                    self.loadSerialization( operand.getSerialization() )
+                case Unit():            self._unit = operand % int() % 12
+                case int() | float():   self._unit = round(operand) % 12
+                case str():             self._unit = __class__.keyStrToKeyUnit(operand)
         return self
 
     _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",

@@ -158,60 +158,63 @@ class Staff(o.Operand):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Staff':
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ov.Measure():          self._measure = operand % o.Operand()
-                    case ov.Tempo():            self._tempo = operand % o.Operand()
-                    case ov.BeatsPerMeasure():  self._beats_per_measure = operand % o.Operand()
-                    case ov.BeatNoteValue():    self._beat_note_value = operand % o.Operand()
-                    case od.Scale():            self._scale = operand % o.Operand()
-                    case ov.Quantization():     self._quantization = operand % o.Operand()    # Note Value
-                    case ot.Duration():         self._duration = operand % o.Operand()
-                    case ou.Key():              self._key = operand % o.Operand()
-                    case ou.Octave():           self._octave = operand % o.Operand()
-                    case ou.Velocity():         self._velocity = operand % o.Operand()
-                    case og.Controller():       self._controller = operand % o.Operand()
-                    case ou.Channel():          self._channel = operand % o.Operand()
-                    case od.Device():           self._device = operand % o.Operand()
-            case Staff():
-                self._measure           = operand % od.DataSource( ov.Measure() )
-                self._tempo             = operand % od.DataSource( ov.Tempo() )
-                self._beats_per_measure = operand % od.DataSource( ov.BeatsPerMeasure() )
-                self._beat_note_value   = operand % od.DataSource( ov.BeatNoteValue() )
-                self._scale             = operand % od.DataSource( od.Scale() )
-                self._quantization      = operand % od.DataSource( ov.Quantization() ) # Note Value
-                self._duration          = operand % od.DataSource( ot.Duration() )
-                self._key               = operand % od.DataSource( ou.Key() )
-                self._octave            = operand % od.DataSource( ou.Octave() )
-                self._velocity          = operand % od.DataSource( ou.Velocity() )
-                self._controller        = operand % od.DataSource( og.Controller() )
-                self._channel           = operand % od.DataSource( ou.Channel() )
-                self._device            = operand % od.DataSource( od.Device() )
-            case of.Frame():            self << (operand & self)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case ov.Measure():          self._measure << operand
-            case ov.Tempo():            self._tempo << operand
-            case ov.BeatsPerMeasure():  self._beats_per_measure << operand
-            case ov.BeatNoteValue():    self._beat_note_value << operand
-            case od.Scale():            self._scale << operand
-            case ov.Quantization():     self._quantization << operand # Note Value
-            case ot.Duration():         self._duration << operand
-            case ou.Key():              self._key << operand
-            case ou.Octave():           self._octave << operand
-            case ou.Velocity():         self._velocity << operand
-            case og.Controller() | ou.ControlNumber() | ou.ControlValue():
-                                        self._controller << operand
-            case ou.Channel():          self._channel << operand
-            case od.Device():           self._device << operand
-            # Calculated Values
-            case ov.NotesPerMeasure():
-                self._beat_note_value = ov.BeatNoteValue( (operand % Fraction()) / (self % ov.BeatsPerMeasure()) )
-            case ov.StepsPerMeasure():
-                self._quantization = ov.Quantization( (self % ov.NotesPerMeasure()) / (operand % Fraction()) )
-            case ov.StepsPerNote():
-                self._quantization = ov.Quantization( 1 / (operand % Fraction()) )
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case od.DataSource():
+                    match operand % o.Operand():
+                        case ov.Measure():          self._measure = operand % o.Operand()
+                        case ov.Tempo():            self._tempo = operand % o.Operand()
+                        case ov.BeatsPerMeasure():  self._beats_per_measure = operand % o.Operand()
+                        case ov.BeatNoteValue():    self._beat_note_value = operand % o.Operand()
+                        case od.Scale():            self._scale = operand % o.Operand()
+                        case ov.Quantization():     self._quantization = operand % o.Operand()    # Note Value
+                        case ot.Duration():         self._duration = operand % o.Operand()
+                        case ou.Key():              self._key = operand % o.Operand()
+                        case ou.Octave():           self._octave = operand % o.Operand()
+                        case ou.Velocity():         self._velocity = operand % o.Operand()
+                        case og.Controller():       self._controller = operand % o.Operand()
+                        case ou.Channel():          self._channel = operand % o.Operand()
+                        case od.Device():           self._device = operand % o.Operand()
+                case Staff():
+                    self._measure           = operand % od.DataSource( ov.Measure() )
+                    self._tempo             = operand % od.DataSource( ov.Tempo() )
+                    self._beats_per_measure = operand % od.DataSource( ov.BeatsPerMeasure() )
+                    self._beat_note_value   = operand % od.DataSource( ov.BeatNoteValue() )
+                    self._scale             = operand % od.DataSource( od.Scale() )
+                    self._quantization      = operand % od.DataSource( ov.Quantization() ) # Note Value
+                    self._duration          = operand % od.DataSource( ot.Duration() )
+                    self._key               = operand % od.DataSource( ou.Key() )
+                    self._octave            = operand % od.DataSource( ou.Octave() )
+                    self._velocity          = operand % od.DataSource( ou.Velocity() )
+                    self._controller        = operand % od.DataSource( og.Controller() )
+                    self._channel           = operand % od.DataSource( ou.Channel() )
+                    self._device            = operand % od.DataSource( od.Device() )
+                case of.Frame():            self << (operand & self)
+                case od.Serialization():
+                    self.loadSerialization( operand.getSerialization() )
+                case ov.Measure():          self._measure << operand
+                case ov.Tempo():            self._tempo << operand
+                case ov.BeatsPerMeasure():  self._beats_per_measure << operand
+                case ov.BeatNoteValue():    self._beat_note_value << operand
+                case od.Scale():            self._scale << operand
+                case ov.Quantization():     self._quantization << operand # Note Value
+                case ot.Duration():         self._duration << operand
+                case ou.Key():              self._key << operand
+                case ou.Octave():           self._octave << operand
+                case ou.Velocity():         self._velocity << operand
+                case og.Controller() | ou.ControlNumber() | ou.ControlValue():
+                                            self._controller << operand
+                case ou.Channel():          self._channel << operand
+                case od.Device():           self._device << operand
+                # Calculated Values
+                case ov.NotesPerMeasure():
+                    self._beat_note_value = ov.BeatNoteValue( (operand % Fraction()) / (self % ov.BeatsPerMeasure()) )
+                case ov.StepsPerMeasure():
+                    self._quantization = ov.Quantization( (self % ov.NotesPerMeasure()) / (operand % Fraction()) )
+                case ov.StepsPerNote():
+                    self._quantization = ov.Quantization( 1 / (operand % Fraction()) )
         return self
 
 # Instantiate the Global Staff here.

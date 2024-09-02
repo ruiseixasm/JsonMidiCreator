@@ -112,39 +112,42 @@ class Data(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
-        match operand:
-            case DataSource():      self._data = operand % o.Operand()
-            case Data():
-                operand_data = operand % DataSource( o.Operand() )
-                match operand_data:
-                    case o.Operand():
-                        self._data = operand_data.copy()
-                    case list():
-                        many_operands: list = []
-                        for single_operand in operand_data:
-                            match single_operand:
-                                case o.Operand():
-                                    many_operands.append(single_operand.copy())
-                                case _:
-                                    many_operands.append(single_operand)
-                        self._data = many_operands
-                    case _:
-                        self._data = operand_data
-            case of.Frame():        self << (operand & self)
-            case Serialization():
-                self.loadSerialization(operand % DataSource())
-            case o.Operand():
-                self._data = self._data.copy()
-            case list():
-                many_operands: list = []
-                for single_operand in operand:
-                    match single_operand:
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case DataSource():      self._data = operand % o.Operand()
+                case Data():
+                    operand_data = operand % DataSource( o.Operand() )
+                    match operand_data:
                         case o.Operand():
-                            many_operands.append(single_operand.copy())
+                            self._data = operand_data.copy()
+                        case list():
+                            many_operands: list = []
+                            for single_operand in operand_data:
+                                match single_operand:
+                                    case o.Operand():
+                                        many_operands.append(single_operand.copy())
+                                    case _:
+                                        many_operands.append(single_operand)
+                            self._data = many_operands
                         case _:
-                            many_operands.append(single_operand)
-                self._data = many_operands
-            case _: self._data = operand
+                            self._data = operand_data
+                case of.Frame():        self << (operand & self)
+                case Serialization():
+                    self.loadSerialization(operand % DataSource())
+                case o.Operand():
+                    self._data = self._data.copy()
+                case list():
+                    many_operands: list = []
+                    for single_operand in operand:
+                        match single_operand:
+                            case o.Operand():
+                                many_operands.append(single_operand.copy())
+                            case _:
+                                many_operands.append(single_operand)
+                    self._data = many_operands
+                case _: self._data = operand
         return self
 
 class DataSource(Data):
@@ -274,12 +277,15 @@ class Scale(Data):
         return self
 
     def __lshift__(self, operand: any) -> 'Scale':
-        match operand:
-            case list() | str() | int():
-                self_scale = __class__.get_scale(operand)
-                if len(self_scale) == 12:
-                    self._data = self_scale.copy()
-            case _: super().__lshift__(operand)
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case list() | str() | int():
+                    self_scale = __class__.get_scale(operand)
+                    if len(self_scale) == 12:
+                        self._data = self_scale.copy()
+                case _: super().__lshift__(operand)
         return self
 
     _names = [
@@ -432,7 +438,10 @@ class Serialization(Data):
         return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
 
     def __lshift__(self, operand: o.Operand) -> 'o.Operand':
-        self._data = operand.copy()
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            self._data = operand.copy()
         return self
 
     def __rrshift__(self, operand) -> o.Operand:
@@ -499,8 +508,11 @@ class PlayList(Data):
     def __lshift__(self, operand: o.Operand) -> 'PlayList':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
-            self._data = operand.getPlayList()
+        if self._next_operand is not None:
+            self << self._next_operand << operand
+        else:
+            if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
+                self._data = operand.getPlayList()
         return self
 
     def __rrshift__(self, operand) -> 'PlayList':
