@@ -348,6 +348,10 @@ class Step(TimeUnit):
     def getTime_rational(self) -> Fraction:
         return self._rational * NoteValue(1).getTime_rational() / (os.staff % StepsPerNote() % Fraction())
 
+                # beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
+                # value_floor = operand % Fraction() // beats_per_measure
+                # self._rational = operand % Fraction() - value_floor
+        
 class NoteValue(TimeUnit):
     """
     NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
