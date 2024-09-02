@@ -48,6 +48,7 @@ class Staff(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ov.Measure():          return self._measure
                     case ov.Tempo():            return self._tempo
                     case ov.BeatsPerMeasure():  return self._beats_per_measure

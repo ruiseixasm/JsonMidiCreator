@@ -41,6 +41,7 @@ class KeyNote(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case ou.Key():          return self._key
                     case ou.Octave():       return self._octave
                     case _:
@@ -185,6 +186,7 @@ class Controller(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ou.ControlNumber():    return self._control_number
                     case ou.ControlValue():     return self._control_value
                     case _:                     return self

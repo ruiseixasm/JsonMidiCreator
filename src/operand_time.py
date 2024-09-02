@@ -39,6 +39,7 @@ class Time(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case ov.Measure():      return self._measure
                     case ov.Beat():         return self._beat
                     case ov.NoteValue():    return self._note_value
