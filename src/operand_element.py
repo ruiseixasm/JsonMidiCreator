@@ -303,7 +303,7 @@ class Clock(Element):
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource()
+        element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -419,7 +419,7 @@ class Note(Element):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
-        element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource()
+        element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
         return element_serialization
 
@@ -540,8 +540,8 @@ class KeyScale(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource()
-        element_serialization["parameters"]["mode"]         = self._mode % od.DataSource()
+        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource( list() )
+        element_serialization["parameters"]["mode"]         = self._mode % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -758,7 +758,7 @@ class Retrigger(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["division"] = self._division % od.DataSource()
+        element_serialization["parameters"]["division"] = self._division % od.DataSource( int() )
         element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
         return element_serialization
 
@@ -1127,7 +1127,7 @@ class PitchBend(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pitch"] = self._pitch % od.DataSource()
+        element_serialization["parameters"]["pitch"] = self._pitch % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -1212,7 +1212,7 @@ class Aftertouch(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pressure"] = self._pressure % od.DataSource()
+        element_serialization["parameters"]["pressure"] = self._pressure % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -1368,7 +1368,7 @@ class ProgramChange(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["program"] = self._program % od.DataSource()
+        element_serialization["parameters"]["program"] = self._program % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS

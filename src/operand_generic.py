@@ -86,8 +86,8 @@ class KeyNote(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "key":      self._key % od.DataSource(),
-                "octave":   self._octave % od.DataSource()
+                "key":      self._key % od.DataSource( int() ),
+                "octave":   self._octave % od.DataSource( int() )
             }
         }
 
@@ -207,8 +207,8 @@ class Controller(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "control_number":   self._control_number % od.DataSource(),
-                "control_value":    self._control_value % od.DataSource()
+                "control_number":   self._control_number % od.DataSource( int() ),
+                "control_value":    self._control_value % od.DataSource( int() )
             }
         }
 

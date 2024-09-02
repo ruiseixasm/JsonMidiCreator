@@ -115,15 +115,15 @@ class Staff(o.Operand):
                 "tempo":                self._tempo % od.DataSource( float() ),
                 "beats_per_measure":    self._beats_per_measure % od.DataSource( float() ),
                 "beat_note_value":      self._beat_note_value % od.DataSource( float() ),
-                "scale":                self._scale % od.DataSource(),
+                "scale":                self._scale % od.DataSource( list() ),
                 "quantization":         self._quantization % od.DataSource( float() ),
                 "duration":             self._duration.getSerialization(),
-                "key":                  self._key % od.DataSource(),
-                "octave":               self._octave % od.DataSource(),
-                "velocity":             self._velocity % od.DataSource(),
+                "key":                  self._key % od.DataSource( int() ),
+                "octave":               self._octave % od.DataSource( int() ),
+                "velocity":             self._velocity % od.DataSource( int() ),
                 "controller":           self._controller.getSerialization(),
-                "channel":              self._channel % od.DataSource(),
-                "device":               self._device % od.DataSource()
+                "channel":              self._channel % od.DataSource( int() ),
+                "device":               self._device % od.DataSource( list() )
             }
         }
 
