@@ -262,13 +262,13 @@ class Clock(Element):
         pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % Fraction())
         clock_pulses = round(pulses_per_measure * (self._length % ov.Measure() % Fraction()))
 
-        single_measure_ms = (ot.Length() << ov.Measure(1)).getTime_ms()
-        clock_start_ms = self_position.getTime_ms()
-        clock_stop_ms = clock_start_ms + self._length.getTime_ms()
+        single_measure_rational_ms = (ot.Length() << ov.Measure(1)).getTime_rational()
+        clock_start_rational_ms = self_position.getTime_rational()
+        clock_stop_rational_ms = clock_start_rational_ms + self._length.getTime_rational()
 
         self_playlist = [
                 {
-                    "time_ms": round(clock_start_ms, 3),
+                    "time_ms": round(float(clock_start_rational_ms), 3),
                     "midi_message": {
                         "status_byte": 0xFA,    # Start Sequence
                         "device": device % od.DataSource( list() )
@@ -279,8 +279,9 @@ class Clock(Element):
         for clock_pulse in range(1, clock_pulses):
             self_playlist.append(
                 {
-                    "time_ms": round(clock_start_ms + single_measure_ms \
-                                     * (self._length % ov.Measure() % od.DataSource( float() )) * clock_pulse / clock_pulses, 3),
+                    "time_ms": round(float(clock_start_rational_ms \
+                                     + single_measure_rational_ms * (self._length % ov.Measure() % od.DataSource( Fraction() )) \
+                                     * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
                         "device": device % od.DataSource( list() )
@@ -290,7 +291,7 @@ class Clock(Element):
 
         self_playlist.append(
             {
-                "time_ms": round(clock_stop_ms, 3),
+                "time_ms": round(float(clock_stop_rational_ms), 3),
                 "midi_message": {
                     "status_byte": 0xFC,    # Stop Sequence
                     "device": device % od.DataSource( list() )
