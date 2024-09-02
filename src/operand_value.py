@@ -305,7 +305,7 @@ class Measure(TimeUnit):
         super().__init__(value)
 
     def getTime_rational(self) -> Fraction:
-        return self._rational * Beat(1).getTime_rational() * (os.staff % BeatsPerMeasure() % Fraction())
+        return self._rational * Beat(1).getTime_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
      
 class Beat(TimeUnit):
     """
@@ -324,7 +324,7 @@ class Beat(TimeUnit):
 
     def getTime_rational(self) -> Fraction:
         # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
-        return self._rational / (os.staff % Tempo() % Fraction()) * 60 * 1000
+        return self._rational / (os.staff % od.DataSource( Tempo() ) % Fraction()) * 60 * 1000
     
 class NoteValue(TimeUnit):
     """
@@ -339,7 +339,7 @@ class NoteValue(TimeUnit):
         super().__init__(value)
 
     def getTime_rational(self) -> Fraction:
-        return self._rational * Beat(1).getTime_rational() / (os.staff % BeatNoteValue() % Fraction())
+        return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
 
 class Step(TimeUnit):
     """
