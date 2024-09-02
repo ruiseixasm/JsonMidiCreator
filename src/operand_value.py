@@ -331,7 +331,21 @@ class Beat(TimeUnit):
     def getTime_rational(self) -> Fraction:
         # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
         return self._rational / (os.staff % od.DataSource( Tempo() ) % Fraction()) * 60 * 1000
-    
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Step':
+        if self._next_operand is not None and operand != self._next_operand:
+            self << self._next_operand << operand
+        else:
+            match operand:
+                case int() | Fraction() | float():
+                    beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
+                    value_floor = operand // beats_per_measure
+                    self._rational = Fraction(operand - value_floor).limit_denominator()
+                case _: super().__lshift__(operand)
+        return self
+
 class Step(TimeUnit):
     """
     A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
@@ -360,12 +374,12 @@ class Step(TimeUnit):
         else:
             match operand:
                 case int() | Fraction() | float():
-                    beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
-                    value_floor = operand // beats_per_measure
+                    steps_per_measure = os.staff % StepsPerMeasure() % int()
+                    value_floor = operand // steps_per_measure
                     self._rational = Fraction(operand - value_floor).limit_denominator()
                 case _: super().__lshift__(operand)
         return self
-        
+
 class NoteValue(TimeUnit):
     """
     NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
