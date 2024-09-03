@@ -153,8 +153,10 @@ class Value(o.Operand):
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if isinstance(value, o.Operand):
-            value = value & self    # NEEDS TO BE FLIPPED!!!!!!
+        if isinstance(value, of.Frame):
+            value = value & self
+        else:   # By definition this self class is an Operand
+            value = self & value
         match value:
             case Value() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
