@@ -155,7 +155,7 @@ class Value(o.Operand):
     def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         if isinstance(value, of.Frame):
             value = value & self
-        elif isinstance(value, o.Operand):
+        else:   # By definition this self class is an Operand
             value = self & value
         match value:
             case Value() | ou.Unit():
