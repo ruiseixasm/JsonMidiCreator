@@ -193,12 +193,19 @@ class Operand:
 
     def __and__(self, operand: 'Operand') -> 'Operand':
         if self._next_operand is not None:
-            result = self._next_operand & operand
-            if result == operand:       # avoids operand << operand
-                return operand
-            return result << operand    # End of the recursion
-        return operand
-
+            result = self._next_operand & operand  # Recursively get result from the chain
+            # Apply << operation between current next_operand and the result
+            return self._next_operand << result    # Ensures << is applied only if more elements in the chain
+        return operand  # Return operand if there is no next operand in the chain
+    
+    # def __and__(self, operand: 'Operand') -> 'Operand':
+    #     if self._next_operand is not None:
+    #         self_next_next = self._next_operand._next_operand
+    #         if self_next_next is not None:
+    #             result = self_next_next & operand
+    #         return self._next_operand << result     # End of the recursion
+    #     return operand
+    
     def __or__(self, operand: 'Operand') -> 'Operand':
         return operand.__ror__(self)
 
