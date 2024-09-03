@@ -134,22 +134,21 @@ class Value(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case Fraction():                self._rational = operand % o.Operand()
-                        case float() | int():           self._rational = Fraction(operand % o.Operand()).limit_denominator()
-                        case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
-                case Value():           self._rational = operand % od.DataSource( Fraction() )
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case Fraction():                self._rational = operand
-                case float() | int():           self._rational = Fraction(operand).limit_denominator()
-                case ou.Integer():              self._rational = operand % Fraction()
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Fraction():                self._rational = operand % o.Operand()
+                    case float() | int():           self._rational = Fraction(operand % o.Operand()).limit_denominator()
+                    case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
+            case Value():           self._rational = operand % od.DataSource( Fraction() )
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case Fraction():                self._rational = operand
+            case float() | int():           self._rational = Fraction(operand).limit_denominator()
+            case ou.Integer():              self._rational = operand % Fraction()
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
