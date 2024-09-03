@@ -153,11 +153,10 @@ class Value(o.Operand):
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        # if isinstance(value, of.Frame):
-        #     value &= self
-        value = self & value    # In case value is a Frame it will be ALSO processed by the self chain
+        if isinstance(value, of.Frame):
+            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
+        value = self & value    # Processes the tailed self operands if existent
         match value:
-            case of.Frame():        return self + (value & self)
             case Value() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
@@ -165,43 +164,40 @@ class Value(o.Operand):
         return self.copy()
     
     def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if self._next_operand is not None and value != self._next_operand:
-            self - (self._next_operand << value)
-        else:
-            match value:
-                case of.Frame():        return self - (value & self)
-                case Value() | ou.Unit():
-                    return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
-                case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
-                case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
+        if isinstance(value, of.Frame):
+            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
+        value = self & value    # Processes the tailed self operands if existent
+        match value:
+            case Value() | ou.Unit():
+                return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
         return self.copy()
     
     def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if self._next_operand is not None and value != self._next_operand:
-            self * (self._next_operand << value)
-        else:
-            match value:
-                case of.Frame():        return self * (value & self)
-                case Value() | ou.Unit():
-                    return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
-                case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
-                case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
+        if isinstance(value, of.Frame):
+            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
+        value = self & value    # Processes the tailed self operands if existent
+        match value:
+            case Value() | ou.Unit():
+                return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
         return self.copy()
     
     def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if self._next_operand is not None and value != self._next_operand:
-            self / (self._next_operand << value)
-        else:
-            match value:
-                case of.Frame():        return self / (value & self)
-                case Value() | ou.Unit():
-                    if value % od.DataSource( Fraction() ) != 0:
-                        return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
-                case Fraction():
-                    if value != 0: return self.__class__() << od.DataSource( self._rational / value )
-                case float() | int():
-                    if Fraction(value).limit_denominator() != 0:
-                        return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
+        if isinstance(value, of.Frame):
+            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
+        value = self & value    # Processes the tailed self operands if existent
+        match value:
+            case Value() | ou.Unit():
+                if value % od.DataSource( Fraction() ) != 0:
+                    return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
+            case Fraction():
+                if value != 0: return self.__class__() << od.DataSource( self._rational / value )
+            case float() | int():
+                if Fraction(value).limit_denominator() != 0:
+                    return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
         return self.copy()
 
 class Float(Value):
