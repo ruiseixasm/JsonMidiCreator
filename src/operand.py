@@ -192,8 +192,11 @@ class Operand:
         return self.copy()
 
     def __and__(self, operand: 'Operand') -> 'Operand':
-        if self._next_operand is not None and operand != self._next_operand:
-            return self._next_operand & operand
+        if self._next_operand is not None:
+            result = self._next_operand & operand
+            if result == operand:       # avoids operand << operand
+                return operand
+            return result << operand    # End of the recursion
         return operand
 
     def __or__(self, operand: 'Operand') -> 'Operand':
