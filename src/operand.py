@@ -192,6 +192,9 @@ class Operand:
         return self.copy()
 
     def __and__(self, operand: 'Operand') -> 'Operand':
+        return operand.__rand__(self)
+    
+    def __rand__(self, operand: 'Operand') -> 'Operand':
         if self._next_operand is not None:
             result = self._next_operand & operand  # Recursively get result from the chain
             # Apply << operation between current next_operand and the result
