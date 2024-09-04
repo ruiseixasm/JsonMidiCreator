@@ -85,11 +85,11 @@ class Operand:
     def __ge__(self, operand: 'Operand') -> bool:
         return False
     
-    def start(self) -> 'ot.Position':
+    def start(self):
         import operand_label as ol
         return ol.Null()
 
-    def end(self) -> 'ot.Position':
+    def end(self):
         import operand_label as ol
         return ol.Null()
     
