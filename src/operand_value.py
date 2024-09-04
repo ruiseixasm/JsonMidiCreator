@@ -434,8 +434,11 @@ class NoteValue(TimeUnit):
 
     def getTime_rational(self) -> Fraction:
         return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
+    
+class Duration(NoteValue):
+    pass
 
-class Dotted(NoteValue):
+class Dotted(Duration):
     """
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:
