@@ -134,7 +134,6 @@ class Time(o.Operand):
                 self._beat          = (operand % od.DataSource( ov.Beat() )).copy()
                 self._step          = (operand % od.DataSource( ov.Step() )).copy()
                 self._note_value    = (operand % od.DataSource( ov.NoteValue() )).copy()
-            case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ov.Measure():      self._measure << operand

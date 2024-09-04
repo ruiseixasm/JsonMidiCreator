@@ -115,7 +115,6 @@ class KeyNote(Generic):
             case KeyNote():
                 self._key = (operand % od.DataSource( ou.Key() )).copy()
                 self._octave = (operand % od.DataSource( ou.Octave() )).copy()
-            case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Key() | str():  self._key << operand
@@ -241,7 +240,6 @@ class Controller(Generic):
             case Controller():
                 self._control_number = (operand % od.DataSource( ou.ControlNumber() )).copy()
                 self._control_value = (operand % od.DataSource( ou.ControlValue() )).copy()
-            case of.Frame():            self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.ControlNumber():    self._control_number << operand
