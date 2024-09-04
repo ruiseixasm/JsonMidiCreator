@@ -192,10 +192,13 @@ class Operand:
         return self.copy()
 
     def __and__(self, operand: 'Operand') -> 'Operand':
+        import operand_frame as of
+        if isinstance(operand, of.Frame):   # Extracts the Frame operand first
+            return self & (operand & self)
         if self._next_operand is not None:
-            result = self._next_operand & operand  # Recursively get result from the chain
+            result = self._next_operand & operand   # Recursively get result from the chain
             # Apply << operation between current next_operand and the result
-            return self._next_operand << result    # Ensures << is applied only if more elements in the chain
+            return self._next_operand << result     # Ensures << is applied only if more elements in the chain
         return operand  # Return operand if there is no next operand in the chain
     
     # def __and__(self, operand: 'Operand') -> 'Operand':
