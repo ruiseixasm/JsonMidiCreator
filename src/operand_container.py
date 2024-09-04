@@ -75,7 +75,6 @@ class Container(o.Operand):
         """
         match operand:
             case od.DataSource():   return self._operand_list
-            case of.Frame():        return self % (operand % o.Operand())
             case list():
                 operands: list[o.Operand] = []
                 for single_operand in self._operand_list:
@@ -438,7 +437,6 @@ class Chain(Container):
                     case list():        self._operand_list = operand % o.Operand()
                     case _:             super().__lshift__(operand)
             case Chain():           self._operand_list = operand % od.DataSource( list() )
-            case of.Frame():        self << (operand & self)
             case o.Operand() | int() | float():
                 self._operand_list.append(operand)
             case list():            self._operand_list.extend(operand)
