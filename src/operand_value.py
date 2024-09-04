@@ -315,7 +315,22 @@ class Measure(TimeUnit):
 
     def getTime_rational(self) -> Fraction:
         return self._rational * Beat(1).getTime_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
-     
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Measure':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():   super().__lshift__(operand)
+            case Beat():
+                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+            case Step():
+                self._rational = operand % Fraction() / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+            case NoteValue():
+                self._rational = operand % Fraction() / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+            case _: super().__lshift__(operand)
+        return self
+
 class Beat(TimeUnit):
     """
     A Beat() represents the Staff Time Length in Beat on which the Tempo is based on (BPM).
@@ -339,9 +354,17 @@ class Beat(TimeUnit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Step':
+    def __lshift__(self, operand: o.Operand) -> 'Beat':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case od.DataSource():   super().__lshift__(operand)
+            case Measure():
+                self._rational = operand % Fraction() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+            case Step():
+                self._rational = operand % Fraction() / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                    * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+            case NoteValue():
+                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
             case int() | Fraction() | float():
                 beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
                 value_floor = operand // beats_per_measure
@@ -413,6 +436,14 @@ class Step(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'Step':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case od.DataSource():   super().__lshift__(operand)
+            case Measure():
+                self._rational = operand % Fraction() * (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+            case Beat():
+                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                    * (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+            case NoteValue():
+                self._rational = operand % Fraction() * (os.staff % od.DataSource( StepsPerNote() ) % Fraction())
             case int() | Fraction() | float():
                 steps_per_measure = os.staff % StepsPerMeasure() % int()
                 value_floor = operand // steps_per_measure
@@ -459,7 +490,7 @@ class NoteValue(TimeUnit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Value':
+    def __lshift__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():   super().__lshift__(operand)
