@@ -422,7 +422,7 @@ class Step(TimeUnit):
 
 class NoteValue(TimeUnit):
     """
-    NoteValue() represents the Old__Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
+    NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
     
     Parameters
     ----------
@@ -473,10 +473,7 @@ class NoteValue(TimeUnit):
             case _: super().__lshift__(operand)
         return self
 
-class Duration(NoteValue):
-    pass
-
-class Dotted(Duration):
+class Dotted(NoteValue):
     """
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:

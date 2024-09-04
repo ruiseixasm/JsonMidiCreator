@@ -337,14 +337,14 @@ class Clock(Element):
 class Rest(Element):
     def __init__(self):
         super().__init__()
-        self._duration: ot.Old__Duration = os.staff % ot.Old__Duration()
-        self._length << self._duration  # By default a note has the same Length as its Old__Duration
+        self._duration: ot.Duration = os.staff % ot.Duration()
+        self._length << self._duration  # By default a note has the same Length as its Duration
 
 class Note(Element):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._duration: ot.Old__Duration = os.staff % ot.Old__Duration()
-        self._length << self._duration  # By default a note has the same Length as its Old__Duration
+        self._duration: ot.Duration = os.staff % ot.Duration()
+        self._length << self._duration  # By default a note has the same Length as its Duration
         self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() if key is None else ou.Key(key)) \
                                                     <<  os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
@@ -354,7 +354,7 @@ class Note(Element):
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
         those Parameters are the ones of the Element, like Position and Length,
-        plus the Old__Duration, KeyNote, Velocity and Gate, the last one as 0.90 by default.
+        plus the Duration, KeyNote, Velocity and Gate, the last one as 0.90 by default.
 
         Examples
         --------
@@ -365,12 +365,12 @@ class Note(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Old__Duration():     return self._duration
+                    case ot.Duration():     return self._duration
                     case og.KeyNote():      return self._key_note
                     case ou.Velocity():     return self._velocity
                     case ov.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
-            case ot.Old__Duration():     return self._duration.copy()
+            case ot.Duration():     return self._duration.copy()
             case ov.NoteValue():    return self._duration % operand
             case og.KeyNote():      return self._key_note.copy()
             case ou.Key() | ou.Octave():
@@ -381,7 +381,7 @@ class Note(Element):
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
-            return  self._duration == other_element % od.DataSource( ot.Old__Duration() ) \
+            return  self._duration == other_element % od.DataSource( ot.Duration() ) \
                 and self._key_note == other_element % od.DataSource( og.KeyNote() ) \
                 and self._velocity == other_element % od.DataSource( ou.Velocity() ) \
                 and self._gate == other_element % od.DataSource( ov.Gate() )
@@ -390,7 +390,7 @@ class Note(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        duration: ot.Old__Duration       = self._duration
+        duration: ot.Duration       = self._duration
         key_note_int: int           = self._key_note % od.DataSource( int() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._channel % od.DataSource( int() )
@@ -435,7 +435,7 @@ class Note(Element):
             "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration  = ot.Old__Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ov.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
@@ -446,18 +446,18 @@ class Note(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Old__Duration():     self._duration = operand % o.Operand()
+                    case ot.Duration():     self._duration = operand % o.Operand()
                     case og.KeyNote():      self._key_note = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ov.Gate():         self._gate = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
-                self._duration      = (operand % od.DataSource( ot.Old__Duration() )).copy()
+                self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
-            case ot.Old__Duration() | ov.NoteValue():
+            case ot.Duration() | ov.NoteValue():
                                     self._duration << operand
             case og.KeyNote() | ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
@@ -492,7 +492,7 @@ class KeyScale(Note):
         """
         The % symbol is used to extract a Parameter, in the case of a KeyScale,
         those Parameters are the ones of the Element, like Position and Length,
-        together with the ones of a Note, like Old__Duration and KeyNote,
+        together with the ones of a Note, like Duration and KeyNote,
         plus the Scale and Mode, the last one as 1 by default.
 
         Examples
@@ -743,7 +743,7 @@ class Retrigger(Note):
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
             case ov.Swing():        return self._swing.copy()
-            case ot.Old__Duration():     return self._duration * (self._division % int())/2
+            case ot.Duration():     return self._duration * (self._division % int())/2
             case ov.NoteValue():    return self._duration * (self._division % int())/2 % operand
             case _:                 return super().__mod__(operand)
 
@@ -800,7 +800,7 @@ class Retrigger(Note):
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
-            case ot.Old__Duration() | ov.NoteValue():
+            case ot.Duration() | ov.NoteValue():
                 self._duration << operand * 2/(self._division % int())
             case _:                 super().__lshift__(operand)
         return self
@@ -808,7 +808,7 @@ class Retrigger(Note):
 class Note3(Retrigger):
     """
     A Note3() is the repetition of a given Note three times on a row
-    Triplets have each Note Old__Duration set to the following Values:
+    Triplets have each Note Duration set to the following Values:
         | 1T    = (1    - 1/4)   = 3/4
         | 1/2T  = (1/2  - 1/8)   = 3/8
         | 1/4T  = (1/4  - 1/16)  = 3/16
@@ -833,7 +833,7 @@ class Note3(Retrigger):
 class Tuplet(Element):
     def __init__(self, *elements: Element):
         super().__init__()
-        self._duration: ot.Old__Duration = os.staff % ot.Old__Duration()
+        self._duration: ot.Duration = os.staff % ot.Duration()
         self._swing     = ov.Swing(.50)
         self._elements: list[Element] = []
         if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
@@ -867,11 +867,11 @@ class Tuplet(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Old__Duration():     return self._duration
+                    case ot.Duration():     return self._duration
                     case ov.Swing():        return self._swing
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case ot.Old__Duration():
+            case ot.Duration():
                 if len(self._elements) == 2:    return self._duration * 2/3  
                 elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2
                 return self._duration.copy()
@@ -887,7 +887,7 @@ class Tuplet(Element):
 
     def __eq__(self, other_element: 'Element') -> bool:
         if super().__eq__(other_element):
-            return  self._duration  == other_element % od.DataSource( ot.Old__Duration() ) \
+            return  self._duration  == other_element % od.DataSource( ot.Duration() ) \
                 and self._swing     == other_element % od.DataSource( ov.Swing() ) \
                 and self._elements  == other_element % od.DataSource( list() )
         return False
@@ -922,7 +922,7 @@ class Tuplet(Element):
             "duration" in serialization["parameters"] and "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration  = ot.Old__Duration().loadSerialization(serialization["parameters"]["duration"])
+            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._swing     = ov.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
@@ -940,16 +940,16 @@ class Tuplet(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Old__Duration():         self._duration = operand % o.Operand()
+                    case ot.Duration():         self._duration = operand % o.Operand()
                     case ov.Swing():            self._swing = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
-                self._duration = (operand % od.DataSource( ot.Old__Duration() )).copy()
+                self._duration = (operand % od.DataSource( ot.Duration() )).copy()
                 self._swing = (operand % od.DataSource( ov.Swing() )).copy()
                 self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
-            case ot.Old__Duration() | ov.NoteValue():
+            case ot.Duration() | ov.NoteValue():
                 if len(self._elements) == 2:
                     self._duration << operand * 3/2
                 elif len(self._elements) > 0:
@@ -964,7 +964,7 @@ class Tuplet(Element):
             case list():
                 elements: list[Element] = operand
                 if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
-                    net_duration = self % ot.Old__Duration()
+                    net_duration = self % ot.Duration()
                     if len(elements) == 2:
                         # Can't be "*= 3/2" in order to preserve the Fraction!
                         self._duration = net_duration * 3/2 # from 3 notes to 2

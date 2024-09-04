@@ -49,13 +49,13 @@ class Operand:
         """
         The % symbol is used to extract a Parameter, each Operand
         has different types of Parameters, as an example, the
-        Operand Note() has the Parameters Velocity and Old__Duration,
+        Operand Note() has the Parameters Velocity and Duration,
         and recursively, the Operands' Parameters themselves.
 
         Examples
         --------
-        >>> given_operand = Note("A") << Old__Duration(1/2)
-        >>> print(given_operand % Old__Duration() % NoteValue() % float())
+        >>> given_operand = Note("A") << Duration(1/2)
+        >>> print(given_operand % Duration() % NoteValue() % float())
         0.5
         """
         import operand_label as ol

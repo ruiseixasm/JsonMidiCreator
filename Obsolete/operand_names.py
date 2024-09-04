@@ -134,7 +134,7 @@ class Names(o.Operand):
         #     # Time class operands (ot)
         #     "Time":             ot.Time,
         #     "Position":         ot.Position,
-        #     "Old__Duration":         ot.Old__Duration,
+        #     "Duration":         ot.Duration,
         #     "Length":           ot.Length,
         #     "Identity":         ot.Identity,
 

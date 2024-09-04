@@ -226,7 +226,7 @@ class Position(Time):
     def end(self) -> 'Position':
         return self
 
-class Old__Duration(Time):
+class Duration(Time):
     def __init__(self, time: int | float = None):
         super().__init__(time)
 

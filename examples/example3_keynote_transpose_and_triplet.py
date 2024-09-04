@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 staff << Tempo(120) << Measure(1)
 single_clock = Clock()
 
-single_note = Note() << (Old__Duration() << Measure(2)) >> Play()
+single_note = Note() << (Duration() << Measure(2)) >> Play()
 note_transposed = single_note + Key(5) >> Play()
 
 triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
@@ -38,7 +38,7 @@ triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position()
 staff << Measure(2)
 single_clock = Clock()
 
-# Length needs to be adjusted because Elements are Stacked based on Length and not on Old__Duration!
+# Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8
 triplets_two = (triplets_one << Length(1/8) ^ End()) >> triplets_two
 (triplets_one + triplets_two + single_clock) + Equal(Measure(1))**Key(2) >> Play(True)

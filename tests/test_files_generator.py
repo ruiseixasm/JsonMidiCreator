@@ -37,10 +37,10 @@ multi_notes = Null() >> first_note * 3 >> Save("json/testing/_Save_Play_p.1_firs
 first_note << Key("F") >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
 first_note << Load("json/testing/_Save_1.1_first_note.json") >> Save("json/testing/_Save_Play_p.3_first_note.json") >> Export("json/testing/_Export_Play_p.3_sequence.json")
 
-Note3() << (Old__Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
+Note3() << (Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (Old__Duration() << Dotted(1/64))
+base_note = Note() << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
 first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
@@ -48,7 +48,7 @@ first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("
 second_sequence = first_sequence >> Copy()
 second_sequence << Measure(4)
 second_sequence /= Position() << Identity() << Step(2)
-second_sequence /= Old__Duration() << Identity() << NoteValue(2)
+second_sequence /= Duration() << Identity() << NoteValue(2)
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
@@ -87,7 +87,7 @@ load_0 + load_1 + load_2 + load_3 >> Save ("json/testing/_Save_2.2_sequence_note
 staff << Tempo(120) << Measure(1)
 single_clock = Clock()
 
-single_note = Note() << (Old__Duration() << Measure(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
+single_note = Note() << (Duration() << Measure(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Key(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
 
 triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
@@ -99,7 +99,7 @@ triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position()
 staff << Measure(2)
 single_clock = Clock()
 
-# Length needs to be adjusted because Elements are Stacked based on Length and not on Old__Duration!
+# Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8
 triplets_two = (triplets_one << Length(1/8) ^ End()) >> triplets_two
 triplets_one + triplets_two + single_clock >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
