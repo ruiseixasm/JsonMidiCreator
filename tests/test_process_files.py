@@ -65,7 +65,7 @@ results_list.append({
 
 original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
-Note3() << (Duration() << NoteValue(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json")
+Note3() << (Old__Duration() << NoteValue(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json")
 results_list.append({
     "test":     "TEST 1.4",
     "save":     original_save == result_save,
@@ -73,7 +73,7 @@ results_list.append({
 })
 
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (Duration() << Dotted(1/64))
+base_note = Note() << (Old__Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
 first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
@@ -81,7 +81,7 @@ first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("
 second_sequence = first_sequence >> Copy()
 second_sequence << Measure(4)
 second_sequence /= Position() << Identity() << Step(2)
-second_sequence /= Duration() << Identity() << NoteValue(2)
+second_sequence /= Old__Duration() << Identity() << NoteValue(2)
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
@@ -150,7 +150,7 @@ single_clock = Clock()
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.7.2_sequence.json")
-single_note = Note() << (Duration() << Measure(2)) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+single_note = Note() << (Old__Duration() << Measure(2)) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "test":     "TEST 3.1",
     "save":     original_save == result_save,
@@ -189,7 +189,7 @@ results_list.append({
 staff << Measure(2)
 single_clock = Clock()
 
-# Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
+# Length needs to be adjusted because Elements are Stacked based on Length and not on Old__Duration!
 # A 1/16 triplet has a total length of a 1/8
 triplets_two = (triplets_one << Length(1/8) ^ End()) >> triplets_two
 original_save       = Load("json/testing/_Save_Play_p.10_first_note.json")

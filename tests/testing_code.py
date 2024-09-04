@@ -81,27 +81,27 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #             )
     
 
-# class Duration(Length):
+# class Old__Duration(Length):
     
 #     def __init__(self, measures: float = 0, beats: float = 0, note: float = 1/4, steps: float = 0):
 #         super().__init__(measures, beats, note, steps)
     
 #     # adding two durations 
-#     def __add__(self, other_length: Length) -> 'Duration':
+#     def __add__(self, other_length: Length) -> 'Old__Duration':
 #         return self + other_length
     
 
 # class Position:
 #     pass
 
-# class Duration:
+# class Old__Duration:
 #     pass
 
 # class Velocity:
 #     pass
 
 # # Example list of note operands
-# trigger_note = [Position(), Duration(), Velocity()]
+# trigger_note = [Position(), Old__Duration(), Velocity()]
 
 # # Initialize variables
 # on_position = None
@@ -113,7 +113,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #     match note_operand:
 #         case Position():
 #             on_position = note_operand
-#         case Duration():
+#         case Old__Duration():
 #             with_duration = note_operand
 #         case Velocity():
 #             with_velocity = note_operand

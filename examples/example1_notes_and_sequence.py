@@ -35,10 +35,10 @@ multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequen
 first_note << Key("F") >> Play()
 first_note << Load("json/_Save_1.1_first_note.json") >> Play()
 
-Note3() << (Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.3_note_triad.json")
+Note3() << (Old__Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (Duration() << Dotted(1/64))
+base_note = Note() << (Old__Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
 first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("json/_Save_1.4__first_sequence.json")
 
@@ -46,7 +46,7 @@ first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("
 second_sequence = first_sequence >> Copy()
 second_sequence << Measure(4)
 second_sequence /= Position() << Identity() << Step(2)
-second_sequence /= Duration() << Identity() << NoteValue(2)
+second_sequence /= Old__Duration() << Identity() << NoteValue(2)
 second_sequence >> Save("json/_Save_1.5_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play

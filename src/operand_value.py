@@ -422,7 +422,7 @@ class Step(TimeUnit):
 
 class NoteValue(TimeUnit):
     """
-    NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
+    NoteValue() represents the Old__Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
     
     Parameters
     ----------
