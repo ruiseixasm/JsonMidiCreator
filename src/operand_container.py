@@ -33,6 +33,7 @@ import operand_frame as of
 
 class Container(o.Operand):
     def __init__(self, *operands):
+        super().__init__()
         self._operand_list = []
         for single_operand in operands:
             match single_operand:
