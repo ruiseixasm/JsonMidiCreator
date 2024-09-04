@@ -112,9 +112,7 @@ class Data(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case DataSource():      self._data = operand % o.Operand()
             case Data():
