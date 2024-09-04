@@ -274,9 +274,7 @@ class Scale(Data):
         return self
 
     def __lshift__(self, operand: any) -> 'Scale':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case list() | str() | int():
                 self_scale = __class__.get_scale(operand)
@@ -435,9 +433,7 @@ class Serialization(Data):
         return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
 
     def __lshift__(self, operand: o.Operand) -> 'o.Operand':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         self._data = operand.copy()
         return self
 
@@ -505,9 +501,7 @@ class PlayList(Data):
     def __lshift__(self, operand: o.Operand) -> 'PlayList':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
             self._data = operand.getPlayList()
         return self

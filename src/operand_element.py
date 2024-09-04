@@ -130,9 +130,7 @@ class Element(o.Operand):
                 return super().__xor__(operand)
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -322,9 +320,7 @@ class Clock(Element):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Clock':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -446,9 +442,7 @@ class Note(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -567,9 +561,7 @@ class KeyScale(Note):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -696,9 +688,7 @@ class Chord(Note):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Chord':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -791,9 +781,7 @@ class Retrigger(Note):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -835,9 +823,7 @@ class Note3(Retrigger):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Note3':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Division() | int():
                 return self # disables the setting of Division, always 3
@@ -948,9 +934,7 @@ class Tuplet(Element):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         for single_element in self._elements:
             single_element << operand
         match operand:
@@ -1002,9 +986,7 @@ class Triplet(Tuplet):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand | list[Element]) -> 'Triplet':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case list():
                 if len(operand) == 3:
@@ -1084,9 +1066,7 @@ class ControlChange(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1173,9 +1153,7 @@ class PitchBend(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1261,9 +1239,7 @@ class Aftertouch(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1351,9 +1327,7 @@ class PolyAftertouch(Aftertouch):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1423,9 +1397,7 @@ class ProgramChange(Element):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():

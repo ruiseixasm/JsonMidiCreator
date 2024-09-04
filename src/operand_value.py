@@ -134,9 +134,7 @@ class Value(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -342,9 +340,7 @@ class Beat(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Step':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | Fraction() | float():
                 beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
@@ -415,9 +411,7 @@ class Step(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Step':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | Fraction() | float():
                 steps_per_measure = os.staff % StepsPerMeasure() % int()
@@ -486,9 +480,7 @@ class Dotted(NoteValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():   super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)

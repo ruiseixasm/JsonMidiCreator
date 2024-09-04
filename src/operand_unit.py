@@ -136,9 +136,7 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         import operand_value as ov
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -232,9 +230,7 @@ class Key(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
-        if isinstance(operand, of.Frame):
-            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
-        operand = self & operand    # Processes the tailed self operands if existent
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 super().__lshift__(operand)
