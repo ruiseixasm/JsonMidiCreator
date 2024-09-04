@@ -342,15 +342,15 @@ class Beat(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Step':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case int() | Fraction() | float():
-                    beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
-                    value_floor = operand // beats_per_measure
-                    self._rational = Fraction(operand - value_floor).limit_denominator()
-                case _: super().__lshift__(operand)
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case int() | Fraction() | float():
+                beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
+                value_floor = operand // beats_per_measure
+                self._rational = Fraction(operand - value_floor).limit_denominator()
+            case _: super().__lshift__(operand)
         return self
 
     # def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
@@ -415,15 +415,15 @@ class Step(TimeUnit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Step':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case int() | Fraction() | float():
-                    steps_per_measure = os.staff % StepsPerMeasure() % int()
-                    value_floor = operand // steps_per_measure
-                    self._rational = Fraction(operand - value_floor).limit_denominator()
-                case _: super().__lshift__(operand)
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case int() | Fraction() | float():
+                steps_per_measure = os.staff % StepsPerMeasure() % int()
+                value_floor = operand // steps_per_measure
+                self._rational = Fraction(operand - value_floor).limit_denominator()
+            case _: super().__lshift__(operand)
         return self
 
 class NoteValue(TimeUnit):
@@ -486,21 +486,21 @@ class Dotted(NoteValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Value':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():   super().__lshift__(operand)
-                case Dotted():          super().__lshift__(operand)
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                # It's just a wrapper for NoteValue 3/2
-                case Value():           self._rational = operand % Fraction() * 3/2
-                case Fraction():        self._rational = operand * 3/2
-                case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
-                case ou.Unit():         self._rational = operand % Fraction() * 3/2
-                case _: super().__lshift__(operand)
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():   super().__lshift__(operand)
+            case Dotted():          super().__lshift__(operand)
+            case of.Frame():        self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            # It's just a wrapper for NoteValue 3/2
+            case Value():           self._rational = operand % Fraction() * 3/2
+            case Fraction():        self._rational = operand * 3/2
+            case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
+            case ou.Unit():         self._rational = operand % Fraction() * 3/2
+            case _: super().__lshift__(operand)
         return self
 
 class Swing(Value):

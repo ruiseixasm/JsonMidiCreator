@@ -136,23 +136,23 @@ class Unit(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
         import operand_value as ov
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case int():                     self._unit = operand % o.Operand()
-                        case float() | Fraction():      self._unit = round(operand % o.Operand())
-                        case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
-                case Unit():            self._unit = operand % od.DataSource( int() )
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case int() | float() | Fraction():
-                    self._unit = round(operand)
-                case ov.Float():
-                    self._unit = operand % int()
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case int():                     self._unit = operand % o.Operand()
+                    case float() | Fraction():      self._unit = round(operand % o.Operand())
+                    case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
+            case Unit():            self._unit = operand % od.DataSource( int() )
+            case of.Frame():        self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case int() | float() | Fraction():
+                self._unit = round(operand)
+            case ov.Float():
+                self._unit = operand % int()
         return self
 
     def __add__(self, number: any) -> 'Unit':
@@ -233,20 +233,20 @@ class Key(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    super().__lshift__(operand)
-                    self._unit %= 12    # makes sure it's one of the Octave's key
-                case Key():             super().__lshift__(operand)
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case Unit():            self._unit = operand % int() % 12
-                case int() | float():   self._unit = round(operand) % 12
-                case str():             self._unit = __class__.keyStrToKeyUnit(operand)
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                super().__lshift__(operand)
+                self._unit %= 12    # makes sure it's one of the Octave's key
+            case Key():             super().__lshift__(operand)
+            case of.Frame():        self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case Unit():            self._unit = operand % int() % 12
+            case int() | float():   self._unit = round(operand) % 12
+            case str():             self._unit = __class__.keyStrToKeyUnit(operand)
         return self
 
     _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",

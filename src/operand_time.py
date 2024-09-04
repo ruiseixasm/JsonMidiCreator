@@ -119,36 +119,36 @@ class Time(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Time':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case ov.Measure():      self._measure = operand % o.Operand()
-                        case ov.Beat():         self._beat = operand % o.Operand()
-                        case ov.Step():         self._step = operand % o.Operand()
-                        case ov.NoteValue():    self._note_value = operand % o.Operand()
-                case Time():
-                    self._measure       = (operand % od.DataSource( ov.Measure() )).copy()
-                    self._beat          = (operand % od.DataSource( ov.Beat() )).copy()
-                    self._step          = (operand % od.DataSource( ov.Step() )).copy()
-                    self._note_value    = (operand % od.DataSource( ov.NoteValue() )).copy()
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case ov.Measure():      self._measure << operand
-                case ov.Beat():
-                    self._beat << operand
-                    self._step << 0
-                case ov.Step():
-                    self._beat << 0
-                    self._step << operand
-                case ov.NoteValue():    self._note_value << operand
-                case int():
-                    self._measure       << operand
-                case Fraction() | float():
-                    self._note_value    << operand
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ov.Measure():      self._measure = operand % o.Operand()
+                    case ov.Beat():         self._beat = operand % o.Operand()
+                    case ov.Step():         self._step = operand % o.Operand()
+                    case ov.NoteValue():    self._note_value = operand % o.Operand()
+            case Time():
+                self._measure       = (operand % od.DataSource( ov.Measure() )).copy()
+                self._beat          = (operand % od.DataSource( ov.Beat() )).copy()
+                self._step          = (operand % od.DataSource( ov.Step() )).copy()
+                self._note_value    = (operand % od.DataSource( ov.NoteValue() )).copy()
+            case of.Frame():        self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ov.Measure():      self._measure << operand
+            case ov.Beat():
+                self._beat << operand
+                self._step << 0
+            case ov.Step():
+                self._beat << 0
+                self._step << operand
+            case ov.NoteValue():    self._note_value << operand
+            case int():
+                self._measure       << operand
+            case Fraction() | float():
+                self._note_value    << operand
         return self
 
     # adding two lengths 

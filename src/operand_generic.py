@@ -104,33 +104,33 @@ class KeyNote(Generic):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case ou.Key():          self._key = operand % o.Operand()
-                        case ou.Octave():       self._octave = operand % o.Operand()
-                case KeyNote():
-                    self._key = (operand % od.DataSource( ou.Key() )).copy()
-                    self._octave = (operand % od.DataSource( ou.Octave() )).copy()
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case ou.Key() | str():  self._key << operand
-                case ou.Octave():       self._octave << operand
-                case int():
-                    self._key       << operand      # key << already does % 12
-                    self._octave    << operand // 12
-                case float():
-                    number = round(operand)
-                    self._key       << number       # key << already does % 12
-                    self._octave    << number // 12
-                case ou.Unit() | ov.Value():
-                    number = operand % od.DataSource( int() )
-                    self._key       << number       # key << already does % 12
-                    self._octave    << number // 12
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Key():          self._key = operand % o.Operand()
+                    case ou.Octave():       self._octave = operand % o.Operand()
+            case KeyNote():
+                self._key = (operand % od.DataSource( ou.Key() )).copy()
+                self._octave = (operand % od.DataSource( ou.Octave() )).copy()
+            case of.Frame():        self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ou.Key() | str():  self._key << operand
+            case ou.Octave():       self._octave << operand
+            case int():
+                self._key       << operand      # key << already does % 12
+                self._octave    << operand // 12
+            case float():
+                number = round(operand)
+                self._key       << number       # key << already does % 12
+                self._octave    << number // 12
+            case ou.Unit() | ov.Value():
+                number = operand % od.DataSource( int() )
+                self._key       << number       # key << already does % 12
+                self._octave    << number // 12
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -230,23 +230,23 @@ class Controller(Generic):
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case ou.ControlNumber():    self._control_number = operand % o.Operand()
-                        case ou.ControlValue():     self._control_value = operand % o.Operand()
-                case Controller():
-                    self._control_number = (operand % od.DataSource( ou.ControlNumber() )).copy()
-                    self._control_value = (operand % od.DataSource( ou.ControlValue() )).copy()
-                case of.Frame():            self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case ou.ControlNumber():    self._control_number << operand
-                case ou.ControlValue() | int() | float():
-                                            self._control_value << operand
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.ControlNumber():    self._control_number = operand % o.Operand()
+                    case ou.ControlValue():     self._control_value = operand % o.Operand()
+            case Controller():
+                self._control_number = (operand % od.DataSource( ou.ControlNumber() )).copy()
+                self._control_value = (operand % od.DataSource( ou.ControlValue() )).copy()
+            case of.Frame():            self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ou.ControlNumber():    self._control_number << operand
+            case ou.ControlValue() | int() | float():
+                                        self._control_value << operand
         return self
 
     def __add__(self, operand) -> 'Controller':

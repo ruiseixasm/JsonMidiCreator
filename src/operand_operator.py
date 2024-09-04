@@ -95,34 +95,34 @@ class Operator(o.Operand):
         return self
   
     def __lshift__(self, operand: o.Operand) -> 'Operator':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case list():            self._operator_list = operand % o.Operand()
-                        case _:                 self._operand = operand % o.Operand()
-                case Operator():
-                    operator_list = []
-                    for single_operator in operand % od.DataSource( list() ):
-                        operator_list.append(single_operator.copy())
-                    self._operator_list = operator_list
-                    self._operand       = (operand % od.DataSource( o.Operand() )).copy()
-                case of.Frame():        self << (operand & self)
-                case od.Serialization():
-                    self.loadSerialization( operand.getSerialization() )
-                case list():
-                    operator_list = []
-                    for single_operator in operand:
-                        operator_list.append(single_operator.copy())
-                    self._operator_list = operator_list
-                case o.Operand():       self._operand << operand
-                case ol.Null() | None:  return self
-                case _:                 self._operand = operand
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case list():            self._operator_list = operand % o.Operand()
+                    case _:                 self._operand = operand % o.Operand()
+            case Operator():
+                operator_list = []
+                for single_operator in operand % od.DataSource( list() ):
+                    operator_list.append(single_operator.copy())
+                self._operator_list = operator_list
+                self._operand       = (operand % od.DataSource( o.Operand() )).copy()
+            case of.Frame():        self << (operand & self)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():
+                operator_list = []
+                for single_operator in operand:
+                    operator_list.append(single_operator.copy())
+                self._operator_list = operator_list
+            case o.Operand():       self._operand << operand
+            case ol.Null() | None:  return self
+            case _:                 self._operand = operand
         return self
 
-    def __or__(self, operand: 'Operand') -> 'Operand':
+    def __or__(self, operand: any):
         match operand:
             case Operator():
                 self._operator_list.insert(operand)
@@ -198,31 +198,31 @@ class Oscillator(Operator):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':
-        if self._next_operand is not None and operand != self._next_operand:
-            self << (self._next_operand << operand)
-        else:
-            match operand:
-                case od.DataSource():
-                    match operand % o.Operand():
-                        case ot.Position():     self._position = operand % o.Operand()
-                        case ot.Length():       self._length = operand % o.Operand()
-                        case ov.Amplitude():    self._amplitude = operand % o.Operand()
-                        case ov.Offset():       self._offset = operand % o.Operand()
-                        case _:                 super().__lshift__(operand)
-                case Oscillator():
-                    super().__lshift__(operand)
-                    self._position      = (operand % od.DataSource( ot.Position() )).copy()
-                    self._length        = (operand % od.DataSource( ot.Length() )).copy()
-                    self._amplitude     = (operand % od.DataSource( ov.Amplitude() )).copy()
-                    self._offset        = (operand % od.DataSource( ov.Offset() )).copy()
-                case ot.Position():     self._position << operand
-                case ot.Length():       self._length << operand
-                case ov.Amplitude():    self._amplitude << operand
-                case ov.Offset():       self._offset << operand
-                case _: super().__lshift__(operand)
+        if isinstance(operand, of.Frame):
+            operand &= self         # The Frame MUST be apply the the root self and not the tailed self operand
+        operand = self & operand    # Processes the tailed self operands if existent
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ot.Position():     self._position = operand % o.Operand()
+                    case ot.Length():       self._length = operand % o.Operand()
+                    case ov.Amplitude():    self._amplitude = operand % o.Operand()
+                    case ov.Offset():       self._offset = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case Oscillator():
+                super().__lshift__(operand)
+                self._position      = (operand % od.DataSource( ot.Position() )).copy()
+                self._length        = (operand % od.DataSource( ot.Length() )).copy()
+                self._amplitude     = (operand % od.DataSource( ov.Amplitude() )).copy()
+                self._offset        = (operand % od.DataSource( ov.Offset() )).copy()
+            case ot.Position():     self._position << operand
+            case ot.Length():       self._length << operand
+            case ov.Amplitude():    self._amplitude << operand
+            case ov.Offset():       self._offset << operand
+            case _: super().__lshift__(operand)
         return self
 
-    def __or__(self, operand: 'Operand') -> 'Operand':
+    def __or__(self, operand: any):
         operand = super().__or__(operand)
         match operand:
             case oc.Sequence():
