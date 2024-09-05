@@ -70,12 +70,17 @@ class Element(o.Operand):
             case Element():         return self.copy()
             case _:                 return ol.Null()
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if type(self) == type(other_element):
-            return  self._position == other_element % od.DataSource( ot.Position() ) \
-                and self._length == other_element % od.DataSource( ot.Length() ) \
-                and self._channel == other_element % od.DataSource( ou.Channel() ) \
-                and self._device == other_element % od.DataSource( od.Device() )
+    def __eq__(self, other_operand: 'o.Operand') -> bool:
+        match other_operand:
+            case Element():
+                return  self._position == other_operand % od.DataSource( ot.Position() ) \
+                    and self._length == other_operand % od.DataSource( ot.Length() ) \
+                    and self._channel == other_operand % od.DataSource( ou.Channel() ) \
+                    and self._device == other_operand % od.DataSource( od.Device() )
+            case ov.TimeUnit():
+                return self._position == other_operand
+            case _:
+                return self % od.DataSource( other_operand ) == other_operand
         return False
     
     def start(self) -> ot.Position:
