@@ -204,8 +204,3 @@ class Duration(Time):
             case ov.Gate() | ov.Swing() | ou.Division():
                 return self.__class__() << od.DataSource( self._time_unit / (operand % od.DataSource( Fraction() )) )
             case _: return super().__truediv__(operand)
-
-class Identity(Time):
-    def __init__(self):
-        super().__init__(1)
-  

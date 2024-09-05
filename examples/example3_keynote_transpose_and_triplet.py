@@ -41,4 +41,5 @@ single_clock = Clock()
 # Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8
 triplets_two = (triplets_one << Length(1/8) ^ End()) >> triplets_two
-(triplets_one + triplets_two + single_clock) + Equal(Measure(1))**Key(2) >> Play(True)
+triplets_one + triplets_two + single_clock >> Play(True)
+# (triplets_one + triplets_two + single_clock) + Equal(Measure(1))**Key(2) >> Play(True)

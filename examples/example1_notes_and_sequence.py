@@ -40,13 +40,14 @@ Note3() << (Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.3_no
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
-first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("json/_Save_1.4__first_sequence.json")
+first_sequence =  Measure(2) >> (base_note * 8 // Step(1) << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
-second_sequence << Measure(4)
-second_sequence /= Position() << Identity() << Step(2)
-second_sequence /= Duration() << Identity() << NoteValue(2)
+Measure(0) >> second_sequence
+second_sequence /= Beat(2)
+second_sequence /= NoteValue(2)
+Measure(4) >> second_sequence
 second_sequence >> Save("json/_Save_1.5_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play

@@ -80,9 +80,10 @@ first_sequence = base_note * 8 // Step(1) << Measure(2) << Channel(10) >> Save("
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
-second_sequence << Measure(4)
-second_sequence /= Position() << Identity() << Step(2)
-second_sequence /= Duration() << Identity() << NoteValue(2)
+Measure(0) >> second_sequence
+second_sequence /= Beat(2)
+second_sequence /= NoteValue(2)
+Measure(4) >> second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
