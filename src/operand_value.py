@@ -466,27 +466,34 @@ class NoteValue(TimeUnit):
     def getTime_rational(self) -> Fraction:
         return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
     
-    # def __mod__(self, operand: o.Operand) -> o.Operand:
-    #     """
-    #     The % symbol is used to extract the Value, because a Value is an Rational
-    #     it should be used in conjugation with float(). If used with a int() it
-    #     will return the respective rounded value as int().
-
-    #     Examples
-    #     --------
-    #     >>> note_value_float = NoteValue(1/4) % float()
-    #     >>> print(note_value_float)
-    #     0.25
-    #     """
-    #     match operand:
-    #         case od.DataSource():   return super().__mod__(operand)
-    #         case Fraction():        return self._rational * 2/3
-    #         case float():           return float(self._rational * 2/3)
-    #         case int():             return round(self._rational * 2/3)
-    #         case Value():           return Value() << self._rational * 2/3
-    #         case ou.Unit():         return ou.Unit() << self._rational * 2/3
-    #         case ol.Null() | None:  return ol.Null()
-    #         case _:                 return super().__mod__(operand)
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Measure():         return Measure() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                                                )
+                    case Beat():            return Beat() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+                                                )
+                    case Step():            return Step() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+                                                )
+                    case _:                 return super().__mod__(operand)
+            case Measure():         return Measure() << self._rational / \
+                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+            case Beat():            return Measure() << self._rational / \
+                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+            case Step():            return Measure() << self._rational / \
+                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+            case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
@@ -495,12 +502,16 @@ class NoteValue(TimeUnit):
         match operand:
             case od.DataSource():   super().__lshift__(operand)
             case Measure():
-                self._rational = operand % Fraction() * (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
             case Beat():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
-                    * (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                    / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
             case Step():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( StepsPerNote() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                    / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
             case _: super().__lshift__(operand)
         return self
 
@@ -543,7 +554,6 @@ class Dotted(NoteValue):
             case int():             return round(self._rational * 2/3)
             case Value():           return Value() << self._rational * 2/3
             case ou.Unit():         return ou.Unit() << self._rational * 2/3
-            case ol.Null() | None:  return ol.Null()
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
