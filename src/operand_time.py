@@ -170,10 +170,10 @@ class Time(o.Operand):
     def end(self) -> ov.TimeUnit:
         return self
 
-    def left(self) -> ov.TimeUnit:
+    def minimum(self) -> ov.TimeUnit:
         return self._time_unit % int()
 
-    def right(self) -> ov.TimeUnit:
+    def maximum(self) -> ov.TimeUnit:
         return self._time_unit % int() + 1
 
 class Position(Time):
