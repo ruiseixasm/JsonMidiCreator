@@ -49,8 +49,14 @@ class Time(o.Operand):
         match other_time:
             case ov.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) == other_time % od.DataSource( Fraction() )
-            case ov.TimeUnit():
+            case ov.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) == other_time % od.DataSource( int() )
+            case ov.Beat():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int()) \
+                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+            case ov.Step():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int()) \
+                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() == other_time.getTime_rational()
         return False
@@ -59,8 +65,14 @@ class Time(o.Operand):
         match other_time:
             case ov.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) < other_time % od.DataSource( Fraction() )
-            case ov.TimeUnit():
+            case ov.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) < other_time % od.DataSource( int() )
+            case ov.Beat():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int()) \
+                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+            case ov.Step():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int()) \
+                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() < other_time.getTime_rational()
         return False
@@ -69,8 +81,14 @@ class Time(o.Operand):
         match other_time:
             case ov.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) > other_time % od.DataSource( Fraction() )
-            case ov.TimeUnit():
+            case ov.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) > other_time % od.DataSource( int() )
+            case ov.Beat():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int()) \
+                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+            case ov.Step():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int()) \
+                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() > other_time.getTime_rational()
         return False
