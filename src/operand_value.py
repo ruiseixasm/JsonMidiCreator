@@ -291,7 +291,11 @@ class TimeUnit(Value):
         Not intended to be set directly
     """
     def __init__(self, value: float = None):
-        super().__init__(value)
+        match value:
+            case TimeUnit():
+                super().__init__( value % od.DataSource( self ) )
+            case _:
+                super().__init__( value )
 
     def __eq__(self, other_timeunit: any) -> bool:
         match other_timeunit:
