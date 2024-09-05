@@ -132,7 +132,6 @@ class Time(o.Operand):
                 self._time_unit         << operand
         return self
 
-    # adding two lengths 
     def __add__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -143,7 +142,6 @@ class Time(o.Operand):
                 self_copy << od.DataSource( self._time_unit + operand )
         return self_copy
     
-    # subtracting two lengths 
     def __sub__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
