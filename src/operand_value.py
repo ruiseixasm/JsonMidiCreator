@@ -338,6 +338,8 @@ class TimeUnit(Value):
     def __mul__(self, other_timeunit: 'TimeUnit') -> 'TimeUnit':
         other_timeunit = self & other_timeunit    # Processes the tailed self operands or the Frame operand if any exists
         match other_timeunit:
+            case Gate() | Swing() | ou.Division():
+                return self.__class__() << od.DataSource( self._rational * (other_timeunit % od.DataSource( Fraction() )) )
             case TimeUnit():
                 self_class_timeunit = other_timeunit % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational * (self_class_timeunit % od.DataSource( Fraction() )) )
@@ -346,6 +348,9 @@ class TimeUnit(Value):
     def __truediv__(self, other_timeunit: 'TimeUnit') -> 'TimeUnit':
         other_timeunit = self & other_timeunit    # Processes the tailed self operands or the Frame operand if any exists
         match other_timeunit:
+            case Gate() | Swing() | ou.Division():
+                if other_timeunit % od.DataSource( Fraction() ) != 0:
+                    return self.__class__() << od.DataSource( self._rational / (other_timeunit % od.DataSource( Fraction() )) )
             case TimeUnit():
                 self_class_timeunit = other_timeunit % od.DataSource( self )
                 if self_class_timeunit % od.DataSource( Fraction() ) != 0:
