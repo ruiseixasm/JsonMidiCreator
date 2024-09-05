@@ -313,6 +313,31 @@ class Measure(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Beat():            return Beat() << od.DataSource(
+                                                    self._rational * \
+                                                        (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+                                                )
+                    case Step():            return Step() << od.DataSource(
+                                                    self._rational * \
+                                                        (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+                                                )
+                    case NoteValue():       return NoteValue() << od.DataSource(
+                                                    self._rational * \
+                                                        (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+                                                )
+                    case _:                 return super().__mod__(operand)
+            case Beat():            return Beat() << self._rational * \
+                                                        (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+            case Step():            return Step() << self._rational * \
+                                                        (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+            case NoteValue():       return NoteValue() << self._rational * \
+                                                        (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+            case _:                 return super().__mod__(operand)
+
     def getTime_rational(self) -> Fraction:
         return self._rational * Beat(1).getTime_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
 
@@ -321,7 +346,18 @@ class Measure(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'Measure':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():   super().__lshift__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Beat():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) / \
+                            (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+                    case Step():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) / \
+                            (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+                    case NoteValue():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) / \
+                            (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+                    case _: super().__lshift__(operand)
             case Beat():
                 self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
             case Step():
@@ -348,6 +384,35 @@ class Beat(TimeUnit):
         else:
             super().__init__(value)
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Measure():         return Measure() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+                                                )
+                    case Step():            return Step() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+                                                )
+                    case NoteValue():       return NoteValue() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                                                )
+                    case _:                 return super().__mod__(operand)
+            case Measure():         return Measure() << self._rational / \
+                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+            case Step():            return Step() << self._rational / \
+                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+            case NoteValue():       return NoteValue() << self._rational / \
+                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+            case _:                 return super().__mod__(operand)
+
     def getTime_rational(self) -> Fraction:
         # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
         return self._rational / (os.staff % od.DataSource( Tempo() ) % Fraction()) * 60 * 1000
@@ -357,18 +422,31 @@ class Beat(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'Beat':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():   super().__lshift__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Measure():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+                    case Step():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                            / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+                    case NoteValue():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                            / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                    case _: super().__lshift__(operand)
             case Measure():
-                self._rational = operand % Fraction() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
             case Step():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
-                    * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                    / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
             case NoteValue():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
-            case int() | Fraction() | float():
-                beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
-                value_floor = operand // beats_per_measure
-                self._rational = Fraction(operand - value_floor).limit_denominator()
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
+                    / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
             case _: super().__lshift__(operand)
         return self
 
@@ -428,6 +506,35 @@ class Step(TimeUnit):
         else:
             super().__init__(value)
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Measure():         return Measure() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+                                                )
+                    case Beat():            return Beat() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+                                                )
+                    case NoteValue():       return NoteValue() << od.DataSource(
+                                                    self._rational / \
+                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                                                )
+                    case _:                 return super().__mod__(operand)
+            case Measure():         return Measure() << self._rational / \
+                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+            case Beat():            return Beat() << self._rational / \
+                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+            case NoteValue():       return NoteValue() << self._rational / \
+                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                                                        / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+            case _:                 return super().__mod__(operand)
+
     def getTime_rational(self) -> Fraction:
         return self._rational * NoteValue(1).getTime_rational() / (os.staff % StepsPerNote() % Fraction())
 
@@ -436,14 +543,31 @@ class Step(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'Step':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():   super().__lshift__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Measure():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+                    case Beat():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                            / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+                    case NoteValue():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                            / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                    case _: super().__lshift__(operand)
             case Measure():
-                self._rational = operand % Fraction() * (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
             case Beat():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
-                    * (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                    / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
             case NoteValue():
-                self._rational = operand % Fraction() * (os.staff % od.DataSource( StepsPerNote() ) % Fraction())
+                self._rational = operand % Fraction() * \
+                    ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
+                    / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
             case int() | Fraction() | float():
                 steps_per_measure = os.staff % StepsPerMeasure() % int()
                 value_floor = operand // steps_per_measure
@@ -463,9 +587,6 @@ class NoteValue(TimeUnit):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-    def getTime_rational(self) -> Fraction:
-        return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
-    
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
@@ -487,20 +608,36 @@ class NoteValue(TimeUnit):
                     case _:                 return super().__mod__(operand)
             case Measure():         return Measure() << self._rational / \
                                                         ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
-            case Beat():            return Measure() << self._rational / \
+            case Beat():            return Beat() << self._rational / \
                                                         ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
-            case Step():            return Measure() << self._rational / \
+            case Step():            return Step() << self._rational / \
                                                         ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
             case _:                 return super().__mod__(operand)
 
+    def getTime_rational(self) -> Fraction:
+        return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
+    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():   super().__lshift__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Measure():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                    case Beat():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                            / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+                    case Step():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() ) * \
+                            ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
+                            / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+                    case _: super().__lshift__(operand)
             case Measure():
                 self._rational = operand % Fraction() * \
                     ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
