@@ -156,27 +156,33 @@ class Unit(o.Operand):
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():                    return self + (number & self)
-            case Unit() | ov.Value():           return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
-            case int() | float() | Fraction():  return self.__class__() << od.DataSource( self._unit + number )
+            case of.Frame():            return self + (number & self)
+            case self.__class__() | Integer() | ov.Float():
+                                        return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
+            case int() | float() | Fraction():
+                                        return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
     
     def __sub__(self, number: any) -> 'Unit':
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():                    return self - (number & self)
-            case Unit() | ov.Value():           return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
-            case int() | float() | Fraction():  return self.__class__() << od.DataSource( self._unit - number )
+            case of.Frame():            return self - (number & self)
+            case self.__class__() | Integer() | ov.Float():
+                                        return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
+            case int() | float() | Fraction():
+                                        return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
     
     def __mul__(self, number: any) -> 'Unit':
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():                    return self * (number & self)
-            case Unit() | ov.Value():           return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
-            case int() | float() | Fraction():  return self.__class__() << od.DataSource( self._unit * number )
+            case of.Frame():            return self * (number & self)
+            case self.__class__() | Integer() | ov.Float():
+                                        return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
+            case int() | float() | Fraction():
+                                        return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
     
     def __truediv__(self, number: any) -> 'Unit':
@@ -184,12 +190,12 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case of.Frame():            return self / (number & self)
-            case Unit() | ov.Value():
-                if number % od.DataSource() != 0:
-                    return self.__class__() << od.DataSource( self._unit / (number % od.DataSource()) )
+            case self.__class__() | Integer() | ov.Float():
+                                    if number % od.DataSource() != 0:
+                                        return self.__class__() << od.DataSource( self._unit / (number % od.DataSource()) )
             case int() | float() | Fraction():
-                if number != 0:
-                    return self.__class__() << od.DataSource( self._unit / number )
+                                    if number != 0:
+                                        return self.__class__() << od.DataSource( self._unit / number )
         return self.copy()
 
 class Integer(Unit):
