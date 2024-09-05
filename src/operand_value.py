@@ -293,7 +293,7 @@ class TimeUnit(Value):
     def __init__(self, value: float = None):
         match value:
             case TimeUnit():
-                super().__init__( value % od.DataSource( self ) )
+                super().__init__( value % self )
             case _:
                 super().__init__( value )
 
