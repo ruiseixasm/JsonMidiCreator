@@ -45,19 +45,40 @@ class Time(o.Operand):
             case ol.Null() | None:  return ol.Null()
             case _:                 return self.copy()
 
-    def __eq__(self, other_time: 'Time') -> bool:
-        return self.getTime_rational() == other_time.getTime_rational()
+    def __eq__(self, other_time: any) -> bool:
+        match other_time:
+            case ov.NoteValue():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) == other_time % od.DataSource( Fraction() )
+            case ov.TimeUnit():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) == other_time % od.DataSource( int() )
+            case Time():
+                return self.getTime_rational() == other_time.getTime_rational()
+        return False
     
-    def __lt__(self, other_time: 'Time') -> bool:
-        return self.getTime_rational() < other_time.getTime_rational()
+    def __lt__(self, other_time: any) -> bool:
+        match other_time:
+            case ov.NoteValue():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) < other_time % od.DataSource( Fraction() )
+            case ov.TimeUnit():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) < other_time % od.DataSource( int() )
+            case Time():
+                return self.getTime_rational() < other_time.getTime_rational()
+        return False
     
-    def __gt__(self, other_time: 'Time') -> bool:
-        return self.getTime_rational() > other_time.getTime_rational()
+    def __gt__(self, other_time: any) -> bool:
+        match other_time:
+            case ov.NoteValue():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) > other_time % od.DataSource( Fraction() )
+            case ov.TimeUnit():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) > other_time % od.DataSource( int() )
+            case Time():
+                return self.getTime_rational() > other_time.getTime_rational()
+        return False
     
-    def __le__(self, other_time: 'Time') -> bool:
+    def __le__(self, other_time: any) -> bool:
         return self == other_time or self < other_time
     
-    def __ge__(self, other_time: 'Time') -> bool:
+    def __ge__(self, other_time: any) -> bool:
         return self == other_time or self > other_time
     
     def getTime_rational(self) -> Fraction:
