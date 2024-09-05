@@ -152,7 +152,7 @@ class Value(o.Operand):
     def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Value() | ou.Unit():
+            case self.__class__() | Float() | ou.Integer():
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
@@ -161,7 +161,7 @@ class Value(o.Operand):
     def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Value() | ou.Unit():
+            case self.__class__() | Float() | ou.Integer():
                 return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
@@ -170,7 +170,7 @@ class Value(o.Operand):
     def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Value() | ou.Unit():   # Used in the example of multiplying by the Gate value with the NoteValue !!! (can't be self.__class__())
+            case self.__class__() | Float() | ou.Integer():
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
@@ -179,7 +179,7 @@ class Value(o.Operand):
     def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Value() | ou.Unit():
+            case self.__class__() | Float() | ou.Integer():
                 if value % od.DataSource( Fraction() ) != 0:
                     return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
             case Fraction():
