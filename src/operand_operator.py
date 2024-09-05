@@ -49,15 +49,17 @@ class Operator(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case list():            return self._operator_list
-                    case o.Operand():       return self._operand
+                    case Operator():        return self
                     case ol.Null() | None:  return ol.Null()
-                    case _:                 return self
+                    case o.Operand():       return self._operand
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operator_list.copy()
             # case list():            return self._operator_list.copy()
+            case Operator():        return self.copy()
             case ol.Null() | None:  return ol.Null()
             case o.Operand():       return self._operand.copy()
-            case _:                 return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_operator: 'Operator') -> bool:
         if type(self) == type(other_operator):

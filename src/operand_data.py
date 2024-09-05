@@ -51,6 +51,7 @@ class Data(o.Operand):
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
+            case Data():                    return self.copy()
             case ol.Null() | None:          return ol.Null()
             case _:
                 match self._data:

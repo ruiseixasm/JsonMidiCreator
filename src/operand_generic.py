@@ -49,8 +49,8 @@ class KeyNote(Generic):
                         key = self._key % od.DataSource( int() )
                         octave = self._octave % od.DataSource( int() )
                         return 12 * (octave + 1) + key
-                    case ol.Null() | None:  return ol.Null()
-                    case _:                 return self
+                    case KeyNote():         return self
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ou.Key():          return self._key.copy()
             case ou.Octave():       return self._octave.copy()
@@ -58,8 +58,8 @@ class KeyNote(Generic):
                 key = self._key % int()
                 octave = self._octave % int()
                 return 12 * (octave + 1) + key
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case KeyNote():         return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
         if self % ou.Octave() == other_keynote % ou.Octave() and self % ou.Key() == other_keynote % ou.Key():
@@ -191,14 +191,14 @@ class Controller(Generic):
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ou.ControlNumber():    return self._control_number
                     case ou.ControlValue():     return self._control_value
-                    case ol.Null() | None:      return ol.Null()
-                    case _:                     return self
+                    case Controller():          return self
+                    case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case ou.ControlNumber():    return self._control_number.copy()
             case ou.ControlValue():     return self._control_value.copy()
             case int() | float():       return self._control_value % int()
-            case ol.Null() | None:      return ol.Null()
-            case _:                     return self.copy()
+            case Controller():          return self.copy()
+            case _:                     return ol.Null()
 
     def __eq__(self, other: 'Controller') -> bool:
         if self % ou.ControlNumber() == other % ou.ControlNumber() and self % ou.ControlValue() == other % ou.ControlValue():

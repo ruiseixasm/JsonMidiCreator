@@ -84,8 +84,8 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_operand)
                 return operands
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case Container():       return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_container: 'Container') -> bool:
         if type(self) == type(other_container):
