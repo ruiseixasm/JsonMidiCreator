@@ -67,8 +67,8 @@ class Element(o.Operand):
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case Element():         return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_element: 'Element') -> bool:
         if type(self) == type(other_element):
