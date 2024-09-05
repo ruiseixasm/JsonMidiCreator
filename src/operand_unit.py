@@ -156,7 +156,6 @@ class Unit(o.Operand):
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():            return self + (number & self)
             case self.__class__() | Integer() | ov.Float():
                                         return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
             case int() | float() | Fraction():
@@ -167,7 +166,6 @@ class Unit(o.Operand):
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():            return self - (number & self)
             case self.__class__() | Integer() | ov.Float():
                                         return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
             case int() | float() | Fraction():
@@ -178,7 +176,6 @@ class Unit(o.Operand):
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():            return self * (number & self)
             case self.__class__() | Integer() | ov.Float():
                                         return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
             case int() | float() | Fraction():
@@ -189,7 +186,6 @@ class Unit(o.Operand):
         import operand_value as ov
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case of.Frame():            return self / (number & self)
             case self.__class__() | Integer() | ov.Float():
                                     if number % od.DataSource() != 0:
                                         return self.__class__() << od.DataSource( self._unit / (number % od.DataSource()) )
