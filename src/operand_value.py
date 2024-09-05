@@ -301,6 +301,30 @@ class TimeUnit(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
+    def __eq__(self, other_timeunit: any) -> bool:
+        match other_timeunit:
+            case TimeUnit():
+                self_class_timeunit = other_timeunit % od.DataSource( self )
+                return self._rational == self_class_timeunit % od.DataSource( Fraction() )
+            case _: return super().__eq__(other_timeunit)
+        return False
+    
+    def __lt__(self, other_timeunit: any) -> bool:
+        match other_timeunit:
+            case TimeUnit():
+                self_class_timeunit = other_timeunit % od.DataSource( self )
+                return self._rational < self_class_timeunit % od.DataSource( Fraction() )
+            case _: return super().__lt__(other_timeunit)
+        return False
+    
+    def __gt__(self, other_timeunit: any) -> bool:
+        match other_timeunit:
+            case TimeUnit():
+                self_class_timeunit = other_timeunit % od.DataSource( self )
+                return self._rational > self_class_timeunit % od.DataSource( Fraction() )
+            case _: return super().__gt__(other_timeunit)
+        return False
+    
 class Measure(TimeUnit):
     """
     Measure() represents the Staff Time Length in Measures, also known as Bar.
