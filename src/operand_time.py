@@ -114,8 +114,8 @@ class Time(o.Operand):
     # adding two lengths 
     def __add__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():        return self + (operand & self)
             case Time():            self_copy << od.DataSource( self._time_unit + operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit ) )
             case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit + operand % od.DataSource( self._time_unit ) )
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
@@ -125,8 +125,8 @@ class Time(o.Operand):
     # subtracting two lengths 
     def __sub__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():        return self - (operand & self)
             case Time():            self_copy << od.DataSource( self._time_unit - operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit ) )
             case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit - operand % od.DataSource( self._time_unit ) )
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
@@ -135,8 +135,8 @@ class Time(o.Operand):
     
     def __mul__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():        return self * (operand & self)
             case Time():            self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit )) )
             case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
@@ -148,8 +148,8 @@ class Time(o.Operand):
     
     def __truediv__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():        return self / (operand & self)
             case Time():
                 if operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit ) != 0:
                     self_copy << od.DataSource( self._time_unit / (operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit )) )

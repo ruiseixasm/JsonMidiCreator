@@ -133,9 +133,8 @@ class KeyNote(Generic):
     def __add__(self, operand) -> 'KeyNote':
         key_int: int = self._key % od.DataSource( int() )
         octave_int: int = self._octave % od.DataSource( int() )
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():
-                return self + (operand & self)
             case KeyNote():
                 key_int += operand % ou.Key() % od.DataSource( int() )
                 octave_int += operand % ou.Octave() % od.DataSource( int() ) + key_int // 12
@@ -158,9 +157,8 @@ class KeyNote(Generic):
     def __sub__(self, operand) -> 'KeyNote':
         key_int: int = self._key % od.DataSource( int() )
         octave_int: int = self._octave % od.DataSource( int() )
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():
-                return self - (operand & self)
             case KeyNote():
                 key_int -= operand % ou.Key() % od.DataSource( int() )
                 octave_int -= operand % ou.Octave() % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
@@ -244,31 +242,29 @@ class Controller(Generic):
         return self
 
     def __add__(self, operand) -> 'Controller':
-        control_value_int: int = self._control_value % int()
+        control_value: ou.ControlValue = self._control_value
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():
-                return self + (operand & self)
             case Controller():
-                control_value_int += operand % ou.ControlValue() % int()
+                control_value += operand % ou.ControlValue() % int()
             case ou.ControlValue():
-                control_value_int += operand % int()
+                control_value += operand % int()
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
-                control_value_int += operand
+                control_value += operand
             case _:
                 return self.copy()
-        return self.copy() << control_value_int
+        return self.copy() << control_value
     
     def __sub__(self, operand) -> 'Controller':
-        control_value_int: int = self._control_value % int()
+        control_value: ou.ControlValue = self._control_value
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():
-                return self - (operand & self)
             case Controller():
-                control_value_int -= operand % ou.ControlValue() % int()
+                control_value -= operand % ou.ControlValue() % int()
             case ou.ControlValue():
-                control_value_int -= operand % int()
+                control_value -= operand % int()
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
-                control_value_int -= operand
+                control_value -= operand
             case _:
                 return self.copy()
-        return self.copy() << control_value_int
+        return self.copy() << control_value

@@ -775,7 +775,6 @@ class Dotted(NoteValue):
         match operand:
             case od.DataSource():   super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)
-            case of.Frame():        self << (operand & self)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             # It's just a wrapper for NoteValue 3/2

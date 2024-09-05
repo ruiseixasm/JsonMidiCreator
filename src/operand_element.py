@@ -172,8 +172,8 @@ class Element(o.Operand):
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():        return self + (operand & self)
             case Element():         return oc.Sequence(self_copy, operand.copy())
             case oc.Sequence():     return oc.Sequence(self_copy, operand.copy() % list())
             case o.Operand():       return self_copy << self % operand + operand
@@ -181,8 +181,8 @@ class Element(o.Operand):
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case of.Frame():        return self - (operand & self)
             case Element():         return self
             case oc.Sequence():     return self
             case o.Operand():       return self_copy << self % operand - operand
@@ -190,6 +190,7 @@ class Element(o.Operand):
 
     def __mul__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
                 ...
@@ -206,6 +207,7 @@ class Element(o.Operand):
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
                 ...
