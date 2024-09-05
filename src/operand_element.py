@@ -373,11 +373,84 @@ class Rest(Element):
         self._duration: ot.Duration = os.staff % ot.Duration()
         self._length << self._duration  # By default a note has the same Length as its Duration
 
-class Note(Element):
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Note,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the Duration, KeyNote, Velocity and Gate, the last one as 0.90 by default.
+
+        Examples
+        --------
+        >>> some_note = Note("F")
+        >>> print(some_note % Key() % str())
+        F
+        """
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ot.Duration():     return self._duration
+                    case _:                 return super().__mod__(operand)
+            case ot.Duration():     return self._duration.copy()
+            case ov.NoteValue():    return self._duration % operand
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        match other_operand:
+            case self.__class__():
+                return super().__eq__(other_operand) \
+                    and self._duration == other_operand % od.DataSource( ot.Duration() )
+            case ov.NoteValue():
+                return self._duration == other_operand
+            case _:
+                return super().__eq__(other_operand)
+    
+    def __lt__(self, other_operand: 'o.Operand') -> bool:
+        match other_operand:
+            case ov.NoteValue():
+                return self._duration < other_operand
+            case _:
+                return super().__lt__(other_operand)
+    
+    def __gt__(self, other_operand: 'o.Operand') -> bool:
+        match other_operand:
+            case ov.NoteValue():
+                return self._duration > other_operand
+            case _:
+                return super().__gt__(other_operand)
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "duration" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
+        return self
+      
+    def __lshift__(self, operand: o.Operand) -> 'Note':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ot.Duration():     self._duration = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case Rest():
+                super().__lshift__(operand)
+                self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
+            case ot.Duration() | ov.NoteValue():
+                                    self._duration << operand
+            case _: super().__lshift__(operand)
+        return self
+
+class Note(Rest):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._duration: ot.Duration = os.staff % ot.Duration()
-        self._length << self._duration  # By default a note has the same Length as its Duration
         self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() if key is None else ou.Key(key)) \
                                                     <<  os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
@@ -398,13 +471,10 @@ class Note(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Duration():     return self._duration
                     case og.KeyNote():      return self._key_note
                     case ou.Velocity():     return self._velocity
                     case ov.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
-            case ot.Duration():     return self._duration.copy()
-            case ov.NoteValue():    return self._duration % operand
             case og.KeyNote():      return self._key_note.copy()
             case ou.Key() | ou.Octave():
                                     return self._key_note % operand
@@ -416,28 +486,11 @@ class Note(Element):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._duration == other_operand % od.DataSource( ot.Duration() ) \
                     and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
                     and self._gate == other_operand % od.DataSource( ov.Gate() )
-            case ov.NoteValue():
-                return self._duration == other_operand
             case _:
                 return super().__eq__(other_operand)
-    
-    def __lt__(self, other_operand: 'o.Operand') -> bool:
-        match other_operand:
-            case ov.NoteValue():
-                return self._duration < other_operand
-            case _:
-                return super().__lt__(other_operand)
-    
-    def __gt__(self, other_operand: 'o.Operand') -> bool:
-        match other_operand:
-            case ov.NoteValue():
-                return self._duration > other_operand
-            case _:
-                return super().__gt__(other_operand)
     
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -473,7 +526,6 @@ class Note(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
@@ -483,11 +535,10 @@ class Note(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"] and "key_note" in serialization["parameters"] and
+            "key_note" in serialization["parameters"] and
             "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ov.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
@@ -498,19 +549,15 @@ class Note(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Duration():     self._duration = operand % o.Operand()
                     case og.KeyNote():      self._key_note = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ov.Gate():         self._gate = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
-                self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
-            case ot.Duration() | ov.NoteValue():
-                                    self._duration << operand
             case og.KeyNote() | ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
