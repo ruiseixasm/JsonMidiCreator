@@ -139,11 +139,27 @@ class Time(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    # case ov.Measure():
+                    #     self._time_unit << od.DataSource( operand % od.DataSource( int() ) + (self._time_unit - self._time_unit % od.DataSource( int() )) )
+                    # case ov.Beat():
+                    #     beat_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+                    #     self._time_unit << od.DataSource( self._time_unit % od.DataSource( int() ) + beat_measure % od.DataSource( int() ) )
+                    # case ov.Step():
+                    #     step_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+                    #     self._time_unit << od.DataSource( self._time_unit % od.DataSource( int() ) + step_measure % od.DataSource( int() ) )
                     case ov.TimeUnit():         self._time_unit = operand % o.Operand() % od.DataSource( self._time_unit )
             case Time():
                 self._time_unit         << operand % od.DataSource( ov.TimeUnit() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            # case ov.Measure():
+            #     self._time_unit << operand % int() + (self._time_unit - self._time_unit % int())
+            # case ov.Beat():
+            #     beat_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+            #     self._time_unit << self._time_unit % int() + beat_measure % int()
+            # case ov.Step():
+            #     step_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+            #     self._time_unit << self._time_unit % int() + step_measure % int()
             case ov.TimeUnit():
                 self._time_unit << operand
             case Fraction() | float() | int():
