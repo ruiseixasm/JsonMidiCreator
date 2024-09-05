@@ -165,9 +165,15 @@ class Time(o.Operand):
         return self / operand
     
     def start(self) -> ov.TimeUnit:
-        return self._time_unit % int()
+        return self
 
     def end(self) -> ov.TimeUnit:
+        return self
+
+    def left(self) -> ov.TimeUnit:
+        return self._time_unit % int()
+
+    def right(self) -> ov.TimeUnit:
         return self._time_unit % int() + 1
 
 class Position(Time):
