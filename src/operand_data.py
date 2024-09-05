@@ -133,7 +133,7 @@ class Data(o.Operand):
                     case _:
                         self._data = operand_data
             case Serialization():
-                self.loadSerialization(operand % DataSource())
+                self.loadSerialization(operand % DataSource( dict() ))
             case o.Operand():
                 self._data = self._data.copy()
             case list():
@@ -220,7 +220,7 @@ class Scale(Data):
     def __init__(self, scale: list[int] | str | int = None):
         self_scale = __class__.get_scale(scale)
         if self_scale == []:
-            self_scale = os.staff % DataSource( self ) % DataSource()
+            self_scale = os.staff % DataSource( self ) % DataSource( list() )
         super().__init__( self_scale.copy() )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -253,7 +253,7 @@ class Scale(Data):
 
     def transposition(self, mode: int | str = "5th") -> int:
         transposition = 0
-        mode_transpose = ou.Mode(mode) % DataSource() - 1
+        mode_transpose = ou.Mode(mode) % DataSource( int() ) - 1
         while mode_transpose > 0:
             transposition += 1
             if self._data[transposition % 12]:
