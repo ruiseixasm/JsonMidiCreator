@@ -426,21 +426,18 @@ class Note(Element):
                 return super().__eq__(other_operand)
     
     def __lt__(self, other_operand: 'o.Operand') -> bool:
-        if super().__lt__(other_operand):
-            match other_operand:
-                case ov.NoteValue():
-                    return self._duration < other_operand
-            return True
-        return False
+        match other_operand:
+            case ov.NoteValue():
+                return self._duration < other_operand
+            case _:
+                return super().__lt__(other_operand)
     
     def __gt__(self, other_operand: 'o.Operand') -> bool:
         match other_operand:
-            case self.__class__():
-                return  False
-            case ov.TimeUnit():
-                return self._position > other_operand
+            case ov.NoteValue():
+                return self._duration > other_operand
             case _:
-                return self % od.DataSource( other_operand ) > other_operand
+                return super().__gt__(other_operand)
     
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position

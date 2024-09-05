@@ -202,10 +202,10 @@ class Time(o.Operand):
         return self / operand
     
     def start(self) -> ov.TimeUnit:
-        return self
+        return self.copy()
 
     def end(self) -> ov.TimeUnit:
-        return self
+        return self.copy()
 
     def minimum(self) -> ov.TimeUnit:
         return self._time_unit % int()
