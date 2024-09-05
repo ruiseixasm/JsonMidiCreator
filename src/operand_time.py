@@ -140,7 +140,7 @@ class Time(o.Operand):
             case Time():            self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit )) )
             case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
             case int() | float() | ou.Integer() | ov.Float() | Fraction():
-                self_copy << od.DataSource( self._time_unit + operand )
+                self_copy << od.DataSource( self._time_unit * operand )
         return self_copy
     
     def __rmul__(self, operand: o.Operand) -> 'Time':
