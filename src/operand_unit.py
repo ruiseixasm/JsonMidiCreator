@@ -40,7 +40,7 @@ class Unit(o.Operand):
     """
     def __init__(self, unit: int = None):
         super().__init__()
-        self._unit: int = 0 if unit is None else round(unit)
+        self._unit: int = 0 if unit is None else int(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -141,13 +141,13 @@ class Unit(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case int():                     self._unit = operand % o.Operand()
-                    case float() | Fraction():      self._unit = round(operand % o.Operand())
+                    case float() | Fraction():      self._unit = int(operand % o.Operand())
                     case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
             case Unit():            self._unit = operand % od.DataSource( int() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
-                self._unit = round(operand)
+                self._unit = int(operand)
             case ov.Float():
                 self._unit = operand % int()
         return self
@@ -217,7 +217,7 @@ class Key(Unit):
             case str():
                 super().__init__( Key.keyStrToKeyUnit(unit) )
             case int() | float():
-                super().__init__( round(unit) % 12 )
+                super().__init__( int(unit) % 12 )
             case _:
                 super().__init__( 0 )
 
@@ -239,7 +239,7 @@ class Key(Unit):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Unit():            self._unit = operand % int() % 12
-            case int() | float():   self._unit = round(operand) % 12
+            case int() | float():   self._unit = int(operand) % 12
             case str():             self._unit = __class__.keyStrToKeyUnit(operand)
         return self
 

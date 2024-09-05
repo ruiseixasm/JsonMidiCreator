@@ -68,7 +68,7 @@ class Value(o.Operand):
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case float():           return float(self._rational)
-                    case int():             return round(self._rational)
+                    case int():             return int(self._rational)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
                     case Float():           return Float() << od.DataSource( self._rational )
                     case Value():           return self
@@ -77,7 +77,7 @@ class Value(o.Operand):
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
-            case int():             return round(self._rational)
+            case int():             return int(self._rational)
             case ou.Integer():      return ou.Integer() << self._rational
             case Float():           return Float() << self._rational
             case ol.Null() | None:  return ol.Null()
@@ -758,7 +758,7 @@ class Dotted(NoteValue):
             case od.DataSource():   return super().__mod__(operand)
             case Fraction():        return self._rational * 2/3
             case float():           return float(self._rational * 2/3)
-            case int():             return round(self._rational * 2/3)
+            case int():             return int(self._rational * 2/3)
             case Value():           return Value() << self._rational * 2/3
             case ou.Unit():         return ou.Unit() << self._rational * 2/3
             case _:                 return super().__mod__(operand)
