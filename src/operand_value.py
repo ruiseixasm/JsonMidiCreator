@@ -150,9 +150,7 @@ class Value(o.Operand):
         return self
 
     def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if isinstance(value, of.Frame):
-            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
-        value = self & value    # Processes the tailed self operands if existent
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Value() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
@@ -161,9 +159,7 @@ class Value(o.Operand):
         return self.copy()
     
     def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if isinstance(value, of.Frame):
-            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
-        value = self & value    # Processes the tailed self operands if existent
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Value() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
@@ -172,9 +168,7 @@ class Value(o.Operand):
         return self.copy()
     
     def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if isinstance(value, of.Frame):
-            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
-        value = self & value    # Processes the tailed self operands if existent
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Value() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
@@ -183,9 +177,7 @@ class Value(o.Operand):
         return self.copy()
     
     def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
-        if isinstance(value, of.Frame):
-            value &= self       # The Frame MUST be apply the the root self and not the tailed self operand
-        value = self & value    # Processes the tailed self operands if existent
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Value() | ou.Unit():
                 if value % od.DataSource( Fraction() ) != 0:
@@ -324,7 +316,49 @@ class TimeUnit(Value):
                 return self._rational > self_class_timeunit % od.DataSource( Fraction() )
             case _: return super().__gt__(other_timeunit)
         return False
+
+    # CHAINABLE OPERATIONS
+
+    def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
+        match value:
+            case Value() | ou.Unit():
+                return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
+        return self.copy()
     
+    def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
+        match value:
+            case Value() | ou.Unit():
+                return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
+        return self.copy()
+    
+    def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
+        match value:
+            case Value() | ou.Unit():
+                return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
+            case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
+            case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
+        return self.copy()
+    
+    def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
+        match value:
+            case Value() | ou.Unit():
+                if value % od.DataSource( Fraction() ) != 0:
+                    return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
+            case Fraction():
+                if value != 0: return self.__class__() << od.DataSource( self._rational / value )
+            case float() | int():
+                if Fraction(value).limit_denominator() != 0:
+                    return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
+        return self.copy()
+
 class Measure(TimeUnit):
     """
     Measure() represents the Staff Time Length in Measures, also known as Bar.
