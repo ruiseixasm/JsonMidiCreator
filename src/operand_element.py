@@ -72,7 +72,7 @@ class Element(o.Operand):
 
     def __eq__(self, other_operand: 'o.Operand') -> bool:
         match other_operand:
-            case Element():
+            case self.__class__():
                 return  self._position == other_operand % od.DataSource( ot.Position() ) \
                     and self._length == other_operand % od.DataSource( ot.Length() ) \
                     and self._channel == other_operand % od.DataSource( ou.Channel() ) \
@@ -81,7 +81,6 @@ class Element(o.Operand):
                 return self._position == other_operand
             case _:
                 return self % od.DataSource( other_operand ) == other_operand
-        return False
     
     def start(self) -> ot.Position:
         return self._position.copy()
@@ -257,9 +256,12 @@ class Clock(Element):
             case ou.PPQN():     return self._pulses_per_quarternote.copy()
             case _:             return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return self._pulses_per_quarternote == other_element % od.DataSource( ou.PPQN() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return self._pulses_per_quarternote == other_operand % od.DataSource( ou.PPQN() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -386,12 +388,15 @@ class Note(Element):
             case ov.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._duration == other_element % od.DataSource( ot.Duration() ) \
-                and self._key_note == other_element % od.DataSource( og.KeyNote() ) \
-                and self._velocity == other_element % od.DataSource( ou.Velocity() ) \
-                and self._gate == other_element % od.DataSource( ov.Gate() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._duration == other_operand % od.DataSource( ot.Duration() ) \
+                        and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
+                        and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
+                        and self._gate == other_operand % od.DataSource( ov.Gate() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -521,10 +526,13 @@ class KeyScale(Note):
             case ou.Mode():         return self._mode.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._scale == other_element % od.DataSource( od.Scale() ) \
-                and self._mode == other_element % od.DataSource( ou.Mode() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._scale == other_operand % od.DataSource( od.Scale() ) \
+                        and self._mode == other_operand % od.DataSource( ou.Mode() )
+            return True
         return False
     
     def getSharps(self, key: ou.Key = None) -> int:
@@ -621,13 +629,16 @@ class Chord(Note):
             case ou.Sus():          return self._sus.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._scale == other_element % od.DataSource( od.Scale() ) \
-                and self._type == other_element % od.DataSource( ou.Type() ) \
-                and self._degree == other_element % od.DataSource( ou.Degree() ) \
-                and self._inversion == other_element % od.DataSource( ou.Inversion() ) \
-                and self._sus == other_element % od.DataSource( ou.Sus() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._scale == other_operand % od.DataSource( od.Scale() ) \
+                        and self._type == other_operand % od.DataSource( ou.Type() ) \
+                        and self._degree == other_operand % od.DataSource( ou.Degree() ) \
+                        and self._inversion == other_operand % od.DataSource( ou.Inversion() ) \
+                        and self._sus == other_operand % od.DataSource( ou.Sus() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -892,11 +903,14 @@ class Tuplet(Element):
             case list():            return o.Operand.copy_operands_list(self._elements)
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._duration  == other_element % od.DataSource( ot.Duration() ) \
-                and self._swing     == other_element % od.DataSource( ov.Swing() ) \
-                and self._elements  == other_element % od.DataSource( list() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._duration  == other_operand % od.DataSource( ot.Duration() ) \
+                        and self._swing     == other_operand % od.DataSource( ov.Swing() ) \
+                        and self._elements  == other_operand % od.DataSource( list() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -1031,9 +1045,12 @@ class ControlChange(Element):
             case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._controller == other_element % od.DataSource( og.Controller() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._controller == other_operand % od.DataSource( og.Controller() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -1118,9 +1135,12 @@ class PitchBend(Element):
             case int() | float():   return self._pitch % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._pitch == other_element % od.DataSource( ou.Pitch() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._pitch == other_operand % od.DataSource( ou.Pitch() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -1205,9 +1225,12 @@ class Aftertouch(Element):
             case int() | float():   return self._pressure % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._pressure == other_element % od.DataSource( ou.Pressure() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._pressure == other_operand % od.DataSource( ou.Pressure() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -1292,9 +1315,12 @@ class PolyAftertouch(Aftertouch):
             case ou.Octave():   return self._key_note % ou.Octave()
             case _:             return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._key_note == other_element % od.DataSource( og.KeyNote() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._key_note == other_operand % od.DataSource( og.KeyNote() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
@@ -1363,9 +1389,12 @@ class ProgramChange(Element):
             case int() | float():   return self._program % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_element: 'Element') -> bool:
-        if super().__eq__(other_element):
-            return  self._program == other_element % od.DataSource( ou.Program() )
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        if super().__eq__(other_operand):
+            match other_operand:
+                case self.__class__():
+                    return  self._program == other_operand % od.DataSource( ou.Program() )
+            return True
         return False
     
     def getPlayList(self, position: ot.Position = None):
