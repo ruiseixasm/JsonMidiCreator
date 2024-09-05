@@ -398,6 +398,7 @@ class Beat(TimeUnit):
                                                     self._rational / \
                                                         ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
                                                 )
+                    case Beat():            return self
                     case Step():            return Step() << od.DataSource(
                                                     self._rational / \
                                                         ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
@@ -411,6 +412,7 @@ class Beat(TimeUnit):
                     case _:                 return super().__mod__(operand)
             case Measure():         return Measure() << self._rational / \
                                                         ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+            case Beat():            return self.copy()
             case Step():            return Step() << self._rational / \
                                                         ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
@@ -525,6 +527,7 @@ class Step(TimeUnit):
                                                         ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
                                                 )
+                    case Step():            return self
                     case NoteValue():       return NoteValue() << od.DataSource(
                                                     self._rational / \
                                                         ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
@@ -536,6 +539,7 @@ class Step(TimeUnit):
             case Beat():            return Beat() << self._rational / \
                                                         ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+            case Step():            return self.copy()
             case NoteValue():       return NoteValue() << self._rational / \
                                                         ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
@@ -611,6 +615,7 @@ class NoteValue(TimeUnit):
                                                         ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
                                                 )
+                    case NoteValue():       return self
                     case _:                 return super().__mod__(operand)
             case Measure():         return Measure() << self._rational / \
                                                         ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
@@ -620,6 +625,7 @@ class NoteValue(TimeUnit):
             case Step():            return Step() << self._rational / \
                                                         ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
                                                         / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+            case NoteValue():       return self.copy()
             case _:                 return super().__mod__(operand)
 
     def getTime_rational(self) -> Fraction:
