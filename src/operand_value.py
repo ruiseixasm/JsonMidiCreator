@@ -170,7 +170,7 @@ class Value(o.Operand):
     def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Value() | ou.Unit():
+            case Value() | ou.Unit():   # Used in the example of multiplying by the Gate value with the NoteValue !!! (can't be self.__class__())
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
