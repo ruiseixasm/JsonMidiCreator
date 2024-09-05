@@ -158,7 +158,7 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case self.__class__() | Integer() | ov.Float():
-                                        return self.__class__() << od.DataSource( self._unit + number % od.DataSource() )
+                                        return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
@@ -168,7 +168,7 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case self.__class__() | Integer() | ov.Float():
-                                        return self.__class__() << od.DataSource( self._unit - number % od.DataSource() )
+                                        return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
@@ -178,7 +178,7 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case self.__class__() | Integer() | ov.Float():
-                                        return self.__class__() << od.DataSource( self._unit * (number % od.DataSource()) )
+                                        return self.__class__() << od.DataSource( self._unit * (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
@@ -188,8 +188,8 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case self.__class__() | Integer() | ov.Float():
-                                    if number % od.DataSource() != 0:
-                                        return self.__class__() << od.DataSource( self._unit / (number % od.DataSource()) )
+                                    if number % od.DataSource( int() ) != 0:
+                                        return self.__class__() << od.DataSource( self._unit / (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                                     if number != 0:
                                         return self.__class__() << od.DataSource( self._unit / number )
@@ -446,7 +446,7 @@ class Transposition(Operation):
         Transposition along the given Scale with 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
-        unit = Mode(mode) % od.DataSource()
+        unit = Mode(mode) % od.DataSource( int() )
         super().__init__(unit)
 
 # class Transpose(Unit):
@@ -459,7 +459,7 @@ class Transposition(Operation):
 #         Transpose a given Scale to 1 ("1st") as the default mode
 #     """
 #     def __init__(self, mode: int = None):
-#         unit = Mode(mode) % od.DataSource()
+#         unit = Mode(mode) % od. DataSource( int() )
 #         super().__init__(unit)
 
 class Modulation(Operation):    # Modal Modulation
@@ -472,7 +472,7 @@ class Modulation(Operation):    # Modal Modulation
         Modulation of a given Scale with 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
-        unit = Mode(mode) % od.DataSource()
+        unit = Mode(mode) % od.DataSource( int() )
         super().__init__(unit)
 
 class Modulate(Operation):    # Modal Modulation
@@ -485,7 +485,7 @@ class Modulate(Operation):    # Modal Modulation
         Modulate a given Scale to 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
-        unit = Mode(mode) % od.DataSource()
+        unit = Mode(mode) % od.DataSource( int() )
         super().__init__(unit)
 
     # CHAINABLE OPERATIONS
