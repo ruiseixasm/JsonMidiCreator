@@ -60,7 +60,7 @@ class Time(o.Operand):
             case Time():
                 return self.getTime_rational() == other_time.getTime_rational()
         return False
-    
+
     def __lt__(self, other_time: any) -> bool:
         match other_time:
             case ov.NoteValue():
@@ -98,7 +98,7 @@ class Time(o.Operand):
     
     def __ge__(self, other_time: any) -> bool:
         return self == other_time or self > other_time
-    
+
     def getTime_rational(self) -> Fraction:
         return self._time_unit.getTime_rational()
         
