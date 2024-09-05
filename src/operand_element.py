@@ -924,10 +924,9 @@ class Note3(Retrigger):
             case _:                 super().__lshift__(operand)
         return self
 
-class Tuplet(Element):
+class Tuplet(Rest):
     def __init__(self, *elements: Element):
         super().__init__()
-        self._duration: ot.Duration = os.staff % ot.Duration()
         self._swing     = ov.Swing(.50)
         self._elements: list[Element] = []
         if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
@@ -961,7 +960,6 @@ class Tuplet(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Duration():     return self._duration
                     case ov.Swing():        return self._swing
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
@@ -983,7 +981,6 @@ class Tuplet(Element):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._duration  == other_operand % od.DataSource( ot.Duration() ) \
                     and self._swing     == other_operand % od.DataSource( ov.Swing() ) \
                     and self._elements  == other_operand % od.DataSource( list() )
             case _:
@@ -1004,7 +1001,6 @@ class Tuplet(Element):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
         elements = []
         for single_element in self._elements:
@@ -1016,10 +1012,9 @@ class Tuplet(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"] and "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
+            "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._swing     = ov.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
@@ -1037,7 +1032,6 @@ class Tuplet(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ot.Duration():         self._duration = operand % o.Operand()
                     case ov.Swing():            self._swing = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
