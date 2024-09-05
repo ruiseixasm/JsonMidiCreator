@@ -43,4 +43,4 @@ single_clock = Clock()
 triplets_two = (triplets_one << Length(1/8) ^ End()) >> triplets_two
 # triplets_one + triplets_two + single_clock >> Play(True)
 
-(triplets_one + triplets_two + single_clock) + Equal(Measure(1))**Key(2) >> Play(True)
+(triplets_one + triplets_two + single_clock) + Equal(Beat(1))**Key(2) >> Play(True)
