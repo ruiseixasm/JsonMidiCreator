@@ -374,17 +374,6 @@ class Rest(Element):
         self._length << self._duration  # By default a note has the same Length as its Duration
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Note,
-        those Parameters are the ones of the Element, like Position and Length,
-        plus the Duration, KeyNote, Velocity and Gate, the last one as 0.90 by default.
-
-        Examples
-        --------
-        >>> some_note = Note("F")
-        >>> print(some_note % Key() % str())
-        F
-        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
