@@ -67,6 +67,7 @@ class Value(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case Fraction():        return self._rational
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
@@ -80,8 +81,8 @@ class Value(o.Operand):
             case int():             return int(self._rational)
             case ou.Integer():      return ou.Integer() << self._rational
             case Float():           return Float() << self._rational
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case Value():           return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_number: any) -> bool:
         match other_number:

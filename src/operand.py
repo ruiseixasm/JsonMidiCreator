@@ -63,7 +63,8 @@ class Operand:
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case Operand():         return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, operand: 'Operand') -> bool:
         return False
