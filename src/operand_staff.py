@@ -75,8 +75,8 @@ class Staff(o.Operand):
                         return ov.StepsPerMeasure() \
                             << od.DataSource( self % od.DataSource( ov.StepsPerNote() ) % od.DataSource( Fraction() ) \
                                 * (self % od.DataSource( ov.NotesPerMeasure() ) % od.DataSource( Fraction() )))
-                    case ol.Null() | None:      return ol.Null()
-                    case _:                     return self
+                    case Staff():               return self
+                    case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             # Direct Values
             case ov.Measure():          return self._measure.copy()
@@ -103,8 +103,8 @@ class Staff(o.Operand):
             case ov.StepsPerMeasure():
                 return ov.StepsPerMeasure() \
                     << (self % ov.StepsPerNote() % Fraction()) * (self % ov.NotesPerMeasure() % Fraction())
-            case ol.Null() | None:      return ol.Null()
-            case _:                     return self.copy()
+            case Staff():               return self.copy()
+            case _:                     return ol.Null()
 
     def __eq__(self, other_staff: 'Staff') -> bool:
         if type(self) != type(other_staff):

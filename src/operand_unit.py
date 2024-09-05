@@ -60,6 +60,7 @@ class Unit(o.Operand):
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case Fraction():        return Fraction(self._unit).limit_denominator()
+                    case int():             return self._unit
                     case float():           return float(self._unit)
                     case Integer():         return Integer() << od.DataSource( self._unit )
                     case ov.Float():        return ov.Float() << od.DataSource( self._unit )
@@ -72,8 +73,8 @@ class Unit(o.Operand):
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case Integer():         return Integer() << self._unit
             case ov.Float():        return ov.Float() << self._unit
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case Unit():            return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_number: any) -> bool:
         import operand_value as ov

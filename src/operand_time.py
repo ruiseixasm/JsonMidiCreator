@@ -38,12 +38,12 @@ class Time(o.Operand):
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case ov.TimeUnit():     return self._time_unit % od.DataSource( operand % o.Operand() )
-                    case ol.Null() | None:  return ol.Null()
-                    case _:                 return self
+                    case Time():            return self
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ov.TimeUnit():     return self._time_unit % operand
-            case ol.Null() | None:  return ol.Null()
-            case _:                 return self.copy()
+            case Time():            return self.copy()
+            case _:                 return ol.Null()
 
     def __eq__(self, other_time: any) -> bool:
         match other_time:

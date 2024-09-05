@@ -1034,10 +1034,10 @@ class ControlChange(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        control_number_int: int     = self % ou.ControlNumber() % od.DataSource()
-        control_value_int: int      = self % ou.ControlValue() % od.DataSource()
-        channel_int: int            = self._channel % od.DataSource()
-        device_list: list           = self._device % od.DataSource()
+        control_number_int: int     = self % ou.ControlNumber() % od.DataSource( int() )
+        control_value_int: int      = self % ou.ControlValue() % od.DataSource( int() )
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         return [
