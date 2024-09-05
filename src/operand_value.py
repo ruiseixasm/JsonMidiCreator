@@ -317,6 +317,7 @@ class Measure(TimeUnit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case Measure():         return self
                     case Beat():            return Beat() << od.DataSource(
                                                     self._rational * \
                                                         (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
@@ -330,6 +331,7 @@ class Measure(TimeUnit):
                                                         (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
                                                 )
                     case _:                 return super().__mod__(operand)
+            case Measure():         return self.copy()
             case Beat():            return Beat() << self._rational * \
                                                         (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
             case Step():            return Step() << self._rational * \
@@ -348,6 +350,8 @@ class Measure(TimeUnit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case Measure():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() )
                     case Beat():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() ) / \
                             (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
@@ -358,6 +362,8 @@ class Measure(TimeUnit):
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() ) / \
                             (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
                     case _: super().__lshift__(operand)
+            case Measure():
+                self._rational = operand % o.Operand() % Fraction()
             case Beat():
                 self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
             case Step():
