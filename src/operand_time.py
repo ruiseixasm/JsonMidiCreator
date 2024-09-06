@@ -140,9 +140,19 @@ class Time(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     # case ov.Measure():
-                    #     # Meant to change just the Measure
-                    #     self._time_unit << od.DataSource( operand % o.Operand() % od.DataSource( int() ) \
-                    #         + (self._time_unit % od.DataSource( Fraction() ) - self._time_unit % od.DataSource( int() )) )
+                    #     if self._time_unit % od.DataSource( int() ) != operand % o.Operand() % od.DataSource( int() ):
+                    #         print_print = False
+                    #         if self._time_unit % od.DataSource( Fraction() ) != self._time_unit % od.DataSource( int() ):
+                    #             print_print = True
+                    #             print(operand % o.Operand() % od.DataSource( Fraction() ))
+                    #             print(self._time_unit % od.DataSource( Fraction() ))
+                    #             print(self._time_unit % od.DataSource( int() ))
+                    #         # Meant to change just the Measure
+                    #         self._time_unit << od.DataSource( operand % o.Operand() % od.DataSource( int() ) \
+                    #             + (self._time_unit % od.DataSource( Fraction() ) - self._time_unit % od.DataSource( int() )) )
+                    #         if print_print:
+                    #             print(self._time_unit % od.DataSource( Fraction() ))
+                    #             print("----------------------------------------")
                     case ov.Beat() | ov.Step():
                         # Resets to zero Beats/Steps
                         self._time_unit << od.DataSource( self._time_unit % od.DataSource( int() ) )
