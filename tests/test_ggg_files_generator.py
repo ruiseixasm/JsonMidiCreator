@@ -105,6 +105,7 @@ single_clock = Clock()
 triplets_two = (triplets_one << Length(1/8) ^ End()) >> triplets_two
 triplets_one + triplets_two + single_clock >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
 
+triplets_one + triplets_two + single_clock + Equal(Beat(1))**Key(2) >> Save("json/testing/_Save_Play_p.10.1_first_note.json") >> Export("json/testing/_Export_Play_p.10.1_sequence.json")
 
 ############### TEST4 #######################
 

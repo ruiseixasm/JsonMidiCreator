@@ -298,7 +298,7 @@ class Clock(Element):
         pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % od.DataSource( Fraction() ))
         clock_pulses = round(pulses_per_measure * (self._length % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = ov.Measure(1).getTime_rational()
+        single_measure_rational_ms = ov.Measure(1.0).getTime_rational()
         clock_start_rational_ms = self_position.getTime_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._length.getTime_rational()
 

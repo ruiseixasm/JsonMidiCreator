@@ -204,6 +204,15 @@ results_list.append({
     "export":   original_export == result_export
 })
 
+original_save       = Load("json/testing/_Save_Play_p.10.1_first_note.json")
+original_export     = Import("json/testing/_Export_Play_p.10.1_sequence.json")
+triplets_one + triplets_two + single_clock + Equal(Beat(1))**Key(2) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+results_list.append({
+    "test":     "TEST 3.6",
+    "save":     original_save == result_save,
+    "export":   original_export == result_export
+})
+
 
 ############### TEST4 #######################
 
