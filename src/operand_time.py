@@ -41,8 +41,13 @@ class Time(o.Operand):
                     case Time():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case ov.TimeUnit():     return self._time_unit % operand
             case Time():            return self.copy()
+            case ov.Measure():
+                return ov.Measure() << self._time_unit % operand % int()
+            case ov.Beat() | ov.Step():
+                return operand.__class__() << (ov.Measure() << self._time_unit % Fraction() - self._time_unit % int())
+            case ov.TimeUnit() | int() | float() | Fraction() | ou.Integer() | ov.Float():
+                return self._time_unit % operand
             case _:                 return ol.Null()
 
     def __eq__(self, other_time: any) -> bool:

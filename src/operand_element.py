@@ -293,12 +293,12 @@ class Clock(Element):
 
         device = self % od.Device()
 
-        pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( int() )
-        pulses_per_beat = pulses_per_note * (os.staff % ov.BeatNoteValue() % Fraction())
-        pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % Fraction())
-        clock_pulses = round(pulses_per_measure * (self._length % ov.Measure() % Fraction()))
+        pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
+        pulses_per_beat = pulses_per_note * (os.staff % ov.BeatNoteValue() % od.DataSource( Fraction() ))
+        pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % od.DataSource( Fraction() ))
+        clock_pulses = round(pulses_per_measure * (self._length % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = (ot.Length() << ov.Measure(1)).getTime_rational()
+        single_measure_rational_ms = ov.Measure(1).getTime_rational()
         clock_start_rational_ms = self_position.getTime_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._length.getTime_rational()
 
@@ -316,7 +316,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(float(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._length % ov.Measure() % od.DataSource( Fraction() )) \
+                                     + single_measure_rational_ms * (self._length % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() )) \
                                      * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
