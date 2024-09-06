@@ -152,8 +152,12 @@ class Time(o.Operand):
                 self._time_unit         << operand % od.DataSource( ov.TimeUnit() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            # case ov.Measure():
-            #     self._time_unit << operand % int() + (self._time_unit - self._time_unit % int())
+            case ov.Measure():
+                measure_int = operand % int()
+                if operand % Fraction() == measure_int:
+                    self._time_unit << measure_int + (self._time_unit % Fraction() - self._time_unit % int())
+                else:
+                    self._time_unit << operand
             # case ov.Beat():
             #     beat_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
             #     self._time_unit << self._time_unit % int() + beat_measure % int()
@@ -245,6 +249,19 @@ class Duration(Time):
         self._time_unit      = ov.NoteValue() << time
 
     # CHAINABLE OPERATIONS
+
+    # def __lshift__(self, operand: o.Operand) -> 'Time':
+    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     match operand:
+    #         case od.DataSource():
+    #             match operand % o.Operand():
+    #                 case ov.TimeUnit():
+    #                     self._time_unit << od.DataSource( operand % o.Operand() % od.DataSource( self._time_unit ) )
+    #                 case _:                     super().__lshift__(operand)
+    #         case ov.TimeUnit():
+    #             self._time_unit << operand
+    #         case _: super().__lshift__(operand)
+    #     return self
 
     def __mul__(self, operand: o.Operand) -> 'Time':
         match operand:
