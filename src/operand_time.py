@@ -146,15 +146,21 @@ class Time(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ov.Measure():
-                # Meant to change just the Measure
-                self._time_unit << operand % int() \
-                    + (self._time_unit % Fraction() - self._time_unit % int())
+                if operand % int() == operand % Fraction():
+                    # Meant to change just the Measure
+                    self._time_unit << operand % int() \
+                        + (self._time_unit % Fraction() - self._time_unit % int())
+                else:
+                    self._time_unit     << operand
             case ov.Beat() | ov.Step():
                 self._time_unit << self._time_unit % int()  # Resets to zero Beats/Steps
                 self._time_unit += operand
             case ov.TimeUnit():
                 self._time_unit << operand
-            case Fraction() | float() | int():
+            case int() | ou.Integer():
+                # Meant to change just the Measure
+                self._time_unit << (self._time_unit % Fraction() - self._time_unit % int()) + operand
+            case Fraction() | float() | ov.Float():
                 self._time_unit         << operand
         return self
 
@@ -239,11 +245,7 @@ class Duration(Time):
     def __lshift__(self, operand: o.Operand) -> 'Time':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ov.TimeUnit():
-                        self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
-                    case _:                     super().__lshift__(operand)
+            case od.DataSource():       super().__lshift__(operand)
             case ov.TimeUnit(): # Avoids extra processing of TimeUnits like Measure or Beat
                 self._time_unit << operand
             case _: super().__lshift__(operand)
