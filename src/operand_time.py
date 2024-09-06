@@ -160,11 +160,15 @@ class Time(o.Operand):
                 else:
                     self._time_unit << operand
             # case ov.Beat():
-            #     beat_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
-            #     self._time_unit << self._time_unit % int() + beat_measure % int()
-            # case ov.Step():
-            #     step_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
-            #     self._time_unit << self._time_unit % int() + step_measure % int()
+            #     measure_int = operand % Fraction() // (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+            #     beat_rational = operand % Fraction() % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
+            #     self._time_unit += ov.Measure() << measure_int
+            #     self._time_unit += ov.Beat() << beat_rational
+            case ov.Step():
+                measure_int = operand % Fraction() // (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+                step_rational = operand % Fraction() % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+                self._time_unit += ov.Measure() << measure_int
+                self._time_unit += ov.Step() << step_rational
             case ov.TimeUnit():
                 self._time_unit << operand
             case Fraction() | float() | int():
