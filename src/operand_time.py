@@ -147,7 +147,8 @@ class Time(o.Operand):
                     # case ov.Step():
                     #     step_measure = ov.Measure() << operand % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
                     #     self._time_unit << od.DataSource( self._time_unit % od.DataSource( int() ) + step_measure % od.DataSource( int() ) )
-                    case ov.TimeUnit():         self._time_unit = operand % o.Operand() % od.DataSource( self._time_unit )
+                    case ov.TimeUnit():
+                        self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
             case Time():
                 self._time_unit         << operand % od.DataSource( ov.TimeUnit() )
             case od.Serialization():
@@ -250,18 +251,18 @@ class Duration(Time):
 
     # CHAINABLE OPERATIONS
 
-    # def __lshift__(self, operand: o.Operand) -> 'Time':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case od.DataSource():
-    #             match operand % o.Operand():
-    #                 case ov.TimeUnit():
-    #                     self._time_unit << od.DataSource( operand % o.Operand() % od.DataSource( self._time_unit ) )
-    #                 case _:                     super().__lshift__(operand)
-    #         case ov.TimeUnit():
-    #             self._time_unit << operand
-    #         case _: super().__lshift__(operand)
-    #     return self
+    def __lshift__(self, operand: o.Operand) -> 'Time':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ov.TimeUnit():
+                        self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
+                    case _:                     super().__lshift__(operand)
+            case ov.TimeUnit():
+                self._time_unit << operand
+            case _: super().__lshift__(operand)
+        return self
 
     def __mul__(self, operand: o.Operand) -> 'Time':
         match operand:

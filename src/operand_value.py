@@ -141,7 +141,7 @@ class Value(o.Operand):
                     case Fraction():                self._rational = operand % o.Operand()
                     case float() | int():           self._rational = Fraction(operand % o.Operand()).limit_denominator()
                     case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
-            case Value():           self._rational = operand % od.DataSource( Fraction() )
+            case Value():                   self._rational = operand % od.DataSource( Fraction() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
