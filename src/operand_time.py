@@ -140,10 +140,9 @@ class Time(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     # case ov.Measure():
-                    #     operand_int = operand % od.DataSource( int() )
-                    #     # Meant to change Measure
-                    #     self._time_unit << operand_int \
-                    #         + (self._time_unit % od.DataSource( Fraction() ) - self._time_unit % od.DataSource( int() ))
+                    #     # Meant to change just the Measure
+                    #     self._time_unit << od.DataSource( operand % od.DataSource( int() ) \
+                    #         + (self._time_unit % od.DataSource( Fraction() ) - self._time_unit % od.DataSource( int() )) )
                     case ov.Beat() | ov.Step():
                         # Resets to zero Beats/Steps
                         self._time_unit << od.DataSource( self._time_unit % od.DataSource( int() ) )
@@ -155,9 +154,9 @@ class Time(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ov.Measure():
-                operand_int = operand % int()
-                # Meant to change Measure
-                self._time_unit << operand_int + (self._time_unit % Fraction() - self._time_unit % int())
+                # Meant to change just the Measure
+                self._time_unit << operand % int() \
+                    + (self._time_unit % Fraction() - self._time_unit % int())
             case ov.Beat() | ov.Step():
                 self._time_unit << self._time_unit % int()  # Resets to zero Beats/Steps
                 self._time_unit += operand
