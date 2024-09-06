@@ -30,7 +30,7 @@ import operand_label as ol
 class Time(o.Operand):
     def __init__(self, time: int | float = None):
         super().__init__()
-        self._time_unit: ov.TimeUnit    = ov.TimeUnit() << time
+        self._time_unit      = ov.Measure() << time
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -240,13 +240,11 @@ class Time(o.Operand):
 
 class Position(Time):
     def __init__(self, time: int | float = None):
-        super().__init__()
-        self._time_unit      = ov.Measure() << time
+        super().__init__(time)
 
 class Length(Time):
     def __init__(self, time: int | float = None):
-        super().__init__()
-        self._time_unit      = ov.Measure() << time
+        super().__init__(time)
     
 class Duration(Time):
     def __init__(self, time: int | float = None):
