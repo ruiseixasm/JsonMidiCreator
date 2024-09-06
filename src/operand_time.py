@@ -141,12 +141,12 @@ class Time(o.Operand):
                 match operand % o.Operand():
                     # case ov.Measure():
                     #     # Meant to change just the Measure
-                    #     self._time_unit << od.DataSource( operand % od.DataSource( int() ) \
+                    #     self._time_unit << od.DataSource( operand % o.Operand() % od.DataSource( int() ) \
                     #         + (self._time_unit % od.DataSource( Fraction() ) - self._time_unit % od.DataSource( int() )) )
                     case ov.Beat() | ov.Step():
                         # Resets to zero Beats/Steps
                         self._time_unit << od.DataSource( self._time_unit % od.DataSource( int() ) )
-                        self._time_unit += operand
+                        self._time_unit += operand % o.Operand()
                     case ov.TimeUnit():
                         self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
             case Time():
