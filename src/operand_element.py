@@ -373,9 +373,9 @@ class Rest(Element):
 
         Examples
         --------
-        >>> rest = Rest("F")
-        >>> print(some_note % Key() % str())
-        F
+        >>> rest = Rest()
+        >>> rest % Duration() >> Print(0)
+        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.25}}}}
         """
         match operand:
             case od.DataSource():
@@ -452,12 +452,13 @@ class Note(Rest):
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
         those Parameters are the ones of the Element, like Position and Length,
-        plus the Duration, KeyNote, Velocity and Gate, the last one as 0.90 by default.
+        plus the Rest's Duration and KeyNote, Velocity and Gate, the last one
+        with a value of 0.90 by default.
 
         Examples
         --------
-        >>> some_note = Note("F")
-        >>> print(some_note % Key() % str())
+        >>> note = Note("F")
+        >>> note % Key() % str() >> Print()
         F
         """
         match operand:
@@ -588,10 +589,14 @@ class KeyScale(Note):
 
         Examples
         --------
-        >>> entire_scale = KeyScale()
-        >>> entire_scale << Scale("minor")
-        >>> print(entire_scale % str())
+        >>> scale = KeyScale()
+        >>> scale % str() >> Print()
+        Major
+        >>> scale << "minor"
+        >>> scale % str() >> Print()
         minor
+        >>> scale % list() >> Print()
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
         match operand:
             case od.DataSource():
@@ -688,8 +693,8 @@ class Chord(Note):
 
         Examples
         --------
-        >>> single_chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
-        >>> print(single_chord % Degree() % str())
+        >>> chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
+        >>> chord % Degree() % str() >> Print()
         I
         """
         match operand:
@@ -823,7 +828,7 @@ class Retrigger(Note):
         """
         The % symbol is used to extract a Parameter, in the case of a Retrigger,
         those Parameters are the ones of the Element, like Position and Length,
-        plus the ones of a Note and the Division.
+        plus the ones of a Note and the Division as 16 by default.
 
         Examples
         --------
@@ -1199,6 +1204,17 @@ class PitchBend(Element):
         self._pitch: ou.Pitch = ou.Pitch( 0 if pitch is None else pitch )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a PitchBend,
+        those Parameters are the ones of the Element, like Position and Length,
+        and the PitchBend pitch with 0 as default.
+
+        Examples
+        --------
+        >>> pitch_bend = PitchBend(8190 / 2 + 1)
+        >>> pitch_bend % int() >> Print()
+        4096
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1285,10 +1301,23 @@ class PitchBend(Element):
 class Aftertouch(Element):
     def __init__(self, channel: int = None):
         super().__init__()
-        self._channel = ou.Channel(channel)
+        self._channel = ou.Channel(0)
+        if channel is not None and isinstance(channel, int):
+            self._channel = ou.Channel(channel)
         self._pressure: ou.Pressure = ou.Pressure()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Aftertouch,
+        those Parameters are the ones of the Element, like Position and Length,
+        and the Aftertouch pressure with 0 as default.
+
+        Examples
+        --------
+        >>> aftertouch = Aftertouch(2) << Pressure(128 / 2)
+        >>> aftertouch % Pressure() % int() >> Print()
+        64
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1378,6 +1407,17 @@ class PolyAftertouch(Aftertouch):
         self._key_note: og.KeyNote  = og.KeyNote(key)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a PolyAftertouch,
+        those Parameters are the ones of the Element, like Position and Length,
+        and the Key together with the PolyAftertouch pressure with value 0 as default.
+
+        Examples
+        --------
+        >>> poly_aftertouch = PolyAftertouch("E") << Pressure(128 / 2)
+        >>> poly_aftertouch % Channel() >> Print(0)
+        {'class': 'Channel', 'parameters': {'unit': 0}}
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1453,6 +1493,17 @@ class ProgramChange(Element):
         self._program: ou.Program = ou.Program( 0 if program is None else program )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a ProgramChange,
+        those Parameters are the ones of the Element, like Position and Length,
+        and the ProgramChange number with a value of 0 as default.
+
+        Examples
+        --------
+        >>> program_change = ProgramChange(12)
+        >>> program_change % Program() >> Print(0)
+        {'class': 'Program', 'parameters': {'unit': 12}}
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
