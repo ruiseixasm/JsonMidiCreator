@@ -164,14 +164,6 @@ class Serialization(Data):
             operand_class = super().getOperand(operand_class_name)
             if operand_class: return operand_class.loadSerialization(self._data)
         return ol.Null()
-   
-    def __xor__(self, operand: o.Operand):
-        """
-        ^ calls the respective Operand's method by name.
-        """
-        match operand:
-            case o.Operand():   return self.getOperand()
-            case _:             return super().__xor__(operand)
 
     @staticmethod
     def addSequences(left_sequence: dict, right_sequence: dict) -> dict:

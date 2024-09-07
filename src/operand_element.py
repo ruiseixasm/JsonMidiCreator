@@ -146,18 +146,6 @@ class Element(o.Operand):
             self._channel   = ou.Channel()  << od.DataSource( serialization["parameters"]["channel"] )
             self._device    = od.Device()   << od.DataSource( serialization["parameters"]["device"] )
         return self
-        
-    def __xor__(self, operand: o.Operand):
-        """
-        ^ calls the respective Operand's method by name.
-        """
-        match operand:
-            case ol.Start():
-                return self.start()
-            case ol.End():
-                return self.end()
-            case _:
-                return super().__xor__(operand)
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

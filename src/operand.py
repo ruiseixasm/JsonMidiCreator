@@ -147,25 +147,6 @@ class Operand:
         
         # If no matching subclass is found, return None
         return None
-    
-    def __xor__(self, operand: 'Operand') -> any:
-        """
-        ^ calls the respective Operand's method by name.
-        """
-        import operand_data as od
-        import operand_time as ot
-        import operand_label as ol
-        match operand:
-            case od.PlayList():
-                position = operand % ot.Position()
-                if position: return self.getPlayList(position)
-                return self.getPlayList()
-            case od.Serialization():
-                return self.getSerialization()
-            case ol.Name():
-                return self.name()
-            case _:
-                return self % operand
 
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         return self

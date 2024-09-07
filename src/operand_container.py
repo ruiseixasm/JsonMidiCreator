@@ -166,22 +166,6 @@ class Container(o.Operand):
             self._operand_list[operand_i] = tail_operand
         return self
 
-    def __xor__(self, operand: o.Operand):
-        """
-        ^ calls the respective Operand's method by name.
-        """
-        match operand:
-            case ol.Len():
-                return self.len()
-            case ol.First():
-                return self.first()
-            case ol.Last():
-                return self.last()
-            case ou.Middle():
-                return self.middle(operand % int())
-            case _:
-                return super().__xor__(operand)
-
     def __lshift__(self, operand: o.Operand) -> 'Container':
         match operand:
             case od.DataSource():
@@ -351,18 +335,6 @@ class Sequence(Container):  # Just a container of Elements
             return operand + self
         else:
             return self.copy()
-
-    def __xor__(self, operand: o.Operand):
-        """
-        ^ calls the respective Operand's method by name.
-        """
-        match operand:
-            case ol.Start():
-                return self.start()
-            case ol.End():
-                return self.end()
-            case _:
-                return super().__xor__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
