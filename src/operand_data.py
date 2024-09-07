@@ -466,7 +466,8 @@ class Serialization(Data):
                     self._data = ol.Null()
             return self
         if isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
-            return operand >> self._data
+            operand >> self._data
+            return self
         return operand
 
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
@@ -508,11 +509,6 @@ class Serialization(Data):
         else:
             # Base case: return the value directly if it's neither a list nor a dictionary
             return data
-
-    def __lshift__(self, operand: o.Operand) -> 'o.Operand':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self._data = operand.copy()
-        return self
 
 class Load(Serialization):
     def __init__(self, file_name: str = None):
