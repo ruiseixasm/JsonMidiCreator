@@ -231,9 +231,9 @@ class Scale(Data):
 
         Examples
         --------
-        >>> tonic_a_scale = Scale([1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]) % Tonic("A") % list()
-        >>> print(tonic_a_scale)
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+        >>> major_scale = Scale()
+        >>> (major_scale >> Modulate("5th")) % str() >> Print()
+        Mixolydian
         """
         match operand:
             case DataSource():          return super().__mod__(operand)
@@ -383,7 +383,7 @@ class Save(Data):
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
         if isinstance(serialization, o.Operand):
-            self._data = serialization
+            self._data = serialization.copy()
         elif isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
             operand_class_name = serialization["class"]
             operand = self.getOperand(operand_class_name)
@@ -433,13 +433,21 @@ class Serialization(Data):
     def copy(self):
         return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
 
-    def __lshift__(self, operand: o.Operand) -> 'o.Operand':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self._data = operand.copy()
-        return self
-
     def __rrshift__(self, operand) -> o.Operand:
-        return operand >> self._data
+        if isinstance(self._data, ol.Null):
+            if isinstance(operand, o.Operand):
+                self._data = operand.copy()
+            elif isinstance(operand, dict) and "class" in operand and "parameters" in operand:
+                operand_class_name = operand["class"]
+                operand = self.getOperand(operand_class_name)
+                if operand:
+                    super().__init__( operand.loadSerialization(operand) )
+                else:
+                    super().__init__( ol.Null() )
+            return self
+        if isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
+            return operand >> self._data
+        return operand
 
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
         return self._data + operand
@@ -455,6 +463,36 @@ class Serialization(Data):
 
     def __floordiv__(self, length: ot.Length) -> 'o.Operand':
         return self._data // length
+
+    @staticmethod
+    def deep_copy_dict(data):
+        """
+        Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
+
+        Args:
+            data (dict): The dictionary to copy.
+
+        Returns:
+            dict: A deep copy of the original dictionary.
+        """
+        if isinstance(data, dict):
+            # Create a new dictionary
+            copy_dict = {}
+            for key, value in data.items():
+                # Recursively copy each value
+                copy_dict[key] = Serialization.deep_copy_dict(value)
+            return copy_dict
+        elif isinstance(data, list):
+            # Create a new list and recursively copy each element
+            return [Serialization.deep_copy_dict(element) for element in data]
+        else:
+            # Base case: return the value directly if it's neither a list nor a dictionary
+            return data
+
+    def __lshift__(self, operand: o.Operand) -> 'o.Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        self._data = operand.copy()
+        return self
 
 class Load(Serialization):
     def __init__(self, file_name: str = None):

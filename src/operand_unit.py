@@ -491,7 +491,7 @@ class Modulate(Operation):    # Modal Modulation
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, od.Scale):
-            operand.modulate(self._unit)
+            operand = operand.copy().modulate(self._unit)
         return operand
 
 class Progression(Operation):
