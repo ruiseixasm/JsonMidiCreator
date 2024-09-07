@@ -179,6 +179,7 @@ cython_debug/
 # JsonMidiCreator files to be ignored by git in order to not clutter the GitHub repository
 *.exe
 *.out
+*.a
 *.so
 *.dll
 *.dylib
