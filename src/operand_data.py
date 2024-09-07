@@ -405,10 +405,10 @@ class Serialization(Data):
 
         Examples
         --------
-        >>> serialization = Retrigger("D") >> Serialization()
+        >>> serialization = Serialization() << Retrigger("D")
         >>> serialization % DataSource( Duration() ) >> Print(False)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.03125}}}}
-        >>> serialization = Retrigger("D") << Division(6) >> Serialization()
+        >>> serialization = Serialization() << (Retrigger("D") << Division(6))
         >>> serialization % DataSource( Duration() ) >> Print(False)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.08333333333333333}}}}
         """
@@ -518,24 +518,17 @@ class PlayList(Data):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract a Parameter, for the case a Serialization(),
-        those Operands are pass right away to the self Data Operand, with the
-        exception of "% Operand()", that returns the self Data operand.
+        The % symbol is used to extract a Parameter, for the case a PlayList(),
+        there is only one data to be extracted, a Play List, the only and always
+        the result of the "%" operator.
 
         Examples
         --------
-        >>> serialization = Retrigger("D") >> Serialization()
-        >>> serialization % DataSource( Duration() ) >> Print(False)
-        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.03125}}}}
-        >>> (serialization << Division(6)) % DataSource( Duration() ) >> Print(False)
-        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.08333333333333333}}}}
+        >>> play_list = PlayList() << Retrigger("D")
+        >>> play_list >> Play()
+        <operand_data.PlayList object at 0x0000022EC9967490>
         """
-        match operand:
-            case ot.Position():
-                if isinstance(self._data, ot.Position):
-                    return self._data
-                return None
-            case _:                 return None
+        return self._data
 
     def __eq__(self, other_operand: any) -> bool:
         match other_operand:
@@ -546,14 +539,13 @@ class PlayList(Data):
         return super().__eq__(other_operand)
     
     def getPlayList(self) -> list:
-        return PlayList.copyPlayList(self._data)
+        return PlayList.copy_play_list(self._data)
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'PlayList':
         import operand_container as oc
         import operand_element as oe
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
             self._data = operand.getPlayList()
         return self
@@ -585,18 +577,18 @@ class PlayList(Data):
     def __add__(self, operand: o.Operand) -> 'PlayList':
         match operand:
             case ot.Length():
-                playlist_copy = PlayList.copyPlayList(self._data)
+                playlist_copy = PlayList.copy_play_list(self._data)
                 increase_position_ms: float = operand.getTime_ms()
                 for midi_element in playlist_copy:
                     if "time_ms" in midi_element:
                         midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
                 return PlayList( playlist_copy )
-            case list():        return PlayList( PlayList.copyPlayList(self._data) + PlayList.copyPlayList(operand) )
-            case o.Operand():   return PlayList( PlayList.copyPlayList(self._data) + PlayList.copyPlayList(operand.getPlayList()) )
-            case _:             return PlayList( PlayList.copyPlayList(self._data) )
+            case list():        return PlayList( PlayList.copy_play_list(self._data) + PlayList.copy_play_list(operand) )
+            case o.Operand():   return PlayList( PlayList.copy_play_list(self._data) + PlayList.copy_play_list(operand.getPlayList()) )
+            case _:             return PlayList( PlayList.copy_play_list(self._data) )
 
     @staticmethod
-    def copyPlayList(play_list: list[dict]) -> list[dict]:
+    def copy_play_list(play_list: list[dict]) -> list[dict]:
         copy_play_list = []
         for single_dict in play_list:
             copy_play_list.append(single_dict.copy())
