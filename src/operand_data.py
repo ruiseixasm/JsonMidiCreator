@@ -438,36 +438,19 @@ class Serialization(Data):
     def copy(self):
         return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
 
-    def __lshift__(self, operand: any) -> o.Operand:
-        if isinstance(self._data, ol.Null):
-            if isinstance(operand, o.Operand):
-                self._data = operand.copy()
-            elif isinstance(operand, dict) and "class" in operand and "parameters" in operand:
-                operand_class_name = operand["class"]
-                new_operand = self.getOperand(operand_class_name)
-                if new_operand:
-                    self._data = new_operand.loadSerialization(operand)
-                else:
-                    self._data = ol.Null()
-        elif isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
-            self._data << operand
+    def __lshift__(self, operand: any) -> 'o.Operand':
+        if isinstance(operand, o.Operand):
+            self._data = operand.copy()
+        elif isinstance(operand, dict) and "class" in operand and "parameters" in operand:
+            operand_class_name = operand["class"]
+            new_operand = self.getOperand(operand_class_name)
+            if new_operand:
+                self._data = new_operand.loadSerialization(operand)
         return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
-        if isinstance(self._data, ol.Null):
-            if isinstance(operand, o.Operand):
-                self._data = operand.copy()
-            elif isinstance(operand, dict) and "class" in operand and "parameters" in operand:
-                operand_class_name = operand["class"]
-                new_operand = self.getOperand(operand_class_name)
-                if new_operand:
-                    self._data = new_operand.loadSerialization(operand)
-                else:
-                    self._data = ol.Null()
-            return self
-        if isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
-            operand >> self._data
-            return self
+        if not isinstance(self._data, ol.Null) and isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
+            return operand >> self._data
         return operand
 
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
@@ -533,6 +516,19 @@ class PlayList(Data):
         super().__init__( [] if play_list is None else play_list )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, for the case a Serialization(),
+        those Operands are pass right away to the self Data Operand, with the
+        exception of "% Operand()", that returns the self Data operand.
+
+        Examples
+        --------
+        >>> serialization = Retrigger("D") >> Serialization()
+        >>> serialization % DataSource( Duration() ) >> Print(False)
+        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.03125}}}}
+        >>> (serialization << Division(6)) % DataSource( Duration() ) >> Print(False)
+        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.08333333333333333}}}}
+        """
         match operand:
             case ot.Position():
                 if isinstance(self._data, ot.Position):

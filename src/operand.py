@@ -122,8 +122,11 @@ class Operand:
         if isinstance(serialization, dict) and ("class" in serialization and "parameters" in serialization):
             operand_name = serialization["class"]
             operand_class = Operand.find_subclass_by_name(Operand, operand_name)
-            if operand_class == __class__: return operand_class()   # avoids infinite recursion
-            if operand_class: return operand_class().loadSerialization(serialization)
+            if operand_class:
+                operand_instance = operand_class()
+                if operand_class == __class__ or isinstance(operand_instance, ol.Label):
+                    return operand_instance         # avoids infinite recursion
+                return operand_instance.loadSerialization(serialization)
         return ol.Null()
        
     def copy(self) -> 'Operand':
