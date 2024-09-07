@@ -155,7 +155,8 @@ class Operand:
                 return self.getSerialization()
             case ol.Name():
                 return self.name()
-        return self
+            case _:
+                return self % operand
 
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         return self
