@@ -1238,7 +1238,7 @@ class PitchBend(Element):
         msb_midi: int               = self._pitch % ol.MSB()
         lsb_midi: int               = self._pitch % ol.LSB()
         channel_int: int            = self._channel % od.DataSource( int() )
-        device_list: list           = self._device % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1348,8 +1348,7 @@ class Aftertouch(Element):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0xD0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(pressure_int),
-                        "data_byte_2": None,
+                        "data_byte": Element.midi_128(pressure_int),
                         "device": device_list
                     }
                 }
@@ -1534,8 +1533,7 @@ class ProgramChange(Element):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0xC0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(program_int),
-                        "data_byte_2": None,
+                        "data_byte": Element.midi_128(program_int),
                         "device": device_list
                     }
                 }
