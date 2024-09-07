@@ -408,7 +408,8 @@ class Serialization(Data):
         >>> serialization = Retrigger("D") >> Serialization()
         >>> serialization % DataSource( Duration() ) >> Print(False)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.03125}}}}
-        >>> (serialization << Division(6)) % DataSource( Duration() ) >> Print(False)
+        >>> serialization = Retrigger("D") << Division(6) >> Serialization()
+        >>> serialization % DataSource( Duration() ) >> Print(False)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.08333333333333333}}}}
         """
         if operand.__class__ == o.Operand:
