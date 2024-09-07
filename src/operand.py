@@ -60,8 +60,18 @@ class Operand:
         """
         import operand_label as ol
         import operand_frame as of
+        import operand_data as od
+        import operand_time as ot
         match operand:
             case of.Frame():        return self % (operand % Operand())
+            case od.PlayList():
+                position = operand % ot.Position()
+                if position: return self.getPlayList(position)
+                return self.getPlayList()
+            case od.Serialization():
+                return self.getSerialization()
+            case ol.Name():
+                return self.name()
             case ol.Null() | None:  return ol.Null()
             case Operand():         return self.copy()
             case _:                 return ol.Null()
