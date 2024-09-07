@@ -74,7 +74,7 @@ class Frame(o.Operand):
                         case Frame():           continue
                         case o.Operand():       return single_operand.copy()
                         case _:                 return single_operand
-        return ol.Null()
+        return super().__mod__(operand)
     
     def __eq__(self, other_frame: 'Frame') -> bool:
         if type(self) == type(other_frame):

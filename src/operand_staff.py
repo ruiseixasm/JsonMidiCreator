@@ -104,7 +104,7 @@ class Staff(o.Operand):
                 return ov.StepsPerMeasure() \
                     << (self % ov.StepsPerNote() % Fraction()) * (self % ov.NotesPerMeasure() % Fraction())
             case Staff():               return self.copy()
-            case _:                     return ol.Null()
+            case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_staff: 'Staff') -> bool:
         if type(self) != type(other_staff):

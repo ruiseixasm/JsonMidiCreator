@@ -68,7 +68,7 @@ class Element(o.Operand):
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
             case Element():         return self.copy()
-            case _:                 return ol.Null()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: 'o.Operand') -> bool:
         match other_operand:

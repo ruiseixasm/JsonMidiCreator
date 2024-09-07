@@ -73,7 +73,7 @@ class Unit(o.Operand):
             case Integer():         return Integer() << self._unit
             case ov.Float():        return ov.Float() << self._unit
             case Unit():            return self.copy()
-            case _:                 return ol.Null()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_number: any) -> bool:
         import operand_value as ov

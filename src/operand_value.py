@@ -81,7 +81,7 @@ class Value(o.Operand):
             case ou.Integer():      return ou.Integer() << self._rational
             case Float():           return Float() << self._rational
             case Value():           return self.copy()
-            case _:                 return ol.Null()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_number: any) -> bool:
         match other_number:

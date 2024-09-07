@@ -48,7 +48,7 @@ class Time(o.Operand):
                 return operand.__class__() << (ov.Measure() << self._time_unit % Fraction() - self._time_unit % int())
             case ov.TimeUnit() | int() | float() | Fraction() | ou.Integer() | ov.Float():
                 return self._time_unit % operand
-            case _:                 return ol.Null()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_time: any) -> bool:
         match other_time:

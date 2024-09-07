@@ -59,7 +59,7 @@ class KeyNote(Generic):
                 octave = self._octave % int()
                 return 12 * (octave + 1) + key
             case KeyNote():         return self.copy()
-            case _:                 return ol.Null()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
         if self % ou.Octave() == other_keynote % ou.Octave() and self % ou.Key() == other_keynote % ou.Key():
@@ -198,7 +198,7 @@ class Controller(Generic):
             case ou.ControlValue():     return self._control_value.copy()
             case int() | float():       return self._control_value % int()
             case Controller():          return self.copy()
-            case _:                     return ol.Null()
+            case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Controller') -> bool:
         if self % ou.ControlNumber() == other % ou.ControlNumber() and self % ou.ControlValue() == other % ou.ControlValue():

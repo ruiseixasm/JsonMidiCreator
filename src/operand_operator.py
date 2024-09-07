@@ -59,7 +59,7 @@ class Operator(o.Operand):
             case Operator():        return self.copy()
             case ol.Null() | None:  return ol.Null()
             case o.Operand():       return self._operand.copy()
-            case _:                 return ol.Null()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operator: 'Operator') -> bool:
         if type(self) == type(other_operator):
