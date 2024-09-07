@@ -134,9 +134,9 @@ class Time(o.Operand):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "time_unit" in serialization["parameters"] and "class" in serialization["parameters"]["time_unit"]):
-                operand = self.getOperand(serialization["parameters"]["time_unit"]["class"])
-                if operand:
-                    self._time_unit = operand.loadSerialization(serialization["parameters"]["time_unit"])
+                new_operand = self.getOperand(serialization["parameters"]["time_unit"]["class"])
+                if new_operand:
+                    self._time_unit = new_operand.loadSerialization(serialization["parameters"]["time_unit"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Time':

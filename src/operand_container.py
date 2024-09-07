@@ -66,9 +66,9 @@ class Container(o.Operand):
 
         Examples
         --------
-        >>> sequence_list = Sequence(Note("A"), Note("B")) % list()
-        >>> print(sequence_list)
-        [<operand_element.Note object at 0x00000135E7FAEE90>, <operand_element.Note object at 0x00000135E7FAF110>]
+        >>> sequence = Sequence(Note("A"), Note("B"))
+        >>> sequence % list() >> Print()
+        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
             case od.DataSource():   return self._operand_list
@@ -141,8 +141,8 @@ class Container(o.Operand):
             operands_serialization = serialization["parameters"]["operands"]
             for single_operand_serialization in operands_serialization:
                 if "class" in single_operand_serialization:
-                    operand = self.getOperand(single_operand_serialization["class"])
-                    if operand: operands.append(operand.loadSerialization(single_operand_serialization))
+                    new_operand = self.getOperand(single_operand_serialization["class"])
+                    if new_operand: operands.append(new_operand.loadSerialization(single_operand_serialization))
             self._operand_list = operands
         return self
        
@@ -287,6 +287,17 @@ class Sequence(Container):  # Just a container of Elements
         super().__init__(*operands)
 
     def __mod__(self, operand: list) -> list:
+        """
+        The % symbol is used to extract a Parameter, because a Container has
+        only one type of Parameters it should be used in conjugation with list()
+        to extract the Parameter list.
+
+        Examples
+        --------
+        >>> sequence = Sequence(Note("A"), Note("B"))
+        >>> sequence % list() >> Print()
+        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
+        """
         match operand:
             case od.DataSource():   return super().__mod__(operand)
             case ol.Start():        return self.start()
