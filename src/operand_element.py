@@ -48,8 +48,8 @@ class Element(o.Operand):
 
         Examples
         --------
-        >>> default_element = Element()
-        >>> print(default_element % Device() % list())
+        >>> element = Element()
+        >>> element % Device() % list() >> Print()
         ['loopMIDI', 'Microsoft']
         """
         match operand:
@@ -260,7 +260,7 @@ class Clock(Element):
         --------
         >>> clock = Clock(4)
         >>> clock % Length() >> Print(0)
-        {'class': 'Length', 'parameters': {'measure': 4.0, 'beat': 0.0, 'note_value': 0.0, 'step': 0.0}}
+        {'class': 'Length', 'parameters': {'time_unit': {'class': 'Measure', 'parameters': {'value': 4.0}}}}
         """
         match operand:
             case od.DataSource():
@@ -358,12 +358,25 @@ class Clock(Element):
         return self
 
 class Rest(Element):
-    def __init__(self):
+    def __init__(self, duration: float = None):
         super().__init__()
         self._duration: ot.Duration = os.staff % ot.Duration()
+        if duration is not None and isinstance(duration, float) and duration >= 0:
+            self._duration << duration
         self._length << self._duration  # By default a note has the same Length as its Duration
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Rest,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the Duration with 1/4 as default.
+
+        Examples
+        --------
+        >>> rest = Rest("F")
+        >>> print(some_note % Key() % str())
+        F
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -422,7 +435,7 @@ class Rest(Element):
             case Rest():
                 super().__lshift__(operand)
                 self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
-            case ot.Duration() | ov.NoteValue():
+            case ot.Duration() | ov.NoteValue() | int() | float() | ou.Integer() | ov.Float() | Fraction():
                                     self._duration << operand
             case _: super().__lshift__(operand)
         return self
