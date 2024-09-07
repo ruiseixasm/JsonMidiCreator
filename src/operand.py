@@ -72,8 +72,7 @@ class Operand:
                 return self.getSerialization()
             case ol.Name():
                 return self.name()
-            case ol.Null() | None:  return ol.Null()
-            case Operand():         return self.copy()
+            case self.__class__():  return self.copy()
             case _:                 return ol.Null()
 
     def __eq__(self, operand: 'Operand') -> bool:
