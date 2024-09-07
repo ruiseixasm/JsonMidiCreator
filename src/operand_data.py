@@ -52,21 +52,22 @@ class Data(o.Operand):
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case Data():                    return self.copy()
-            case ol.Null() | None:          return ol.Null()
             case _:
-                match self._data:
-                    case o.Operand():
-                        return self._data.copy()
-                    case list():
-                        many_operands: list = []
-                        for single_operand in self._data:
-                            match single_operand:
-                                case o.Operand():
-                                    many_operands.append(single_operand.copy())
-                                case _:
-                                    many_operands.append(single_operand)
-                        return many_operands
-                    case _: return self._data
+                if isinstance(self._data, operand.__class__):
+                    match self._data:
+                        case o.Operand():
+                            return self._data.copy()
+                        case list():
+                            many_operands: list = []
+                            for single_operand in self._data:
+                                match single_operand:
+                                    case o.Operand():
+                                        many_operands.append(single_operand.copy())
+                                    case _:
+                                        many_operands.append(single_operand)
+                            return many_operands
+                        case _: return self._data
+                return super().__mod__(operand)
 
     def __eq__(self, other_data: o.Operand) -> bool:
         if isinstance(other_data, Data):
