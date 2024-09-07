@@ -58,9 +58,6 @@ class Container(o.Operand):
             self._element_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration
 
-    def len(self) -> int:
-        return len(self._operand_list)
-
     def __mod__(self, operand: list) -> list:
         """
         The % symbol is used to extract a Parameter, because a Container has
@@ -85,7 +82,14 @@ class Container(o.Operand):
                             operands.append(single_operand)
                 return operands
             case Container():       return self.copy()
-            case _:                 return ol.Null()
+            case ol.Len():          return self.len()
+            case ol.First():        return self.first()
+            case ol.Last():         return self.last()
+            case ou.Middle():       return self.middle(operand % int())
+            case _:                 return super().__mod__(operand)
+
+    def len(self) -> int:
+        return len(self._operand_list)
 
     def __eq__(self, other_container: 'Container') -> bool:
         if type(self) == type(other_container):
@@ -297,6 +301,13 @@ class Container(o.Operand):
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
+
+    def __mod__(self, operand: list) -> list:
+        match operand:
+            case od.DataSource():   return super().__mod__(operand)
+            case ol.Start():        return self.start()
+            case ol.End():          return self.end()
+            case _:                 return super().__mod__(operand)
 
     def start(self) -> ot.Position:
         if self.len() > 0:
