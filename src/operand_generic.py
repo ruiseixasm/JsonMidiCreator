@@ -39,6 +39,18 @@ class KeyNote(Generic):
         self._octave: ou.Octave = ou.Octave()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a KeyNote,
+        those Parameters are the Key and the Octave.
+
+        Examples
+        --------
+        >>> key_note = KeyNote()
+        >>> key_note % Key() >> Print(0)
+        {'class': 'Key', 'parameters': {'unit': 0}}
+        >>> key_note % Key() % str() >> Print(0)
+        C
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -185,6 +197,18 @@ class Controller(Generic):
         self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % od.DataSource( int() )) )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Controller,
+        those Parameters are the Controller Number and Value.
+
+        Examples
+        --------
+        >>> controller = Controller()
+        >>> controller % ControlNumber() >> Print(0)
+        {'class': 'Key', 'parameters': {'unit': 0}}
+        >>> controller % ControlValue() >> Print(0)
+        C
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():

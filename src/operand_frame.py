@@ -61,7 +61,7 @@ class Frame(o.Operand):
         {'class': 'Step', 'parameters': {'value': 0.0}}
         >>> Null() + frame + frame
         >>> frame % Step() >> Print(0)
-        {'class': 'Step', 'parameters': {'value': 2.0}}
+        {'class': 'Step', 'parameters': {'value': 4.0}}
         """
         match operand:
             case od.DataSource():
