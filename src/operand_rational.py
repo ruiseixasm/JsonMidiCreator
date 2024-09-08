@@ -33,7 +33,7 @@ import operand_label as ol
     # Fraction * float results in a float
     # Fraction * Fraction results in a Fraction
 
-class Value(o.Operand):
+class Rational(o.Operand):
     """
     This is a type of Operand that has associated to a Fractional number.
     This class is intended to represent time based variables that are ratios like the typical 1/4 note value
@@ -53,7 +53,7 @@ class Value(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract the Value, because a Value is an Rational
+        The % symbol is used to extract the Rational, because a Rational is an Rational
         it should be used in conjugation with float(). If used with a int() it
         will return the respective rounded value as int().
 
@@ -72,7 +72,7 @@ class Value(o.Operand):
                     case int():             return int(self._rational)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
                     case Float():           return Float() << od.DataSource( self._rational )
-                    case Value():           return self
+                    case Rational():           return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
@@ -80,12 +80,12 @@ class Value(o.Operand):
             case int():             return int(self._rational)
             case ou.Integer():      return ou.Integer() << self._rational
             case Float():           return Float() << self._rational
-            case Value():           return self.copy()
+            case Rational():           return self.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_number: any) -> bool:
         match other_number:
-            case Value() | ou.Unit():
+            case Rational() | ou.Unit():
                 return self._rational == other_number % od.DataSource( Fraction() )
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
@@ -94,7 +94,7 @@ class Value(o.Operand):
     
     def __lt__(self, other_number: any) -> bool:
         match other_number:
-            case Value() | ou.Unit():
+            case Rational() | ou.Unit():
                 return self._rational < other_number % od.DataSource( Fraction() )
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
@@ -103,7 +103,7 @@ class Value(o.Operand):
     
     def __gt__(self, other_number: any) -> bool:
         match other_number:
-            case Value() | ou.Unit():
+            case Rational() | ou.Unit():
                 return self._rational > other_number % od.DataSource( Fraction() )
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
@@ -133,7 +133,7 @@ class Value(o.Operand):
             self._rational = Fraction(serialization["parameters"]["value"]).limit_denominator()
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Value':
+    def __lshift__(self, operand: o.Operand) -> 'Rational':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -141,7 +141,7 @@ class Value(o.Operand):
                     case Fraction():                self._rational = operand % o.Operand()
                     case float() | int():           self._rational = Fraction(operand % o.Operand()).limit_denominator()
                     case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
-            case Value():                   self._rational = operand % od.DataSource( Fraction() )
+            case Rational():                   self._rational = operand % od.DataSource( Fraction() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
@@ -149,7 +149,7 @@ class Value(o.Operand):
             case ou.Integer():              self._rational = operand % Fraction()
         return self
 
-    def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case self.__class__() | Float() | ou.Integer():
@@ -158,7 +158,7 @@ class Value(o.Operand):
             case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case self.__class__() | Float() | ou.Integer():
@@ -167,7 +167,7 @@ class Value(o.Operand):
             case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case self.__class__() | Float() | ou.Integer():
@@ -176,7 +176,7 @@ class Value(o.Operand):
             case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
         return self.copy()
     
-    def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case self.__class__() | Float() | ou.Integer():
@@ -189,14 +189,14 @@ class Value(o.Operand):
                     return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
         return self.copy()
 
-class Float(Value):
+class Float(Rational):
     pass
 
-class Negative(Value):
+class Negative(Rational):
     def __init__(self, value: float = None):
         super().__init__(value * (-1))
 
-class Quantization(Value):
+class Quantization(Rational):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
     
@@ -208,7 +208,7 @@ class Quantization(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class BeatsPerMeasure(Value):
+class BeatsPerMeasure(Rational):
     """
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
     
@@ -220,7 +220,7 @@ class BeatsPerMeasure(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class BeatNoteValue(Value):
+class BeatNoteValue(Rational):
     """
     BeatNoteValue() sets the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     
@@ -232,7 +232,7 @@ class BeatNoteValue(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class NotesPerMeasure(Value):
+class NotesPerMeasure(Rational):
     """
     NotesPerMeasure() gets how many notes in a Measure and sets the Note Value of a Beat.
     
@@ -244,7 +244,7 @@ class NotesPerMeasure(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class StepsPerMeasure(Value):
+class StepsPerMeasure(Rational):
     """
     StepsPerMeasure() is another way of getting and setting the Quantization.
     16 Steps per Measure means a Quantization of 1/16 in a Time Signature of 4/4.
@@ -257,7 +257,7 @@ class StepsPerMeasure(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class StepsPerNote(Value):
+class StepsPerNote(Rational):
     """
     StepsPerNote() is simply the inverse value of the Quantization, like, 16 for 1/16.
     
@@ -269,7 +269,7 @@ class StepsPerNote(Value):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class Tempo(Value):
+class Tempo(Rational):
     """
     Tempo() represents the Beats per Minute (BPM).
     
@@ -281,7 +281,7 @@ class Tempo(Value):
     def __init__(self, value: int = None):
         super().__init__(value)
 
-class TimeUnit(Value):
+class TimeUnit(Rational):
     """
     TimeUnit() represents any Time Length variables, namely, Measure, Beat, NoteValue and Step.
     
@@ -521,7 +521,7 @@ class Beat(TimeUnit):
             case _: super().__lshift__(operand)
         return self
 
-    # def __add__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    # def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
     #     beat_copy = super().__add__(value)
     #     beat_rational = beat_copy % od.DataSource( Fraction() )
     #     beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
@@ -529,28 +529,28 @@ class Beat(TimeUnit):
     #     beat_copy << od.DataSource( beat_rational - value_floor )
     #     return beat_copy
     
-    # def __sub__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    # def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
     #     match value:
     #         case of.Frame():        return self - (value & self)
-    #         case Value() | ou.Unit():
+    #         case Rational() | ou.Unit():
     #             return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
     #         case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
     #         case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
     #     return self.copy()
     
-    # def __mul__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    # def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
     #     match value:
     #         case of.Frame():        return self * (value & self)
-    #         case Value() | ou.Unit():
+    #         case Rational() | ou.Unit():
     #             return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
     #         case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
     #         case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
     #     return self.copy()
     
-    # def __truediv__(self, value: Union['Value', 'ou.Unit', Fraction, float, int]) -> 'Value':
+    # def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
     #     match value:
     #         case of.Frame():        return self / (value & self)
-    #         case Value() | ou.Unit():
+    #         case Rational() | ou.Unit():
     #             if value % od.DataSource( Fraction() ) != 0:
     #                 return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
     #         case Fraction():
@@ -764,13 +764,13 @@ class Dotted(NoteValue):
             case Fraction():        return self._rational * 2/3
             case float():           return float(self._rational * 2/3)
             case int():             return int(self._rational * 2/3)
-            case Value():           return Value() << self._rational * 2/3
+            case Rational():           return Rational() << self._rational * 2/3
             case ou.Unit():         return ou.Unit() << self._rational * 2/3
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Value':
+    def __lshift__(self, operand: o.Operand) -> 'Rational':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():   super().__lshift__(operand)
@@ -778,26 +778,26 @@ class Dotted(NoteValue):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             # It's just a wrapper for NoteValue 3/2
-            case Value():           self._rational = operand % Fraction() * 3/2
+            case Rational():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
             case ou.Unit():         self._rational = operand % Fraction() * 3/2
             case _: super().__lshift__(operand)
         return self
 
-class Swing(Value):
+class Swing(Rational):
     def __init__(self, value: float = None):
         super().__init__( 0.50 if value is None else value )
 
-class Gate(Value):
+class Gate(Rational):
     def __init__(self, value: float = None):
         super().__init__( 0.90 if value is None else value )
 
-class Amplitude(Value):
+class Amplitude(Rational):
     def __init__(self, value: float = None):
         super().__init__(value)
 
-class Offset(Value):
+class Offset(Rational):
     def __init__(self, value: float = None):
         super().__init__(value)
 

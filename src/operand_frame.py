@@ -22,7 +22,7 @@ import creator as c
 import operand as o
 
 import operand_unit as ou
-import operand_value as ov
+import operand_rational as ro
 import operand_data as od
 import operand_time as ot
 import operand_frame as of

@@ -23,7 +23,7 @@ import creator as c
 import operand as o
 import operand_staff as os
 import operand_unit as ou
-import operand_value as ov
+import operand_rational as ro
 import operand_time as ot
 import operand_data as od
 import operand_label as ol
@@ -63,7 +63,7 @@ class Element(o.Operand):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
-            case ov.TimeUnit():     return self._position % operand
+            case ro.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
@@ -79,7 +79,7 @@ class Element(o.Operand):
                     and self._length == other_operand % od.DataSource( ot.Length() ) \
                     and self._channel == other_operand % od.DataSource( ou.Channel() ) \
                     and self._device == other_operand % od.DataSource( od.Device() )
-            case ov.TimeUnit():
+            case ro.TimeUnit():
                 return self._position == other_operand
             case _:
                 return self % od.DataSource( other_operand ) == other_operand
@@ -88,7 +88,7 @@ class Element(o.Operand):
         match other_operand:
             case self.__class__():
                 return  False
-            case ov.TimeUnit():
+            case ro.TimeUnit():
                 return self._position < other_operand
             case _:
                 return self % od.DataSource( other_operand ) < other_operand
@@ -97,7 +97,7 @@ class Element(o.Operand):
         match other_operand:
             case self.__class__():
                 return  False
-            case ov.TimeUnit():
+            case ro.TimeUnit():
                 return self._position > other_operand
             case _:
                 return self % od.DataSource( other_operand ) > other_operand
@@ -163,7 +163,7 @@ class Element(o.Operand):
                 self._device        = (operand % od.DataSource( od.Device() )).copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Position() | ov.TimeUnit():
+            case ot.Position() | ro.TimeUnit():
                                     self._position << operand
             case ot.Length():       self._length << operand
             case ou.Channel():      self._channel << operand
@@ -246,8 +246,8 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, measure: float = None):
         super().__init__()
-        self._length = ot.Length() << (ov.Measure() << \
-                        ( os.staff % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() ) if measure is None else measure ))
+        self._length = ot.Length() << (ro.Measure() << \
+                        ( os.staff % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() ) if measure is None else measure ))
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -284,11 +284,11 @@ class Clock(Element):
         device = self % od.Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
-        pulses_per_beat = pulses_per_note * (os.staff % ov.BeatNoteValue() % od.DataSource( Fraction() ))
-        pulses_per_measure = pulses_per_beat * (os.staff % ov.BeatsPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses = round(pulses_per_measure * (self._length % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() )))
+        pulses_per_beat = pulses_per_note * (os.staff % ro.BeatNoteValue() % od.DataSource( Fraction() ))
+        pulses_per_measure = pulses_per_beat * (os.staff % ro.BeatsPerMeasure() % od.DataSource( Fraction() ))
+        clock_pulses = round(pulses_per_measure * (self._length % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = ov.Measure(1.0).getTime_rational()
+        single_measure_rational_ms = ro.Measure(1.0).getTime_rational()
         clock_start_rational_ms = self_position.getTime_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._length.getTime_rational()
 
@@ -306,7 +306,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(float(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._length % od.DataSource( ov.Measure() ) % od.DataSource( Fraction() )) \
+                                     + single_measure_rational_ms * (self._length % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )) \
                                      * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
@@ -383,7 +383,7 @@ class Rest(Element):
                     case ot.Duration():     return self._duration
                     case _:                 return super().__mod__(operand)
             case ot.Duration():     return self._duration.copy()
-            case ov.NoteValue():    return self._duration % operand
+            case ro.NoteValue():    return self._duration % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -391,21 +391,21 @@ class Rest(Element):
             case self.__class__():
                 return super().__eq__(other_operand) \
                     and self._duration == other_operand % od.DataSource( ot.Duration() )
-            case ov.NoteValue():
+            case ro.NoteValue():
                 return self._duration == other_operand
             case _:
                 return super().__eq__(other_operand)
     
     def __lt__(self, other_operand: 'o.Operand') -> bool:
         match other_operand:
-            case ov.NoteValue():
+            case ro.NoteValue():
                 return self._duration < other_operand
             case _:
                 return super().__lt__(other_operand)
     
     def __gt__(self, other_operand: 'o.Operand') -> bool:
         match other_operand:
-            case ov.NoteValue():
+            case ro.NoteValue():
                 return self._duration > other_operand
             case _:
                 return super().__gt__(other_operand)
@@ -435,7 +435,7 @@ class Rest(Element):
             case Rest():
                 super().__lshift__(operand)
                 self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
-            case ot.Duration() | ov.NoteValue() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ot.Duration() | ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                                     self._duration << operand
             case _: super().__lshift__(operand)
         return self
@@ -446,7 +446,7 @@ class Note(Rest):
         self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() if key is None else ou.Key(key)) \
                                                     <<  os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
-        self._gate: ov.Gate         = ov.Gate(.90)
+        self._gate: ro.Gate         = ro.Gate(.90)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -466,13 +466,13 @@ class Note(Rest):
                 match operand % o.Operand():
                     case og.KeyNote():      return self._key_note
                     case ou.Velocity():     return self._velocity
-                    case ov.Gate():         return self._gate
+                    case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case ou.Key() | ou.Octave():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
-            case ov.Gate():         return self._gate.copy()
+            case ro.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -481,7 +481,7 @@ class Note(Rest):
                 return super().__eq__(other_operand) \
                     and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
-                    and self._gate == other_operand % od.DataSource( ov.Gate() )
+                    and self._gate == other_operand % od.DataSource( ro.Gate() )
             case _:
                 return super().__eq__(other_operand)
     
@@ -534,7 +534,7 @@ class Note(Rest):
             super().loadSerialization(serialization)
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
-            self._gate      = ov.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
+            self._gate      = ro.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
@@ -544,24 +544,24 @@ class Note(Rest):
                 match operand % o.Operand():
                     case og.KeyNote():      self._key_note = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
-                    case ov.Gate():         self._gate = operand % o.Operand()
+                    case ro.Gate():         self._gate = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
-                self._gate          = (operand % od.DataSource( ov.Gate() )).copy()
+                self._gate          = (operand % od.DataSource( ro.Gate() )).copy()
             case og.KeyNote() | ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
-            case ov.Gate():         self._gate << operand
+            case ro.Gate():         self._gate << operand
             case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -569,7 +569,7 @@ class Note(Rest):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -821,8 +821,8 @@ class Retrigger(Note):
         self._division  = ou.Division(16)
         self._duration  = self._duration * 2/(self._division % int())
         self._length   << self._duration * (self._division % int())
-        self._gate      = ov.Gate(.50)
-        self._swing     = ov.Swing(.50)
+        self._gate      = ro.Gate(.50)
+        self._swing     = ro.Swing(.50)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -840,13 +840,13 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():     return self._division
-                    case ov.Swing():        return self._swing
+                    case ro.Swing():        return self._swing
                     case _:                 return super().__mod__(operand)
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
-            case ov.Swing():        return self._swing.copy()
+            case ro.Swing():        return self._swing.copy()
             case ot.Duration():     return self._duration * (self._division % int())/2
-            case ov.NoteValue():    return self._duration * (self._division % int())/2 % operand
+            case ro.NoteValue():    return self._duration * (self._division % int())/2 % operand
             case _:                 return super().__mod__(operand)
 
     def getPlayList(self, position: ot.Position = None):
@@ -879,7 +879,7 @@ class Retrigger(Note):
 
             super().loadSerialization(serialization)
             self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
-            self._swing     = ov.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
+            self._swing     = ro.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
@@ -888,21 +888,21 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():             self._division = operand % o.Operand()
-                    case ov.Swing():                self._swing = operand % o.Operand()
+                    case ro.Swing():                self._swing = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Retrigger():
                 super().__lshift__(operand)
                 self._division  = (operand % od.DataSource( ou.Division() )).copy()
-                self._swing     = (operand % od.DataSource( ov.Swing() )).copy()
+                self._swing     = (operand % od.DataSource( ro.Swing() )).copy()
             case ou.Division() | int():
                 if operand > 0:
                     self._duration << self._duration * self._division/operand
                     self._division << operand
-            case ov.Swing():
+            case ro.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
-            case ot.Duration() | ov.NoteValue():
+            case ot.Duration() | ro.NoteValue():
                 self._duration << operand * 2/(self._division % int())
             case _:                 super().__lshift__(operand)
         return self
@@ -935,7 +935,7 @@ class Note3(Retrigger):
 class Tuplet(Rest):
     def __init__(self, *elements: Element):
         super().__init__()
-        self._swing     = ov.Swing(.50)
+        self._swing     = ro.Swing(.50)
         self._elements: list[Element] = []
         if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
             self._elements = o.Operand.copy_operands_list(elements)
@@ -968,18 +968,18 @@ class Tuplet(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ov.Swing():        return self._swing
+                    case ro.Swing():        return self._swing
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ot.Duration():
                 if len(self._elements) == 2:    return self._duration * 2/3  
                 elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2
                 return self._duration.copy()
-            case ov.NoteValue():
+            case ro.NoteValue():
                 if len(self._elements) == 2:    return self._duration * 2/3 % operand
                 elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2 % operand
                 return self._duration % operand
-            case ov.Swing():        return self._swing.copy()
+            case ro.Swing():        return self._swing.copy()
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
             case list():            return o.Operand.copy_operands_list(self._elements)
@@ -989,7 +989,7 @@ class Tuplet(Rest):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._swing     == other_operand % od.DataSource( ov.Swing() ) \
+                    and self._swing     == other_operand % od.DataSource( ro.Swing() ) \
                     and self._elements  == other_operand % od.DataSource( list() )
             case _:
                 return super().__eq__(other_operand)
@@ -1023,7 +1023,7 @@ class Tuplet(Rest):
             "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._swing     = ov.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
+            self._swing     = ro.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
             for single_element_serialization in elements_serialization:
@@ -1040,15 +1040,15 @@ class Tuplet(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ov.Swing():            self._swing = operand % o.Operand()
+                    case ro.Swing():            self._swing = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
                 self._duration = (operand % od.DataSource( ot.Duration() )).copy()
-                self._swing = (operand % od.DataSource( ov.Swing() )).copy()
+                self._swing = (operand % od.DataSource( ro.Swing() )).copy()
                 self._elements = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
-            case ot.Duration() | ov.NoteValue():
+            case ot.Duration() | ro.NoteValue():
                 if len(self._elements) == 2:
                     self._duration << operand * 3/2
                 elif len(self._elements) > 0:
@@ -1056,7 +1056,7 @@ class Tuplet(Rest):
                 else:
                     self._duration << operand
                 self.set_elements_duration()
-            case ov.Swing():
+            case ro.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
@@ -1185,7 +1185,7 @@ class ControlChange(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int() | float() | ou.Integer() | ov.Float():
+            case int() | float() | ou.Integer() | ro.Float():
                 self_copy << self._controller + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1193,7 +1193,7 @@ class ControlChange(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case int() | float() | ou.Integer() | ov.Float():
+            case int() | float() | ou.Integer() | ro.Float():
                 self_copy << self._controller - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1285,7 +1285,7 @@ class PitchBend(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pitch() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Pitch() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1293,7 +1293,7 @@ class PitchBend(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pitch() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Pitch() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1387,7 +1387,7 @@ class Aftertouch(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pressure() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Pressure() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1395,7 +1395,7 @@ class Aftertouch(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Pressure() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Pressure() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pressure - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1572,7 +1572,7 @@ class ProgramChange(Element):
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Program() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Program() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._program + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1580,7 +1580,7 @@ class ProgramChange(Element):
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
         match operand:
-            case ou.Program() | int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case ou.Program() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._program - operand
             case _:             return super().__sub__(operand)
         return self_copy

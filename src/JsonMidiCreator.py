@@ -18,7 +18,7 @@ from fractions import Fraction
 from operand import *
 from operand_staff import *
 from operand_unit import *
-from operand_value import *
+from operand_rational import *
 from operand_time import *
 from operand_data import *
 from operand_label import *

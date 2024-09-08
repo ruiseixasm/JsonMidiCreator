@@ -54,7 +54,7 @@ class Unit(o.Operand):
         >>> print(channel_int)
         12
         """
-        import operand_value as ov
+        import operand_rational as ro
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -63,7 +63,7 @@ class Unit(o.Operand):
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
                     case Integer():         return Integer() << od.DataSource( self._unit )
-                    case ov.Float():        return ov.Float() << od.DataSource( self._unit )
+                    case ro.Float():        return ro.Float() << od.DataSource( self._unit )
                     case Unit():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -71,16 +71,16 @@ class Unit(o.Operand):
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case Integer():         return Integer() << self._unit
-            case ov.Float():        return ov.Float() << self._unit
+            case ro.Float():        return ro.Float() << self._unit
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_number: any) -> bool:
-        import operand_value as ov
+        import operand_rational as ro
         match other_number:
             case Unit():
                 return self._unit == other_number % od.DataSource( int() )
-            case ov.Value():
+            case ro.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational == other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
@@ -88,11 +88,11 @@ class Unit(o.Operand):
         return False
     
     def __lt__(self, other_number: any) -> bool:
-        import operand_value as ov
+        import operand_rational as ro
         match other_number:
             case Unit():
                 return self._unit < other_number % od.DataSource( int() )
-            case ov.Value():
+            case ro.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational < other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
@@ -100,11 +100,11 @@ class Unit(o.Operand):
         return False
     
     def __gt__(self, other_number: any) -> bool:
-        import operand_value as ov
+        import operand_rational as ro
         match other_number:
             case Unit():
                 return self._unit > other_number % od.DataSource( int() )
-            case ov.Value():
+            case ro.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational > other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
@@ -135,58 +135,58 @@ class Unit(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
-        import operand_value as ov
+        import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction():      self._unit = int(operand % o.Operand())
-                    case Integer() | ov.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case Integer() | ro.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
             case Unit():            self._unit = operand % od.DataSource( int() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
                 self._unit = int(operand)
-            case ov.Float():
+            case ro.Float():
                 self._unit = operand % int()
         return self
 
     def __add__(self, number: any) -> 'Unit':
-        import operand_value as ov
+        import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ov.Float():
+            case self.__class__() | Integer() | ro.Float():
                                         return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
     
     def __sub__(self, number: any) -> 'Unit':
-        import operand_value as ov
+        import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ov.Float():
+            case self.__class__() | Integer() | ro.Float():
                                         return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
     
     def __mul__(self, number: any) -> 'Unit':
-        import operand_value as ov
+        import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ov.Float():
+            case self.__class__() | Integer() | ro.Float():
                                         return self.__class__() << od.DataSource( self._unit * (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
     
     def __truediv__(self, number: any) -> 'Unit':
-        import operand_value as ov
+        import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ov.Float():
+            case self.__class__() | Integer() | ro.Float():
                                     if number % od.DataSource( int() ) != 0:
                                         return self.__class__() << od.DataSource( self._unit / (number % od.DataSource( int() )) )
             case int() | float() | Fraction():

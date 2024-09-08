@@ -21,7 +21,7 @@ import math
 import creator as c
 import operand as o
 import operand_time as ot
-import operand_value as ov
+import operand_rational as ro
 import operand_data as od
 import operand_label as ol
 import operand_frame as of
@@ -147,9 +147,9 @@ class Oscillator(Operator):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
         self._position: ot.Position     = ot.Position()
-        self._length: ot.Length         = ot.Length() << ov.Measure(1)  # wavelength (360º)
-        self._amplitude: ov.Amplitude   = ov.Amplitude(0)
-        self._offset: ov.Offset         = ov.Offset(0)
+        self._length: ot.Length         = ot.Length() << ro.Measure(1)  # wavelength (360º)
+        self._amplitude: ro.Amplitude   = ro.Amplitude(0)
+        self._offset: ro.Offset         = ro.Offset(0)
         
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -157,21 +157,21 @@ class Oscillator(Operator):
                 match operand % o.Operand():
                     case ot.Position():         return self._position
                     case ot.Length():           return self._length
-                    case ov.Amplitude():        return self._amplitude
-                    case ov.Offset():           return self._offset
+                    case ro.Amplitude():        return self._amplitude
+                    case ro.Offset():           return self._offset
                     case _:                     return super().__mod__(operand)
             case ot.Position():         return self._position.copy()
             case ot.Length():           return self._length.copy()
-            case ov.Amplitude():        return self._amplitude.copy()
-            case ov.Offset():           return self._offset.copy()
+            case ro.Amplitude():        return self._amplitude.copy()
+            case ro.Offset():           return self._offset.copy()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_operator: 'Operator') -> bool:
         if super().__eq__(other_operator):
             return  self._position == other_operator % od.DataSource( ot.Position() ) \
                 and self._length == other_operator % od.DataSource( ot.Length() ) \
-                and self._amplitude == other_operator % od.DataSource( ov.Amplitude() ) \
-                and self._offset == other_operator % od.DataSource( ov.Offset() )
+                and self._amplitude == other_operator % od.DataSource( ro.Amplitude() ) \
+                and self._offset == other_operator % od.DataSource( ro.Offset() )
         return False
     
     def getSerialization(self):
@@ -192,8 +192,8 @@ class Oscillator(Operator):
             super().loadSerialization(serialization)
             self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
             self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
-            self._amplitude = ov.Amplitude()    << od.DataSource( serialization["parameters"]["amplitude"] )
-            self._offset    = ov.Offset()       << od.DataSource( serialization["parameters"]["offset"] )
+            self._amplitude = ro.Amplitude()    << od.DataSource( serialization["parameters"]["amplitude"] )
+            self._offset    = ro.Offset()       << od.DataSource( serialization["parameters"]["offset"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':
@@ -203,19 +203,19 @@ class Oscillator(Operator):
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
-                    case ov.Amplitude():    self._amplitude = operand % o.Operand()
-                    case ov.Offset():       self._offset = operand % o.Operand()
+                    case ro.Amplitude():    self._amplitude = operand % o.Operand()
+                    case ro.Offset():       self._offset = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Oscillator():
                 super().__lshift__(operand)
                 self._position      = (operand % od.DataSource( ot.Position() )).copy()
                 self._length        = (operand % od.DataSource( ot.Length() )).copy()
-                self._amplitude     = (operand % od.DataSource( ov.Amplitude() )).copy()
-                self._offset        = (operand % od.DataSource( ov.Offset() )).copy()
+                self._amplitude     = (operand % od.DataSource( ro.Amplitude() )).copy()
+                self._offset        = (operand % od.DataSource( ro.Offset() )).copy()
             case ot.Position():     self._position << operand
             case ot.Length():       self._length << operand
-            case ov.Amplitude():    self._amplitude << operand
-            case ov.Offset():       self._offset << operand
+            case ro.Amplitude():    self._amplitude << operand
+            case ro.Offset():       self._offset << operand
             case _: super().__lshift__(operand)
         return self
 

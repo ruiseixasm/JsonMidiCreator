@@ -20,7 +20,7 @@ from fractions import Fraction
 import creator as c
 import operand as o
 import operand_staff as os
-import operand_value as ov
+import operand_rational as ro
 import operand_unit as ou
 import operand_data as od
 import operand_frame as of
@@ -30,70 +30,70 @@ import operand_label as ol
 class Time(o.Operand):
     def __init__(self, time: int | float = None):
         super().__init__()
-        self._time_unit      = ov.Measure() << time
+        self._time_unit      = ro.Measure() << time
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case ov.TimeUnit():     return self._time_unit % od.DataSource( operand % o.Operand() )
+                    case ro.TimeUnit():     return self._time_unit % od.DataSource( operand % o.Operand() )
                     case Time():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Time():            return self.copy()
-            case ov.Measure():
-                return ov.Measure() << self._time_unit % operand % int()
-            case ov.Beat() | ov.Step():
-                return operand.__class__() << (ov.Measure() << self._time_unit % Fraction() - self._time_unit % int())
-            case ov.TimeUnit() | int() | float() | Fraction() | ou.Integer() | ov.Float():
+            case ro.Measure():
+                return ro.Measure() << self._time_unit % operand % int()
+            case ro.Beat() | ro.Step():
+                return operand.__class__() << (ro.Measure() << self._time_unit % Fraction() - self._time_unit % int())
+            case ro.TimeUnit() | int() | float() | Fraction() | ou.Integer() | ro.Float():
                 return self._time_unit % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_time: any) -> bool:
         match other_time:
-            case ov.NoteValue():
+            case ro.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) == other_time % od.DataSource( Fraction() )
-            case ov.Measure():
+            case ro.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) == other_time % od.DataSource( int() )
-            case ov.Beat():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int()) \
-                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
-            case ov.Step():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int()) \
-                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+            case ro.Beat():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int()) \
+                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int())
+            case ro.Step():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int()) \
+                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() == other_time.getTime_rational()
         return False
 
     def __lt__(self, other_time: any) -> bool:
         match other_time:
-            case ov.NoteValue():
+            case ro.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) < other_time % od.DataSource( Fraction() )
-            case ov.Measure():
+            case ro.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) < other_time % od.DataSource( int() )
-            case ov.Beat():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int()) \
-                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
-            case ov.Step():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int()) \
-                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+            case ro.Beat():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int()) \
+                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int())
+            case ro.Step():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int()) \
+                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() < other_time.getTime_rational()
         return False
     
     def __gt__(self, other_time: any) -> bool:
         match other_time:
-            case ov.NoteValue():
+            case ro.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) > other_time % od.DataSource( Fraction() )
-            case ov.Measure():
+            case ro.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) > other_time % od.DataSource( int() )
-            case ov.Beat():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int()) \
-                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.BeatsPerMeasure() ) % int())
-            case ov.Step():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int()) \
-                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ov.StepsPerMeasure() ) % int())
+            case ro.Beat():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int()) \
+                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int())
+            case ro.Step():
+                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int()) \
+                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() > other_time.getTime_rational()
         return False
@@ -144,28 +144,28 @@ class Time(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ov.TimeUnit():
+                    case ro.TimeUnit():
                         self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
             case Time():
-                self._time_unit         << operand % od.DataSource( ov.TimeUnit() )
+                self._time_unit         << operand % od.DataSource( ro.TimeUnit() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ov.Measure():
+            case ro.Measure():
                 if operand % int() == operand % Fraction():
                     # Meant to change just the Measure
                     self._time_unit << operand % int() \
                         + (self._time_unit % Fraction() - self._time_unit % int())
                 else:
                     self._time_unit     << operand
-            case ov.Beat() | ov.Step():
+            case ro.Beat() | ro.Step():
                 self._time_unit << self._time_unit % int()  # Resets to zero Beats/Steps
                 self._time_unit += operand
-            case ov.TimeUnit():
+            case ro.TimeUnit():
                 self._time_unit << operand
             case int() | ou.Integer():
                 # Meant to change just the Measure
                 self._time_unit << (self._time_unit % Fraction() - self._time_unit % int()) + operand
-            case Fraction() | float() | ov.Float():
+            case Fraction() | float() | ro.Float():
                 self._time_unit         << operand
         return self
 
@@ -173,9 +173,9 @@ class Time(o.Operand):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():            self_copy << od.DataSource( self._time_unit + operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit ) )
-            case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit + operand % od.DataSource( self._time_unit ) )
-            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case Time():            self_copy << od.DataSource( self._time_unit + operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) )
+            case ro.TimeUnit():     self_copy << od.DataSource( self._time_unit + operand % od.DataSource( self._time_unit ) )
+            case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << od.DataSource( self._time_unit + operand )
         return self_copy
     
@@ -183,9 +183,9 @@ class Time(o.Operand):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():            self_copy << od.DataSource( self._time_unit - operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit ) )
-            case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit - operand % od.DataSource( self._time_unit ) )
-            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case Time():            self_copy << od.DataSource( self._time_unit - operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) )
+            case ro.TimeUnit():     self_copy << od.DataSource( self._time_unit - operand % od.DataSource( self._time_unit ) )
+            case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << od.DataSource( self._time_unit - operand )
         return self_copy
     
@@ -193,9 +193,9 @@ class Time(o.Operand):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():            self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit )) )
-            case ov.TimeUnit():     self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
-            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case Time():            self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit )) )
+            case ro.TimeUnit():     self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
+            case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << od.DataSource( self._time_unit * operand )
         return self_copy
     
@@ -207,12 +207,12 @@ class Time(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Time():
-                if operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit ) != 0:
-                    self_copy << od.DataSource( self._time_unit / (operand % od.DataSource( ov.TimeUnit() ) % od.DataSource( self._time_unit )) )
-            case ov.TimeUnit():
+                if operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) != 0:
+                    self_copy << od.DataSource( self._time_unit / (operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit )) )
+            case ro.TimeUnit():
                 if operand % od.DataSource( self._time_unit ) != 0:
                     self_copy << od.DataSource( self._time_unit / (operand % od.DataSource( self._time_unit )) )
-            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 if operand != 0:
                     self_copy << od.DataSource( self._time_unit / operand )
         return self_copy
@@ -220,16 +220,16 @@ class Time(o.Operand):
     def __rtruediv__(self, operand: o.Operand) -> 'Time':
         return self / operand
     
-    def start(self) -> ov.TimeUnit:
+    def start(self) -> ro.TimeUnit:
         return self.copy()
 
-    def end(self) -> ov.TimeUnit:
+    def end(self) -> ro.TimeUnit:
         return self.copy()
 
-    def minimum(self) -> ov.TimeUnit:
+    def minimum(self) -> ro.TimeUnit:
         return self._time_unit % int()
 
-    def maximum(self) -> ov.TimeUnit:
+    def maximum(self) -> ro.TimeUnit:
         return self._time_unit % int() + 1
 
 class Position(Time):
@@ -243,7 +243,7 @@ class Length(Time):
 class Duration(Time):
     def __init__(self, time: int | float = None):
         super().__init__()
-        self._time_unit      = ov.NoteValue() << time
+        self._time_unit      = ro.NoteValue() << time
 
     # CHAINABLE OPERATIONS
 
@@ -251,19 +251,19 @@ class Duration(Time):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():       super().__lshift__(operand)
-            case ov.TimeUnit(): # Avoids extra processing of TimeUnits like Measure or Beat
+            case ro.TimeUnit(): # Avoids extra processing of TimeUnits like Measure or Beat
                 self._time_unit << operand
             case _: super().__lshift__(operand)
         return self
 
     def __mul__(self, operand: o.Operand) -> 'Time':
         match operand:
-            case ov.Gate() | ov.Swing() | ou.Division():
+            case ro.Gate() | ro.Swing() | ou.Division():
                 return self.__class__() << od.DataSource( self._time_unit * (operand % od.DataSource( Fraction() )) )
             case _: return super().__mul__(operand)
     
     def __truediv__(self, operand: o.Operand) -> 'Time':
         match operand:
-            case ov.Gate() | ov.Swing() | ou.Division():
+            case ro.Gate() | ro.Swing() | ou.Division():
                 return self.__class__() << od.DataSource( self._time_unit / (operand % od.DataSource( Fraction() )) )
             case _: return super().__truediv__(operand)

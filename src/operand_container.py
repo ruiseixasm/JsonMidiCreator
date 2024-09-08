@@ -23,7 +23,7 @@ import creator as c
 import operand as o
 
 import operand_unit as ou
-import operand_value as ov
+import operand_rational as ro
 import operand_time as ot
 import operand_data as od
 import operand_label as ol
@@ -402,7 +402,7 @@ class Sequence(Container):  # Just a container of Elements
         return self_copy
     
     def __floordiv__(self, length: ot.Length) -> 'Sequence':
-        if isinstance(length, ov.TimeUnit):
+        if isinstance(length, ro.TimeUnit):
             length = ot.Length() << length
         match length:
             case ot.Length():

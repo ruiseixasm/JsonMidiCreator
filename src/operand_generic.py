@@ -23,7 +23,7 @@ import operand as o
 
 import operand_staff as os
 import operand_unit as ou
-import operand_value as ov
+import operand_rational as ro
 import operand_data as od
 import operand_frame as of
 import operand_label as ol
@@ -136,7 +136,7 @@ class KeyNote(Generic):
                 number = round(operand)
                 self._key       << number       # key << already does % 12
                 self._octave    << number // 12
-            case ou.Unit() | ov.Value():
+            case ou.Unit() | ro.Rational():
                 number = operand % od.DataSource( int() )
                 self._key       << number       # key << already does % 12
                 self._octave    << number // 12
@@ -160,7 +160,7 @@ class KeyNote(Generic):
             case float() | Fraction():
                 key_int += round(operand)
                 octave_int += key_int // 12
-            case ou.Integer() | ov.Float():
+            case ou.Integer() | ro.Float():
                 key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
             case _: return self.copy()
@@ -184,7 +184,7 @@ class KeyNote(Generic):
             case float():
                 key_int -= round(operand)
                 octave_int -= max(-1 * key_int + 11, 0) // 12
-            case ou.Unit() | ov.Value():
+            case ou.Unit() | ro.Rational():
                 key_int -= operand % od.DataSource( int() )
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case _: return self.copy()
@@ -273,7 +273,7 @@ class Controller(Generic):
                 control_value += operand % ou.ControlValue() % int()
             case ou.ControlValue():
                 control_value += operand % int()
-            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 control_value += operand
             case _:
                 return self.copy()
@@ -287,7 +287,7 @@ class Controller(Generic):
                 control_value -= operand % ou.ControlValue() % int()
             case ou.ControlValue():
                 control_value -= operand % int()
-            case int() | float() | ou.Integer() | ov.Float() | Fraction():
+            case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 control_value -= operand
             case _:
                 return self.copy()
