@@ -47,6 +47,20 @@ class Staff(o.Operand):
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Staff,
+        those Parameters are the ones that define a Staff as global defaults,
+        they include the ones relative to the time signature like Beats per Measure
+        and Neat Note Value, the Tempo, the Quantization among others.
+
+        Examples
+        --------
+        >>> staff % Tempo() % float()
+        120.0
+        >>> staff << BeatsPerMeasure(3)
+        >>> staff % BeatsPerMeasure() % float()
+        3.0
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():

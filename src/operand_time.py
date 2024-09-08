@@ -33,6 +33,21 @@ class Time(o.Operand):
         self._time_unit      = ro.Measure() << time
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Time,
+        those Parameters are the respective time unit, like Measure and NoteValue,
+        where Position and Length have a Measure while a Duration has a NoteValue.
+
+        Examples
+        --------
+        >>> position = Position(4.5)
+        >>> position % Measure() % float() >> Print()
+        4.0
+        >>> position % Beat() % float() >> Print()
+        2.0
+        >>> position % Step() % float() >> Print()
+        8.0
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
