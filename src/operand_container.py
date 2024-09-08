@@ -281,7 +281,12 @@ class Container(o.Operand):
                         elements_to_be_removed -= 1
             case ol.Null(): return ol.Null()
         return self_copy
-    
+
+    def __pow__(self, operand: 'o.Operand') -> 'Container':
+        for single_operand in self._operand_list:
+            single_operand.__pow__(operand)
+        return self
+
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
