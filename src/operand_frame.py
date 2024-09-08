@@ -49,6 +49,20 @@ class Frame(o.Operand):
         return previous_node
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Frame,
+        those Parameters are the ones present in the Frame tail of operands,
+        namely a Frame or an Operand at the end of the tail made of Operand nodes.
+
+        Examples
+        --------
+        >>> frame = Wrapper(Position())**Increment(2)**Step()
+        >>> frame % Step() >> Print(0)
+        {'class': 'Step', 'parameters': {'value': 0.0}}
+        >>> Dummy() + frame + frame
+        >>> frame % Step() >> Print(0)
+        {'class': 'Step', 'parameters': {'value': 0.0}}
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -57,8 +71,6 @@ class Frame(o.Operand):
                             if isinstance(single_operand, operand.__class__): # checks if it's the same Frame
                                 return single_operand   # It's a Frame
                     case ol.Null() | None:      return ol.Null()
-                    case None:
-                        return self._next_operand
                     case _:
                         for single_operand in self:
                             match single_operand:

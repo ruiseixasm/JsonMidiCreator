@@ -154,6 +154,7 @@ class Operand:
         return None
 
     def __lshift__(self, operand: 'Operand') -> 'Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self
 
     # self is the pusher
@@ -165,24 +166,28 @@ class Operand:
         return self
 
     def __add__(self, operand: 'Operand') -> 'Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
 
     def __radd__(self, operand: 'Operand') -> 'Operand':
         return self.__add__(operand)
 
     def __sub__(self, operand: 'Operand') -> 'Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
 
     def __rsub__(self, operand: 'Operand') -> 'Operand':
         return self.__mul__(-1).__add__(operand)
 
     def __mul__(self, operand: 'Operand') -> 'Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
     
     def __rmul__(self, operand: 'Operand') -> 'Operand':
         return self.__mul__(operand)
 
     def __truediv__(self, operand: 'Operand') -> 'Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
     
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
