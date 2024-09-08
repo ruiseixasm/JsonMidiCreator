@@ -70,6 +70,8 @@ class Operand:
                 return self.getPlayList()
             case od.Serialization():
                 return self.getSerialization()
+            case ol.Len():
+                return self.len()
             case ol.Name():
                 return self.name()
             case self.__class__():  return self.copy()
