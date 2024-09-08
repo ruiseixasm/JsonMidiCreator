@@ -1104,12 +1104,12 @@ class ControlChange(Element):
         """
         The % symbol is used to extract a Parameter, in the case of a ControlChange,
         those Parameters are the ones of the Element, like Position and Length,
-        and the Controller Number and Value as ControlNumber and ControlValue.
+        and the Controller Number and Value as Number and Value.
 
         Examples
         --------
         >>> controller = Controller("Modulation")
-        >>> controller % ControlNumber() % int() >> Print()
+        >>> controller % Number() % int() >> Print()
         1
         """
         match operand:
@@ -1118,8 +1118,8 @@ class ControlChange(Element):
                     case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
-            case ou.ControlNumber():    return self._controller % ou.ControlNumber()
-            case ou.ControlValue():     return self._controller % ou.ControlValue()
+            case ou.Number():           return self._controller % ou.Number()
+            case ou.Value():            return self._controller % ou.Value()
             case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 
@@ -1134,8 +1134,8 @@ class ControlChange(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        control_number_int: int     = self % ou.ControlNumber() % od.DataSource( int() )
-        control_value_int: int      = self % ou.ControlValue() % od.DataSource( int() )
+        control_number_int: int     = self % ou.Number() % od.DataSource( int() )
+        control_value_int: int      = self % ou.Value() % od.DataSource( int() )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
@@ -1177,7 +1177,7 @@ class ControlChange(Element):
             case ControlChange():
                 super().__lshift__(operand)
                 self._controller = (operand % od.DataSource( og.Controller() )).copy()
-            case og.Controller() | ou.ControlNumber() | ou.ControlValue() | int() | float():
+            case og.Controller() | ou.Number() | ou.Value() | int() | float():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
@@ -1590,11 +1590,11 @@ class Panic(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         self_playlist = []
-        self_playlist.extend((ControlChange(123) << ou.ControlValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlayList(self_position))
         self_playlist.extend(PitchBend(0).getPlayList(self_position))
-        self_playlist.extend((ControlChange(64) << ou.ControlValue(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(1) << ou.ControlValue(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(121) << ou.ControlValue(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlayList(self_position))
 
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -1621,8 +1621,8 @@ class Panic(Element):
                 }
             )
 
-        self_playlist.extend((ControlChange(7) << ou.ControlValue(100)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(11) << ou.ControlValue(127)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlayList(self_position))
 
         return self_playlist
 

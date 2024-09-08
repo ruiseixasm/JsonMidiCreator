@@ -113,7 +113,7 @@ triplets_one + triplets_two + single_clock + Equal(Beat(1))**Key(2) >> Save("jso
 staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
-controller = (Oscillator(ControlValue()) << Offset(64) << Amplitude(50) | ControlChange("Pan") * (2*16 + 1) << Iterate()**Step()) >> Save("json/testing/_Save_4.2_control_change.json")
+controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | ControlChange("Pan") * (2*16 + 1) << Iterate()**Step()) >> Save("json/testing/_Save_4.2_control_change.json")
     
 chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> Export("json/testing/_Export_Play_p.10.2_sequence.json") >> Export("json/testing/_Export_4.1_control_change.json")
 

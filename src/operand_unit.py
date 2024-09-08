@@ -683,21 +683,21 @@ class Pitch(Midi):
 # center: The center (no effect) position is achieved with data byte values of 00, 64 (00H, 40H). Value = 8192
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
 
-class ControlValue(Midi):
+class Value(Midi):
     """
-    ControlValue() represents the Control Change value that is sent via Midi
+    Value() represents the Control Change value that is sent via Midi
     
     Parameters
     ----------
     first : integer_like
-        The ControlValue shall be set from 0 to 127 accordingly to the range of CC Midi values
+        The Value shall be set from 0 to 127 accordingly to the range of CC Midi values
     """
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class ControlNumber(Midi):
+class Number(Midi):
     """
-    ControlNumber() represents the number of the Control to be manipulated with the ControlValue values.
+    Number() represents the number of the Control to be manipulated with the Value values.
     
     Parameters
     ----------
@@ -707,7 +707,7 @@ class ControlNumber(Midi):
     def __init__(self, unit: str = "Pan"):
         match unit:
             case str():
-                super().__init__( ControlNumber.nameToNumber(unit) )
+                super().__init__( Number.nameToNumber(unit) )
             case int() | float():
                 super().__init__(unit)
             case _:
@@ -716,7 +716,7 @@ class ControlNumber(Midi):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():       return super().__mod__(operand)
-            case str():                 return ControlNumber.numberToName(self._unit)
+            case str():                 return Number.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
     _controllers = [
@@ -769,14 +769,14 @@ class ControlNumber(Midi):
 
     @staticmethod
     def getDefault(number: int) -> int:
-        for controller in ControlNumber._controllers:
+        for controller in Number._controllers:
             if controller["midi_number"] == number:
                 return controller["default_value"]
         return 0
 
     @staticmethod
     def nameToNumber(number: str = "Pan") -> int:
-        for controller in ControlNumber._controllers:
+        for controller in Number._controllers:
             for controller_name in controller["names"]:
                 if controller_name.lower().find(number.strip().lower()) != -1:
                     return controller["midi_number"]
@@ -784,7 +784,7 @@ class ControlNumber(Midi):
 
     @staticmethod
     def numberToName(number: int) -> str:
-        for controller in ControlNumber._controllers:
+        for controller in Number._controllers:
             if controller["midi_number"] == number:
                 return controller["names"][0]
         return "Bank Select"

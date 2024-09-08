@@ -42,7 +42,7 @@ class Staff(o.Operand):
         self._octave: ou.Octave                     = ou.Octave(4)
         self._velocity: ou.Velocity                 = ou.Velocity(100)
         self._controller: og.Controller             = og.Controller("Pan") \
-                                                        << ou.ControlValue( ou.ControlNumber.getDefault("Pan") )
+                                                        << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
 
@@ -90,8 +90,8 @@ class Staff(o.Operand):
             case ou.Octave():           return self._octave.copy()
             case ou.Velocity():         return self._velocity.copy()
             case og.Controller():       return self._controller.copy()
-            case ou.ControlNumber():    return self._controller % ou.ControlNumber()
-            case ou.ControlValue():     return self._controller % ou.ControlValue()
+            case ou.Number():           return self._controller % ou.Number()
+            case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
             # Calculated Values
@@ -212,7 +212,7 @@ class Staff(o.Operand):
             case ou.Key():              self._key << operand
             case ou.Octave():           self._octave << operand
             case ou.Velocity():         self._velocity << operand
-            case og.Controller() | ou.ControlNumber() | ou.ControlValue():
+            case og.Controller() | ou.Number() | ou.Value():
                                         self._controller << operand
             case ou.Channel():          self._channel << operand
             case od.Device():           self._device << operand

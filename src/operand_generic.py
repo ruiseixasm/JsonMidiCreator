@@ -193,8 +193,8 @@ class KeyNote(Generic):
 class Controller(Generic):
     def __init__(self, number: int | str = None):
         super().__init__()
-        self._control_number: ou.ControlNumber  = ou.ControlNumber( number )
-        self._control_value: ou.ControlValue    = ou.ControlValue( ou.ControlNumber.getDefault(self._control_number % od.DataSource( int() )) )
+        self._control_number: ou.Number  = ou.Number( number )
+        self._control_value: ou.Value    = ou.Value( ou.Number.getDefault(self._control_number % od.DataSource( int() )) )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -204,28 +204,28 @@ class Controller(Generic):
         Examples
         --------
         >>> controller = Controller()
-        >>> controller % ControlNumber() >> Print(0)
+        >>> controller % Number() >> Print(0)
         {'class': 'Key', 'parameters': {'unit': 0}}
-        >>> controller % ControlValue() >> Print(0)
+        >>> controller % Value() >> Print(0)
         C
         """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
-                    case ou.ControlNumber():    return self._control_number
-                    case ou.ControlValue():     return self._control_value
+                    case ou.Number():           return self._control_number
+                    case ou.Value():            return self._control_value
                     case Controller():          return self
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
-            case ou.ControlNumber():    return self._control_number.copy()
-            case ou.ControlValue():     return self._control_value.copy()
+            case ou.Number():           return self._control_number.copy()
+            case ou.Value():            return self._control_value.copy()
             case int() | float():       return self._control_value % int()
             case Controller():          return self.copy()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Controller') -> bool:
-        if self % ou.ControlNumber() == other % ou.ControlNumber() and self % ou.ControlValue() == other % ou.ControlValue():
+        if self % ou.Number() == other % ou.Number() and self % ou.Value() == other % ou.Value():
             return True
         return False
     
@@ -244,8 +244,8 @@ class Controller(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "control_number" in serialization["parameters"] and "control_value" in serialization["parameters"]):
 
-            self._control_number    = ou.ControlNumber()    << od.DataSource( serialization["parameters"]["control_number"] )
-            self._control_value     = ou.ControlValue()     << od.DataSource( serialization["parameters"]["control_value"] )
+            self._control_number    = ou.Number()    << od.DataSource( serialization["parameters"]["control_number"] )
+            self._control_value     = ou.Value()     << od.DataSource( serialization["parameters"]["control_value"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':
@@ -253,25 +253,25 @@ class Controller(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.ControlNumber():    self._control_number = operand % o.Operand()
-                    case ou.ControlValue():     self._control_value = operand % o.Operand()
+                    case ou.Number():    self._control_number = operand % o.Operand()
+                    case ou.Value():     self._control_value = operand % o.Operand()
             case Controller():
-                self._control_number = (operand % od.DataSource( ou.ControlNumber() )).copy()
-                self._control_value = (operand % od.DataSource( ou.ControlValue() )).copy()
+                self._control_number = (operand % od.DataSource( ou.Number() )).copy()
+                self._control_value = (operand % od.DataSource( ou.Value() )).copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.ControlNumber():    self._control_number << operand
-            case ou.ControlValue() | int() | float():
+            case ou.Number():    self._control_number << operand
+            case ou.Value() | int() | float():
                                         self._control_value << operand
         return self
 
     def __add__(self, operand) -> 'Controller':
-        control_value: ou.ControlValue = self._control_value
+        control_value: ou.Value = self._control_value
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Controller():
-                control_value += operand % ou.ControlValue() % int()
-            case ou.ControlValue():
+                control_value += operand % ou.Value() % int()
+            case ou.Value():
                 control_value += operand % int()
             case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 control_value += operand
@@ -280,12 +280,12 @@ class Controller(Generic):
         return self.copy() << control_value
     
     def __sub__(self, operand) -> 'Controller':
-        control_value: ou.ControlValue = self._control_value
+        control_value: ou.Value = self._control_value
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Controller():
-                control_value -= operand % ou.ControlValue() % int()
-            case ou.ControlValue():
+                control_value -= operand % ou.Value() % int()
+            case ou.Value():
                 control_value -= operand % int()
             case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 control_value -= operand

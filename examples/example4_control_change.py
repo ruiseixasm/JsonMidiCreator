@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
-controller = (Oscillator(ControlValue()) << Offset(64) << Amplitude(50) | ControlChange("Pan") * (2*16 + 1) << Iterate()**Step()) >> Save("json/_Save_4.2_control_change.json")
+controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | ControlChange("Pan") * (2*16 + 1) << Iterate()**Step()) >> Save("json/_Save_4.2_control_change.json")
     
 chord + controller >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 

@@ -165,8 +165,8 @@ class Names(o.Operand):
         #     "Program":          ou.Program,
         #     "Channel":          ou.Channel,
         #     "Pitch":            ou.Pitch,
-        #     "ControlValue":     ou.ControlValue,
-        #     "ControlNumber":    ou.ControlNumber,
+        #     "Value":     ou.Value,
+        #     "Number":    ou.Number,
 
         #     # Value class operands (ov)
         #     "Value":            ora.Value,
