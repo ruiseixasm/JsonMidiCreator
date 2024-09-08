@@ -14,6 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 
+
 class Operand:
     def __init__(self):
         self._next_operand: Operand = None
@@ -25,12 +26,11 @@ class Operand:
     
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __next__(self):
-        import operand_label as ol
-        if isinstance(self._current_node, ol.Null): raise StopIteration
+        if self._current_node is None: raise StopIteration
         previous_node = self._current_node
         match self._current_node:
             case Operand(): self._current_node = self._current_node._next_operand
-            case _:         self._current_node = ol.Null()
+            case _:         self._current_node = None
         return previous_node
 
     def len(self) -> int:
