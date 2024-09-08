@@ -59,9 +59,9 @@ class Frame(o.Operand):
         >>> frame = Wrapper(Position())**Increment(2)**Step()
         >>> frame % Step() >> Print(0)
         {'class': 'Step', 'parameters': {'value': 0.0}}
-        >>> Dummy() + frame + frame
+        >>> Null() + frame + frame
         >>> frame % Step() >> Print(0)
-        {'class': 'Step', 'parameters': {'value': 0.0}}
+        {'class': 'Step', 'parameters': {'value': 2.0}}
         """
         match operand:
             case od.DataSource():
@@ -346,7 +346,6 @@ class Extractor(OperandFilter):
 class OperandEditor(Frame):
     def __init__(self):
         super().__init__()
-        self._data = 0
 
 class Increment(OperandEditor):
     def __init__(self, step: float = None):
@@ -357,7 +356,7 @@ class Increment(OperandEditor):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        self_operand << self_operand + self._data
-        self._data = self._step
-        return self_operand
+        last_self_operand = self_operand.copy()
+        self_operand << self_operand + self._step
+        return last_self_operand
 

@@ -147,7 +147,7 @@ Chord("G") << Type("13th") << Scale("5th") << NoteValue(8) << Octave(3) \
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(0) \
+(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(1) \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
 (Chord() * 7 << Type("7th")) + Increment()**Beat() + Iterate()**Even()**Degree(0) \
     >> Save("json/testing/_Save_Play_p.15_first_note.json") >> Export("json/testing/_Export_Play_p.15_sequence.json")

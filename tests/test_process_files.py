@@ -300,7 +300,7 @@ staff << Tempo(120) << Measure(7)
 
 original_save       = Load("json/testing/_Save_Play_p.14_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.14_sequence.json")
-(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(0) \
+(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(1) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "test":     "TEST 6.1",
