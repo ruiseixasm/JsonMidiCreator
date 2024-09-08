@@ -53,15 +53,17 @@ class Rational(o.Operand):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract the Rational, because a Rational is an Rational
-        it should be used in conjugation with float(). If used with a int() it
-        will return the respective rounded value as int().
+        The % symbol is used to extract the Rational, because a Rational is an Fraction
+        it should be used in conjugation with a float(). If used with an int() it
+        will return the respective floored value as int().
 
         Examples
         --------
-        >>> note_value_float = NoteValue(1/4) % float()
-        >>> print(note_value_float)
-        0.25
+        >>> note_value = NoteValue(3/4)
+        >>> note_value % float() >> Print()
+        0.75
+        >>> note_value % int() >> Print()
+        0
         """
         match operand:
             case od.DataSource():
@@ -377,6 +379,17 @@ class Measure(TimeUnit):
         super().__init__(value)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Measure,
+        those Parameters are the Measure length as a Fraction(), a float() an int()
+        or even other type of time units, like Beat and Step with the respective conversion.
+
+        Examples
+        --------
+        >>> measure = Measure(1)
+        >>> measure % Beat() % float() >> Print()
+        {'class': 'Velocity', 'parameters': {'unit': 0}}
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
