@@ -29,7 +29,6 @@ import operand_container as oc
 import operand_element as oe
 
 
-
 class Operator(o.Operand):
     """
     An Operator processes an Operand with an Integer input and an Operand output.
@@ -45,6 +44,16 @@ class Operator(o.Operand):
         self._operator_list: list[Operator] = []
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Operator,
+        those Parameters are the Operator's Operand and the list of chained Operators.
+
+        Examples
+        --------
+        >>> operator = Operator(Key())
+        >>> operator % Operand() >> Print(0)
+        {'class': 'Key', 'parameters': {'unit': 0}}
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -152,6 +161,16 @@ class Oscillator(Operator):
         self._offset: ro.Offset         = ro.Offset(0)
         
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Oscillator,
+        those Parameters are the Oscillator's Operand and the list of chained Operators.
+
+        Examples
+        --------
+        >>> oscillator = Oscillator(Velocity())
+        >>> oscillator % Operand() >> Print(0)
+        {'class': 'Velocity', 'parameters': {'unit': 0}}
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():

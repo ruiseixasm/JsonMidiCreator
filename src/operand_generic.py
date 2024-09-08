@@ -203,11 +203,11 @@ class Controller(Generic):
 
         Examples
         --------
-        >>> controller = Controller()
+        >>> controller = Controller("Balance")
         >>> controller % Number() >> Print(0)
-        {'class': 'Key', 'parameters': {'unit': 0}}
+        {'class': 'Number', 'parameters': {'unit': 8}}
         >>> controller % Value() >> Print(0)
-        C
+        {'class': 'Value', 'parameters': {'unit': 64}}
         """
         match operand:
             case od.DataSource():
