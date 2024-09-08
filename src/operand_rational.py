@@ -74,7 +74,7 @@ class Rational(o.Operand):
                     case int():             return int(self._rational)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
                     case Float():           return Float() << od.DataSource( self._rational )
-                    case Rational():           return self
+                    case Rational():        return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
@@ -82,7 +82,7 @@ class Rational(o.Operand):
             case int():             return int(self._rational)
             case ou.Integer():      return ou.Integer() << self._rational
             case Float():           return Float() << self._rational
-            case Rational():           return self.copy()
+            case Rational():        return self.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_number: any) -> bool:
@@ -388,7 +388,7 @@ class Measure(TimeUnit):
         --------
         >>> measure = Measure(1)
         >>> measure % Beat() % float() >> Print()
-        {'class': 'Velocity', 'parameters': {'unit': 0}}
+        4.0
         """
         match operand:
             case od.DataSource():
@@ -467,6 +467,17 @@ class Beat(TimeUnit):
             super().__init__(value)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Beat,
+        those Parameters are the Beat length as a Fraction(), a float() an int()
+        or even other type of time units, like Measure and Step with the respective conversion.
+
+        Examples
+        --------
+        >>> beat = Beat(1)
+        >>> beat % NoteValue() % float() >> Print()
+        0.25
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -591,6 +602,18 @@ class Step(TimeUnit):
             super().__init__(value)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Step,
+        those Parameters are the Step length as a Fraction(), a float() an int()
+        or even other type of time units, like Measure and Step with the respective
+        conversion accordingly to the set Quantization.
+
+        Examples
+        --------
+        >>> step = Step(1)
+        >>> step % NoteValue() % Fraction() >> Print()
+        1/16
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -674,6 +697,18 @@ class NoteValue(TimeUnit):
         super().__init__(value)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a NoteValue,
+        those Parameters are the NoteValue length as a Fraction(), a float() an int()
+        or even other type of time units, like Measure and Beat with the respective
+        conversion accordingly to the note value of set time signature.
+
+        Examples
+        --------
+        >>> note_value = NoteValue(1)
+        >>> note_value % Beat() % Fraction() >> Print()
+        4
+        """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -762,23 +797,33 @@ class Dotted(NoteValue):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract the Value, because a Value is an Rational
-        it should be used in conjugation with float(). If used with a int() it
-        will return the respective rounded value as int().
+        The % symbol is used to extract a Parameter, in the case of a Dotted Note,
+        those Parameters are the Dotted length as a Fraction(), a float() an int()
+        or even other type of time units, like Measure and Beat with the respective
+        conversion accordingly to the note value of set time signature.
 
         Examples
         --------
-        >>> note_value_float = NoteValue(1/4) % float()
-        >>> print(note_value_float)
-        0.25
+        >>> dotted = Dotted(1/4)
+        >>> dotted % NoteValue() % Fraction()
+        Fraction(3, 8)
+        >>> dotted % Dotted() % Fraction()
+        Fraction(1, 4)
+        >>> dotted % Beat() % Fraction()
+        Fraction(3, 2)
         """
         match operand:
-            case od.DataSource():   return super().__mod__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case NoteValue():       return NoteValue() << self._rational
+                    case _:                 return super().__mod__(operand)
             case Fraction():        return self._rational * 2/3
             case float():           return float(self._rational * 2/3)
             case int():             return int(self._rational * 2/3)
-            case Rational():           return Rational() << self._rational * 2/3
-            case ou.Unit():         return ou.Unit() << self._rational * 2/3
+            case Dotted():          return self.copy()
+            case Float():           return ou.Unit() << self._rational * 2/3
+            case ou.Integer():      return ou.Unit() << self._rational * 2/3
+            case NoteValue():       return NoteValue() << self._rational
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -786,15 +831,20 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: o.Operand) -> 'Rational':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():   super().__lshift__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case NoteValue():
+                        self._rational = operand % od.DataSource( Fraction() ) * 3/2
+                    case _: super().__lshift__(operand)
             case Dotted():          super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             # It's just a wrapper for NoteValue 3/2
-            case Rational():           self._rational = operand % Fraction() * 3/2
+            case Float():           self._rational = operand % Fraction() * 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
-            case ou.Unit():         self._rational = operand % Fraction() * 3/2
+            case ou.Integer():      self._rational = operand % Fraction() * 3/2
+            case NoteValue():       self._rational = operand % Fraction() * 3/2
             case _: super().__lshift__(operand)
         return self
 
