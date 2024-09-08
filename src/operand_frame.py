@@ -39,6 +39,7 @@ class Frame(o.Operand):
         self._current_node: o.Operand = self    # Reset to the start node on new iteration
         return self
     
+    # It has to skip NON Frame Operand, contrary to the Operand __next__ that includes all operands!!
     def __next__(self):
         if self._current_node is None: raise StopIteration
         previous_node = self._current_node
