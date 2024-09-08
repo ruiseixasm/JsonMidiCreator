@@ -1134,8 +1134,8 @@ class ControlChange(Element):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        control_number_int: int     = self % ou.Number() % od.DataSource( int() )
-        control_value_int: int      = self % ou.Value() % od.DataSource( int() )
+        number_int: int     = self % ou.Number() % od.DataSource( int() )
+        value_int: int      = self % ou.Value() % od.DataSource( int() )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
@@ -1145,8 +1145,8 @@ class ControlChange(Element):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(control_number_int),
-                        "data_byte_2": Element.midi_128(control_value_int),
+                        "data_byte_1": Element.midi_128(number_int),
+                        "data_byte_2": Element.midi_128(value_int),
                         "device": device_list
                     }
                 }
