@@ -275,10 +275,13 @@ class Octave(Unit):
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
     ...
 
-class Sharps(KeySignature):     # Sharps (#)
+class Sharp(Unit):      # Sharp (#)
     ...
 
-class Flats(KeySignature):      # Flats (b)
+class Flat(Unit):       # Flat (b)
+    ...
+
+class Natural(Unit):    # Natural (?)
     ...
 
 class Degree(Unit):
@@ -447,19 +450,6 @@ class Transposition(Operation):
     def __init__(self, mode: int | str = None):
         unit = Mode(mode) % od.DataSource( int() )
         super().__init__(unit)
-
-# class Transpose(Unit):
-#     """
-#     Transpose() does a modal Transpose of a given Scale or Scale.
-    
-#     Parameters
-#     ----------
-#     first : integer_like
-#         Transpose a given Scale to 1 ("1st") as the default mode
-#     """
-#     def __init__(self, mode: int = None):
-#         unit = Mode(mode) % od. DataSource( int() )
-#         super().__init__(unit)
 
 class Modulation(Operation):    # Modal Modulation
     """
