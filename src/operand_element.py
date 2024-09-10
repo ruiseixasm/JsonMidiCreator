@@ -468,19 +468,19 @@ class Note(Rest):
             case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():      return self._key_note
-                    case ou.Velocity():     return self._velocity
                     case ou.Flat():         return self._flat
                     case ou.Sharp():        return self._sharp
                     case ou.Natural():      return self._natural
+                    case ou.Velocity():     return self._velocity
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case ou.Key() | ou.Octave():
                                     return self._key_note % operand
-            case ou.Velocity():     return self._velocity.copy()
             case ou.Flat():         return self._flat.copy()
             case ou.Sharp():        return self._sharp.copy()
             case ou.Natural():      return self._natural.copy()
+            case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
 
@@ -533,6 +533,9 @@ class Note(Rest):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
+        element_serialization["parameters"]["flat"]     = self._flat % od.DataSource( int() )
+        element_serialization["parameters"]["sharp"]    = self._sharp % od.DataSource( int() )
+        element_serialization["parameters"]["natural"]  = self._natural % od.DataSource( int() )
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
         return element_serialization
@@ -541,11 +544,14 @@ class Note(Rest):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization["parameters"] and
-            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
+            "key_note" in serialization["parameters"] and "flat" in serialization["parameters"] and "sharp" in serialization["parameters"] and
+            "natural" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
+            self._flat      = ou.Flat()     << od.DataSource( serialization["parameters"]["flat"] )
+            self._sharp     = ou.Sharp()    << od.DataSource( serialization["parameters"]["sharp"] )
+            self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ro.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
         return self
@@ -556,16 +562,25 @@ class Note(Rest):
             case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():      self._key_note = operand % o.Operand()
+                    case ou.Flat():         self._flat = operand % o.Operand()
+                    case ou.Sharp():        self._sharp = operand % o.Operand()
+                    case ou.Natural():      self._natural = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ro.Gate():         self._gate = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
+                self._flat          = (operand % od.DataSource( ou.Flat() )).copy()
+                self._sharp         = (operand % od.DataSource( ou.Sharp() )).copy()
+                self._natural       = (operand % od.DataSource( ou.Natural() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ro.Gate() )).copy()
             case og.KeyNote() | ou.Key() | ou.Octave() | int() | float():
                                     self._key_note << operand
+            case ou.Flat():         self._flat << operand
+            case ou.Sharp():        self._sharp << operand
+            case ou.Natural():      self._natural << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
             case _: super().__lshift__(operand)
