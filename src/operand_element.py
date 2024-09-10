@@ -445,6 +445,9 @@ class Note(Rest):
         super().__init__()
         self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() if key is None else ou.Key(key)) \
                                                     <<  os.staff % ou.Octave()
+        self._flat      = ou.Flat()
+        self._sharp     = ou.Sharp()
+        self._natural   = ou.Natural()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
 
@@ -466,12 +469,18 @@ class Note(Rest):
                 match operand % o.Operand():
                     case og.KeyNote():      return self._key_note
                     case ou.Velocity():     return self._velocity
+                    case ou.Flat():         return self._flat
+                    case ou.Sharp():        return self._sharp
+                    case ou.Natural():      return self._natural
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case ou.Key() | ou.Octave():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
+            case ou.Flat():         return self._flat.copy()
+            case ou.Sharp():        return self._sharp.copy()
+            case ou.Natural():      return self._natural.copy()
             case ro.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
 
@@ -494,6 +503,10 @@ class Note(Rest):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
+        key_note_transpose_int = 0
+        if self._natural == 0:
+            key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
+
         on_time_ms = self_position.getTime_ms()
         off_time_ms = (self_position + duration * self._gate).getTime_ms()
         return [
@@ -501,7 +514,7 @@ class Note(Rest):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_1": Element.midi_128(key_note_int + key_note_transpose_int),
                         "data_byte_2": Element.midi_128(velocity_int),
                         "device": device_list
                     }
@@ -510,7 +523,7 @@ class Note(Rest):
                     "time_ms": off_time_ms,
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_1": Element.midi_128(key_note_int + key_note_transpose_int),
                         "data_byte_2": 0,
                         "device": device_list
                     }
