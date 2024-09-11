@@ -91,7 +91,11 @@ class Key(Generic):
             case ou.Flat():         return self._flat.copy()
             case ou.Natural():      return self._natural.copy()
             case str():             return Key.int_to_key(self._key)
-            case int():             return self._key
+            case int():
+                self_key_note_transpose_int = 0
+                if self._natural == 0:
+                    self_key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
+                return self._key + self_key_note_transpose_int
             case float():           return float(self._key)
             case Fraction():        return Fraction(self._key).limit_denominator()
             case ou.Integer():      return ou.Integer() << self._key
@@ -99,13 +103,13 @@ class Key(Generic):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_key: any) -> bool:
-        return self._key == other_key % od.DataSource( int() )
+        return self % int() == other_key % int()
     
     def __lt__(self, other_key: any) -> bool:
-        return self._key < other_key % od.DataSource( int() )
+        return self % int() < other_key % int()
     
     def __gt__(self, other_key: any) -> bool:
-        return self._key > other_key % od.DataSource( int() )
+        return self % int() > other_key % int()
     
     def __le__(self, other_key: any) -> bool:
         return self == other_key or self < other_key
@@ -245,23 +249,17 @@ class KeyNote(Key):
                     case KeyNote():         return self
                     case ou.Octave():       return self._octave
                     case ou.Midi():
-                        key_int = self._key
-                        octave = self._octave % od.DataSource( int() )
-                        key_note_transpose_int = 0
-                        if self._natural == 0:
-                            key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
-                        return ou.Midi() << 12 * (octave + 1) + key_int + key_note_transpose_int
+                        octave_int = self._octave % od.DataSource( int() )
+                        key_int = super().__mod__( int() )
+                        return ou.Midi() << 12 * (octave_int + 1) + key_int
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Midi():
-                key_int = self._key
-                octave = self._octave % int()
-                key_note_transpose_int = 0
-                if self._natural == 0:
-                    key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
-                return ou.Midi() << 12 * (octave + 1) + key_int + key_note_transpose_int
+                octave_int = self._octave % od.DataSource( int() )
+                key_int = super().__mod__( int() )
+                return ou.Midi() << 12 * (octave_int + 1) + key_int
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
