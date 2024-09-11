@@ -35,8 +35,11 @@ class Generic(o.Operand):
 class KeyNote(Generic):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._key: ou.Key = ou.Key(key)
-        self._octave: ou.Octave = ou.Octave()
+        self._key: ou.Key           = ou.Key(key)
+        self._octave: ou.Octave     = ou.Octave()
+        self._flat: ou.Flat         = ou.Flat()
+        self._sharp: ou.Sharp       = ou.Sharp()
+        self._natural:ou.Natural    = ou.Natural()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -57,19 +60,31 @@ class KeyNote(Generic):
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case ou.Key():          return self._key
                     case ou.Octave():       return self._octave
+                    case ou.Flat():         return self._flat
+                    case ou.Sharp():        return self._sharp
+                    case ou.Natural():      return self._natural
                     case int():
                         key = self._key % od.DataSource( int() )
                         octave = self._octave % od.DataSource( int() )
-                        return 12 * (octave + 1) + key
+                        key_note_transpose_int = 0
+                        if self._natural == 0:
+                            key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
+                        return 12 * (octave + 1) + key + key_note_transpose_int
                     case KeyNote():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ou.Key():          return self._key.copy()
             case ou.Octave():       return self._octave.copy()
+            case ou.Flat():         return self._flat.copy()
+            case ou.Sharp():        return self._sharp.copy()
+            case ou.Natural():      return self._natural.copy()
             case int():
                 key = self._key % int()
                 octave = self._octave % int()
-                return 12 * (octave + 1) + key
+                key_note_transpose_int = 0
+                if self._natural == 0:
+                    key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
+                return 12 * (octave + 1) + key + key_note_transpose_int
             case KeyNote():         return self.copy()
             case _:                 return super().__mod__(operand)
 
@@ -101,7 +116,10 @@ class KeyNote(Generic):
             "class": self.__class__.__name__,
             "parameters": {
                 "key":      self._key % od.DataSource( int() ),
-                "octave":   self._octave % od.DataSource( int() )
+                "octave":   self._octave % od.DataSource( int() ),
+                "flat":     self._flat % od.DataSource( int() ),
+                "sharp":    self._sharp % od.DataSource( int() ),
+                "natural":  self._natural % od.DataSource( int() )
             }
         }
 
@@ -109,10 +127,14 @@ class KeyNote(Generic):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key" in serialization["parameters"] and "octave" in serialization["parameters"]):
+            "key" in serialization["parameters"] and "octave" in serialization["parameters"] and "flat" in serialization["parameters"] and
+            "sharp" in serialization["parameters"] and "natural" in serialization["parameters"]):
 
             self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
             self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
+            self._flat      = ou.Flat()     << od.DataSource( serialization["parameters"]["flat"] )
+            self._sharp     = ou.Sharp()    << od.DataSource( serialization["parameters"]["sharp"] )
+            self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
