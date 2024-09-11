@@ -38,7 +38,7 @@ class Staff(o.Operand):
         self._scale: od.Scale                       = od.Scale("Major")
         self._quantization: ro.Quantization         = ro.Quantization(1/16)
         self._duration: ot.Duration                 = ot.Duration() << ro.NoteValue(1/4)
-        self._key: ou.Key                           = ou.Key("C")
+        self._key: og.Key                           = og.Key("C")
         self._octave: ou.Octave                     = ou.Octave(4)
         self._velocity: ou.Velocity                 = ou.Velocity(100)
         self._controller: og.Controller             = og.Controller("Pan") \
@@ -72,7 +72,7 @@ class Staff(o.Operand):
                     case od.Scale():            return self._scale
                     case ro.Quantization():     return self._quantization
                     case ot.Duration():         return self._duration
-                    case ou.Key():              return self._key
+                    case og.Key():              return self._key
                     case ou.Octave():           return self._octave
                     case ou.Velocity():         return self._velocity
                     case og.Controller():       return self._controller
@@ -100,7 +100,7 @@ class Staff(o.Operand):
             case od.Scale():            return self._scale.copy()
             case ro.Quantization():     return self._quantization.copy()
             case ot.Duration():         return self._duration.copy()
-            case ou.Key():              return self._key.copy()
+            case og.Key():              return self._key.copy()
             case ou.Octave():           return self._octave.copy()
             case ou.Velocity():         return self._velocity.copy()
             case og.Controller():       return self._controller.copy()
@@ -130,7 +130,7 @@ class Staff(o.Operand):
             and self._scale             == other_staff % od.DataSource( od.Scale() ) \
             and self._quantization      == other_staff % od.DataSource( ro.Quantization() ) \
             and self._duration          == other_staff % od.DataSource( ot.Duration() ) \
-            and self._key               == other_staff % od.DataSource( ou.Key() ) \
+            and self._key               == other_staff % od.DataSource( og.Key() ) \
             and self._octave            == other_staff % od.DataSource( ou.Octave() ) \
             and self._velocity          == other_staff % od.DataSource( ou.Velocity() ) \
             and self._controller        == other_staff % od.DataSource( og.Controller() ) \
@@ -174,7 +174,7 @@ class Staff(o.Operand):
             self._scale             = od.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
             self._quantization      = ro.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
             self._duration          = ot.Duration()         << od.DataSource( serialization["parameters"]["duration"] )
-            self._key               = ou.Key()              << od.DataSource( serialization["parameters"]["key"] )
+            self._key               = og.Key()              << od.DataSource( serialization["parameters"]["key"] )
             self._octave            = ou.Octave()           << od.DataSource( serialization["parameters"]["octave"] )
             self._velocity          = ou.Velocity()         << od.DataSource( serialization["parameters"]["velocity"] )
             self._controller        = og.Controller().loadSerialization(serialization["parameters"]["controller"])
@@ -194,7 +194,7 @@ class Staff(o.Operand):
                     case od.Scale():            self._scale = operand % o.Operand()
                     case ro.Quantization():     self._quantization = operand % o.Operand()    # Note Value
                     case ot.Duration():         self._duration = operand % o.Operand()
-                    case ou.Key():              self._key = operand % o.Operand()
+                    case og.Key():              self._key = operand % o.Operand()
                     case ou.Octave():           self._octave = operand % o.Operand()
                     case ou.Velocity():         self._velocity = operand % o.Operand()
                     case og.Controller():       self._controller = operand % o.Operand()
@@ -208,7 +208,7 @@ class Staff(o.Operand):
                 self._scale             = operand % od.DataSource( od.Scale() )
                 self._quantization      = operand % od.DataSource( ro.Quantization() ) # Note Value
                 self._duration          = operand % od.DataSource( ot.Duration() )
-                self._key               = operand % od.DataSource( ou.Key() )
+                self._key               = operand % od.DataSource( og.Key() )
                 self._octave            = operand % od.DataSource( ou.Octave() )
                 self._velocity          = operand % od.DataSource( ou.Velocity() )
                 self._controller        = operand % od.DataSource( og.Controller() )
@@ -223,7 +223,7 @@ class Staff(o.Operand):
             case od.Scale():            self._scale << operand
             case ro.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand
-            case ou.Key():              self._key << operand
+            case og.Key():              self._key << operand
             case ou.Octave():           self._octave << operand
             case ou.Velocity():         self._velocity << operand
             case og.Controller() | ou.Number() | ou.Value():

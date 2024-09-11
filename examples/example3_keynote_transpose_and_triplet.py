@@ -27,9 +27,9 @@ staff << Tempo(120) << Measure(1)
 single_clock = Clock()
 
 single_note = Note() << (Duration() << Measure(2)) >> Play()
-note_transposed = single_note + Key(5) >> Play()
+note_transposed = single_note + 5 >> Play()
 
-triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
+triplets_one = (Note3() << "E" << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
     >> Save("json/_Save_3.1_triple_note3.json") >> Play(True)
 
 triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position())**Iterate(1/2)**Beat() + single_clock \

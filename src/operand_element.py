@@ -443,7 +443,7 @@ class Rest(Element):
 class Note(Rest):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() if key is None else ou.Key(key)) \
+        self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % og.Key() % int() if key is None else key) \
                                                     <<  os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
@@ -469,7 +469,7 @@ class Note(Rest):
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
-            case ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural():
+            case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
@@ -489,7 +489,7 @@ class Note(Rest):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % od.DataSource( int() )
+        key_note_int: int           = self._key_note % od.DataSource( ou.Midi() ) % int()
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -550,7 +550,7 @@ class Note(Rest):
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ro.Gate() )).copy()
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float():
+            case og.KeyNote() | og.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -559,16 +559,18 @@ class Note(Rest):
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | og.Key() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Key() | og.KeyNote() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | og.Key() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -618,10 +620,10 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other_operand)
     
-    def getSharps(self, key: ou.Key = None) -> int:
+    def getSharps(self, key: og.Key = None) -> int:
         ...
 
-    def getFlats(self, key: ou.Key = None) -> int:
+    def getFlats(self, key: og.Key = None) -> int:
         ...
 
     def getPlayList(self, position: ot.Position = None):
@@ -678,11 +680,11 @@ class KeyScale(Note):
 class Chord(Note):
     def __init__(self, key: int | str = None):
         super().__init__(key)
-        self._scale: od.Scale = os.staff % od.Scale()   # Default Scale for Chords
-        self._degree: ou.Degree = ou.Degree()
-        self._inversion: ou.Inversion = ou.Inversion()
-        self._type: ou.Type = ou.Type()
-        self._sus: ou.Sus = ou.Sus()
+        self._scale: od.Scale           = os.staff % od.Scale()   # Default Scale for Chords
+        self._degree: ou.Degree         = ou.Degree()
+        self._inversion: ou.Inversion   = ou.Inversion()
+        self._type: ou.Type             = ou.Type()
+        self._sus: ou.Sus               = ou.Sus()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -746,15 +748,16 @@ class Chord(Note):
 
         # Where the inversions are done
         inversion = min(self._inversion % od.DataSource( int() ), self._type % od.DataSource( int() ) - 1)
-        first_key_note = chord_key_notes[inversion]
-        not_first_key_note = True
-        while not_first_key_note:
-            not_first_key_note = False
-            for key_note in chord_key_notes:
-                if key_note < first_key_note:
-                    key_note << key_note % ou.Octave() + 1
-                    if key_note % od.DataSource( int() ) < 128:
-                        not_first_key_note = True
+        if inversion:
+            first_key_note = chord_key_notes[inversion]
+            not_first_key_note = True
+            while not_first_key_note:
+                not_first_key_note = False
+                for key_note in chord_key_notes:
+                    if key_note < first_key_note:
+                        key_note << key_note % ou.Octave() + 1
+                        if key_note % od.DataSource( ou.Midi() ) % int() < 128:
+                            not_first_key_note = True
 
         self_playlist = []
         for key_note in chord_key_notes:
@@ -1183,6 +1186,7 @@ class ControlChange(Element):
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ro.Float():
                 self_copy << self._controller + operand
@@ -1191,6 +1195,7 @@ class ControlChange(Element):
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ro.Float():
                 self_copy << self._controller - operand
@@ -1283,6 +1288,7 @@ class PitchBend(Element):
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pitch() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pitch + operand
@@ -1291,6 +1297,7 @@ class PitchBend(Element):
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pitch() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pitch - operand
@@ -1385,6 +1392,7 @@ class Aftertouch(Element):
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pressure + operand
@@ -1393,6 +1401,7 @@ class Aftertouch(Element):
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._pressure - operand
@@ -1422,7 +1431,7 @@ class PolyAftertouch(Aftertouch):
                     case og.KeyNote():  return self._key_note
                     case _:             return super().__mod__(operand)
             case og.KeyNote():  return self._key_note.copy()
-            case ou.Key():      return self._key_note % ou.Key()
+            case int():         return self._key_note % int()
             case ou.Octave():   return self._key_note % ou.Octave()
             case _:             return super().__mod__(operand)
 
@@ -1437,7 +1446,7 @@ class PolyAftertouch(Aftertouch):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_int: int   = self._key_note % od.DataSource( int() )
+        key_note_int: int   = self._key_note % od.DataSource( ou.Midi() ) % int()
         pressure_int: int   = self._pressure % od.DataSource( int() )
         channel_int: int    = self._channel % od.DataSource( int() )
         device_list: list   = self._device % od.DataSource( list() )
@@ -1480,7 +1489,7 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._key_note = (operand % od.DataSource( og.KeyNote() )).copy()
-            case og.KeyNote() | ou.Key() | ou.Octave():
+            case og.KeyNote() | og.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
                                 self._key_note << operand
             case _:             super().__lshift__(operand)
         return self
@@ -1570,6 +1579,7 @@ class ProgramChange(Element):
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._program + operand
@@ -1578,6 +1588,7 @@ class ProgramChange(Element):
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._program - operand

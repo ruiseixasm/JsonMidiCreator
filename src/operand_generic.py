@@ -32,14 +32,174 @@ import operand_label as ol
 class Generic(o.Operand):
     pass
 
-class KeyNote(Generic):
+class Key(Generic):
+    """
+    A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A number from 0 to 11 with 0 as default or the equivalent string key "C"
+    """
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._key: ou.Key           = ou.Key(key)
-        self._octave: ou.Octave     = ou.Octave()
+        self._key: int              = 0
         self._flat: ou.Flat         = ou.Flat()
         self._sharp: ou.Sharp       = ou.Sharp()
         self._natural:ou.Natural    = ou.Natural()
+        match key:
+            case str():
+                self._key = Key.key_to_int(key)
+            case int() | float():
+                self._key = int(key) % 12
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract the Unit, because a Unit is an Integer
+        it should be used in conjugation with int(). If used with a float() it
+        will return the respective key formatted as a float.
+
+        Examples
+        --------
+        >>> channel_int = Channel(12) % int()
+        >>> print(channel_int)
+        12
+        """
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case Key():             return self
+                    case ou.Sharp():        return self._sharp
+                    case ou.Flat():         return self._flat
+                    case ou.Natural():      return self._natural
+                    case Fraction():        return Fraction(self._key).limit_denominator()
+                    case int():             return self._key           # returns a int()
+                    case float():           return float(self._key)
+                    case ou.Integer():      return ou.Integer() << od.DataSource( self._key )
+                    case ro.Float():        return ro.Float() << od.DataSource( self._key )
+                    case _:                 return ol.Null()
+            case of.Frame():        return self % (operand % o.Operand())
+            case Key():             return self.copy()
+            case ou.Sharp():        return self._sharp.copy()
+            case ou.Flat():         return self._flat.copy()
+            case ou.Natural():      return self._natural.copy()
+            case str():             return Key.int_to_key(self._key)
+            case int():             return self._key
+            case float():           return float(self._key)
+            case Fraction():        return Fraction(self._key).limit_denominator()
+            case ou.Integer():      return ou.Integer() << self._key
+            case ro.Float():        return ro.Float() << self._key
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other_key: any) -> bool:
+        return self._key == other_key % od.DataSource( int() )
+    
+    def __lt__(self, other_key: any) -> bool:
+        return self._key < other_key % od.DataSource( int() )
+    
+    def __gt__(self, other_key: any) -> bool:
+        return self._key > other_key % od.DataSource( int() )
+    
+    def __le__(self, other_key: any) -> bool:
+        return self == other_key or self < other_key
+    
+    def __ge__(self, other_key: any) -> bool:
+        return self == other_key or self > other_key
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "key": self._key,
+                "flat": self._flat % od.DataSource( int() ),
+                "sharp": self._sharp % od.DataSource( int() ),
+                "natural": self._natural % od.DataSource( int() )
+            }
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "key" in serialization["parameters"] and "flat" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"]):
+
+            self._key       = serialization["parameters"]["key"]
+            self._flat      = ou.Flat()     << serialization["parameters"]["flat"]
+            self._sharp     = ou.Sharp()    << serialization["parameters"]["sharp"]
+            self._natural   = ou.Natural()  << serialization["parameters"]["natural"]
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'Key':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case int():                     self._key = operand % o.Operand() % 12
+                    case float() | Fraction():      self._key = int(operand % o.Operand()) % 12
+                    case ou.Integer() | ro.Float(): self._key = operand % o.Operand() % od.DataSource( int() ) % 12
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case Key():
+                                    self._key       =  operand % od.DataSource( int() )
+                                    self._sharp     = (operand % od.DataSource( ou.Sharp() )).copy()
+                                    self._flat      = (operand % od.DataSource( ou.Flat() )).copy()
+                                    self._natural   = (operand % od.DataSource( ou.Natural() )).copy()
+            case ou.Sharp():        self._sharp << operand
+            case ou.Flat():         self._flat << operand
+            case ou.Natural():      self._natural << operand
+            case ou.Integer() | ro.Float():
+                                    self._key = operand % int() % 12
+            case int() | float() | Fraction():
+                                    self._key = int(operand) % 12
+            case str():             self._key = __class__.key_to_int(operand)
+        return self
+
+    def __add__(self, number: any) -> 'Key':
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case self.__class__() | ou.Integer() | ro.Float():
+                                        return self.copy() << od.DataSource( self._key + number % od.DataSource( int() ) )
+            case int() | float() | Fraction():
+                                        return self.copy() << od.DataSource( self._key + number )
+        return self.copy()
+    
+    def __sub__(self, number: any) -> 'Key':
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case self.__class__() | ou.Integer() | ro.Float():
+                                        return self.copy() << od.DataSource( self._key - number % od.DataSource( int() ) )
+            case int() | float() | Fraction():
+                                        return self.copy() << od.DataSource( self._key - number )
+        return self.copy()
+    
+    _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
+                        "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
+    
+    @staticmethod
+    def int_to_key(note_key: int = 0) -> str:
+        return Key._keys[note_key % 12]
+
+    @staticmethod
+    def key_to_int(key: str = "C") -> int:
+        for key_i in range(len(Key._keys)):
+            if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
+                return key_i % 12
+        return 0
+
+class Root(Key):
+    pass
+
+class Home(Key):
+    pass
+
+class Tonic(Key):
+    pass
+
+class KeyNote(Key):
+    def __init__(self, key: int | str = None):
+        super().__init__(key)
+        self._octave: ou.Octave     = ou.Octave()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -50,7 +210,7 @@ class KeyNote(Generic):
         --------
         >>> key_note = KeyNote()
         >>> key_note % Key() >> Print(0)
-        {'class': 'Key', 'parameters': {'unit': 0}}
+        {'class': 'Key', 'parameters': {'key': 0}}
         >>> key_note % Key() % str() >> Print(0)
         C
         """
@@ -58,51 +218,43 @@ class KeyNote(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case ou.Key():          return self._key
+                    case KeyNote():         return self
                     case ou.Octave():       return self._octave
-                    case ou.Flat():         return self._flat
-                    case ou.Sharp():        return self._sharp
-                    case ou.Natural():      return self._natural
-                    case int():
-                        key = self._key % od.DataSource( int() )
+                    case ou.Midi():
+                        key_int = self._key
                         octave = self._octave % od.DataSource( int() )
                         key_note_transpose_int = 0
                         if self._natural == 0:
                             key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
-                        return 12 * (octave + 1) + key + key_note_transpose_int
-                    case KeyNote():         return self
-                    case _:                 return ol.Null()
+                        return ou.Midi() << 12 * (octave + 1) + key_int + key_note_transpose_int
+                    case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
-            case ou.Key():          return self._key.copy()
+            case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
-            case ou.Flat():         return self._flat.copy()
-            case ou.Sharp():        return self._sharp.copy()
-            case ou.Natural():      return self._natural.copy()
-            case int():
-                key = self._key % int()
+            case ou.Midi():
+                key_int = self._key
                 octave = self._octave % int()
                 key_note_transpose_int = 0
                 if self._natural == 0:
                     key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
-                return 12 * (octave + 1) + key + key_note_transpose_int
-            case KeyNote():         return self.copy()
+                return ou.Midi() << 12 * (octave + 1) + key_int + key_note_transpose_int
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
-        if self % ou.Octave() == other_keynote % ou.Octave() and self % ou.Key() == other_keynote % ou.Key():
+        if self % ou.Octave() == other_keynote % ou.Octave() and super().__eq__(other_keynote):
             return True
         return False
     
     def __lt__(self, other_keynote: 'KeyNote') -> bool:
         if self % ou.Octave() < other_keynote % ou.Octave():    return True
         if self % ou.Octave() > other_keynote % ou.Octave():    return False
-        if self % ou.Key() < other_keynote % ou.Key():          return True
+        if super().__lt__(other_keynote):                       return True
         return False
     
     def __gt__(self, other_keynote: 'KeyNote') -> bool:
         if self % ou.Octave() > other_keynote % ou.Octave():    return True
         if self % ou.Octave() < other_keynote % ou.Octave():    return False
-        if self % ou.Key() > other_keynote % ou.Key():          return True
+        if super().__gt__(other_keynote):                       return True
         return False
     
     def __le__(self, other_keynote: 'KeyNote') -> bool:
@@ -112,70 +264,48 @@ class KeyNote(Generic):
         return self == other_keynote or self > other_keynote
     
     def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "key":      self._key % od.DataSource( int() ),
-                "octave":   self._octave % od.DataSource( int() ),
-                "flat":     self._flat % od.DataSource( int() ),
-                "sharp":    self._sharp % od.DataSource( int() ),
-                "natural":  self._natural % od.DataSource( int() )
-            }
-        }
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["octave"]   = self._octave % od.DataSource( float() )
+        return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key" in serialization["parameters"] and "octave" in serialization["parameters"] and "flat" in serialization["parameters"] and
-            "sharp" in serialization["parameters"] and "natural" in serialization["parameters"]):
+            "octave" in serialization["parameters"]):
 
-            self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
-            self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
-            self._flat      = ou.Flat()     << od.DataSource( serialization["parameters"]["flat"] )
-            self._sharp     = ou.Sharp()    << od.DataSource( serialization["parameters"]["sharp"] )
-            self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
+            super().loadSerialization(serialization)
+            self._octave      = ou.Octave() << od.DataSource( serialization["parameters"]["octave"] )
         return self
-        
+
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Key():          self._key = operand % o.Operand()
                     case ou.Octave():       self._octave = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
             case KeyNote():
-                self._key = (operand % od.DataSource( ou.Key() )).copy()
+                super().__lshift__(operand)
                 self._octave = (operand % od.DataSource( ou.Octave() )).copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Key() | str():  self._key << operand
-            case ou.Octave():       self._octave << operand
-            case int():
-                self._key       << operand      # key << already does % 12
-                self._octave    << operand // 12
-            case float():
-                number = round(operand)
-                self._key       << number       # key << already does % 12
-                self._octave    << number // 12
-            case ou.Unit() | ro.Rational():
-                number = operand % od.DataSource( int() )
-                self._key       << number       # key << already does % 12
-                self._octave    << number // 12
+            case ou.Octave():   self._octave << operand
+            case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand) -> 'KeyNote':
-        key_int: int = self._key % od.DataSource( int() )
+        key_int: int = self._key
         octave_int: int = self._octave % od.DataSource( int() )
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                key_int += operand % ou.Key() % od.DataSource( int() )
-                octave_int += operand % ou.Octave() % od.DataSource( int() ) + key_int // 12
-            case ou.Key():
                 key_int += operand % od.DataSource( int() )
+                octave_int += operand % ou.Octave() % od.DataSource( int() ) + key_int // 12
             case ou.Octave():
                 octave_int += operand % od.DataSource( int() )
+            case Key():
+                key_int += operand % int()
             case int():
                 key_int += operand
                 octave_int += key_int // 12
@@ -185,21 +315,21 @@ class KeyNote(Generic):
             case ou.Integer() | ro.Float():
                 key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
-            case _: return self.copy()
-        return KeyNote() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
+            case _: return super().__add__(operand)
+        return self.copy() << key_int << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
-        key_int: int = self._key % od.DataSource( int() )
+        key_int: int = self._key
         octave_int: int = self._octave % od.DataSource( int() )
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                key_int -= operand % ou.Key() % od.DataSource( int() )
-                octave_int -= operand % ou.Octave() % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
-            case ou.Key():
                 key_int -= operand % od.DataSource( int() )
+                octave_int -= operand % ou.Octave() % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
             case ou.Octave():
                 octave_int -= operand % od.DataSource( int() )
+            case Key():
+                key_int -= operand % int()
             case int():
                 key_int -= operand
                 octave_int -= max(-1 * key_int + 11, 0) // 12
@@ -209,8 +339,8 @@ class KeyNote(Generic):
             case ou.Unit() | ro.Rational():
                 key_int -= operand % od.DataSource( int() )
                 octave_int -= max(-1 * key_int + 11, 0) // 12
-            case _: return self.copy()
-        return KeyNote() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
+            case _: return super().__sub__(operand)
+        return self.copy() << key_int << (ou.Octave() << octave_int)
 
 class Controller(Generic):
     def __init__(self, number: int | str = None):

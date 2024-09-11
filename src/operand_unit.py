@@ -197,69 +197,6 @@ class Unit(o.Operand):
 class Integer(Unit):
     pass
 
-class Key(Unit):
-    """
-    A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
-    
-    Parameters
-    ----------
-    first : integer_like or string_like
-        A number from 0 to 11 with 0 as default or the equivalent string key "C"
-    """
-    def __init__(self, unit: int | str = None):
-        match unit:
-            case str():
-                super().__init__( Key.keyStrToKeyUnit(unit) )
-            case int() | float():
-                super().__init__( int(unit) % 12 )
-            case _:
-                super().__init__( 0 )
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case od.DataSource():       return super().__mod__(operand)
-            case str():                 return Key.getKey(self._unit)
-            case _:                     return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: o.Operand) -> 'Unit':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                super().__lshift__(operand)
-                self._unit %= 12    # makes sure it's one of the Octave's key
-            case Key():             super().__lshift__(operand)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case Unit():            self._unit = operand % int() % 12
-            case int() | float():   self._unit = int(operand) % 12
-            case str():             self._unit = __class__.keyStrToKeyUnit(operand)
-        return self
-
-    _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
-                        "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
-    
-    @staticmethod
-    def getKey(note_key: int = 0) -> str:
-        return Key._keys[note_key % 12]
-
-    @staticmethod
-    def keyStrToKeyUnit(key: str = "C") -> int:
-        for key_i in range(len(Key._keys)):
-            if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                return key_i % 12
-        return 0
-
-class Root(Key):
-    pass
-
-class Home(Key):
-    pass
-
-class Tonic(Key):
-    pass
-
 class Octave(Unit):
     """
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).

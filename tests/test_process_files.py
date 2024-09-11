@@ -48,7 +48,8 @@ results_list.append({
 
 original_save       = Load("json/testing/_Save_Play_p.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.2_sequence.json")
-first_note << Key("F") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+first_note << "F" >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+    >> Save("json/testing/_Save_Play_p.2_first_note_compare.json") >> Export("json/testing/_Export_Play_p.2_sequence_compare.json")
 results_list.append({
     "test":     "TEST 1.2",
     "save":     original_save == result_save,
