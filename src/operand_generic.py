@@ -32,6 +32,51 @@ import operand_label as ol
 class Generic(o.Operand):
     pass
 
+class TimeSignature(Generic):
+    def __init__(self, top: int = 4, bottom: int = 4):
+        super().__init__()
+        self._top: int      = 4 if top is None else top
+        self._bottom: int   = 4 if bottom is None else bottom
+
+class KeySignature(Generic):       # Sharps (+) and Flats (-)
+    def __init__(self, accidentals: int | str = 0):
+        super().__init__()
+        self._accidentals: int = 0
+        match accidentals:
+            case str():
+                total_sharps = accidentals.count('#')
+                total_flats = accidentals.count('b')
+                num_accidentals = total_sharps - total_flats
+                # Number of accidentals should range between -7 and +7
+                if -7 <= num_accidentals <= 7:
+                    self._accidentals = num_accidentals
+            case int() | float():
+                num_accidentals = int(accidentals)
+                # Number of accidentals should range between -7 and +7
+                if -7 <= num_accidentals <= 7:
+                    self._accidentals = num_accidentals
+        self._scale: list = KeySignature.get_key_signed_scale(self._accidentals)
+    
+    @staticmethod
+    def get_key_signed_scale(num_accidentals: int) -> list:
+        # Base pattern for C Major scale (no sharps or flats)
+        base_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # C Major
+        rotated_scale = base_scale
+
+        # Number of accidentals should range between -7 and +7
+        if -7 <= num_accidentals <= 7:
+        
+            # Calculate rotation based on the number of sharps/flats
+            if num_accidentals > 0:
+                # Positive means sharps; rotate to the right
+                rotated_scale = base_scale[-num_accidentals:] + base_scale[:-num_accidentals]
+            elif num_accidentals < 0:
+                # Negative means flats; rotate to the left
+                num_accidentals = abs(num_accidentals)
+                rotated_scale = base_scale[num_accidentals:] + base_scale[:num_accidentals]
+
+        return rotated_scale
+
 class Key(Generic):
     """
     A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.

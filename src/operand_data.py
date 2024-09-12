@@ -369,28 +369,6 @@ class Scale(Data):
             return __class__._scales[scale_number]
         return []
 
-class KeySignature(Scale):       # Sharps (+) and Flats (-)
-    
-    @staticmethod
-    def get_key_signed_scale(num_accidentals: int) -> list:
-        # Base pattern for C Major scale (no sharps or flats)
-        base_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # C Major
-        rotated_scale = base_scale.copy()
-
-        # Number of accidentals should range between -7 and +7
-        if -7 <= num_accidentals <= 7:
-        
-            # Calculate rotation based on the number of sharps/flats
-            if num_accidentals > 0:
-                # Positive means sharps; rotate to the right
-                rotated_scale = base_scale[-num_accidentals:] + base_scale[:-num_accidentals]
-            elif num_accidentals < 0:
-                # Negative means flats; rotate to the left
-                num_accidentals = abs(num_accidentals)
-                rotated_scale = base_scale[num_accidentals:] + base_scale[:num_accidentals]
-
-        return rotated_scale
-
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__( os.staff % DataSource( self ) % list() if device_list is None else device_list )
