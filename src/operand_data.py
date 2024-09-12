@@ -369,6 +369,9 @@ class Scale(Data):
             return __class__._scales[scale_number]
         return []
 
+class KeySignature(Scale):       # Sharps (+) and Flats (-)
+    ...
+
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__( os.staff % DataSource( self ) % list() if device_list is None else device_list )

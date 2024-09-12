@@ -209,9 +209,6 @@ class Octave(Unit):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class KeySignature(Unit):       # Sharps (+) and Flats (-)
-    ...
-
 class Sharp(Unit):      # Sharp (#)
     ...
 
