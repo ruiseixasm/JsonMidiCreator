@@ -370,7 +370,34 @@ class Scale(Data):
         return []
 
 class KeySignature(Scale):       # Sharps (+) and Flats (-)
-    ...
+    
+    @staticmethod
+    def get_transposed_scale_in_c(num_accidentals: int) -> list:
+        # C Major scale notes (C-D-E-F-G-A-B) in terms of whole (W) and half (H) steps
+        # Representing C Major scale: W-W-H-W-W-W-H
+        base_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # C Major rooted in C
+
+        # Number of accidentals should range between -7 (flats) and +7 (sharps)
+        if not (-7 <= num_accidentals <= 7):
+            raise ValueError("num_accidentals must be between -7 and 7")
+
+        # Mapping the circle of fifths sharps and flats sequence onto a C-based scale
+        # Each sharp adds a sharp to the next note in the circle of fifths.
+        sharp_offsets = [4, 11, 6, 1, 8, 3, 10]  # F#, C#, G#, D#, A#, E#, B#
+        flat_offsets = [10, 3, 8, 1, 6, 11, 4]  # Bb, Eb, Ab, Db, Gb, Cb, Fb
+
+        scale = base_scale.copy()
+
+        if num_accidentals > 0:
+            # Apply sharps (for positive accidentals)
+            for i in range(num_accidentals):
+                scale[sharp_offsets[i]] = 1  # Mark the note as sharp (included in the scale)
+        elif num_accidentals < 0:
+            # Apply flats (for negative accidentals)
+            for i in range(abs(num_accidentals)):
+                scale[flat_offsets[i]] = 0  # Mark the note as flat (excluded from the scale)
+        
+        return scale
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
