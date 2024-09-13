@@ -89,14 +89,14 @@ class TimeSignature(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case ro.BeatsPerMeasure():  self._top       = operand % o.Operand() % od.DataSource( int() )
-                    case ro.BeatNoteValue():    self._bottom    = 1 / (operand % o.Operand() % od.DataSource( int() ))
+                    case ro.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
             case TimeSignature():
                 self._top               = operand._top
                 self._bottom            = operand._bottom
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ro.BeatsPerMeasure():  self._top       = operand % o.Operand() % int()
-            case ro.BeatNoteValue():    self._bottom    = 1 / (operand % o.Operand() % int())
+            case ro.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % int()))
         return self
 
 class KeySignature(Generic):       # Sharps (+) and Flats (-)
