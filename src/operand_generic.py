@@ -38,6 +38,67 @@ class TimeSignature(Generic):
         self._top: int      = 4 if top is None else top
         self._bottom: int   = 4 if bottom is None else bottom
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case TimeSignature():       return self
+                    case ro.BeatsPerMeasure():  return ro.BeatsPerMeasure() << self._top
+                    case ro.BeatNoteValue():    return ro.BeatNoteValue() << 1 / self._bottom
+                    # Calculated Values
+                    case ro.NotesPerMeasure():  return ro.NotesPerMeasure() << self._top / self._bottom
+                    case _:                     return ol.Null()
+            case of.Frame():            return self % (operand % o.Operand())
+            case TimeSignature():       return self.copy()
+            # Direct Values
+            case ro.BeatsPerMeasure():  return ro.BeatsPerMeasure() << self._top
+            case ro.BeatNoteValue():    return ro.BeatNoteValue() << 1 / self._bottom
+            # Calculated Values
+            case ro.NotesPerMeasure():  return ro.NotesPerMeasure() << self._top / self._bottom
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other_time_signature: 'TimeSignature') -> bool:
+        if type(self) != type(other_time_signature):
+            return False
+        return  self._top           == other_time_signature._top \
+            and self._bottom        == other_time_signature._bottom
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "top":          self._top,
+                "bottom":       self._bottom
+            }
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "top" in serialization["parameters"] and "bottom" in serialization["parameters"]):
+
+            self._top           = serialization["parameters"]["top"]
+            self._bottom        = serialization["parameters"]["bottom"]
+        return self
+        
+    def __lshift__(self, operand: o.Operand) -> 'TimeSignature':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.BeatsPerMeasure():  self._top       = operand % o.Operand() % od.DataSource( int() )
+                    case ro.BeatNoteValue():    self._bottom    = 1 / (operand % o.Operand() % od.DataSource( int() ))
+            case TimeSignature():
+                self._top               = operand._top
+                self._bottom            = operand._bottom
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ro.BeatsPerMeasure():  self._top       = operand % o.Operand() % int()
+            case ro.BeatNoteValue():    self._bottom    = 1 / (operand % o.Operand() % int())
+        return self
+
 class KeySignature(Generic):       # Sharps (+) and Flats (-)
     def __init__(self, accidentals: int | str = 0):
         super().__init__()
