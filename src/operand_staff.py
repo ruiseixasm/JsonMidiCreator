@@ -31,6 +31,7 @@ class Staff(o.Operand):
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: ro.Measure                   = ro.Measure(8)
         self._tempo: ro.Tempo                       = ro.Tempo(120.0)
+        self._time_signature: og.TimeSignature      = og.TimeSignature(4, 4)
         # Time Signature is BeatsPerMeasure / BeatNoteValue like 4/4
         self._beats_per_measure: ro.BeatsPerMeasure = ro.BeatsPerMeasure(4)
         self._beat_note_value: ro.BeatNoteValue     = ro.BeatNoteValue(1/4)
@@ -67,6 +68,7 @@ class Staff(o.Operand):
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ro.Measure():          return self._measure
                     case ro.Tempo():            return self._tempo
+                    case og.TimeSignature():    return self._time_signature
                     case ro.BeatsPerMeasure():  return self._beats_per_measure
                     case ro.BeatNoteValue():    return self._beat_note_value
                     case od.Scale():            return self._scale
@@ -95,6 +97,7 @@ class Staff(o.Operand):
             # Direct Values
             case ro.Measure():          return self._measure.copy()
             case ro.Tempo():            return self._tempo.copy()
+            case og.TimeSignature():    return self._time_signature.copy()
             case ro.BeatsPerMeasure():  return self._beats_per_measure.copy()
             case ro.BeatNoteValue():    return self._beat_note_value.copy()
             case od.Scale():            return self._scale.copy()
@@ -125,6 +128,7 @@ class Staff(o.Operand):
             return False
         return  self._measure           == other_staff % od.DataSource( ro.Measure() ) \
             and self._tempo             == other_staff % od.DataSource( ro.Tempo() ) \
+            and self._time_signature    == other_staff % od.DataSource( og.TimeSignature() ) \
             and self._beats_per_measure == other_staff % od.DataSource( ro.BeatsPerMeasure() ) \
             and self._beat_note_value   == other_staff % od.DataSource( ro.BeatNoteValue() ) \
             and self._scale             == other_staff % od.DataSource( od.Scale() ) \
@@ -143,6 +147,7 @@ class Staff(o.Operand):
             "parameters": {
                 "measures":             self._measure % od.DataSource( float() ),
                 "tempo":                self._tempo % od.DataSource( float() ),
+                "time_signature":       self._time_signature.getSerialization(),
                 "beats_per_measure":    self._beats_per_measure % od.DataSource( float() ),
                 "beat_note_value":      self._beat_note_value % od.DataSource( float() ),
                 "scale":                self._scale % od.DataSource( list() ),
@@ -161,7 +166,7 @@ class Staff(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and
+            "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "quantization" in serialization["parameters"] and "beats_per_measure" in serialization["parameters"] and "beat_note_value" in serialization["parameters"] and
             "scale" in serialization["parameters"] and "duration" in serialization["parameters"] and "key" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
@@ -169,6 +174,7 @@ class Staff(o.Operand):
 
             self._measures          = ro.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
             self._tempo             = ro.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
+            self._time_signature    = og.TimeSignature().loadSerialization(serialization["parameters"]["time_signature"])
             self._beats_per_measure = ro.BeatsPerMeasure()  << od.DataSource( serialization["parameters"]["beats_per_measure"] )
             self._beat_note_value   = ro.BeatNoteValue()    << od.DataSource( serialization["parameters"]["beat_note_value"] )
             self._scale             = od.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
@@ -189,6 +195,7 @@ class Staff(o.Operand):
                 match operand % o.Operand():
                     case ro.Measure():          self._measure = operand % o.Operand()
                     case ro.Tempo():            self._tempo = operand % o.Operand()
+                    case og.TimeSignature():    self._time_signature = operand % o.Operand()
                     case ro.BeatsPerMeasure():  self._beats_per_measure = operand % o.Operand()
                     case ro.BeatNoteValue():    self._beat_note_value = operand % o.Operand()
                     case od.Scale():            self._scale = operand % o.Operand()
@@ -203,6 +210,7 @@ class Staff(o.Operand):
             case Staff():
                 self._measure           = operand % od.DataSource( ro.Measure() )
                 self._tempo             = operand % od.DataSource( ro.Tempo() )
+                self._time_signature    = operand % od.DataSource( og.TimeSignature() )
                 self._beats_per_measure = operand % od.DataSource( ro.BeatsPerMeasure() )
                 self._beat_note_value   = operand % od.DataSource( ro.BeatNoteValue() )
                 self._scale             = operand % od.DataSource( od.Scale() )
@@ -218,6 +226,7 @@ class Staff(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ro.Measure():          self._measure << operand
             case ro.Tempo():            self._tempo << operand
+            case og.TimeSignature():    self._time_signature << operand
             case ro.BeatsPerMeasure():  self._beats_per_measure << operand
             case ro.BeatNoteValue():    self._beat_note_value << operand
             case od.Scale():            self._scale << operand
