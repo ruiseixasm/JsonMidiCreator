@@ -143,3 +143,23 @@ class Key:
         real_note = self.get_real_key()
         return f"Key: {real_note} (Natural: {self.natural}, Accidental: {self.accidental})"
 
+# Global key signature (1 sharp, G Major)
+global_key_signature = 1
+
+# Create a Key with no accidental
+c_key = Key("C")
+print(c_key.get_real_key())  # Output: C (as affected by the global key signature, if any)
+
+# Create a Key with a sharp accidental
+c_sharp_key = Key("C", accidental='sharp')
+print(c_sharp_key.get_real_key())  # Output: C# (overrides key signature)
+
+# Create a natural note (ignores key signature)
+f_natural = Key("F", natural=True)
+print(f_natural.get_real_key())  # Output: F (even if key signature says F#)
+
+# Chromatic transposition of a key
+print(c_key.chromatic_transpose(2))  # Output: D
+
+# Diatonic transposition (scale-based)
+print(c_key.diatonic_transpose(2))  # Output: E
