@@ -197,6 +197,9 @@ class Unit(o.Operand):
 class Integer(Unit):
     pass
 
+class Semitone(Unit):
+    pass
+
 class Octave(Unit):
     """
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
