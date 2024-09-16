@@ -118,6 +118,62 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                     self._accidentals = num_accidentals
         self._scale: list = KeySignature.get_key_signed_scale(self._accidentals)
     
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case KeySignature():        return self
+                    case int():                 return self._accidentals
+                    case list():                return self._scale
+                    case _:                     return ol.Null()
+            case of.Frame():            return self % (operand % o.Operand())
+            case KeySignature():        return self.copy()
+            case int():                 return self._accidentals
+            case list():                return self._scale.copy()
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other_key_signature: 'KeySignature') -> bool:
+        if type(self) != type(other_key_signature):
+            return False
+        return  self._accidentals   == other_key_signature._accidentals \
+            and self._scale         == other_key_signature._scale
+    
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "accidentals":  self._accidentals,
+                "scale":        self._scale
+            }
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "accidentals" in serialization["parameters"] and "scale" in serialization["parameters"]):
+
+            self._accidentals   = serialization["parameters"]["accidentals"]
+            self._scale         = serialization["parameters"]["scale"]
+        return self
+        
+    def __lshift__(self, operand: o.Operand) -> 'KeySignature':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case int():     self._accidentals   = operand % o.Operand()
+                    case list():    self._scale         = operand % o.Operand()
+            case KeySignature():
+                self._accidentals       = operand._accidentals
+                self._scale             = operand._scale
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case int():     self._accidentals   = operand
+            case list():    self._scale         = operand.copy()
+        return self
+
     @staticmethod
     def get_key_signed_scale(num_accidentals: int) -> list:
         # Base pattern for C Major scale (no sharps or flats)
