@@ -133,17 +133,17 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case list():                return self._scale.copy()
             case _:                     return super().__mod__(operand)
 
-    def moveKey(self, start_key: int, move_keys: int) -> int:
-        next_key = start_key
+    def moveSemitones(self, start_key: int, move_keys: int) -> int:
+        move_semitones = start_key
         while move_keys > 0:
-            next_key += 1
-            if self._scale[next_key % 12]:
+            move_semitones += 1
+            if self._scale[move_semitones % 12]:
                 move_keys -= 1
         while move_keys < 0:
-            next_key -= 1
-            if self._scale[next_key % 12]:
+            move_semitones -= 1
+            if self._scale[move_semitones % 12]:
                 move_keys += 1
-        return next_key
+        return move_semitones
 
     def __eq__(self, other_key_signature: 'KeySignature') -> bool:
         if type(self) != type(other_key_signature):
@@ -369,19 +369,29 @@ class Key(Generic):
     def __add__(self, number: any) -> 'Key':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | ou.Semitone() | ou.Integer() | ro.Float():
-                                        return self.copy() << od.DataSource( self._key + number % od.DataSource( int() ) )
+            case self.__class__():
+                                    move_key: int = number % od.DataSource( int() )
+                                    key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                                    move_semitones: int = key_signature.moveSemitones(self._key, move_key)
+                                    return self.copy() << od.DataSource( self._key + move_semitones )
+            case ou.Semitone() | ou.Integer() | ro.Float():
+                                    return self.copy() << od.DataSource( self._key + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
-                                        return self.copy() << od.DataSource( self._key + number )
+                                    return self.copy() << od.DataSource( self._key + number )
         return self.copy()
     
     def __sub__(self, number: any) -> 'Key':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | ou.Semitone() | ou.Integer() | ro.Float():
-                                        return self.copy() << od.DataSource( self._key - number % od.DataSource( int() ) )
+            case self.__class__():
+                                    move_key: int = number % od.DataSource( int() )
+                                    key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                                    move_semitones: int = key_signature.moveSemitones(self._key, move_key)
+                                    return self.copy() << od.DataSource( self._key - move_semitones )
+            case ou.Semitone() | ou.Integer() | ro.Float():
+                                    return self.copy() << od.DataSource( self._key - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
-                                        return self.copy() << od.DataSource( self._key - number )
+                                    return self.copy() << od.DataSource( self._key - number )
         return self.copy()
     
     _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
