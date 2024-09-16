@@ -162,7 +162,7 @@ results_list.append({
 
 original_save       = Load("json/testing/_Save_Play_p.7.3_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.7.3_sequence.json")
-note_transposed = single_note + Key(5) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+note_transposed = single_note + Semitone(5) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "test":     "TEST 3.2",
     "save":     original_save == result_save,
@@ -207,7 +207,7 @@ results_list.append({
 
 original_save       = Load("json/testing/_Save_Play_p.10.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10.1_sequence.json")
-triplets_one + triplets_two + single_clock + Equal(Beat(1))**Key(2) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+triplets_one + triplets_two + single_clock + Equal(Beat(1))**Semitone(2) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "test":     "TEST 3.6",
     "save":     original_save == result_save,
@@ -390,23 +390,23 @@ staff << Tempo(240) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = PlayList() << (Position(0) >> (KeyScale("C") << Scale("Major")) * 8 
-    + Iterate(Scale("Major") % Transposition("5th"))**Key() + Iterate()**Measure() 
-    << NoteValue(1) << Velocity(70))
+    + Iterate(Scale("Major") % Transposition("5th"))**Semitone() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
 play_list_2 = PlayList() << (Position(8) >> (KeyScale("C") << Scale("Major")) * 8 
-    + Iterate(Scale("Major") % Transposition("4th"))**Key() + Iterate()**Measure() 
-    << NoteValue(1) << Velocity(70))
+    + Iterate(Scale("Major") % Transposition("4th"))**Semitone() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
 play_list_3 = PlayList() << (Position(16) >> (KeyScale("A") << Scale("minor")) * 8 
-    + Iterate(Scale("minor") % Transposition("5th"))**Key() + Iterate()**Measure() 
-    << NoteValue(1) << Velocity(70))
+    + Iterate(Scale("minor") % Transposition("5th"))**Semitone() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
 play_list_4 = PlayList() << (Position(24) >> (KeyScale("A") << Scale("minor")) * 8 
-    + Iterate(Scale("minor") % Transposition("4th"))**Key() + Iterate()**Measure() 
-    << NoteValue(1) << Velocity(70))
+    + Iterate(Scale("minor") % Transposition("4th"))**Semitone() + Iterate()**Measure() 
+    << NoteValue(1) << Velocity(70) << Octave(4))
 
 original_save       = Load("json/testing/_Save_Play_p.21_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.21_sequence.json")

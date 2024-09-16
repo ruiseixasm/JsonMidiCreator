@@ -550,7 +550,7 @@ class Note(Rest):
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ro.Gate() )).copy()
-            case og.KeyNote() | og.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
+            case og.KeyNote() | og.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -561,7 +561,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | og.Key() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | og.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -570,7 +570,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | og.Key() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | og.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy

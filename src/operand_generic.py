@@ -520,7 +520,10 @@ class KeyNote(Key):
             case ou.Octave():
                 octave_int += operand % od.DataSource( int() )
             case Key():
-                key_int += operand % int()
+                move_key: int = operand % od.DataSource( int() )
+                key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                key_int += key_signature.moveSemitones(self._key, move_key)
+                octave_int += key_int // 12
             case int():
                 key_int += operand
                 octave_int += key_int // 12
@@ -544,7 +547,10 @@ class KeyNote(Key):
             case ou.Octave():
                 octave_int -= operand % od.DataSource( int() )
             case Key():
-                key_int -= operand % int()
+                move_key: int = operand % od.DataSource( int() )
+                key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                key_int -= key_signature.moveSemitones(self._key, move_key)
+                octave_int -= max(-1 * key_int + 11, 0) // 12
             case int():
                 key_int -= operand
                 octave_int -= max(-1 * key_int + 11, 0) // 12
