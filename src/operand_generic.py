@@ -235,6 +235,8 @@ class Key(Generic):
             case int() | float():
                 self._key = int(key) % 12
 
+    _dynamic_keys: list     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract the Unit, because a Unit is an Integer
@@ -269,10 +271,16 @@ class Key(Generic):
             case ou.Natural():      return self._natural.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
-                self_key_note_transpose_int = 0
-                if self._natural == 0:
-                    self_key_note_transpose_int = (self._sharp - self._flat) % od.DataSource( int() )
-                return self._key + self_key_note_transpose_int
+                if not self._static and Key._dynamic_keys[self._key]:
+                    key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                    key_signature_scale: list = key_signature % od.DataSource( list() )
+                    if not key_signature_scale[self._key]:
+                        key_signature_accidentals: int = key_signature % od.DataSource( int() )
+                        if key_signature_accidentals > 0:
+                            return self._key + key_signature.moveSemitones(self._key, 1)
+                        elif key_signature_accidentals < 0:
+                            return self._key - key_signature.moveSemitones(self._key, -1)
+                return self._key
             case bool():            return self._static        # returns a bool()
             case float():           return float(self._key)
             case Fraction():        return Fraction(self._key).limit_denominator()
