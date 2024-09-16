@@ -133,7 +133,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case list():                return self._scale.copy()
             case _:                     return super().__mod__(operand)
 
-    def nextKey(self, start_key: int, move_keys: int) -> int:
+    def moveKey(self, start_key: int, move_keys: int) -> int:
         next_key = start_key
         while move_keys > 0:
             next_key += 1
