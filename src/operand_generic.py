@@ -262,9 +262,10 @@ class Key(Generic):
             case Key():             return self.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
-                print(self._key)
+                print(f"Key: \t{self._key} | {self._natural}")
                 if not self._natural and KeySignature._major_keys[self._key]:
                     key_signature: KeySignature = os.staff._key_signature
+                    print(key_signature._scale)
                     if not key_signature._scale[self._key]:
                         if key_signature._accidentals > 0:
                             return self._key + 1
@@ -318,7 +319,8 @@ class Key(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case int():                     self._key = operand % o.Operand() % 12
-                    case bool():                    self._natural = operand % o.Operand()
+                    case bool():
+                          self._natural = operand % o.Operand()
                     case float() | Fraction():      self._key = int(operand % o.Operand()) % 12
                     case ou.Semitone() | ou.Integer() | ro.Float():
                                                     self._key = operand % o.Operand() % od.DataSource( int() ) % 12
@@ -326,13 +328,14 @@ class Key(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Key():
-                                    self._key       =  operand % od.DataSource( int() )
-                                    self._natural   =  operand % od.DataSource( bool() )
+                                    self._key       =  operand._key
+                                    self._natural   =  operand._natural
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     self._key = operand % int() % 12
             case int() | float() | Fraction():
                                     self._key = int(operand) % 12
-            case bool():            self._natural = operand
+            case bool():
+                  self._natural = operand
             case str():             self._key = Key.key_to_int(operand)
         return self
 
@@ -412,6 +415,7 @@ class KeyNote(Key):
                     case ou.Midi():
                         octave_int = self._octave % od.DataSource( int() )
                         key_int = super().__mod__( int() )
+                        print(f"KeyNote\t{self._key} | {key_int} | {self._natural}")
                         return ou.Midi() << 12 * (octave_int + 1) + key_int
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
