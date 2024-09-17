@@ -227,7 +227,7 @@ class Key(Generic):
     def __init__(self, key: int | str = None):
         super().__init__()
         self._key: int          = 0
-        self._static: bool      = False
+        self._natural: bool     = False
         match key:
             case str():
                 self._key = Key.key_to_int(key)
@@ -253,7 +253,7 @@ class Key(Generic):
                     case Key():             return self
                     case Fraction():        return Fraction(self._key).limit_denominator()
                     case int():             return self._key           # returns a int()
-                    case bool():            return self._static        # returns a bool()
+                    case bool():            return self._natural        # returns a bool()
                     case float():           return float(self._key)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._key )
                     case ro.Float():        return ro.Float() << od.DataSource( self._key )
@@ -262,7 +262,7 @@ class Key(Generic):
             case Key():             return self.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
-                if not self._static and KeySignature._dynamic_keys[self._key]:
+                if not self._natural and KeySignature._dynamic_keys[self._key]:
                     key_signature: KeySignature = os.staff._key_signature
                     if not key_signature._scale[self._key]:
                         if key_signature._accidentals > 0:
@@ -270,7 +270,7 @@ class Key(Generic):
                         elif key_signature._accidentals < 0:
                             return self._key - 1
                 return self._key
-            case bool():            return self._static        # returns a bool()
+            case bool():            return self._natural        # returns a bool()
             case float():           return float(self._key)
             case Fraction():        return Fraction(self._key).limit_denominator()
             case ou.Integer():      return ou.Integer() << self._key
@@ -297,7 +297,7 @@ class Key(Generic):
             "class": self.__class__.__name__,
             "parameters": {
                 "key": self._key,
-                "static": self._static
+                "natural": self._natural
             }
         }
 
@@ -305,10 +305,10 @@ class Key(Generic):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key" in serialization["parameters"] and "static" in serialization["parameters"]):
+            "key" in serialization["parameters"] and "natural" in serialization["parameters"]):
 
             self._key       = serialization["parameters"]["key"]
-            self._static    = serialization["parameters"]["static"]
+            self._natural   = serialization["parameters"]["natural"]
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Key':
@@ -317,7 +317,7 @@ class Key(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case int():                     self._key = operand % o.Operand() % 12
-                    case bool():                    self._static = operand % o.Operand()
+                    case bool():                    self._natural = operand % o.Operand()
                     case float() | Fraction():      self._key = int(operand % o.Operand()) % 12
                     case ou.Semitone() | ou.Integer() | ro.Float():
                                                     self._key = operand % o.Operand() % od.DataSource( int() ) % 12
@@ -333,12 +333,12 @@ class Key(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case Key():
                                     self._key       =  operand % od.DataSource( int() )
-                                    self._static       =  operand % od.DataSource( int() )
+                                    self._natural       =  operand % od.DataSource( int() )
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     self._key = operand % int() % 12
             case int() | float() | Fraction():
                                     self._key = int(operand) % 12
-            case bool():            self._static = operand
+            case bool():            self._natural = operand
             case str():             self._key = Key.key_to_int(operand)
         return self
 
