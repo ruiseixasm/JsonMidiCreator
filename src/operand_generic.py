@@ -174,25 +174,25 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case list():    self._scale         = operand.copy()
         return self
 
-    _dynamic_keys: list     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Same as the Major scale
+    _major_keys: list     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Same as the Major scale
 
     @staticmethod
     def move_semitones(start_key: int, move_keys: int) -> int:
         move_semitones = start_key
         while move_keys > 0:
             move_semitones += 1
-            if KeySignature._dynamic_keys[move_semitones % 12]:
+            if KeySignature._major_keys[move_semitones % 12]:
                 move_keys -= 1
         while move_keys < 0:
             move_semitones -= 1
-            if KeySignature._dynamic_keys[move_semitones % 12]:
+            if KeySignature._major_keys[move_semitones % 12]:
                 move_keys += 1
         return move_semitones
 
     @staticmethod
     def get_key_signed_scale(num_accidentals: int) -> list:
         # Base pattern for C Major scale (no sharps or flats)
-        base_scale = KeySignature._dynamic_keys.copy()  # C Major scale, where 1 is a note, and 0 is a skipped note
+        base_scale = KeySignature._major_keys.copy()  # C Major scale, where 1 is a note, and 0 is a skipped note
 
         # Sharp positions are applied to F, C, G, D, A, E, B
         sharp_positions = [5, 0, 7, 2, 9, 4, 11]
@@ -262,7 +262,7 @@ class Key(Generic):
             case Key():             return self.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
-                if not self._natural and KeySignature._dynamic_keys[self._key]:
+                if not self._natural and KeySignature._major_keys[self._key]:
                     key_signature: KeySignature = os.staff._key_signature
                     if not key_signature._scale[self._key]:
                         if key_signature._accidentals > 0:
