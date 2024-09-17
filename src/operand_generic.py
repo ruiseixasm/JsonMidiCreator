@@ -291,17 +291,28 @@ class KeyNote(Generic):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["octave"]   = self._octave % od.DataSource( float() )
+        element_serialization["parameters"]["octave"]   = self._octave % od.DataSource( int() )
         return element_serialization
+
+    def getSerialization(self):
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "octave":   self._octave % od.DataSource( int() ),
+                "key":      self._key % od.DataSource( int() ),
+                "natural":  self._natural % od.DataSource( int() )
+            }
+        }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "octave" in serialization["parameters"]):
+            "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "natural" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            self._octave      = ou.Octave() << od.DataSource( serialization["parameters"]["octave"] )
+            self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
+            self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
+            self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
