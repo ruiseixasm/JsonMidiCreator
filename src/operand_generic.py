@@ -319,7 +319,9 @@ class KeyNote(Generic):
                 self._octave = (operand % od.DataSource( ou.Octave() )).copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Octave():   self._octave << operand
+            case ou.Octave():       self._octave << operand
+            case ou.Key():          self._key << operand
+            case ou.Natural():      self._natural << operand
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -347,7 +349,7 @@ class KeyNote(Generic):
                 key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
             case _: return super().__add__(operand)
-        return self.copy() << key_int << (ou.Octave() << octave_int)
+        return self.copy() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
         key_int: int    = self._key % od.DataSource( int() )
@@ -374,7 +376,7 @@ class KeyNote(Generic):
                 key_int -= operand % od.DataSource( int() )
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case _: return super().__sub__(operand)
-        return self.copy() << key_int << (ou.Octave() << octave_int)
+        return self.copy() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
 
 class Controller(Generic):
     def __init__(self, number: int | str = None):
