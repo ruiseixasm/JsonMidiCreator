@@ -333,9 +333,7 @@ class Key(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case Key():
                                     self._key       =  operand % od.DataSource( int() )
-                                    self._sharp     = (operand % od.DataSource( ou.Sharp() )).copy()
-                                    self._flat      = (operand % od.DataSource( ou.Flat() )).copy()
-                                    self._natural   = (operand % od.DataSource( ou.Natural() )).copy()
+                                    self._static       =  operand % od.DataSource( int() )
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     self._key = operand % int() % 12
             case int() | float() | Fraction():
