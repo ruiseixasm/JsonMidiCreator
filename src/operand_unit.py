@@ -79,7 +79,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         match other_number:
             case Unit():
-                return self._unit == other_number % od.DataSource( int() )
+                return self._unit == other_number._unit
             case ro.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational == other_number % od.DataSource( Fraction() )
@@ -91,7 +91,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         match other_number:
             case Unit():
-                return self._unit < other_number % od.DataSource( int() )
+                return self._unit < other_number._unit
             case ro.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational < other_number % od.DataSource( Fraction() )
@@ -103,7 +103,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         match other_number:
             case Unit():
-                return self._unit > other_number % od.DataSource( int() )
+                return self._unit > other_number._unit
             case ro.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational > other_number % od.DataSource( Fraction() )

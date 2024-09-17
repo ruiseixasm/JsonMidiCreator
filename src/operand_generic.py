@@ -243,28 +243,25 @@ class KeyNote(Generic):
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
                     case ou.Natural():      return self._natural
-                    case int():             return self.midiKeyNote()
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
             case ou.Natural():      return self._natural.copy()
-            case int():             return self.midiKeyNote()
+            case int():
+                octave_int: int     = self._octave % od.DataSource( int() )
+                key_int: int        = self._key % od.DataSource( int() )
+                not_natural: bool   = self._natural % od.DataSource( int() ) == 0
+                if not_natural and KeySignature._major_keys[key_int]:
+                    key_signature: KeySignature = os.staff._key_signature
+                    if key_signature._scale[key_int] == 0:
+                        if key_signature._accidentals > 0:
+                            key_int += 1
+                        elif key_signature._accidentals < 0:
+                            key_int -= 1
+                return 12 * (octave_int + 1) + key_int
             case _:                 return super().__mod__(operand)
-
-    def midiKeyNote(self) -> int:
-        octave_int: int     = self._octave % od.DataSource( int() )
-        key_int: int        = self._key % od.DataSource( int() )
-        not_natural: bool   = self._natural % od.DataSource( int() ) == 0
-        if not_natural and KeySignature._major_keys[key_int]:
-            key_signature: KeySignature = os.staff._key_signature
-            if key_signature._scale[key_int] == 0:
-                if key_signature._accidentals > 0:
-                    key_int += 1
-                elif key_signature._accidentals < 0:
-                    key_int -= 1
-        return 12 * (octave_int + 1) + key_int
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
         return  self._octave == other_keynote._octave \
@@ -340,8 +337,8 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                key_int += operand % od.DataSource( int() )
-                octave_int += operand % ou.Octave() % od.DataSource( int() ) + key_int // 12
+                key_int += operand._key % od.DataSource( int() )
+                octave_int += operand._octave % od.DataSource( int() ) + key_int // 12
             case ou.Octave():
                 octave_int += operand % od.DataSource( int() )
             case ou.Key():
@@ -367,8 +364,8 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                key_int -= operand % od.DataSource( int() )
-                octave_int -= operand % ou.Octave() % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
+                key_int -= operand._key % od.DataSource( int() )
+                octave_int -= operand._octave % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
             case ou.Octave():
                 octave_int -= operand % od.DataSource( int() )
             case ou.Key():
