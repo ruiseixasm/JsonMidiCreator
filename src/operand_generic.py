@@ -219,7 +219,7 @@ class KeyNote(Generic):
     def __init__(self, key: int | str = None):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave()
-        self._key: ou.Key           = ou.Key() << key
+        self._key: ou.Key           = ou.Key(key)
         self._natural: ou.Natural   = ou.Natural()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -257,15 +257,13 @@ class KeyNote(Generic):
         octave_int: int     = self._octave % od.DataSource( int() )
         key_int: int        = self._key % od.DataSource( int() )
         not_natural: bool   = self._natural % od.DataSource( int() ) == 0
-        print(f"Key: \t{key_int} | {self._natural}")
         if not_natural and KeySignature._major_keys[key_int]:
             key_signature: KeySignature = os.staff._key_signature
-            print(key_signature._scale)
             if key_signature._scale[key_int] == 0:
                 if key_signature._accidentals > 0:
-                    return key_int + 1
+                    key_int += 1
                 elif key_signature._accidentals < 0:
-                    return key_int - 1
+                    key_int -= 1
         return 12 * (octave_int + 1) + key_int
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
@@ -311,12 +309,13 @@ class KeyNote(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Octave():       self._octave = operand % o.Operand()
-                    case ou.Key():          self._key = operand % o.Operand()
-                    case ou.Natural():      self._natural = operand % o.Operand()
+                    case ou.Octave():       self._octave    = operand % o.Operand()
+                    case ou.Key():          self._key       = operand % o.Operand()
+                    case ou.Natural():      self._natural   = operand % o.Operand()
             case KeyNote():
-                super().__lshift__(operand)
-                self._octave = (operand % od.DataSource( ou.Octave() )).copy()
+                self._octave    << operand % od.DataSource( ou.Octave() )
+                self._key       << operand % od.DataSource( ou.Key() )
+                self._natural   << operand % od.DataSource( ou.Natural() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():       self._octave << operand

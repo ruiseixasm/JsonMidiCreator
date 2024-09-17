@@ -143,7 +143,7 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction():      self._unit = int(operand % o.Operand())
                     case Integer() | ro.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
-            case Unit():            self._unit = operand % od.DataSource( int() )
+            case self.__class__():          self._unit = operand % od.DataSource( int() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
