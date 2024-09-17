@@ -267,20 +267,19 @@ class KeyNote(Generic):
         return 12 * (octave_int + 1) + key_int
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
-        if self % ou.Octave() == other_keynote % ou.Octave() and super().__eq__(other_keynote):
-            return True
-        return False
+        return  self._octave == other_keynote._octave \
+            and self._key == other_keynote._key
     
     def __lt__(self, other_keynote: 'KeyNote') -> bool:
-        if self % ou.Octave() < other_keynote % ou.Octave():    return True
-        if self % ou.Octave() > other_keynote % ou.Octave():    return False
-        if super().__lt__(other_keynote):                       return True
+        if self._octave < other_keynote._octave:    return True
+        if self._octave > other_keynote._octave:    return False
+        if self._key < other_keynote._key:          return True
         return False
     
     def __gt__(self, other_keynote: 'KeyNote') -> bool:
-        if self % ou.Octave() > other_keynote % ou.Octave():    return True
-        if self % ou.Octave() < other_keynote % ou.Octave():    return False
-        if super().__gt__(other_keynote):                       return True
+        if self._octave > other_keynote._octave:    return True
+        if self._octave < other_keynote._octave:    return False
+        if self._key > other_keynote._key:          return True
         return False
     
     def __le__(self, other_keynote: 'KeyNote') -> bool:
@@ -331,7 +330,7 @@ class KeyNote(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():       self._octave << operand
             case ou.Key() | int() | str() | ou.Semitone():
-                self._key << operand
+                                    self._key << operand
             case ou.Natural():      self._natural << operand
         return self
 

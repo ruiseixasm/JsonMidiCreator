@@ -754,7 +754,7 @@ class Chord(Note):
             while not_first_key_note:
                 not_first_key_note = False
                 for key_note in chord_key_notes:
-                    if key_note < first_key_note:
+                    if key_note < first_key_note:   # Critical operation
                         key_note << key_note % ou.Octave() + 1
                         if key_note % od.DataSource( int() ) < 128:
                             not_first_key_note = True
