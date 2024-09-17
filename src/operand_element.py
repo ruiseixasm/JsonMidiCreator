@@ -443,7 +443,7 @@ class Rest(Element):
 class Note(Rest):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % og.Key() % int() if key is None else key) \
+        self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() % int() if key is None else key) \
                                                     <<  os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
@@ -489,7 +489,7 @@ class Note(Rest):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % od.DataSource( ou.Midi() ) % int()
+        key_note_int: int           = self._key_note % od.DataSource( int() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -550,7 +550,7 @@ class Note(Rest):
                 self._key_note      = (operand % od.DataSource( og.KeyNote() )).copy()
                 self._velocity      = (operand % od.DataSource( ou.Velocity() )).copy()
                 self._gate          = (operand % od.DataSource( ro.Gate() )).copy()
-            case og.KeyNote() | og.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -561,7 +561,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | og.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | ou.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -570,7 +570,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | og.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | ou.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -620,10 +620,10 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other_operand)
     
-    def getSharps(self, key: og.Key = None) -> int:
+    def getSharps(self, key: ou.Key = None) -> int:
         ...
 
-    def getFlats(self, key: og.Key = None) -> int:
+    def getFlats(self, key: ou.Key = None) -> int:
         ...
 
     def getPlayList(self, position: ot.Position = None):
@@ -756,7 +756,7 @@ class Chord(Note):
                 for key_note in chord_key_notes:
                     if key_note < first_key_note:
                         key_note << key_note % ou.Octave() + 1
-                        if key_note % od.DataSource( ou.Midi() ) % int() < 128:
+                        if key_note % od.DataSource( int() ) < 128:
                             not_first_key_note = True
 
         self_playlist = []
@@ -1446,7 +1446,7 @@ class PolyAftertouch(Aftertouch):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_int: int   = self._key_note % od.DataSource( ou.Midi() ) % int()
+        key_note_int: int   = self._key_note % od.DataSource( int() )
         pressure_int: int   = self._pressure % od.DataSource( int() )
         channel_int: int    = self._channel % od.DataSource( int() )
         device_list: list   = self._device % od.DataSource( list() )
@@ -1489,7 +1489,7 @@ class PolyAftertouch(Aftertouch):
             case PolyAftertouch():
                 super().__lshift__(operand)
                 self._key_note = (operand % od.DataSource( og.KeyNote() )).copy()
-            case og.KeyNote() | og.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
                                 self._key_note << operand
             case _:             super().__lshift__(operand)
         return self

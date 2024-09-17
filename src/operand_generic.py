@@ -215,183 +215,12 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         
         return base_scale  # Return the original C Major scale if no accidentals
 
-class Key(Generic):
-    """
-    A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
-    
-    Parameters
-    ----------
-    first : integer_like or string_like
-        A number from 0 to 11 with 0 as default or the equivalent string key "C"
-    """
+class KeyNote(Generic):
     def __init__(self, key: int | str = None):
         super().__init__()
-        self._key: int          = 0
-        self._natural: bool     = False
-        match key:
-            case str():
-                self._key = Key.key_to_int(key)
-            case int() | float():
-                self._key = int(key) % 12
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract the Unit, because a Unit is an Integer
-        it should be used in conjugation with int(). If used with a float() it
-        will return the respective key formatted as a float.
-
-        Examples
-        --------
-        >>> channel_int = Channel(12) % int()
-        >>> print(channel_int)
-        12
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case Key():             return self
-                    case Fraction():        return Fraction(self._key).limit_denominator()
-                    case int():             return self._key            # returns a int()
-                    case bool():            return self._natural        # returns a bool()
-                    case float():           return float(self._key)
-                    case ou.Integer():      return ou.Integer() << od.DataSource( self._key )
-                    case ro.Float():        return ro.Float() << od.DataSource( self._key )
-                    case _:                 return ol.Null()
-            case of.Frame():        return self % (operand % o.Operand())
-            case Key():             return self.copy()
-            case str():             return Key.int_to_key(self._key)
-            case int():
-                print(f"Key: \t{self._key} | {self._natural}")
-                if not self._natural and KeySignature._major_keys[self._key]:
-                    key_signature: KeySignature = os.staff._key_signature
-                    print(key_signature._scale)
-                    if not key_signature._scale[self._key]:
-                        if key_signature._accidentals > 0:
-                            return self._key + 1
-                        elif key_signature._accidentals < 0:
-                            return self._key - 1
-                return self._key
-            case bool():            return self._natural        # returns a bool()
-            case float():           return float(self._key)
-            case Fraction():        return Fraction(self._key).limit_denominator()
-            case ou.Integer():      return ou.Integer() << self._key
-            case ro.Float():        return ro.Float() << self._key
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other_key: any) -> bool:
-        return self % int() == other_key % int()
-    
-    def __lt__(self, other_key: any) -> bool:
-        return self % int() < other_key % int()
-    
-    def __gt__(self, other_key: any) -> bool:
-        return self % int() > other_key % int()
-    
-    def __le__(self, other_key: any) -> bool:
-        return self == other_key or self < other_key
-    
-    def __ge__(self, other_key: any) -> bool:
-        return self == other_key or self > other_key
-    
-    def getSerialization(self):
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "key":      self._key,
-                "natural":  self._natural
-            }
-        }
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key" in serialization["parameters"] and "natural" in serialization["parameters"]):
-
-            self._key       = serialization["parameters"]["key"]
-            self._natural   = serialization["parameters"]["natural"]
-        return self
-
-    def __lshift__(self, operand: o.Operand) -> 'Key':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case int():                     self._key = operand % o.Operand() % 12
-                    case bool():
-                          self._natural = operand % o.Operand()
-                    case float() | Fraction():      self._key = int(operand % o.Operand()) % 12
-                    case ou.Semitone() | ou.Integer() | ro.Float():
-                                                    self._key = operand % o.Operand() % od.DataSource( int() ) % 12
-                    case str():                     self._key = Key.key_to_int(operand)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case Key():
-                                    self._key       =  operand._key
-                                    self._natural   =  operand._natural
-            case ou.Semitone() | ou.Integer() | ro.Float():
-                                    self._key = operand % int() % 12
-            case int() | float() | Fraction():
-                                    self._key = int(operand) % 12
-            case bool():
-                  self._natural = operand
-            case str():             self._key = Key.key_to_int(operand)
-        return self
-
-    def __add__(self, number: any) -> 'Key':
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        match number:
-            case self.__class__():
-                                    move_key: int = number % od.DataSource( int() )
-                                    move_semitones: int = KeySignature.move_semitones(self._key, move_key)
-                                    return self.copy() << od.DataSource( self._key + move_semitones )
-            case ou.Semitone() | ou.Integer() | ro.Float():
-                                    return self.copy() << od.DataSource( self._key + number % od.DataSource( int() ) )
-            case int() | float() | Fraction():
-                                    return self.copy() << od.DataSource( self._key + number )
-        return self.copy()
-    
-    def __sub__(self, number: any) -> 'Key':
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        match number:
-            case self.__class__():
-                                    move_key: int = number % od.DataSource( int() )
-                                    move_semitones: int = KeySignature.move_semitones(self._key, move_key)
-                                    return self.copy() << od.DataSource( self._key - move_semitones )
-            case ou.Semitone() | ou.Integer() | ro.Float():
-                                    return self.copy() << od.DataSource( self._key - number % od.DataSource( int() ) )
-            case int() | float() | Fraction():
-                                    return self.copy() << od.DataSource( self._key - number )
-        return self.copy()
-    
-    _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
-                        "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
-    
-    @staticmethod
-    def int_to_key(note_key: int = 0) -> str:
-        return Key._keys[note_key % 12]
-
-    @staticmethod
-    def key_to_int(key: str = "C") -> int:
-        for key_i in range(len(Key._keys)):
-            if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                return key_i % 12
-        return 0
-
-class Root(Key):
-    pass
-
-class Home(Key):
-    pass
-
-class Tonic(Key):
-    pass
-
-class KeyNote(Key):
-    def __init__(self, key: int | str = None):
-        super().__init__(key)
         self._octave: ou.Octave     = ou.Octave()
+        self._key: ou.Key           = ou.Key() << key
+        self._natural: ou.Natural   = ou.Natural()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -412,20 +241,32 @@ class KeyNote(Key):
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case KeyNote():         return self
                     case ou.Octave():       return self._octave
-                    case ou.Midi():
-                        octave_int = self._octave % od.DataSource( int() )
-                        key_int = super().__mod__( int() )
-                        print(f"KeyNote\t{self._key} | {key_int} | {self._natural}")
-                        return ou.Midi() << 12 * (octave_int + 1) + key_int
-                    case _:                 return super().__mod__(operand)
+                    case ou.Key():          return self._key
+                    case ou.Natural():      return self._natural
+                    case int():             return self.midiKeyNote()
+                    case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
-            case ou.Midi():
-                octave_int = self._octave % od.DataSource( int() )
-                key_int = super().__mod__( int() )
-                return ou.Midi() << 12 * (octave_int + 1) + key_int
+            case ou.Key():          return self._key.copy()
+            case ou.Natural():      return self._natural.copy()
+            case int():             return self.midiKeyNote()
             case _:                 return super().__mod__(operand)
+
+    def midiKeyNote(self) -> int:
+        octave_int: int     = self._octave % od.DataSource( int() )
+        key_int: int        = self._key % od.DataSource( int() )
+        not_natural: bool   = self._natural % od.DataSource( int() ) == 0
+        print(f"Key: \t{key_int} | {self._natural}")
+        if not_natural and KeySignature._major_keys[key_int]:
+            key_signature: KeySignature = os.staff._key_signature
+            print(key_signature._scale)
+            if key_signature._scale[key_int] == 0:
+                if key_signature._accidentals > 0:
+                    return key_int + 1
+                elif key_signature._accidentals < 0:
+                    return key_int - 1
+        return 12 * (octave_int + 1) + key_int
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
         if self % ou.Octave() == other_keynote % ou.Octave() and super().__eq__(other_keynote):
@@ -471,14 +312,14 @@ class KeyNote(Key):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Octave():       self._octave = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
+                    case ou.Key():          self._key = operand % o.Operand()
+                    case ou.Natural():      self._natural = operand % o.Operand()
             case KeyNote():
                 super().__lshift__(operand)
                 self._octave = (operand % od.DataSource( ou.Octave() )).copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():   self._octave << operand
-            case _: super().__lshift__(operand)
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -491,9 +332,10 @@ class KeyNote(Key):
                 octave_int += operand % ou.Octave() % od.DataSource( int() ) + key_int // 12
             case ou.Octave():
                 octave_int += operand % od.DataSource( int() )
-            case Key():
-                move_key: int = operand % od.DataSource( int() )
-                key_int += KeySignature.move_semitones(self._key, move_key)
+            case ou.Key():
+                self_key_int: int   = self._key % od.DataSource( int() )
+                move_key_int: int   = operand % od.DataSource( int() )
+                key_int += KeySignature.move_semitones(self_key_int, move_key_int)
                 octave_int += key_int // 12
             case int():
                 key_int += operand
@@ -517,9 +359,10 @@ class KeyNote(Key):
                 octave_int -= operand % ou.Octave() % od.DataSource( int() ) - max(-1 * key_int + 11, 0) // 12
             case ou.Octave():
                 octave_int -= operand % od.DataSource( int() )
-            case Key():
-                move_key: int = operand % od.DataSource( int() )
-                key_int -= KeySignature.move_semitones(self._key, move_key)
+            case ou.Key():
+                self_key_int: int   = self._key % od.DataSource( int() )
+                move_key_int: int   = operand % od.DataSource( int() )
+                key_int -= KeySignature.move_semitones(self_key_int, move_key_int)
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case int():
                 key_int -= operand
