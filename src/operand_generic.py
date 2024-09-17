@@ -219,18 +219,8 @@ class Key(Generic):
         super().__init__()
         self._key: int          = 0
         self._static: bool      = False
-
-        self._sharp: ou.Sharp       = ou.Sharp()
-        self._flat: ou.Flat         = ou.Flat()
-        self._natural:ou.Natural    = ou.Natural()
         match key:
             case str():
-                total_sharps = key.count('#')
-                key.replace('#', '')
-                total_flats = key.count('b')
-                key.replace('b', '')
-                self._sharp << total_sharps
-                self._flat << total_flats
                 self._key = Key.key_to_int(key)
             case int() | float():
                 self._key = int(key) % 12
@@ -254,9 +244,6 @@ class Key(Generic):
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case Key():             return self
-                    case ou.Sharp():        return self._sharp
-                    case ou.Flat():         return self._flat
-                    case ou.Natural():      return self._natural
                     case Fraction():        return Fraction(self._key).limit_denominator()
                     case int():             return self._key           # returns a int()
                     case bool():            return self._static        # returns a bool()
@@ -266,9 +253,6 @@ class Key(Generic):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Key():             return self.copy()
-            case ou.Sharp():        return self._sharp.copy()
-            case ou.Flat():         return self._flat.copy()
-            case ou.Natural():      return self._natural.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
                 if not self._static and Key._dynamic_keys[self._key]:
@@ -308,10 +292,7 @@ class Key(Generic):
             "class": self.__class__.__name__,
             "parameters": {
                 "key": self._key,
-                "static": self._static,
-                "flat": self._flat % od.DataSource( int() ),
-                "sharp": self._sharp % od.DataSource( int() ),
-                "natural": self._natural % od.DataSource( int() )
+                "static": self._static
             }
         }
 
@@ -319,13 +300,10 @@ class Key(Generic):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key" in serialization["parameters"] and "static" in serialization["parameters"] and "flat" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"]):
+            "key" in serialization["parameters"] and "static" in serialization["parameters"]):
 
             self._key       = serialization["parameters"]["key"]
             self._static    = serialization["parameters"]["static"]
-            self._flat      = ou.Flat()     << serialization["parameters"]["flat"]
-            self._sharp     = ou.Sharp()    << serialization["parameters"]["sharp"]
-            self._natural   = ou.Natural()  << serialization["parameters"]["natural"]
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Key':
@@ -338,9 +316,6 @@ class Key(Generic):
                     case float() | Fraction():      self._key = int(operand % o.Operand()) % 12
                     case ou.Semitone() | ou.Integer() | ro.Float():
                                                     self._key = operand % o.Operand() % od.DataSource( int() ) % 12
-                    case ou.Sharp():                self._sharp = operand
-                    case ou.Flat():                 self._flat = operand
-                    case ou.Natural():              self._natural = operand
                     case str():
                                                     total_sharps = operand.count('#')
                                                     operand.replace('#', '')
@@ -356,22 +331,12 @@ class Key(Generic):
                                     self._sharp     = (operand % od.DataSource( ou.Sharp() )).copy()
                                     self._flat      = (operand % od.DataSource( ou.Flat() )).copy()
                                     self._natural   = (operand % od.DataSource( ou.Natural() )).copy()
-            case ou.Sharp():        self._sharp << operand
-            case ou.Flat():         self._flat << operand
-            case ou.Natural():      self._natural << operand
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     self._key = operand % int() % 12
             case int() | float() | Fraction():
                                     self._key = int(operand) % 12
             case bool():            self._static = operand
-            case str():
-                                    total_sharps = operand.count('#')
-                                    operand.replace('#', '')
-                                    total_flats = operand.count('b')
-                                    operand.replace('b', '')
-                                    self._sharp << total_sharps
-                                    self._flat << total_flats
-                                    self._key = Key.key_to_int(operand)
+            case str():             self._key = Key.key_to_int(operand)
         return self
 
     def __add__(self, number: any) -> 'Key':
