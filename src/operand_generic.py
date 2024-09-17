@@ -189,22 +189,28 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
     @staticmethod
     def get_key_signed_scale(num_accidentals: int) -> list:
         # Base pattern for C Major scale (no sharps or flats)
-        base_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # C Major
-        rotated_scale = base_scale
+        base_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # C Major scale, where 1 is a note, and 0 is a skipped note
+
+        # Sharp positions are applied to F, C, G, D, A, E, B
+        sharp_positions = [5, 0, 7, 2, 9, 4, 11]
+        # Flat positions are applied to B, E, A, D, G, C, F
+        flat_positions = [11, 4, 9, 2, 7, 0, 5]
 
         # Number of accidentals should range between -7 and +7
         if -7 <= num_accidentals <= 7:
-        
             # Calculate rotation based on the number of sharps/flats
             if num_accidentals > 0:
-                # Positive means sharps; rotate to the right
-                rotated_scale = base_scale[-num_accidentals:] + base_scale[:-num_accidentals]
+                # Apply sharps
+                for i in range(num_accidentals):
+                    base_scale[sharp_positions[i]] = 0              # Turn the original natural note off
+                    base_scale[(sharp_positions[i] + 1) % 12] = 1   # Set the sharp position to 1
             elif num_accidentals < 0:
-                # Negative means flats; rotate to the left
-                num_accidentals = abs(num_accidentals)
-                rotated_scale = base_scale[num_accidentals:] + base_scale[:num_accidentals]
-
-        return rotated_scale
+                # Apply flats
+                for i in range(abs(num_accidentals)):
+                    base_scale[flat_positions[i]] = 0               # Turn the original natural note off
+                    base_scale[(flat_positions[i] - 1) % 12] = 1    # Set the sharp position to 1
+        
+        return base_scale  # Return the original C Major scale if no accidentals
 
 class Key(Generic):
     """
@@ -256,7 +262,7 @@ class Key(Generic):
             case str():             return Key.int_to_key(self._key)
             case int():
                 if not self._static and Key._dynamic_keys[self._key]:
-                    key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                    key_signature: KeySignature = os.staff._key_signature
                     key_signature_scale: list = key_signature % od.DataSource( list() )
                     if not key_signature_scale[self._key]:
                         key_signature_accidentals: int = key_signature % od.DataSource( int() )
@@ -494,7 +500,7 @@ class KeyNote(Key):
                 octave_int += operand % od.DataSource( int() )
             case Key():
                 move_key: int = operand % od.DataSource( int() )
-                key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
+                key_signature: KeySignature = os.staff._key_signature
                 key_int += key_signature.moveSemitones(self._key, move_key)
                 octave_int += key_int // 12
             case int():

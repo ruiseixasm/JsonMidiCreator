@@ -27,8 +27,7 @@ staff << Tempo(120) << Measure(7) << KeySignature(1)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = PlayList() << (Position(0) >> Note("C") * 8 
-    + Iterate()**Beat() + Iterate()**Key() 
-    << NoteValue(1/4) << Velocity(85)) >> Play(True)
+    + Iterate()**Key() << NoteValue(4) << Velocity(85)) >> Play(True)
 
 # # All Fats(b) of the Major Scale on the Circle of Fifths
 # play_list_2 = PlayList() << (Position(8) >> (KeyScale("C") << Scale("Major")) * 8 
