@@ -133,18 +133,6 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case list():                return self._scale.copy()
             case _:                     return super().__mod__(operand)
 
-    def moveSemitones(self, start_key: int, move_keys: int) -> int:
-        move_semitones = start_key
-        while move_keys > 0:
-            move_semitones += 1
-            if self._scale[move_semitones % 12]:
-                move_keys -= 1
-        while move_keys < 0:
-            move_semitones -= 1
-            if self._scale[move_semitones % 12]:
-                move_keys += 1
-        return move_semitones
-
     def __eq__(self, other_key_signature: 'KeySignature') -> bool:
         if type(self) != type(other_key_signature):
             return False
@@ -186,10 +174,25 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case list():    self._scale         = operand.copy()
         return self
 
+    _dynamic_keys: list     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Same as the Major scale
+
+    @staticmethod
+    def move_semitones(start_key: int, move_keys: int) -> int:
+        move_semitones = start_key
+        while move_keys > 0:
+            move_semitones += 1
+            if KeySignature._dynamic_keys[move_semitones % 12]:
+                move_keys -= 1
+        while move_keys < 0:
+            move_semitones -= 1
+            if KeySignature._dynamic_keys[move_semitones % 12]:
+                move_keys += 1
+        return move_semitones
+
     @staticmethod
     def get_key_signed_scale(num_accidentals: int) -> list:
         # Base pattern for C Major scale (no sharps or flats)
-        base_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # C Major scale, where 1 is a note, and 0 is a skipped note
+        base_scale = KeySignature._dynamic_keys.copy()  # C Major scale, where 1 is a note, and 0 is a skipped note
 
         # Sharp positions are applied to F, C, G, D, A, E, B
         sharp_positions = [5, 0, 7, 2, 9, 4, 11]
@@ -231,8 +234,6 @@ class Key(Generic):
             case int() | float():
                 self._key = int(key) % 12
 
-    _dynamic_keys: list     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract the Unit, because a Unit is an Integer
@@ -261,15 +262,13 @@ class Key(Generic):
             case Key():             return self.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
-                if not self._static and Key._dynamic_keys[self._key]:
+                if not self._static and KeySignature._dynamic_keys[self._key]:
                     key_signature: KeySignature = os.staff._key_signature
-                    key_signature_scale: list = key_signature % od.DataSource( list() )
-                    if not key_signature_scale[self._key]:
-                        key_signature_accidentals: int = key_signature % od.DataSource( int() )
-                        if key_signature_accidentals > 0:
-                            return self._key + key_signature.moveSemitones(self._key, 1)
-                        elif key_signature_accidentals < 0:
-                            return self._key - key_signature.moveSemitones(self._key, -1)
+                    if not key_signature._scale[self._key]:
+                        if key_signature._accidentals > 0:
+                            return self._key + 1
+                        elif key_signature._accidentals < 0:
+                            return self._key - 1
                 return self._key
             case bool():            return self._static        # returns a bool()
             case float():           return float(self._key)
@@ -350,8 +349,7 @@ class Key(Generic):
         match number:
             case self.__class__():
                                     move_key: int = number % od.DataSource( int() )
-                                    key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
-                                    move_semitones: int = key_signature.moveSemitones(self._key, move_key)
+                                    move_semitones: int = KeySignature.move_semitones(self._key, move_key)
                                     return self.copy() << od.DataSource( self._key + move_semitones )
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     return self.copy() << od.DataSource( self._key + number % od.DataSource( int() ) )
@@ -364,8 +362,7 @@ class Key(Generic):
         match number:
             case self.__class__():
                                     move_key: int = number % od.DataSource( int() )
-                                    key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
-                                    move_semitones: int = key_signature.moveSemitones(self._key, move_key)
+                                    move_semitones: int = KeySignature.move_semitones(self._key, move_key)
                                     return self.copy() << od.DataSource( self._key - move_semitones )
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     return self.copy() << od.DataSource( self._key - number % od.DataSource( int() ) )
@@ -500,8 +497,7 @@ class KeyNote(Key):
                 octave_int += operand % od.DataSource( int() )
             case Key():
                 move_key: int = operand % od.DataSource( int() )
-                key_signature: KeySignature = os.staff._key_signature
-                key_int += key_signature.moveSemitones(self._key, move_key)
+                key_int += KeySignature.move_semitones(self._key, move_key)
                 octave_int += key_int // 12
             case int():
                 key_int += operand
@@ -527,8 +523,7 @@ class KeyNote(Key):
                 octave_int -= operand % od.DataSource( int() )
             case Key():
                 move_key: int = operand % od.DataSource( int() )
-                key_signature: KeySignature = os.staff % od.DataSource( KeySignature() )
-                key_int -= key_signature.moveSemitones(self._key, move_key)
+                key_int -= KeySignature.move_semitones(self._key, move_key)
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case int():
                 key_int -= operand
