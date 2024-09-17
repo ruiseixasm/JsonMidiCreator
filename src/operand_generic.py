@@ -323,7 +323,7 @@ class KeyNote(Generic):
         return self
 
     def __add__(self, operand) -> 'KeyNote':
-        key_int: int = self._key
+        key_int: int    = self._key % od.DataSource( int() )
         octave_int: int = self._octave % od.DataSource( int() )
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -333,8 +333,8 @@ class KeyNote(Generic):
             case ou.Octave():
                 octave_int += operand % od.DataSource( int() )
             case ou.Key():
-                self_key_int: int   = self._key % od.DataSource( int() )
                 move_key_int: int   = operand % od.DataSource( int() )
+                self_key_int: int   = key_int
                 key_int += KeySignature.move_semitones(self_key_int, move_key_int)
                 octave_int += key_int // 12
             case int():
@@ -350,7 +350,7 @@ class KeyNote(Generic):
         return self.copy() << key_int << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
-        key_int: int = self._key
+        key_int: int    = self._key % od.DataSource( int() )
         octave_int: int = self._octave % od.DataSource( int() )
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -360,8 +360,8 @@ class KeyNote(Generic):
             case ou.Octave():
                 octave_int -= operand % od.DataSource( int() )
             case ou.Key():
-                self_key_int: int   = self._key % od.DataSource( int() )
                 move_key_int: int   = operand % od.DataSource( int() )
+                self_key_int: int   = key_int
                 key_int -= KeySignature.move_semitones(self_key_int, move_key_int)
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case int():
