@@ -231,11 +231,13 @@ class Key(Unit):
                     case Semitone() | Integer() | ro.Float():
                                                     self._unit = operand % o.Operand() % od.DataSource( int() ) % 12
                     case str():                     self._unit = Key.key_to_int(operand)
+                    case _:                         super().__lshift__(operand)
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int() % 12
             case int() | float() | Fraction():
                                     self._unit = int(operand) % 12
             case str():             self._unit = Key.key_to_int(operand)
+            case _:                 super().__lshift__(operand)
         return self
 
     _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
