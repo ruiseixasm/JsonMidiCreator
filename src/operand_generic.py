@@ -167,7 +167,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                     case list():    self._scale         = operand % o.Operand()
             case KeySignature():
                 self._accidentals       = operand._accidentals
-                self._scale             = operand._scale
+                self._scale             = operand._scale.copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int():     self._accidentals   = operand
@@ -252,7 +252,7 @@ class Key(Generic):
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case Key():             return self
                     case Fraction():        return Fraction(self._key).limit_denominator()
-                    case int():             return self._key           # returns a int()
+                    case int():             return self._key            # returns a int()
                     case bool():            return self._natural        # returns a bool()
                     case float():           return float(self._key)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._key )
@@ -262,6 +262,7 @@ class Key(Generic):
             case Key():             return self.copy()
             case str():             return Key.int_to_key(self._key)
             case int():
+                print(self._key)
                 if not self._natural and KeySignature._major_keys[self._key]:
                     key_signature: KeySignature = os.staff._key_signature
                     if not key_signature._scale[self._key]:
@@ -296,8 +297,8 @@ class Key(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "key": self._key,
-                "natural": self._natural
+                "key":      self._key,
+                "natural":  self._natural
             }
         }
 
@@ -321,19 +322,12 @@ class Key(Generic):
                     case float() | Fraction():      self._key = int(operand % o.Operand()) % 12
                     case ou.Semitone() | ou.Integer() | ro.Float():
                                                     self._key = operand % o.Operand() % od.DataSource( int() ) % 12
-                    case str():
-                                                    total_sharps = operand.count('#')
-                                                    operand.replace('#', '')
-                                                    total_flats = operand.count('b')
-                                                    operand.replace('b', '')
-                                                    self._sharp << total_sharps
-                                                    self._flat << total_flats
-                                                    self._key = Key.key_to_int(operand)
+                    case str():                     self._key = Key.key_to_int(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Key():
                                     self._key       =  operand % od.DataSource( int() )
-                                    self._natural       =  operand % od.DataSource( int() )
+                                    self._natural   =  operand % od.DataSource( bool() )
             case ou.Semitone() | ou.Integer() | ro.Float():
                                     self._key = operand % int() % 12
             case int() | float() | Fraction():
