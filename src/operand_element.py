@@ -489,7 +489,7 @@ class Note(Rest):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % int()
+        key_note_int: int           = self._key_note % od.DataSource( int() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -756,7 +756,7 @@ class Chord(Note):
                 for key_note in chord_key_notes:
                     if key_note < first_key_note:   # Critical operation
                         key_note << key_note % ou.Octave() + 1
-                        if key_note % int() < 128:
+                        if key_note % od.DataSource( int() ) < 128:
                             not_first_key_note = True
 
         self_playlist = []
@@ -1446,7 +1446,7 @@ class PolyAftertouch(Aftertouch):
     def getPlayList(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_int: int   = self._key_note % int()
+        key_note_int: int   = self._key_note % od.DataSource( int() )
         pressure_int: int   = self._pressure % od.DataSource( int() )
         channel_int: int    = self._channel % od.DataSource( int() )
         device_list: list   = self._device % od.DataSource( list() )
