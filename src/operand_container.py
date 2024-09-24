@@ -200,7 +200,7 @@ class Container(o.Operand):
         return self
 
     def __add__(self, operand: o.Operand) -> 'Container':
-        self_copy = self.copy()
+        self_copy: Container = self.copy()
         match operand:
             case Container():
                 self_copy << self_copy % list() + operand.copy() % list()
@@ -217,7 +217,7 @@ class Container(o.Operand):
         return self_copy
     
     def __radd__(self, operand: o.Operand) -> o.Operand:
-        self_copy = self.copy()
+        self_copy: Container = self.copy()
         match operand:
             case o.Operand():
                 self_copy._operand_list.insert(operand)
@@ -232,12 +232,12 @@ class Container(o.Operand):
         return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Container':
-        self_copy = self.copy()
+        self_copy: Container = self.copy()
         match operand:
             case Container():
-                ...
+                self_copy._operand_list = [item for item in self._operand_list if item not in operand]
             case o.Operand():
-                ...
+                self_copy._operand_list = [item for item in self._operand_list if item != operand]
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
@@ -250,7 +250,7 @@ class Container(o.Operand):
 
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Container':
-        self_copy = self.copy()
+        self_copy: Container = self.copy()
         match operand:
             case Container():
                 ...
@@ -266,7 +266,7 @@ class Container(o.Operand):
         return self_copy
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
-        self_copy = self.copy()
+        self_copy: Container = self.copy()
         match operand:
             case Container():
                 ...
