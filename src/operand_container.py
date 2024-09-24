@@ -354,51 +354,55 @@ class Sequence(Container):  # Just a container of Elements
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
-        self_copy = self.copy()
+        self_copy = ol.Null()
         match operand:
             case Sequence() | oe.Element():
-                self_copy = super().__add__(operand)
+                return super().__add__(operand)
             case o.Operand():
+                self_copy = self.copy()
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand + operand
-            case _: self_copy = super().__add__(operand)
+            case _: return super().__add__(operand)
         return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
-        self_copy = self.copy()
+        self_copy = ol.Null()
         match operand:
             case Sequence() | oe.Element():
-                ...
+                return super().__sub__(operand)
             case o.Operand():
+                self_copy = self.copy()
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand - operand
-            case _: self_copy = super().__add__(operand)
+            case _: return super().__sub__(operand)
         return self_copy
 
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
-        self_copy = self.copy()
+        self_copy = ol.Null()
         match operand:
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
+                self_copy = self.copy()
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand * operand
-            case _: self_copy = super().__add__(operand)
+            case _: return super().__mul__(operand)
         return self_copy
     
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
-        self_copy = self.copy()
+        self_copy = ol.Null()
         match operand:
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
+                self_copy = self.copy()
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand / operand
-            case _: self_copy = super().__add__(operand)
+            case _: self_copy = super().__truediv__(operand)
         return self_copy
     
     def __floordiv__(self, length: ot.Length) -> 'Sequence':
