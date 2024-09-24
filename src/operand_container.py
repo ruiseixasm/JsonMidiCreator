@@ -235,9 +235,13 @@ class Container(o.Operand):
         self_copy: Container = self.copy()
         match operand:
             case Container():
-                self_copy._operand_list = [item for item in self._operand_list if item not in operand]
+                # Exclude items based on equality (==) comparison
+                self_copy._operand_list = [
+                        item for item in self_copy._operand_list
+                        if all(item != operand_item for operand_item in operand)
+                    ]
             case o.Operand():
-                self_copy._operand_list = [item for item in self._operand_list if item != operand]
+                self_copy._operand_list = [item for item in self_copy._operand_list if item != operand]
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
