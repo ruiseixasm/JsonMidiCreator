@@ -291,6 +291,14 @@ class Container(o.Operand):
             single_operand.__pow__(operand)
         return self
 
+    def __or__(self, operand: any) -> 'Container':
+        self_copy: Container = self.copy()
+        self_copy._operand_list = [item for item in self_copy._operand_list if item == operand]
+        return self_copy
+
+    def __ror__(self, operand: any) -> 'Container':
+        return self.__or__(operand)
+
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
