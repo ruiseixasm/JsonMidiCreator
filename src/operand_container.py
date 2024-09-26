@@ -292,9 +292,9 @@ class Container(o.Operand):
         return self
 
     def __or__(self, operand: any) -> 'Container':
-        self_copy: Container = self.copy()
-        self_copy._operand_list = [item for item in self_copy._operand_list if item == operand]
-        return self_copy
+        filtered_container: Container = Container()
+        filtered_container._operand_list = [item for item in self._operand_list if item == operand]
+        return filtered_container
 
     def __ror__(self, operand: any) -> 'Container':
         return self.__or__(operand)
