@@ -73,6 +73,7 @@ class Element(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: 'o.Operand') -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return  self._position == other_operand % od.DataSource( ot.Position() ) \
@@ -82,9 +83,12 @@ class Element(o.Operand):
             case ro.TimeUnit():
                 return self._position == other_operand
             case _:
+                if other_operand.__class__ == o.Operand:
+                    return True
                 return self % od.DataSource( other_operand ) == other_operand
 
     def __lt__(self, other_operand: 'o.Operand') -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return  False
@@ -94,6 +98,7 @@ class Element(o.Operand):
                 return self % od.DataSource( other_operand ) < other_operand
     
     def __gt__(self, other_operand: 'o.Operand') -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return  False
@@ -271,6 +276,7 @@ class Clock(Element):
             case _:             return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -387,6 +393,7 @@ class Rest(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -397,6 +404,7 @@ class Rest(Element):
                 return super().__eq__(other_operand)
     
     def __lt__(self, other_operand: 'o.Operand') -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case ro.NoteValue():
                 return self._duration < other_operand
@@ -404,6 +412,7 @@ class Rest(Element):
                 return super().__lt__(other_operand)
     
     def __gt__(self, other_operand: 'o.Operand') -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case ro.NoteValue():
                 return self._duration > other_operand
@@ -476,6 +485,7 @@ class Note(Rest):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -612,6 +622,7 @@ class KeyScale(Note):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -715,6 +726,7 @@ class Chord(Note):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -988,6 +1000,7 @@ class Tuplet(Rest):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -1126,6 +1139,7 @@ class ControlChange(Element):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -1229,6 +1243,7 @@ class PitchBend(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -1334,6 +1349,7 @@ class Aftertouch(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -1436,6 +1452,7 @@ class PolyAftertouch(Aftertouch):
             case _:             return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
@@ -1521,6 +1538,7 @@ class ProgramChange(Element):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \

@@ -25,10 +25,15 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-# (Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(1) >> Print() >> Play(True)
-# (Chord() * 7 << Type("7th")) + Increment()**Beat() + Iterate()**Even()**Degree(0) >> Print() >> Play(True)
+(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(1) >> Print() >> Play(True)
+(Chord() * 7 << Type("7th")) + Increment()**Beat() + Iterate()**Even()**Degree(0) >> Print() >> Play(True)
 
 all_chords = (Chord() * 7 << Type("7th")) + Increment()**Beat()
 first_chords = all_chords | Beat(0)
 first_chords << Degree(5)
+all_chords >> Print() >> Play(True)
+
+first_chords << Degree()
+even_chords = all_chords | Even()**Operand()
+even_chords << Degree(5)
 all_chords >> Print() >> Play(True)
