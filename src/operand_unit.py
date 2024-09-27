@@ -77,6 +77,7 @@ class Unit(o.Operand):
 
     def __eq__(self, other_number: any) -> bool:
         import operand_rational as ro
+        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Unit():
                 return self._unit == other_number._unit
@@ -89,6 +90,7 @@ class Unit(o.Operand):
     
     def __lt__(self, other_number: any) -> bool:
         import operand_rational as ro
+        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Unit():
                 return self._unit < other_number._unit
@@ -101,6 +103,7 @@ class Unit(o.Operand):
     
     def __gt__(self, other_number: any) -> bool:
         import operand_rational as ro
+        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Unit():
                 return self._unit > other_number._unit

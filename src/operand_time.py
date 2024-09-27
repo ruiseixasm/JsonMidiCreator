@@ -66,6 +66,7 @@ class Time(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_time: any) -> bool:
+        other_time = self & other_time    # Processes the tailed self operands or the Frame operand if any exists
         match other_time:
             case ro.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) == other_time % od.DataSource( Fraction() )
@@ -82,6 +83,7 @@ class Time(o.Operand):
         return False
 
     def __lt__(self, other_time: any) -> bool:
+        other_time = self & other_time    # Processes the tailed self operands or the Frame operand if any exists
         match other_time:
             case ro.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) < other_time % od.DataSource( Fraction() )
@@ -98,6 +100,7 @@ class Time(o.Operand):
         return False
     
     def __gt__(self, other_time: any) -> bool:
+        other_time = self & other_time    # Processes the tailed self operands or the Frame operand if any exists
         match other_time:
             case ro.NoteValue():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) > other_time % od.DataSource( Fraction() )

@@ -86,6 +86,7 @@ class Rational(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_number: any) -> bool:
+        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Rational() | ou.Unit():
                 return self._rational == other_number % od.DataSource( Fraction() )
@@ -95,6 +96,7 @@ class Rational(o.Operand):
         return False
     
     def __lt__(self, other_number: any) -> bool:
+        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Rational() | ou.Unit():
                 return self._rational < other_number % od.DataSource( Fraction() )
@@ -104,6 +106,7 @@ class Rational(o.Operand):
         return False
     
     def __gt__(self, other_number: any) -> bool:
+        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Rational() | ou.Unit():
                 return self._rational > other_number % od.DataSource( Fraction() )

@@ -59,6 +59,7 @@ class TimeSignature(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_time_signature: 'TimeSignature') -> bool:
+        other_time_signature = self & other_time_signature    # Processes the tailed self operands or the Frame operand if any exists
         if type(self) != type(other_time_signature):
             return False
         return  self._top           == other_time_signature._top \
@@ -134,6 +135,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_key_signature: 'KeySignature') -> bool:
+        other_key_signature = self & other_key_signature    # Processes the tailed self operands or the Frame operand if any exists
         if type(self) != type(other_key_signature):
             return False
         return  self._accidentals   == other_key_signature._accidentals \
@@ -276,16 +278,19 @@ class KeyNote(Generic):
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
+        other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
         return  self._octave == other_keynote._octave \
             and self._key == other_keynote._key
     
     def __lt__(self, other_keynote: 'KeyNote') -> bool:
+        other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
         if self._octave < other_keynote._octave:    return True
         if self._octave > other_keynote._octave:    return False
         if self._key < other_keynote._key:          return True
         return False
     
     def __gt__(self, other_keynote: 'KeyNote') -> bool:
+        other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
         if self._octave > other_keynote._octave:    return True
         if self._octave < other_keynote._octave:    return False
         if self._key > other_keynote._key:          return True
@@ -431,8 +436,9 @@ class Controller(Generic):
             case Controller():          return self.copy()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Controller') -> bool:
-        if self % ou.Number() == other % ou.Number() and self % ou.Value() == other % ou.Value():
+    def __eq__(self, other_controller: 'Controller') -> bool:
+        other_controller = self & other_controller    # Processes the tailed self operands or the Frame operand if any exists
+        if self % ou.Number() == other_controller % ou.Number() and self % ou.Value() == other_controller % ou.Value():
             return True
         return False
     
