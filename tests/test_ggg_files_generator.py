@@ -152,6 +152,15 @@ staff << Tempo(120) << Measure(7)
 (Chord() * 7 << Type("7th")) + Increment()**Beat() + Iterate()**Even()**Degree(0) \
     >> Save("json/testing/_Save_Play_p.15_first_note.json") >> Export("json/testing/_Export_Play_p.15_sequence.json")
 
+all_chords = (Chord() * 7 << Type("7th")) + Increment()**Beat()
+first_chords = all_chords | Beat(0)
+first_chords << Degree(5)
+all_chords >> Save("json/testing/_Save_Play_p.15.2_first_note.json") >> Export("json/testing/_Export_Play_p.15.2_sequence.json")
+
+first_chords << Degree()
+even_chords = all_chords | Even()**Operand()
+even_chords << Degree(5)
+all_chords >> Save("json/testing/_Save_Play_p.15.3_first_note.json") >> Export("json/testing/_Export_Play_p.15.3_sequence.json")
 
 ############### TEST7 #######################
 
