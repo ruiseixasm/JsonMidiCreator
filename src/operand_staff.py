@@ -122,6 +122,8 @@ class Staff(o.Operand):
 
     def __eq__(self, other_staff: 'Staff') -> bool:
         other_staff = self & other_staff    # Processes the tailed self operands or the Frame operand if any exists
+        if other_staff.__class__ == o.Operand:
+            return True
         if type(self) != type(other_staff):
             return False
         return  self._measure           == other_staff % od.DataSource( ro.Measure() ) \

@@ -93,6 +93,9 @@ class Rational(o.Operand):
             case int() | float():
                 other_rational = Fraction( other_number ).limit_denominator()
                 return self._rational == other_rational
+            case _:
+                if other_number.__class__ == o.Operand:
+                    return True
         return False
     
     def __lt__(self, other_number: any) -> bool:

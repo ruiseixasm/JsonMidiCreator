@@ -60,6 +60,8 @@ class TimeSignature(Generic):
 
     def __eq__(self, other_time_signature: 'TimeSignature') -> bool:
         other_time_signature = self & other_time_signature    # Processes the tailed self operands or the Frame operand if any exists
+        if other_time_signature.__class__ == o.Operand:
+            return True
         if type(self) != type(other_time_signature):
             return False
         return  self._top           == other_time_signature._top \
@@ -136,6 +138,8 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
 
     def __eq__(self, other_key_signature: 'KeySignature') -> bool:
         other_key_signature = self & other_key_signature    # Processes the tailed self operands or the Frame operand if any exists
+        if other_key_signature.__class__ == o.Operand:
+            return True
         if type(self) != type(other_key_signature):
             return False
         return  self._accidentals   == other_key_signature._accidentals \
@@ -279,6 +283,8 @@ class KeyNote(Generic):
 
     def __eq__(self, other_keynote: 'KeyNote') -> bool:
         other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
+        if other_keynote.__class__ == o.Operand:
+            return True
         return  self._octave == other_keynote._octave \
             and self._key == other_keynote._key
     
@@ -438,6 +444,8 @@ class Controller(Generic):
 
     def __eq__(self, other_controller: 'Controller') -> bool:
         other_controller = self & other_controller    # Processes the tailed self operands or the Frame operand if any exists
+        if other_controller.__class__ == o.Operand:
+            return True
         if self % ou.Number() == other_controller % ou.Number() and self % ou.Value() == other_controller % ou.Value():
             return True
         return False

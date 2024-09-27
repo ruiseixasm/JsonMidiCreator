@@ -72,6 +72,8 @@ class Operator(o.Operand):
 
     def __eq__(self, other_operator: 'Operator') -> bool:
         other_operator = self & other_operator    # Processes the tailed self operands or the Frame operand if any exists
+        if other_operator.__class__ == o.Operand:
+            return True
         if type(self) == type(other_operator):
             return  self._operator_list == other_operator % od.DataSource( list() ) \
                 and self._operand == other_operator % od.DataSource( o.Operand() )
@@ -188,6 +190,8 @@ class Oscillator(Operator):
 
     def __eq__(self, other_operator: 'Operator') -> bool:
         other_operator = self & other_operator    # Processes the tailed self operands or the Frame operand if any exists
+        if other_operator.__class__ == o.Operand:
+            return True
         if super().__eq__(other_operator):
             return  self._position == other_operator % od.DataSource( ot.Position() ) \
                 and self._length == other_operator % od.DataSource( ot.Length() ) \

@@ -80,6 +80,9 @@ class Time(o.Operand):
                     == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int())
             case Time():
                 return self.getTime_rational() == other_time.getTime_rational()
+            case _:
+                if other_time.__class__ == o.Operand:
+                    return True
         return False
 
     def __lt__(self, other_time: any) -> bool:

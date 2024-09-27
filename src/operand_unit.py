@@ -86,6 +86,9 @@ class Unit(o.Operand):
                 return self_rational == other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit == other_number
+            case _:
+                if other_number.__class__ == o.Operand:
+                    return True
         return False
     
     def __lt__(self, other_number: any) -> bool:

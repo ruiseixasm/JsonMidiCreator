@@ -73,6 +73,8 @@ class Data(o.Operand):
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
             return self._data == other_data % DataSource()
+        if other_data.__class__ == o.Operand:
+            return True
         return False
     
     def __lt__(self, other_data: o.Operand) -> bool:
