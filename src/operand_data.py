@@ -70,16 +70,19 @@ class Data(o.Operand):
                 return super().__mod__(operand)
 
     def __eq__(self, other_data: o.Operand) -> bool:
+        other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
             return self._data == other_data % DataSource()
         return False
     
     def __lt__(self, other_data: o.Operand) -> bool:
+        other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
             return self._data < other_data % DataSource()
         return False
     
     def __gt__(self, other_data: o.Operand) -> bool:
+        other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
             return self._data > other_data % DataSource()
         return False
@@ -417,6 +420,7 @@ class Serialization(Data):
         return self._data % operand
 
     def __eq__(self, other_operand: any) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case dict():
                 return self._data.getSerialization() == other_operand
@@ -531,6 +535,7 @@ class PlayList(Data):
         return self._data
 
     def __eq__(self, other_operand: any) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case list():
                 return self._data == other_operand
