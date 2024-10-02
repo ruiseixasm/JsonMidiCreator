@@ -27,15 +27,16 @@ staff << Tempo(120) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 sequence = Note("C") * 8 + Iterate()**Key() << NoteValue(4) << Velocity(85)
-# sequence >> Play(True)
+sequence >> Play(True)
 
-sequence += Key(1)
+# Global Staff setting up
+staff << KeySignature(1)
+sequence >> Play(True)
+staff << KeySignature(6)
+sequence >> Play()
+staff << KeySignature(7)
 sequence >> Play()
 
-# # Global Staff setting up
-# staff << KeySignature(1)
-# sequence >> Play(True)
-# staff << KeySignature(6)
-# sequence >> Play()
-# staff << KeySignature(7)
-# sequence >> Play()
+staff << KeySignature()
+sequence += Key(1)
+sequence >> Play()
