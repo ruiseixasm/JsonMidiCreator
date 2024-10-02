@@ -220,7 +220,7 @@ class Key(Unit):
             case str():
                 super().__init__( Key.key_to_int(key) )
             case int() | float():
-                super().__init__( int(key) % 12 )
+                super().__init__( int(key) )
             case _:
                 super().__init__()
 
@@ -232,16 +232,16 @@ class Key(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case int():                     self._unit = operand % o.Operand() % 12
-                    case float() | Fraction():      self._unit = int(operand % o.Operand()) % 12
+                    case int():                     self._unit = operand % o.Operand()
+                    case float() | Fraction():      self._unit = int(operand % o.Operand())
                     case Semitone() | Integer() | ro.Float():
-                                                    self._unit = operand % o.Operand() % od.DataSource( int() ) % 12
+                                                    self._unit = operand % o.Operand() % od.DataSource( int() )
                     case str():                     self._unit = Key.key_to_int(operand)
                     case _:                         super().__lshift__(operand)
             case Semitone() | Integer() | ro.Float():
-                                    self._unit = operand % int() % 12
+                                    self._unit = operand % int()
             case int() | float() | Fraction():
-                                    self._unit = int(operand) % 12
+                                    self._unit = int(operand)
             case str():             self._unit = Key.key_to_int(operand)
             case _:                 super().__lshift__(operand)
         return self
