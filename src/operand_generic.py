@@ -184,14 +184,14 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
 
     @staticmethod
     def move_semitones(start_key: int, move_keys: int) -> int:
-        move_semitones = start_key
+        move_semitones = 0
         while move_keys > 0:
             move_semitones += 1
-            if KeySignature._major_keys[move_semitones % 12]:
+            if KeySignature._major_keys[(start_key + move_semitones) % 12]:
                 move_keys -= 1
         while move_keys < 0:
             move_semitones -= 1
-            if KeySignature._major_keys[move_semitones % 12]:
+            if KeySignature._major_keys[(start_key + move_semitones) % 12]:
                 move_keys += 1
         return move_semitones
 
