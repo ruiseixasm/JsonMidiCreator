@@ -255,17 +255,11 @@ class KeyNote(Generic):
                         not_natural: bool   = self._natural._unit == 0
                         if not_natural and KeySignature._major_keys[key_int]:
                             key_signature: KeySignature = os.staff._key_signature
-                            if key_signature._accidentals == 7:
-                                if key_signature._scale[(key_int + 1) % 12]:
+                            if key_signature._accidentals > 0:
+                                if key_signature._accidentals == 7 or key_signature._scale[key_int] == 0:
                                     key_int += 1
-                            elif key_signature._accidentals > 0:
-                                if key_signature._scale[key_int] == 0:
-                                    key_int += 1
-                            elif key_signature._accidentals == -7:
-                                if key_signature._scale[(key_int - 1) % 12]:
-                                    key_int -= 1
                             elif key_signature._accidentals < 0:
-                                if key_signature._scale[key_int] == 0:
+                                if key_signature._accidentals == -7 or key_signature._scale[key_int] == 0:
                                     key_int -= 1
                         return 12 * (octave_int + 1) + key_int
                     case _:                 return ol.Null()
@@ -280,17 +274,11 @@ class KeyNote(Generic):
                 not_natural: bool   = self._natural._unit == 0
                 if not_natural and KeySignature._major_keys[key_int]:
                     key_signature: KeySignature = os.staff._key_signature
-                    if key_signature._accidentals == 7:
-                        if key_signature._scale[(key_int + 1) % 12]:
+                    if key_signature._accidentals > 0:
+                        if key_signature._accidentals == 7 or key_signature._scale[key_int] == 0:
                             key_int += 1
-                    elif key_signature._accidentals > 0:
-                        if key_signature._scale[key_int] == 0:
-                            key_int += 1
-                    elif key_signature._accidentals == -7:
-                        if key_signature._scale[(key_int - 1) % 12]:
-                            key_int -= 1
                     elif key_signature._accidentals < 0:
-                        if key_signature._scale[key_int] == 0:
+                        if key_signature._accidentals == -7 or key_signature._scale[key_int] == 0:
                             key_int -= 1
                 return 12 * (octave_int + 1) + key_int
             case _:                 return super().__mod__(operand)
