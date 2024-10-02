@@ -29,10 +29,13 @@ staff << Tempo(120) << Measure(7)
 sequence = Note("C") * 8 + Iterate()**Key() << NoteValue(4) << Velocity(85)
 sequence >> Play(True)
 
-# Global Staff setting up
-staff << KeySignature(1)
-sequence >> Play(True)
-staff << KeySignature(6)
+sequence += Key(1)
 sequence >> Play()
-staff << KeySignature(7)
-sequence >> Play()
+
+# # Global Staff setting up
+# staff << KeySignature(1)
+# sequence >> Play(True)
+# staff << KeySignature(6)
+# sequence >> Play()
+# staff << KeySignature(7)
+# sequence >> Play()
