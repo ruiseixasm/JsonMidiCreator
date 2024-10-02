@@ -250,15 +250,22 @@ class KeyNote(Generic):
                     case ou.Key():          return self._key
                     case ou.Natural():      return self._natural
                     case int():
-                        octave_int: int     = self._octave % od.DataSource( int() )
-                        key_int: int        = self._key % od.DataSource( int() )
-                        not_natural: bool   = self._natural % od.DataSource( int() ) == 0
+                        octave_int: int     = self._octave._unit
+                        key_int: int        = self._key._unit
+                        not_natural: bool   = self._natural._unit == 0
                         if not_natural and KeySignature._major_keys[key_int]:
                             key_signature: KeySignature = os.staff._key_signature
-                            if key_signature._scale[key_int] == 0:
-                                if key_signature._accidentals > 0:
+                            if key_signature._accidentals == 7:
+                                if key_signature._scale[(key_int + 1) % 12]:
                                     key_int += 1
-                                elif key_signature._accidentals < 0:
+                            elif key_signature._accidentals > 0:
+                                if key_signature._scale[key_int] == 0:
+                                    key_int += 1
+                            elif key_signature._accidentals == -7:
+                                if key_signature._scale[(key_int - 1) % 12]:
+                                    key_int -= 1
+                            elif key_signature._accidentals < 0:
+                                if key_signature._scale[key_int] == 0:
                                     key_int -= 1
                         return 12 * (octave_int + 1) + key_int
                     case _:                 return ol.Null()
@@ -268,15 +275,22 @@ class KeyNote(Generic):
             case ou.Key():          return self._key.copy()
             case ou.Natural():      return self._natural.copy()
             case int():
-                octave_int: int     = self._octave % od.DataSource( int() )
-                key_int: int        = self._key % od.DataSource( int() )
-                not_natural: bool   = self._natural % od.DataSource( int() ) == 0
+                octave_int: int     = self._octave._unit
+                key_int: int        = self._key._unit
+                not_natural: bool   = self._natural._unit == 0
                 if not_natural and KeySignature._major_keys[key_int]:
                     key_signature: KeySignature = os.staff._key_signature
-                    if key_signature._scale[key_int] == 0:
-                        if key_signature._accidentals > 0:
+                    if key_signature._accidentals == 7:
+                        if key_signature._scale[(key_int + 1) % 12]:
                             key_int += 1
-                        elif key_signature._accidentals < 0:
+                    elif key_signature._accidentals > 0:
+                        if key_signature._scale[key_int] == 0:
+                            key_int += 1
+                    elif key_signature._accidentals == -7:
+                        if key_signature._scale[(key_int - 1) % 12]:
+                            key_int -= 1
+                    elif key_signature._accidentals < 0:
+                        if key_signature._scale[key_int] == 0:
                             key_int -= 1
                 return 12 * (octave_int + 1) + key_int
             case _:                 return super().__mod__(operand)
