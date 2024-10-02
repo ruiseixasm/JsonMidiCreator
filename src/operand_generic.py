@@ -226,6 +226,7 @@ class KeyNote(Generic):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave()
         self._key: ou.Key           = ou.Key(key)
+        self._key._unit %= 12
         self._natural: ou.Natural   = ou.Natural()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -342,7 +343,9 @@ class KeyNote(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Octave():       self._octave    = operand % o.Operand()
-                    case ou.Key():          self._key       = operand % o.Operand()
+                    case ou.Key():
+                                            self._key       = operand % o.Operand()
+                                            self._key._unit %= 12
                     case ou.Natural():      self._natural   = operand % o.Operand()
             case KeyNote():
                 self._octave    << operand % od.DataSource( ou.Octave() )
@@ -353,6 +356,7 @@ class KeyNote(Generic):
             case ou.Octave():       self._octave << operand
             case ou.Key() | int() | str() | ou.Semitone():
                                     self._key << operand
+                                    self._key._unit %= 12
             case ou.Natural():      self._natural << operand
         return self
 
@@ -381,7 +385,7 @@ class KeyNote(Generic):
                 key_int += operand % od.DataSource( int() )
                 octave_int += key_int // 12
             case _: return super().__add__(operand)
-        return self.copy() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
+        return self.copy() << (ou.Key() << key_int % 12) << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
         key_int: int    = self._key._unit
@@ -408,7 +412,7 @@ class KeyNote(Generic):
                 key_int -= operand % od.DataSource( int() )
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case _: return super().__sub__(operand)
-        return self.copy() << (ou.Key() << key_int) << (ou.Octave() << octave_int)
+        return self.copy() << (ou.Key() << key_int % 12) << (ou.Octave() << octave_int)
 
 class Controller(Generic):
     def __init__(self, number: int | str = None):
