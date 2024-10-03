@@ -121,8 +121,9 @@ class Container(o.Operand):
  
     def getSerialization(self):
         operands_serialization = []
-        for single_operand in self % list():
-            operands_serialization.append(single_operand.getSerialization())
+        for single_operand in self._operand_list:
+            if isinstance(single_operand, o.Operand):
+                operands_serialization.append(single_operand.getSerialization())
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -146,6 +147,16 @@ class Container(o.Operand):
             self._operand_list = operands
         return self
        
+    def copy(self) -> 'Container':
+        container_copy: Container = self.__class__()
+        for item in self._operand_list:
+            match item:
+                case o.Operand():
+                    container_copy._operand_list.append( item.copy() )
+                case _:
+                    container_copy._operand_list.append( item )
+        return container_copy
+    
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare
         for operand_i in range(self.len() - 1):
@@ -172,14 +183,9 @@ class Container(o.Operand):
                 match operand % o.Operand():
                     case list():        self._operand_list = operand % o.Operand()
             case Container():
-                operands: list[o.Operand] = []
-                for single_operand in operand % od.DataSource( list() ):
-                    match single_operand:
-                        case o.Operand():
-                            operands.append(single_operand.copy())
-                        case _:
-                            operands.append(single_operand)
-                self._operand_list = operands
+                last_item: int = min(self.len(), operand.len())
+                for item_i in range(last_item):
+                    self._operand_list[item_i] << operand._operand_list[item_i]
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():

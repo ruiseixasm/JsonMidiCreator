@@ -100,10 +100,13 @@ class Frame(o.Operand):
         return False
     
     def getSerialization(self):
+        next_operand = None
+        if isinstance(self._next_operand, o.Operand):
+            next_operand = self._next_operand.getSerialization()
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "next_operand": self._next_operand.getSerialization()
+                "next_operand": next_operand
             }
         }
 
@@ -212,8 +215,15 @@ class Nth(FrameFilter):
 class SubjectFilter(Frame):
     def __init__(self, filter_operand: o.Operand):
         super().__init__()
-        self._filter_operand = filter_operand
+        self._filter_operand: any = filter_operand
 
+    def copy(self) -> 'SubjectFilter':
+        match self._filter_operand:
+            case o.Operand():
+                return self.__class__( self._filter_operand.copy() )
+            case _:
+                return self.__class__( self._filter_operand )
+    
 class Equal(SubjectFilter):
     def __init__(self, filter_operand: o.Operand):
         super().__init__(filter_operand)
@@ -311,9 +321,11 @@ class Iterate(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        stepped_operand = self_operand + self._data
-        self._data += self._step
-        return stepped_operand
+        if self_operand is not None:
+            stepped_operand = self_operand + self._data
+            self._data += self._step
+            return stepped_operand
+        return ol.Null()
     
 class Wrapper(OperandFilter):
     def __init__(self, operand: o.Operand = None):
@@ -325,9 +337,19 @@ class Wrapper(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        match self._data:
-            case oo.Operator(): return self._data | self_operand.copy()
-            case _:             return self._data.copy() << self_operand
+        match self_operand:
+            case o.Operand():
+                match self._data:
+                    case oo.Operator(): return self._data | self_operand.copy()
+                    case o.Operand():   return self._data.copy() << self_operand
+                    case None:          return ol.Null()
+                    case _:             return self._data
+            case _:
+                match self._data:
+                    case oo.Operator(): return self._data | self_operand
+                    case o.Operand():   return self._data.copy() << self_operand
+                    case None:          return ol.Null()
+                    case _:             return self._data
 
 class Extractor(OperandFilter):
     def __init__(self, operand: o.Operand = None):
@@ -356,7 +378,13 @@ class Increment(OperandEditor):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        last_self_operand = self_operand.copy()
-        self_operand << self_operand + self._step
-        return last_self_operand
+        match self_operand:
+            case o.Operand():
+                last_self_operand = self_operand.copy()
+            case _:
+                last_self_operand = self_operand
+        if self_operand is not None:
+            self_operand << self_operand + self._step
+            return last_self_operand
+        return ol.Null()
 
