@@ -398,10 +398,10 @@ class KeyNote(Generic):
             case ou.Octave():
                 octave_int -= operand._unit
             case ou.Key():
-                move_key_int: int   = operand._unit
+                move_key_int: int   = operand._unit * -1    # Moves in reverse (sub)
                 semi_tones = KeySignature.move_semitones(key_int, move_key_int)
-                key_int -= semi_tones
-                octave_int -= max(-1 * semi_tones + 11, 0) // 12
+                key_int += semi_tones                       # Semitone move already negative
+                octave_int -= max(-1 * key_int + 11, 0) // 12
             case int():
                 key_int -= operand
                 octave_int -= max(-1 * key_int + 11, 0) // 12
