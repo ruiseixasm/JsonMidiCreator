@@ -64,10 +64,10 @@ class Operand:
         import operand_time as ot
         match operand:
             case of.Frame():        return self % (operand % Operand())
-            case od.PlayList():
+            case od.Playlist():
                 position = operand % ot.Position()
-                if position: return self.getPlayList(position)
-                return self.getPlayList()
+                if position: return self.getPlaylist(position)
+                return self.getPlaylist()
             case od.Serialization():
                 return self.getSerialization()
             case ol.Len():
@@ -108,7 +108,7 @@ class Operand:
     def name(self) -> str:
         return self.__class__.__name__
 
-    def getPlayList(self):
+    def getPlaylist(self):
         return []
 
     def getSerialization(self):

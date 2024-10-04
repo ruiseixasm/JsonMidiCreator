@@ -119,7 +119,7 @@ class Element(o.Operand):
     def end(self) -> ot.Position:
         return self._position + self._length
 
-    def getPlayList(self, position: ot.Position = None) -> list:
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
         return [
@@ -284,7 +284,7 @@ class Clock(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         device = self % od.Device()
@@ -495,7 +495,7 @@ class Note(Rest):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
@@ -637,7 +637,7 @@ class KeyScale(Note):
     def getFlats(self, key: ou.Key = None) -> int:
         ...
 
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         root_key_note = self._key_note.copy()
@@ -649,7 +649,7 @@ class KeyScale(Note):
         self_playlist = []
         for key_note in scale_key_notes:
             self << key_note
-            self_playlist.extend(super().getPlayList(self_position))
+            self_playlist.extend(super().getPlaylist(self_position))
         self << root_key_note
 
         return self_playlist
@@ -738,7 +738,7 @@ class Chord(Note):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         max_type = self._scale.keys()
@@ -774,7 +774,7 @@ class Chord(Note):
         self_playlist = []
         for key_note in chord_key_notes:
             self._key_note = key_note
-            self_playlist.extend(super().getPlayList(self_position))
+            self_playlist.extend(super().getPlaylist(self_position))
         self._key_note = root_key_note
 
         return self_playlist
@@ -863,7 +863,7 @@ class Retrigger(Note):
             case ro.NoteValue():    return self._duration * (self._division % int())/2 % operand
             case _:                 return super().__mod__(operand)
 
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         self_playlist = []
@@ -873,7 +873,7 @@ class Retrigger(Note):
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
             self._duration = original_duration * 2 * swing_ratio
-            self_playlist.extend(super().getPlayList(self_position))
+            self_playlist.extend(super().getPlaylist(self_position))
             self_position += self._duration
             self_iteration += 1
         self._duration << original_duration
@@ -1009,13 +1009,13 @@ class Tuplet(Rest):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
         self_playlist = []
         self_iteration = 0
         for element_i in range(len(self._elements)):
-            self_playlist.extend(self._elements[element_i].getPlayList(self_position))
+            self_playlist.extend(self._elements[element_i].getPlaylist(self_position))
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
             self_position += self._duration * 2 * swing_ratio
@@ -1147,7 +1147,7 @@ class ControlChange(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         number_int: int     = self % ou.Number() % od.DataSource( int() )
@@ -1251,7 +1251,7 @@ class PitchBend(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         msb_midi: int               = self._pitch % ol.MSB()
@@ -1357,7 +1357,7 @@ class Aftertouch(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         pressure_int: int   = self._pressure % od.DataSource( int() )
@@ -1460,7 +1460,7 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         key_note_int: int   = self._key_note % od.DataSource( int() )
@@ -1546,7 +1546,7 @@ class ProgramChange(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         program_int: int    = self._program % od.DataSource( int() )
@@ -1614,15 +1614,15 @@ class ProgramChange(Element):
         return self_copy
 
 class Panic(Element):
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         self_playlist = []
-        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlayList(self_position))
-        self_playlist.extend(PitchBend(0).getPlayList(self_position))
-        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(self_position))
+        self_playlist.extend(PitchBend(0).getPlaylist(self_position))
+        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(self_position))
+        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(self_position))
+        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(self_position))
 
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -1649,8 +1649,8 @@ class Panic(Element):
                 }
             )
 
-        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlayList(self_position))
-        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlayList(self_position))
+        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlaylist(self_position))
+        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlaylist(self_position))
 
         return self_playlist
 

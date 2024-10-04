@@ -532,7 +532,7 @@ class Play(Unit):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case o.Operand():
-                c.jsonMidiPlay(operand.getPlayList(), False if self._unit == 0 else True )
+                c.jsonMidiPlay(operand.getPlaylist(), False if self._unit == 0 else True )
         return operand
 
 class Print(Unit):

@@ -430,8 +430,8 @@ class Serialization(Data):
                 return self._data.getSerialization() == other_operand.getSerialization()
         return super().__eq__(other_operand)
     
-    def getPlayList(self, position: ot.Position = None) -> dict:
-        return self._data.getPlayList(position)
+    def getPlaylist(self, position: ot.Position = None) -> dict:
+        return self._data.getPlaylist(position)
 
     def getSerialization(self) -> dict:
         return self._data.getSerialization()
@@ -515,24 +515,24 @@ class Export(Data):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.saveJsonMidiPlay(operand.getPlayList(), self % str())
+        c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
         return operand
 
-class PlayList(Data):
+class Playlist(Data):
     def __init__(self, play_list: list = None):
         super().__init__( [] if play_list is None else play_list )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract a Parameter, for the case a PlayList(),
+        The % symbol is used to extract a Parameter, for the case a Playlist(),
         there is only one data to be extracted, a Play List, the only and always
         the result of the "%" operator.
 
         Examples
         --------
-        >>> play_list = PlayList() << Retrigger("D")
+        >>> play_list = Playlist() << Retrigger("D")
         >>> play_list >> Play()
-        <operand_data.PlayList object at 0x0000022EC9967490>
+        <operand_data.Playlist object at 0x0000022EC9967490>
         """
         return self._data
 
@@ -542,26 +542,26 @@ class PlayList(Data):
             case list():
                 return self._data == other_operand
             case o.Operand():
-                return self._data == other_operand.getPlayList()
+                return self._data == other_operand.getPlaylist()
         return super().__eq__(other_operand)
     
-    def getPlayList(self) -> list:
-        return PlayList.copy_play_list(self._data)
+    def getPlaylist(self) -> list:
+        return Playlist.copy_play_list(self._data)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'PlayList':
+    def __lshift__(self, operand: o.Operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
-            self._data = operand.getPlayList()
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
+            self._data = operand.getPlaylist()
         return self
 
-    def __rrshift__(self, operand) -> 'PlayList':
+    def __rrshift__(self, operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if len(self._data) > 0 and isinstance(operand, (oc.Sequence, oe.Element, PlayList, ot.Position, ot.Length)):
-            operand_play_list = operand.getPlayList()
+        if len(self._data) > 0 and isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Length)):
+            operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
                 if "time_ms" in midi_element and midi_element["time_ms"] > ending_position_ms:
@@ -576,23 +576,23 @@ class PlayList(Data):
             for midi_element in self._data:
                 if "time_ms" in midi_element:
                     midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-        if isinstance(operand, (oc.Sequence, oe.Element, PlayList)):
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
             return operand + self
         else:
             return self.copy()
 
-    def __add__(self, operand: o.Operand) -> 'PlayList':
+    def __add__(self, operand: o.Operand) -> 'Playlist':
         match operand:
             case ot.Length():
-                playlist_copy = PlayList.copy_play_list(self._data)
+                playlist_copy = Playlist.copy_play_list(self._data)
                 increase_position_ms: float = operand.getTime_ms()
                 for midi_element in playlist_copy:
                     if "time_ms" in midi_element:
                         midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-                return PlayList( playlist_copy )
-            case list():        return PlayList( PlayList.copy_play_list(self._data) + PlayList.copy_play_list(operand) )
-            case o.Operand():   return PlayList( PlayList.copy_play_list(self._data) + PlayList.copy_play_list(operand.getPlayList()) )
-            case _:             return PlayList( PlayList.copy_play_list(self._data) )
+                return Playlist( playlist_copy )
+            case list():        return Playlist( Playlist.copy_play_list(self._data) + Playlist.copy_play_list(operand) )
+            case o.Operand():   return Playlist( Playlist.copy_play_list(self._data) + Playlist.copy_play_list(operand.getPlaylist()) )
+            case _:             return Playlist( Playlist.copy_play_list(self._data) )
 
     @staticmethod
     def copy_play_list(play_list: list[dict]) -> list[dict]:
@@ -601,7 +601,7 @@ class PlayList(Data):
             copy_play_list.append(single_dict.copy())
         return copy_play_list
 
-class Import(PlayList):
+class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
 

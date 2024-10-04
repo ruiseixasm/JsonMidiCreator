@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 result_save         = Serialization()
-result_export       = PlayList()
+result_export       = Playlist()
 results_list        = []
 
 ####### TEST1 ############
@@ -413,22 +413,22 @@ results_list.append({
 staff << Tempo(240) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-play_list_1 = PlayList() << (Position(0) >> (KeyScale("C") << Scale("Major")) * 8 
+play_list_1 = Playlist() << (Position(0) >> (KeyScale("C") << Scale("Major")) * 8 
     + Iterate(Scale("Major") % Transposition("5th"))**Semitone() + Iterate()**Measure() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
-play_list_2 = PlayList() << (Position(8) >> (KeyScale("C") << Scale("Major")) * 8 
+play_list_2 = Playlist() << (Position(8) >> (KeyScale("C") << Scale("Major")) * 8 
     + Iterate(Scale("Major") % Transposition("4th"))**Semitone() + Iterate()**Measure() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
-play_list_3 = PlayList() << (Position(16) >> (KeyScale("A") << Scale("minor")) * 8 
+play_list_3 = Playlist() << (Position(16) >> (KeyScale("A") << Scale("minor")) * 8 
     + Iterate(Scale("minor") % Transposition("5th"))**Semitone() + Iterate()**Measure() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
-play_list_4 = PlayList() << (Position(24) >> (KeyScale("A") << Scale("minor")) * 8 
+play_list_4 = Playlist() << (Position(24) >> (KeyScale("A") << Scale("minor")) * 8 
     + Iterate(Scale("minor") % Transposition("4th"))**Semitone() + Iterate()**Measure() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 

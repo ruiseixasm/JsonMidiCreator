@@ -133,7 +133,7 @@ class Time(o.Operand):
             return round(float(self.getTime_rational()), 3)
         return float(self.getTime_rational())
         
-    def getPlayList(self, position: 'Position' = None) -> list:
+    def getPlaylist(self, position: 'Position' = None) -> list:
         self_position: Position  = self + Position() if position is None else position
         
         return [

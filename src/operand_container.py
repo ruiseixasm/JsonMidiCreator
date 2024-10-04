@@ -350,12 +350,12 @@ class Sequence(Container):  # Just a container of Elements
             return end_position # already a copy (+)
         return ol.Null()
 
-    def getPlayList(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None):
         import operand_element as oe
         play_list = []
         for single_operand in self._operand_list:   # Read only (extracts the play list)
             if isinstance(single_operand, oe.Element):
-                play_list.extend(single_operand.getPlayList(position))
+                play_list.extend(single_operand.getPlaylist(position))
         return play_list
 
     # CHAINABLE OPERATIONS
