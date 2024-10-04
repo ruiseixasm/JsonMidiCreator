@@ -364,11 +364,12 @@ class Clock(Element):
         return self
 
 class Rest(Element):
-    def __init__(self, duration: float = None):
+    def __init__(self, note_value: float = None):
         super().__init__()
         self._duration: ot.Duration = os.staff % ot.Duration()
-        if duration is not None and isinstance(duration, float) and duration >= 0:
-            self._duration << duration
+        if note_value is not None and isinstance(note_value, float) and note_value >= 0:
+            self._duration  << note_value
+            self._length    << note_value
         self._length << self._duration  # By default a note has the same Length as its Duration
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -446,6 +447,8 @@ class Rest(Element):
                 self._duration      = (operand % od.DataSource( ot.Duration() )).copy()
             case ot.Duration() | ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                                     self._duration << operand
+                                    if isinstance(operand, ro.NoteValue):
+                                        self._length << operand
             case _: super().__lshift__(operand)
         return self
 

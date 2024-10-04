@@ -44,6 +44,8 @@ class Container(o.Operand):
                         self._operand_list.append(operand.copy())
                 case o.Operand():
                     self._operand_list.append(single_operand.copy())
+                case _:
+                    self._operand_list.append(single_operand)
         self._element_iterator = 0
         
     def __iter__(self):
