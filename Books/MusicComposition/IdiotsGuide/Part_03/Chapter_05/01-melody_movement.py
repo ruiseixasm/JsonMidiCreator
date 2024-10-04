@@ -21,13 +21,13 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-# movement = Note() * (3*4 + 1) + Iterate()**Beat()
-# movement << Equal(Measure(3))**(KeyNote() << Octave(5) << Key("D")) << Equal(Measure(3))**Duration(1) \
-#          << Equal(Measure(0))**Key("E") << Equal(Measure(1))**Key("G") << Equal(Measure(2))**Key("B")
-# movement += Equal(Measure(0))**Iterate()**Key()
-# movement += Equal(Measure(1))**Iterate()**Key()
-# movement += Equal(Measure(2))**Iterate()**Key()
-# movement >> Play(True)
+movement = Note() * (3*4 + 1) + Iterate()**Beat()
+movement << Equal(Measure(3))**(KeyNote() << Octave(5) << Key("D")) << Equal(Measure(3))**Duration(1) \
+         << Equal(Measure(0))**Key("E") << Equal(Measure(1))**Key("G") << Equal(Measure(2))**Key("B")
+movement += Equal(Measure(0))**Iterate()**Key()
+movement += Equal(Measure(1))**Iterate()**Key()
+movement += Equal(Measure(2))**Iterate()**Key()
+movement >> Play(True)
 
 Rest(1) >> Play(True)   # Needs to be implemented in JsonMidiPlayer
 
@@ -36,8 +36,8 @@ movement << Container(NoteValue(1/2), None, None, NoteValue(1/2), NoteValue(1/2)
 movement << Container(None, None, None, KeyNote("B") << Octave(4), None, Key("D"), Key("D"), Key("D"), None)
 movement >> Stack() >> Play()
 
-movement = Note() * 12 << Octave(5)
-movement << Nth(7)**KeyNote(1/2) << Nth(12)**KeyNote(1)
-movement << Container(None, None, None, KeyNote("B") << Octave(4), None, Key("D"), Key("D"), Key("D"), None)
+movement = Note() * 12
+movement << Nth(7)**NoteValue(1/2) << Nth(12)**NoteValue(1)
+movement += Container(9, 6, 7, 10, 9, 8, 7, 6, 5, 4, 0, 1)
 movement >> Stack() >> Play()
 
