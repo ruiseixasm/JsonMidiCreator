@@ -246,6 +246,22 @@ class Key(Unit):
             case _:                 super().__lshift__(operand)
         return self
 
+    def __add__(self, number: any) -> 'Unit':
+        import operand_rational as ro
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case int():     return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number) )
+            case Integer(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit) )
+            case _:         return super().__add__(number)
+    
+    def __sub__(self, number: any) -> 'Unit':
+        import operand_rational as ro
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case int():     return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number * -1) )
+            case Integer(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit * -1) )
+            case _:         return super().__sub__(number)
+    
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
     
