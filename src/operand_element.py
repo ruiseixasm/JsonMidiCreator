@@ -367,7 +367,7 @@ class Rest(Element):
     def __init__(self, note_value: float = None):
         super().__init__()
         self._duration: ot.Duration = os.staff % ot.Duration()
-        if note_value is not None and isinstance(note_value, float) and note_value >= 0:
+        if note_value is not None:
             self._duration  << note_value
             self._length    << note_value
         self._length << self._duration  # By default a note has the same Length as its Duration
