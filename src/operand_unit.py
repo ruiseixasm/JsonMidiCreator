@@ -253,6 +253,8 @@ class Key(Unit):
             case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number) )
             case Key() | Integer():
                         return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit) )
+            case Semitone():
+                        return self.__class__() << od.DataSource( self._unit + number._unit )
             case _:     return super().__add__(number)
     
     def __sub__(self, number: any) -> 'Unit':
@@ -262,6 +264,8 @@ class Key(Unit):
             case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number * -1) )
             case Key() | Integer():
                         return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit * -1) )
+            case Semitone():
+                        return self.__class__() << od.DataSource( self._unit - number._unit )
             case _:     return super().__sub__(number)
     
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",

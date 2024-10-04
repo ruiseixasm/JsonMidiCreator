@@ -346,13 +346,16 @@ class KeyNote(Generic):
         return self
 
     def __add__(self, operand) -> 'KeyNote':
-        key_int: int    = self._key._unit
-        octave_int: int = self._octave._unit
+        key_copy: ou.Key = self._key.copy()
+        key_int: int     = self._key._unit
+        octave_int: int  = self._octave._unit
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                key_int += operand._key._unit
-                octave_int += operand._octave._unit + key_int // 12
+                key_copy += float(operand._key._unit)
+                octave_int += operand._octave._unit + key_copy._unit // 12
+
+                key_int = key_copy._unit
             case ou.Octave():
                 octave_int += operand._unit
             case ou.Key():
@@ -367,8 +370,10 @@ class KeyNote(Generic):
                 key_int += round(operand)
                 octave_int += key_int // 12
             case ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
-                key_int += operand % od.DataSource( int() )
-                octave_int += key_int // 12
+                key_copy += operand
+                octave_int += key_copy._unit // 12
+                
+                key_int = key_copy._unit
             case _: return super().__add__(operand)
         return self.copy() << (ou.Key() << key_int % 12) << (ou.Octave() << octave_int)
      
