@@ -362,31 +362,20 @@ class KeyNote(Generic):
         return self.copy() << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
-        key_int: int    = self._key._unit
-        octave_int: int = self._octave._unit
+        key_copy: ou.Key = self._key.copy()
+        octave_int: int  = self._octave._unit
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                key_int -= operand._key._unit
-                octave_int -= operand._octave._unit - max(-1 * key_int + 11, 0) // 12
+                key_copy -= float(operand._key._unit)
+                octave_int -= operand._octave._unit - max(-1 * key_copy._unit + 11, 0) // 12
             case ou.Octave():
                 octave_int -= operand._unit
-            case ou.Key():
-                move_key_int: int   = operand._unit * -1    # Moves in reverse (sub)
-                semi_tones = ou.Key.move_semitones(key_int, move_key_int)
-                key_int += semi_tones                       # Semitone move already negative
-                octave_int -= max(-1 * key_int + 11, 0) // 12
-            case int():
-                key_int -= operand
-                octave_int -= max(-1 * key_int + 11, 0) // 12
-            case float():
-                key_int -= round(operand)
-                octave_int -= max(-1 * key_int + 11, 0) // 12
-            case ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
-                key_int -= operand % od.DataSource( int() )
-                octave_int -= max(-1 * key_int + 11, 0) // 12
-            case _: return super().__sub__(operand)
-        return self.copy() << (ou.Key() << key_int % 12) << (ou.Octave() << octave_int)
+            case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
+                key_copy -= operand
+                octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
+            case _: return super().__add__(operand)
+        return self.copy() << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
 
 class Controller(Generic):
     def __init__(self, number: int | str = None):
