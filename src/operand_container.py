@@ -395,6 +395,11 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case Sequence() | oe.Element():
                 return super().__add__(operand)
+            case Container():
+                last_item: int = min(self.len(), operand.len())
+                for item_i in range(last_item):
+                    self._operand_list[item_i] += operand._operand_list[item_i]
+                return self
             case o.Operand():
                 self_copy = self.copy()
                 for single_operand in self_copy._operand_list:
@@ -407,6 +412,11 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case Sequence() | oe.Element():
                 return super().__sub__(operand)
+            case Container():
+                last_item: int = min(self.len(), operand.len())
+                for item_i in range(last_item):
+                    self._operand_list[item_i] -= operand._operand_list[item_i]
+                return self
             case o.Operand():
                 self_copy = self.copy()
                 for single_operand in self_copy % od.DataSource( list() ):

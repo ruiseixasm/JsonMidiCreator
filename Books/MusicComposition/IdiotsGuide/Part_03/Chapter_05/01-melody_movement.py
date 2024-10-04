@@ -29,8 +29,15 @@ from JsonMidiCreator import *
 # movement += Equal(Measure(2))**Iterate()**Key()
 # movement >> Play(True)
 
+Rest(1) >> Play(True)   # Needs to be implemented in JsonMidiPlayer
+
 movement = Note() * 9 << Octave(5)
 movement << Container(NoteValue(1/2), None, None, NoteValue(1/2), NoteValue(1/2), NoteValue(1/2), None, None, NoteValue(1))
+movement << Container(None, None, None, KeyNote("B") << Octave(4), None, Key("D"), Key("D"), Key("D"), None)
+movement >> Stack() >> Play()
+
+movement = Note() * 12 << Octave(5)
+movement << Nth(7)**KeyNote(1/2) << Nth(12)**KeyNote(1)
 movement << Container(None, None, None, KeyNote("B") << Octave(4), None, Key("D"), Key("D"), Key("D"), None)
 movement >> Stack() >> Play()
 
