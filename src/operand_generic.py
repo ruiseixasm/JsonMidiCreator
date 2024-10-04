@@ -180,25 +180,10 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case list():    self._scale         = operand.copy()
         return self
 
-    _major_keys: list     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Same as the Major scale
-
-    @staticmethod
-    def move_semitones(start_key: int, move_keys: int) -> int:
-        move_semitones = 0
-        while move_keys > 0:
-            move_semitones += 1
-            if KeySignature._major_keys[(start_key + move_semitones) % 12]:
-                move_keys -= 1
-        while move_keys < 0:
-            move_semitones -= 1
-            if KeySignature._major_keys[(start_key + move_semitones) % 12]:
-                move_keys += 1
-        return move_semitones
-
     @staticmethod
     def get_key_signed_scale(num_accidentals: int) -> list:
         # Base pattern for C Major scale (no sharps or flats)
-        base_scale = KeySignature._major_keys.copy()  # C Major scale, where 1 is a note, and 0 is a skipped note
+        base_scale = ou.Key._major_keys.copy()  # C Major scale, where 1 is a note, and 0 is a skipped note
 
         # Sharp positions are applied to F, C, G, D, A, E, B
         sharp_positions = [5, 0, 7, 2, 9, 4, 11]
@@ -254,7 +239,7 @@ class KeyNote(Generic):
                         octave_int: int     = self._octave._unit
                         key_int: int        = self._key._unit
                         not_natural: bool   = self._natural._unit == 0
-                        if not_natural and KeySignature._major_keys[key_int]:
+                        if not_natural and ou.Key._major_keys[key_int]:
                             key_signature: KeySignature = os.staff._key_signature
                             if key_signature._accidentals > 0:
                                 if key_signature._accidentals == 7 or key_signature._scale[key_int] == 0:
@@ -273,7 +258,7 @@ class KeyNote(Generic):
                 octave_int: int     = self._octave._unit
                 key_int: int        = self._key._unit
                 not_natural: bool   = self._natural._unit == 0
-                if not_natural and KeySignature._major_keys[key_int]:
+                if not_natural and ou.Key._major_keys[key_int]:
                     key_signature: KeySignature = os.staff._key_signature
                     if key_signature._accidentals > 0:
                         if key_signature._accidentals == 7 or key_signature._scale[key_int] == 0:
@@ -372,7 +357,7 @@ class KeyNote(Generic):
                 octave_int += operand._unit
             case ou.Key():
                 move_key_int: int   = operand._unit
-                semi_tones = KeySignature.move_semitones(key_int, move_key_int)
+                semi_tones = ou.Key.move_semitones(key_int, move_key_int)
                 key_int += semi_tones
                 octave_int += key_int // 12
             case int():
@@ -399,7 +384,7 @@ class KeyNote(Generic):
                 octave_int -= operand._unit
             case ou.Key():
                 move_key_int: int   = operand._unit * -1    # Moves in reverse (sub)
-                semi_tones = KeySignature.move_semitones(key_int, move_key_int)
+                semi_tones = ou.Key.move_semitones(key_int, move_key_int)
                 key_int += semi_tones                       # Semitone move already negative
                 octave_int -= max(-1 * key_int + 11, 0) // 12
             case int():

@@ -246,8 +246,8 @@ class Key(Unit):
             case _:                 super().__lshift__(operand)
         return self
 
-    _keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
-                        "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
+    _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
+                           "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
     
     @staticmethod
     def int_to_key(note_key: int = 0) -> str:
@@ -259,6 +259,21 @@ class Key(Unit):
             if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
                 return key_i % 12
         return 0
+
+    _major_keys: list   = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Same as the Major scale
+
+    @staticmethod
+    def move_semitones(start_key: int, move_keys: int) -> int:
+        move_semitones = 0
+        while move_keys > 0:
+            move_semitones += 1
+            if Key._major_keys[(start_key + move_semitones) % 12]:
+                move_keys -= 1
+        while move_keys < 0:
+            move_semitones -= 1
+            if Key._major_keys[(start_key + move_semitones) % 12]:
+                move_keys += 1
+        return move_semitones
 
 class Root(Key):
     pass
