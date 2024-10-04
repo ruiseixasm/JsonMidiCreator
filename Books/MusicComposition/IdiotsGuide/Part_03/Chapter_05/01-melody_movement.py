@@ -29,7 +29,7 @@ movement += Equal(Measure(1))**Iterate()**Key()
 movement += Equal(Measure(2))**Iterate()**Key()
 movement >> Play(True)
 
-Rest(1) >> Play(True)   # Needs to be implemented in JsonMidiPlayer
+Rest(4) >> Play(True)   # Needs to be implemented in JsonMidiPlayer
 
 movement = Note() * 9 << Octave(5)
 movement << Container(NoteValue(1/2), None, None, NoteValue(1/2), NoteValue(1/2), NoteValue(1/2), None, None, NoteValue(1))

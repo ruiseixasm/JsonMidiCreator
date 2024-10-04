@@ -419,6 +419,32 @@ class Rest(Element):
                 return self._duration > other_operand
             case _:
                 return super().__gt__(other_operand)
+
+    def getPlaylist(self, position: ot.Position = None):
+        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+
+        duration: ot.Duration       = self._duration
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
+
+        on_time_ms = self_position.getTime_ms()
+        off_time_ms = (self_position + duration).getTime_ms()
+        return [
+                {
+                    "time_ms": on_time_ms,
+                    "midi_message": {
+                        "status_byte": 0x00 | 0x0F & Element.midi_16(channel_int - 1),
+                        "device": device_list
+                    }
+                },
+                {
+                    "time_ms": off_time_ms,
+                    "midi_message": {
+                        "status_byte": 0x00 | 0x0F & Element.midi_16(channel_int - 1),
+                        "device": device_list
+                    }
+                }
+            ]
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
