@@ -388,7 +388,7 @@ staff << Tempo(120) << Measure(7)
 
 original_save       = Load("json/testing/_Save_Play_p.19_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.19_sequence.json")
-chord_play = Chord() * 13 + Iterate(1/2)**Beat() + Iterate()**KeyNote() << NoteValue(1/8) \
+chord_play = Chord() * 13 + Iterate(1/2)**Beat() + Iterate(1.0)**KeyNote() << NoteValue(1/8) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) << Even()**Velocity(50)
 results_list.append({
     "test":     "TEST 8.1",

@@ -347,35 +347,19 @@ class KeyNote(Generic):
 
     def __add__(self, operand) -> 'KeyNote':
         key_copy: ou.Key = self._key.copy()
-        key_int: int     = self._key._unit
         octave_int: int  = self._octave._unit
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
                 key_copy += float(operand._key._unit)
                 octave_int += operand._octave._unit + key_copy._unit // 12
-
-                key_int = key_copy._unit
             case ou.Octave():
                 octave_int += operand._unit
-            case ou.Key():
-                move_key_int: int   = operand._unit
-                semi_tones = ou.Key.move_semitones(key_int, move_key_int)
-                key_int += semi_tones
-                octave_int += key_int // 12
-            case int():
-                key_int += operand
-                octave_int += key_int // 12
-            case float() | Fraction():
-                key_int += round(operand)
-                octave_int += key_int // 12
-            case ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
+            case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy += operand
                 octave_int += key_copy._unit // 12
-                
-                key_int = key_copy._unit
             case _: return super().__add__(operand)
-        return self.copy() << (ou.Key() << key_int % 12) << (ou.Octave() << octave_int)
+        return self.copy() << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
      
     def __sub__(self, operand) -> 'KeyNote':
         key_int: int    = self._key._unit

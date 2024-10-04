@@ -183,7 +183,7 @@ Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) \
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-Chord() * 13 + Iterate(1/2)**Beat() + Iterate()**KeyNote() << NoteValue(1/8) \
+Chord() * 13 + Iterate(1/2)**Beat() + Iterate(1.0)**KeyNote() << NoteValue(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
         >> Save("json/testing/_Save_Play_p.20_first_note.json") >> Export("json/testing/_Export_Play_p.20_sequence.json")
 

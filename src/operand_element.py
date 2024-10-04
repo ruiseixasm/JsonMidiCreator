@@ -647,7 +647,7 @@ class KeyScale(Note):
         scale_key_notes = []
         for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
             transposition = self._scale.transposition(self._mode % od.DataSource( int() ) + key_note_i)
-            scale_key_notes.append(root_key_note + transposition)
+            scale_key_notes.append(root_key_note + float(transposition))
 
         self_playlist = []
         for key_note in scale_key_notes:
@@ -759,7 +759,7 @@ class Chord(Note):
                 if self._sus % od.DataSource( int() ) == 2:
                     key_note_nth += 1
             transposition = self._scale.transposition(self._degree % od.DataSource( int() ) + key_note_nth)
-            chord_key_notes.append(root_key_note + transposition)
+            chord_key_notes.append(root_key_note + float(transposition))
 
         # Where the inversions are done
         inversion = min(self._inversion % od.DataSource( int() ), self._type % od.DataSource( int() ) - 1)
