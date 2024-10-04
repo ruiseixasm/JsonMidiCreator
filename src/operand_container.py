@@ -360,6 +360,19 @@ class Sequence(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
+    def stack(self) -> 'Sequence':
+        import operand_element as oe
+        last_position = None
+        last_length = None
+        for single_element in self._operand_list:
+            if last_position is not None:
+                last_position += last_length
+                single_element << last_position
+            else:
+                last_position = single_element._position
+            last_length = single_element._length
+        return self
+
     # operand is the pusher
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_element as oe

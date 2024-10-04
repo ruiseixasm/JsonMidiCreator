@@ -66,6 +66,13 @@ class Reverse(Label):
             return operand.reverse()
         return operand
 
+class Stack(Label):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.stack()
+        return operand
+
 class First(Label):
     pass
 
