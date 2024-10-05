@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-movement = Note() * (3*4 + 1) + Iterate()**Beat()
+movement = Note() * (3*4 + 1)
 movement << Equal(Measure(3))**(KeyNote() << Octave(5) << Key("D")) << Equal(Measure(3))**Duration(1) \
          << Equal(Measure(0))**Key("E") << Equal(Measure(1))**Key("G") << Equal(Measure(2))**Key("B")
 movement += Equal(Measure(0))**Iterate()**Key()

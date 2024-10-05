@@ -225,7 +225,7 @@ class Element(o.Operand):
                 multi_elements = []
                 for _ in range(0, operand):
                     multi_elements.append(self.copy())
-                return oc.Sequence(multi_elements)
+                return oc.Sequence(multi_elements).stack()
         return self_copy
 
     def __truediv__(self, operand: o.Operand) -> 'Element':

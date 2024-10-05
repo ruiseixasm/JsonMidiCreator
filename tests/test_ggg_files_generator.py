@@ -91,10 +91,10 @@ single_clock = Clock()
 single_note = Note() << (Duration() << Measure(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
 
-triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat() + single_clock \
+triplets_one = (Note3("E") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
     >> Save("json/testing/_Save_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.8_first_note.json") >> Export("json/testing/_Export_Play_p.8_sequence.json")
 
-triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position())**Iterate(1/2)**Beat() + single_clock \
+triplets_two = (Note3("G") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
     >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
 staff << Measure(2)
@@ -119,7 +119,7 @@ chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> 
 
 
 oscillator = Oscillator(Pitch()) << Amplitude(8191 / 2)
-pitch_bend = PitchBend() * (2*16 + 1) + Iterate()**Step() << Extractor(Pitch())**Wrapper(oscillator)**Wrapper(PitchBend())**Iterate(4)**Step()
+pitch_bend = (PitchBend() << (Length() << Step(1))) * (2*16 + 1) << Extractor(Pitch())**Wrapper(oscillator)**Wrapper(PitchBend())**Iterate(4)**Step()
 
 chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> Export("json/testing/_Export_Play_p.10.3_sequence.json") \
     >> Save("json/testing/_Save_4.2_pitch_bend.json") >> Export("json/testing/_Export_4.2_pitch_bend.json")
@@ -130,9 +130,9 @@ chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> 
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Degree(0) \
+(Chord() * 7 << Type("7th")) + Increment()**Degree(0) \
     >> Save("json/testing/_Save_Play_p.11_first_note.json") >> Export("json/testing/_Export_Play_p.11_sequence.json")
-(Chord("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Beat() + Increment()**Degree(0) \
+(Chord("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Degree(0) \
     >> Save("json/testing/_Save_Play_p.12_first_note.json") >> Export("json/testing/_Export_Play_p.12_sequence.json") \
         << Inversion(1) >> Save("json/testing/_Save_Play_p.13_first_note.json") >> Export("json/testing/_Export_Play_p.13_sequence.json")
 
@@ -147,12 +147,12 @@ Chord("G") << Type("13th") << Scale("5th") << NoteValue(8) << Octave(3) \
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-(Chord() * 7 << Type("7th")) + Increment()**Beat() + Increment()**Even()**Degree(1) \
+(Chord() * 7 << Type("7th")) + Increment()**Even()**Degree(1) \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
-(Chord() * 7 << Type("7th")) + Increment()**Beat() + Iterate()**Even()**Degree(0) \
+(Chord() * 7 << Type("7th")) + Iterate()**Even()**Degree(0) \
     >> Save("json/testing/_Save_Play_p.15_first_note.json") >> Export("json/testing/_Export_Play_p.15_sequence.json")
 
-all_chords = (Chord() * 7 << Type("7th")) + Increment()**Beat()
+all_chords = (Chord() * 7 << Type("7th"))
 first_chords = all_chords | Beat(0)
 first_chords << Degree(5)
 all_chords >> Save("json/testing/_Save_Play_p.15.2_first_note.json") >> Export("json/testing/_Export_Play_p.15.2_sequence.json")
@@ -167,13 +167,13 @@ all_chords >> Save("json/testing/_Save_Play_p.15.3_first_note.json") >> Export("
 # Global Staff setting up
 staff << Tempo(120)
 
-Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) \
+(Chord() << Length(1)) * 3 + Iterate()**Inversion() << NoteValue(1) \
     >> Save("json/testing/_Save_Play_p.16_first_note.json") >> Export("json/testing/_Export_Play_p.16_sequence.json")
-(Chord() * 4 << Type("7th")) + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/testing/_Export_7.1_chord_inversion.json") \
+((Chord() << Length(1)) * 4 << Type("7th")) + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/testing/_Export_7.1_chord_inversion.json") \
     >> Save("json/testing/_Save_Play_p.17_first_note.json") >> Export("json/testing/_Export_Play_p.17_sequence.json")
 
 
-(Chord() * 4 << Type("7th") << Sus("sus2") << Gate(1)) + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) \
+((Chord() << Length(1)) * 4 << Type("7th") << Sus("sus2") << Gate(1)) + Iterate()**Inversion() << NoteValue(1) \
     >> Save("json/testing/_Save_Play_p.18_first_note.json") >> Export("json/testing/_Export_Play_p.18_sequence.json")
 
 
@@ -183,7 +183,7 @@ Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) \
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-Chord() * 13 + Iterate(1/2)**Beat() + Iterate(1.0)**KeyNote() << NoteValue(1/8) \
+(Chord() << Length(1/8)) * 13 + Iterate(1.0)**KeyNote() << NoteValue(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
         >> Save("json/testing/_Save_Play_p.20_first_note.json") >> Export("json/testing/_Export_Play_p.20_sequence.json")
 
@@ -197,23 +197,23 @@ Chord() * 13 + Iterate(1/2)**Beat() + Iterate(1.0)**KeyNote() << NoteValue(1/8) 
 staff << Tempo(240) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-play_list_1 = Playlist() << (Position(0) >> (KeyScale("C") << Scale("Major")) * 8 
-    + Iterate(Scale("Major") % Transposition("5th"))**Semitone() + Iterate()**Measure() 
+play_list_1 = Playlist() << (Position(0) >> (KeyScale("C") << Scale("Major") << Length(1)) * 8 
+    + Iterate(Scale("Major") % Transposition("5th"))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
-play_list_2 = Playlist() << (Position(8) >> (KeyScale("C") << Scale("Major")) * 8 
-    + Iterate(Scale("Major") % Transposition("4th"))**Semitone() + Iterate()**Measure() 
+play_list_2 = Playlist() << (Position(8) >> (KeyScale("C") << Scale("Major") << Length(1)) * 8 
+    + Iterate(Scale("Major") % Transposition("4th"))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
-play_list_3 = Playlist() << (Position(16) >> (KeyScale("A") << Scale("minor")) * 8 
-    + Iterate(Scale("minor") % Transposition("5th"))**Semitone() + Iterate()**Measure() 
+play_list_3 = Playlist() << (Position(16) >> (KeyScale("A") << Scale("minor") << Length(1)) * 8 
+    + Iterate(Scale("minor") % Transposition("5th"))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
-play_list_4 = Playlist() << (Position(24) >> (KeyScale("A") << Scale("minor")) * 8 
-    + Iterate(Scale("minor") % Transposition("4th"))**Semitone() + Iterate()**Measure() 
+play_list_4 = Playlist() << (Position(24) >> (KeyScale("A") << Scale("minor") << Length(1)) * 8 
+    + Iterate(Scale("minor") % Transposition("4th"))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 play_list_1 + play_list_2 + play_list_3 + play_list_4 \
