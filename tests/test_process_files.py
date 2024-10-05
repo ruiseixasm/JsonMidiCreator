@@ -45,9 +45,9 @@ multi_notes = Null() >> first_note * 3 >> od.LeftShift(result_save) >> od.LeftSh
 end_time = time.time()
 results_list.append({
     "test":     "TEST 1.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.2_first_note.json")
@@ -58,9 +58,9 @@ first_note << "F" >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
 end_time = time.time()
 results_list.append({
     "test":     "TEST 1.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.3_first_note.json")
@@ -70,9 +70,9 @@ first_note << Load("json/testing/_Save_1.1_first_note.json") >> od.LeftShift(res
 end_time = time.time()
 results_list.append({
     "test":     "TEST 1.3",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
@@ -82,9 +82,9 @@ Note3() << (Duration() << NoteValue(1/16)) >> od.LeftShift(result_save) >> od.Le
 end_time = time.time()
 results_list.append({
     "test":     "TEST 1.4",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.4_first_note.json")
@@ -110,9 +110,9 @@ all_elements >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Expo
 end_time = time.time()
 results_list.append({
     "test":     "TEST 1.5",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 ############### TEST2 #######################
@@ -129,9 +129,9 @@ second_import = Import("json/testing/_Export_1.2_all_elements.json")    # It has
 end_time = time.time()
 results_list.append({
     "test":     "TEST 2.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -149,9 +149,9 @@ note_0 + note_1 + note_2 + note_3 >> Save ("json/testing/_Save_2.1_multiple_note
 end_time = time.time()
 results_list.append({
     "test":     "TEST 2.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -168,9 +168,9 @@ load_0 + load_1 + load_2 + load_3 >> Save ("json/testing/_Save_2.2_sequence_note
 end_time = time.time()
 results_list.append({
     "test":     "TEST 2.3",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -187,9 +187,9 @@ single_note = Note() << (Duration() << Measure(2)) >> od.LeftShift(result_save) 
 end_time = time.time()
 results_list.append({
     "test":     "TEST 3.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.7.3_first_note.json")
@@ -199,9 +199,9 @@ note_transposed = single_note + Semitone(5) >> od.LeftShift(result_save) >> od.L
 end_time = time.time()
 results_list.append({
     "test":     "TEST 3.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.8_first_note.json")
@@ -212,9 +212,9 @@ triplets_one = (Note3() << Key("E") << NoteValue(1/16)) * 8 + Iterate(1/2)**Beat
 end_time = time.time()
 results_list.append({
     "test":     "TEST 3.3",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.9_first_note.json")
@@ -225,9 +225,9 @@ triplets_two = (Note3() << Key("G") << NoteValue(1/16)) * 8 + Wrapper(Position()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 3.4",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -246,9 +246,9 @@ triplets_one + triplets_two + single_clock >> od.LeftShift(result_save) >> od.Le
 end_time = time.time()
 results_list.append({
     "test":     "TEST 3.5",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.10.1_first_note.json")
@@ -258,9 +258,9 @@ triplets_one + triplets_two + single_clock + Equal(Beat(1))**Semitone(2) >> od.L
 end_time = time.time()
 results_list.append({
     "test":     "TEST 3.6",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -279,9 +279,9 @@ chord + controller >> od.LeftShift(result_save) >> od.LeftShift(result_export) >
 end_time = time.time()
 results_list.append({
     "test":     "TEST 4.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.10.3_first_note.json")
@@ -296,9 +296,9 @@ chord + pitch_bend >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
 end_time = time.time()
 results_list.append({
     "test":     "TEST 4.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -315,9 +315,9 @@ start_time = time.time()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 5.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
@@ -329,9 +329,9 @@ start_time = time.time()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 5.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.13.2_first_note.json")
@@ -342,9 +342,9 @@ Chord("C") << Type("13th") << Scale("Major") << Degree("Dominant") << Octave(3) 
 end_time = time.time()
 results_list.append({
     "test":     "TEST 5.3",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.13.3_first_note.json")
@@ -355,9 +355,9 @@ Chord("G") << Type("13th") << Scale("5th") << NoteValue(8) << Octave(3) \
 end_time = time.time()
 results_list.append({
     "test":     "TEST 5.4",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -374,9 +374,9 @@ start_time = time.time()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 6.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.15_first_note.json")
@@ -387,9 +387,9 @@ start_time = time.time()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 6.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.15.2_first_note.json")
@@ -402,9 +402,9 @@ all_chords >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 end_time = time.time()
 results_list.append({
     "test":     "TEST 6.3",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.15.3_first_note.json")
@@ -417,9 +417,9 @@ all_chords >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 end_time = time.time()
 results_list.append({
     "test":     "TEST 6.4",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -436,9 +436,9 @@ Chord() * 3 + Iterate()**Measure() + Iterate()**Inversion() << NoteValue(1) \
 end_time = time.time()
 results_list.append({
     "test":     "TEST 7.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.17_first_note.json")
@@ -449,9 +449,9 @@ start_time = time.time()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 7.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.18_first_note.json")
@@ -462,9 +462,9 @@ start_time = time.time()
 end_time = time.time()
 results_list.append({
     "test":     "TEST 7.3",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -482,9 +482,9 @@ chord_play = Chord() * 13 + Iterate(1/2)**Beat() + Iterate(1.0)**KeyNote() << No
 end_time = time.time()
 results_list.append({
     "test":     "TEST 8.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 original_save       = Load("json/testing/_Save_Play_p.20_first_note.json")
@@ -494,9 +494,9 @@ chord_play >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 end_time = time.time()
 results_list.append({
     "test":     "TEST 8.2",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 
@@ -534,9 +534,9 @@ play_list_1 + play_list_2 + play_list_3 + play_list_4 \
 end_time = time.time()
 results_list.append({
     "test":     "TEST 9.1",
+    "time_ms": (end_time - start_time) * 1000,
     "save":     original_save == result_save,
-    "export":   original_export == result_export,
-    "time_ms": (end_time - start_time) * 1000
+    "export":   original_export == result_export
 })
 
 for test in results_list:
