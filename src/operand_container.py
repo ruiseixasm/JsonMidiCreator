@@ -274,7 +274,7 @@ class Container(o.Operand):
             case o.Operand():
                 ...
             case int(): # repeat n times the last argument if any
-                many_operands = Container()    # empty list
+                many_operands = self.__class__()    # empty list
                 while operand > 0:
                     many_operands += self
                     operand -= 1
@@ -305,7 +305,7 @@ class Container(o.Operand):
         return self
 
     def __or__(self, operand: any) -> 'Container':
-        new_container: Container = Container()
+        new_container: Container = self.__class__()
         match operand:
             case Container():
                 new_container._operand_list.extend(self._operand_list)
@@ -440,6 +440,12 @@ class Sequence(Container):  # Just a container of Elements
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand * operand
                 return self_copy
+            case int():
+                many_operands = self.__class__()    # empty list
+                while operand > 0:
+                    many_operands += self
+                    operand -= 1
+                return many_operands
         return super().__mul__(operand)
     
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
@@ -452,6 +458,8 @@ class Sequence(Container):  # Just a container of Elements
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand / operand
                 return self_copy
+            case int():
+                ...
         return super().__truediv__(operand)
     
     def __floordiv__(self, length: ot.Length) -> 'Sequence':
