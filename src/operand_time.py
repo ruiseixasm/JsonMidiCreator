@@ -168,7 +168,7 @@ class Time(o.Operand):
                     case ro.TimeUnit():
                         self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
             case Time():
-                self._time_unit         << operand % od.DataSource( ro.TimeUnit() )
+                self._time_unit         << operand._time_unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ro.Measure():

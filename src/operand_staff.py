@@ -206,19 +206,19 @@ class Staff(o.Operand):
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
             case Staff():
-                self._measure           << operand % od.DataSource( ro.Measure() )
-                self._tempo             << operand % od.DataSource( ro.Tempo() )
-                self._time_signature    << operand % od.DataSource( og.TimeSignature() )
-                self._key_signature     << operand % od.DataSource( og.KeySignature() )
-                self._scale             << operand % od.DataSource( od.Scale() )
-                self._quantization      << operand % od.DataSource( ro.Quantization() ) # Note Value
-                self._duration          << operand % od.DataSource( ot.Duration() )
-                self._key               << operand % od.DataSource( ou.Key() )
-                self._octave            << operand % od.DataSource( ou.Octave() )
-                self._velocity          << operand % od.DataSource( ou.Velocity() )
-                self._controller        << operand % od.DataSource( og.Controller() )
-                self._channel           << operand % od.DataSource( ou.Channel() )
-                self._device            << operand % od.DataSource( od.Device() )
+                self._measure           << operand._measure
+                self._tempo             << operand._tempo
+                self._time_signature    << operand._time_signature
+                self._key_signature     << operand._key_signature
+                self._scale             << operand._scale
+                self._quantization      << operand._quantization
+                self._duration          << operand._duration
+                self._key               << operand._key
+                self._octave            << operand._octave
+                self._velocity          << operand._velocity
+                self._controller        << operand._controller
+                self._channel           << operand._channel
+                self._device            << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ro.Measure():          self._measure << operand

@@ -333,9 +333,9 @@ class KeyNote(Generic):
                                             self._key._unit %= 12
                     case ou.Natural():      self._natural   = operand % o.Operand()
             case KeyNote():
-                self._octave    << operand % od.DataSource( ou.Octave() )
-                self._key       << operand % od.DataSource( ou.Key() )
-                self._natural   << operand % od.DataSource( ou.Natural() )
+                self._octave    << operand._octave
+                self._key       << operand._key
+                self._natural   << operand._natural
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():       self._octave << operand
@@ -446,8 +446,8 @@ class Controller(Generic):
                     case ou.Number():    self._number = operand % o.Operand()
                     case ou.Value():     self._value = operand % o.Operand()
             case Controller():
-                self._number = (operand % od.DataSource( ou.Number() )).copy()
-                self._value = (operand % od.DataSource( ou.Value() )).copy()
+                self._number    << operand._number
+                self._value     << operand._value
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Number():    self._number << operand

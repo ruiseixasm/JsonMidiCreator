@@ -123,7 +123,7 @@ class Data(o.Operand):
         match operand:
             case DataSource():      self._data = operand % o.Operand()
             case Data():
-                operand_data = operand % DataSource( o.Operand() )
+                operand_data = operand._data
                 match operand_data:
                     case o.Operand():
                         self._data = operand_data.copy()
