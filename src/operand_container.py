@@ -215,7 +215,7 @@ class Container(o.Operand):
                 return self_copy
             case o.Operand():
                 self_copy: Container = self.copy()
-                self_copy._operand_list.append(operand)
+                self_copy._operand_list.append(operand.copy())
                 return self_copy
             case int() | ou.Integer(): # repeat n times the last argument if any
                 self_copy: Container = self.copy()
@@ -233,7 +233,7 @@ class Container(o.Operand):
         self_copy: Container = self.copy()
         match operand:
             case o.Operand():
-                self_copy._operand_list.insert(operand)
+                self_copy._operand_list.insert(operand.copy())
             case int(): # repeat n times the first argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
