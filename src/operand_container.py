@@ -208,21 +208,26 @@ class Container(o.Operand):
         return self
 
     def __add__(self, operand: o.Operand) -> 'Container':
-        self_copy: Container = self.copy()
         match operand:
             case Container():
-                self_copy << self_copy % list() + operand.copy() % list()
+                self_copy: Container = self.__class__()
+                self_copy << self._operand_list + operand._operand_list
+                return self_copy
             case o.Operand():
+                self_copy: Container = self.copy()
                 self_copy._operand_list.append(operand)
+                return self_copy
             case int() | ou.Integer(): # repeat n times the last argument if any
+                self_copy: Container = self.copy()
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
                     last_operand = self._operand_list[len(self._operand_list) - 1]
                     while operand > 0:
                         operand_list.append(last_operand.copy())
                         operand -= 1
+                return self_copy
             case ol.Null(): return ol.Null()
-        return self_copy
+        return self.copy()
     
     def __radd__(self, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
