@@ -443,10 +443,13 @@ class Sequence(Container):  # Just a container of Elements
             case int():
                 many_operands = self.__class__()    # empty list
                 while operand > 0:
-                    many_operands += self
+                    many_operands >>= self.copy()
                     operand -= 1
                 return many_operands
         return super().__mul__(operand)
+    
+    def __rmul__(self, operand: any) -> 'Sequence':
+        return self.__mul__(operand)
     
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
@@ -458,8 +461,12 @@ class Sequence(Container):  # Just a container of Elements
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand / operand
                 return self_copy
-            case int():
-                ...
+            case int(): # Splits the total Length by the integer
+                start_position = self.start()
+                sequence_length: ot.Length = self.end() - start_position
+                new_end_position: ot.Position = start_position + sequence_length / operand
+                trimmed_self = self | of.Lower(new_end_position)**o.Operand()
+                return trimmed_self.copy()
         return super().__truediv__(operand)
     
     def __floordiv__(self, length: ot.Length) -> 'Sequence':
