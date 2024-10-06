@@ -28,9 +28,10 @@ import operand_label as ol
 
 
 class Time(o.Operand):
-    def __init__(self, time: int | float = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._time_unit      = ro.Measure() << time
+        self._time_unit      = ro.Measure()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -188,6 +189,9 @@ class Time(o.Operand):
                 self._time_unit << (self._time_unit % Fraction() - self._time_unit % int()) + operand
             case Fraction() | float() | ro.Float():
                 self._time_unit         << operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __add__(self, operand: o.Operand) -> 'Time':
@@ -254,17 +258,18 @@ class Time(o.Operand):
         return self._time_unit % int() + 1
 
 class Position(Time):
-    def __init__(self, time: int | float = None):
-        super().__init__(time)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
 class Length(Time):
-    def __init__(self, time: int | float = None):
-        super().__init__(time)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
     
 class Duration(Time):
-    def __init__(self, time: int | float = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._time_unit      = ro.NoteValue() << time
+        self._time_unit      = ro.NoteValue()
+        self << parameters
 
     # CHAINABLE OPERATIONS
 
