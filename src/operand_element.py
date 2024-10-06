@@ -175,7 +175,7 @@ class Element(o.Operand):
             case od.Device():       self._device << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
-            case oc.Chain():
+            case oc.Chain() | tuple():
                 for single_operand in operand:
                     self << single_operand
         return self
@@ -479,12 +479,12 @@ class Rest(Element):
         return self
 
 class Note(Rest):
-    def __init__(self, key: int | str = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote()  << (os.staff % ou.Key() % int() if key is None else key) \
-                                                    <<  os.staff % ou.Octave()
+        self._key_note: og.KeyNote  = og.KeyNote() << os.staff % ou.Key() << os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
