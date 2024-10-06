@@ -380,10 +380,13 @@ class KeyNote(Generic):
         return self.copy() << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
 
 class Controller(Generic):
-    def __init__(self, number: int | str = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._number: ou.Number  = ou.Number( number )
+        self._number: ou.Number  = ou.Number()
+        self._value: ou.Value    = ou.Value()
+        self << parameters
         self._value: ou.Value    = ou.Value( ou.Number.getDefault(self._number % od.DataSource( int() )) )
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -452,7 +455,7 @@ class Controller(Generic):
                 self._value     << operand._value
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Number():
+            case ou.Number() | str():
                 self._number << operand
             case ou.Value() | int() | float():
                 self._value << operand
