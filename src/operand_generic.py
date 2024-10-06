@@ -345,6 +345,9 @@ class KeyNote(Generic):
                 self._key._unit %= 12
             case ou.Natural():
                 self._natural << operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __add__(self, operand) -> 'KeyNote':
@@ -459,6 +462,9 @@ class Controller(Generic):
                 self._number << operand
             case ou.Value() | int() | float():
                 self._value << operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __add__(self, operand) -> 'Controller':

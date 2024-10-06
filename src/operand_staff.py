@@ -242,6 +242,9 @@ class Staff(o.Operand):
                 self._quantization = ro.Quantization( (self % ro.NotesPerMeasure()) / (operand % Fraction()) )
             case ro.StepsPerNote():
                 self._quantization = ro.Quantization( 1 / (operand % Fraction()) )
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
 # Instantiate the Global Staff here.
