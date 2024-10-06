@@ -26,7 +26,7 @@ import operand_label as ol
 
 
 class Staff(o.Operand):
-    def __init__(self):
+    def __init__(self, *parameters):
         super().__init__()
         # Set Global Staff Defaults at the end of this file bottom bellow
         self._measure: ro.Measure                   = ro.Measure(8)
@@ -44,6 +44,7 @@ class Staff(o.Operand):
                                                         << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
