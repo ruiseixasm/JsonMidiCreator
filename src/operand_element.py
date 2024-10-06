@@ -34,7 +34,7 @@ import operand_frame as of
 
 
 class Element(o.Operand):
-    def __init__(self):
+    def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
         self._length: ot.Length             = ot.Length()
@@ -249,11 +249,11 @@ class Element(o.Operand):
         return min(max(midi_value, 0), 15)
 
 class Clock(Element):
-    def __init__(self, measure: float = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._length = ot.Length() << (ro.Measure() << \
-                        ( os.staff % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() ) if measure is None else measure ))
+        self._length << os.staff % od.DataSource( ro.Measure() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -364,13 +364,11 @@ class Clock(Element):
         return self
 
 class Rest(Element):
-    def __init__(self, note_value: float = None):
+    def __init__(self, *parameters):
         super().__init__()
         self._duration: ot.Duration = os.staff % ot.Duration()
-        if note_value is not None:
-            self._duration  << note_value
-            self._length    << note_value
-        self._length << self._duration  # By default a note has the same Length as its Duration
+        self._length << self._duration
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -615,10 +613,11 @@ class Note(Rest):
         return self_copy
 
 class KeyScale(Note):
-    def __init__(self, key: int | str = None):
-        super().__init__(key)
+    def __init__(self, *parameters):
+        super().__init__()
         self._scale: od.Scale = os.staff % od.Scale()    # default Staff scale
         self._mode: ou.Mode = ou.Mode()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -718,13 +717,14 @@ class KeyScale(Note):
         return self
 
 class Chord(Note):
-    def __init__(self, key: int | str = None):
-        super().__init__(key)
+    def __init__(self, *parameters):
+        super().__init__()
         self._scale: od.Scale           = os.staff % od.Scale()   # Default Scale for Chords
         self._degree: ou.Degree         = ou.Degree()
         self._inversion: ou.Inversion   = ou.Inversion()
         self._type: ou.Type             = ou.Type()
         self._sus: ou.Sus               = ou.Sus()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -859,13 +859,14 @@ class Chord(Note):
         return self
 
 class Retrigger(Note):
-    def __init__(self, key: int | str = None):
-        super().__init__(key)
+    def __init__(self, *parameters):
+        super().__init__()
         self._division  = ou.Division(16)
         self._duration  = self._duration * 2/(self._division % int())
         self._length   << self._duration * (self._division % int())
         self._gate      = ro.Gate(.50)
         self._swing     = ro.Swing(.50)
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -961,9 +962,10 @@ class Note3(Retrigger):
         | 1/16T = (1/16 - 1/64)  = 3/64
         | 1/32T = (1/32 - 1/128) = 3/128
     """
-    def __init__(self, key: int | str = None):
-        super().__init__(key)
+    def __init__(self, *parameters):
+        super().__init__()
         self._division  << ou.Division(3)
+        self << parameters
 
     # CHAINABLE OPERATIONS
 
@@ -1138,11 +1140,10 @@ class Triplet(Tuplet):
         return self
 
 class ControlChange(Element):
-    def __init__(self, number: int | str = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._controller: og.Controller = (os.staff % og.Controller()).copy()
-        if number is not None:
-            self._controller = og.Controller(number)
+        self._controller: og.Controller = os.staff % og.Controller()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1246,9 +1247,10 @@ class ControlChange(Element):
         return self_copy
 
 class PitchBend(Element):
-    def __init__(self, pitch: int = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._pitch: ou.Pitch = ou.Pitch( 0 if pitch is None else pitch )
+        self._pitch: ou.Pitch = ou.Pitch()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1349,12 +1351,11 @@ class PitchBend(Element):
         return self_copy
 
 class Aftertouch(Element):
-    def __init__(self, channel: int = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._channel = ou.Channel(0)
-        if channel is not None and isinstance(channel, int):
-            self._channel = ou.Channel(channel)
+        self._channel = os.staff % ou.Channel()
         self._pressure: ou.Pressure = ou.Pressure()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1454,9 +1455,10 @@ class Aftertouch(Element):
         return self_copy
 
 class PolyAftertouch(Aftertouch):
-    def __init__(self, key: int | str = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote(key)
+        self._key_note: og.KeyNote  = og.KeyNote()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1541,9 +1543,10 @@ class PolyAftertouch(Aftertouch):
         return self
 
 class ProgramChange(Element):
-    def __init__(self, program: int = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._program: ou.Program = ou.Program( 0 if program is None else program )
+        self._program: ou.Program = ou.Program()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
