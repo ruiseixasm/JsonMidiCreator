@@ -202,7 +202,7 @@ class Container(o.Operand):
             case o.Operand() | int() | float(): # Works for Frame too
                 for single_operand in self._operand_list:
                     single_operand << operand
-            case Chain():
+            case tuple():
                 for single_operand in operand:
                     self << single_operand
         return self
@@ -483,28 +483,4 @@ class Sequence(Container):  # Just a container of Elements
                         else:
                             starting_position += length
                             single_operand << ot.Position() << starting_position
-        return self
-
-class Chain(Container):
-    def __init__(self, *operands):
-        multi_operands = []
-        if operands is not None:
-            for single_operand in operands:
-                match single_operand:
-                    case o.Operand(): multi_operands.append(single_operand)
-                    case list():    multi_operands.extend(single_operand)
-        super().__init__(multi_operands)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: o.Operand) -> 'Chain':
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case list():        self._operand_list = operand % o.Operand()
-                    case _:             super().__lshift__(operand)
-            case Chain():           self._operand_list = operand % od.DataSource( list() )
-            case o.Operand() | int() | float():
-                self._operand_list.append(operand)
-            case list():            self._operand_list.extend(operand)
         return self

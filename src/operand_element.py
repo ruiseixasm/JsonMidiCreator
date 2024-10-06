@@ -175,7 +175,7 @@ class Element(o.Operand):
             case od.Device():       self._device << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
-            case oc.Chain() | tuple():
+            case tuple():
                 for single_operand in operand:
                     self << single_operand
         return self
