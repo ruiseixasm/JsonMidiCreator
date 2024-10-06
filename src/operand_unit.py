@@ -236,7 +236,7 @@ class Key(Unit):
                     case float() | Fraction():      self._unit = int(operand % o.Operand())
                     case Semitone() | Integer() | ro.Float():
                                                     self._unit = operand % o.Operand() % od.DataSource( int() )
-                    case str():                     self._unit = Key.key_to_int(operand)
+                    case str():                     self._unit = Key.key_to_int(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
@@ -751,6 +751,20 @@ class Number(Midi):
             case od.DataSource():       return super().__mod__(operand)
             case str():                 return Number.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Number':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = Number.nameToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = Number.nameToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
 
     _controllers = [
         {   "midi_number": 0,   "default_value": 0,     "names": ["Bank Select"]    },

@@ -452,9 +452,10 @@ class Controller(Generic):
                 self._value     << operand._value
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Number():    self._number << operand
+            case ou.Number():
+                self._number << operand
             case ou.Value() | int() | float():
-                                        self._value << operand
+                self._value << operand
         return self
 
     def __add__(self, operand) -> 'Controller':
