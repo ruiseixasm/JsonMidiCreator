@@ -207,12 +207,12 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         return base_scale  # Return the original C Major scale if no accidentals
 
 class KeyNote(Generic):
-    def __init__(self, key: int | str = None):
+    def __init__(self, *parameters):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave()
-        self._key: ou.Key           = ou.Key(key)
-        self._key._unit %= 12
+        self._key: ou.Key           = ou.Key()
         self._natural: ou.Natural   = ou.Natural()
+        self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -338,11 +338,13 @@ class KeyNote(Generic):
                 self._natural   << operand._natural
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Octave():       self._octave << operand
-            case ou.Key() | int() | str() | ou.Semitone():
-                                    self._key << operand
-                                    self._key._unit %= 12
-            case ou.Natural():      self._natural << operand
+            case ou.Octave() | int() | ou.Integer():
+                self._octave << operand
+            case ou.Key() | str() | ou.Semitone():
+                self._key << operand
+                self._key._unit %= 12
+            case ou.Natural():
+                self._natural << operand
         return self
 
     def __add__(self, operand) -> 'KeyNote':

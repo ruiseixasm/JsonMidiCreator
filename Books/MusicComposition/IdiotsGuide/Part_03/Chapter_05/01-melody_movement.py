@@ -31,7 +31,7 @@ movement >> Play(True)
 
 Rest(1) >> Export("json/_Export_Rest_01.1.json") >> Play(True)
 
-movement = Note() * 9 << Octave(5)
+movement = Note(Octave(5)) * 9
 movement << Container(NoteValue(1/2), None, None, NoteValue(1/2), NoteValue(1/2), NoteValue(1/2), None, None, NoteValue(1))
 movement << Container(None, None, None, KeyNote("B") << Octave(4), None, Key("D"), Key("D"), Key("D"), None)
 movement >> Stack() >> Play()
