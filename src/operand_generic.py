@@ -206,32 +206,6 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1],    # +7
     ]
 
-    @staticmethod
-    def get_key_signed_scale(num_accidentals: int) -> list:
-        # Base pattern for C Major scale (no sharps or flats)
-        base_scale = ou.Key._major_keys.copy()  # C Major scale, where 1 is a note, and 0 is a skipped note
-
-        # Sharp positions are applied to F, C, G, D, A, E, B
-        sharp_positions = [5, 0, 7, 2, 9, 4, 11]
-        # Flat positions are applied to B, E, A, D, G, C, F
-        flat_positions = [11, 4, 9, 2, 7, 0, 5]
-
-        # Number of accidentals should range between -7 and +7
-        if -7 <= num_accidentals <= 7:
-            # Calculate rotation based on the number of sharps/flats
-            if num_accidentals > 0:
-                # Apply sharps
-                for i in range(num_accidentals):
-                    base_scale[sharp_positions[i]] = 0              # Turn the original natural note off
-                    base_scale[(sharp_positions[i] + 1) % 12] = 1   # Set the sharp position to 1
-            elif num_accidentals < 0:
-                # Apply flats
-                for i in range(abs(num_accidentals)):
-                    base_scale[flat_positions[i]] = 0               # Turn the original natural note off
-                    base_scale[(flat_positions[i] - 1) % 12] = 1    # Set the sharp position to 1
-        
-        return base_scale  # Return the original C Major scale if no accidentals
-
 class KeyNote(Generic):
     def __init__(self, *parameters):
         super().__init__()
@@ -285,32 +259,51 @@ class KeyNote(Generic):
                 return 12 * (octave_int + 1) + key_int
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_keynote: 'KeyNote') -> bool:
-        other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
-        if other_keynote.__class__ == o.Operand:
+    def __eq__(self, operand: any) -> bool:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if operand.__class__ == o.Operand:
             return True
-        return  self._octave == other_keynote._octave \
-            and self._key == other_keynote._key
-    
-    def __lt__(self, other_keynote: 'KeyNote') -> bool:
-        other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
-        if self._octave < other_keynote._octave:    return True
-        if self._octave > other_keynote._octave:    return False
-        if self._key < other_keynote._key:          return True
+        match operand:
+            case KeyNote():
+                return  self._octave == operand._octave \
+                    and self._key == operand._key
+            case str() | ou.Key():
+                return self._key == operand
+            case int() | ou.Octave():
+                return self._octave == operand
         return False
     
-    def __gt__(self, other_keynote: 'KeyNote') -> bool:
-        other_keynote = self & other_keynote    # Processes the tailed self operands or the Frame operand if any exists
-        if self._octave > other_keynote._octave:    return True
-        if self._octave < other_keynote._octave:    return False
-        if self._key > other_keynote._key:          return True
+    def __lt__(self, operand: any) -> bool:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case KeyNote():
+                if self._octave < operand._octave:  return True
+                if self._octave > operand._octave:  return False
+                if self._key < operand._key:        return True
+            case str() | ou.Key():
+                if self._key < operand:             return True
+            case int() | ou.Octave():
+                if self._octave < operand:          return True
         return False
     
-    def __le__(self, other_keynote: 'KeyNote') -> bool:
-        return self == other_keynote or self < other_keynote
+    def __gt__(self, operand: any) -> bool:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case KeyNote():
+                if self._octave > operand._octave:  return True
+                if self._octave < operand._octave:  return False
+                if self._key > operand._key:        return True
+            case str() | ou.Key():
+                if self._key > operand:             return True
+            case int() | ou.Octave():
+                if self._octave > operand:          return True
+        return False
     
-    def __ge__(self, other_keynote: 'KeyNote') -> bool:
-        return self == other_keynote or self > other_keynote
+    def __le__(self, operand: any) -> bool:
+        return self == operand or self < operand
+    
+    def __ge__(self, operand: any) -> bool:
+        return self == operand or self > operand
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
