@@ -119,7 +119,6 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                 # Number of accidentals should range between -7 and +7
                 if -7 <= num_accidentals <= 7:
                     self._accidentals = num_accidentals
-        self._scale: list = KeySignature.get_key_signed_scale(self._accidentals)
     
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -128,12 +127,20 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case KeySignature():        return self
                     case int():                 return self._accidentals
-                    case list():                return self._scale
+                    case list():
+                        key_signature = 7
+                        if -7 <= self._accidentals <= 7:
+                            key_signature += self._accidentals
+                        return KeySignature._key_signatures[key_signature]
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
             case int():                 return self._accidentals
-            case list():                return self._scale.copy()
+            case list():
+                key_signature = 7
+                if -7 <= self._accidentals <= 7:
+                    key_signature += self._accidentals
+                return KeySignature._key_signatures[key_signature]
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_key_signature: 'KeySignature') -> bool:
@@ -173,12 +180,31 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
                     case list():    self._scale         = operand % o.Operand()
             case KeySignature():
                 self._accidentals       = operand._accidentals
-                self._scale             = operand._scale.copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int():     self._accidentals   = operand
-            case list():    self._scale         = operand.copy()
         return self
+
+    _key_signatures: list[list] = [
+    #     C      D      E   F      G      A      B
+        [-1, 0, -1, 0, -1, -1, 0, -1, 0, -1, 0, -1],    # -7
+        [-1, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1],    # -6
+        [-0, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1],    # -5
+        [-0, 0, -1, 0, -1, -0, 0, -0, 0, -1, 0, -1],    # -4
+        [-0, 0, -0, 0, -1, -0, 0, -0, 0, -1, 0, -1],    # -3
+        [-0, 0, -0, 0, -1, -0, 0, -0, 0, -0, 0, -1],    # -2
+        [-0, 0, -0, 0, -0, -0, 0, -0, 0, -0, 0, -1],    # -1
+    #     C      D      E   F      G      A      B
+        [+0, 0, +0, 0, +0, +0, 0, +0, 0, +0, 0, +0],    # +0
+    #     C      D      E   F      G      A      B
+        [+0, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0],    # +1
+        [+1, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0],    # +2
+        [+1, 0, +0, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +3
+        [+1, 0, +1, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +4
+        [+1, 0, +1, 0, +0, +1, 0, +1, 0, +1, 0, +0],    # +5
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0],    # +6
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1],    # +7
+    ]
 
     @staticmethod
     def get_key_signed_scale(num_accidentals: int) -> list:
@@ -239,14 +265,9 @@ class KeyNote(Generic):
                         octave_int: int     = self._octave._unit
                         key_int: int        = self._key._unit
                         not_natural: bool   = self._natural._unit == 0
-                        if not_natural and ou.Key._major_keys[key_int]:
+                        if not_natural:
                             key_signature: KeySignature = os.staff._key_signature
-                            if key_signature._accidentals > 0:
-                                if key_signature._accidentals == 7 or key_signature._scale[key_int] == 0:
-                                    key_int += 1
-                            elif key_signature._accidentals < 0:
-                                if key_signature._accidentals == -7 or key_signature._scale[key_int] == 0:
-                                    key_int -= 1
+                            key_int += (key_signature % list())[key_int]    # already % 12
                         return 12 * (octave_int + 1) + key_int
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -258,14 +279,9 @@ class KeyNote(Generic):
                 octave_int: int     = self._octave._unit
                 key_int: int        = self._key._unit
                 not_natural: bool   = self._natural._unit == 0
-                if not_natural and ou.Key._major_keys[key_int]:
+                if not_natural:
                     key_signature: KeySignature = os.staff._key_signature
-                    if key_signature._accidentals > 0:
-                        if key_signature._accidentals == 7 or key_signature._scale[key_int] == 0:
-                            key_int += 1
-                    elif key_signature._accidentals < 0:
-                        if key_signature._accidentals == -7 or key_signature._scale[key_int] == 0:
-                            key_int -= 1
+                    key_int += (key_signature % list())[key_int]    # already % 12
                 return 12 * (octave_int + 1) + key_int
             case _:                 return super().__mod__(operand)
 

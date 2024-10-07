@@ -251,7 +251,7 @@ class Key(Unit):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number) )
-            case Key() | Integer():
+            case Integer():
                         return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit) )
             case Semitone():
                         return self.__class__() << od.DataSource( self._unit + number._unit )
@@ -262,7 +262,7 @@ class Key(Unit):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number * -1) )
-            case Key() | Integer():
+            case Integer():
                         return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit * -1) )
             case Semitone():
                         return self.__class__() << od.DataSource( self._unit - number._unit )

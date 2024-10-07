@@ -48,6 +48,10 @@ class Frame(o.Operand):
             case _:         self._current_node = None
         return previous_node
 
+    def __pow__(self, operand: any) -> 'Frame':
+        self._next_operand = operand
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Frame,
@@ -315,7 +319,7 @@ class Subject(OperandFilter):
 class Iterate(OperandFilter):
     def __init__(self, step = None):
         super().__init__()
-        self._step: float = 1 if step is None else step
+        self._step: int = 1 if step is None else step
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand

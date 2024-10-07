@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 staff << Tempo(120) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-sequence = Note("C") * 8 + Iterate()**Key() << NoteValue(4) << Velocity(85)
+sequence = Note("C", Length(0), Duration(4), Velocity(85)) * 8 + Iterate()**0
 sequence >> Play(True)
 
 # Global Staff setting up
@@ -38,5 +38,5 @@ staff << KeySignature(7)
 sequence >> Play()
 
 staff << KeySignature()
-sequence += Key(1)
+sequence += 1
 sequence >> Play()

@@ -405,7 +405,7 @@ class Sequence(Container):  # Just a container of Elements
                 for item_i in range(last_item):
                     self._operand_list[item_i] += operand._operand_list[item_i]
                 return self
-            case o.Operand():
+            case o.Operand() | int() | float() | Fraction():
                 self_copy = self.copy()
                 for single_operand in self_copy._operand_list:
                     single_operand << single_operand + operand
@@ -422,7 +422,7 @@ class Sequence(Container):  # Just a container of Elements
                 for item_i in range(last_item):
                     self._operand_list[item_i] -= operand._operand_list[item_i]
                 return self
-            case o.Operand():
+            case o.Operand() | int() | float() | Fraction():
                 self_copy = self.copy()
                 for single_operand in self_copy % od.DataSource( list() ):
                     single_operand << single_operand - operand
