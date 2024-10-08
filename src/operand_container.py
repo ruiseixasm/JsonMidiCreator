@@ -405,6 +405,11 @@ class Sequence(Container):  # Just a container of Elements
                 for item_i in range(last_item):
                     self._operand_list[item_i] += operand._operand_list[item_i]
                 return self
+            case tuple():
+                last_item: int = min(self.len(), len(operand))
+                for item_i in range(last_item):
+                    self._operand_list[item_i] << self._operand_list[item_i] + operand[item_i]
+                return self
             case o.Operand() | int() | float() | Fraction():
                 self_copy = self.copy()
                 for single_operand in self_copy._operand_list:
@@ -421,6 +426,11 @@ class Sequence(Container):  # Just a container of Elements
                 last_item: int = min(self.len(), operand.len())
                 for item_i in range(last_item):
                     self._operand_list[item_i] -= operand._operand_list[item_i]
+                return self
+            case tuple():
+                last_item: int = min(self.len(), len(operand))
+                for item_i in range(last_item):
+                    self._operand_list[item_i] << self._operand_list[item_i] - operand[item_i]
                 return self
             case o.Operand() | int() | float() | Fraction():
                 self_copy = self.copy()

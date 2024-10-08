@@ -27,3 +27,8 @@ familiar_bar3 = Note("E", 5) + Note("D", 5) + Note("G") + Note("A")
 familiar_bar4 = Note("B", NoteValue(1))
 
 familiar_bar1 >> familiar_bar2 >> familiar_bar3 >> familiar_bar4 >> Play()
+
+
+tension = Note("B", 5) * 12 << Nth(7)**NoteValue(1/2) >> Stack() << Equal(Measure(3))**NoteValue(1) >> Stack()
+tension + (1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
+tension >> Play()
