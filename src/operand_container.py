@@ -406,7 +406,7 @@ class Sequence(Container):  # Just a container of Elements
                 if self_copy.len() > 0:
                     self_copy._operand_list[0] << self_copy._operand_list[0] % ot.Position() + operand
             case oe.Element() | Sequence():
-                return operand + self.stack()
+                return (operand + self).stack()
         return self_copy.stack()
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
