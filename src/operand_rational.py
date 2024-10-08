@@ -447,11 +447,11 @@ class Measure(TimeUnit):
             # case Measure():
             #     self._rational = operand % o.Operand() % Fraction()
             case Beat():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+                self._rational = operand._rational / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
             case Step():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+                self._rational = operand._rational / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
             case NoteValue():
-                self._rational = operand % Fraction() / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+                self._rational = operand._rational / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
             case _: super().__lshift__(operand)
         return self
 
