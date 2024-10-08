@@ -367,6 +367,15 @@ class Sequence(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
+    def __lshift__(self, operand: any) -> 'Sequence':
+        match operand:
+            case tuple():
+                last_item: int = min(self.len(), len(operand))
+                for item_i in range(last_item):
+                    self._operand_list[item_i] << operand[item_i]
+            case _: super().__lshift__(operand)
+        return self
+
     def reverse(self) -> 'Sequence':
         super().reverse()
         self.first() << self.last() % ot.Position()

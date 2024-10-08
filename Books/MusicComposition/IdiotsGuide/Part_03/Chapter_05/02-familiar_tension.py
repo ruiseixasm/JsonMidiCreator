@@ -33,3 +33,4 @@ tension = Note("B", 5) * 12 << Nth(7)**NoteValue(1/2) >> Stack() << Equal(Measur
 tension + (1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
 tension >> Play()
 
+center = Note("B", 5) * 11 << (1/2, None, None, 1/2, None, None, None, None, None, None, 1/1) >> Stack() >> Play()

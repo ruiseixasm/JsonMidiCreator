@@ -470,10 +470,11 @@ class Rest(Element):
             case Rest():
                 super().__lshift__(operand)
                 self._duration      << operand._duration
-            case ot.Duration() | ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                                     self._duration << operand
-                                    if isinstance(operand, ro.NoteValue):
-                                        self._length << operand
+                                    self._length << operand
+            case ot.Duration():
+                                    self._duration << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -588,7 +589,7 @@ class Note(Rest):
                 self._key_note      << operand._key_note
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
