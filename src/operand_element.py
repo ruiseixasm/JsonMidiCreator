@@ -185,9 +185,11 @@ class Element(o.Operand):
         if isinstance(operand, (ot.Position, Element, oc.Sequence)):
             operand_end = operand.end()
             self_start = self.start()
+            self_copy = self.copy()
             if type(operand_end) != ol.Null and type(self_start) != ol.Null:
                 self_drag = ot.Length() << operand_end - self_start
-                self << self % ot.Position() + self_drag
+                self_copy << self % ot.Position() + self_drag
+            return self_copy
         if isinstance(operand, (oc.Sequence, Element)):
             return operand + self
         else:

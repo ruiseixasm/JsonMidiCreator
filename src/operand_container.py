@@ -233,13 +233,13 @@ class Container(o.Operand):
         self_copy: Container = self.copy()
         match operand:
             case o.Operand():
-                self_copy._operand_list.insert(operand.copy())
+                self_copy._operand_list.insert(0, operand.copy())
             case int(): # repeat n times the first argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
                     first_operand = self._operand_list[0]
                     while operand > 0:
-                        operand_list.insert(first_operand.copy())
+                        operand_list.insert(0, first_operand.copy())
                         operand -= 1
             case ol.Null(): return ol.Null()
         return self_copy
