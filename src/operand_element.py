@@ -182,18 +182,15 @@ class Element(o.Operand):
 
     # operand is the pusher
     def __rrshift__(self, operand: o.Operand) -> 'Element':
+        self_copy = self.copy()
         if isinstance(operand, (ot.Position, Element, oc.Sequence)):
             operand_end = operand.end()
-            self_start = self.start()
-            self_copy = self.copy()
-            if type(operand_end) != ol.Null and type(self_start) != ol.Null:
-                self_drag = ot.Length() << operand_end - self_start
-                self_copy << self % ot.Position() + self_drag
-            return self_copy
+            if isinstance(operand_end, ot.Position):
+                self_copy << operand_end
         if isinstance(operand, (oc.Sequence, Element)):
-            return operand + self
+            return operand + self_copy
         else:
-            return self.copy()
+            return self_copy
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()

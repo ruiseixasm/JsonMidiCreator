@@ -22,8 +22,8 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 familiar_bar1 = Note("F", 5) * 4 - Iterate()**0
-familiar_bar2 = Note("B", Dotted(1/2)) + Note("F", 5)
-familiar_bar3 = Note("E", 5) + Note("D", 5) + Note("G") + Note("A")
+familiar_bar2 = Note("B", Dotted(1/2)) + Note("F", 5) >> Stack()
+familiar_bar3 = Note("E", 5) + Note("D", 5) + Note("G") + Note("A") >> Stack()
 familiar_bar4 = Note("B", NoteValue(1))
 
-familiar_bar1 + familiar_bar2 + familiar_bar3 + familiar_bar4 >> Stack() >> Play()
+familiar_bar1 >> familiar_bar2 >> familiar_bar3 >> familiar_bar4 >> Play()
