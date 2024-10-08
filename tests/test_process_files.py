@@ -93,16 +93,17 @@ first_sequence =  Position(2) >> (base_note * 8 // Step(1) << Channel(10)) >> Sa
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
-Position(0) >> second_sequence
-second_sequence /= Beat(2)
-second_sequence /= NoteValue(2)
-Position(4) >> second_sequence
+second_sequence = Position(0) >> second_sequence
+second_sequence /= Position(2)
+second_sequence /= Length(2)
+second_sequence = Position(4) >> second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Sequence(first_sequence) + Sequence(second_sequence)
 all_elements += (Length() << Beat(2) >> first_note) + single_clock
-all_elements >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Export("json/testing/_Export_1.2_all_elements.json")
+all_elements >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Export("json/testing/_Export_1.2_all_elements.json") \
+    >> Save("json/testing/_Save_Play_p.4_first_note_compare.json") >> Export("json/testing/_Export_Play_p.4_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 1.5",

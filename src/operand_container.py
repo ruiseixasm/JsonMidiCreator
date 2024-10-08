@@ -381,19 +381,19 @@ class Sequence(Container):  # Just a container of Elements
         return self
 
     # operand is the pusher
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
-        if isinstance(operand, (ot.Position, oe.Element, Sequence)):
-            operand_end = operand.end()
-            self_start = self.start()
-            if type(operand_end) != ol.Null and type(self_start) != ol.Null:
-                self_drag = ot.Length() << operand_end - self_start
-                for single_element in self._operand_list:
-                    single_element << single_element % ot.Position() + self_drag
-        if isinstance(operand, (Sequence, oe.Element)):
-            return operand + self
-        else:
-            return self.copy()
+        self_copy: Sequence = self.copy()
+        match operand:
+            case ot.Position():
+                if self_copy.len() > 0:
+                    self_copy._operand_list[0] << operand
+            case ot.Length():
+                if self_copy.len() > 0:
+                    self_copy._operand_list[0] << self_copy._operand_list[0] % ot.Position() + operand
+            case oe.Element() | Sequence():
+                return operand + self.stack()
+        return self_copy.stack()
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
@@ -475,12 +475,7 @@ class Sequence(Container):  # Just a container of Elements
         match length:
             case ot.Length():
                 import operand_element as oe
-                starting_position = None
                 for single_operand in self._operand_list:
                     if isinstance(single_operand, oe.Element):
-                        if starting_position is None:
-                            starting_position = single_operand % ot.Position()
-                        else:
-                            starting_position += length
-                            single_operand << ot.Position() << starting_position
-        return self
+                        single_operand << length
+        return self.stack()

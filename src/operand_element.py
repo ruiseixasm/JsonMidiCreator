@@ -63,6 +63,7 @@ class Element(o.Operand):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
+            case ro.NoteValue():    return self._length % operand
             case ro.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
@@ -168,9 +169,10 @@ class Element(o.Operand):
                 self._device        << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ot.Length() | ro.NoteValue():
+                                    self._length << operand
             case ot.Position() | ro.TimeUnit():
                                     self._position << operand
-            case ot.Length():       self._length << operand
             case ou.Channel():      self._channel << operand
             case od.Device():       self._device << operand
             case od.Serialization():
@@ -185,6 +187,9 @@ class Element(o.Operand):
         match operand:
             case ot.Position():
                 return self.copy() << operand
+            case ot.Length():
+                self_copy = self.copy()
+                return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
                 return operand + self >> ol.Stack()
             case _:
@@ -385,7 +390,6 @@ class Rest(Element):
                     case ot.Duration():     return self._duration
                     case _:                 return super().__mod__(operand)
             case ot.Duration():     return self._duration.copy()
-            case ro.NoteValue():    return self._duration % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
