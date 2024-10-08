@@ -367,6 +367,11 @@ class Sequence(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
+    def reverse(self) -> 'Sequence':
+        super().reverse()
+        self.first() << self.last() % ot.Position()
+        return self.stack()
+
     def stack(self) -> 'Sequence':
         import operand_element as oe
         last_position = None
