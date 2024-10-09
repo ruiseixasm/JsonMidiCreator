@@ -31,7 +31,7 @@ familiar_bar4 = Note("B", NoteValue(1))
 
 tension = Note("B", 5) * 12 << Nth(7)**NoteValue(1/2) >> Stack() << Equal(Measure(3))**NoteValue(1) >> Stack()
 tension + (1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
-tension >> Play()
+# tension >> Play()
 
 staff << KeySignature("#")
 center = Note("B", 5) * 11 << (1/2, None, None, 1/2, None, None, None, None, None, None, 1/1) >> Stack()
@@ -39,7 +39,7 @@ center = Note("B", 5) * 11 << (1/2, None, None, 1/2, None, None, None, None, Non
 (center | Measure(0)) + (0, -2, -1)
 (center | Measure(1)) + (0, 2, 1)
 (center | Measure(2)) + (0, -1, -2, -1)
-center >> Play()
+# center >> Play()
 
 staff << KeySignature("b") << Tempo(90)
 repeat_1 = Note("B", 5) * 5 + (-1, 0, -1, -2, -1) << (1/8, 1/8)
@@ -47,5 +47,10 @@ repeat_2 = Note("B", 5) * 4 + (-1, 0, -1, -2) << (1/8, 1/8, 1/4, 1/2)
 repeat_3 = Note("B", 5) * 5 + (-1, 0, -1, -2, -3) << (1/8, 1/8)
 repeat_4 = Note("B", 5) - 2 << 1/1
 
-(repeat_1, repeat_2, repeat_3) >> repeat_4 >> Play()
+# (repeat_1, repeat_2, repeat_3) >> repeat_4 >> Play()
 
+form_1 = Note("B", 5, Gate(1)) * 6 << Nth(1, 6)**NoteValue(1) << Nth(2, 3, 4, 5)**NoteValue(1/2) << Nth(6)**Gate(0.9) >> Stack()
+form_1 + (0, 3, 2, 1, 2)
+
+staff << KeySignature("#") << Tempo(110)
+form_1 >> Play()
