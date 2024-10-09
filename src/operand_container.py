@@ -407,6 +407,13 @@ class Sequence(Container):  # Just a container of Elements
                     self_copy._operand_list[0] << self_copy._operand_list[0] % ot.Position() + operand
             case oe.Element() | Sequence():
                 return (operand + self).stack()
+            case tuple():
+                # Apply >> sequentially across the elements in the tuple
+                result = operand[0]  # Start with the first element
+                for elem in operand[1:]:
+                    if isinstance(elem, o.Operand):
+                        result >>= elem  # Chain elements in the tuple
+                return result >> self
         return self_copy.stack()
 
     def __add__(self, operand: o.Operand) -> 'Sequence':

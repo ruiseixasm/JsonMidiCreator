@@ -47,5 +47,5 @@ repeat_2 = Note("B", 5) * 4 + (-1, 0, -1, -2) << (1/8, 1/8, 1/4, 1/2)
 repeat_3 = Note("B", 5) * 5 + (-1, 0, -1, -2, -3) << (1/8, 1/8)
 repeat_4 = Note("B", 5) - 2 << 1/1
 
-repeat_1 >> repeat_2 >> repeat_3 >> repeat_4 >> Play()
+(repeat_1, repeat_2, repeat_3) >> repeat_4 >> Play()
 

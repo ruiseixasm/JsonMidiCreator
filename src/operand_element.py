@@ -192,6 +192,13 @@ class Element(o.Operand):
                 return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
                 return operand + self >> ol.Stack()
+            case tuple():
+                # Apply >> sequentially across the elements in the tuple
+                result = operand[0]  # Start with the first element
+                for elem in operand[1:]:
+                    if isinstance(elem, o.Operand):
+                        result >>= elem  # Chain elements in the tuple
+                return result >> self
             case _:
                 return self.copy()
 
