@@ -164,7 +164,11 @@ class Operand:
     # operand is the pusher
     def __rrshift__(self, operand: 'Operand') -> 'Operand':
         return self
-
+    
+    def __irshift__(self, other):
+        # Simply delegate to the __rshift__ method
+        return self.__rshift__(other)
+    
     def __add__(self, operand: 'Operand') -> 'Operand':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
@@ -202,14 +206,6 @@ class Operand:
             # Apply << operation between current next_operand and the result
             return self._next_operand << result     # Ensures << is applied only if more elements in the chain
         return operand  # Return operand if there is no next operand in the chain
-    
-    # def __and__(self, operand: 'Operand') -> 'Operand':
-    #     if self._next_operand is not None:
-    #         self_next_next = self._next_operand._next_operand
-    #         if self_next_next is not None:
-    #             result = self_next_next & operand
-    #         return self._next_operand << result     # End of the recursion
-    #     return operand
     
     def __or__(self, operand: 'Operand') -> 'Operand':
         return operand.__ror__(self)
