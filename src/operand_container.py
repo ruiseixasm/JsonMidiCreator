@@ -164,10 +164,10 @@ class Container(o.Operand):
         for operand_i in range(self.len() - 1):
             sorted_list = True
             for operand_j in range(self.len() - 1 - operand_i):
-                if self._operand_list[operand_j - 1] % compare > self._operand_list[operand_j] % compare:
-                    temporary_operand = self._operand_list[operand_j - 1]
-                    self._operand_list[operand_j - 1] = self._operand_list[operand_j]
-                    self._operand_list[operand_j] = temporary_operand
+                if self._operand_list[operand_j] % compare > self._operand_list[operand_j + 1] % compare:
+                    temporary_operand = self._operand_list[operand_j]
+                    self._operand_list[operand_j] = self._operand_list[operand_j + 1]
+                    self._operand_list[operand_j + 1] = temporary_operand
                     sorted_list = False
             if sorted_list: break
         return self

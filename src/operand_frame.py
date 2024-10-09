@@ -33,6 +33,7 @@ import operand_label as ol
 class Frame(o.Operand):
     def __init__(self):
         super().__init__()
+        self._next_operand: o.Operand = o.Operand()
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
     def __iter__(self):
@@ -229,15 +230,16 @@ class SubjectFilter(Frame):
                 return self.__class__( self._filter_operand )
     
 class Equal(SubjectFilter):
-    def __init__(self, filter_operand: o.Operand):
-        super().__init__(filter_operand)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject == self._filter_operand:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                self_operand &= subject
-            return self_operand
+        for condition in self._filter_operand:
+            if subject == condition:
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
         return ol.Null()
 
 class NotEqual(SubjectFilter):
