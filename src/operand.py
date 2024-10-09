@@ -157,6 +157,9 @@ class Operand:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self
 
+    def __ilshift__(self, other):
+        return self.__lshift__(other)
+    
     # self is the pusher
     def __rshift__(self, operand: 'Operand') -> 'Operand':
         return operand.__rrshift__(self)
@@ -176,6 +179,9 @@ class Operand:
     def __radd__(self, operand: 'Operand') -> 'Operand':
         return self.__add__(operand)
 
+    def __iadd__(self, other):
+        return self.__add__(other)
+    
     def __sub__(self, operand: 'Operand') -> 'Operand':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
@@ -183,6 +189,9 @@ class Operand:
     def __rsub__(self, operand: 'Operand') -> 'Operand':
         return self.__mul__(-1).__add__(operand)
 
+    def __isub__(self, other):
+        return self.__sub__(other)
+    
     def __mul__(self, operand: 'Operand') -> 'Operand':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
@@ -190,9 +199,15 @@ class Operand:
     def __rmul__(self, operand: 'Operand') -> 'Operand':
         return self.__mul__(operand)
 
+    def __imul__(self, other):
+        return self.__mul__(other)
+    
     def __truediv__(self, operand: 'Operand') -> 'Operand':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy()
+    
+    def __idiv__(self, other):
+        return self.__truediv__(other)
     
     def __floordiv__(self, operand: 'Operand') -> 'Operand':
         return self.copy()
@@ -206,6 +221,9 @@ class Operand:
             # Apply << operation between current next_operand and the result
             return self._next_operand << result     # Ensures << is applied only if more elements in the chain
         return operand  # Return operand if there is no next operand in the chain
+    
+    def __iand__(self, other):
+        return self.__and__(other)
     
     def __or__(self, operand: 'Operand') -> 'Operand':
         return operand.__ror__(self)
