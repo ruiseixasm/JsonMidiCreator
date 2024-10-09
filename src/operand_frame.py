@@ -201,13 +201,13 @@ class Nths(FrameFilter):
             return ol.Null()
 
 class Nth(FrameFilter):
-    def __init__(self, nth: int = 4):
+    def __init__(self, *parameters):
         self._call: int = 0
-        self._nth: int = nth
+        self._nth: tuple = parameters
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._call += 1
-        if self._call == self._nth:
+        if self._call in self._nth:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & subject
             return self._next_operand
