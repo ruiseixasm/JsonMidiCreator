@@ -1162,6 +1162,7 @@ class Triplet(Tuplet):
 class ControlChange(Element):
     def __init__(self, *parameters):
         super().__init__()
+        self._length << ro.Step(1)
         self._controller: og.Controller = os.staff % og.Controller()
         self << parameters
 
@@ -1269,6 +1270,7 @@ class ControlChange(Element):
 class PitchBend(Element):
     def __init__(self, *parameters):
         super().__init__()
+        self._length << ro.Step(1)
         self._pitch: ou.Pitch = ou.Pitch()
         self << parameters
 
@@ -1373,6 +1375,7 @@ class PitchBend(Element):
 class Aftertouch(Element):
     def __init__(self, *parameters):
         super().__init__()
+        self._length << ro.Step(1)
         self._channel = os.staff % ou.Channel()
         self._pressure: ou.Pressure = ou.Pressure()
         self << parameters
@@ -1477,6 +1480,7 @@ class Aftertouch(Element):
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
         super().__init__()
+        self._length << ro.Step(1)
         self._key_note: og.KeyNote  = og.KeyNote()
         self << parameters
 
@@ -1565,6 +1569,7 @@ class PolyAftertouch(Aftertouch):
 class ProgramChange(Element):
     def __init__(self, *parameters):
         super().__init__()
+        self._length << ro.Step(1)
         self._program: ou.Program = ou.Program()
         self << parameters
 

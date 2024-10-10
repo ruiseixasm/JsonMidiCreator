@@ -261,7 +261,7 @@ class Oscillator(Operator):
                 wave_time_amplitude_int = round(self._amplitude % Fraction() * math.sin(math.radians(wave_time_angle)))
                 wave_time_amplitude_int += self._offset % int()
                 if isinstance(self._operand, o.Operand):
-                    operand << (self._operand.copy() << wave_time_amplitude_int)
+                    operand << (self._operand << wave_time_amplitude_int)
                 else:
                     operand << wave_time_amplitude_int
         return operand

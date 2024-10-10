@@ -644,10 +644,6 @@ class Step(TimeUnit):
                 self._rational = operand % Fraction() * \
                     ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
                     / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
-            case int() | Fraction() | float():
-                steps_per_measure = os.staff % StepsPerMeasure() % int()
-                value_floor = operand // steps_per_measure
-                self._rational = Fraction(operand - value_floor).limit_denominator()
             case _: super().__lshift__(operand)
         return self
 

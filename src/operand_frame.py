@@ -322,6 +322,7 @@ class Iterate(OperandFilter):
     def __init__(self, step = None):
         super().__init__()
         self._step: int = 1 if step is None else step
+        self._data = self._step * 0 # Sets the _data variable type
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
