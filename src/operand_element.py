@@ -260,7 +260,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._length << os.staff % od.DataSource( ro.Measure() )
+        self._duration = ot.Duration() << os.staff % od.DataSource( ro.Measure() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         self << parameters
 
@@ -279,8 +279,10 @@ class Clock(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case ot.Duration():     return self._duration
                     case ou.PPQN():     return self._pulses_per_quarternote
                     case _:             return super().__mod__(operand)
+            case ot.Duration(): return self._duration.copy()
             case ou.PPQN():     return self._pulses_per_quarternote.copy()
             case _:             return super().__mod__(operand)
 
@@ -289,6 +291,7 @@ class Clock(Element):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
+                    and self._duration == other_operand % od.DataSource( ot.Duration() ) \
                     and self._pulses_per_quarternote == other_operand % od.DataSource( ou.PPQN() )
             case _:
                 return super().__eq__(other_operand)
@@ -301,11 +304,11 @@ class Clock(Element):
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
         pulses_per_beat = pulses_per_note * (os.staff % ro.BeatNoteValue() % od.DataSource( Fraction() ))
         pulses_per_measure = pulses_per_beat * (os.staff % ro.BeatsPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses = round(pulses_per_measure * (self._length % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )))
+        clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )))
 
         single_measure_rational_ms = ro.Measure(1.0).getTime_rational()
         clock_start_rational_ms = self_position.getTime_rational()
-        clock_stop_rational_ms = clock_start_rational_ms + self._length.getTime_rational()
+        clock_stop_rational_ms = clock_start_rational_ms + self._duration.getTime_rational()
 
         self_playlist = [
                 {
@@ -321,7 +324,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(float(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._length % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )) \
+                                     + single_measure_rational_ms * (self._duration % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )) \
                                      * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
@@ -344,6 +347,7 @@ class Clock(Element):
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
+        element_serialization["parameters"]["duration"]                 = self._duration.getSerialization()
         element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource( int() )
         return element_serialization
 
@@ -351,9 +355,10 @@ class Clock(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pulses_per_quarternote" in serialization["parameters"]):
+            "duration" in serialization["parameters"] and "pulses_per_quarternote" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._duration                  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
             self._pulses_per_quarternote    = ou.PPQN() << od.DataSource( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
@@ -362,11 +367,17 @@ class Clock(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case ot.Duration():     self._duration = operand % o.Operand()
                     case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Clock():
                 super().__lshift__(operand)
                 self._pulses_per_quarternote << operand._pulses_per_quarternote
+            case ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+                                    self._duration << operand
+                                    self._length << operand
+            case ot.Duration():
+                                    self._duration << operand
             case ou.PPQN():         self._pulses_per_quarternote << operand
             case int() | float():   self._length = ot.Length(operand)
             case _: super().__lshift__(operand)
