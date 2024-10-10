@@ -381,6 +381,17 @@ class Sequence(Container):  # Just a container of Elements
         self.first() << self.last() % ot.Position()
         return self.stack()
 
+    def link(self) -> 'Sequence':
+        import operand_element as oe
+        self.sort()
+        last_element = None
+        for elem in self._operand_list:
+            if isinstance(elem, oe.Element):
+                if last_element is not None:
+                    last_element << ot.Length(elem % od.DataSource( ot.Position() ) - last_element % od.DataSource( ot.Position() ))
+                last_element = elem
+        return self
+
     def stack(self) -> 'Sequence':
         import operand_element as oe
         last_position = None
