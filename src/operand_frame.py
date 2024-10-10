@@ -334,6 +334,25 @@ class Iterate(OperandFilter):
             return stepped_operand
         return ol.Null()
     
+class Foreach(OperandFilter):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._step: int     = 1
+        self._index: int    = 0
+        self._data: tuple   = parameters
+        self._len: int      = len(parameters)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if self_operand is not None:
+            stepped_operand = self_operand + self._data[self._index]
+            self._index += self._step
+            self._index %= self._len
+            return stepped_operand
+        return ol.Null()
+    
 class Wrapper(OperandFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__()
