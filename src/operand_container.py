@@ -250,11 +250,11 @@ class Container(o.Operand):
             case Container():
                 # Exclude items based on equality (==) comparison
                 self_copy._operand_list = [
-                        item for item in self_copy._operand_list
+                        item.copy() for item in self._operand_list
                         if all(item != operand_item for operand_item in operand)
                     ]
             case o.Operand():
-                self_copy._operand_list = [item for item in self_copy._operand_list if item != operand]
+                self_copy._operand_list = [item.copy() for item in self._operand_list if item != operand]
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
