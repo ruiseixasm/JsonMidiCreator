@@ -417,12 +417,12 @@ class Sequence(Container):  # Just a container of Elements
         import operand_element as oe
         self_copy: Sequence = self.copy()
         match operand:
-            case ot.Position():
-                if self_copy.len() > 0:
-                    self_copy._operand_list[0] << operand
-            case ot.Length():
+            case ot.Length() | ro.NoteValue():
                 if self_copy.len() > 0:
                     self_copy._operand_list[0] << self_copy._operand_list[0] % ot.Position() + operand
+            case ot.Position() | ro.TimeUnit():
+                if self_copy.len() > 0:
+                    self_copy._operand_list[0] << operand
             case oe.Element() | Sequence():
                 return (operand + self).stack()
             case tuple():

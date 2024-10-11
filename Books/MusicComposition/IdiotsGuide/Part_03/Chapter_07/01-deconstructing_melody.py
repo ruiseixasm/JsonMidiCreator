@@ -56,7 +56,7 @@ outline >> Play()
 
 outline -= outline | Beat(0)
 embelishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack()
-embelishing += (Position(1) >> embelishing) + (Position(2) >> embelishing) + (Position(3) >> embelishing)
+embelishing += (Measure(1) >> embelishing) + (Measure(2) >> embelishing) + (Measure(3) >> embelishing)
 embelishing + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
 
 (outline + embelishing >> Link() >> Play() | Measure(0)) % Length() >> Print(0)
