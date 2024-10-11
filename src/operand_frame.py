@@ -61,7 +61,7 @@ class Frame(o.Operand):
 
         Examples
         --------
-        >>> frame = Wrapper(Position())**Increment(2)**Step()
+        >>> frame = Wrap(Position())**Increment(2)**Step()
         >>> frame % Step() >> Print(0)
         {'class': 'Step', 'parameters': {'value': 0.0}}
         >>> Null() + frame + frame
@@ -353,7 +353,37 @@ class Foreach(OperandFilter):
             return stepped_operand
         return ol.Null()
     
-class Wrapper(OperandFilter):
+class Set(OperandFilter):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__()
+        self._data = operand    # data is the targeted operand
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_operator as oo
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        match self._data:
+            case o.Operand():   return self._data.copy() << self_operand
+            case None:          return ol.Null()
+            case _:             return self._data
+        
+class Push(OperandFilter):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__()
+        self._data = operand    # data is the targeted operand
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_operator as oo
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        match self._data:
+            case o.Operand():   return self_operand >> self._data
+            case None:          return ol.Null()
+            case _:             return self._data
+
+class Wrap(OperandFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__()
         self._data = operand    # data is the targeted operand
@@ -377,7 +407,7 @@ class Wrapper(OperandFilter):
                     case None:          return ol.Null()
                     case _:             return self._data
 
-class Extractor(OperandFilter):
+class Extract(OperandFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__()
         self._data = operand    # data is the targeted operand

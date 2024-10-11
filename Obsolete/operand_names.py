@@ -95,8 +95,8 @@ class Names(o.Operand):
         #     "OperandFilter":    of.OperandFilter,
         #     "Subject":          of.Subject,
         #     "Iterate":          of.Iterate,
-        #     "Wrapper":          of.Wrapper,
-        #     "Extractor":        of.Extractor,
+        #     "Wrap":          of.Wrap,
+        #     "Extract":        of.Extract,
         #     "OperandEditor":    of.OperandEditor,
         #     "Increment":        of.Increment,
 
