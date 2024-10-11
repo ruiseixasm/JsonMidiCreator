@@ -253,7 +253,8 @@ class Container(o.Operand):
                         if all(item != operand_item for operand_item in operand)
                     ]
             case o.Operand():
-                self_copy._operand_list = [item.copy() for item in self._operand_list if item != operand]
+                self._operand_list = [item for item in self._operand_list if item != operand]
+                return self
             case int(): # repeat n times the last argument if any
                 operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
