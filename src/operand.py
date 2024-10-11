@@ -238,3 +238,7 @@ class Operand:
             if isinstance(single_operand, Operand):
                 copy_list.append(single_operand.copy())
         return copy_list
+
+    def __xor__(self, operand: 'Operand') -> 'Operand':
+        self & operand  # Processes the tailed self operands or the Frame operand if any exists
+        return self
