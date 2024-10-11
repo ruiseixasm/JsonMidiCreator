@@ -139,6 +139,9 @@ class Frame(o.Operand):
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA)
 
 class FrameFilter(Frame):
+    def __init__(self):
+        super().__init__()
+
     def __and__(self, subject: o.Operand) -> o.Operand:
         super().__init__()
         for operand in subject:
@@ -150,21 +153,30 @@ class FrameFilter(Frame):
         return self.__class__ == other.__class__
 
 class Canvas(FrameFilter):
+    def __init__(self):
+        super().__init__()
+
     def __and__(self, subject: o.Operand) -> o.Operand:
         return self % o.Operand()
 
 class Blank(FrameFilter):
+    def __init__(self):
+        super().__init__()
+
     def __and__(self, subject: o.Operand) -> o.Operand:
         return ol.Null()
 
 class Inner(FrameFilter):
-    pass
+    def __init__(self):
+        super().__init__()
     
 class Outer(FrameFilter):
-    pass
+    def __init__(self):
+        super().__init__()
 
 class Odd(FrameFilter):
     def __init__(self):
+        super().__init__()
         self._call: int = 0
 
     def __and__(self, subject: o.Operand) -> o.Operand:
@@ -176,6 +188,7 @@ class Odd(FrameFilter):
 
 class Even(FrameFilter):
     def __init__(self):
+        super().__init__()
         self._call: int = 0
         
     def __and__(self, subject: o.Operand) -> o.Operand:
@@ -189,6 +202,7 @@ class Even(FrameFilter):
 
 class Nths(FrameFilter):
     def __init__(self, nths: int = 4):
+        super().__init__()
         self._call: int = 0
         self._nths: int = nths
 
@@ -203,6 +217,7 @@ class Nths(FrameFilter):
 
 class Nth(FrameFilter):
     def __init__(self, *parameters):
+        super().__init__()
         self._call: int = 0
         self._nth: tuple = parameters
 
@@ -310,6 +325,9 @@ class OperandFilter(Frame):
         self._data = 0
 
 class Subject(OperandFilter):
+    def __init__(self):
+        super().__init__()
+
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
@@ -443,4 +461,3 @@ class Increment(OperandEditor):
             self_operand << self_operand + self._step
             return last_self_operand
         return ol.Null()
-
