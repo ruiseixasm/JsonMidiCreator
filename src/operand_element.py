@@ -375,7 +375,7 @@ class Clock(Element):
                 self._pulses_per_quarternote << operand._pulses_per_quarternote
             case ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                                     self._duration << operand
-                                    self._length << operand
+                                    self._length << (ro.NoteValue() << operand)
             case ot.Duration():
                                     self._duration << operand
             case ou.PPQN():         self._pulses_per_quarternote << operand
@@ -490,7 +490,7 @@ class Rest(Element):
                 self._duration      << operand._duration
             case ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                                     self._duration << operand
-                                    self._length << operand
+                                    self._length << (ro.NoteValue() << operand)
             case ot.Duration():
                                     self._duration << operand
             case _: super().__lshift__(operand)

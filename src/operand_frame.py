@@ -317,6 +317,45 @@ class LowerEqual(SubjectFilter):
             return self_operand
         return ol.Null()
 
+class Get(SubjectFilter):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__(operand)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_operator as oo
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        match subject:
+            case o.Operand():   return self_operand << subject % self._filter_operand
+            case _:             return self_operand << subject
+        
+class Set(SubjectFilter):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__(operand)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_operator as oo
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        match subject:
+            case o.Operand():   return subject << self_operand
+            case _:             return subject
+        
+class Push(SubjectFilter):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__(operand)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_operator as oo
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        match subject:
+            case o.Operand():   return self_operand >> subject
+            case _:             return subject
+
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
 class OperandFilter(Frame):
@@ -371,36 +410,6 @@ class Foreach(OperandFilter):
             return stepped_operand
         return ol.Null()
     
-class Set(OperandFilter):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__()
-        self._data = operand    # data is the targeted operand
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= subject
-        match self._data:
-            case o.Operand():   return self._data.copy() << self_operand
-            case None:          return ol.Null()
-            case _:             return self._data
-        
-class Push(OperandFilter):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__()
-        self._data = operand    # data is the targeted operand
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= subject
-        match self._data:
-            case o.Operand():   return self_operand >> self._data
-            case None:          return ol.Null()
-            case _:             return self._data
-
 class Wrap(OperandFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__()

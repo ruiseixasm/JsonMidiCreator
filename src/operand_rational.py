@@ -465,12 +465,7 @@ class Beat(TimeUnit):
         Proportional value to a Beat on the Staff
     """
     def __init__(self, value: float = None):
-        if value is not None:
-            beats_per_measure = os.staff % od.DataSource( BeatsPerMeasure() ) % int()
-            value_floor = value // beats_per_measure
-            super().__init__(value - value_floor)
-        else:
-            super().__init__(value)
+        super().__init__(value)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -561,12 +556,7 @@ class Step(TimeUnit):
         Steps as 1, 2, 4, 8
     """
     def __init__(self, value: float = None):
-        if value is not None:
-            steps_per_measure = os.staff % StepsPerMeasure() % int()
-            value_floor = value // steps_per_measure
-            super().__init__(value - value_floor)
-        else:
-            super().__init__(value)
+        super().__init__(value)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
