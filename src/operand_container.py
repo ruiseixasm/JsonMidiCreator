@@ -214,9 +214,8 @@ class Container(o.Operand):
                 self_copy << self._operand_list + operand._operand_list
                 return self_copy
             case o.Operand():
-                self_copy: Container = self.copy()
-                self_copy._operand_list.append(operand.copy())
-                return self_copy
+                self._operand_list.append(operand.copy())
+                return self
             case int() | ou.Integer(): # repeat n times the last argument if any
                 self_copy: Container = self.copy()
                 operand_list = self_copy % list()
