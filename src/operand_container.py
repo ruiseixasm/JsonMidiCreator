@@ -337,6 +337,13 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():   return super().__mod__(operand)
             case ol.Start():        return self.start()
             case ol.End():          return self.end()
+            case ot.Length():
+                import operand_element as oe
+                total_length = ot.Length()
+                for elem in self._operand_list:
+                    if isinstance(elem, oe.Element):
+                        total_length += elem % od.DataSource( ot.Length() )
+                return total_length
             case _:                 return super().__mod__(operand)
 
     def start(self) -> ot.Position:
