@@ -45,3 +45,18 @@ full << Get(Length())**Duration()
 full >> Play()
 
 # ((full | Measure(0)) >> Print()) % Length() >> Print(0)
+
+staff << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
+outline: Sequence = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
+outline *= 4
+outline + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
+(outline - outline % Last() | outline % Last()) << Dotted(1/2)
+outline << Equal(Measure(2))**Equal(Beat(6))**KeyNote("A", 4)
+outline >> Play()
+
+outline -= outline | Beat(0)
+embelishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack()
+embelishing += (Position(1) >> embelishing) + (Position(2) >> embelishing) + (Position(3) >> embelishing)
+embelishing + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
+
+(outline + embelishing >> Link() >> Play() | Measure(0)) % Length() >> Print(0)
