@@ -25,13 +25,13 @@ staff << TimeSignature(3, 4) << KeySignature("#")
 outline = Note("D") * 2 + Note("E") + Note("G") + Note("C") << Dotted(1/2) << Octave(5)
 outline += Note("B", Dotted(1/2)) * 3 - Iterate()**0
 outline >> Stack()
-# outline >> Play()
+outline >> Play()
 
 flesh = Note(Measure(0), Beat(1)) * 2 + Note(Measure(1), Beat(1), 1/2) + Note(Measure(2), Beat(1)) * 2 + Note(Measure(3), Beat(1), 1/2)
 flesh + Note(Measure(4), Beat(2)) + Note(Measure(5), Beat(2)) + Note(Measure(6), Beat(2))
 flesh - 1 + (5, 7, 5, 8, 10, 5, 6, 5, 4)
 outline << Nth(1, 2, 3, 4)**Duration(1/4) << Nth(5, 6, 7)**Duration(1/2)
-# outline + flesh >> Link() >> Play()
+outline + flesh >> Link() >> Play()
 
 embelishing = Note("G", Measure(0), Beat(1), 1/8) * 4 + Iterate()**0
 embelishing += Note("G", Measure(1), Beat(1)) * 2
