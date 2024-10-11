@@ -450,10 +450,9 @@ class Sequence(Container):  # Just a container of Elements
                     self._operand_list[item_i] << self._operand_list[item_i] + operand[item_i]
                 return self
             case o.Operand() | int() | float() | Fraction():
-                self_copy = self.copy()
-                for single_operand in self_copy._operand_list:
+                for single_operand in self._operand_list:
                     single_operand << single_operand + operand
-                return self_copy
+                return self
         return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
@@ -472,10 +471,9 @@ class Sequence(Container):  # Just a container of Elements
                     self._operand_list[item_i] << self._operand_list[item_i] - operand[item_i]
                 return self
             case o.Operand() | int() | float() | Fraction():
-                self_copy = self.copy()
-                for single_operand in self_copy % od.DataSource( list() ):
+                for single_operand in self % od.DataSource( list() ):
                     single_operand << single_operand - operand
-                return self_copy
+                return self
         return super().__sub__(operand)
 
     # multiply with a scalar 
@@ -485,10 +483,9 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                self_copy = self.copy()
-                for single_operand in self_copy % od.DataSource( list() ):
+                for single_operand in self._operand_list:
                     single_operand << single_operand * operand
-                return self_copy
+                return self
             case int():
                 many_operands = self.__class__()    # empty list
                 while operand > 0:
@@ -506,10 +503,9 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                self_copy = self.copy()
-                for single_operand in self_copy % od.DataSource( list() ):
+                for single_operand in self._operand_list:
                     single_operand << single_operand / operand
-                return self_copy
+                return self
             case int(): # Splits the total Length by the integer
                 start_position = self.start()
                 sequence_length: ot.Length = self.end() - start_position
