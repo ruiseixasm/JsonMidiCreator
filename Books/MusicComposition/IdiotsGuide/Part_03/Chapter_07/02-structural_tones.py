@@ -21,13 +21,12 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("b")
-chords = Chord("F", 1/1) + Chord("B", 1/1) + Chord("F", 1/1) + Chord("C", 1/1) \
-       + Chord("F", 1/1, Type("9th")) + Chord("B", 1/1, Type("7th")) \
+staff << KeySignature("b") << Tempo(30)
+chords = Chord("F", 1/1) + Chord("Bb", 1/1) + Chord("F", 1/1) + Chord("C", 1/1) \
+       + Chord("F", 1/1, Type("9th")) + Chord("Bb", 1/1, Type("7th")) \
        + Chord("F", 1/1, Type("7th")) + Chord("C", 1/1, Type("9th")) >> Stack()
 chords >> Play()
-
+staff << Tempo(120)
 notes = Note("B", 1/1) * 8 + (1, 2, -1, -2, -2, -1, -4, -5)
 notes >> Play()
-
 notes + chords >> Play()
