@@ -741,7 +741,7 @@ class KeyScale(Note):
             case od.Scale() | list():   self._scale << operand
             case ou.Mode():             self._mode << operand
             case _: super().__lshift__(operand)
-        if isinstance(o.Operand, og.KeyNote):
+        if isinstance(o.Operand, (og.KeyNote, ou.Natural)):
             self._key_note << ou.Natural(1)
         return self
 
@@ -887,7 +887,7 @@ class Chord(Note):
             case ou.Inversion():            self._inversion << operand
             case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
-        if isinstance(o.Operand, og.KeyNote):
+        if isinstance(o.Operand, (og.KeyNote, ou.Natural)):
             self._key_note << ou.Natural(1)
         return self
 
