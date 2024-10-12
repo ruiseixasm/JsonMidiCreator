@@ -637,6 +637,7 @@ class KeyScale(Note):
         super().__init__()
         self._scale: od.Scale = os.staff % od.Scale()    # default Staff scale
         self._mode: ou.Mode = ou.Mode()
+        self._key_note << ou.Natural(1)
         self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -734,6 +735,8 @@ class KeyScale(Note):
             case od.Scale() | list():   self._scale << operand
             case ou.Mode():             self._mode << operand
             case _: super().__lshift__(operand)
+        if isinstance(o.Operand, og.KeyNote):
+            self._key_note << ou.Natural(1)
         return self
 
 class Chord(Note):
@@ -744,6 +747,7 @@ class Chord(Note):
         self._inversion: ou.Inversion   = ou.Inversion()
         self._type: ou.Type             = ou.Type()
         self._sus: ou.Sus               = ou.Sus()
+        self._key_note << ou.Natural(1)
         self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -876,6 +880,8 @@ class Chord(Note):
             case ou.Inversion():            self._inversion << operand
             case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
+        if isinstance(o.Operand, og.KeyNote):
+            self._key_note << ou.Natural(1)
         return self
 
 class Retrigger(Note):
