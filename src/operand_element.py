@@ -40,6 +40,8 @@ class Element(o.Operand):
         self._length: ot.Length             = ot.Length()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -262,7 +264,8 @@ class Clock(Element):
         super().__init__()
         self._duration = ot.Duration() << os.staff % od.DataSource( ro.Measure() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -388,7 +391,8 @@ class Rest(Element):
         super().__init__()
         self._duration: ot.Duration = os.staff % ot.Duration()
         self._length << self._duration
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -502,7 +506,8 @@ class Note(Rest):
         self._key_note: og.KeyNote  = og.KeyNote() << os.staff % ou.Key() << os.staff % ou.Octave()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -638,7 +643,8 @@ class KeyScale(Note):
         self._scale: od.Scale = os.staff % od.Scale()    # default Staff scale
         self._mode: ou.Mode = ou.Mode()
         self._key_note << ou.Natural(1)
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -748,7 +754,8 @@ class Chord(Note):
         self._type: ou.Type             = ou.Type()
         self._sus: ou.Sus               = ou.Sus()
         self._key_note << ou.Natural(1)
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -892,7 +899,8 @@ class Retrigger(Note):
         self._length   << self._duration * (self._division % int())
         self._gate      = ro.Gate(.50)
         self._swing     = ro.Swing(.50)
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -991,7 +999,8 @@ class Note3(Retrigger):
     def __init__(self, *parameters):
         super().__init__()
         self._division  << ou.Division(3)
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     # CHAINABLE OPERATIONS
 
@@ -1170,7 +1179,8 @@ class ControlChange(Element):
         super().__init__()
         self._length << ro.Step(1)
         self._controller: og.Controller = os.staff % og.Controller()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1278,7 +1288,8 @@ class PitchBend(Element):
         super().__init__()
         self._length << ro.Step(1)
         self._pitch: ou.Pitch = ou.Pitch()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1384,7 +1395,8 @@ class Aftertouch(Element):
         self._length << ro.Step(1)
         self._channel = os.staff % ou.Channel()
         self._pressure: ou.Pressure = ou.Pressure()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1488,7 +1500,8 @@ class PolyAftertouch(Aftertouch):
         super().__init__()
         self._length << ro.Step(1)
         self._key_note: og.KeyNote  = og.KeyNote()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1577,7 +1590,8 @@ class ProgramChange(Element):
         super().__init__()
         self._length << ro.Step(1)
         self._program: ou.Program = ou.Program()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

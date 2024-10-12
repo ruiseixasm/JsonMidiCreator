@@ -212,7 +212,8 @@ class KeyNote(Generic):
         self._octave: ou.Octave     = ou.Octave()
         self._key: ou.Key           = ou.Key()
         self._natural: ou.Natural   = ou.Natural()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -396,9 +397,11 @@ class Controller(Generic):
         super().__init__()
         self._number: ou.Number  = ou.Number()
         self._value: ou.Value    = ou.Value()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
         self._value: ou.Value    = ou.Value( ou.Number.getDefault(self._number % od.DataSource( int() )) )
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

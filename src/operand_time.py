@@ -31,7 +31,8 @@ class Time(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._time_unit      = ro.Measure()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -269,7 +270,8 @@ class Duration(Time):
     def __init__(self, *parameters):
         super().__init__()
         self._time_unit      = ro.NoteValue()
-        self << parameters
+        if len(parameters) > 0:
+            self << parameters
 
     # CHAINABLE OPERATIONS
 
