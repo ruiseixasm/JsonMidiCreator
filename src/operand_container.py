@@ -214,15 +214,15 @@ class Container(o.Operand):
                 self_copy << self._operand_list + operand._operand_list
                 return self_copy
             case o.Operand():
-                self._operand_list.append(operand.copy())
-                return self
+                self_copy = self.copy()
+                self_copy._operand_list.append(operand.copy())
+                return self_copy
             case int() | ou.Integer(): # repeat n times the last argument if any
                 self_copy: Container = self.copy()
-                operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
                     last_operand = self._operand_list[len(self._operand_list) - 1]
                     while operand > 0:
-                        operand_list.append(last_operand.copy())
+                        self_copy._operand_list.append(last_operand.copy())
                         operand -= 1
                 return self_copy
             case ol.Null(): return ol.Null()
@@ -234,11 +234,10 @@ class Container(o.Operand):
             case o.Operand():
                 self_copy._operand_list.insert(0, operand.copy())
             case int(): # repeat n times the first argument if any
-                operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
                     first_operand = self._operand_list[0]
                     while operand > 0:
-                        operand_list.insert(0, first_operand.copy())
+                        self_copy._operand_list.insert(0, first_operand.copy())
                         operand -= 1
             case ol.Null(): return ol.Null()
         return self_copy
