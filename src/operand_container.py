@@ -252,14 +252,11 @@ class Container(o.Operand):
                         if all(item != operand_item for operand_item in operand)
                     ]
             case o.Operand():
-                self._operand_list = [item for item in self._operand_list if item != operand]
-                return self
+                self_copy._operand_list = [item for item in self._operand_list if item != operand]
             case int(): # repeat n times the last argument if any
-                operand_list = self_copy % list()
                 if len(self._operand_list) > 0:
-                    last_operand = self._operand_list[len(self._operand_list) - 1]
-                    while operand > 0 and len(operand_list) > 0:
-                        operand_list.pop()
+                    while operand > 0 and len(self_copy._operand_list) > 0:
+                        self_copy._operand_list.pop()
                         operand -= 1
             case ol.Null(): return ol.Null()
         return self_copy
@@ -273,7 +270,7 @@ class Container(o.Operand):
             case o.Operand():
                 ...
             case int(): # repeat n times the last argument if any
-                many_operands = self.__class__()    # empty list
+                many_operands = self.__class__()    # with an empty list
                 while operand > 0:
                     many_operands += self
                     operand -= 1
