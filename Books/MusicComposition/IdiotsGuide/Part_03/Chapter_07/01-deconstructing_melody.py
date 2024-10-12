@@ -59,4 +59,4 @@ embelishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack
 embelishing += (Measure(1) >> embelishing) + (Measure(2) >> embelishing) + (Measure(3) >> embelishing)
 embelishing + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
 
-(outline + embelishing >> Link() >> Play() | Measure(0)) % Length() >> Print(0)
+(outline + embelishing >> Link() >> Play() | Measure(3)) % Length() >> Print(0)
