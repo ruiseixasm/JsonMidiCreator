@@ -305,11 +305,6 @@ class KeyNote(Generic):
         return self == operand or self > operand
     
     def getSerialization(self):
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["octave"]   = self._octave % od.DataSource( int() )
-        return element_serialization
-
-    def getSerialization(self):
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -368,6 +363,7 @@ class KeyNote(Generic):
         key_copy: ou.Key = self._key.copy()
         octave_int: int  = self._octave._unit
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote():
                 key_copy += float(operand._key._unit)
@@ -377,13 +373,17 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy += operand
                 octave_int += key_copy._unit // 12
+            case ou.Degree():
+                self_copy._degree += operand._degree
+                self_copy._degree = max(0, (self_copy._degree - 1) % 7 + 1)
             case _: return super().__add__(operand)
-        return self.copy() << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
-     
+        return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
+    
     def __sub__(self, operand) -> 'KeyNote':
         key_copy: ou.Key = self._key.copy()
         octave_int: int  = self._octave._unit
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote():
                 key_copy -= float(operand._key._unit)
@@ -393,8 +393,11 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy -= operand
                 octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
+            case ou.Degree():
+                self_copy._degree -= operand._degree
+                self_copy._degree = max(0, (self_copy._degree - 1) % 7 + 1)
             case _: return super().__add__(operand)
-        return self.copy() << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
+        return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
 
 class Controller(Generic):
     def __init__(self, *parameters):
