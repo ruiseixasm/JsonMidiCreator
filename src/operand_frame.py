@@ -375,6 +375,21 @@ class Subject(OperandFilter):
             return self_operand
         return subject
 
+class Increment(OperandFilter):
+    def __init__(self, step: float = None):
+        super().__init__()
+        self._step: float = 1 if step is None else step
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        self_operand = self._next_operand
+        if isinstance(self_operand, Frame):
+            self_operand &= subject
+        if self_operand is not None:
+            stepped_operand = self_operand + self._data
+            self._data += self._step
+            return stepped_operand
+        return ol.Null()
+
 class Iterate(OperandFilter):
     def __init__(self, step = None):
         super().__init__()
@@ -451,22 +466,3 @@ class Extract(OperandFilter):
 class OperandEditor(Frame):
     def __init__(self):
         super().__init__()
-
-class Increment(OperandEditor):
-    def __init__(self, step: float = None):
-        super().__init__()
-        self._step: float = 1 if step is None else step
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= subject
-        match self_operand:
-            case o.Operand():
-                last_self_operand = self_operand.copy()
-            case _:
-                last_self_operand = self_operand
-        if self_operand is not None:
-            self_operand << self_operand + self._step
-            return last_self_operand
-        return ol.Null()

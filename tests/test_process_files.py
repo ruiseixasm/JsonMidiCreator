@@ -297,7 +297,7 @@ staff << Tempo(120) << Measure(7)
 original_save       = Load("json/testing/_Save_Play_p.11_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.11_sequence.json")
 start_time = time.time()
-(Chord() * 7 << Type("7th")) + Increment()**Degree(0) \
+(Chord() * 7 << Type("7th")) << Increment()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -309,7 +309,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13_sequence.json")
 start_time = time.time()
-(Chord("A") << Scale("minor") << Octave(3)) * 7 + Increment()**Degree(0) \
+(Chord("A") << Scale("minor") << Octave(3)) * 7 << Increment()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     << Inversion(1) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
@@ -352,7 +352,7 @@ staff << Tempo(120) << Measure(7)
 original_save       = Load("json/testing/_Save_Play_p.14_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.14_sequence.json")
 start_time = time.time()
-(Chord() * 7 << Type("7th")) + Increment()**Even()**Degree(1) \
+(Chord() * 7 << Type("7th")) << Even()**Increment()**Degree(2) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -364,7 +364,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.15_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15_sequence.json")
 start_time = time.time()
-(Chord() * 7 << Type("7th")) + Iterate()**Even()**Degree(0) \
+(Chord() * 7 << Type("7th")) << Increment()**Even()**Degree(2) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

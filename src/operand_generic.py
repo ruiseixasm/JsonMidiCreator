@@ -374,7 +374,7 @@ class KeyNote(Generic):
                 key_copy += operand
                 octave_int += key_copy._unit // 12
             case ou.Degree():
-                self_copy._degree += operand._degree
+                self_copy._degree += operand
                 self_copy._degree = max(0, (self_copy._degree - 1) % 7 + 1)
             case _: return super().__add__(operand)
         return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
