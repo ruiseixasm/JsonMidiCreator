@@ -504,7 +504,6 @@ class Note(Rest):
     def __init__(self, *parameters):
         super().__init__()
         self._key_note: og.KeyNote  = og.KeyNote() << os.staff % ou.Key() << os.staff % ou.Octave()
-        self._degree: ou.Degree     = ou.Degree(1)
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
         if len(parameters) > 0:
@@ -527,14 +526,12 @@ class Note(Rest):
             case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():      return self._key_note
-                    case ou.Degree():       return self._degree
                     case ou.Velocity():     return self._velocity
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural():
                                     return self._key_note % operand
-            case ou.Degree():       return self._degree.copy()
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
@@ -545,7 +542,6 @@ class Note(Rest):
             case self.__class__():
                 return super().__eq__(other_operand) \
                     and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
-                    and self._degree == other_operand % od.DataSource( ou.Degree() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
                     and self._gate == other_operand % od.DataSource( ro.Gate() )
             case _:
@@ -586,7 +582,6 @@ class Note(Rest):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
-        element_serialization["parameters"]["degree"]   = self._degree % od.DataSource( int() )
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
         return element_serialization
@@ -595,11 +590,10 @@ class Note(Rest):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization["parameters"] and "degree" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
+            "key_note" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
-            self._degree    = ou.Degree()   << od.DataSource( serialization["parameters"]["degree"] )
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ro.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
         return self
@@ -617,12 +611,10 @@ class Note(Rest):
             case Note():
                 super().__lshift__(operand)
                 self._key_note      << operand._key_note
-                self._degree        << operand._degree
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
             case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | str():
                                     self._key_note << operand
-            case ou.Degree():       self._degree << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
             case _: super().__lshift__(operand)
@@ -649,8 +641,9 @@ class Note(Rest):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self._scale: od.Scale = os.staff % od.Scale()    # default Staff scale
-        self._mode: ou.Mode = ou.Mode()
+        self._scale: od.Scale   = os.staff % od.Scale()    # default Staff scale
+        self._mode: ou.Mode     = ou.Mode()
+        self._degree: ou.Degree = ou.Degree(1)
         self._key_note << ou.Natural(1)
         if len(parameters) > 0:
             self << parameters
@@ -678,11 +671,13 @@ class KeyScale(Note):
                 match operand % o.Operand():
                     case od.Scale():        return self._scale
                     case ou.Mode():         return self._mode
+                    case ou.Degree():       return self._degree
                     case _:                 return super().__mod__(operand)
             case od.Scale():        return self._scale.copy()
             case list():            return self._scale % list()
             case str():             return self._scale % str()
             case ou.Mode():         return self._mode.copy()
+            case ou.Degree():       return self._degree.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -691,7 +686,8 @@ class KeyScale(Note):
             case self.__class__():
                 return super().__eq__(other_operand) \
                     and self._scale == other_operand % od.DataSource( od.Scale() ) \
-                    and self._mode == other_operand % od.DataSource( ou.Mode() )
+                    and self._mode == other_operand % od.DataSource( ou.Mode() ) \
+                    and self._degree == other_operand % od.DataSource( ou.Degree() )
             case _:
                 return super().__eq__(other_operand)
     
@@ -717,19 +713,21 @@ class KeyScale(Note):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource( list() )
-        element_serialization["parameters"]["mode"]         = self._mode % od.DataSource( int() )
+        element_serialization["parameters"]["scale"]    = self._scale % od.DataSource( list() )
+        element_serialization["parameters"]["mode"]     = self._mode % od.DataSource( int() )
+        element_serialization["parameters"]["degree"]   = self._degree % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "mode" in serialization["parameters"] and "scale" in serialization["parameters"] and "degree" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale         = od.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
-            self._mode          = ou.Mode()         << od.DataSource( serialization["parameters"]["mode"] )
+            self._scale     = od.Scale()    << od.DataSource( serialization["parameters"]["scale"] )
+            self._mode      = ou.Mode()     << od.DataSource( serialization["parameters"]["mode"] )
+            self._degree    = ou.Degree()   << od.DataSource( serialization["parameters"]["degree"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -742,10 +740,12 @@ class KeyScale(Note):
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
-                self._scale << operand._scale
-                self._mode  << operand._mode
+                self._scale     << operand._scale
+                self._mode      << operand._mode
+                self._degree    << operand._degree
             case od.Scale() | list():   self._scale << operand
             case ou.Mode():             self._mode << operand
+            case ou.Degree():           self._degree << operand
             case _: super().__lshift__(operand)
         if isinstance(o.Operand, (og.KeyNote, ou.Natural)):
             self._key_note << ou.Natural(1)
