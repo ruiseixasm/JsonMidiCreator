@@ -15,15 +15,16 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
+src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
 from JsonMidiCreator import *
 
-
-# Global Staff setting up
-staff << Tempo(120) << Measure(7)
-
-(Chord() << Length(1/8)) * 13 + Iterate(1.0)**Key() << NoteValue(1/8) >> Play(True) << Even()**Velocity(50) >> Play(True)
-
+staff << KeySignature("b") << Tempo(30)
+chords = Chord("F", 1/1) * 8 << Foreach(1, 4, 1, 5, 1, 4, 1, 5)**Degree(0) << Foreach()
+chords >> Play()
+staff << Tempo(120)
+notes = Note("B", 1/1) * 8 + (1, 2, -1, -2, -2, -1, -4, -5)
+notes >> Play()
+notes + chords >> Play()

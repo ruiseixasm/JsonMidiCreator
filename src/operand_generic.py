@@ -350,7 +350,7 @@ class KeyNote(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.Integer():
                 self._octave << operand
-            case ou.Key() | str() | ou.Semitone():
+            case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
                 self._key._unit %= 12
             case ou.Natural():
