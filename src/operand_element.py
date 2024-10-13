@@ -530,7 +530,7 @@ class Note(Rest):
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
-            case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural():
+            case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
@@ -613,7 +613,7 @@ class Note(Rest):
                 self._key_note      << operand._key_note
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -624,7 +624,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | ou.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -633,7 +633,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | ou.Key() | ou.Semitone() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
