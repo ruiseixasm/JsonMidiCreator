@@ -695,12 +695,6 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other_operand)
     
-    def getSharps(self, key: ou.Key = None) -> int:
-        ...
-
-    def getFlats(self, key: ou.Key = None) -> int:
-        ...
-
     def getNotePlaylist(self, position: ot.Position = None):
         return super().getPlaylist(position)
 
@@ -760,11 +754,9 @@ class KeyScale(Note):
 class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
-        self._scale: od.Scale           = os.staff % od.Scale()   # Default Scale for Chords
         self._inversion: ou.Inversion   = ou.Inversion()
         self._type: ou.Type             = ou.Type()
         self._sus: ou.Sus               = ou.Sus()
-        self._key_note << ou.Natural(1)
         if len(parameters) > 0:
             self << parameters
 
@@ -783,12 +775,10 @@ class Chord(KeyScale):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Scale():        return self._scale
                     case ou.Type():         return self._type
                     case ou.Inversion():    return self._inversion
                     case ou.Sus():          return self._sus
                     case _:                 return super().__mod__(operand)
-            case od.Scale():        return self._scale.copy()
             case ou.Type():         return self._type.copy()
             case ou.Inversion():    return self._inversion.copy()
             case ou.Sus():          return self._sus.copy()
@@ -799,7 +789,6 @@ class Chord(KeyScale):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._scale == other_operand % od.DataSource( od.Scale() ) \
                     and self._type == other_operand % od.DataSource( ou.Type() ) \
                     and self._inversion == other_operand % od.DataSource( ou.Inversion() ) \
                     and self._sus == other_operand % od.DataSource( ou.Sus() )
@@ -849,7 +838,6 @@ class Chord(KeyScale):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource( list() )
         element_serialization["parameters"]["type"]         = self._type % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
         element_serialization["parameters"]["sus"]          = self._sus % od.DataSource( int() )
@@ -859,11 +847,9 @@ class Chord(KeyScale):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "scale" in serialization["parameters"] and
             "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._scale         = od.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
             self._type          = ou.Type()         << od.DataSource( serialization["parameters"]["type"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
             self._sus           = ou.Sus()          << od.DataSource( serialization["parameters"]["sus"] )
@@ -874,24 +860,19 @@ class Chord(KeyScale):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Scale():                self._scale = operand % o.Operand()
                     case ou.Type():                 self._type = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
                     case ou.Sus():                  self._sus = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
-                self._scale         << operand._scale
                 self._type          << operand._type
                 self._inversion     << operand._inversion
                 self._sus           << operand._sus
-            case od.Scale() | list():       self._scale << operand
             case ou.Type():                 self._type << operand
             case ou.Inversion():            self._inversion << operand
             case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
-        if isinstance(o.Operand, (og.KeyNote, ou.Natural)):
-            self._key_note << ou.Natural(1)
         return self
 
 class Retrigger(Note):
