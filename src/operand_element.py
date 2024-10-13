@@ -701,6 +701,9 @@ class KeyScale(Note):
     def getFlats(self, key: ou.Key = None) -> int:
         ...
 
+    def getNotePlaylist(self, position: ot.Position = None):
+        return super().getPlaylist(position)
+
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -713,7 +716,7 @@ class KeyScale(Note):
         self_playlist = []
         for key_note in scale_key_notes:
             self << key_note
-            self_playlist.extend(super().getPlaylist(self_position))
+            self_playlist.extend(self.getNotePlaylist(self_position))
         self << root_key_note
 
         return self_playlist
@@ -754,7 +757,7 @@ class KeyScale(Note):
             self._key_note << ou.Natural(1)
         return self
 
-class Chord(Note):
+class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
         self._scale: od.Scale           = os.staff % od.Scale()   # Default Scale for Chords
@@ -839,7 +842,7 @@ class Chord(Note):
         self_playlist = []
         for key_note in chord_key_notes:
             self._key_note = key_note
-            self_playlist.extend(super().getPlaylist(self_position))
+            self_playlist.extend(self.getNotePlaylist(self_position))
         self._key_note = root_key_note
 
         return self_playlist
