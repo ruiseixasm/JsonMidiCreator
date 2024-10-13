@@ -504,6 +504,7 @@ class Note(Rest):
     def __init__(self, *parameters):
         super().__init__()
         self._key_note: og.KeyNote  = og.KeyNote() << os.staff % ou.Key() << os.staff % ou.Octave()
+        self._degree: ou.Degree     = ou.Degree(1)
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
         if len(parameters) > 0:
@@ -526,12 +527,14 @@ class Note(Rest):
             case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():      return self._key_note
+                    case ou.Degree():       return self._degree
                     case ou.Velocity():     return self._velocity
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural():
                                     return self._key_note % operand
+            case ou.Degree():       return self._degree.copy()
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
             case _:                 return super().__mod__(operand)
@@ -542,6 +545,7 @@ class Note(Rest):
             case self.__class__():
                 return super().__eq__(other_operand) \
                     and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
+                    and self._degree == other_operand % od.DataSource( ou.Degree() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
                     and self._gate == other_operand % od.DataSource( ro.Gate() )
             case _:
@@ -582,6 +586,7 @@ class Note(Rest):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
+        element_serialization["parameters"]["degree"]   = self._degree % od.DataSource( int() )
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
         return element_serialization
@@ -590,10 +595,11 @@ class Note(Rest):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
+            "key_note" in serialization["parameters"] and "degree" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
+            self._degree    = ou.Degree()   << od.DataSource( serialization["parameters"]["degree"] )
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ro.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
         return self
@@ -604,16 +610,19 @@ class Note(Rest):
             case od.DataSource():
                 match operand % o.Operand():
                     case og.KeyNote():      self._key_note = operand % o.Operand()
+                    case ou.Degree():       self._degree = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ro.Gate():         self._gate = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
                 self._key_note      << operand._key_note
+                self._degree        << operand._degree
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
             case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | str():
                                     self._key_note << operand
+            case ou.Degree():       self._degree << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
             case _: super().__lshift__(operand)
@@ -749,7 +758,6 @@ class Chord(Note):
     def __init__(self, *parameters):
         super().__init__()
         self._scale: od.Scale           = os.staff % od.Scale()   # Default Scale for Chords
-        self._degree: ou.Degree         = ou.Degree()
         self._inversion: ou.Inversion   = ou.Inversion()
         self._type: ou.Type             = ou.Type()
         self._sus: ou.Sus               = ou.Sus()
@@ -774,13 +782,11 @@ class Chord(Note):
                 match operand % o.Operand():
                     case od.Scale():        return self._scale
                     case ou.Type():         return self._type
-                    case ou.Degree():       return self._degree
                     case ou.Inversion():    return self._inversion
                     case ou.Sus():          return self._sus
                     case _:                 return super().__mod__(operand)
             case od.Scale():        return self._scale.copy()
             case ou.Type():         return self._type.copy()
-            case ou.Degree():       return self._degree.copy()
             case ou.Inversion():    return self._inversion.copy()
             case ou.Sus():          return self._sus.copy()
             case _:                 return super().__mod__(operand)
@@ -792,7 +798,6 @@ class Chord(Note):
                 return super().__eq__(other_operand) \
                     and self._scale == other_operand % od.DataSource( od.Scale() ) \
                     and self._type == other_operand % od.DataSource( ou.Type() ) \
-                    and self._degree == other_operand % od.DataSource( ou.Degree() ) \
                     and self._inversion == other_operand % od.DataSource( ou.Inversion() ) \
                     and self._sus == other_operand % od.DataSource( ou.Sus() )
             case _:
@@ -843,7 +848,6 @@ class Chord(Note):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]        = self._scale % od.DataSource( list() )
         element_serialization["parameters"]["type"]         = self._type % od.DataSource( int() )
-        element_serialization["parameters"]["degree"]       = self._degree % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
         element_serialization["parameters"]["sus"]          = self._sus % od.DataSource( int() )
         return element_serialization
@@ -852,13 +856,12 @@ class Chord(Note):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "scale" in serialization["parameters"] and "degree" in serialization["parameters"] and
+            "scale" in serialization["parameters"] and
             "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._scale         = od.Scale()        << od.DataSource( serialization["parameters"]["scale"] )
             self._type          = ou.Type()         << od.DataSource( serialization["parameters"]["type"] )
-            self._degree        = ou.Degree()       << od.DataSource( serialization["parameters"]["degree"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
             self._sus           = ou.Sus()          << od.DataSource( serialization["parameters"]["sus"] )
         return self
@@ -870,7 +873,6 @@ class Chord(Note):
                 match operand % o.Operand():
                     case od.Scale():                self._scale = operand % o.Operand()
                     case ou.Type():                 self._type = operand % o.Operand()
-                    case ou.Degree():               self._degree = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
                     case ou.Sus():                  self._sus = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
@@ -878,12 +880,10 @@ class Chord(Note):
                 super().__lshift__(operand)
                 self._scale         << operand._scale
                 self._type          << operand._type
-                self._degree        << operand._degree
                 self._inversion     << operand._inversion
                 self._sus           << operand._sus
             case od.Scale() | list():       self._scale << operand
             case ou.Type():                 self._type << operand
-            case ou.Degree():               self._degree << operand
             case ou.Inversion():            self._inversion << operand
             case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
