@@ -747,8 +747,9 @@ class KeyScale(Note):
             case ou.Mode():             self._mode << operand
             case ou.Degree():           self._degree << operand
             case _: super().__lshift__(operand)
-        if isinstance(o.Operand, (og.KeyNote, ou.Natural)):
+        if isinstance(o.Operand, (og.KeyNote, ou.Natural, ou.Degree)):
             self._key_note << ou.Natural(1)
+            self._key_note << ou.Degree(1)
         return self
 
 class Chord(KeyScale):
