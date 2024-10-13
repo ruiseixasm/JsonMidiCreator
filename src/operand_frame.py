@@ -404,7 +404,7 @@ class Foreach(OperandFilter):
         if isinstance(self_operand, Frame):
             self_operand &= subject
         if self_operand is not None:
-            stepped_operand = self_operand + self._data[self._index]
+            stepped_operand = self_operand << self._data[self._index]
             self._index += self._step
             self._index %= self._len
             return stepped_operand

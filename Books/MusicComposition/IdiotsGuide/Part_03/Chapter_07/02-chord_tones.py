@@ -21,8 +21,8 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("b") << Tempo(30)
-chords = Chord("F", 1/1) * 8 << Foreach(1, 4, 1, 5, 1, 4, 1, 5)**Degree(0) << Foreach()
+staff << KeySignature("b") << Tempo(60)
+chords = Chord("F", 1/1) * 8 << Foreach(1, 4, 1, 5, 1, 4, 1, 5)**Degree() << Foreach(None, None, None, None, "9", "7", "7", "9")**Type()
 chords >> Play()
 staff << Tempo(120)
 notes = Note("B", 1/1) * 8 + (1, 2, -1, -2, -2, -1, -4, -5)

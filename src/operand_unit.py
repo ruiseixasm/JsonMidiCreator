@@ -340,27 +340,48 @@ class Degree(Unit):
     def __init__(self, unit: int | str = None):
         match unit:
             case str():
-                match unit.strip().lower():
-                    case "i"   | "tonic":                   unit = 1
-                    case "ii"  | "supertonic":              unit = 2
-                    case "iii" | "mediant":                 unit = 3
-                    case "iv"  | "subdominant":             unit = 4
-                    case "v"   | "dominant":                unit = 5
-                    case "vi"  | "submediant":              unit = 6
-                    case "vii" | "viiº" | "leading tone":   unit = 7
-                    case _:                                 unit = 1
-                super().__init__(unit)
+                super().__init__( __class__.stringToNumber(unit) )
             case int() | float():
-                super().__init__(unit)
+                super().__init__( unit )
             case _:
                 super().__init__( 1 )
 
-    _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "viiº"]
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._degrees_str[self._unit % len(__class__._degrees_str)]
+            case str():         return __class__.numberToString(self._unit)
             case _:             return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Type':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = __class__.stringToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "viiº"]
+
+    @staticmethod
+    def stringToNumber(string: str) -> int:
+        match string.strip().lower():
+            case "i"   | "tonic":                   return 1
+            case "ii"  | "supertonic":              return 2
+            case "iii" | "mediant":                 return 3
+            case "iv"  | "subdominant":             return 4
+            case "v"   | "dominant":                return 5
+            case "vi"  | "submediant":              return 6
+            case "vii" | "viiº" | "leading tone":   return 7
+            case _:                                 return 1
+
+    @staticmethod
+    def numberToString(number: int) -> str:
+        return __class__._degrees_str[number % len(__class__._degrees_str)]
 
 class Type(Unit):
     """
@@ -374,27 +395,48 @@ class Type(Unit):
     def __init__(self, unit: int | str = None):
         match unit:
             case str():
-                match unit.strip().lower():
-                    case '1'  | "1st":              unit = 1
-                    case '3'  | "3rd":              unit = 2
-                    case '5'  | "5th":              unit = 3
-                    case '7'  | "7th":              unit = 4
-                    case '9'  | "9th":              unit = 5
-                    case '11' | "11th":             unit = 6
-                    case '13' | "13th":             unit = 7
-                    case _:                         unit = 3
-                super().__init__(unit)
+                super().__init__( __class__.stringToNumber(unit) )
             case int() | float():
-                super().__init__(unit)
+                super().__init__( unit )
             case _:
                 super().__init__( 3 )
 
-    _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._types_str[self._unit % len(__class__._types_str)]
+            case str():         return __class__.numberToString(self._unit)
             case _:             return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Type':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = __class__.stringToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
+
+    @staticmethod
+    def stringToNumber(string: str) -> int:
+        match string.strip().lower():
+            case '1'  | "1st":              return 1
+            case '3'  | "3rd":              return 2
+            case '5'  | "5th":              return 3
+            case '7'  | "7th":              return 4
+            case '9'  | "9th":              return 5
+            case '11' | "11th":             return 6
+            case '13' | "13th":             return 7
+            case _:                         return 3
+
+    @staticmethod
+    def numberToString(number: int) -> str:
+        return __class__._types_str[number % len(__class__._types_str)]
 
 class Mode(Unit):
     """
@@ -409,21 +451,30 @@ class Mode(Unit):
     def __init__(self, unit: int | str = None):
         match unit:
             case str():
-                match unit.strip().lower():
-                    case '1'  | "1st":              unit = 1
-                    case '2'  | "2nd":              unit = 2
-                    case '3'  | "3rd":              unit = 3
-                    case '4'  | "4th":              unit = 4
-                    case '5'  | "5th":              unit = 5
-                    case '6'  | "6th":              unit = 6
-                    case '7'  | "7th":              unit = 7
-                    case '8'  | "8th":              unit = 8
-                    case _:                         unit = 1
-                super().__init__( unit )
+                super().__init__( __class__.stringToNumber(unit) )
             case int() | float():
                 super().__init__( unit )
             case _:
                 super().__init__( 1 )
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__.numberToString(self._unit)
+            case _:             return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Type':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = __class__.stringToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
 
         # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
         # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
@@ -432,10 +483,22 @@ class Mode(Unit):
 
     _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case str():         return __class__._modes_str[self._unit % len(__class__._modes_str)]
-            case _:             return super().__mod__(operand)
+    @staticmethod
+    def stringToNumber(string: str) -> int:
+        match string.strip().lower():
+            case '1'  | "1st":              return 1
+            case '2'  | "2nd":              return 2
+            case '3'  | "3rd":              return 3
+            case '4'  | "4th":              return 4
+            case '5'  | "5th":              return 5
+            case '6'  | "6th":              return 6
+            case '7'  | "7th":              return 7
+            case '8'  | "8th":              return 8
+            case _:                         return 1
+
+    @staticmethod
+    def numberToString(number: int) -> str:
+        return __class__._modes_str[number % len(__class__._modes_str)]
 
 class Sus(Unit):
     """
@@ -449,22 +512,43 @@ class Sus(Unit):
     def __init__(self, unit: int | str = None):
         match unit:
             case str():
-                match unit.strip().lower():
-                    case "sus2":            unit = 1
-                    case "sus4":            unit = 2
-                    case _:                 unit = 0
-                super().__init__( unit )
+                super().__init__( __class__.stringToNumber(unit) )
             case int() | float():
                 super().__init__( unit )
             case _:
                 super().__init__( 0 )
 
-    _sus_str = ["None" , "sus2", "sus4"]
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._sus_str[self._unit % len(__class__._sus_str)]
+            case str():         return __class__.numberToString(self._unit)
             case _:             return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Type':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = __class__.stringToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _sus_str = ["None" , "sus2", "sus4"]
+
+    @staticmethod
+    def stringToNumber(string: str) -> int:
+        match string.strip().lower():
+            case "sus2":            return 1
+            case "sus4":            return 2
+            case _:                 return 0
+
+    @staticmethod
+    def numberToString(number: int) -> str:
+        return __class__._sus_str[number % len(__class__._sus_str)]
 
 class Division(Unit):
     """
