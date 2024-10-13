@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 staff << Tempo(120) << Measure(7)
 
 (Chord() * 7 << Type("7th")) << Even()**Increment()**Degree(2) >> Print() >> Play(True)
-(Chord() * 7 << Type("7th")) << Increment()**Even()**Degree(2) >> Print() >> Play(True)
+(Chord() * 7 << Type("7th")) << Increment()**Even()**Degree(1) >> Print() >> Play(True)
 
 all_chords = (Chord() * 7 << Type("7th"))
 first_chords = all_chords | Beat(0)
