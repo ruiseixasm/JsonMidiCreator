@@ -324,9 +324,22 @@ class Key(Unit):
 
     def getKeyDegree(self) -> 'Key':
         key_signature: KeySignature = os.staff._key_signature
-        key_signature_scale = key_signature.getScale()
+        key_signature_scale     = key_signature.getScale()
+        key_degree: Key         = self.copy()
+        key_transpose: float    = 0.0
         if key_signature_scale[self._unit % 12] == 0:
-            ...
+            if self._flat._unit:
+                 key_transpose = +1.0
+            else:
+                 key_transpose = -1.0
+        key_degree += key_transpose
+        degree_transpose: int       = max(0, self._degree._unit - 1)
+        semitone_transpose: float   = 0.0
+        while degree_transpose:
+            semitone_transpose += 1.0
+            if key_signature_scale[semitone_transpose % 12]:
+                degree_transpose -= 1
+        return key_degree + semitone_transpose - key_transpose << Degree(1)
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
