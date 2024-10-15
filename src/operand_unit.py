@@ -481,7 +481,7 @@ class Degree(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Type':
+    def __lshift__(self, operand: any) -> 'Size':
         import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -511,14 +511,14 @@ class Degree(Unit):
     def numberToString(number: int) -> str:
         return __class__._degrees_str[number % len(__class__._degrees_str)]
 
-class Type(Unit):
+class Size(Unit):
     """
-    Type() represents the size of the Chord, like "7th", "9th", etc.
+    Size() represents the size of the Chord, like "7th", "9th", etc.
     
     Parameters
     ----------
     first : integer_like or string_like
-        A Type Number varies from "1st" to "13th" with "3rd" being the triad default
+        A Size Number varies from "1st" to "13th" with "3rd" being the triad default
     """
     def __init__(self, unit: int | str = None):
         match unit:
@@ -536,7 +536,7 @@ class Type(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Type':
+    def __lshift__(self, operand: any) -> 'Size':
         import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -592,7 +592,7 @@ class Mode(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Type':
+    def __lshift__(self, operand: any) -> 'Size':
         import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -653,7 +653,7 @@ class Sus(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Type':
+    def __lshift__(self, operand: any) -> 'Size':
         import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:

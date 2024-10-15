@@ -15,18 +15,18 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
+src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
 from JsonMidiCreator import *
 
-
-# Global Staff setting up
+staff << KeySignature("b") << Tempo(30)
+chords = Chord("F", 1/1) + Chord("Bb", 1/1) + Chord("F", 1/1) + Chord("C", 1/1) \
+       + Chord("F", 1/1, Size("9th")) + Chord("Bb", 1/1, Size("7th")) \
+       + Chord("F", 1/1, Size("7th")) + Chord("C", 1/1, Size("9th")) >> Stack()
+chords >> Play()
 staff << Tempo(120)
-
-(Chord() << Length(1)) * 3 + Iterate()**Inversion() << NoteValue(1) >> Play(True)
-((Chord() << Length(1)) * 4 << Size("7th")) + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/_Export_7.1_chord_inversion.json") >> Play(True)
-
-
-((Chord() << Length(1)) * 4 << Size("7th") << Sus("sus2") << Gate(1)) + Iterate()**Inversion() << NoteValue(1) >> Play(True)
+notes = Note("B", 1/1) * 8 + (1, 2, -1, -2, -2, -1, -4, -5)
+notes >> Play()
+notes + chords >> Play()

@@ -33,14 +33,14 @@ flesh - 1 + (5, 7, 5, 8, 10, 5, 6, 5, 4)
 outline << Nth(1, 2, 3, 4)**Duration(1/4) << Nth(5, 6, 7)**Duration(1/2)
 outline + flesh >> Link() >> Play()
 
-embelishing = Note("G", Measure(0), Beat(1), 1/8) * 4 + Iterate()**0
-embelishing += Note("G", Measure(1), Beat(1)) * 2
-embelishing += Note("C", 5, Measure(2), Beat(1), 1/8) * 4 + Iterate()**0
-embelishing += Note("G", Measure(3), Beat(1)) * 2
-embelishing += Note("D", 5, Measure(4), Beat(1), 1/8) * 4 - Iterate()**0
-embelishing += Note("C", 5, Measure(5), Beat(1), 1/8) * 4 - Iterate()**0
-embelishing += Note("B", Measure(6), Beat(1), 1/8) * 4 - Iterate()**0
-full = outline + embelishing >> Link()
+embellishing = Note("G", Measure(0), Beat(1), 1/8) * 4 + Iterate()**0
+embellishing += Note("G", Measure(1), Beat(1)) * 2
+embellishing += Note("C", 5, Measure(2), Beat(1), 1/8) * 4 + Iterate()**0
+embellishing += Note("G", Measure(3), Beat(1)) * 2
+embellishing += Note("D", 5, Measure(4), Beat(1), 1/8) * 4 - Iterate()**0
+embellishing += Note("C", 5, Measure(5), Beat(1), 1/8) * 4 - Iterate()**0
+embellishing += Note("B", Measure(6), Beat(1), 1/8) * 4 - Iterate()**0
+full = outline + embellishing >> Link()
 full << Get(Length())**Duration()
 full >> Play()
 
@@ -55,8 +55,8 @@ outline << Equal(Measure(2))**Equal(Beat(6))**KeyNote("A", 4)
 outline >> Play()
 
 outline -= outline | Beat(0)
-embelishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack()
-embelishing += (Measure(1) >> embelishing) + (Measure(2) >> embelishing) + (Measure(3) >> embelishing)
-embelishing + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
+embellishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack()
+embellishing += (Measure(1) >> embellishing) + (Measure(2) >> embellishing) + (Measure(3) >> embellishing)
+embellishing + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
 
-(outline + embelishing >> Link() >> Play() | Measure(3)) % Length() >> Print(0)
+(outline + embellishing >> Link() >> Play() | Measure(3)) % Length() >> Print(0)

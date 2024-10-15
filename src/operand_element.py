@@ -756,7 +756,7 @@ class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
         self._inversion: ou.Inversion   = ou.Inversion()
-        self._type: ou.Type             = ou.Type()
+        self._type: ou.Size             = ou.Size()
         self._sus: ou.Sus               = ou.Sus()
         if len(parameters) > 0:
             self << parameters
@@ -769,18 +769,18 @@ class Chord(KeyScale):
 
         Examples
         --------
-        >>> chord = Chord("A") << Scale("minor") << Type("7th") << NoteValue(1/2)
+        >>> chord = Chord("A") << Scale("minor") << Size("7th") << NoteValue(1/2)
         >>> chord % Degree() % str() >> Print()
         I
         """
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Type():         return self._type
+                    case ou.Size():         return self._type
                     case ou.Inversion():    return self._inversion
                     case ou.Sus():          return self._sus
                     case _:                 return super().__mod__(operand)
-            case ou.Type():         return self._type.copy()
+            case ou.Size():         return self._type.copy()
             case ou.Inversion():    return self._inversion.copy()
             case ou.Sus():          return self._sus.copy()
             case _:                 return super().__mod__(operand)
@@ -790,7 +790,7 @@ class Chord(KeyScale):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._type == other_operand % od.DataSource( ou.Type() ) \
+                    and self._type == other_operand % od.DataSource( ou.Size() ) \
                     and self._inversion == other_operand % od.DataSource( ou.Inversion() ) \
                     and self._sus == other_operand % od.DataSource( ou.Sus() )
             case _:
@@ -851,7 +851,7 @@ class Chord(KeyScale):
             "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._type          = ou.Type()         << od.DataSource( serialization["parameters"]["type"] )
+            self._type          = ou.Size()         << od.DataSource( serialization["parameters"]["type"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
             self._sus           = ou.Sus()          << od.DataSource( serialization["parameters"]["sus"] )
         return self
@@ -861,7 +861,7 @@ class Chord(KeyScale):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Type():                 self._type = operand % o.Operand()
+                    case ou.Size():                 self._type = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
                     case ou.Sus():                  self._sus = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
@@ -870,7 +870,7 @@ class Chord(KeyScale):
                 self._type          << operand._type
                 self._inversion     << operand._inversion
                 self._sus           << operand._sus
-            case ou.Type():                 self._type << operand
+            case ou.Size():                 self._type << operand
             case ou.Inversion():            self._inversion << operand
             case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
