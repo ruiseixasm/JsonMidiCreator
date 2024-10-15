@@ -316,8 +316,10 @@ class Key(Unit):
             case od.DataSource():
                 match operand % o.Operand():
                     case Flat():            return self._flat
+                    case Degree():          return self._degree
                     case _:                 return super().__mod__(operand)
             case Flat():            return self._flat.copy()
+            case Degree():          return self._degree.copy()
             case _:                 return super().__mod__(operand)
 
     def getKeyDegree(self) -> 'Key':
