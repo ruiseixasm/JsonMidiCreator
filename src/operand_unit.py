@@ -259,13 +259,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
         return key_signature_scale
 
-    def getKeyDegree(self, tonic_key: 'Key', degree: 'Degree', flat: int = 0) -> 'Key':
-        tonic_key: Key = Key(tonic_key)
-        degree: Degree = Degree(degree)
-        key_signature_scale = self.getScale()
-        if key_signature_scale[tonic_key._unit % 12] == 0:
-            ...
-
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
@@ -330,6 +323,13 @@ class Key(Unit):
                     case _:                 return super().__mod__(operand)
             case Flat():            return self._flat.copy()
             case _:                 return super().__mod__(operand)
+
+    def getKeyDegree(self, tonic_key: 'Key', degree: 'Degree', flat: int = 0) -> 'Key':
+        degree: Degree = Degree(degree)
+        key_signature: KeySignature = os.staff._key_signature
+        key_signature_scale = key_signature.getScale()
+        if key_signature_scale[self._unit % 12] == 0:
+            ...
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
