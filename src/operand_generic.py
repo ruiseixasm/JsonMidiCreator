@@ -152,6 +152,15 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         return  self._accidentals   == other_key_signature._accidentals \
             and self._scale         == other_key_signature._scale
     
+    def getScale(self) -> list:
+        key_signature = KeySignature._key_signatures[(self._accidentals + 7) % 15]
+        key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+        for key_i in range(12):
+            if key_signature[key_i] != 0:
+                key_signature_scale[key_i] = 0
+                key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
+        return key_signature_scale
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
