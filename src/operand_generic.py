@@ -149,8 +149,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             return True
         if type(self) != type(other_key_signature):
             return False
-        return  self._accidentals   == other_key_signature._accidentals \
-            and self._scale         == other_key_signature._scale
+        return  self._accidentals   == other_key_signature._accidentals
     
     def getScale(self) -> list:
         key_signature = KeySignature._key_signatures[(self._accidentals + 7) % 15]
@@ -172,8 +171,7 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "accidentals":  self._accidentals,
-                "scale":        self._scale
+                "accidentals":  self._accidentals
             }
         }
 
@@ -181,10 +179,9 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "accidentals" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "accidentals" in serialization["parameters"]):
 
             self._accidentals   = serialization["parameters"]["accidentals"]
-            self._scale         = serialization["parameters"]["scale"]
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
@@ -193,7 +190,6 @@ class KeySignature(Generic):       # Sharps (+) and Flats (-)
             case od.DataSource():
                 match operand % o.Operand():
                     case int():     self._accidentals   = operand % o.Operand()
-                    case list():    self._scale         = operand % o.Operand()
             case KeySignature():
                 self._accidentals       = operand._accidentals
             case od.Serialization():
@@ -228,7 +224,6 @@ class KeyNote(Generic):
         self._octave: ou.Octave     = ou.Octave()
         self._key: ou.Key           = ou.Key()
         self._natural: ou.Natural   = ou.Natural()
-        self._flat: ou.Flat         = ou.Flat()
         self._degree: ou.Degree     = ou.Degree(1)
         if len(parameters) > 0:
             self << parameters
@@ -254,7 +249,6 @@ class KeyNote(Generic):
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
                     case ou.Natural():      return self._natural
-                    case ou.Flat():         return self._flat
                     case ou.Degree():       return self._degree
                     case int():
                         octave_int: int     = self._octave._unit
@@ -269,8 +263,8 @@ class KeyNote(Generic):
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
+            case ou.Flat():         return self._key % ou.Flat()
             case ou.Natural():      return self._natural.copy()
-            case ou.Flat():         return self._flat.copy()
             case ou.Degree():       return self._degree.copy()
             case int():
                 octave_int: int     = self._octave._unit
@@ -330,7 +324,6 @@ class KeyNote(Generic):
                 "octave":   self._octave % od.DataSource( int() ),
                 "key":      self._key % od.DataSource( int() ),
                 "natural":  self._natural % od.DataSource( int() ),
-                "flat":     self._flat % od.DataSource( int() ),
                 "degree":   self._degree % od.DataSource( int() )
             }
         }
@@ -340,12 +333,11 @@ class KeyNote(Generic):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and 
-            "natural" in serialization["parameters"] and "flat" in serialization["parameters"] and "degree" in serialization["parameters"]):
+            "natural" in serialization["parameters"] and "degree" in serialization["parameters"]):
 
             self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
             self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
             self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
-            self._flat      = ou.Flat()     << od.DataSource( serialization["parameters"]["flat"] )
             self._degree    = ou.Degree()   << od.DataSource( serialization["parameters"]["degree"] )
         return self
 
@@ -364,7 +356,6 @@ class KeyNote(Generic):
                 self._octave    << operand._octave
                 self._key       << operand._key
                 self._natural   << operand._natural
-                self._flat      << operand._flat
                 self._degree    << operand._degree
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -373,10 +364,10 @@ class KeyNote(Generic):
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
                 self._key._unit %= 12
+            case ou.Flat():
+                self._key << operand
             case ou.Natural():
                 self._natural << operand
-            case ou.Flat():
-                self._flat << operand
             case ou.Degree():
                 self._degree << operand
             case tuple():

@@ -216,16 +216,40 @@ class Key(Unit):
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, key: int | str = None):
+        self._flat: Flat         = Flat()
         match key:
             case str():
+                self._flat << (key.strip().lower().find("b") != -1) * 1
                 super().__init__( Key.key_to_int(key) )
             case int() | float():
                 super().__init__( int(key) )
             case _:
                 super().__init__()
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Flat():            return self._flat
+                    case _:                 return super().__mod__(operand)
+            case Flat():            return self._flat.copy()
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["flat"]     = self._flat._unit
+        return element_serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "flat" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._flat  = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
+        return self
+      
     def __lshift__(self, operand: o.Operand) -> 'Key':
         import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -236,13 +260,21 @@ class Key(Unit):
                     case float() | Fraction():      self._unit = int(operand % o.Operand())
                     case Semitone() | Integer() | ro.Float():
                                                     self._unit = operand % o.Operand() % od.DataSource( int() )
-                    case str():                     self._unit = Key.key_to_int(operand % o.Operand())
+                    case Flat():
+                        self._flat << operand % o.Operand()
+                    case str():
+                        self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
+                        self._unit = Key.key_to_int(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
             case int() | float() | Fraction():
                                     self._unit = int(operand)
-            case str():             self._unit = Key.key_to_int(operand)
+            case Flat():
+                  self._flat << operand
+            case str():
+                self._flat << (operand.strip().lower().find("b") != -1) * 1
+                self._unit = Key.key_to_int(operand)
             case _:                 super().__lshift__(operand)
         return self
 
