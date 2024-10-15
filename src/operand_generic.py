@@ -108,7 +108,6 @@ class KeyNote(Generic):
         self._octave: ou.Octave     = ou.Octave()
         self._key: ou.Key           = ou.Key()
         self._natural: ou.Natural   = ou.Natural()
-        self._degree: ou.Degree     = ou.Degree(1)
         if len(parameters) > 0:
             self << parameters
 
@@ -133,7 +132,6 @@ class KeyNote(Generic):
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
                     case ou.Natural():      return self._natural
-                    case ou.Degree():       return self._degree
                     case int():
                         octave_int: int     = self._octave._unit
                         key_int: int        = self._key._unit
@@ -149,7 +147,6 @@ class KeyNote(Generic):
             case ou.Key():          return self._key.copy()
             case ou.Flat():         return self._key % ou.Flat()
             case ou.Natural():      return self._natural.copy()
-            case ou.Degree():       return self._degree.copy()
             case int():
                 octave_int: int     = self._octave._unit
                 key_int: int        = self._key._unit
@@ -207,8 +204,7 @@ class KeyNote(Generic):
             "parameters": {
                 "octave":   self._octave % od.DataSource( int() ),
                 "key":      self._key % od.DataSource( int() ),
-                "natural":  self._natural % od.DataSource( int() ),
-                "degree":   self._degree % od.DataSource( int() )
+                "natural":  self._natural % od.DataSource( int() )
             }
         }
 
@@ -217,12 +213,11 @@ class KeyNote(Generic):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and 
-            "natural" in serialization["parameters"] and "degree" in serialization["parameters"]):
+            "natural" in serialization["parameters"]):
 
             self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
             self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
             self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
-            self._degree    = ou.Degree()   << od.DataSource( serialization["parameters"]["degree"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
@@ -235,12 +230,10 @@ class KeyNote(Generic):
                                             self._key       = operand % o.Operand()
                                             self._key._unit %= 12
                     case ou.Natural():      self._natural   = operand % o.Operand()
-                    case ou.Degree():       self._degree    = operand % o.Operand()
             case KeyNote():
                 self._octave    << operand._octave
                 self._key       << operand._key
                 self._natural   << operand._natural
-                self._degree    << operand._degree
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.Integer():
@@ -252,8 +245,6 @@ class KeyNote(Generic):
                 self._key << operand
             case ou.Natural():
                 self._natural << operand
-            case ou.Degree():
-                self._degree << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -273,9 +264,6 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy += operand
                 octave_int += key_copy._unit // 12
-            case ou.Degree():
-                self_copy._degree += operand
-                self_copy._degree = max(0, (self_copy._degree - 1) % 7 + 1)
             case _: return super().__add__(operand)
         return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
     
@@ -293,9 +281,6 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy -= operand
                 octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
-            case ou.Degree():
-                self_copy._degree -= operand._degree
-                self_copy._degree = max(0, (self_copy._degree - 1) % 7 + 1)
             case _: return super().__add__(operand)
         return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
 

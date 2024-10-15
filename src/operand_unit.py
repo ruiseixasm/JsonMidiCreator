@@ -304,16 +304,12 @@ class Key(Unit):
     first : integer_like or string_like
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
-    def __init__(self, key: int | str = None):
-        self._flat: Flat         = Flat()
-        match key:
-            case str():
-                self._flat << (key.strip().lower().find("b") != -1) * 1
-                super().__init__( Key.key_to_int(key) )
-            case int() | float():
-                super().__init__( int(key) )
-            case _:
-                super().__init__()
+    def __init__(self, *parameters):
+        super().__init__()
+        self._flat: Flat        = Flat()
+        self._degree: Degree    = Degree(1)
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -324,8 +320,7 @@ class Key(Unit):
             case Flat():            return self._flat.copy()
             case _:                 return super().__mod__(operand)
 
-    def getKeyDegree(self, tonic_key: 'Key', degree: 'Degree', flat: int = 0) -> 'Key':
-        degree: Degree = Degree(degree)
+    def getKeyDegree(self) -> 'Key':
         key_signature: KeySignature = os.staff._key_signature
         key_signature_scale = key_signature.getScale()
         if key_signature_scale[self._unit % 12] == 0:
@@ -334,16 +329,18 @@ class Key(Unit):
     def getSerialization(self):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["flat"]     = self._flat._unit
+        element_serialization["parameters"]["degree"]   = self._degree._unit
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "flat" in serialization["parameters"]):
+            "flat" in serialization["parameters"] and "degree" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._flat  = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
+            self._flat      = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
+            self._degree    = Degree()  << od.DataSource( serialization["parameters"]["degree"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
@@ -358,19 +355,30 @@ class Key(Unit):
                                                     self._unit = operand % o.Operand() % od.DataSource( int() )
                     case Flat():
                         self._flat << operand % o.Operand()
+                    case Degree():
+                        self._degree << operand % o.Operand()
                     case str():
                         self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
                         self._unit = Key.key_to_int(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
+            case Key():
+                self._unit          = operand._unit
+                self._flat._unit    = operand._flat._unit
+                self._degree._unit  = operand._degree._unit
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
             case int() | float() | Fraction():
                                     self._unit = int(operand)
             case Flat():
-                  self._flat << operand
+                 self._flat << operand
+            case Degree():
+                self._degree << operand
             case str():
                 self._flat << (operand.strip().lower().find("b") != -1) * 1
                 self._unit = Key.key_to_int(operand)
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
             case _:                 super().__lshift__(operand)
         return self
 
