@@ -32,7 +32,7 @@ class Staff(o.Operand):
         self._measure: ro.Measure                   = ro.Measure(8)
         self._tempo: ro.Tempo                       = ro.Tempo(120.0)
         self._time_signature: og.TimeSignature      = og.TimeSignature(4, 4)
-        self._key_signature: og.KeySignature        = og.KeySignature(0)
+        self._key_signature: ou.KeySignature        = ou.KeySignature(0)
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._scale: od.Scale                       = od.Scale("Major")
         self._quantization: ro.Quantization         = ro.Quantization(1/16)
@@ -69,7 +69,7 @@ class Staff(o.Operand):
                     case ro.Measure():          return self._measure
                     case ro.Tempo():            return self._tempo
                     case og.TimeSignature():    return self._time_signature
-                    case og.KeySignature():     return self._key_signature
+                    case ou.KeySignature():     return self._key_signature
                     case ro.BeatsPerMeasure():  return self._time_signature % od.DataSource( ro.BeatsPerMeasure() )
                     case ro.BeatNoteValue():    return self._time_signature % od.DataSource( ro.BeatNoteValue() )
                     case od.Scale():            return self._scale
@@ -97,7 +97,7 @@ class Staff(o.Operand):
             case ro.Measure():          return self._measure.copy()
             case ro.Tempo():            return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
-            case og.KeySignature():     return self._key_signature.copy()
+            case ou.KeySignature():     return self._key_signature.copy()
             case ro.BeatsPerMeasure():  return self._time_signature % ro.BeatsPerMeasure()
             case ro.BeatNoteValue():    return self._time_signature % ro.BeatNoteValue()
             case od.Scale():            return self._scale.copy()
@@ -131,7 +131,7 @@ class Staff(o.Operand):
         return  self._measure           == other_staff % od.DataSource( ro.Measure() ) \
             and self._tempo             == other_staff % od.DataSource( ro.Tempo() ) \
             and self._time_signature    == other_staff % od.DataSource( og.TimeSignature() ) \
-            and self._key_signature     == other_staff % od.DataSource( og.KeySignature() ) \
+            and self._key_signature     == other_staff % od.DataSource( ou.KeySignature() ) \
             and self._scale             == other_staff % od.DataSource( od.Scale() ) \
             and self._quantization      == other_staff % od.DataSource( ro.Quantization() ) \
             and self._duration          == other_staff % od.DataSource( ot.Duration() ) \
@@ -175,7 +175,7 @@ class Staff(o.Operand):
             self._measures          = ro.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
             self._tempo             = ro.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
             self._time_signature    = og.TimeSignature().loadSerialization(serialization["parameters"]["time_signature"])
-            self._key_signature     = og.KeySignature().loadSerialization(serialization["parameters"]["key_signature"])
+            self._key_signature     = ou.KeySignature().loadSerialization(serialization["parameters"]["key_signature"])
             self._scale             = od.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
             self._quantization      = ro.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
             self._duration          = ot.Duration()         << od.DataSource( serialization["parameters"]["duration"] )
@@ -195,7 +195,7 @@ class Staff(o.Operand):
                     case ro.Measure():          self._measure = operand % o.Operand()
                     case ro.Tempo():            self._tempo = operand % o.Operand()
                     case og.TimeSignature():    self._time_signature = operand % o.Operand()
-                    case og.KeySignature():     self._key_signature = operand % o.Operand()
+                    case ou.KeySignature():     self._key_signature = operand % o.Operand()
                     case ro.BeatsPerMeasure() | ro.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
                     case od.Scale():            self._scale = operand % o.Operand()
@@ -227,7 +227,7 @@ class Staff(o.Operand):
             case ro.Tempo():            self._tempo << operand
             case og.TimeSignature() | ro.BeatsPerMeasure() | ro.BeatNoteValue():
                                         self._time_signature << operand
-            case og.KeySignature():     self._key_signature << operand
+            case ou.KeySignature():     self._key_signature << operand
             case od.Scale():            self._scale << operand
             case ro.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand

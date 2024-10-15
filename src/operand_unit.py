@@ -206,6 +206,102 @@ class Integer(Unit):
 class Semitone(Unit):
     pass
 
+class KeySignature(Unit):       # Sharps (+) and Flats (-)
+    def __init__(self, accidentals: int | str = 0):
+        super().__init__()
+        match accidentals:
+            case str():
+                total_sharps = accidentals.count('#')
+                total_flats = accidentals.count('b')
+                num_accidentals = total_sharps - total_flats
+                # Number of accidentals should range between -7 and +7
+                if -7 <= num_accidentals <= 7:
+                    self._unit = num_accidentals
+            case int() | float():
+                num_accidentals = int(accidentals)
+                # Number of accidentals should range between -7 and +7
+                if -7 <= num_accidentals <= 7:
+                    self._unit = num_accidentals
+    
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case KeySignature():        return self
+                    case int():                 return self._unit
+                    case list():                return KeySignature._key_signatures[(self._unit + 7) % 15]
+                    case _:                     return ol.Null()
+            case of.Frame():            return self % (operand % o.Operand())
+            case KeySignature():        return self.copy()
+            case int():                 return self._unit
+            case list():
+                key_signature = 7
+                if -7 <= self._unit <= 7:
+                    key_signature += self._unit
+                return KeySignature._key_signatures[key_signature]
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other_key_signature: 'KeySignature') -> bool:
+        other_key_signature = self & other_key_signature    # Processes the tailed self operands or the Frame operand if any exists
+        if other_key_signature.__class__ == o.Operand:
+            return True
+        if type(self) != type(other_key_signature):
+            return False
+        return  self._unit   == other_key_signature._unit
+    
+    def getScale(self) -> list:
+        key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
+        key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
+        for key_i in range(12):
+            if key_signature[key_i] != 0:
+                key_signature_scale[key_i] = 0
+                key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
+        return key_signature_scale
+
+    def getKeyDegree(self, tonic_key: 'Key', degree: 'Degree', flat: int = 0) -> 'Key':
+        tonic_key: Key = Key(tonic_key)
+        degree: Degree = Degree(degree)
+        key_signature_scale = self.getScale()
+        if key_signature_scale[tonic_key._unit % 12] == 0:
+            ...
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'KeySignature':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case int():     self._unit   = operand % o.Operand()
+            case KeySignature():
+                self._unit       = operand._unit
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case int():     self._unit   = operand
+        return self
+
+    _key_signatures: list[list] = [
+    #     C      D      E   F      G      A      B
+        [-1, 0, -1, 0, -1, -1, 0, -1, 0, -1, 0, -1],    # -7
+        [-1, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1],    # -6
+        [-0, 0, -1, 0, -1, -0, 0, -1, 0, -1, 0, -1],    # -5
+        [-0, 0, -1, 0, -1, -0, 0, -0, 0, -1, 0, -1],    # -4
+        [-0, 0, -0, 0, -1, -0, 0, -0, 0, -1, 0, -1],    # -3
+        [-0, 0, -0, 0, -1, -0, 0, -0, 0, -0, 0, -1],    # -2
+        [-0, 0, -0, 0, -0, -0, 0, -0, 0, -0, 0, -1],    # -1
+    #     C      D      E   F      G      A      B
+        [+0, 0, +0, 0, +0, +0, 0, +0, 0, +0, 0, +0],    # +0
+    #     C      D      E   F      G      A      B
+        [+0, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0],    # +1
+        [+1, 0, +0, 0, +0, +1, 0, +0, 0, +0, 0, +0],    # +2
+        [+1, 0, +0, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +3
+        [+1, 0, +1, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +4
+        [+1, 0, +1, 0, +0, +1, 0, +1, 0, +1, 0, +0],    # +5
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0],    # +6
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1],    # +7
+    ]
+
 class Key(Unit):
     """
     A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
