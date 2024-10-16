@@ -206,8 +206,8 @@ class KeyNote(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
+                "key":      self._key.getSerialization(),
                 "octave":   self._octave % od.DataSource( int() ),
-                "key":      self._key % od.DataSource( int() ),
                 "natural":  self._natural % od.DataSource( int() )
             }
         }
@@ -219,8 +219,8 @@ class KeyNote(Generic):
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and 
             "natural" in serialization["parameters"]):
 
+            self._key       = ou.Key().loadSerialization(serialization["parameters"]["key"])
             self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
-            self._key       = ou.Key()      << od.DataSource( serialization["parameters"]["key"] )
             self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
         return self
 
