@@ -344,11 +344,11 @@ class Key(Unit):
         semitone_transpose: int = 0
         while degree_transpose > 0:
             semitone_transpose += 1
-            if key_signature_scale[semitone_transpose % 12]:
+            if key_signature_scale[(self._unit + semitone_transpose) % 12]:
                 degree_transpose -= 1
         while degree_transpose < 0:
             semitone_transpose -= 1
-            if key_signature_scale[semitone_transpose % 12]:
+            if key_signature_scale[(self._unit + semitone_transpose) % 12]:
                 degree_transpose += 1
         return key_degree + float(semitone_transpose) - float(key_transpose) << Degree(1)
 
