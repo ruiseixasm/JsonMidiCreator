@@ -420,10 +420,12 @@ class Key(Unit):
             case _:     return super().__sub__(number)
     
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
-                           "B#", "Db", "D", "Eb", "Fb", "E#", "Gb", "G", "Ab", "A", "Bb", "Cb"]
+                           "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
+                           "B#", "",   "D", "",   "Fb", "E#", "",   "G", "",   "A", "",   "Cb"]
     
-    @staticmethod
-    def int_to_key(note_key: int = 0) -> str:
+    def int_to_key(self, note_key: int = 0) -> str:
+        note_key %= 12
+        note_key += 12 * (self._flat._unit != 0)
         return Key._keys[note_key % 12]
 
     @staticmethod
