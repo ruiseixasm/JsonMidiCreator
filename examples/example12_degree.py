@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 single_note = Note("C") << NoteValue(1)
-single_note >> Play() << NoteValue(1/4)
+single_note >> Play() << NoteValue(1/16)
 
 for degree in range(2, 9):
     single_note << Degree(degree)

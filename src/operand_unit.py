@@ -329,19 +329,27 @@ class Key(Unit):
         key_signature: KeySignature = os.staff._key_signature
         key_signature_scale     = key_signature.getScale()
         key_degree: Key         = self.copy()
-        key_transpose: int    = 0
+        key_transpose: int      = 0
         if key_signature_scale[self._unit % 12] == 0:
             if self._flat._unit:
                  key_transpose = +1
             else:
                  key_transpose = -1
         key_degree += key_transpose
-        degree_transpose: int       = max(0, self._degree._unit - 1)
-        semitone_transpose: int   = 0
-        while degree_transpose:
+        degree_transpose: int   = 0
+        if self._degree._unit > 0:
+            degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
+        elif self._degree._unit < 0:
+            degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
+        semitone_transpose: int = 0
+        while degree_transpose > 0:
             semitone_transpose += 1
             if key_signature_scale[semitone_transpose % 12]:
                 degree_transpose -= 1
+        while degree_transpose < 0:
+            semitone_transpose -= 1
+            if key_signature_scale[semitone_transpose % 12]:
+                degree_transpose += 1
         return key_degree + float(semitone_transpose) - float(key_transpose) << Degree(1)
 
     def getSerialization(self):
@@ -416,6 +424,14 @@ class Key(Unit):
                         return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit) )
             case Semitone():
                         return self.__class__() << od.DataSource( self._unit + number._unit )
+            case Degree():
+                self_copy: Key = self.copy()
+                if self_copy._degree._unit > 0:
+                    self_copy._degree._unit - 1
+                elif self_copy._degree._unit < 0:
+                    self_copy._degree._unit + 1
+                self_copy._degree._unit + number._unit
+                return self_copy
             case _:     return super().__add__(number)
     
     def __sub__(self, number: any) -> 'Unit':
@@ -427,11 +443,19 @@ class Key(Unit):
                         return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit * -1) )
             case Semitone():
                         return self.__class__() << od.DataSource( self._unit - number._unit )
+            case Degree():
+                self_copy: Key = self.copy()
+                if self_copy._degree._unit > 0:
+                    self_copy._degree._unit - 1
+                elif self_copy._degree._unit < 0:
+                    self_copy._degree._unit + 1
+                self_copy._degree._unit - number._unit
+                return self_copy
             case _:     return super().__sub__(number)
     
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
-                           "B#", "",   "D", "",   "Fb", "E#", "",   "G", "",   "A", "",   "Cb"]
+                           "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
     
     def int_to_key(self, note_key: int = 0) -> str:
         note_key %= 12
