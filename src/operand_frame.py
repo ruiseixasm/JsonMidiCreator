@@ -384,11 +384,12 @@ class Increment(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand is not None:
-            stepped_operand = self_operand + self._data
+        if isinstance(self_operand, ol.Null):
             self._data += self._step
-            return stepped_operand
-        return ol.Null()
+            return self_operand
+        stepped_operand = self_operand + self._data
+        self._data += self._step
+        return stepped_operand
 
 class Iterate(OperandFilter):
     def __init__(self, step = None):
@@ -400,13 +401,16 @@ class Iterate(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand is not None:
-            stepped_operand = self._data
-            if isinstance(self_operand, o.Operand):
+        match self_operand:
+            case ol.Null():
+                self._data += self._step
+                return self_operand
+            case o.Operand():
                 stepped_operand = self_operand << self._data
-            self._data += self._step
-            return stepped_operand
-        return ol.Null()
+            case _:
+                stepped_operand = self._data
+        self._data += self._step
+        return stepped_operand
     
 class Foreach(OperandFilter):
     def __init__(self, *parameters):
@@ -420,12 +424,14 @@ class Foreach(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if self_operand is not None:
-            stepped_operand = self_operand << self._data[self._index]
+        if isinstance(self_operand, ol.Null):
             self._index += self._step
             self._index %= self._len
-            return stepped_operand
-        return ol.Null()
+            return self_operand
+        stepped_operand = self_operand << self._data[self._index]
+        self._index += self._step
+        self._index %= self._len
+        return stepped_operand
     
 class Wrap(OperandFilter):
     def __init__(self, operand: o.Operand = None):
