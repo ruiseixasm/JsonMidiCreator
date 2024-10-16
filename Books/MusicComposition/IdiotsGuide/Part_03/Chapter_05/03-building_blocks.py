@@ -41,4 +41,4 @@ measure_1 = Note("C", 5, 1/1)
 measure_2 = Note("C", 5, Gate(1)) * 4 + (0, 3, -2, 1) << Nth(4)**Gate(0.9)
 
 ProgramChange(75, Length(Measure(1))) >> motif >> end_point_1 >> motif >> end_point_2 >> motif >> end_point_3 >> measure_1 \
->> motif + 4 >> end_point_1 + 4 >> measure_2 >> motif >> end_point_1 >> measure_1 - 4 << Equal(Measure(1 + 6))**Equal(Beat(3))**Key("G") >> Play()
+>> motif + 4 >> end_point_1 + 4 >> measure_2 >> motif >> end_point_1 >> measure_1 - 4 << Equal(Measure(1 + 6))**Equal(Beat(3))**Key("G") >> ProgramChange(1, Beat(2)) >> Play()

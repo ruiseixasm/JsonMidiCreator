@@ -401,7 +401,9 @@ class Iterate(OperandFilter):
         if isinstance(self_operand, Frame):
             self_operand &= subject
         if self_operand is not None:
-            stepped_operand = self_operand << self._data
+            stepped_operand = self._data
+            if isinstance(self_operand, o.Operand):
+                stepped_operand = self_operand << self._data
             self._data += self._step
             return stepped_operand
         return ol.Null()
