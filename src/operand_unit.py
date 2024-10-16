@@ -415,43 +415,43 @@ class Key(Unit):
             case _:                 super().__lshift__(operand)
         return self
 
-    def __add__(self, number: any) -> 'Unit':
+    def __add__(self, operand: any) -> 'Unit':
         import operand_rational as ro
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        match number:
-            case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number) )
+        operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand) )
             case Integer():
-                        return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit) )
+                        return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand._unit) )
             case Semitone():
-                        return self.__class__() << od.DataSource( self._unit + number._unit )
+                        return self.__class__() << od.DataSource( self._unit + operand._unit )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
-                    self_copy._degree._unit - 1
+                    self_copy._degree._unit -= 1
                 elif self_copy._degree._unit < 0:
-                    self_copy._degree._unit + 1
-                self_copy._degree._unit + number._unit
+                    self_copy._degree._unit += 1
+                self_copy._degree._unit += operand._unit
                 return self_copy
-            case _:     return super().__add__(number)
+            case _:     return super().__add__(operand)
     
-    def __sub__(self, number: any) -> 'Unit':
+    def __sub__(self, operand: any) -> 'Unit':
         import operand_rational as ro
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        match number:
-            case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number * -1) )
+        operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand * -1) )
             case Integer():
-                        return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, number._unit * -1) )
+                        return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand._unit * -1) )
             case Semitone():
-                        return self.__class__() << od.DataSource( self._unit - number._unit )
+                        return self.__class__() << od.DataSource( self._unit - operand._unit )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
-                    self_copy._degree._unit - 1
+                    self_copy._degree._unit -= 1
                 elif self_copy._degree._unit < 0:
-                    self_copy._degree._unit + 1
-                self_copy._degree._unit - number._unit
+                    self_copy._degree._unit += 1
+                self_copy._degree._unit -= operand._unit
                 return self_copy
-            case _:     return super().__sub__(number)
+            case _:     return super().__sub__(operand)
     
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",

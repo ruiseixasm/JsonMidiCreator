@@ -259,6 +259,9 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy += operand
                 octave_int += key_copy._unit // 12
+            case ou.Degree():
+                self_copy._key += operand
+                return self_copy
             case _: return super().__add__(operand)
         return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
     
@@ -276,6 +279,9 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy -= operand
                 octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
+            case ou.Degree():
+                self_copy._key -= operand
+                return self_copy
             case _: return super().__add__(operand)
         return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
 
