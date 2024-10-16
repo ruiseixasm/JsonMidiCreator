@@ -384,10 +384,17 @@ class Increment(OperandFilter):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        if isinstance(self_operand, ol.Null):
-            self._data += self._step
-            return self_operand
-        stepped_operand = self_operand + self._data
+        match self_operand:
+            case ol.Null():
+                self._data += self._step
+                return self_operand
+            case _:
+                if self_operand.__class__ == o.Operand:
+                    stepped_operand = self._data
+                elif isinstance(self_operand, o.Operand):
+                    stepped_operand = self_operand + self._data
+                else:
+                    stepped_operand = self._data
         self._data += self._step
         return stepped_operand
 
@@ -406,7 +413,10 @@ class Iterate(OperandFilter):
                 self._data += self._step
                 return self_operand
             case o.Operand():
-                stepped_operand = self_operand << self._data
+                if self_operand.__class__ == o.Operand:
+                    stepped_operand = self._data
+                else:
+                    stepped_operand = self_operand << self._data
             case _:
                 stepped_operand = self._data
         self._data += self._step
@@ -428,7 +438,12 @@ class Foreach(OperandFilter):
             self._index += self._step
             self._index %= self._len
             return self_operand
-        stepped_operand = self_operand << self._data[self._index]
+        if self_operand.__class__ == o.Operand:
+            stepped_operand = self._data[self._index]
+        elif isinstance(self_operand, o.Operand):
+            stepped_operand = self_operand << self._data[self._index]
+        else:
+            stepped_operand = self._data[self._index]
         self._index += self._step
         self._index %= self._len
         return stepped_operand
