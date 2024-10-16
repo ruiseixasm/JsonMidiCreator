@@ -107,7 +107,6 @@ class KeyNote(Generic):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave()
         self._key: ou.Key           = ou.Key()
-        self._natural: ou.Natural   = ou.Natural()
         if len(parameters) > 0:
             self << parameters
 
@@ -131,11 +130,10 @@ class KeyNote(Generic):
                     case KeyNote():         return self
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
-                    case ou.Natural():      return self._natural
                     case int():
                         octave_int: int     = self._octave._unit
                         key_int: int        = self._key._unit
-                        not_natural: bool   = self._natural._unit == 0
+                        not_natural: bool   = self._key._natural._unit == 0
                         if not_natural:
                             key_signature: ou.KeySignature = os.staff._key_signature
                             key_int += (key_signature % list())[key_int]    # already % 12
@@ -147,13 +145,12 @@ class KeyNote(Generic):
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Flat() | ou.Degree():
+            case ou.Flat() | ou.Natural() | ou.Degree():
                 return self._key % operand
-            case ou.Natural():      return self._natural.copy()
             case int():
                 octave_int: int     = self._octave._unit
                 key_int: int        = self._key._unit
-                not_natural: bool   = self._natural._unit == 0
+                not_natural: bool   = self._key._natural._unit == 0
                 if not_natural:
                     key_signature: ou.KeySignature = os.staff._key_signature
                     key_int += (key_signature % list())[key_int]    # already % 12
@@ -208,8 +205,7 @@ class KeyNote(Generic):
             "class": self.__class__.__name__,
             "parameters": {
                 "key":      self._key.getSerialization(),
-                "octave":   self._octave % od.DataSource( int() ),
-                "natural":  self._natural % od.DataSource( int() )
+                "octave":   self._octave % od.DataSource( int() )
             }
         }
 
@@ -217,12 +213,10 @@ class KeyNote(Generic):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "octave" in serialization["parameters"] and "key" in serialization["parameters"] and 
-            "natural" in serialization["parameters"]):
+            "octave" in serialization["parameters"] and "key" in serialization["parameters"]):
 
             self._key       = ou.Key().loadSerialization(serialization["parameters"]["key"])
             self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
-            self._natural   = ou.Natural()  << od.DataSource( serialization["parameters"]["natural"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
@@ -234,11 +228,9 @@ class KeyNote(Generic):
                     case ou.Key():
                                             self._key       = operand % o.Operand()
                                             self._key._unit %= 12
-                    case ou.Natural():      self._natural   = operand % o.Operand()
             case KeyNote():
                 self._octave    << operand._octave
                 self._key       << operand._key
-                self._natural   << operand._natural
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.Integer():
@@ -246,10 +238,8 @@ class KeyNote(Generic):
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
                 self._key._unit %= 12
-            case ou.Flat() | ou.Degree():
+            case ou.Flat() | ou.Natural() | ou.Degree():
                 self._key << operand
-            case ou.Natural():
-                self._natural << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
