@@ -281,7 +281,7 @@ class Greater(SubjectFilter):
             return self_operand
         return ol.Null()
 
-class Lower(SubjectFilter):
+class Less(SubjectFilter):
     def __init__(self, filter_operand: o.Operand):
         super().__init__(filter_operand)
 
@@ -305,7 +305,7 @@ class GreaterEqual(SubjectFilter):
             return self_operand
         return ol.Null()
 
-class LowerEqual(SubjectFilter):
+class LessEqual(SubjectFilter):
     def __init__(self, filter_operand: o.Operand):
         super().__init__(filter_operand)
 

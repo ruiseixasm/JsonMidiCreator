@@ -26,4 +26,13 @@ Scale(staff % KeySignature() % list()) % str() >> Print(0)
 
 embellishing: Sequence = Note("B") * 10 << Nth(3, 4, 5, 7, 8, 9, 10)**Foreach(1/2, 1/2, 1/2, Dotted(1/8), 1/16, 1/2, 1/1) >> Stack()
 embellishing - Nth(4, 5, 10)**Foreach(Degree(4), Degree(2), Degree(5))  # Interpretation is like the ii degree below
-embellishing >> Play()
+embellishing >> Rest() >> Play()
+
+embellishing = Note("G") * 9 << Nth(3, 4, 5, 8, 9)**Foreach(1/2, 1/2, 1/2, 1/2, 1/1)**NoteValue() >> Stack()
+embellishing + Foreach(+3, +4, +3, -2, +2, +3, +2, +3, -3)**Degree()
+embellishing >> Rest() >> Play()
+
+embellishing -= embellishing | Less(Beat(2))**Equal(Measure(0), Measure(2))
+embellishing += Note("B", 1/8) * 4 + Foreach(0, 1, 0, 1) 
+embellishing += Note("B", 1/8, Position(2)) * 4 - Foreach(0, 1, 0, 1)
+embellishing >> Link() >> Rest() >> Play()

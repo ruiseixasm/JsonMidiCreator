@@ -506,7 +506,7 @@ class Sequence(Container):  # Just a container of Elements
                 start_position = self.start()
                 sequence_length: ot.Length = self.end() - start_position
                 new_end_position: ot.Position = start_position + sequence_length / operand
-                trimmed_self = self | of.Lower(new_end_position)**o.Operand()
+                trimmed_self = self | of.Less(new_end_position)**o.Operand()
                 return trimmed_self.copy()
         return super().__truediv__(operand)
     
