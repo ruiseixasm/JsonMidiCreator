@@ -230,16 +230,19 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case KeySignature():        return self
                     case int():                 return self._unit
-                    case list():                return KeySignature._key_signatures[(self._unit + 7) % 15]
+                    case list():                return self % list()
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
             case int():                 return self._unit
             case list():
-                key_signature = 7
-                if -7 <= self._unit <= 7:
-                    key_signature += self._unit
-                return KeySignature._key_signatures[key_signature]
+                key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
+                key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                for key_i in range(12):
+                    if key_signature[key_i] != 0:
+                        key_signature_scale[key_i] = 0
+                        key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
+                return key_signature_scale
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_key_signature: 'KeySignature') -> bool:
@@ -250,15 +253,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             return False
         return  self._unit   == other_key_signature._unit
     
-    def getScale(self) -> list:
-        key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
-        key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]
-        for key_i in range(12):
-            if key_signature[key_i] != 0:
-                key_signature_scale[key_i] = 0
-                key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
-        return key_signature_scale
-
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
@@ -326,11 +320,13 @@ class Key(Unit):
             case Degree():          return self._degree.copy()
             case float():
                 key_signature: KeySignature = os.staff._key_signature
-                key_signature_scale     = key_signature.getScale()
+                key_signature_scale     = key_signature % list()
                 key_int: int            = self._unit
                 not_natural: bool       = self._natural._unit == 0
                 if not_natural:
-                    key_int += (key_signature % list())[key_int]    # already % 12
+                    accidentals_int = key_signature._unit
+                    sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15]
+                    key_int += sharps_flats[key_int % 12]
                 key_offset: int      = 0
                 if key_signature_scale[self._unit % 12] == 0:
                     if self._flat._unit:
