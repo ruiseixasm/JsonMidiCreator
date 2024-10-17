@@ -130,15 +130,7 @@ class KeyNote(Generic):
                     case KeyNote():         return self
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
-                    case int():
-                        octave_int: int     = self._octave._unit
-                        key_int: int        = self._key._unit
-                        not_natural: bool   = self._key._natural._unit == 0
-                        if not_natural:
-                            key_signature: ou.KeySignature = os.staff._key_signature
-                            key_int += (key_signature % list())[key_int]    # already % 12
-                        key_degree: ou.Key = self._key.copy() << key_int
-                        return 12 * (octave_int + 1) + key_degree.getKeyDegree() % int()
+                    case int():             return self % int()
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case KeyNote():         return self.copy()
@@ -147,14 +139,7 @@ class KeyNote(Generic):
             case ou.Flat() | ou.Natural() | ou.Degree():
                 return self._key % operand
             case int():
-                octave_int: int     = self._octave._unit
-                key_int: int        = self._key._unit
-                not_natural: bool   = self._key._natural._unit == 0
-                if not_natural:
-                    key_signature: ou.KeySignature = os.staff._key_signature
-                    key_int += (key_signature % list())[key_int]    # already % 12
-                key_degree: ou.Key = self._key.copy() << key_int
-                return 12 * (octave_int + 1) + key_degree.getKeyDegree() % int()
+                return 12 * (self._octave._unit + 1) + int(self._key % float())
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, operand: any) -> bool:

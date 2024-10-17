@@ -319,38 +319,41 @@ class Key(Unit):
                     case Flat():            return self._flat
                     case Natural():         return self._natural
                     case Degree():          return self._degree
+                    case float():           return self % float()
                     case _:                 return super().__mod__(operand)
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
+            case float():
+                key_signature: KeySignature = os.staff._key_signature
+                key_signature_scale     = key_signature.getScale()
+                key_int: int            = self._unit
+                not_natural: bool       = self._natural._unit == 0
+                if not_natural:
+                    key_int += (key_signature % list())[key_int]    # already % 12
+                key_offset: int      = 0
+                if key_signature_scale[self._unit % 12] == 0:
+                    if self._flat._unit:
+                        key_offset = +1
+                    else:
+                        key_offset = -1
+                key_int += key_offset
+                degree_transpose: int   = 0
+                if self._degree._unit > 0:
+                    degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
+                elif self._degree._unit < 0:
+                    degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
+                semitone_transpose: int = 0
+                while degree_transpose > 0:
+                    semitone_transpose += 1
+                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                        degree_transpose -= 1
+                while degree_transpose < 0:
+                    semitone_transpose -= 1
+                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                        degree_transpose += 1
+                return float(key_int - key_offset + semitone_transpose)
             case _:                 return super().__mod__(operand)
-
-    def getKeyDegree(self) -> 'Key':
-        key_signature: KeySignature = os.staff._key_signature
-        key_signature_scale     = key_signature.getScale()
-        key_degree: Key         = self.copy()
-        key_transpose: int      = 0
-        if key_signature_scale[self._unit % 12] == 0:
-            if self._flat._unit:
-                 key_transpose = +1
-            else:
-                 key_transpose = -1
-        key_degree += key_transpose
-        degree_transpose: int   = 0
-        if self._degree._unit > 0:
-            degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
-        elif self._degree._unit < 0:
-            degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
-        semitone_transpose: int = 0
-        while degree_transpose > 0:
-            semitone_transpose += 1
-            if key_signature_scale[(self._unit + semitone_transpose) % 12]:
-                degree_transpose -= 1
-        while degree_transpose < 0:
-            semitone_transpose -= 1
-            if key_signature_scale[(self._unit + semitone_transpose) % 12]:
-                degree_transpose += 1
-        return key_degree + float(semitone_transpose) - float(key_transpose) << Degree(1)
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
