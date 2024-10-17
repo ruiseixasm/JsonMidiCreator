@@ -24,5 +24,5 @@ from JsonMidiCreator import *
 staff << KeySignature("#")
 
 embellishing: Sequence = Note("B") * 10 << Nth(3, 4, 5, 7, 8, 9, 10)**Foreach(1/2, 1/2, 1/2, Dotted(1/8), 1/16, 1/2, 1/1) >> Stack()
-embellishing - Nth(4, 5, 10)**Foreach(Degree(4), Degree(1), Degree(5))
+embellishing - Nth(4, 5, 10)**Foreach(Degree(4), Degree(2), Degree(5))  # Interpretation is like the ii degree below
 embellishing >> Play()

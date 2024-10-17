@@ -138,7 +138,6 @@ class KeyNote(Generic):
                             key_signature: ou.KeySignature = os.staff._key_signature
                             key_int += (key_signature % list())[key_int]    # already % 12
                         key_degree: ou.Key = self._key.copy() << key_int
-                        # return 12 * (octave_int + 1) + key_int
                         return 12 * (octave_int + 1) + key_degree.getKeyDegree() % int()
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -155,7 +154,6 @@ class KeyNote(Generic):
                     key_signature: ou.KeySignature = os.staff._key_signature
                     key_int += (key_signature % list())[key_int]    # already % 12
                 key_degree: ou.Key = self._key.copy() << key_int
-                # return 12 * (octave_int + 1) + key_int
                 return 12 * (octave_int + 1) + key_degree.getKeyDegree() % int()
             case _:                 return super().__mod__(operand)
 
