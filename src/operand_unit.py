@@ -851,7 +851,7 @@ class Print(Unit):
     first : integer_like
         Sets the indent of the JSON print layout with the default as 4
     """
-    def __init__(self, formatted: bool = None):
+    def __init__(self, formatted: bool = True):
         super().__init__( 1 if formatted is None else formatted )
 
     # CHAINABLE OPERATIONS
@@ -868,6 +868,18 @@ class Print(Unit):
                 else:
                     print(operand_serialization)
             case _: print(operand)
+        return operand
+
+class Link(Unit):
+    def __init__(self, duration: bool = False):
+        super().__init__( 0 if duration is None else duration )
+        
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.link(bool(self._unit))
         return operand
 
 class Middle(Unit):

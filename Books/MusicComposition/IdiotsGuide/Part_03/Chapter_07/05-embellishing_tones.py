@@ -45,5 +45,5 @@ embellishing >> Link() << Get(Length())**Duration() >> Rest() >> Play()
 embellishing -= embellishing | Equal(Measure(0), Measure(2))**Greater(Beat(0))
 embellishing += Note("E", 1/8, Position(0, Beat(3))) * 2 + Foreach(2, 0) 
 embellishing += Note("D", 1/8, Position(2, Beat(3))) * 2 + Foreach(2, 0)
-embellishing >> Link() << Get(Length())**Duration() >> Rest() >> Play()
+embellishing >> Link(True) >> Rest() >> Play(True)
 
