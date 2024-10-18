@@ -312,10 +312,10 @@ class Scale(Data):
         ["octatonic_wh"],
         ["pentatonic_maj", "Pentatonic"],
         ["pentatonic_min", "pentatonic"],
-        ["diminished"],
-        ["augmented"],
-        ["blues"],
-        ["Whole-tone", "Whole tone", "Whole"]
+        ["Diminished", "diminished"],
+        ["Augmented", "augmented"],
+        ["Blues", "blues"],
+        ["Whole-tone", "Whole tone", "Whole", "whole"]
     ]
     _scales = [
     #       Db    Eb       Gb    Ab    Bb

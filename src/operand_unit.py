@@ -406,6 +406,7 @@ class Key(Unit):
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
                 self._degree._unit  = operand._degree._unit
+                self._scale         = operand._scale.copy()
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
             case int() | float() | Fraction():

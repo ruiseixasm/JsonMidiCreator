@@ -21,6 +21,26 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-structural_tones = Note("E", NoteValue(1)) * 4 + Foreach(0, 2, 2, 4)
+structural_tones: Sequence = Note("E", NoteValue(1)) * 4 + Foreach(0, 2, 2, 4)
 chromatic_tones = Note("F#", Position(Beat(3))) + Note("Ab", Position(Measure(1), Beat(3))) + Note("A#", Position(Measure(2), Beat(3)))
 structural_tones + chromatic_tones >> Link() << Get(Length())**Duration() >> Rest() >> Play()
+
+structural_tones = \
+    Note("C", 5, Dotted(1/4)) + \
+    Note("C", 5, Dotted(1/4), Position(Beat(2))) + \
+    Note("G", 1/2, Position(Measure(1))) + \
+    Note("F", Position(Measure(1), Beat(2))) + \
+    Note("F", Dotted(1/2), Position(Measure(2))) + \
+    Note("G", 1/1, Position(Measure(3))) >> Link()
+blues_scale = \
+    Note("C", 1/8, Position(Dotted(1/4))) + \
+    Note("C", 1/8, Position(Dotted(2 * 1/4) + NoteValue(1/8))) + \
+    Note("C", 1/4, Position(Measure(1) + NoteValue(1/2 + 1/4))) + \
+    Note("C", 1/4, Position(Measure(2) + Dotted(1/2))) >> Link() << Scale("Blues")
+blues_scale + Foreach(5, 3, 1, 3)
+structural_tones + blues_scale >> Link(True) >> Rest() >> Play()
+
+all_notes: Sequence = Note() * (3*3 + 1)
+all_notes << Nth(1, 4, 7)**NoteValue(1/2) << Nth(10)**NoteValue(1) >> Stack()
+all_notes << Greater(Beat(0))**Scale("Pentatonic")
+all_notes + Foreach(Octave(1), 3, 4, Degree(5), 0, 1, Degree(3), 3, 4, Degree(5)) >> Rest() >> Play()
