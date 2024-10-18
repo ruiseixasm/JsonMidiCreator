@@ -393,6 +393,9 @@ class Sequence(Container):  # Just a container of Elements
                 if last_element is not None:
                     last_element << ot.Length(elem % od.DataSource( ot.Position() ) - last_element % od.DataSource( ot.Position() ))
                 last_element = elem
+        # Adjust last_element length based on its Measure position
+        if last_element is not None:
+            last_element << ot.Length(ot.Position(last_element % ro.Measure() + 1) - last_element % od.DataSource( ot.Position() ))
         if duration:
             self << of.Get(ot.Length())**ot.Duration()
         return self
