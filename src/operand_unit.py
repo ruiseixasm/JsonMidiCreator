@@ -466,7 +466,7 @@ class Key(Unit):
             case _:     return super().__sub__(operand)
     
     def move_semitones(self, move_keys: int) -> int:
-        scale = od.Scale(1) % list()    # 1 is the Major scale
+        scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff
         if self._scale.hasScale():
             scale = self._scale % list()
         move_semitones: int = 0
