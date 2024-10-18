@@ -372,9 +372,10 @@ class Scale(Data):
 
     @staticmethod
     def get_scale(scale: int | str | list = 0) -> list:
-        scale_number = __class__.get_scale_number(scale)
-        if scale_number >= 0:
-            return __class__._scales[scale_number]
+        if scale != [] and scale != -1 and scale != "":
+            scale_number = __class__.get_scale_number(scale)
+            if scale_number >= 0:
+                return __class__._scales[scale_number]
         return []   # Has no scale at all
 
 class Device(Data):

@@ -530,7 +530,7 @@ class Note(Rest):
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
-            case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree():
+            case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
@@ -613,7 +613,7 @@ class Note(Rest):
                 self._key_note      << operand._key_note
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | int() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand

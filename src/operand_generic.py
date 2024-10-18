@@ -136,7 +136,7 @@ class KeyNote(Generic):
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Flat() | ou.Natural() | ou.Degree():
+            case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 return self._key % operand
             case int():
                 return 12 * (self._octave._unit + 1) + int(self._key % float())
@@ -221,7 +221,7 @@ class KeyNote(Generic):
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
                 self._key._unit %= 12
-            case ou.Flat() | ou.Natural() | ou.Degree():
+            case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key << operand
             case tuple():
                 for single_operand in operand:

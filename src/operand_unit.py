@@ -303,6 +303,7 @@ class Key(Unit):
         self._flat: Flat        = Flat()
         self._natural: Natural  = Natural()
         self._degree: Degree    = Degree(1)
+        self._scale: od.Scale   = od.Scale([])
         if len(parameters) > 0:
             self << parameters
 
@@ -313,11 +314,13 @@ class Key(Unit):
                     case Flat():            return self._flat
                     case Natural():         return self._natural
                     case Degree():          return self._degree
+                    case od.Scale():        return self._scale
                     case float():           return self % float()
                     case _:                 return super().__mod__(operand)
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
+            case od.Scale():        return self._scale.copy()
             case float():
                 key_signature: KeySignature = os.staff._key_signature
                 key_signature_scale     = key_signature % list()
@@ -356,18 +359,21 @@ class Key(Unit):
         element_serialization["parameters"]["flat"]     = self._flat._unit
         element_serialization["parameters"]["natural"]  = self._natural._unit
         element_serialization["parameters"]["degree"]   = self._degree._unit
+        element_serialization["parameters"]["scale"]    = self._scale._data
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and "degree" in serialization["parameters"]):
+            "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and
+            "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._flat      = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
             self._natural   = Natural() << od.DataSource( serialization["parameters"]["natural"] )
             self._degree    = Degree()  << od.DataSource( serialization["parameters"]["degree"] )
+            self._scale     = od.Scale(serialization["parameters"]["scale"])
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
@@ -386,6 +392,8 @@ class Key(Unit):
                         self._natural << operand % o.Operand()
                     case Degree():
                         self._degree << operand % o.Operand()
+                    case od.Scale():
+                        self._scale << operand % o.Operand()
                     case str():
                         self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
                         self._unit = Key.key_to_int(operand % o.Operand())
@@ -405,6 +413,8 @@ class Key(Unit):
                 self._natural << operand
             case Degree():
                 self._degree << operand
+            case od.Scale():
+                self._scale << operand
             case str():
                 self._flat << (operand.strip().lower().find("b") != -1) * 1
                 self._unit = Key.key_to_int(operand)
