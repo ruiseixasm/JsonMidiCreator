@@ -322,36 +322,39 @@ class Key(Unit):
             case Degree():          return self._degree.copy()
             case od.Scale():        return self._scale.copy()
             case float():
-                key_signature: KeySignature = os.staff._key_signature
-                key_signature_scale     = key_signature % list()
                 key_int: int            = self._unit
-                not_natural: bool       = self._natural._unit == 0
-                if not_natural:
-                    accidentals_int = key_signature._unit
-                    sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15]
-                    key_int += sharps_flats[key_int % 12]
-                key_offset: int      = 0
-                if key_signature_scale[self._unit % 12] == 0:
-                    if self._flat._unit:
-                        key_offset = +1
-                    else:
-                        key_offset = -1
-                key_int += key_offset
-                degree_transpose: int   = 0
-                if self._degree._unit > 0:
-                    degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
-                elif self._degree._unit < 0:
-                    degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
-                semitone_transpose: int = 0
-                while degree_transpose > 0:
-                    semitone_transpose += 1
-                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
-                        degree_transpose -= 1
-                while degree_transpose < 0:
-                    semitone_transpose -= 1
-                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
-                        degree_transpose += 1
-                return float(key_int - key_offset + semitone_transpose)
+                if self._scale.hasScale():
+                    return key_int
+                else:
+                    key_signature: KeySignature = os.staff._key_signature
+                    key_signature_scale     = key_signature % list()
+                    not_natural: bool       = self._natural._unit == 0
+                    if not_natural:
+                        accidentals_int = key_signature._unit
+                        sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15]
+                        key_int += sharps_flats[key_int % 12]
+                    key_offset: int      = 0
+                    if key_signature_scale[self._unit % 12] == 0:
+                        if self._flat._unit:
+                            key_offset = +1
+                        else:
+                            key_offset = -1
+                    key_int += key_offset
+                    degree_transpose: int   = 0
+                    if self._degree._unit > 0:
+                        degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
+                    elif self._degree._unit < 0:
+                        degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
+                    semitone_transpose: int = 0
+                    while degree_transpose > 0:
+                        semitone_transpose += 1
+                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                            degree_transpose -= 1
+                    while degree_transpose < 0:
+                        semitone_transpose -= 1
+                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                            degree_transpose += 1
+                    return float(key_int - key_offset + semitone_transpose)
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self):
@@ -428,9 +431,9 @@ class Key(Unit):
         import operand_rational as ro
         operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand) )
+            case int(): return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand) )
             case Integer():
-                        return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand._unit) )
+                        return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand._unit) )
             case Semitone():
                         return self.__class__() << od.DataSource( self._unit + operand._unit )
             case Degree():
@@ -447,9 +450,9 @@ class Key(Unit):
         import operand_rational as ro
         operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int(): return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand * -1) )
+            case int(): return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand * -1) )
             case Integer():
-                        return self.__class__() << od.DataSource( self._unit + Key.move_semitones(self._unit, operand._unit * -1) )
+                        return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand._unit * -1) )
             case Semitone():
                         return self.__class__() << od.DataSource( self._unit - operand._unit )
             case Degree():
@@ -462,6 +465,21 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__sub__(operand)
     
+    def move_semitones(self, move_keys: int) -> int:
+        scale = od.Scale("Major") % list()
+        if self._scale.hasScale():
+            scale = self._scale % list()
+        move_semitones: int = 0
+        while move_keys > 0:
+            move_semitones += 1
+            if scale[(self._unit + move_semitones) % 12]:
+                move_keys -= 1
+        while move_keys < 0:
+            move_semitones -= 1
+            if scale[(self._unit + move_semitones) % 12]:
+                move_keys += 1
+        return move_semitones
+
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
                            "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
@@ -477,21 +495,6 @@ class Key(Unit):
             if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
                 return key_i % 12
         return 0
-
-    _major_keys: list   = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Same as the Major scale
-
-    @staticmethod
-    def move_semitones(start_key: int, move_keys: int) -> int:
-        move_semitones = 0
-        while move_keys > 0:
-            move_semitones += 1
-            if Key._major_keys[(start_key + move_semitones) % 12]:
-                move_keys -= 1
-        while move_keys < 0:
-            move_semitones -= 1
-            if Key._major_keys[(start_key + move_semitones) % 12]:
-                move_keys += 1
-        return move_semitones
 
 class Root(Key):
     pass

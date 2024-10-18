@@ -251,7 +251,7 @@ class Scale(Data):
             case _:                     return super().__mod__(operand)
 
     def hasScale(self) -> bool:
-        if self._data == []:
+        if self._data == [] or self._data == -1 or self._data == "":
             return False
         return True
 
