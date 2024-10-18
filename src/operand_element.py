@@ -641,7 +641,7 @@ class Note(Rest):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self._scale: od.Scale   = os.staff % od.Scale()    # default Staff scale
+        self._scale: od.Scale   = od.Scale("Major")    # Major scale as default
         self._mode: ou.Mode     = ou.Mode()
         self._degree: ou.Degree = ou.Degree(1)
         self._key_note << ou.Natural(1)

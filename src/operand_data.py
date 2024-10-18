@@ -68,7 +68,7 @@ class Data(o.Operand):
                             return many_operands
                         case _: return self._data
                 return super().__mod__(operand)
-
+            
     def __eq__(self, other_data: o.Operand) -> bool:
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
@@ -227,8 +227,6 @@ class Scale(Data):
     """
     def __init__(self, scale: list[int] | str | int = None):
         self_scale = __class__.get_scale(scale)
-        if self_scale == []:
-            self_scale = os.staff % DataSource( self ) % DataSource( list() )
         super().__init__( self_scale.copy() )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -251,6 +249,11 @@ class Scale(Data):
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
             case _:                     return super().__mod__(operand)
+
+    def hasScale(self) -> bool:
+        if self._data == []:
+            return False
+        return True
 
     def keys(self) -> int:
         scale_keys = 0
@@ -372,7 +375,7 @@ class Scale(Data):
         scale_number = __class__.get_scale_number(scale)
         if scale_number >= 0:
             return __class__._scales[scale_number]
-        return []
+        return []   # Has no scale at all
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):

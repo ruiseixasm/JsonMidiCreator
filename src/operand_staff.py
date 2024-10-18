@@ -34,7 +34,7 @@ class Staff(o.Operand):
         self._time_signature: og.TimeSignature      = og.TimeSignature(4, 4)
         self._key_signature: ou.KeySignature        = ou.KeySignature(0)
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._scale: od.Scale                       = od.Scale("Major")
+        self._scale: od.Scale                       = od.Scale([])  # By default, it has no scale besides the one given by the Key Signature
         self._quantization: ro.Quantization         = ro.Quantization(1/16)
         self._duration: ot.Duration                 = ot.Duration() << ro.NoteValue(1/4)
         self._key: ou.Key                           = ou.Key("C")
