@@ -400,6 +400,9 @@ class Sequence(Container):  # Just a container of Elements
             self << of.Get(ot.Length())**ot.Duration()
         return self
 
+    def join(self) -> 'Sequence':
+        return self << of.Get(ot.Length())**ot.Duration()
+
     def stack(self) -> 'Sequence':
         import operand_element as oe
         last_position = None
