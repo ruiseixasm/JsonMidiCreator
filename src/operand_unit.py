@@ -470,6 +470,8 @@ class Key(Unit):
         scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff
         if self._scale.hasScale():
             scale = self._scale % list()
+        elif os.staff._scale.hasScale():
+            scale = os.staff._scale % list()
         move_semitones: int = 0
         while move_keys > 0:
             move_semitones += 1
