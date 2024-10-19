@@ -37,5 +37,19 @@ speeding_up >> Rest() >> Play()
 
 staff << KeySignature("#")
 
-simple_phrase = Note("B") * 5 + Foreach(2, -1, 0, 2, 1) >> Link(True)
-simple_phrase >> Rest() >> Play()
+original_phrase: Sequence = Note("B") * 5 + Foreach(2, -1, 0, 2, 1) >> Link(True)
+original_phrase >> Rest() >> Play()
+
+variation_a: Sequence = original_phrase.copy() << Equal(Measure(0))**NoteValue(1/8)
+(variation_a | Measure(0)) >> Stack()
+variation_a + Note("C", 5, 1/2, Gate(1), Position(Beat(2))) >> Link(True)
+
+variation_b: Sequence = original_phrase.copy() << Equal(Measure(0))**Foreach(1/8, 1/8, 1/2, 1/4)**NoteValue() >> Stack()
+variation_c: Sequence = original_phrase.copy() << Equal(Measure(0))**Foreach(1/4, 1/2, 1/8, 1/8)**NoteValue() >> Stack()
+variation_d: Sequence = original_phrase.copy() << Equal(Measure(0))**Foreach(1/4, 1/8, 1/8, 1/2)**NoteValue() >> Stack()
+
+variation_e: Sequence = Rest() + (original_phrase.copy() << Equal(Measure(0))**NoteValue(1/8)) >> Stack()
+
+variation_f: Sequence = Rest() + ((original_phrase | Measure(0)) << Gate(1)) + original_phrase + Note("D", 5) << Equal(Measure(0))**NoteValue(1/8)
+
+variation_a >> variation_b >> variation_c >> variation_d >> variation_e >> variation_f >> Rest() >> Play()
