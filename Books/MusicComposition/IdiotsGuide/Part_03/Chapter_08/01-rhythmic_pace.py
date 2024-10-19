@@ -50,6 +50,7 @@ variation_d: Sequence = original_phrase.copy() << Equal(Measure(0))**Foreach(1/4
 
 variation_e: Sequence = Rest() + (original_phrase.copy() << Equal(Measure(0))**NoteValue(1/8)) >> Stack()
 
-variation_f: Sequence = Rest() + ((original_phrase | Measure(0)) << Gate(1)) + original_phrase + Note("D", 5) << Equal(Measure(0))**NoteValue(1/8)
+variation_f: Sequence = ((original_phrase | Measure(0)) << Gate(1)) + original_phrase << Equal(Measure(0))**NoteValue(1/8)
+variation_f = Rest() + variation_f + Note("D", 5, 1/8, Position(Beat(4) - NoteValue(1/8))) >> Sort()
 
 variation_a >> variation_b >> variation_c >> variation_d >> variation_e >> variation_f >> Rest() >> Play()
