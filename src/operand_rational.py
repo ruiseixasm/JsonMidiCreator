@@ -43,13 +43,11 @@ class Rational(o.Operand):
     first : float_like
         A fraction like 1/4 or 0.9 or 1.24
     """
-    def __init__(self, value: float = None):
+    def __init__(self, *parameters):
         super().__init__()
         self._rational: Fraction = Fraction(0).limit_denominator()
-        if isinstance(value, Fraction):
-            self._rational: Fraction = value
-        elif isinstance(value, (int, float)):
-            self._rational: Fraction = Fraction(value).limit_denominator()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -155,6 +153,9 @@ class Rational(o.Operand):
             case Fraction():                self._rational = operand
             case float() | int():           self._rational = Fraction(operand).limit_denominator()
             case ou.Integer():              self._rational = operand % Fraction()
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -298,12 +299,10 @@ class TimeUnit(Rational):
     first : float_like
         Not intended to be set directly
     """
-    def __init__(self, value: float = None):
-        match value:
-            case TimeUnit():
-                super().__init__( value % self )
-            case _:
-                super().__init__( value )
+    def __init__(self, *parameters):
+        super().__init__()
+        if len(parameters) > 0:
+            self << parameters
 
     def getTime_rational(self) -> Fraction:
         return self._rational * 0
@@ -381,8 +380,10 @@ class Measure(TimeUnit):
     first : float_like
         Proportional value to a Measure on the Staff
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, *parameters):
+        super().__init__()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -464,8 +465,10 @@ class Beat(TimeUnit):
     first : float_like
         Proportional value to a Beat on the Staff
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, *parameters):
+        super().__init__()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -555,8 +558,10 @@ class Step(TimeUnit):
     first : float_like
         Steps as 1, 2, 4, 8
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, *parameters):
+        super().__init__()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -646,8 +651,10 @@ class NoteValue(TimeUnit):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    def __init__(self, *parameters):
+        super().__init__()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -744,9 +751,10 @@ class Dotted(NoteValue):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
-        self._rational = self._rational * 3/2 # It's just a wrapper for NoteValue
+    def __init__(self, *parameters):
+        super().__init__()
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
