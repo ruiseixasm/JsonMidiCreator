@@ -24,21 +24,21 @@ from JsonMidiCreator import *
 staff << KeySignature("bbb")
 
 simple_phrase: Sequence = Note("B") * 3 + Nth(2)**1 >> Link(True)
-# simple_phrase >> Rest() >> Play()
+simple_phrase >> Rest() >> Play()
 
 dotted_quarter: Sequence = simple_phrase.copy() << Foreach(Dotted(1/4), 1/8, 1/2) >> Stack() >> Link(True)
-# dotted_quarter >> Rest() >> Play()
+dotted_quarter >> Rest() >> Play()
 
 off_beat: Sequence = simple_phrase.copy() << Nth(2)**Position(NoteValue(1/8)) >> Link(True)
-# off_beat >> Rest() >> Play()
+off_beat >> Rest() >> Play()
 
 speeding_up: Sequence = dotted_quarter.copy() - Nth(2, 3)**Position(1/4) >> Link(True)
-# speeding_up >> Rest() >> Play()
+speeding_up >> Rest() >> Play()
 
 staff << KeySignature("#")
 
 original_phrase: Sequence = Note("B") * 5 + Foreach(2, -1, 0, 2, 1) >> Link(True)
-# original_phrase >> Rest() >> Play()
+original_phrase >> Rest() >> Play()
 
 variation_a: Sequence = original_phrase.copy() << Equal(Measure(0))**NoteValue(1/8)
 (variation_a | Measure(0)) >> Stack()
