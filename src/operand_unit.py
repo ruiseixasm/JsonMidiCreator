@@ -323,7 +323,7 @@ class Key(Unit):
             case od.Scale():        return self._scale.copy()
             case float():
                 key_int: int            = self._unit
-                if self._scale.hasScale():
+                if self._scale.hasScale() or os.staff._scale.hasScale():
                     return key_int
                 else:
                     key_signature: KeySignature = os.staff._key_signature
