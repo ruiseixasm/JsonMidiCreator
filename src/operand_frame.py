@@ -243,7 +243,20 @@ class SubjectFilter(Frame):
                 return self.__class__( self._filter_operand.copy() )
             case _:
                 return self.__class__( self._filter_operand )
-    
+
+class Type(SubjectFilter):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        for condition in self._filter_operand:
+            if type(subject) == type(condition):
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
+        return ol.Null()
+
 class Equal(SubjectFilter):
     def __init__(self, *parameters):
         super().__init__(parameters)
