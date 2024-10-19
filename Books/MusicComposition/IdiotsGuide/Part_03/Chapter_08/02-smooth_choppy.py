@@ -24,13 +24,17 @@ from JsonMidiCreator import *
 staff << KeySignature("b")
 
 dotted_note = Dotted(1/2)
-note_value = NoteValue(dotted_note)
+note_value = NoteValue(Dotted(1/2))
+print(dotted_note == note_value)
 
 smoothly: Sequence = Note("F", 1/8) * 3 << Nth(3)**NoteValue(Dotted(1/2))
 smoothly *= 3
-smoothly >> Print()
 smoothly += Note("F")
 smoothly >> Stack() >> Link(True)
 smoothly += Rest(1/8, Position(Measure(3) - Beat(1))) + Note("F", 1/8) >> Stack()
-smoothly >> Link(True)
+smoothly << Equal(Step(NoteValue(1/8)))**Gate(1) >> Link(True)
+smoothly + Type(Note())**Foreach("iii", "ii", "ii", "iii", -3, -3, "i", -2, -2, -3, "ii")**Degree()
 smoothly >> Rest() >> Play()
+
+choppier = smoothly - (smoothly | Beat(1)) << Gate(0.90) << Equal(Measure(3))**Duration(1/8) >> Link()
+choppier >> Rest() >> Play()
