@@ -408,12 +408,24 @@ class Sequence(Container):  # Just a container of Elements
         last_position = None
         last_length = None
         for single_element in self._operand_list:
-            if last_position is not None:
-                last_position += last_length
-                single_element << last_position
-            else:
-                last_position = single_element._position
-            last_length = single_element._length
+            if isinstance(single_element, oe.Element):
+                if last_position is not None:
+                    last_position += last_length
+                    single_element << last_position
+                else:
+                    last_position = single_element._position
+                last_length = single_element._length
+        return self
+    
+    def tie(self) -> 'Sequence':
+        import operand_element as oe
+        last_element = None
+        for single_element in self._operand_list:
+            if isinstance(single_element, oe.Note):
+                if last_element is not None:
+                    if single_element._key_note == last_element._key_note:
+                        last_element << ro.Gate(1.0)
+                last_element = single_element
         return self
 
     # operand is the pusher
