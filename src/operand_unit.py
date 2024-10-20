@@ -322,10 +322,10 @@ class Key(Unit):
             case Degree():          return self._degree.copy()
             case od.Scale():        return self._scale.copy()
             case float():
-                key_int: int            = self._unit
                 if self._scale.hasScale() or os.staff._scale.hasScale():
-                    return key_int
+                    return self._unit
                 else:
+                    key_int: int            = self._unit
                     key_signature: KeySignature = os.staff._key_signature
                     key_signature_scale     = key_signature % list()
                     not_natural: bool       = self._natural._unit == 0
@@ -334,7 +334,7 @@ class Key(Unit):
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15]
                         key_int += sharps_flats[key_int % 12]
                     key_offset: int      = 0
-                    if key_signature_scale[self._unit % 12] == 0:
+                    if key_signature_scale[key_int % 12] == 0:
                         if self._flat._unit:
                             key_offset = +1
                         else:
@@ -887,8 +887,8 @@ class Print(Unit):
         return operand
 
 class Link(Unit):
-    def __init__(self, duration: bool = False):
-        super().__init__( 0 if duration is None else duration )
+    def __init__(self, and_join: bool = False):
+        super().__init__( 0 if and_join is None else and_join )
         
     # CHAINABLE OPERATIONS
 
