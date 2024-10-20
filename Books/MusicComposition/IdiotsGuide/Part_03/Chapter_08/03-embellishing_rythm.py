@@ -25,7 +25,5 @@ staff << KeySignature("##")
 
 long_notes: Sequence = Note("D", 1/1) * 4 + Note("D", 1/2, Position(Measure(1), Beat(2))) >> Link(True)
 long_notes << Foreach(6, 5, 1, 2, 6)**Degree() << Nth(3, 4)**Octave(5)
-long_notes >> Rest() >> Play()
 long_notes_pl = Playlist(long_notes)
-
-long_notes_pl >> Play()
+long_notes_pl >> Rest() >> Play()

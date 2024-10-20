@@ -194,6 +194,8 @@ class Element(o.Operand):
                 return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
                 return operand + self >> ol.Stack()
+            case od.Playlist():
+                return operand >> od.Playlist(self.getPlaylist())
             case tuple():
                 # Apply >> sequentially across the elements in the tuple
                 result = operand[0]  # Start with the first element
