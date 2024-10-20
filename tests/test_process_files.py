@@ -260,7 +260,7 @@ start_time = time.time()
 staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
-controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Measure()**Step()
+controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Measure()**NoteValue()**Step()
 controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | controller) >> Save("json/testing/_Save_4.2_control_change.json")
 
 chord + controller >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Export("json/testing/_Export_4.1_control_change.json") \
