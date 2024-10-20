@@ -80,6 +80,13 @@ class Stack(Label):
             return operand.stack()
         return operand
 
+class Tie(Label):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.tie()
+        return operand
+
 class First(Label):
     pass
 
