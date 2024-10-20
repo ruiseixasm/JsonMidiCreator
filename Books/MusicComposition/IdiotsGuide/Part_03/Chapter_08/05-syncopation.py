@@ -25,7 +25,7 @@ staff << KeySignature("b")
 
 smooth: Sequence = Note("F") * (3*4 + 1) >> Link(True)
 smooth + Foreach(0, -1, 0, 1, 2, 3, 2, 1, 0, 1, 0, -2, -1)
-# smooth >> Rest() >> Play()
+smooth >> Rest() >> Play()
 
 syncopated: Sequence = smooth.copy() \
     - Equal(Measure(0))**Even()**Position(NoteValue(1/8)) \
@@ -35,7 +35,7 @@ syncopated: Sequence = smooth.copy() \
 (syncopated | Measure(1)) >> Link(True)
 (syncopated | Measure(2) | Greater(Beat(2))) >> Link(True)
 syncopated >> Link()
-# syncopated >> Rest() >> Play()
+syncopated >> Rest() >> Play()
 
 
 staff << KeySignature(3)    # 3 sharps
@@ -48,13 +48,18 @@ straight_e: Sequence = Note("B", 1/2)
 
 straight: Sequence = straight_a + straight_e + straight_d + straight_e + straight_a + straight_c + straight_d + straight_e >> Stack()
 straight - Equal(Duration(1/2))**Foreach(0, 5, 2)
-# straight >> Rest() >> Play()
+straight >> Rest() >> Play()
 
 triple_notes: Sequence = Note("A", 1/16) + Note("A", 1/8) + Note("A", 1/16) >> Stack()
 single_note: Sequence = Note("A", 1/2) * 1
-measure_0: Sequence = triple_notes * 2 + single_note + Foreach(0, 1, 3, 3, 2, 1, 1) >> Stack() >> Tie() >> Play()
+measure_0: Sequence = triple_notes * 2 + single_note >> Stack()
+measure_1: Sequence = measure_0.copy()
+measure_2: Sequence = triple_notes * 4 >> Stack()
+measure_3: Sequence = measure_0.copy()
 
-triple_notes - Iterate()
-single_note - 4
-measure_1: Sequence = triple_notes * 2 + single_note - Equal(Beat(1))**2 >> Stack() >> Tie() >> Play()
+measure_0 + Foreach(0, 1, 3, 3, 2, 1, 1)
+measure_1 - Foreach(0, 1, 2, 2, 3, 4, 4)
+measure_2 + Foreach(0, 1, 3, 3, 2, 1, 1, 0, -3, -3, -2, -1)
+measure_3 + Foreach(-1, 0, -1, -1, -2, -1, -1)
 
+measure_0 >> measure_1 >> measure_2 >> measure_3 >> Rest() >> Tie() >> Play(True)
