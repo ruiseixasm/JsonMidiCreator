@@ -199,8 +199,10 @@ class Time(o.Operand):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():            self_copy << od.DataSource( self._time_unit + operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) )
-            case ro.TimeUnit():     self_copy << od.DataSource( self._time_unit + operand % od.DataSource( self._time_unit ) )
+            case Time():
+                self_copy << od.DataSource( self._time_unit + operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) )
+            case ro.TimeUnit():
+                self_copy << od.DataSource( self._time_unit + operand % od.DataSource( self._time_unit ) )
             case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << od.DataSource( self._time_unit + operand )
         return self_copy
@@ -209,8 +211,10 @@ class Time(o.Operand):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():            self_copy << od.DataSource( self._time_unit - operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) )
-            case ro.TimeUnit():     self_copy << od.DataSource( self._time_unit - operand % od.DataSource( self._time_unit ) )
+            case Time():
+                self_copy << od.DataSource( self._time_unit - operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit ) )
+            case ro.TimeUnit():
+                self_copy << od.DataSource( self._time_unit - operand % od.DataSource( self._time_unit ) )
             case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << od.DataSource( self._time_unit - operand )
         return self_copy
@@ -219,8 +223,10 @@ class Time(o.Operand):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():            self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit )) )
-            case ro.TimeUnit():     self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
+            case Time():
+                self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ro.TimeUnit() ) % od.DataSource( self._time_unit )) )
+            case ro.TimeUnit():
+                self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
             case int() | float() | ou.Integer() | ro.Float() | Fraction():
                 self_copy << od.DataSource( self._time_unit * operand )
         return self_copy

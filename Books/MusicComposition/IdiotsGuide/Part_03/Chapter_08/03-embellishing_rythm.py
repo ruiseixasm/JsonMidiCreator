@@ -27,3 +27,14 @@ long_notes: Sequence = Note("D", 1/1) * 4 + Note("D", 1/2, Position(Measure(1), 
 long_notes << Foreach(6, 5, 1, 2, 6)**Degree() << Nth(3, 4)**Octave(5)
 long_notes_pl = Playlist(long_notes)
 long_notes_pl >> Rest() >> Play()
+
+short_notes: Sequence = long_notes - (long_notes.copy() | Measure(2)) + (long_notes.copy() << NoteValue(1/4) | Measure(2)) * 4 >> Link(True)
+short_notes >> Rest() >> Play()
+
+# repeated_notes: Sequence = short_notes.copy() << Equal(Measure(2))**Odd()**Dotted(1/4) << Equal(Measure(2))**Even()**NoteValue(1/8) >> Stack()
+position_1 = Position(2, Beat(1))
+position_2 = Position(2, Beat(2))
+position_1 += Position()**NoteValue() << 1/16
+position_2 -= Position()**NoteValue() << 1/16
+repeated_notes: Sequence = short_notes.copy() + Equal(Measure(2))**Even()**Position(NoteValue(1/16)) >> Link(True)
+repeated_notes >> Rest() >> Play(True)
