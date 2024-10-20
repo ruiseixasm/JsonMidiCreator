@@ -523,8 +523,11 @@ class Export(Data):
         return operand
 
 class Playlist(Data):
-    def __init__(self, play_list: list = None):
-        super().__init__( [] if play_list is None else play_list )
+    def __init__(self, *parameters):
+        super().__init__([])
+        if len(parameters) > 0:
+            self << parameters
+
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -557,8 +560,14 @@ class Playlist(Data):
     def __lshift__(self, operand: o.Operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
-            self._data = operand.getPlaylist()
+        match operand:
+            case oc.Sequence() | oe.Element() | Playlist():
+                self._data = operand.getPlaylist()
+            case list():
+                self._data = Playlist.copy_play_list(operand)
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __rrshift__(self, operand) -> 'Playlist':
