@@ -444,12 +444,7 @@ class Sequence(Container):  # Just a container of Elements
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
             case tuple():
-                # Apply >> sequentially across the elements in the tuple
-                result = operand[0]  # Start with the first element
-                for elem in operand[1:]:
-                    if isinstance(elem, o.Operand):
-                        result >>= elem  # Chain elements in the tuple
-                return result >> self
+                return super().__rrshift__(operand)
         return self_copy.stack()
 
     def __add__(self, operand: o.Operand) -> 'Sequence':

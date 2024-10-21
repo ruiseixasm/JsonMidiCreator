@@ -811,6 +811,7 @@ class Modulate(Operation):    # Modal Modulation
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, od.Scale):
             operand = operand.copy().modulate(self._unit)
+            return operand
         else:
             return super().__rrshift__(operand)
 
@@ -857,9 +858,9 @@ class Play(Unit):
         match operand:
             case o.Operand():
                 c.jsonMidiPlay(operand.getPlaylist(), False if self._unit == 0 else True )
+                return operand
             case _:
                 return super().__rrshift__(operand)
-        return operand
 
 class Print(Unit):
     """

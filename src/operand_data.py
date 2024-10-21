@@ -599,12 +599,11 @@ class Playlist(Data):
             for midi_element in self._data:
                 if "time_ms" in midi_element:
                     midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
+            return self.copy()
         if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
             return operand + self
-        if isinstance(operand, tuple):
-            return super().__rrshift__(operand)
         else:
-            return self.copy()
+            return super().__rrshift__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Playlist':
         match operand:

@@ -196,15 +196,8 @@ class Element(o.Operand):
                 return operand + self >> ol.Stack()
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
-            case tuple():
-                # Apply >> sequentially across the elements in the tuple
-                result = operand[0]  # Start with the first element
-                for elem in operand[1:]:
-                    if isinstance(elem, o.Operand):
-                        result >>= elem  # Chain elements in the tuple
-                return result >> self
             case _:
-                return self.copy()
+                return super().__rrshift__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
