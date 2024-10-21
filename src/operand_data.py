@@ -104,7 +104,6 @@ class Data(o.Operand):
         }
         if isinstance(self._data, o.Operand):
             serialization["parameters"]["data"] = self._data.getSerialization()
-
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -389,7 +388,8 @@ class Save(Data):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.saveJsonMidiCreator(operand.getSerialization(), self % str())
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiCreator(operand.getSerialization(), self % str())
         return operand
 
 class Serialization(Data):

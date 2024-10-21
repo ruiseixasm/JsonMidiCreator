@@ -81,15 +81,26 @@ class Operator(o.Operand):
     
     def getSerialization(self):
         operators_serialization = []
-        for single_operator in self % list():
-            operators_serialization.append(single_operator.getSerialization())
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "operand":          self._operand.getSerialization(),
-                "operator_list":    operators_serialization
+        if isinstance(self._operand, Operator):
+            for single_operator in self % list():
+                if isinstance(single_operator, Operator):
+                    operators_serialization.append(single_operator.getSerialization())
+                elif isinstance(single_operator, (int, float, str, list, dict)):
+                    operators_serialization.append(single_operator)
+            return {
+                "class": self.__class__.__name__,
+                "parameters": {
+                    "operand":          self._operand.getSerialization(),
+                    "operator_list":    operators_serialization
+                }
             }
-        }
+        return {
+                "class": self.__class__.__name__,
+                "parameters": {
+                    "operand":          self._operand,
+                    "operator_list":    operators_serialization
+                }
+            }
 
     # CHAINABLE OPERATIONS
 
