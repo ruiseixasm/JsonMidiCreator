@@ -856,6 +856,15 @@ class Play(Unit):
         match operand:
             case o.Operand():
                 c.jsonMidiPlay(operand.getPlaylist(), False if self._unit == 0 else True )
+            case tuple():
+                rshift_operands = None
+                for single_operand in operand:
+                    if isinstance(single_operand, o.Operand):
+                        if rshift_operands is not None:
+                            rshift_operands >>= single_operand
+                        else:
+                            rshift_operands = single_operand
+                return rshift_operands >> self
         return operand
 
 class Print(Unit):

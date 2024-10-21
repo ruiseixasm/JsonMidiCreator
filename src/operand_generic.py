@@ -220,7 +220,7 @@ class KeyNote(Generic):
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
-                self._key._unit %= 12
+                self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key << operand
             case tuple():
