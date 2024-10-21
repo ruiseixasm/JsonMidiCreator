@@ -30,7 +30,7 @@ arch_contour: Sequence = \
     arch_contour_2.copy() + Foreach(2, 1, 2, 3) >> \
     arch_contour_1.copy() + Foreach(5, 3, 2, 3, 2, 1) >> \
     arch_contour_2.copy() + Foreach(2, 1, -1, 1)
-# arch_contour >> Rest() >> Play()
+arch_contour >> Rest() >> Play()
 
 staff << KeySignature("#")
 inverted_arch_1: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, Dotted(1/4), 1/8) >> Stack() \
@@ -40,7 +40,7 @@ inverted_arch_2: Sequence = inverted_arch_1 >> Copy() \
 inverted_arch_3: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack() \
     << Foreach("D", "E", "F", "G") << Less(KeyNote("D", 4))**Octave(5) << Greater(KeyNote("D", 5))**Octave(4)
 inverted_arch_4: Sequence = Note("A", 1/1) * 1
-# (inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
+(inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
 
 staff << KeySignature()
 ascending_m: Sequence = Note() * 4
@@ -48,7 +48,7 @@ ascending_1: Sequence = ((ascending_m | Nth(1, 2, 3)).copy() << Foreach("F", "G"
 ascending_2: Sequence = ascending_m.copy() << Foreach("G", "A", "B", "G")
 ascending_3: Sequence = ascending_m.copy() << Foreach("C", "B", "C", "D")
 ascending_4: Sequence = (ascending_m | Nth(1)).copy() << "E" << 1/1
-# (ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Smooth() >> Play()
+(ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Smooth() >> Play()
 
 staff << KeySignature(-2)
 descending_m: Sequence = Note(1/8) * 5 >> Link(True)
@@ -57,8 +57,15 @@ descending_2: Sequence = descending_1.copy() - 1
 descending_3: Sequence = descending_2 >> Copy()
 (descending_3 | NoteValue(1/8)) >> Reverse()
 descending_3 - Nth(4, 5)**Foreach(2, 1)
-descending_4: Sequence = Note("E") * 1 >> Link(True)
-(descending_1, descending_2, descending_3, descending_4, Rest()) >> Smooth() >> Play()
+descending_4: Sequence = Note("F") * 1 >> Link(True)
+descending: Sequence = (descending_1, descending_2, descending_3, descending_4, Rest()) >> Smooth() >> Play()
+# for note_i in range(descending.len() - 1):
+#     descending.copy() - Nth(note_i + 1)**1 >> Play()
 
-
-
+staff << KeySignature(2)
+stationary_m: Sequence = Note() * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack()
+stationary_1: Sequence = stationary_m >> Copy() << Foreach("A", "G", "A", "B")
+stationary_2: Sequence = stationary_1.copy() - (stationary_1 | Even()) >> Link(True) << Foreach("A", "G")
+stationary_3: Sequence = stationary_m >> Copy() << Foreach("A", "B", "A", "G")
+stationary_4: Sequence = (stationary_1 | Beat(0)) >> Copy() >> Link(True)
+stationary: Sequence = (stationary_1, stationary_2, stationary_3, stationary_4, Rest()) >> Smooth() >> Play()
