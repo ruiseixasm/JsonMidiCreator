@@ -259,8 +259,8 @@ class Oscillator(Operator):
         operand = super().__or__(operand)
         match operand:
             case oc.Sequence():
-                for single_element in operand:
-                    self | single_element
+                for single_datasource in operand:
+                    self | single_datasource % od.DataSource()
             case oe.Element() | ot.Position():
                 element_position: ot.Position = operand % ot.Position()
                 wave_time_rational = element_position.getTime_rational() - self._position.getTime_rational()
