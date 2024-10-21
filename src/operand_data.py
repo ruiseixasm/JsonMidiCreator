@@ -190,6 +190,27 @@ class DataSource(Data):
         """
         return self._data
     
+    # CHAINABLE OPERATIONS
+
+    def copy(self) -> 'DataSource':
+        self_copy = self.__class__()
+        self_data = self._data
+        match self_data:
+            case o.Operand():
+                self_copy._data = self_data.copy()
+            case list():
+                many_operands: list = []
+                for single_operand in self_data:
+                    match single_operand:
+                        case o.Operand():
+                            many_operands.append(single_operand.copy())
+                        case _:
+                            many_operands.append(single_operand)
+                self_copy._data = many_operands
+            case _:
+                self_copy._data = self_data
+        return self_copy
+    
 class SideEffects(Data):
     pass
 
