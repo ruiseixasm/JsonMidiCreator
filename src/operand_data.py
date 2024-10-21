@@ -202,7 +202,9 @@ class LeftShift(SideEffects):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(self._data, o.Operand):
             self._data << operand
-        return operand
+            return operand
+        else:
+            return super().__rrshift__(operand)
 
 class RightShift(SideEffects):
     def __init__(self, operand: o.Operand):
@@ -213,7 +215,9 @@ class RightShift(SideEffects):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(self._data, o.Operand):
             operand >> self._data
-        return operand
+            return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Scale(Data):
     """
@@ -390,7 +394,9 @@ class Save(Data):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, o.Operand):
             c.saveJsonMidiCreator(operand.getSerialization(), self % str())
-        return operand
+            return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
@@ -462,7 +468,8 @@ class Serialization(Data):
     def __rrshift__(self, operand: any) -> o.Operand:
         if not isinstance(self._data, ol.Null) and isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
             return operand >> self._data
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
         return self._data + operand
@@ -521,7 +528,9 @@ class Export(Data):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, o.Operand):
             c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
-        return operand
+            return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Playlist(Data):
     def __init__(self, *parameters):
@@ -592,6 +601,8 @@ class Playlist(Data):
                     midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
         if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
             return operand + self
+        if isinstance(operand, tuple):
+            return super().__rrshift__(operand)
         else:
             return self.copy()
 
@@ -627,5 +638,6 @@ class Sort(Data):
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.sort()
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
