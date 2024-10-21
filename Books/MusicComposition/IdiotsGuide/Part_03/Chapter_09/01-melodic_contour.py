@@ -40,5 +40,13 @@ inverted_arch_2: Sequence = inverted_arch_1 >> Copy() \
 inverted_arch_3: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack() \
     << Foreach("D", "E", "F", "G") << Less(KeyNote("D", 4))**Octave(5) << Greater(KeyNote("D", 5))**Octave(4)
 inverted_arch_4: Sequence = Note("A", 1/1) * 1
+# (inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
 
-(inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4) >> Play()
+ascending_m: Sequence = Note() * 4
+ascending_1: Sequence = ((ascending_m | Nth(1, 2, 3)) << Foreach("F", "G", "A"))
+ascending_2: Sequence = ascending_m.copy() << Foreach("G", "A", "B", "G")
+ascending_3: Sequence = ascending_m.copy() << Foreach("C", "B", "C", "D")
+ascending_4: Sequence = (ascending_m | Nth(1)) << "E" << 1/1
+
+(ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Play()
+

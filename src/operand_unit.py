@@ -811,7 +811,8 @@ class Modulate(Operation):    # Modal Modulation
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, od.Scale):
             operand = operand.copy().modulate(self._unit)
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Progression(Operation):
     """
@@ -856,15 +857,8 @@ class Play(Unit):
         match operand:
             case o.Operand():
                 c.jsonMidiPlay(operand.getPlaylist(), False if self._unit == 0 else True )
-            case tuple():
-                rshift_operands = None
-                for single_operand in operand:
-                    if isinstance(single_operand, o.Operand):
-                        if rshift_operands is not None:
-                            rshift_operands >>= single_operand
-                        else:
-                            rshift_operands = single_operand
-                return rshift_operands >> self
+            case _:
+                return super().__rrshift__(operand)
         return operand
 
 class Print(Unit):
@@ -892,6 +886,8 @@ class Print(Unit):
                     print(json_formatted_str)
                 else:
                     print(operand_serialization)
+            case tuple():
+                return super().__rrshift__(operand)
             case _: print(operand)
         return operand
 
@@ -905,7 +901,8 @@ class Link(Unit):
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.link(bool(self._unit))
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Middle(Unit):
     """

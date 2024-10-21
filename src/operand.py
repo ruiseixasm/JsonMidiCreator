@@ -166,8 +166,18 @@ class Operand:
 
     # operand is the pusher
     def __rrshift__(self, operand: 'Operand') -> 'Operand':
-        return self
-    
+        match operand:
+            case tuple():
+                rshift_operands = None
+                for single_operand in operand:
+                    if isinstance(single_operand, Operand):
+                        if rshift_operands is not None:
+                            rshift_operands >>= single_operand
+                        else:
+                            rshift_operands = single_operand
+                return rshift_operands >> self
+        return operand
+
     def __irshift__(self, other):
         # Simply delegate to the __rshift__ method
         return self.__rshift__(other)
