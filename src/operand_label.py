@@ -54,7 +54,8 @@ class Copy(Label):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, o.Operand):
             return operand.copy()
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Len(Label):
     pass
@@ -64,28 +65,32 @@ class Reverse(Label):
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.reverse()
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Join(Label):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.join()
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Stack(Label):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.stack()
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class Tie(Label):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.tie()
-        return operand
+        else:
+            return super().__rrshift__(operand)
 
 class First(Label):
     pass
