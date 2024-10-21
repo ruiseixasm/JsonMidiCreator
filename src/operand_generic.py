@@ -220,7 +220,7 @@ class KeyNote(Generic):
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
-                self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY
+                self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key << operand
             case tuple():
@@ -235,8 +235,10 @@ class KeyNote(Generic):
         self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote():
-                key_copy += float(operand._key._unit)
-                octave_int += operand._octave._unit + key_copy._unit // 12
+                self_int = self % int()
+                operand_int = operand % int()
+                key_copy._unit = self_int + operand_int
+                octave_int = key_copy._unit // 12
             case ou.Octave():
                 octave_int += operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
@@ -254,9 +256,11 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         self_copy: KeyNote = self.copy()
         match operand:
-            case KeyNote():
-                key_copy -= float(operand._key._unit)
-                octave_int -= operand._octave._unit - max(-1 * key_copy._unit + 11, 0) // 12
+            case KeyNote(): # It may result in negative KeyNotes (unplayable)!
+                self_int = self % int()
+                operand_int = operand % int()
+                key_copy._unit = self_int - operand_int
+                octave_int = key_copy._unit // 12
             case ou.Octave():
                 octave_int -= operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
