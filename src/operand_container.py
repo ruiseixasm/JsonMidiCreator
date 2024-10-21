@@ -427,6 +427,21 @@ class Sequence(Container):  # Just a container of Elements
                         last_element << ro.Gate(1.0)
                 last_element = single_element
         return self
+    
+    def smooth(self) -> 'Sequence':
+        import operand_element as oe
+        last_element = None
+        for single_element in self._operand_list:
+            if isinstance(single_element, oe.Note):
+                if last_element is not None:
+                    while single_element._key_note > last_element._key_note:
+                        single_element._key_note -= ou.Octave(1)
+                    while single_element._key_note < last_element._key_note:
+                        single_element._key_note += ou.Octave(1)
+                    if single_element._key_note - last_element._key_note > last_element._key_note - (single_element._key_note - ou.Octave(1)):
+                        single_element._key_note -= ou.Octave(1)
+                last_element = single_element
+        return self
 
     # operand is the pusher
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':

@@ -92,6 +92,14 @@ class Tie(Label):
         else:
             return super().__rrshift__(operand)
 
+class Smooth(Label):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.smooth()
+        else:
+            return super().__rrshift__(operand)
+
 class First(Label):
     pass
 
