@@ -44,10 +44,21 @@ inverted_arch_4: Sequence = Note("A", 1/1) * 1
 
 staff << KeySignature()
 ascending_m: Sequence = Note() * 4
-ascending_1: Sequence = ((ascending_m.copy() | Nth(1, 2, 3)) << Foreach("F", "G", "A")) >> Link(True)
+ascending_1: Sequence = ((ascending_m | Nth(1, 2, 3)).copy() << Foreach("F", "G", "A")) >> Link(True)
 ascending_2: Sequence = ascending_m.copy() << Foreach("G", "A", "B", "G")
 ascending_3: Sequence = ascending_m.copy() << Foreach("C", "B", "C", "D")
-ascending_4: Sequence = (ascending_m | Nth(1)) << "E" << 1/1
+ascending_4: Sequence = (ascending_m | Nth(1)).copy() << "E" << 1/1
+# (ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Smooth() >> Play()
 
-(ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Smooth() >> Play()
+staff << KeySignature(-2)
+descending_m: Sequence = Note(1/8) * 5 >> Link(True)
+descending_1: Sequence = descending_m >> Copy() << Octave(5) << Foreach("D", "C", "B", "A", "B")
+descending_2: Sequence = descending_1.copy() - 1
+descending_3: Sequence = descending_2 >> Copy()
+(descending_3 | NoteValue(1/8)) >> Reverse()
+descending_3 - Nth(4, 5)**Foreach(2, 1)
+descending_4: Sequence = Note("E") * 1 >> Link(True)
+(descending_1, descending_2, descending_3, descending_4, Rest()) >> Smooth() >> Play()
+
+
 

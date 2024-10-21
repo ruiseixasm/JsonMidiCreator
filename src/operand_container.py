@@ -41,7 +41,10 @@ class Container(o.Operand):
                     self._operand_list.extend(single_operand.copy() % list())
                 case list():
                     for operand in single_operand:
-                        self._operand_list.append(operand.copy())
+                        if isinstance(operand, o.Operand):
+                            self._operand_list.append(operand.copy())
+                        else:
+                            self._operand_list.append(operand)
                 case o.Operand():
                     self._operand_list.append(single_operand.copy())
                 case _:
