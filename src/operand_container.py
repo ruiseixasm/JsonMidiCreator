@@ -174,7 +174,7 @@ class Container(o.Operand):
         for operand_i in range(self.len() // 2):
             tail_operand = self._datasource_list[self.len() - 1 - operand_i]._data
             self._datasource_list[self.len() - 1 - operand_i]._data = self._datasource_list[operand_i]._data
-            self._datasource_list[operand_i] = tail_operand
+            self._datasource_list[operand_i]._data = tail_operand
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Container':
