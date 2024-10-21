@@ -34,33 +34,33 @@ import operand_frame as of
 class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
-        self._operand_list: list[od.DataSource] = []
+        self._datasource_list: list[od.DataSource] = []
         for single_operand in operands:
             match single_operand:
                 case Container():
-                    self._operand_list.extend(single_operand.copy() % list())
+                    self._datasource_list.extend(single_operand.copy() % od.DataSource())
                 case list():
                     for operand in single_operand:
                         if isinstance(operand, o.Operand):
-                            self._operand_list.append(operand.copy())
+                            self._datasource_list.append(od.DataSource( operand.copy() ))
                         else:
-                            self._operand_list.append(operand)
+                            self._datasource_list.append(od.DataSource( operand ))
                 case o.Operand():
-                    self._operand_list.append(single_operand.copy())
+                    self._datasource_list.append(od.DataSource( single_operand.copy() ))
                 case _:
-                    self._operand_list.append(single_operand)
-        self._element_iterator = 0
+                    self._datasource_list.append(od.DataSource( single_operand ))
+        self._datasource_iterator = 0
         
     def __iter__(self):
         return self
     
     def __next__(self):
-        if self._element_iterator < len(self._operand_list):
-            single_operand = self._operand_list[self._element_iterator]
-            self._element_iterator += 1
-            return single_operand
+        if self._datasource_iterator < len(self._datasource_list):
+            single_datasource = self._datasource_list[self._datasource_iterator]
+            self._datasource_iterator += 1
+            return single_datasource
         else:
-            self._element_iterator = 0  # Reset to 0 when limit is reached
+            self._datasource_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration
 
     def __mod__(self, operand: list) -> list:
@@ -76,15 +76,15 @@ class Container(o.Operand):
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
-            case od.DataSource():   return self._operand_list
+            case od.DataSource():   return self._datasource_list
             case list():
                 operands: list[o.Operand] = []
-                for single_operand in self._operand_list:
-                    match single_operand:
+                for single_datasource in self._datasource_list:
+                    match single_datasource._data:
                         case o.Operand():
-                            operands.append(single_operand.copy())
+                            operands.append(single_datasource._data.copy())
                         case _:
-                            operands.append(single_operand)
+                            operands.append(single_datasource._data)
                 return operands
             case Container():       return self.copy()
             case ol.Len():          return self.len()
@@ -94,11 +94,11 @@ class Container(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def len(self) -> int:
-        return len(self._operand_list)
+        return len(self._datasource_list)
 
     def __eq__(self, other_container: 'Container') -> bool:
         if type(self) == type(other_container):
-            return self._operand_list == other_container % od.DataSource( list() )
+            return self._datasource_list == other_container % od.DataSource()
             # When comparing lists containing objects in Python using the == operator,
             # Python will call the __eq__ method on the objects if it is defined,
             # rather than comparing their references directly.
@@ -108,27 +108,27 @@ class Container(o.Operand):
         return False
     
     def first(self) -> o.Operand:
-        if len(self._operand_list) > 0:
-            return self._operand_list[0]
+        if len(self._datasource_list) > 0:
+            return self._datasource_list[0]._data
         return ol.Null()
 
     def last(self) -> o.Operand:
-        if len(self._operand_list) > 0:
-            return self._operand_list[len(self._operand_list) - 1]
+        if len(self._datasource_list) > 0:
+            return self._datasource_list[len(self._datasource_list) - 1]._data
         return ol.Null()
 
     def middle(self, nth: int) -> o.Operand:
         if nth > 0:
             index = nth - 1
-            if len(self._operand_list) > index:
-                return self._operand_list[index]
+            if len(self._datasource_list) > index:
+                return self._datasource_list[index]._data
         return ol.Null()
  
     def getSerialization(self):
         operands_serialization = []
-        for single_operand in self._operand_list:
-            if isinstance(single_operand, o.Operand):
-                operands_serialization.append(single_operand.getSerialization())
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, o.Operand):
+                operands_serialization.append(single_datasource._data.getSerialization())
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -143,23 +143,18 @@ class Container(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operands" in serialization["parameters"]):
 
-            operands = []
+            self._datasource_list = []
             operands_serialization = serialization["parameters"]["operands"]
             for single_operand_serialization in operands_serialization:
                 if "class" in single_operand_serialization:
                     new_operand = self.getOperand(single_operand_serialization["class"])
-                    if new_operand: operands.append(new_operand.loadSerialization(single_operand_serialization))
-            self._operand_list = operands
+                    if new_operand: self._datasource_list.append(od.DataSource( new_operand.loadSerialization(single_operand_serialization) ))
         return self
        
     def copy(self) -> 'Container':
         container_copy: Container = self.__class__()
-        for item in self._operand_list:
-            match item:
-                case o.Operand():
-                    container_copy._operand_list.append( item.copy() )
-                case _:
-                    container_copy._operand_list.append( item )
+        for single_datasource in self._datasource_list:
+            container_copy._datasource_list.append( single_datasource.copy() )
         return container_copy
     
     def sort(self, compare: o.Operand = None) -> 'Container':
@@ -167,44 +162,45 @@ class Container(o.Operand):
         for operand_i in range(self.len() - 1):
             sorted_list = True
             for operand_j in range(self.len() - 1 - operand_i):
-                if self._operand_list[operand_j] % compare > self._operand_list[operand_j + 1] % compare:
-                    temporary_operand = self._operand_list[operand_j]
-                    self._operand_list[operand_j] = self._operand_list[operand_j + 1]
-                    self._operand_list[operand_j + 1] = temporary_operand
+                if self._datasource_list[operand_j]._data % compare > self._datasource_list[operand_j + 1]._data % compare:
+                    temporary_operand = self._datasource_list[operand_j]._data
+                    self._datasource_list[operand_j]._data = self._datasource_list[operand_j + 1]._data
+                    self._datasource_list[operand_j + 1]._data = temporary_operand
                     sorted_list = False
             if sorted_list: break
         return self
 
     def reverse(self) -> 'Container':
         for operand_i in range(self.len() // 2):
-            tail_operand = self._operand_list[self.len() - 1 - operand_i]
-            self._operand_list[self.len() - 1 - operand_i] = self._operand_list[operand_i]
-            self._operand_list[operand_i] = tail_operand
+            tail_operand = self._datasource_list[self.len() - 1 - operand_i]._data
+            self._datasource_list[self.len() - 1 - operand_i]._data = self._datasource_list[operand_i]._data
+            self._datasource_list[operand_i] = tail_operand
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Container':
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case list():        self._operand_list = operand % o.Operand()
+                    case list():        self._datasource_list = operand % o.Operand()
             case Container():
-                last_item: int = min(self.len(), operand.len())
-                for item_i in range(last_item):
-                    self._operand_list[item_i] << operand._operand_list[item_i]
+                last_datasource: int = min(self.len(), operand.len())
+                for datasource_i in range(last_datasource):
+                    if isinstance(self._datasource_list[datasource_i]._data, o.Operand):
+                        self._datasource_list[datasource_i]._data << operand._datasource_list[datasource_i]._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                operands: list[o.Operand] = []
+                self._datasource_list = []
                 for single_operand in operand:
                     match single_operand:
                         case o.Operand():
-                            operands.append(single_operand.copy())
+                            self._datasource_list.append(od.DataSource( single_operand.copy() ))
                         case _:
-                            operands.append(single_operand)
-                self._operand_list = operands
+                            self._datasource_list.append(od.DataSource( single_operand ))
             case o.Operand() | int() | float(): # Works for Frame too
-                for single_operand in self._operand_list:
-                    single_operand << operand
+                for single_datasource in self._datasource_list:
+                    if isinstance(single_datasource._data, o.Operand):
+                        single_datasource._data << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -214,33 +210,36 @@ class Container(o.Operand):
         match operand:
             case Container():
                 self_copy: Container = self.__class__()
-                self_copy << self._operand_list + operand._operand_list
+                for single_datasource in self._datasource_list:
+                    self_copy._datasource_list.append(single_datasource.copy())
+                for single_datasource in operand._datasource_list:
+                    self_copy._datasource_list.append(single_datasource.copy())
                 return self_copy
             case o.Operand():
                 self_copy = self.copy()
-                self_copy._operand_list.append(operand.copy())
+                self_copy._datasource_list.append(od.DataSource( operand.copy() ))
                 return self_copy
             case int() | ou.Integer(): # repeat n times the last argument if any
                 self_copy: Container = self.copy()
-                if len(self._operand_list) > 0:
-                    last_operand = self._operand_list[len(self._operand_list) - 1]
+                if len(self._datasource_list) > 0:
+                    last_datasource = self._datasource_list[len(self._datasource_list) - 1]
                     while operand > 0:
-                        self_copy._operand_list.append(last_operand.copy())
+                        self_copy._datasource_list.append(last_datasource.copy())
                         operand -= 1
                 return self_copy
             case ol.Null(): return ol.Null()
-        return self.copy()
+            case _: return self.copy()
     
     def __radd__(self, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
         match operand:
             case o.Operand():
-                self_copy._operand_list.insert(0, operand.copy())
+                self_copy._datasource_list.insert(0, od.DataSource( operand.copy() ))
             case int(): # repeat n times the first argument if any
-                if len(self._operand_list) > 0:
-                    first_operand = self._operand_list[0]
+                if len(self._datasource_list) > 0:
+                    first_datasource = self._datasource_list[0]
                     while operand > 0:
-                        self_copy._operand_list.insert(0, first_operand.copy())
+                        self_copy._datasource_list.insert(0, first_datasource.copy())
                         operand -= 1
             case ol.Null(): return ol.Null()
         return self_copy
@@ -250,16 +249,16 @@ class Container(o.Operand):
         match operand:
             case Container():
                 # Exclude items based on equality (==) comparison
-                self_copy._operand_list = [
-                        item.copy() for item in self._operand_list
-                        if all(item != operand_item for operand_item in operand)
+                self_copy._datasource_list = [
+                        self_datasource.copy() for self_datasource in self._datasource_list
+                        if all(self_datasource != operand_datasource for operand_datasource in operand)
                     ]
             case o.Operand():
-                self_copy._operand_list = [item for item in self._operand_list if item != operand]
+                self_copy._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data != operand]
             case int(): # repeat n times the last argument if any
-                if len(self._operand_list) > 0:
-                    while operand > 0 and len(self_copy._operand_list) > 0:
-                        self_copy._operand_list.pop()
+                if len(self._datasource_list) > 0:
+                    while operand > 0 and len(self_copy._datasource_list) > 0:
+                        self_copy._datasource_list.pop()
                         operand -= 1
             case ol.Null(): return ol.Null()
         return self_copy
@@ -290,27 +289,27 @@ class Container(o.Operand):
                 ...
             case int(): # remove n last arguments if any
                 if operand > 0:
-                    elements_list = self_copy % list()
                     elements_to_be_removed = round(1 - self_copy.len() / operand)
                     while elements_to_be_removed > 0:
-                        elements_list.pop()
+                        self_copy._datasource_list.pop()
                         elements_to_be_removed -= 1
             case ol.Null(): return ol.Null()
         return self_copy
 
     def __pow__(self, operand: 'o.Operand') -> 'Container':
-        for single_operand in self._operand_list:
-            single_operand.__pow__(operand)
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, o.Operand):
+                single_datasource._data.__pow__(operand)
         return self
 
     def __or__(self, operand: any) -> 'Container':
         new_container: Container = self.__class__()
         match operand:
             case Container():
-                new_container._operand_list.extend(self._operand_list)
-                new_container._operand_list.extend(operand._operand_list)
+                new_container._datasource_list.extend(self._datasource_list)
+                new_container._datasource_list.extend(operand._datasource_list)
             case _:
-                new_container._operand_list = [item for item in self._operand_list if item == operand]
+                new_container._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == operand]
         return new_container
 
     def __ror__(self, operand: any) -> 'Container':
@@ -339,36 +338,36 @@ class Sequence(Container):  # Just a container of Elements
             case ot.Length():
                 import operand_element as oe
                 total_length = ot.Length()
-                for elem in self._operand_list:
-                    if isinstance(elem, oe.Element):
-                        total_length += elem % od.DataSource( ot.Length() )
+                for single_datasource in self._datasource_list:
+                    if isinstance(single_datasource._data, oe.Element):
+                        total_length += single_datasource._data % od.DataSource( ot.Length() )
                 return total_length
             case _:                 return super().__mod__(operand)
 
     def start(self) -> ot.Position:
         if self.len() > 0:
-            start_position: ot.Position = self._operand_list[0] % ot.Position()
-            for single_element in self._operand_list:
-                if single_element % ot.Position() < start_position:
-                    start_position = single_element % ot.Position()
+            start_position: ot.Position = self._datasource_list[0]._data % ot.Position()
+            for single_datasource in self._datasource_list:
+                if single_datasource._data % ot.Position() < start_position:
+                    start_position = single_datasource._data % ot.Position()
             return start_position.copy()
         return ol.Null()
 
     def end(self) -> ot.Position:
         if self.len() > 0:
-            end_position: ot.Position = self._operand_list[0] % ot.Position() + self._operand_list[0] % ot.Length()
-            for single_operand in self._operand_list:
-                if single_operand % ot.Position() + single_operand % ot.Length() > end_position:
-                    end_position = single_operand % ot.Position() + single_operand % ot.Length()
+            end_position: ot.Position = self._datasource_list[0]._data % ot.Position() + self._datasource_list[0]._data % ot.Length()
+            for single_datasource in self._datasource_list:
+                if single_datasource._data % ot.Position() + single_datasource._data % ot.Length() > end_position:
+                    end_position = single_datasource._data % ot.Position() + single_datasource._data % ot.Length()
             return end_position # already a copy (+)
         return ol.Null()
 
     def getPlaylist(self, position: ot.Position = None):
         import operand_element as oe
         play_list = []
-        for single_operand in self._operand_list:   # Read only (extracts the play list)
-            if isinstance(single_operand, oe.Element):
-                play_list.extend(single_operand.getPlaylist(position))
+        for single_datasource in self._datasource_list:   # Read only (extracts the play list)
+            if isinstance(single_datasource._data, oe.Element):
+                play_list.extend(single_datasource._data.getPlaylist(position))
         return play_list
 
     # CHAINABLE OPERATIONS
@@ -376,11 +375,11 @@ class Sequence(Container):  # Just a container of Elements
     def __lshift__(self, operand: any) -> 'Sequence':
         match operand:
             case tuple():
-                last_item: int = min(self.len(), len(operand))
-                for item_i in range(last_item):
-                    self._operand_list[item_i] << operand[item_i]
-            case _: super().__lshift__(operand)
-        return self
+                last_datasource: int = min(self.len(), len(operand))
+                for datasource_i in range(last_datasource):
+                    self._datasource_list[datasource_i]._data << operand[datasource_i]
+                return self
+            case _: return super().__lshift__(operand)
 
     def reverse(self) -> 'Sequence':
         super().reverse()
@@ -391,11 +390,11 @@ class Sequence(Container):  # Just a container of Elements
         import operand_element as oe
         self.sort()
         last_element = None
-        for elem in self._operand_list:
-            if isinstance(elem, oe.Element):
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
                 if last_element is not None:
-                    last_element << ot.Length(elem % od.DataSource( ot.Position() ) - last_element % od.DataSource( ot.Position() ))
-                last_element = elem
+                    last_element << ot.Length(single_datasource._data % od.DataSource( ot.Position() ) - last_element % od.DataSource( ot.Position() ))
+                last_element = single_datasource._data
         # Adjust last_element length based on its Measure position
         if last_element is not None:
             last_element << ot.Length(ot.Position(last_element % ro.Measure() + 1) - last_element % od.DataSource( ot.Position() ))
@@ -410,40 +409,40 @@ class Sequence(Container):  # Just a container of Elements
         import operand_element as oe
         last_position = None
         last_length = None
-        for single_element in self._operand_list:
-            if isinstance(single_element, oe.Element):
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
                 if last_position is not None:
                     last_position += last_length
-                    single_element << last_position
+                    single_datasource._data << last_position
                 else:
-                    last_position = single_element._position
-                last_length = single_element._length
+                    last_position = single_datasource._data._position
+                last_length = single_datasource._data._length
         return self
     
     def tie(self) -> 'Sequence':
         import operand_element as oe
         last_element = None
-        for single_element in self._operand_list:
-            if isinstance(single_element, oe.Note):
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Note):
                 if last_element is not None:
-                    if single_element._key_note == last_element._key_note:
+                    if single_datasource._data._key_note == last_element._key_note:
                         last_element << ro.Gate(1.0)
-                last_element = single_element
+                last_element = single_datasource._data
         return self
     
     def smooth(self) -> 'Sequence':
         import operand_element as oe
         last_element = None
-        for single_element in self._operand_list:
-            if isinstance(single_element, oe.Note):
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Note):
                 if last_element is not None:
-                    while single_element._key_note > last_element._key_note:
-                        single_element._key_note -= ou.Octave(1)
-                    while single_element._key_note < last_element._key_note:
-                        single_element._key_note += ou.Octave(1)
-                    if single_element._key_note - last_element._key_note > last_element._key_note - (single_element._key_note - ou.Octave(1)):
-                        single_element._key_note -= ou.Octave(1)
-                last_element = single_element
+                    while single_datasource._data._key_note > last_element._key_note:
+                        single_datasource._data._key_note -= ou.Octave(1)
+                    while single_datasource._data._key_note < last_element._key_note:
+                        single_datasource._data._key_note += ou.Octave(1)
+                    if single_datasource._data._key_note - last_element._key_note > last_element._key_note - (single_datasource._data._key_note - ou.Octave(1)):
+                        single_datasource._data._key_note -= ou.Octave(1)
+                last_element = single_datasource._data
         return self
 
     # operand is the pusher
@@ -453,10 +452,10 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case ot.Length() | ro.NoteValue():
                 if self_copy.len() > 0:
-                    self_copy._operand_list[0] << self_copy._operand_list[0] % ot.Position() + operand
+                    self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ot.Position() + operand
             case ot.Position() | ro.TimeUnit():
                 if self_copy.len() > 0:
-                    self_copy._operand_list[0] << operand
+                    self_copy._datasource_list[0]._data << operand
             case oe.Element() | Sequence():
                 return (operand + self).stack()
             case od.Playlist():
@@ -471,18 +470,18 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 return super().__add__(operand)
             case Container():
-                last_item: int = min(self.len(), operand.len())
-                for item_i in range(last_item):
-                    self._operand_list[item_i] += operand._operand_list[item_i]
+                last_datasource: int = min(self.len(), operand.len())
+                for datasource_i in range(last_datasource):
+                    self._datasource_list[datasource_i]._data += operand._datasource_list[datasource_i]._data
                 return self
             case tuple():
-                last_item: int = min(self.len(), len(operand))
-                for item_i in range(last_item):
-                    self._operand_list[item_i] << self._operand_list[item_i] + operand[item_i]
+                last_datasource: int = min(self.len(), len(operand))
+                for datasource_i in range(last_datasource):
+                    self._datasource_list[datasource_i]._data << self._datasource_list[datasource_i]._data + operand[datasource_i]
                 return self
             case o.Operand() | int() | float() | Fraction():
-                for single_operand in self._operand_list:
-                    single_operand << single_operand + operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << single_datasource._data + operand
                 return self
         return super().__add__(operand)
 
@@ -492,18 +491,18 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 return super().__sub__(operand)
             case Container():
-                last_item: int = min(self.len(), operand.len())
-                for item_i in range(last_item):
-                    self._operand_list[item_i] -= operand._operand_list[item_i]
+                last_datasource: int = min(self.len(), operand.len())
+                for datasource_i in range(last_datasource):
+                    self._datasource_list[datasource_i]._data -= operand._datasource_list[datasource_i]._data
                 return self
             case tuple():
-                last_item: int = min(self.len(), len(operand))
-                for item_i in range(last_item):
-                    self._operand_list[item_i] << self._operand_list[item_i] - operand[item_i]
+                last_datasource: int = min(self.len(), len(operand))
+                for datasource_i in range(last_datasource):
+                    self._datasource_list[datasource_i]._data << self._datasource_list[datasource_i]._data - operand[datasource_i]
                 return self
             case o.Operand() | int() | float() | Fraction():
-                for single_operand in self % od.DataSource( list() ):
-                    single_operand << single_operand - operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << single_datasource._data - operand
                 return self
         return super().__sub__(operand)
 
@@ -514,8 +513,8 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                for single_operand in self._operand_list:
-                    single_operand << single_operand * operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << single_datasource._data * operand
                 return self
             case int():
                 many_operands = self.__class__()    # empty list
@@ -534,8 +533,8 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence() | oe.Element():
                 ...
             case o.Operand():
-                for single_operand in self._operand_list:
-                    single_operand << single_operand / operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << single_datasource._data / operand
                 return self
             case int(): # Splits the total Length by the integer
                 start_position = self.start()
@@ -551,7 +550,7 @@ class Sequence(Container):  # Just a container of Elements
         match length:
             case ot.Length():
                 import operand_element as oe
-                for single_operand in self._operand_list:
-                    if isinstance(single_operand, oe.Element):
-                        single_operand << length
+                for single_datasource in self._datasource_list:
+                    if isinstance(single_datasource._data, oe.Element):
+                        single_datasource._data << length
         return self.stack()
