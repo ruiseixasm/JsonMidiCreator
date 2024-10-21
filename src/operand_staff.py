@@ -146,12 +146,12 @@ class Staff(o.Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "measures":             self._measure % od.DataSource( float() ),
-                "tempo":                self._tempo % od.DataSource( float() ),
+                "measures":             self._measure % od.DataSource( str() ),
+                "tempo":                self._tempo % od.DataSource( str() ),
                 "time_signature":       self._time_signature.getSerialization(),
                 "key_signature":        self._key_signature.getSerialization(),
                 "scale":                self._scale % od.DataSource( list() ),
-                "quantization":         self._quantization % od.DataSource( float() ),
+                "quantization":         self._quantization % od.DataSource( str() ),
                 "duration":             self._duration.getSerialization(),
                 "key":                  self._key % od.DataSource( int() ),
                 "octave":               self._octave % od.DataSource( int() ),

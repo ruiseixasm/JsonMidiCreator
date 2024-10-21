@@ -70,6 +70,7 @@ class Rational(o.Operand):
                     case Fraction():        return self._rational           # returns a Fraction()
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
+                    case str():             return str(self._rational)
                     case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
                     case Float():           return Float() << od.DataSource( self._rational )
                     case Rational():        return self
@@ -78,6 +79,7 @@ class Rational(o.Operand):
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
+            case str():             return str(self._rational)
             case ou.Integer():      return ou.Integer() << self._rational
             case Float():           return Float() << self._rational
             case Rational():        return self.copy()
@@ -126,7 +128,8 @@ class Rational(o.Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "value": float(self._rational)
+                "fraction": str(self._rational),
+                "float": float(self._rational)
             }
         }
 
@@ -134,9 +137,9 @@ class Rational(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "value" in serialization["parameters"]):
+            "fraction" in serialization["parameters"]):
 
-            self._rational = Fraction(serialization["parameters"]["value"]).limit_denominator()
+            self._rational = Fraction(serialization["parameters"]["fraction"]).limit_denominator()
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Rational':
@@ -145,13 +148,13 @@ class Rational(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case Fraction():                self._rational = operand % o.Operand()
-                    case float() | int():           self._rational = Fraction(operand % o.Operand()).limit_denominator()
+                    case float() | int() | str():   self._rational = Fraction(operand % o.Operand()).limit_denominator()
                     case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():                self._rational = operand._rational
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
-            case float() | int():           self._rational = Fraction(operand).limit_denominator()
+            case float() | int() | str():   self._rational = Fraction(operand).limit_denominator()
             case ou.Integer():              self._rational = operand % Fraction()
             case tuple():
                 for single_operand in operand:
