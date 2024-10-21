@@ -519,7 +519,8 @@ class Export(Data):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
         return operand
 
 class Playlist(Data):
@@ -573,7 +574,7 @@ class Playlist(Data):
     def __rrshift__(self, operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if len(self._data) > 0 and isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Length)):
+        if isinstance(self._data, list) and len(self._data) > 0 and isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Length)):
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
