@@ -993,21 +993,12 @@ class Note3(Retrigger):
         return self
 
 class Tuplet(Rest):
-    def __init__(self, *elements: Element):
+    def __init__(self, *parameters):
         super().__init__()
         self._swing     = ro.Swing(.50)
         self._elements: list[Element] = []
-        if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
-            self._elements = o.Operand.copy_operands_list(elements)
-        if len(self._elements) == 2:
-            # Can't be "*= 3/2" in order to preserve the Fraction!
-            self._duration = self._duration * 3/2 # from 3 notes to 2
-            self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
-        elif len(self._elements) > 0:
-            # Can't be "*= 2 / self._division" in order to preserve the Fraction!
-            self._duration = self._duration * 2 / len(self._elements) # from 2 notes to division
-            self._length << self._duration * len(self._elements)  # Length as the entire duration of the Note tuplet
-        self.set_elements_duration()
+        if len(parameters) > 0:
+            self << parameters
 
     def set_elements_duration(self):
         for single_element in self._elements:
@@ -1122,9 +1113,23 @@ class Tuplet(Rest):
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
             case list():
+
+                # self._elements: list[Element] = []
+                # if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
+                #     self._elements = o.Operand.copy_operands_list(elements)
+                # if len(self._elements) == 2:
+                #     # Can't be "*= 3/2" in order to preserve the Fraction!
+                #     self._duration = self._duration * 3/2 # from 3 notes to 2
+                #     self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
+                # elif len(self._elements) > 0:
+                #     # Can't be "*= 2 / self._division" in order to preserve the Fraction!
+                #     self._duration = self._duration * 2 / len(self._elements) # from 2 notes to division
+                #     self._length << self._duration * len(self._elements)  # Length as the entire duration of the Note tuplet
+                # self.set_elements_duration()
+
                 elements: list[Element] = operand
                 if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
-                    net_duration = self % ot.Duration()
+                    net_duration = self % ot.Duration() # total duration of all the elements combined
                     if len(elements) == 2:
                         # Can't be "*= 3/2" in order to preserve the Fraction!
                         self._duration = net_duration * 3/2 # from 3 notes to 2
@@ -1139,9 +1144,12 @@ class Tuplet(Rest):
         return self
 
 class Triplet(Tuplet):
-    def __init__(self, *elements: Element):
-        super().__init__(*elements)
-        if self % int() != 3: self << [Rest(), Rest(), Rest()]
+    def __init__(self, *parameters):
+        super().__init__()
+        self._elements = [Note(ro.Gate(0.5)), Note(ro.Gate(0.5)), Note(ro.Gate(0.5))]
+        self.set_elements_duration()
+        if len(parameters) > 0:
+            self << parameters
 
     # CHAINABLE OPERATIONS
 
@@ -1151,6 +1159,8 @@ class Triplet(Tuplet):
             case list():
                 if len(operand) == 3:
                     super().__lshift__(operand)
+                else:
+                    return self
             case _: super().__lshift__(operand)
         return self
 
