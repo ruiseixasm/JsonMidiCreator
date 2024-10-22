@@ -996,13 +996,18 @@ class Tuplet(Rest):
     def __init__(self, *parameters):
         super().__init__()
         self._swing     = ro.Swing(.50)
-        self._elements: list[Element] = []
+        self._elements: list[Element] = [Note(ro.Gate(0.5)), Note(ro.Gate(0.5)), Note(ro.Gate(0.5))]
+        self.set_elements_duration()
         if len(parameters) > 0:
             self << parameters
 
     def set_elements_duration(self):
-        for single_element in self._elements:
-            single_element << self._duration
+        if len(self._elements) > 0:
+            elements_duration = self._duration * 2 / len(self._elements) # from 2 notes to division
+            if len(self._elements) == 2:
+                elements_duration = self._duration * 3/2 # from 3 notes to 2
+            for single_element in self._elements:
+                single_element << elements_duration
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1022,14 +1027,6 @@ class Tuplet(Rest):
                     case ro.Swing():        return self._swing
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case ot.Duration():
-                if len(self._elements) == 2:    return self._duration * 2/3  
-                elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2
-                return self._duration.copy()
-            case ro.NoteValue():
-                if len(self._elements) == 2:    return self._duration * 2/3 % operand
-                elif len(self._elements) > 0:   return self._duration * len(self._elements) / 2 % operand
-                return self._duration % operand
             case ro.Swing():        return self._swing.copy()
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
@@ -1052,10 +1049,12 @@ class Tuplet(Rest):
         self_playlist = []
         self_iteration = 0
         for element_i in range(len(self._elements)):
+            element_duration = self._elements[element_i] % od.DataSource( ot.Duration() )
             self_playlist.extend(self._elements[element_i].getPlaylist(self_position))
             swing_ratio = self._swing % od.DataSource( Fraction() )
-            if self_iteration % 2: swing_ratio = 1 - swing_ratio
-            self_position += self._duration * 2 * swing_ratio
+            if self_iteration % 2:
+                swing_ratio = 1 - swing_ratio
+            self_position += element_duration * 2 * swing_ratio
             self_iteration += 1
         return self_playlist
     
@@ -1087,8 +1086,9 @@ class Tuplet(Rest):
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        for single_element in self._elements:
-            single_element << operand
+        if not isinstance(operand, tuple):
+            for single_element in self._elements:
+                single_element << operand
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -1097,17 +1097,8 @@ class Tuplet(Rest):
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
-                self._duration  << operand._duration
                 self._swing     << operand._swing
                 self._elements  = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
-            case ot.Duration() | ro.NoteValue():
-                if len(self._elements) == 2:
-                    self._duration << operand * 3/2
-                elif len(self._elements) > 0:
-                    self._duration << operand * 2/len(self._elements)
-                else:
-                    self._duration << operand
-                self.set_elements_duration()
             case ro.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
@@ -1126,28 +1117,17 @@ class Tuplet(Rest):
                 #     self._duration = self._duration * 2 / len(self._elements) # from 2 notes to division
                 #     self._length << self._duration * len(self._elements)  # Length as the entire duration of the Note tuplet
                 # self.set_elements_duration()
-
-                elements: list[Element] = operand
-                if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
-                    net_duration = self % ot.Duration() # total duration of all the elements combined
-                    if len(elements) == 2:
-                        # Can't be "*= 3/2" in order to preserve the Fraction!
-                        self._duration = net_duration * 3/2 # from 3 notes to 2
-                        self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
-                    elif len(elements) > 0:
-                        # Can't be "*= 2 / self._division" in order to preserve the Fraction!
-                        self._duration = net_duration * 2 / len(elements) # from 2 notes to division
-                        self._length << self._duration * len(elements)  # Length as the entire duration of the Note tuplet
-                    self._elements = o.Operand.copy_operands_list(elements)
-                    self.set_elements_duration()
-            case _: super().__lshift__(operand)
+                                                                     # Rest because is the root super class with Duration
+                if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
+                    self._elements = o.Operand.copy_operands_list(operand)
+            case _:
+                super().__lshift__(operand)
+        self.set_elements_duration()
         return self
 
 class Triplet(Tuplet):
     def __init__(self, *parameters):
         super().__init__()
-        self._elements = [Note(ro.Gate(0.5)), Note(ro.Gate(0.5)), Note(ro.Gate(0.5))]
-        self.set_elements_duration()
         if len(parameters) > 0:
             self << parameters
 
