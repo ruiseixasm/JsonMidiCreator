@@ -286,7 +286,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         [+1, 0, +1, 0, +0, +1, 0, +1, 0, +0, 0, +0],    # +4
         [+1, 0, +1, 0, +0, +1, 0, +1, 0, +1, 0, +0],    # +5
         [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0],    # +6
-        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1],    # +7
+        [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1]     # +7
     ]
 
 class Key(Unit):
@@ -956,18 +956,6 @@ class Pressure(Midi):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class Program(Midi):
-    """
-    Program() represents the Program Number associated to a given Instrument.
-    
-    Parameters
-    ----------
-    first : integer_like
-        A Program Number varies from 0 to 127
-    """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
-
 class Channel(Midi):
     """
     A Channel() is an identifier normally associated to an instrument in a given midi device.
@@ -1007,6 +995,206 @@ class Pitch(Midi):
                 lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
                 return lsb
             case _:                 return super().__mod__(operand)
+
+class Program(Midi):
+    """
+    Program() represents the Program Number associated to a given Instrument.
+    
+    Parameters
+    ----------
+    first : integer_like
+        A Program Number varies from 0 to 127
+    """
+    def __init__(self, unit: str = "Pan"):
+        match unit:
+            case str():
+                super().__init__( Program.nameToNumber(unit) )
+            case int() | float():
+                super().__init__(unit)
+            case _:
+                super().__init__(None)
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():       return super().__mod__(operand)
+            case str():                 return Program.numberToName(self._unit)
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Program':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = Program.nameToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = Program.nameToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _instruments = [
+                                                                            # Piano
+        {   "midi_instrument": 0,   "names": ["Acoustic grand piano", "Piano"]    },
+        {   "midi_instrument": 1,   "names": ["Bright acoustic piano"]    },
+        {   "midi_instrument": 2,   "names": ["Electric grand piano"]    },
+        {   "midi_instrument": 3,   "names": ["Honky tonk piano"]    },
+        {   "midi_instrument": 4,   "names": ["Electric piano 1"]    },
+        {   "midi_instrument": 5,   "names": ["Electric piano 2"]    },
+        {   "midi_instrument": 6,   "names": ["Harpsicord"]    },
+        {   "midi_instrument": 7,   "names": ["Clavinet"]    },
+                                                                            # Chromatic percussion
+        {   "midi_instrument": 8,   "names": ["Celesta", "Chromatic percussion"]    },
+        {   "midi_instrument": 9,   "names": ["Glockenspiel"]    },
+        {   "midi_instrument": 10,  "names": ["Music box"]    },
+        {   "midi_instrument": 11,  "names": ["Vibraphone"]    },
+        {   "midi_instrument": 12,  "names": ["Marimba"]    },
+        {   "midi_instrument": 13,  "names": ["Xylophone"]    },
+        {   "midi_instrument": 14,  "names": ["Tubular bell"]    },
+        {   "midi_instrument": 15,  "names": ["Dulcimer"]    },
+                                                                            # Organ
+        {   "midi_instrument": 16,  "names": ["Hammond", "Drawbar organ", "Organ"]    },
+        {   "midi_instrument": 17,  "names": ["Percussive organ"]    },
+        {   "midi_instrument": 18,  "names": ["Rock organ"]    },
+        {   "midi_instrument": 19,  "names": ["Church organ"]    },
+        {   "midi_instrument": 20,  "names": ["Reed organ"]    },
+        {   "midi_instrument": 21,  "names": ["Accordion"]    },
+        {   "midi_instrument": 22,  "names": ["Harmonica"]    },
+        {   "midi_instrument": 23,  "names": ["Tango accordion"]    },
+                                                                            # Guitar
+        {   "midi_instrument": 24,  "names": ["Nylon string acoustic guitar", "Guitar"]    },
+        {   "midi_instrument": 25,  "names": ["Steel string acoustic guitar"]    },
+        {   "midi_instrument": 26,  "names": ["Jazz electric guitar"]    },
+        {   "midi_instrument": 27,  "names": ["Clean electric guitar"]    },
+        {   "midi_instrument": 28,  "names": ["Muted electric guitar"]    },
+        {   "midi_instrument": 29,  "names": ["Overdriven guitar"]    },
+        {   "midi_instrument": 30,  "names": ["Distortion guitar"]    },
+        {   "midi_instrument": 31,  "names": ["Guitar harmonics"]    },
+                                                                            # Bass
+        {   "midi_instrument": 32,  "names": ["Acoustic bass", "Bass"]    },
+        {   "midi_instrument": 33,  "names": ["Fingered electric bass"]    },
+        {   "midi_instrument": 34,  "names": ["Picked electric bass"]    },
+        {   "midi_instrument": 35,  "names": ["Fretless bass"]    },
+        {   "midi_instrument": 36,  "names": ["Slap bass 1"]    },
+        {   "midi_instrument": 37,  "names": ["Slap bass 2"]    },
+        {   "midi_instrument": 38,  "names": ["Synth bass 1"]    },
+        {   "midi_instrument": 39,  "names": ["Synth bass 2"]    },
+                                                                            # Strings
+        {   "midi_instrument": 40,  "names": ["Violin", "Strings"]    },
+        {   "midi_instrument": 41,  "names": ["Viola"]    },
+        {   "midi_instrument": 42,  "names": ["Cello"]    },
+        {   "midi_instrument": 43,  "names": ["Contrabass"]    },
+        {   "midi_instrument": 44,  "names": ["Tremolo strings"]    },
+        {   "midi_instrument": 45,  "names": ["Pizzicato strings"]    },
+        {   "midi_instrument": 46,  "names": ["Orchestral strings", "Harp"]    },
+        {   "midi_instrument": 47,  "names": ["Timpani"]    },
+                                                                            # Ensemble
+        {   "midi_instrument": 48,  "names": ["String ensemble 1", "Ensemble"]    },
+        {   "midi_instrument": 49,  "names": ["String ensemble 2", "Slow strings"]    },
+        {   "midi_instrument": 50,  "names": ["Synth strings 1"]    },
+        {   "midi_instrument": 51,  "names": ["Synth strings 2"]    },
+        {   "midi_instrument": 52,  "names": ["Choir aahs"]    },
+        {   "midi_instrument": 53,  "names": ["Voice oohs"]    },
+        {   "midi_instrument": 54,  "names": ["Synth choir", "Voice"]    },
+        {   "midi_instrument": 55,  "names": ["Orchestra hit"]    },
+                                                                            # Brass
+        {   "midi_instrument": 56,  "names": ["Trumpet", "Brass"]    },
+        {   "midi_instrument": 57,  "names": ["Trombone"]    },
+        {   "midi_instrument": 58,  "names": ["Tuba"]    },
+        {   "midi_instrument": 59,  "names": ["Muted trumpet"]    },
+        {   "midi_instrument": 60,  "names": ["French horn"]    },
+        {   "midi_instrument": 61,  "names": ["Brass ensemble"]    },
+        {   "midi_instrument": 62,  "names": ["Synth brass 1"]    },
+        {   "midi_instrument": 63,  "names": ["Synth brass 2"]    },
+                                                                            # Reed
+        {   "midi_instrument": 64,  "names": ["Soprano sax", "Reed"]    },
+        {   "midi_instrument": 65,  "names": ["Alto sax"]    },
+        {   "midi_instrument": 66,  "names": ["Tenor sax"]    },
+        {   "midi_instrument": 67,  "names": ["Baritone sax"]    },
+        {   "midi_instrument": 68,  "names": ["Oboe"]    },
+        {   "midi_instrument": 69,  "names": ["English horn"]    },
+        {   "midi_instrument": 70,  "names": ["Bassoon"]    },
+        {   "midi_instrument": 71,  "names": ["Clarinet"]    },
+                                                                            # Pipe
+        {   "midi_instrument": 72,  "names": ["Piccolo", "Pipe"]    },
+        {   "midi_instrument": 73,  "names": ["Flute"]    },
+        {   "midi_instrument": 74,  "names": ["Recorder"]    },
+        {   "midi_instrument": 75,  "names": ["Pan flute"]    },
+        {   "midi_instrument": 76,  "names": ["Bottle blow", "Blown bottle"]    },
+        {   "midi_instrument": 77,  "names": ["Shakuhachi"]    },
+        {   "midi_instrument": 78,  "names": ["Whistle"]    },
+        {   "midi_instrument": 79,  "names": ["Ocarina"]    },
+                                                                            # Synth lead
+        {   "midi_instrument": 80,  "names": ["Synth square wave", "Synth lead"]    },
+        {   "midi_instrument": 81,  "names": ["Synth saw wave"]    },
+        {   "midi_instrument": 82,  "names": ["Synth calliope"]    },
+        {   "midi_instrument": 83,  "names": ["Synth chiff"]    },
+        {   "midi_instrument": 84,  "names": ["Synth charang"]    },
+        {   "midi_instrument": 85,  "names": ["Synth voice"]    },
+        {   "midi_instrument": 86,  "names": ["Synth fifths saw"]    },
+        {   "midi_instrument": 87,  "names": ["Synth brass and lead"]    },
+                                                                            # Synth pad
+        {   "midi_instrument": 88,  "names": ["Fantasia", "New age", "Synth pad"]    },
+        {   "midi_instrument": 89,  "names": ["Warm pad"]    },
+        {   "midi_instrument": 90,  "names": ["Polysynth"]    },
+        {   "midi_instrument": 91,  "names": ["Space vox", "Choir"]    },
+        {   "midi_instrument": 92,  "names": ["Bowed glass"]    },
+        {   "midi_instrument": 93,  "names": ["Metal pad"]    },
+        {   "midi_instrument": 94,  "names": ["Halo pad"]    },
+        {   "midi_instrument": 95,  "names": ["Sweep pad"]    },
+                                                                            # Synth effects
+        {   "midi_instrument": 96,  "names": ["Ice rain", "Synth effects"]    },
+        {   "midi_instrument": 97,  "names": ["Soundtrack"]    },
+        {   "midi_instrument": 98,  "names": ["Crystal"]    },
+        {   "midi_instrument": 99,  "names": ["Atmosphere"]    },
+        {   "midi_instrument": 100, "names": ["Brightness"]    },
+        {   "midi_instrument": 101, "names": ["Goblins"]    },
+        {   "midi_instrument": 102, "names": ["Echo drops", "Echoes"]    },
+        {   "midi_instrument": 103, "names": ["Sci fi"]    },
+                                                                            # Ethnic
+        {   "midi_instrument": 104, "names": ["Sitar", "Ethnic"]    },
+        {   "midi_instrument": 105, "names": ["Banjo"]    },
+        {   "midi_instrument": 106, "names": ["Shamisen"]    },
+        {   "midi_instrument": 107, "names": ["Koto"]    },
+        {   "midi_instrument": 108, "names": ["Kalimba"]    },
+        {   "midi_instrument": 109, "names": ["Bag pipe"]    },
+        {   "midi_instrument": 110, "names": ["Fiddle"]    },
+        {   "midi_instrument": 111, "names": ["Shanai"]    },
+                                                                            # Percussive
+        {   "midi_instrument": 112, "names": ["Tinkle bell", "Percussive"]    },
+        {   "midi_instrument": 113, "names": ["Agogo"]    },
+        {   "midi_instrument": 114, "names": ["Steel drums"]    },
+        {   "midi_instrument": 115, "names": ["Woodblock"]    },
+        {   "midi_instrument": 116, "names": ["Taiko drum"]    },
+        {   "midi_instrument": 117, "names": ["Melodic tom"]    },
+        {   "midi_instrument": 118, "names": ["Synth drum"]    },
+        {   "midi_instrument": 119, "names": ["Reverse cymbal"]    },
+                                                                            # Sound effects
+        {   "midi_instrument": 120, "names": ["Guitar fret noise", "Sound effects"]    },
+        {   "midi_instrument": 121, "names": ["Breath noise"]    },
+        {   "midi_instrument": 122, "names": ["Seashore"]    },
+        {   "midi_instrument": 123, "names": ["Bird tweet"]    },
+        {   "midi_instrument": 124, "names": ["Telephone ring"]    },
+        {   "midi_instrument": 125, "names": ["Helicopter"]    },
+        {   "midi_instrument": 126, "names": ["Applause"]    },
+        {   "midi_instrument": 127, "names": ["Gunshot"]    }
+    ]
+
+    @staticmethod
+    def nameToNumber(number: str = "Piano") -> int:
+        for instrument in Program._instruments:
+            for instrument_name in instrument["names"]:
+                if instrument_name.lower().find(number.strip().lower()) != -1:
+                    return instrument["midi_instrument"]
+        return 0
+
+    @staticmethod
+    def numberToName(number: int) -> str:
+        for instrument in Program._instruments:
+            if instrument["midi_instrument"] == number:
+                return instrument["names"][0]
+        return "Bank Select"
 
 # For example, if the pitch bend range is set to ±2 half-tones (which is common), then:
 #     8192 (center value) means no pitch change.
@@ -1116,7 +1304,7 @@ class Number(Midi):
         {   "midi_number": 124, "default_value": 0,     "names": ["Omni Off"]    },
         {   "midi_number": 125, "default_value": 0,     "names": ["Omni On"]    },
         {   "midi_number": 126, "default_value": 0,     "names": ["Mono On", "Monophonic"]    },
-        {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    },
+        {   "midi_number": 127, "default_value": 0,     "names": ["Poly On", "Polyphonic"]    }
     ]
 
     @staticmethod
