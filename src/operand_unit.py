@@ -1198,7 +1198,7 @@ class Program(Midi):
         for instrument in Program._instruments:
             if instrument["midi_instrument"] == number:
                 return instrument["names"][0]
-        return "Bank Select"
+        return "Unknown instrument!"
 
 # For example, if the pitch bend range is set to ±2 half-tones (which is common), then:
 #     8192 (center value) means no pitch change.
@@ -1331,4 +1331,4 @@ class Number(Midi):
         for controller in Number._controllers:
             if controller["midi_number"] == number:
                 return controller["names"][0]
-        return "Bank Select"
+        return "Unknown controller!"
