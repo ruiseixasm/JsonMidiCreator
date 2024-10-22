@@ -1182,10 +1182,14 @@ class Program(Midi):
     ]
 
     @staticmethod
-    def nameToNumber(number: str = "Piano") -> int:
+    def nameToNumber(name: str = "Piano") -> int:
+        # Convert input words to lowercase
+        name_split = name.lower().split()
+        # Iterate over the instruments list
         for instrument in Program._instruments:
             for instrument_name in instrument["names"]:
-                if instrument_name.lower().find(number.strip().lower()) != -1:
+                # Check if all input words are present in the name string
+                if all(word in instrument_name.lower() for word in name_split):
                     return instrument["midi_instrument"]
         return 0
 
@@ -1315,10 +1319,10 @@ class Number(Midi):
         return 0
 
     @staticmethod
-    def nameToNumber(number: str = "Pan") -> int:
+    def nameToNumber(name: str = "Pan") -> int:
         for controller in Number._controllers:
             for controller_name in controller["names"]:
-                if controller_name.lower().find(number.strip().lower()) != -1:
+                if controller_name.lower().find(name.strip().lower()) != -1:
                     return controller["midi_number"]
         return 0
 
