@@ -875,8 +875,6 @@ class Retrigger(Note):
     def __init__(self, *parameters):
         super().__init__()
         self._division  = ou.Division(16)
-        self._duration  = self._duration * 2/(self._division % int())
-        self._length   << self._duration * (self._division % int())
         self._gate      = ro.Gate(.50)
         self._swing     = ro.Swing(.50)
         if len(parameters) > 0:
@@ -903,8 +901,6 @@ class Retrigger(Note):
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
             case ro.Swing():        return self._swing.copy()
-            case ot.Duration():     return self._duration * (self._division % int())/2
-            case ro.NoteValue():    return self._duration * (self._division % int())/2 % operand
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, position: ot.Position = None):
@@ -913,14 +909,15 @@ class Retrigger(Note):
         self_playlist = []
         self_iteration = 0
         original_duration = self._duration
+        single_note_duration = self._duration * 2/(self._division % int())
         for _ in range(self._division % od.DataSource( int() )):
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
-            self._duration = original_duration * 2 * swing_ratio
+            self._duration = single_note_duration * 2 * swing_ratio
             self_playlist.extend(super().getPlaylist(self_position))
             self_position += self._duration
             self_iteration += 1
-        self._duration << original_duration
+        self._duration = original_duration
         return self_playlist
     
     def getSerialization(self):
@@ -954,14 +951,11 @@ class Retrigger(Note):
                 self._swing     << operand._swing
             case ou.Division() | int():
                 if operand > 0:
-                    self._duration << self._duration * self._division/operand
                     self._division << operand
             case ro.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
-            case ot.Duration() | ro.NoteValue():
-                self._duration << operand * 2/(self._division % int())
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1104,19 +1098,6 @@ class Tuplet(Rest):
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
             case list():
-
-                # self._elements: list[Element] = []
-                # if len(elements) > 0 and all(isinstance(single_element, Element) for single_element in elements):
-                #     self._elements = o.Operand.copy_operands_list(elements)
-                # if len(self._elements) == 2:
-                #     # Can't be "*= 3/2" in order to preserve the Fraction!
-                #     self._duration = self._duration * 3/2 # from 3 notes to 2
-                #     self._length << self._duration * 2  # Length as the entire duration of the Note tuplet
-                # elif len(self._elements) > 0:
-                #     # Can't be "*= 2 / self._division" in order to preserve the Fraction!
-                #     self._duration = self._duration * 2 / len(self._elements) # from 2 notes to division
-                #     self._length << self._duration * len(self._elements)  # Length as the entire duration of the Note tuplet
-                # self.set_elements_duration()
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
                     self._elements = o.Operand.copy_operands_list(operand)
@@ -1139,8 +1120,7 @@ class Triplet(Tuplet):
             case list():
                 if len(operand) == 3:
                     super().__lshift__(operand)
-                else:
-                    return self
+                return self
             case _: super().__lshift__(operand)
         return self
 
