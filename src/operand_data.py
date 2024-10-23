@@ -240,6 +240,19 @@ class RightShift(SideEffects):
         else:
             return super().__rrshift__(operand)
 
+class Filter(Data):
+    def __init__(self, criteria: any):
+        super().__init__(criteria)
+        
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.filter(self._data)
+        else:
+            return super().__rrshift__(operand)
+
 class Scale(Data):
     """
     A Scale() represents a given scale rooted in the key of C.
