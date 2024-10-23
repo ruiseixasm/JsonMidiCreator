@@ -77,6 +77,11 @@ class Container(o.Operand):
         """
         match operand:
             case od.DataSource():   return self._datasource_list
+            case Container():       return self.copy()
+            case ol.Len():          return self.len()
+            case ol.First():        return self.first()
+            case ol.Last():         return self.last()
+            case ou.Middle():       return self.middle(operand % int())
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
@@ -86,12 +91,8 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_datasource._data)
                 return operands
-            case Container():       return self.copy()
-            case ol.Len():          return self.len()
-            case ol.First():        return self.first()
-            case ol.Last():         return self.last()
-            case ou.Middle():       return self.middle(operand % int())
-            case _:                 return super().__mod__(operand)
+            case _:
+                return self | operand   # NEEDS AN ALTERNATIVE WITH SAME PRIORITY (NEW FILTER CLASS ???)
 
     def len(self) -> int:
         return len(self._datasource_list)
@@ -176,6 +177,11 @@ class Container(o.Operand):
             self._datasource_list[self.len() - 1 - operand_i]._data = self._datasource_list[operand_i]._data
             self._datasource_list[operand_i]._data = tail_operand
         return self
+
+    def filter(self, criteria: any) -> 'Container':
+        new_container: Container = self.__class__()
+        new_container._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+        return new_container
 
     def __lshift__(self, operand: o.Operand) -> 'Container':
         match operand:
@@ -300,14 +306,14 @@ class Container(o.Operand):
         return self
 
     def __or__(self, operand: any) -> 'Container':
-        new_container: Container = self.__class__()
         match operand:
             case Container():
+                new_container: Container = self.__class__()
                 new_container._datasource_list.extend(self._datasource_list)
                 new_container._datasource_list.extend(operand._datasource_list)
+                return new_container
             case _:
-                new_container._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == operand]
-        return new_container
+                return self.filter(operand)
 
     def __ror__(self, operand: any) -> 'Container':
         return self.__or__(operand)
