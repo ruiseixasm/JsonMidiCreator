@@ -105,7 +105,7 @@ class TimeSignature(Generic):
 class KeyNote(Generic):
     def __init__(self, *parameters):
         super().__init__()
-        self._octave: ou.Octave     = ou.Octave()
+        self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
         self._key: ou.Key           = ou.Key()
         if len(parameters) > 0:
             self << parameters
