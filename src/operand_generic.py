@@ -141,7 +141,7 @@ class KeyNote(Generic):
             case float():
                 return self._key % int(operand)
             case int():
-                return 12 * (self._octave._unit + 1) + int(self._key % float()) % 12
+                return 12 * (self._octave._unit + 1) + int(self._key % float()) % 12    # until better solution, %12 is needed!
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, operand: any) -> bool:
@@ -222,9 +222,12 @@ class KeyNote(Generic):
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
+                self._octave._unit += self._key._unit // 12
                 self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key << operand
+                self._octave._unit += self._key._unit // 12
+                self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -237,20 +240,22 @@ class KeyNote(Generic):
         self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote():
+                new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
-                key_copy._unit = self_int + operand_int
-                octave_int = key_copy._unit // 12
+                sum_int = self_int + operand_int
+                new_keynote._key._unit = sum_int % 12
+                new_keynote._octave._unit = sum_int // 12 - 1 # rooted on -1 octave
+                return new_keynote
             case ou.Octave():
                 octave_int += operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy += operand
                 octave_int += key_copy._unit // 12
             case ou.Degree():
-                self_copy._key += operand
-                return self_copy
+                key_copy += operand
             case _: return super().__add__(operand)
-        return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
+        return self_copy << key_copy << octave_int
     
     def __sub__(self, operand) -> 'KeyNote':
         key_copy: ou.Key = self._key.copy()
@@ -259,20 +264,22 @@ class KeyNote(Generic):
         self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote(): # It may result in negative KeyNotes (unplayable)!
+                new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
-                key_copy._unit = self_int - operand_int
-                octave_int = key_copy._unit // 12
+                delta_int = self_int - operand_int
+                new_keynote._key._unit = delta_int % 12
+                new_keynote._octave._unit = delta_int // 12 - 1 # rooted on -1 octave
+                return new_keynote
             case ou.Octave():
                 octave_int -= operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy -= operand
                 octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
             case ou.Degree():
-                self_copy._key -= operand
-                return self_copy
+                key_copy -= operand
             case _: return super().__add__(operand)
-        return self_copy << (ou.Key() << key_copy._unit % 12) << (ou.Octave() << octave_int)
+        return self_copy << key_copy << octave_int
 
 class Controller(Generic):
     def __init__(self, *parameters):

@@ -25,5 +25,5 @@ two_tones = Note(1/1) * 2 << Foreach(4, 7)**Degree()
 # two_tones >> Rest() >> Play()
 
 tension = Note("A") * 4 + Note("A", 1/2) * 2 >> Stack()
-tension = tension << Foreach(1, 7, 1, 2, 3, 2)**Degree()
+tension = tension << Foreach(1, 7, 1, 2, 3, 2)**Degree() >> Smooth()
 tension >> Rest() >> Play()

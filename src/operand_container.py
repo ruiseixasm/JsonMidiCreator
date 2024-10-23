@@ -426,17 +426,18 @@ class Sequence(Container):  # Just a container of Elements
     
     def smooth(self) -> 'Sequence':
         import operand_element as oe
-        last_element = None
+        last_note = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
-                if last_element is not None:
-                    while single_datasource._data._key_note > last_element._key_note:
-                        single_datasource._data._key_note -= ou.Octave(1)
-                    while single_datasource._data._key_note < last_element._key_note:
-                        single_datasource._data._key_note += ou.Octave(1)
-                    if single_datasource._data._key_note - last_element._key_note > last_element._key_note - (single_datasource._data._key_note - ou.Octave(1)):
-                        single_datasource._data._key_note -= ou.Octave(1)
-                last_element = single_datasource._data
+                actual_note = single_datasource._data
+                if last_note is not None:
+                    while actual_note._key_note > last_note._key_note:
+                        actual_note._key_note -= ou.Octave(1)
+                    while actual_note._key_note < last_note._key_note:
+                        actual_note._key_note += ou.Octave(1)
+                    if actual_note._key_note - last_note._key_note > og.KeyNote(ou.Key(12 // 2), -1):
+                        actual_note._key_note -= ou.Octave(1)
+                last_note = actual_note
         return self
 
     # operand is the pusher
