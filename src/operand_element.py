@@ -525,7 +525,7 @@ class Note(Rest):
                     case ro.Gate():         return self._gate
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
-            case int() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale():
+            case int() | str() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()

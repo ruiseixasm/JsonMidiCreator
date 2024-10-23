@@ -136,8 +136,10 @@ class KeyNote(Generic):
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
+            case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | float() | str():
                 return self._key % operand
+            case float():
+                return self._key % int(operand)
             case int():
                 return 12 * (self._octave._unit + 1) + int(self._key % float())
             case _:                 return super().__mod__(operand)

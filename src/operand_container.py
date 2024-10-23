@@ -197,7 +197,7 @@ class Container(o.Operand):
                             self._datasource_list.append(od.DataSource( single_operand.copy() ))
                         case _:
                             self._datasource_list.append(od.DataSource( single_operand ))
-            case o.Operand() | int() | float(): # Works for Frame too
+            case o.Operand() | int() | float() | str(): # Works for Frame too
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, o.Operand):
                         single_datasource._data << operand
