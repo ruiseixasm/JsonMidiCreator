@@ -197,9 +197,6 @@ class Container(o.Operand):
                             self._datasource_list.append(od.DataSource( single_operand.copy() ))
                         case _:
                             self._datasource_list.append(od.DataSource( single_operand ))
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
             case _: # Works for Frame too
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, o.Operand):
@@ -372,15 +369,6 @@ class Sequence(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Sequence':
-        match operand:
-            case tuple():
-                last_datasource: int = min(self.len(), len(operand))
-                for datasource_i in range(last_datasource):
-                    self._datasource_list[datasource_i]._data << operand[datasource_i]
-                return self
-            case _: return super().__lshift__(operand)
-
     def reverse(self) -> 'Sequence':
         super().reverse()
         self.first() << self.last() % ot.Position()
@@ -474,11 +462,6 @@ class Sequence(Container):  # Just a container of Elements
                 for datasource_i in range(last_datasource):
                     self._datasource_list[datasource_i]._data += operand._datasource_list[datasource_i]._data
                 return self
-            case tuple():
-                last_datasource: int = min(self.len(), len(operand))
-                for datasource_i in range(last_datasource):
-                    self._datasource_list[datasource_i]._data << self._datasource_list[datasource_i]._data + operand[datasource_i]
-                return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data + operand
@@ -494,11 +477,6 @@ class Sequence(Container):  # Just a container of Elements
                 last_datasource: int = min(self.len(), operand.len())
                 for datasource_i in range(last_datasource):
                     self._datasource_list[datasource_i]._data -= operand._datasource_list[datasource_i]._data
-                return self
-            case tuple():
-                last_datasource: int = min(self.len(), len(operand))
-                for datasource_i in range(last_datasource):
-                    self._datasource_list[datasource_i]._data << self._datasource_list[datasource_i]._data - operand[datasource_i]
                 return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
