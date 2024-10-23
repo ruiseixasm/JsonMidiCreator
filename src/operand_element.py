@@ -217,8 +217,8 @@ class Element(o.Operand):
             case o.Operand():       return self_copy << self % operand - operand
         return self_copy
 
-    def __mul__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
+    def __mul__(self, operand: any) -> Union['Element', oc.Sequence]:
+        self_copy: Element = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():

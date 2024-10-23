@@ -27,15 +27,52 @@ smooth_movement_1: Sequence = smooth_movement_p1.copy() << Foreach("E", "E", "F"
 smooth_movement_2: Sequence = (smooth_movement_p1.copy() << "G") - Iterate()
 smooth_movement_3: Sequence = smooth_movement_p1.copy() << Nth(3, 4)**Foreach("D", "E")
 
-# (smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2, 
-#  smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2 - 1, Rest()) >> Play()
+(smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2, 
+ smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2 - 1, Rest()) >> Play()
 
 staff << KeySignature("b")
 whole_notes: Sequence = Note(1/1) * 4 << Foreach("F", "B", "E", KeyNote("C", 5))
-# whole_notes >> Rest() >> Play()
+whole_notes >> Rest() >> Play()
 
 melodic_e: Sequence = Note(1/8, Position(1/2) - NoteValue(1/8)) * 5
 melodic_1: Sequence = (melodic_e.copy() << "E") + Iterate() + Nth(5)**1
 melodic_2: Sequence = (melodic_e.copy() - (melodic_e | Nth(1)) << "B" << Measure(1)) - Iterate()
 melodic_3: Sequence = melodic_1.copy() + 1 << Measure(2)
 whole_notes + melodic_1 + melodic_2 + melodic_3 >> Link(True) >> Rest() >> Play(True)
+
+outline: Sequence = Note(1/2) * 7 >> Link(True)
+outline << Foreach("F", "A", "G", "F", "E", "D", "E")
+outline >> Rest() >> Play()
+
+staff << KeySignature("#")
+# Matrix approach instead of a Vectorial one!
+mixed = Note() * (2*6 + 2*5)
+mixed << Foreach(
+    # 1st Measure
+    (1/8, KeyNote("G", 4)),
+    (1/8, KeyNote("F", 4)),
+    (1/8, KeyNote("G", 4)),
+    (1/8, KeyNote("D", 5)),
+    (1/4, KeyNote("C", 5)),
+    (1/4, KeyNote("A", 4)),
+    # 2nd Measure
+    (1/8, KeyNote("G", 4)),
+    (1/8, KeyNote("F", 4)),
+    (1/8, KeyNote("G", 4)),
+    (1/8, KeyNote("C", 5)),
+    (1/2, KeyNote("B", 4)),
+    # 3rd Measure
+    (1/8, KeyNote("D", 5)),
+    (1/8, KeyNote("C", 5)),
+    (1/8, KeyNote("B", 4)),
+    (1/8, KeyNote("A", 4)),
+    (1/4, KeyNote("B", 4)),
+    (1/4, KeyNote("D", 4)),
+    # 4th Measure
+    (1/8, KeyNote("F", 4)),
+    (1/8, KeyNote("E", 4)),
+    (1/8, KeyNote("B", 4)),
+    (1/8, KeyNote("A", 4)),
+    (1/2, KeyNote("G", 4))
+) >> Stack()
+(mixed, Rest()) >> Play()
