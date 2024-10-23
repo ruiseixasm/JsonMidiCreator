@@ -27,6 +27,6 @@ chords = Chord("F", 1/1) * 8 << Foreach(1, 4, 1, 5, 1, 4, 1, 5)**Degree() \
                              << Foreach(4, 4, 4, 4, 3, 3, 3, 2)**Octave()
 chords >> Play()
 staff << Tempo(120)
-notes = Note("B", 1/1) * 8 + (1, 2, -1, -2, -2, -1, -4, -5)
+notes = Note("B", 1/1) * 8 + Foreach(1, 2, -1, -2, -2, -1, -4, -5)
 notes >> Play()
 notes + chords >> Play()
