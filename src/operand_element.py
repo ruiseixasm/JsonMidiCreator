@@ -751,7 +751,7 @@ class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
         self._inversion: ou.Inversion   = ou.Inversion()
-        self._type: ou.Size             = ou.Size()
+        self._size: ou.Size             = ou.Size()
         self._sus: ou.Sus               = ou.Sus()
         if len(parameters) > 0:
             self << parameters
@@ -771,11 +771,11 @@ class Chord(KeyScale):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Size():         return self._type
+                    case ou.Size():         return self._size
                     case ou.Inversion():    return self._inversion
                     case ou.Sus():          return self._sus
                     case _:                 return super().__mod__(operand)
-            case ou.Size():         return self._type.copy()
+            case ou.Size():         return self._size.copy()
             case ou.Inversion():    return self._inversion.copy()
             case ou.Sus():          return self._sus.copy()
             case _:                 return super().__mod__(operand)
@@ -785,7 +785,7 @@ class Chord(KeyScale):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._type == other_operand % od.DataSource( ou.Size() ) \
+                    and self._size == other_operand % od.DataSource( ou.Size() ) \
                     and self._inversion == other_operand % od.DataSource( ou.Inversion() ) \
                     and self._sus == other_operand % od.DataSource( ou.Sus() )
             case _:
@@ -794,14 +794,14 @@ class Chord(KeyScale):
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        max_type = self._scale.keys()
-        if max_type % 2 == 0:
-            max_type //= 2
-        max_type = min(self._type % od.DataSource( int() ), max_type)
+        max_size = self._scale.keys()
+        if max_size % 2 == 0:
+            max_size //= 2
+        max_size = min(self._size % od.DataSource( int() ), max_size)
 
         root_key_note = self._key_note
         chord_key_notes = []
-        for key_note_i in range(max_type):
+        for key_note_i in range(max_size):
             key_note_nth = key_note_i * 2
             if key_note_nth == 2:
                 if self._sus % od.DataSource( int() ) == 1:
@@ -812,7 +812,7 @@ class Chord(KeyScale):
             chord_key_notes.append(root_key_note + float(transposition))
 
         # Where the inversions are done
-        inversion = min(self._inversion % od.DataSource( int() ), self._type % od.DataSource( int() ) - 1)
+        inversion = min(self._inversion % od.DataSource( int() ), self._size % od.DataSource( int() ) - 1)
         if inversion:
             first_key_note = chord_key_notes[inversion]
             not_first_key_note = True
@@ -834,7 +834,7 @@ class Chord(KeyScale):
     
     def getSerialization(self):
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["type"]         = self._type % od.DataSource( int() )
+        element_serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
         element_serialization["parameters"]["sus"]          = self._sus % od.DataSource( int() )
         return element_serialization
@@ -843,10 +843,10 @@ class Chord(KeyScale):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "inversion" in serialization["parameters"] and "type" in serialization["parameters"] and "sus" in serialization["parameters"]):
+            "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and "sus" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._type          = ou.Size()         << od.DataSource( serialization["parameters"]["type"] )
+            self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
             self._sus           = ou.Sus()          << od.DataSource( serialization["parameters"]["sus"] )
         return self
@@ -856,16 +856,16 @@ class Chord(KeyScale):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Size():                 self._type = operand % o.Operand()
+                    case ou.Size():                 self._size = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
                     case ou.Sus():                  self._sus = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
-                self._type          << operand._type
+                self._size          << operand._size
                 self._inversion     << operand._inversion
                 self._sus           << operand._sus
-            case ou.Size():                 self._type << operand
+            case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
             case ou.Sus():                  self._sus << operand
             case _: super().__lshift__(operand)
