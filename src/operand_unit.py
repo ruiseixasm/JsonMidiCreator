@@ -650,15 +650,11 @@ class Size(Unit):
     first : integer_like or string_like
         A Size Number varies from "1st" to "13th" with "3rd" being the triad default
     """
-    def __init__(self, unit: int | str = None):
-        match unit:
-            case str():
-                super().__init__( __class__.stringToNumber(unit) )
-            case int() | float():
-                super().__init__( unit )
-            case _:
-                super().__init__( 3 )
-
+    def __init__(self, *parameters):
+        super().__init__(3)
+        if len(parameters) > 0:
+            self << parameters
+            
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case str():         return __class__.numberToString(self._unit)
