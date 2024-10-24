@@ -76,7 +76,13 @@ class Unit(o.Operand):
             case ro.Float():        return ro.Float() << self._unit
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
+             
+    def __bool__(self):  # For Python 3
+        return self._unit != 0
 
+    def __nonzero__(self):  # For Python 2
+        return self.__bool__()
+    
     def __eq__(self, other_number: any) -> bool:
         import operand_rational as ro
         other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
@@ -726,14 +732,10 @@ class Sus(Unit):
     first : integer_like or string_like
         A sus Number can be 0, 1 or 2 with 0 being normal not suspended chord
     """
-    def __init__(self, unit: int | str = None):
-        match unit:
-            case str():
-                super().__init__( __class__.stringToNumber(unit) )
-            case int() | float():
-                super().__init__( unit )
-            case _:
-                super().__init__( 0 )
+    def __init__(self, *parameters):
+        super().__init__(0)
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
