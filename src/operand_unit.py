@@ -542,6 +542,18 @@ class Natural(Unit):    # Natural (?)
         if len(parameters) > 0:
             self << parameters
 
+class Dominant(Unit):
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
+
+class Diminished(Unit):
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
+
 class Mode(Unit):
     """
     Mode() represents the different scales (e.g., Ionian, Dorian, Phrygian)
