@@ -530,35 +530,78 @@ class Octave(Unit):
         if len(parameters) > 0:
             self << parameters
 
-class Sharp(Unit):      # Sharp (#)
+class Boolean(Unit):
     def __init__(self, *parameters):
         super().__init__(1)
         if len(parameters) > 0:
             self << parameters
 
-class Flat(Unit):       # Flat (b)
+class Sharp(Boolean):      # Sharp (#)
+    pass
+
+class Flat(Boolean):       # Flat (b)
+    pass
+
+class Natural(Boolean):    # Natural (?)
+    pass
+
+class Dominant(Boolean):
+    pass
+
+class Diminished(Boolean):
+    pass
+
+class Sus2(Boolean):
+    pass
+
+class Sus4(Boolean):
+    pass
+
+class Sus(Unit):
+    """
+    Sus() represents the suspended chord flavor, sus2 or sus4.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A sus Number can be 0, 1 or 2 with 0 being normal not suspended chord
+    """
     def __init__(self, *parameters):
-        super().__init__(1)
+        super().__init__(0)
         if len(parameters) > 0:
             self << parameters
 
-class Natural(Unit):    # Natural (?)
-    def __init__(self, *parameters):
-        super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__.numberToString(self._unit)
+            case _:             return super().__mod__(operand)
 
-class Dominant(Unit):
-    def __init__(self, *parameters):
-        super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+    # CHAINABLE OPERATIONS
 
-class Diminished(Unit):
-    def __init__(self, *parameters):
-        super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+    def __lshift__(self, operand: any) -> 'Size':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = __class__.stringToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _sus_str = ["None" , "sus2", "sus4"]
+
+    @staticmethod
+    def stringToNumber(string: str) -> int:
+        match string.strip().lower():
+            case "sus2":            return 1
+            case "sus4":            return 2
+            case _:                 return 0
+
+    @staticmethod
+    def numberToString(number: int) -> str:
+        return __class__._sus_str[number % len(__class__._sus_str)]
 
 class Mode(Unit):
     """
@@ -722,52 +765,6 @@ class Size(Unit):
     @staticmethod
     def numberToString(number: int) -> str:
         return __class__._types_str[number % len(__class__._types_str)]
-
-class Sus(Unit):
-    """
-    Sus() represents the suspended chord flavor, sus2 or sus4.
-    
-    Parameters
-    ----------
-    first : integer_like or string_like
-        A sus Number can be 0, 1 or 2 with 0 being normal not suspended chord
-    """
-    def __init__(self, *parameters):
-        super().__init__(0)
-        if len(parameters) > 0:
-            self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case str():         return __class__.numberToString(self._unit)
-            case _:             return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Size':
-        import operand_rational as ro
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
-                    case _:                         super().__lshift__(operand)
-            case str():             self._unit = __class__.stringToNumber(operand)
-            case _:                 super().__lshift__(operand)
-        return self
-
-    _sus_str = ["None" , "sus2", "sus4"]
-
-    @staticmethod
-    def stringToNumber(string: str) -> int:
-        match string.strip().lower():
-            case "sus2":            return 1
-            case "sus4":            return 2
-            case _:                 return 0
-
-    @staticmethod
-    def numberToString(number: int) -> str:
-        return __class__._sus_str[number % len(__class__._sus_str)]
 
 class Division(Unit):
     """
