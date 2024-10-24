@@ -27,7 +27,7 @@ sevenths << Foreach(
     (Size("7th"), Degree("V"), Mode(5)),
     (Size("5th"), Degree("I"), Mode(1)),
 
-    (Size("7th"), Degree("IV"), Mode(4)),
+    (Size("7th"), Degree("IV")),
     ("Bb", Size("5th")),
 
     (Size("7th"), Degree("I"), Mode(1)),

@@ -38,9 +38,11 @@ class Unit(o.Operand):
     first : integer_like
         An Integer described as a Unit
     """
-    def __init__(self, unit: int = None):
+    def __init__(self, *parameters):
         super().__init__()
-        self._unit: int = 0 if unit is None else int(unit)
+        self._unit: int = 0
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -303,8 +305,8 @@ class Key(Unit):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._flat: Flat        = Flat()
-        self._natural: Natural  = Natural()
+        self._flat: Flat        = Flat(0)
+        self._natural: Natural  = Natural(0)
         self._degree: Degree    = Degree(1)
         self._scale: od.Scale   = od.Scale([])
         if len(parameters) > 0:
