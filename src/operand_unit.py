@@ -156,6 +156,9 @@ class Unit(o.Operand):
                 self._unit = int(operand)
             case ro.Float():
                 self._unit = operand % int()
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
         return self
 
     def __add__(self, number: any) -> 'Unit':
@@ -422,9 +425,6 @@ class Key(Unit):
             case str():
                 self._flat << (operand.strip().lower().find("b") != -1) * 1
                 self._unit = Key.key_to_int(operand)
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
             case _:                 super().__lshift__(operand)
         return self
 
@@ -529,24 +529,20 @@ class Flat(Unit):       # Flat (b)
 class Natural(Unit):    # Natural (?)
     ...
 
-class Degree(Unit):
+class Mode(Unit):
     """
-    A Degree() represents its relation with a Tonic key on a scale
-    and respective Progressions.
+    Mode() represents the different scales (e.g., Ionian, Dorian, Phrygian)
+    derived from the degrees of the major scale.
     
     Parameters
     ----------
-    first : integer_like
-        Accepts a numeral (5) or the string (V) with 1 as the default
+    first : integer_like or string_like
+        A Mode Number varies from 1 to 7 with 1 being normally the default
     """
-    def __init__(self, unit: int | str = None):
-        match unit:
-            case str():
-                super().__init__( __class__.stringToNumber(unit) )
-            case int() | float():
-                super().__init__( unit )
-            case _:
-                super().__init__( 1 )
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -565,6 +561,66 @@ class Degree(Unit):
                     case _:                         super().__lshift__(operand)
             case str():             self._unit = __class__.stringToNumber(operand)
             case _:                 super().__lshift__(operand)
+        self._unit = max(1, self._unit)
+        return self
+
+        # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
+        # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
+        # 14 - Fourteenth, 15 - Fifteenth, 16 - Sixteenth, 17 - Seventeenth, 18 - Eighteenth,
+        # 19 - Nineteenth, 20 - Twentieth.
+
+    _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
+
+    @staticmethod
+    def stringToNumber(string: str) -> int:
+        match string.strip().lower():
+            case '1'  | "1st":              return 1
+            case '2'  | "2nd":              return 2
+            case '3'  | "3rd":              return 3
+            case '4'  | "4th":              return 4
+            case '5'  | "5th":              return 5
+            case '6'  | "6th":              return 6
+            case '7'  | "7th":              return 7
+            case '8'  | "8th":              return 8
+            case _:                         return 1
+
+    @staticmethod
+    def numberToString(number: int) -> str:
+        return __class__._modes_str[number % len(__class__._modes_str)]
+
+class Degree(Unit):
+    """
+    A Degree() represents its relation with a Tonic key on a scale
+    and respective Progressions.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a numeral (5) or the string (V) with 1 as the default
+    """
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__.numberToString(self._unit)
+            case _:             return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Size':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case _:                         super().__lshift__(operand)
+            case str():             self._unit = __class__.stringToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        self._unit = max(1, self._unit)
         return self
 
     _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "viiº"]
@@ -639,68 +695,6 @@ class Size(Unit):
     @staticmethod
     def numberToString(number: int) -> str:
         return __class__._types_str[number % len(__class__._types_str)]
-
-class Mode(Unit):
-    """
-    Mode() represents the different scales (e.g., Ionian, Dorian, Phrygian)
-    derived from the degrees of the major scale.
-    
-    Parameters
-    ----------
-    first : integer_like or string_like
-        A Mode Number varies from 1 to 7 with 1 being normally the default
-    """
-    def __init__(self, unit: int | str = None):
-        match unit:
-            case str():
-                super().__init__( __class__.stringToNumber(unit) )
-            case int() | float():
-                super().__init__( unit )
-            case _:
-                super().__init__( 1 )
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case str():         return __class__.numberToString(self._unit)
-            case _:             return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Size':
-        import operand_rational as ro
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
-                    case _:                         super().__lshift__(operand)
-            case str():             self._unit = __class__.stringToNumber(operand)
-            case _:                 super().__lshift__(operand)
-        return self
-
-        # 1 - First, 2 - Second, 3 - Third, 4 - Fourth, 5 - Fifth, 6 - Sixth, 7 - Seventh,
-        # 8 - Eighth, 9 - Ninth, 10 - Tenth, 11 - Eleventh, 12 - Twelfth, 13 - Thirteenth,
-        # 14 - Fourteenth, 15 - Fifteenth, 16 - Sixteenth, 17 - Seventeenth, 18 - Eighteenth,
-        # 19 - Nineteenth, 20 - Twentieth.
-
-    _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
-
-    @staticmethod
-    def stringToNumber(string: str) -> int:
-        match string.strip().lower():
-            case '1'  | "1st":              return 1
-            case '2'  | "2nd":              return 2
-            case '3'  | "3rd":              return 3
-            case '4'  | "4th":              return 4
-            case '5'  | "5th":              return 5
-            case '6'  | "6th":              return 6
-            case '7'  | "7th":              return 7
-            case '8'  | "8th":              return 8
-            case _:                         return 1
-
-    @staticmethod
-    def numberToString(number: int) -> str:
-        return __class__._modes_str[number % len(__class__._modes_str)]
 
 class Sus(Unit):
     """

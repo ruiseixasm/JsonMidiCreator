@@ -299,9 +299,9 @@ class Scale(Data):
             scale_keys += key
         return scale_keys
 
-    def transposition(self, mode: int | str = "5th") -> int:
+    def transposition(self, mode: int | str = "5th") -> int:        # Starting in C
         transposition = 0
-        mode_transpose = ou.Mode(mode) % DataSource( int() ) - 1
+        mode_transpose = ou.Mode(mode) % DataSource( int() ) - 1    # processes strings, for 0 and 1 does nothing
         while mode_transpose > 0:
             transposition += 1
             if self._data[transposition % 12]:

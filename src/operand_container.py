@@ -427,6 +427,7 @@ class Sequence(Container):  # Just a container of Elements
     def smooth(self) -> 'Sequence':
         import operand_element as oe
         last_note = None
+        smooth_range = og.KeyNote(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
                 actual_note = single_datasource._data
@@ -435,7 +436,7 @@ class Sequence(Container):  # Just a container of Elements
                         actual_note._key_note -= ou.Octave(1)
                     while actual_note._key_note < last_note._key_note:
                         actual_note._key_note += ou.Octave(1)
-                    if actual_note._key_note - last_note._key_note > og.KeyNote(ou.Key(12 // 2), -1):
+                    if actual_note._key_note - last_note._key_note > smooth_range:
                         actual_note._key_note -= ou.Octave(1)
                 last_note = actual_note
         return self

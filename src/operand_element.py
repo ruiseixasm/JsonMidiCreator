@@ -794,21 +794,25 @@ class Chord(KeyScale):
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        max_size = self._scale.keys()
+        modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
+
+        max_size = modulated_scale.keys()
         if max_size % 2 == 0:
             max_size //= 2
         max_size = min(self._size % od.DataSource( int() ), max_size)
 
-        root_key_note = self._key_note
+        original_key_note = self._key_note
+        root_key_note = self._key_note \
+            + float(self._scale.transposition(self._degree % od.DataSource( int() )))
         chord_key_notes = []
         for key_note_i in range(max_size):
-            key_note_nth = key_note_i * 2
+            key_note_nth = key_note_i * 2   # all even numbers, 0, 2, 4, ...
             if key_note_nth == 2:
                 if self._sus % od.DataSource( int() ) == 1:
                     key_note_nth -= 1
                 if self._sus % od.DataSource( int() ) == 2:
                     key_note_nth += 1
-            transposition = self._scale.transposition(self._degree % od.DataSource( int() ) + key_note_nth)
+            transposition = modulated_scale.transposition(key_note_nth + 1)
             chord_key_notes.append(root_key_note + float(transposition))
 
         # Where the inversions are done
@@ -816,19 +820,19 @@ class Chord(KeyScale):
         if inversion:
             first_key_note = chord_key_notes[inversion]
             not_first_key_note = True
-            while not_first_key_note:
+            while not_first_key_note:   # Try to implement while inversion > 0 here
                 not_first_key_note = False
                 for key_note in chord_key_notes:
                     if key_note < first_key_note:   # Critical operation
                         key_note << key_note % ou.Octave() + 1
                         if key_note % od.DataSource( int() ) < 128:
-                            not_first_key_note = True
+                            not_first_key_note = True # to result in another while loop
 
         self_playlist = []
         for key_note in chord_key_notes:
             self._key_note = key_note
             self_playlist.extend(self.getNotePlaylist(self_position))
-        self._key_note = root_key_note
+        self._key_note = original_key_note
 
         return self_playlist
     
