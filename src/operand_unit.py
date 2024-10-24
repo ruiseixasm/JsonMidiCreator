@@ -519,17 +519,28 @@ class Octave(Unit):
     first : integer_like
         An Integer representing the full midi keyboard octave varying from -1 to 9
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    def __init__(self, *parameters):
+        super().__init__(4)
+        if len(parameters) > 0:
+            self << parameters
 
 class Sharp(Unit):      # Sharp (#)
-    ...
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
 
 class Flat(Unit):       # Flat (b)
-    ...
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
 
 class Natural(Unit):    # Natural (?)
-    ...
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
 
 class Mode(Unit):
     """
