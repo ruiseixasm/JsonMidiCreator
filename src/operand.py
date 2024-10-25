@@ -13,6 +13,9 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+from typing import TypeVar
+
+T = TypeVar('T')  # T can represent any type, including user-defined classes
 
 
 class Operand:
@@ -131,7 +134,7 @@ class Operand:
                 return operand_instance.loadSerialization(serialization)
         return ol.Null()
        
-    def copy(self) -> 'Operand':
+    def copy(self: T) -> T:
         return self.__class__() << self
     
     def getOperand(self, operand_name: str) -> 'Operand':
