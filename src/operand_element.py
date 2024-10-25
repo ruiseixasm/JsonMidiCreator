@@ -826,13 +826,18 @@ class Chord(KeyScale):
             + float(self._scale.transposition(self._degree % od.DataSource( int() )))
         chord_key_notes = []
         for key_note_i in range(max_size):
-            key_note_nth = key_note_i * 2   # all even numbers, 0, 2, 4, ...
-            if key_note_nth == 2:
+            key_note_nth = key_note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
+            if key_note_nth == 3:   # Third
                 if self._sus2:
                     key_note_nth -= 1
                 if self._sus4:
                     key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
-            transposition = modulated_scale.transposition(key_note_nth + 1)
+            transposition = modulated_scale.transposition(key_note_nth)
+            if key_note_nth == 7:   # Seventh
+                if self._dominant:
+                    transposition -= 1
+                if self._diminished:
+                    transposition += 1   # cancels out if both sus2 and sus4 are set to true
             chord_key_notes.append(root_key_note + float(transposition))
 
         # Where the inversions are done

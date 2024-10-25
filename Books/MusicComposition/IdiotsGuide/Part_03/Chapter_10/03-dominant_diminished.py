@@ -24,16 +24,18 @@ from JsonMidiCreator import *
 staff << Tempo(30)
 sevenths = Chord(1/2) * 8
 sevenths << Foreach(
-    (Size("7th"), Degree("V"), Mode(5)),
-    (Size("5th"), Degree("I"), Mode(1)),
+    (Size("7th"),   Degree("V"),    Dominant()),
+    (Size("5th"),   Degree("I"),    Inversion(2)),
 
-    (Size("7th"), Degree("IV")),
-    ("Bb", Size("5th")),
+    (Size("7th"),   Degree("IV"),   Dominant()),
+    (Size("5th"),   Degree("VII"),  Flat(),         Inversion(2)),
 
-    (Size("7th"), Degree("I"), Mode(1)),
-    (Size("5th"), Degree("IV"), Mode(4)),
+    (Size("7th"),   Degree("I"),    Dominant()),
+    (Size("5th"),   Degree("IV"),   Inversion(2),   Octave(3)),
 
-    (Size("7th"), Degree("ii"), Mode(2)),
-    (Size("5th"), Degree("V"), Mode(5), Inversion(2), Octave(3))
+    (Size("7th"),   Degree("II"),   Dominant()),
+    (Size("5th"),   Degree("V"),    Inversion(2),   Octave(3))
 ) >> Stack()
 sevenths >> Rest() >> Play()
+
+
