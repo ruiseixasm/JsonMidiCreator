@@ -243,6 +243,15 @@ class Staff(o.Operand):
                 self._quantization = ro.Quantization( (self % ro.NotesPerMeasure()) / (operand % Fraction()) )
             case ro.StepsPerNote():
                 self._quantization = ro.Quantization( 1 / (operand % Fraction()) )
+            case int():
+                ...
+            case float():
+                self._tempo << operand
+            case Fraction():
+                ...
+            case str():
+                self._tempo << operand
+                self._key_signature << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand

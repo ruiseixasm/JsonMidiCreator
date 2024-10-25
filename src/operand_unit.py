@@ -17,6 +17,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 from fractions import Fraction
 import json
+import re
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -284,6 +285,14 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int():     self._unit   = operand
+            case str():
+                sharps = re.findall(r"#+", operand)
+                if len(sharps) > 0:
+                    self._unit = len(sharps[0])
+                else:
+                    flats = re.findall(r"b+", operand)
+                    if len(flats) > 0:
+                        self._unit = -len(flats[0])
         return self
 
     _key_signatures: list[list] = [
@@ -732,7 +741,6 @@ class Degree(Unit):
         return self
 
     def stringSetDegree(self, string: str):
-        import re
         string = string.strip()
         if string.find("#") == 0:
             self._sharp << True

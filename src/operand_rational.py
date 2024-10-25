@@ -16,6 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union
 from fractions import Fraction
+import re
 # Json Midi Creator Libraries
 import operand as o
 import operand_staff as os
@@ -292,6 +293,19 @@ class Tempo(Rational):
     """
     def __init__(self, value: int = None):
         super().__init__(value)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Rational':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                # r"\W(.)\1\W" vs "\\W(.)\\1\\W"
+                tempo = re.findall(r"\d+(?:\.\d+)?", operand)
+                if len(tempo) > 0:
+                    self << float(tempo[0])
+            case _: super().__lshift__(operand)
+        return self
 
 class TimeUnit(Rational):
     """
