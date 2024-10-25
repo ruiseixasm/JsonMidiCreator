@@ -922,12 +922,18 @@ class Chord(KeyScale):
                 self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
-            case ou.Sharp():                self._sharp << operand
-            case ou.Flat():                 self._flat << operand
-            case ou.Dominant():             self._dominant << operand
-            case ou.Diminished():           self._diminished << operand
-            case ou.Sus2():                 self._sus2 << operand
-            case ou.Sus4():                 self._sus4 << operand
+            case ou.Sharp():
+                self._sharp << operand
+            case ou.Flat():
+                self._flat << operand
+            case ou.Dominant():
+                self._dominant << operand
+            case ou.Diminished():
+                self._diminished << operand
+            case ou.Sus2():
+                self._sus2 << operand
+            case ou.Sus4():
+                self._sus4 << operand
             case _: super().__lshift__(operand)
         return self
 

@@ -70,6 +70,7 @@ class Unit(o.Operand):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return self._unit
+            case bool():            return False if self._unit == 0 else True
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case Integer():         return Integer() << self._unit
@@ -82,6 +83,9 @@ class Unit(o.Operand):
 
     def __nonzero__(self) -> bool:  # For Python 2
         return self.__bool__()
+    
+    def __not__(self) -> bool:
+        return self._unit == 0
     
     def __eq__(self, other_number: any) -> bool:
         import operand_rational as ro
@@ -155,13 +159,16 @@ class Unit(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case int():                     self._unit = operand % o.Operand()
-                    case float() | Fraction():      self._unit = int(operand % o.Operand())
+                    case float() | Fraction() | bool():
+                                                    self._unit = int(operand % o.Operand())
                     case Integer() | ro.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
             case self.__class__():          self._unit = operand._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case int() | float() | Fraction():
+            case int() | float() | Fraction() | bool():
                 self._unit = int(operand)
+            case bool():
+                self._unit = 1 if operand else 0
             case ro.Float():
                 self._unit = operand % int()
             case tuple():
@@ -535,24 +542,6 @@ class Boolean(Unit):
         super().__init__(1)
         if len(parameters) > 0:
             self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case bool():        return bool(self._unit)
-            case _:             return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Size':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case bool():                    self._unit = 1 if operand % o.Operand() else 0
-                    case _:                         super().__lshift__(operand)
-            case bool():            self._unit = 1 if operand else 0
-            case _:                 super().__lshift__(operand)
-        return self
 
 class Sharp(Boolean):      # Sharp (#)
     pass
