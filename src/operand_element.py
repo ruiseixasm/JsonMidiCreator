@@ -752,6 +752,7 @@ class Chord(KeyScale):
         super().__init__()
         self._size: ou.Size             = ou.Size()
         self._inversion: ou.Inversion   = ou.Inversion()
+        self._sharp: ou.Sharp           = ou.Sharp(0)
         self._flat: ou.Flat             = ou.Flat(0)
         self._dominant: ou.Dominant     = ou.Dominant(0)
         self._diminished: ou.Diminished = ou.Diminished(0)
@@ -777,6 +778,8 @@ class Chord(KeyScale):
                 match operand % o.Operand():
                     case ou.Size():         return self._size
                     case ou.Inversion():    return self._inversion
+                    case ou.Sharp():        return self._sharp
+                    case ou.Flat():         return self._flat
                     case ou.Dominant():     return self._dominant
                     case ou.Diminished():   return self._diminished
                     case ou.Sus2():         return self._sus2
@@ -784,6 +787,8 @@ class Chord(KeyScale):
                     case _:                 return super().__mod__(operand)
             case ou.Size():         return self._size.copy()
             case ou.Inversion():    return self._inversion.copy()
+            case ou.Sharp():        return self._sharp.copy()
+            case ou.Flat():         return self._flat.copy()
             case ou.Dominant():     return self._dominant.copy()
             case ou.Diminished():   return self._diminished.copy()
             case ou.Sus2():         return self._sus2.copy()
@@ -797,6 +802,8 @@ class Chord(KeyScale):
                 return super().__eq__(other_operand) \
                     and self._size          == other_operand % od.DataSource( ou.Size() ) \
                     and self._inversion     == other_operand % od.DataSource( ou.Inversion() ) \
+                    and self._sharp         == other_operand % od.DataSource( ou.Sharp() ) \
+                    and self._flat          == other_operand % od.DataSource( ou.Flat() ) \
                     and self._dominant      == other_operand % od.DataSource( ou.Dominant() ) \
                     and self._diminished    == other_operand % od.DataSource( ou.Diminished() ) \
                     and self._sus2          == other_operand % od.DataSource( ou.Sus2() ) \
@@ -853,6 +860,8 @@ class Chord(KeyScale):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
+        element_serialization["parameters"]["sharp"]        = self._sharp % od.DataSource( int() )
+        element_serialization["parameters"]["flat"]         = self._flat % od.DataSource( int() )
         element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
         element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
         element_serialization["parameters"]["sus2"]         = self._sus2 % od.DataSource( int() )
@@ -863,12 +872,15 @@ class Chord(KeyScale):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and "dominant" in serialization["parameters"] and
+            "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and 
+            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "dominant" in serialization["parameters"] and
             "diminished" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
+            self._sharp         = ou.Sharp()        << od.DataSource( serialization["parameters"]["sharp"] )
+            self._flat          = ou.Flat()         << od.DataSource( serialization["parameters"]["flat"] )
             self._dominant      = ou.Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
             self._diminished    = ou.Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
             self._sus2          = ou.Sus2()         << od.DataSource( serialization["parameters"]["sus2"] )
@@ -882,6 +894,8 @@ class Chord(KeyScale):
                 match operand % o.Operand():
                     case ou.Size():                 self._size = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
+                    case ou.Sharp():                self._sharp = operand % o.Operand()
+                    case ou.Flat():                 self._flat = operand % o.Operand()
                     case ou.Dominant():             self._dominant = operand % o.Operand()
                     case ou.Diminished():           self._diminished = operand % o.Operand()
                     case ou.Sus2():                 self._sus2 = operand % o.Operand()
@@ -891,12 +905,16 @@ class Chord(KeyScale):
                 super().__lshift__(operand)
                 self._size          << operand._size
                 self._inversion     << operand._inversion
+                self._sharp         << operand._sharp
+                self._flat          << operand._flat
                 self._dominant      << operand._dominant
                 self._diminished    << operand._diminished
                 self._sus2          << operand._sus2
                 self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
+            case ou.Sharp():                self._sharp << operand
+            case ou.Flat():                 self._flat << operand
             case ou.Dominant():             self._dominant << operand
             case ou.Diminished():           self._diminished << operand
             case ou.Sus2():                 self._sus2 << operand
