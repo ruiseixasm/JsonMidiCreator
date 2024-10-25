@@ -536,6 +536,24 @@ class Boolean(Unit):
         if len(parameters) > 0:
             self << parameters
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case bool():        return bool(self._unit)
+            case _:             return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Size':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case bool():                    self._unit = 1 if operand % o.Operand() else 0
+                    case _:                         super().__lshift__(operand)
+            case bool():            self._unit = 1 if operand else 0
+            case _:                 super().__lshift__(operand)
+        return self
+
 class Sharp(Boolean):      # Sharp (#)
     pass
 

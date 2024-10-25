@@ -752,6 +752,7 @@ class Chord(KeyScale):
         super().__init__()
         self._size: ou.Size             = ou.Size()
         self._inversion: ou.Inversion   = ou.Inversion()
+        self._flat: ou.Flat             = ou.Flat(0)
         self._dominant: ou.Dominant     = ou.Dominant(0)
         self._diminished: ou.Diminished = ou.Diminished(0)
         self._sus2: ou.Sus2             = ou.Sus2(0)
