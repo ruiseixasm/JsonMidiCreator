@@ -423,7 +423,7 @@ class Key(Unit):
                 self._unit          = operand._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
-                self._degree._unit  = operand._degree._unit
+                self._degree        = operand._degree.copy()
                 self._scale         = operand._scale.copy()
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
@@ -635,48 +635,151 @@ class Degree(Unit):
     """
     def __init__(self, *parameters):
         super().__init__(1)
+        self._sharp: Sharp              = Sharp(0)
+        self._flat: Flat                = Flat(0)
+        self._dominant: Dominant        = Dominant(0)
+        self._diminished: Diminished    = Diminished(0)
         if len(parameters) > 0:
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__.numberToString(self._unit)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Sharp():           return self._sharp
+                    case Flat():            return self._flat
+                    case Dominant():        return self._dominant
+                    case Diminished():      return self._diminished
+                    case _:                 return super().__mod__(operand)
+            case str():         return self.degreeToString()
+            case Sharp():       return self._sharp.copy()
+            case Flat():        return self._flat.copy()
+            case Dominant():    return self._dominant.copy()
+            case Diminished():  return self._diminished.copy()
             case _:             return super().__mod__(operand)
+
+    def __eq__(self, other_operand: o.Operand) -> bool:
+        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
+        match other_operand:
+            case self.__class__():
+                return super().__eq__(other_operand) \
+                    and self._sharp         == other_operand % od.DataSource( Sharp() ) \
+                    and self._flat          == other_operand % od.DataSource( Flat() ) \
+                    and self._dominant      == other_operand % od.DataSource( Dominant() ) \
+                    and self._diminished    == other_operand % od.DataSource( Diminished() )
+            case _:
+                return super().__eq__(other_operand)
+    
+    def getSerialization(self):
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["sharp"]        = self._sharp % od.DataSource( int() )
+        element_serialization["parameters"]["flat"]         = self._flat % od.DataSource( int() )
+        element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
+        element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
+        return element_serialization
 
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "dominant" in serialization["parameters"] and
+            "diminished" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._sharp         = Sharp()        << od.DataSource( serialization["parameters"]["sharp"] )
+            self._flat          = Flat()         << od.DataSource( serialization["parameters"]["flat"] )
+            self._dominant      = Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
+            self._diminished    = Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
+        return self
+      
     def __lshift__(self, operand: any) -> 'Size':
         import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case str():                     self.stringSetDegree(operand % o.Operand())
+                    case Sharp():                   self._sharp = operand % o.Operand()
+                    case Flat():                    self._flat = operand % o.Operand()
+                    case Dominant():                self._dominant = operand % o.Operand()
+                    case Diminished():              self._diminished = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case str():             self._unit = __class__.stringToNumber(operand)
+            case Degree():
+                self._unit              = operand._unit
+                self._sharp._unit       = operand._sharp._unit
+                self._flat._unit        = operand._flat._unit
+                self._dominant._unit    = operand._dominant._unit
+                self._diminished._unit  = operand._diminished._unit
+            case str():                 self.stringSetDegree(operand)
+            case Sharp():
+                self._sharp << operand
+                if self._sharp:         # mutual exclusive
+                    self._flat << False
+            case Flat():
+                self._flat << operand
+                if self._flat:          # mutual exclusive
+                    self._sharp << False
+            case Dominant():
+                self._dominant << operand
+                if self._dominant:      # mutual exclusive
+                    self._diminished << False
+            case Diminished():
+                self._diminished << operand
+                if self._diminished:    # mutual exclusive
+                    self._dominant << False
             case _:                 super().__lshift__(operand)
         self._unit = max(1, self._unit)
         return self
 
-    _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "viiº"]
-
-    @staticmethod
-    def stringToNumber(string: str) -> int:
+    def stringSetDegree(self, string: str):
         import re
+        string = string.strip()
+        if string.find("#") == 0:
+            self._sharp << True
+            self._flat << False
+            string = string[1:]
+        elif string.find("b") == 0:
+            self._sharp << False
+            self._flat << True
+            string = string[1:]
+        else:
+            self._sharp << False
+            self._flat << False
+        if string.find("7") != -1:
+            self._dominant << True
+            self._diminished << False
+        elif string.find("º") != -1:
+            self._dominant << False
+            self._diminished << True
+        else:
+            self._dominant << False
+            self._diminished << False
         # Removing all non-alphabetic characters (keeping only a-z)
-        match re.sub(r'[^a-z]', '', string.strip().lower()):
-            case "i"   | "tonic":                   return 1
-            case "ii"  | "supertonic":              return 2
-            case "iii" | "mediant":                 return 3
-            case "iv"  | "subdominant":             return 4
-            case "v"   | "dominant":                return 5
-            case "vi"  | "submediant":              return 6
-            case "vii" | "leading tone":            return 7
-            case _:                                 return 1
+        match re.sub(r'[^a-z]', '', string.lower()):
+            case "i"   | "tonic":                   self._unit = 1
+            case "ii"  | "supertonic":              self._unit = 2
+            case "iii" | "mediant":                 self._unit = 3
+            case "iv"  | "subdominant":             self._unit = 4
+            case "v"   | "dominant":                self._unit = 5
+            case "vi"  | "submediant":              self._unit = 6
+            case "vii" | "leading tone":            self._unit = 7
+            case _:                                 self._unit = 1
 
-    @staticmethod
-    def numberToString(number: int) -> str:
-        return __class__._degrees_str[number % len(__class__._degrees_str)]
+    _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "vii"]
+
+    def degreeToString(self) -> str:
+        string: str = __class__._degrees_str[self._unit % len(__class__._degrees_str)]
+        if self._dominant:
+            string = string.upper()
+            string += "7"
+        elif self._diminished or self._unit == 7:
+            string = string.lower()
+            string += "º"
+        if self._sharp:
+            string = "#" + string
+        elif self._flat:
+            string = "b" + string
+        return string
 
 class Size(Unit):
     """
