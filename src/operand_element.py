@@ -935,17 +935,25 @@ class Chord(KeyScale):
                 self._dominant << operand
                 if self._dominant:      # mutual exclusive
                     self._diminished << False
+                    self._sus2 << False
+                    self._sus4 << False
             case ou.Diminished():
                 self._diminished << operand
                 if self._diminished:    # mutual exclusive
                     self._dominant << False
+                    self._sus2 << False
+                    self._sus4 << False
             case ou.Sus2():
                 self._sus2 << operand
                 if self._sus2:          # mutual exclusive
+                    self._dominant << False
+                    self._diminished << False
                     self._sus4 << False
             case ou.Sus4():
                 self._sus4 << operand
                 if self._sus4:          # mutual exclusive
+                    self._dominant << False
+                    self._diminished << False
                     self._sus2 << False
             case _: super().__lshift__(operand)
         return self
