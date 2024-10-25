@@ -24,16 +24,16 @@ from JsonMidiCreator import *
 staff << Tempo(30)
 sevenths = Chord(1/2) * 8
 sevenths << Foreach(
-    (Size("7th"),   Degree("V"),    Dominant()),
+    (Size("7th"),   Degree("V7")),
     (Size("5th"),   Degree("I"),    Inversion(2)),
 
-    (Size("7th"),   Degree("IV"),   Dominant()),
-    (Size("5th"),   Degree("VII"),  Flat(),         Inversion(2),   Octave(3)),
+    (Size("7th"),   Degree("IV7")),
+    (Size("5th"),   Degree("bVII"), Inversion(2),   Octave(3)),
 
-    (Size("7th"),   Degree("I"),    Dominant()),
+    (Size("7th"),   Degree("I7")),
     (Size("5th"),   Degree("IV"),   Inversion(2),   Octave(3)),
 
-    (Size("7th"),   Degree("II"),   Dominant()),
+    (Size("7th"),   Degree("II7")),
     (Size("5th"),   Degree("V"),    Inversion(2),   Octave(3))
 ) >> Stack()
 sevenths >> Rest() >> Play()
@@ -61,17 +61,17 @@ single_notes + chords >> Link() >> Rest() >> Play()
 staff << Tempo(30)
 fifths = Chord(1/2) * 8
 fifths << Foreach(
-    (Degree("viiº"),    Diminished()),
+    (Degree("viiº")),
     (Degree("I"),       Octave(5)),
 
-    (Degree("iiiº"),    Diminished()),
+    (Degree("iiiº")),
     (Degree("IV")),
 
-    (Degree("iiº"),     Diminished()),
-    (Degree("III"),     Flat()),
+    (Degree("iiº")),
+    (Degree("bIII")),
 
-    (Degree("viº"),     Diminished()),
-    (Degree("VII"),     Flat())
+    (Degree("viº")),
+    (Degree("bVII"))
 ) >> Stack()
 fifths >> Rest() >> Play()
 
