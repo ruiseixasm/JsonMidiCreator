@@ -29,4 +29,4 @@ staff << Tempo(120)
 ((Chord() << Length(1)) * 4 << Size("7th")) + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/_Export_7.1_chord_inversion.json") >> Play(True)
 
 
-((Chord() << Length(1)) * 4 << Size("7th") << Sus("sus2") << Gate(1)) + Iterate()**Inversion() << NoteValue(1) >> Play(True)
+((Chord() << Length(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << NoteValue(1) >> Play(True)

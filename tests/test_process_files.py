@@ -435,7 +435,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.18_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.18_sequence.json")
 start_time = time.time()
-((Chord() << Length(1)) * 4 << Size("7th") << Sus("sus2") << Gate(1)) + Iterate()**Inversion() << NoteValue(1) \
+((Chord() << Length(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << NoteValue(1) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

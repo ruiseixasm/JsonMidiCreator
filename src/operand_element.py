@@ -750,9 +750,12 @@ class KeyScale(Note):
 class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
-        self._inversion: ou.Inversion   = ou.Inversion()
         self._size: ou.Size             = ou.Size()
-        self._sus: ou.Sus               = ou.Sus()
+        self._inversion: ou.Inversion   = ou.Inversion()
+        self._dominant: ou.Dominant     = ou.Dominant(0)
+        self._diminished: ou.Diminished = ou.Diminished(0)
+        self._sus2: ou.Sus2             = ou.Sus2(0)
+        self._sus4: ou.Sus4             = ou.Sus4(0)
         if len(parameters) > 0:
             self << parameters
 
@@ -773,11 +776,17 @@ class Chord(KeyScale):
                 match operand % o.Operand():
                     case ou.Size():         return self._size
                     case ou.Inversion():    return self._inversion
-                    case ou.Sus():          return self._sus
+                    case ou.Dominant():     return self._dominant
+                    case ou.Diminished():   return self._diminished
+                    case ou.Sus2():         return self._sus2
+                    case ou.Sus4():         return self._sus4
                     case _:                 return super().__mod__(operand)
             case ou.Size():         return self._size.copy()
             case ou.Inversion():    return self._inversion.copy()
-            case ou.Sus():          return self._sus.copy()
+            case ou.Dominant():     return self._dominant.copy()
+            case ou.Diminished():   return self._diminished.copy()
+            case ou.Sus2():         return self._sus2.copy()
+            case ou.Sus4():         return self._sus4.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -785,9 +794,12 @@ class Chord(KeyScale):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._size == other_operand % od.DataSource( ou.Size() ) \
-                    and self._inversion == other_operand % od.DataSource( ou.Inversion() ) \
-                    and self._sus == other_operand % od.DataSource( ou.Sus() )
+                    and self._size          == other_operand % od.DataSource( ou.Size() ) \
+                    and self._inversion     == other_operand % od.DataSource( ou.Inversion() ) \
+                    and self._dominant      == other_operand % od.DataSource( ou.Dominant() ) \
+                    and self._diminished    == other_operand % od.DataSource( ou.Diminished() ) \
+                    and self._sus2          == other_operand % od.DataSource( ou.Sus2() ) \
+                    and self._sus4          == other_operand % od.DataSource( ou.Sus4() )
             case _:
                 return super().__eq__(other_operand)
     
@@ -808,10 +820,10 @@ class Chord(KeyScale):
         for key_note_i in range(max_size):
             key_note_nth = key_note_i * 2   # all even numbers, 0, 2, 4, ...
             if key_note_nth == 2:
-                if self._sus % od.DataSource( int() ) == 1:
+                if self._sus2:
                     key_note_nth -= 1
-                if self._sus % od.DataSource( int() ) == 2:
-                    key_note_nth += 1
+                if self._sus4:
+                    key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
             transposition = modulated_scale.transposition(key_note_nth + 1)
             chord_key_notes.append(root_key_note + float(transposition))
 
@@ -840,19 +852,26 @@ class Chord(KeyScale):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
-        element_serialization["parameters"]["sus"]          = self._sus % od.DataSource( int() )
+        element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
+        element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
+        element_serialization["parameters"]["sus2"]         = self._sus2 % od.DataSource( int() )
+        element_serialization["parameters"]["sus4"]         = self._sus4 % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and "sus" in serialization["parameters"]):
+            "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and "dominant" in serialization["parameters"] and
+            "diminished" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
-            self._sus           = ou.Sus()          << od.DataSource( serialization["parameters"]["sus"] )
+            self._dominant      = ou.Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
+            self._diminished    = ou.Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
+            self._sus2          = ou.Sus2()         << od.DataSource( serialization["parameters"]["sus2"] )
+            self._sus4          = ou.Sus4()         << od.DataSource( serialization["parameters"]["sus4"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Chord':
@@ -862,16 +881,25 @@ class Chord(KeyScale):
                 match operand % o.Operand():
                     case ou.Size():                 self._size = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
-                    case ou.Sus():                  self._sus = operand % o.Operand()
+                    case ou.Dominant():             self._dominant = operand % o.Operand()
+                    case ou.Diminished():           self._diminished = operand % o.Operand()
+                    case ou.Sus2():                 self._sus2 = operand % o.Operand()
+                    case ou.Sus4():                 self._sus4 = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Chord():
                 super().__lshift__(operand)
                 self._size          << operand._size
                 self._inversion     << operand._inversion
-                self._sus           << operand._sus
+                self._dominant      << operand._dominant
+                self._diminished    << operand._diminished
+                self._sus2          << operand._sus2
+                self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
-            case ou.Sus():                  self._sus << operand
+            case ou.Dominant():             self._dominant << operand
+            case ou.Diminished():           self._diminished << operand
+            case ou.Sus2():                 self._sus2 << operand
+            case ou.Sus4():                 self._sus4 << operand
             case _: super().__lshift__(operand)
         return self
 

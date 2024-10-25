@@ -173,7 +173,7 @@ staff << Tempo(120)
     >> Save("json/testing/_Save_Play_p.17_first_note.json") >> Export("json/testing/_Export_Play_p.17_sequence.json")
 
 
-((Chord() << Length(1)) * 4 << Size("7th") << Sus("sus2") << Gate(1)) + Iterate()**Inversion() << NoteValue(1) \
+((Chord() << Length(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << NoteValue(1) \
     >> Save("json/testing/_Save_Play_p.18_first_note.json") >> Export("json/testing/_Export_Play_p.18_sequence.json")
 
 

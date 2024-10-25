@@ -77,10 +77,10 @@ class Unit(o.Operand):
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
              
-    def __bool__(self):  # For Python 3
+    def __bool__(self) -> bool:  # For Python 3
         return self._unit != 0
 
-    def __nonzero__(self):  # For Python 2
+    def __nonzero__(self) -> bool:  # For Python 2
         return self.__bool__()
     
     def __eq__(self, other_number: any) -> bool:
@@ -556,52 +556,6 @@ class Sus2(Boolean):
 
 class Sus4(Boolean):
     pass
-
-class Sus(Unit):
-    """
-    Sus() represents the suspended chord flavor, sus2 or sus4.
-    
-    Parameters
-    ----------
-    first : integer_like or string_like
-        A sus Number can be 0, 1 or 2 with 0 being normal not suspended chord
-    """
-    def __init__(self, *parameters):
-        super().__init__(0)
-        if len(parameters) > 0:
-            self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case str():         return __class__.numberToString(self._unit)
-            case _:             return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Size':
-        import operand_rational as ro
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
-                    case _:                         super().__lshift__(operand)
-            case str():             self._unit = __class__.stringToNumber(operand)
-            case _:                 super().__lshift__(operand)
-        return self
-
-    _sus_str = ["None" , "sus2", "sus4"]
-
-    @staticmethod
-    def stringToNumber(string: str) -> int:
-        match string.strip().lower():
-            case "sus2":            return 1
-            case "sus4":            return 2
-            case _:                 return 0
-
-    @staticmethod
-    def numberToString(number: int) -> str:
-        return __class__._sus_str[number % len(__class__._sus_str)]
 
 class Mode(Unit):
     """
