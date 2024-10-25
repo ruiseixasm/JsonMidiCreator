@@ -27,3 +27,26 @@ suspended = Chord(1/1) * 2 << Foreach(
 )
 suspended >> Rest() >> Play()
 
+suspended = Chord(1/2) * 8 << Foreach(
+    ("D", Scale("minor")),
+    ("G"),
+    ("E", Scale("minor")),
+    ("A", Scale("minor")),
+    ("F"),
+    (1/4, "G", Sus4()),
+    (1/4, "G"),
+    (1/1)
+) >> Stack()
+suspended >> Rest() >> Play()
+single_notes = Note(1/2) * 8 << Foreach(
+    ("A"),
+    ("G"),
+    ("B"),
+    ("A"),
+    (5),
+    (1/4, 5),
+    (1/4, "B"),
+    (1/1, 5)
+) >> Stack()
+single_notes >> Rest() >> Play()
+suspended + single_notes >> Link() >> Rest() >> Play()
