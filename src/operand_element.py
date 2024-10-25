@@ -924,16 +924,28 @@ class Chord(KeyScale):
             case ou.Inversion():            self._inversion << operand
             case ou.Sharp():
                 self._sharp << operand
+                if self._sharp:         # mutual exclusive
+                    self._flat << False
             case ou.Flat():
                 self._flat << operand
+                if self._flat:          # mutual exclusive
+                    self._sharp << False
             case ou.Dominant():
                 self._dominant << operand
+                if self._dominant:      # mutual exclusive
+                    self._diminished << False
             case ou.Diminished():
                 self._diminished << operand
+                if self._diminished:    # mutual exclusive
+                    self._dominant << False
             case ou.Sus2():
                 self._sus2 << operand
+                if self._sus2:          # mutual exclusive
+                    self._sus4 << False
             case ou.Sus4():
                 self._sus4 << operand
+                if self._sus4:          # mutual exclusive
+                    self._sus2 << False
             case _: super().__lshift__(operand)
         return self
 

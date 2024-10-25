@@ -165,7 +165,7 @@ class Unit(o.Operand):
             case self.__class__():          self._unit = operand._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case int() | float() | Fraction() | bool():
+            case int() | float() | Fraction():
                 self._unit = int(operand)
             case bool():
                 self._unit = 1 if operand else 0
