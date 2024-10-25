@@ -36,6 +36,60 @@ sevenths << Foreach(
     (Size("7th"),   Degree("II"),   Dominant()),
     (Size("5th"),   Degree("V"),    Inversion(2),   Octave(3))
 ) >> Stack()
-sevenths >> Rest() >> Play()
+# sevenths >> Rest() >> Play()
 
+staff << Tempo(90)
+single_notes = Note() * 6
+single_notes << Foreach(
+    ("G"),
+    ("F"),
+    ("G"),
+    ("C", 5),
+    (1/2, "B"),
+    (1/2, "A")
+) >> Stack()
+# single_notes >> Rest() >> Play()
+chords = Chord() * 3
+chords << Foreach(
+    (1/1, Size(3), Degree("I")),
+    (1/2, Size(3), Degree("V")),
+    (1/2, Size("7th"), Degree("II"), Dominant())
+) >> Stack()
+# single_notes + chords >> Link() >> Rest() >> Play()
+
+staff << Tempo(30)
+fifths = Chord(1/2) * 8
+fifths << Foreach(
+    (Degree("viiº"),    Diminished()),
+    (Degree("I"),       Octave(5)),
+
+    (Degree("iiiº"),    Diminished()),
+    (Degree("IV")),
+
+    (Degree("iiº"),     Diminished()),
+    (Degree("III"),     Flat()),
+
+    (Degree("viº"),     Diminished()),
+    (Degree("VII"),     Flat())
+) >> Stack()
+fifths >> Rest() >> Play()
+
+staff << Tempo(90)
+single_notes = Note() * 6
+single_notes << Foreach(
+    ("G"),
+    ("F"),
+    ("G"),
+    ("C", 5),
+    (1/2, "B"),
+    (1/2, "A")
+) >> Stack()
+# single_notes >> Rest() >> Play()
+chords = Chord() * 3
+chords << Foreach(
+    (1/1, Size(3), Degree("I")),
+    (1/2, Size(3), Degree("V")),
+    (1/2, Size("7th"), Degree("IIº"), Diminished())
+) >> Stack()
+# single_notes + chords >> Link() >> Rest() >> Play()
 

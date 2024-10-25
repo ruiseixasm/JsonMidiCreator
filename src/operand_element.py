@@ -750,8 +750,8 @@ class KeyScale(Note):
 class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
-        self._size: ou.Size             = ou.Size()
-        self._inversion: ou.Inversion   = ou.Inversion()
+        self._size: ou.Size             = ou.Size(3)
+        self._inversion: ou.Inversion   = ou.Inversion(0)
         self._sharp: ou.Sharp           = ou.Sharp(0)
         self._flat: ou.Flat             = ou.Flat(0)
         self._dominant: ou.Dominant     = ou.Dominant(0)
@@ -840,8 +840,9 @@ class Chord(KeyScale):
             if key_note_nth == 7:   # Seventh
                 if self._dominant:
                     transposition -= 1
+            if key_note_nth == 3 or key_note_nth == 5:   # flattens Third and Fifth
                 if self._diminished:
-                    transposition += 1   # cancels out if both dominant and diminished are set to true
+                    transposition -= 1   # cancels out if both dominant and diminished are set to true
             chord_key_notes.append(root_key_note + float(transposition))
 
         # Where the inversions are done

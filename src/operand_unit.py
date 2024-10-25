@@ -662,14 +662,16 @@ class Degree(Unit):
 
     @staticmethod
     def stringToNumber(string: str) -> int:
-        match string.strip().lower():
+        import re
+        # Removing all non-alphabetic characters (keeping only a-z)
+        match re.sub(r'[^a-z]', '', string.strip().lower()):
             case "i"   | "tonic":                   return 1
             case "ii"  | "supertonic":              return 2
             case "iii" | "mediant":                 return 3
             case "iv"  | "subdominant":             return 4
             case "v"   | "dominant":                return 5
             case "vi"  | "submediant":              return 6
-            case "vii" | "viiº" | "leading tone":   return 7
+            case "vii" | "leading tone":            return 7
             case _:                                 return 1
 
     @staticmethod
