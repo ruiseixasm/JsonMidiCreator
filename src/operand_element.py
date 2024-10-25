@@ -833,11 +833,15 @@ class Chord(KeyScale):
                 if self._sus4:
                     key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
             transposition = modulated_scale.transposition(key_note_nth)
+            if self._flat:
+                transposition -= 1
+            if self._sharp:
+                transposition += 1   # cancels out if both flat and sharp are set to true
             if key_note_nth == 7:   # Seventh
                 if self._dominant:
                     transposition -= 1
                 if self._diminished:
-                    transposition += 1   # cancels out if both sus2 and sus4 are set to true
+                    transposition += 1   # cancels out if both dominant and diminished are set to true
             chord_key_notes.append(root_key_note + float(transposition))
 
         # Where the inversions are done
