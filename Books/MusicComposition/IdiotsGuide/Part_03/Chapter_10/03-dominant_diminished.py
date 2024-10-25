@@ -28,7 +28,7 @@ sevenths << Foreach(
     (Size("5th"),   Degree("I"),    Inversion(2)),
 
     (Size("7th"),   Degree("IV"),   Dominant()),
-    (Size("5th"),   Degree("VII"),  Flat(),         Inversion(2)),
+    (Size("5th"),   Degree("VII"),  Flat(),         Inversion(2),   Octave(3)),
 
     (Size("7th"),   Degree("I"),    Dominant()),
     (Size("5th"),   Degree("IV"),   Inversion(2),   Octave(3)),
@@ -36,7 +36,7 @@ sevenths << Foreach(
     (Size("7th"),   Degree("II"),   Dominant()),
     (Size("5th"),   Degree("V"),    Inversion(2),   Octave(3))
 ) >> Stack()
-# sevenths >> Rest() >> Play()
+sevenths >> Rest() >> Play()
 
 staff << Tempo(90)
 single_notes = Note() * 6
@@ -48,14 +48,15 @@ single_notes << Foreach(
     (1/2, "B"),
     (1/2, "A")
 ) >> Stack()
-# single_notes >> Rest() >> Play()
+single_notes >> Rest() >> Play()
 chords = Chord() * 3
 chords << Foreach(
     (1/1, Size(3), Degree("I")),
     (1/2, Size(3), Degree("V")),
     (1/2, Size("7th"), Degree("II"), Dominant())
 ) >> Stack()
-# single_notes + chords >> Link() >> Rest() >> Play()
+chords >> Rest() >> Play()
+single_notes + chords >> Link() >> Rest() >> Play()
 
 staff << Tempo(30)
 fifths = Chord(1/2) * 8
@@ -75,21 +76,24 @@ fifths << Foreach(
 fifths >> Rest() >> Play()
 
 staff << Tempo(90)
-single_notes = Note() * 6
+single_notes = Note() * 7
 single_notes << Foreach(
+    ("C"),
+    ("A"),
     ("G"),
+    ("E"),
     ("F"),
     ("G"),
-    ("C", 5),
-    (1/2, "B"),
-    (1/2, "A")
+    (1/2, "Ab")
 ) >> Stack()
-# single_notes >> Rest() >> Play()
-chords = Chord() * 3
+single_notes >> Rest() >> Play()
+chords = Chord(1/2) * 4
 chords << Foreach(
-    (1/1, Size(3), Degree("I")),
-    (1/2, Size(3), Degree("V")),
-    (1/2, Size("7th"), Degree("IIº"), Diminished())
+    (Degree("vi"),  Mode("6th")),
+    (Degree("iii"), Mode("3rd")),
+    (Degree("ii"),  Mode("2nd")),
+    (Degree("IIº"), Diminished())
 ) >> Stack()
-# single_notes + chords >> Link() >> Rest() >> Play()
+chords >> Rest() >> Play()
+single_notes + chords >> Link() >> Rest() >> Play()
 
