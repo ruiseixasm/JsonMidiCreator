@@ -286,13 +286,16 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 self.loadSerialization( operand.getSerialization() )
             case int():     self._unit   = operand
             case str():
-                sharps = re.findall(r"#+", operand)
-                if len(sharps) > 0:
-                    self._unit = len(sharps[0])
+                if len(operand) == 0:
+                    self._unit = 0
                 else:
-                    flats = re.findall(r"b+", operand)
-                    if len(flats) > 0:
-                        self._unit = -len(flats[0])
+                    sharps = re.findall(r"#+", operand)
+                    if len(sharps) > 0:
+                        self._unit = len(sharps[0])
+                    else:
+                        flats = re.findall(r"b+", operand)
+                        if len(flats) > 0:
+                            self._unit = -len(flats[0])
         return self
 
     _key_signatures: list[list] = [
