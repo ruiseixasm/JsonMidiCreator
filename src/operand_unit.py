@@ -334,6 +334,8 @@ class Key(Unit):
         self._scale: od.Scale   = od.Scale([])
         if len(parameters) > 0:
             self << parameters
+        else:
+            self._unit = os.staff._tonic_key._unit
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
