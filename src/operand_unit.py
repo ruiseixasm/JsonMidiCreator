@@ -248,12 +248,10 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 match operand % o.Operand():
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case KeySignature():        return self
-                    case int():                 return self._unit
                     case list():                return self % list()
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
-            case int():                 return self._unit
             case list():
                 key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
                 key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
