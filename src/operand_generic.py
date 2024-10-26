@@ -106,7 +106,7 @@ class KeyNote(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
-        self._key: ou.Key           = ou.Key()
+        self._key: ou.Key           = os.staff._tonic_key
         if len(parameters) > 0:
             self << parameters
 
@@ -215,17 +215,17 @@ class KeyNote(Generic):
                                             self._key._unit %= 12
             case KeyNote():
                 self._octave    << operand._octave
-                self._key       << operand._key
+                self._key       = operand._key.copy()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.Integer():
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
-                self._key << operand
+                self._key = self._key.copy() << operand
                 self._octave._unit += self._key._unit // 12
                 self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
-                self._key << operand
+                self._key = self._key.copy() << operand
                 self._octave._unit += self._key._unit // 12
                 self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case tuple():
