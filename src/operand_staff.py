@@ -167,7 +167,7 @@ class Staff(o.Operand):
 
     def set_tonic_key(self):
         if self._scale % od.DataSource( list() ) == []:
-            circle_fifths_position = self._key_signature % int()
+            circle_fifths_position: int = self._key_signature % int()
             self._tonic_key._unit = (self._key._unit + circle_fifths_position * 7) % 12
         else:
             self._tonic_key._unit = self._key._unit
