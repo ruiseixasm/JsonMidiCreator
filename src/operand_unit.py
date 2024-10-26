@@ -332,9 +332,10 @@ class Key(Unit):
         self._natural: Natural  = Natural(0)
         self._degree: Degree    = Degree(1)
         self._scale: od.Scale   = od.Scale([])
+        self._unit = -1
         if len(parameters) > 0:
             self << parameters
-        else:
+        if self._unit < 0:
             self._unit = os.staff._tonic_key._unit
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
