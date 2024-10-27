@@ -356,6 +356,8 @@ class Key(Unit):
                 return Key._keys[note_key]
             case int():
                 if self._unit is None:
+                    if self._scale.hasScale() or os.staff._scale.hasScale():
+                        return os.staff._key._unit
                     return os.staff._tonic_key._unit
                 return self._unit
             case float():
