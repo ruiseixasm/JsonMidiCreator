@@ -164,11 +164,11 @@ class Operand:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self, operand: 'Operand') -> 'Operand':
+    def __rshift__(self, operand: T) -> T:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self, operand: 'Operand') -> 'Operand':
+    def __rrshift__(self, operand: T) -> T:
         match operand:
             case tuple():
                 rshift_operands = None

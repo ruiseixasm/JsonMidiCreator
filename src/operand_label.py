@@ -17,6 +17,8 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 from fractions import Fraction
 import json
+from typing import TypeVar
+T = TypeVar('T')  # T can represent any type, including user-defined classes
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -57,30 +59,11 @@ class Copy(Label):
         else:
             return super().__rrshift__(operand)
 
-class Len(Label):
-    pass
-
-class Reverse(Label):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.reverse()
-        else:
-            return super().__rrshift__(operand)
-
 class Join(Label):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.join()
-        else:
-            return super().__rrshift__(operand)
-
-class Stack(Label):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Sequence):
-            return operand.stack()
         else:
             return super().__rrshift__(operand)
 
@@ -100,17 +83,57 @@ class Smooth(Label):
         else:
             return super().__rrshift__(operand)
 
-class First(Label):
+class Getter(Label):
     pass
 
-class Last(Label):
-    pass
+class Len(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.len()
+        return Null()
 
-class Start(Label):
-    pass
+class First(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.first()
+        return Null()
 
-class End(Label):
-    pass
+class Last(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.last()
+        return Null()
 
-class Name(Label):
+class Start(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.start()
+        return Null()
+
+class End(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.end()
+        return Null()
+
+class Reverse(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.reverse()
+        return Null()
+    
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.reverse()
+        else:
+            return super().__rrshift__(operand)
+
+class Name(Getter):
     pass

@@ -193,7 +193,7 @@ class Element(o.Operand):
                 self_copy = self.copy()
                 return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
-                return operand + self >> ol.Stack()
+                return operand + self >> oc.Stack()
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
             case _:

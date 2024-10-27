@@ -78,10 +78,8 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
-            case ol.Len():          return self.len()
-            case ol.First():        return self.first()
-            case ol.Last():         return self.last()
             case ou.Middle():       return self.middle(operand % int())
+            case ol.Getter():       return operand.get(self)
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
@@ -92,7 +90,7 @@ class Container(o.Operand):
                             operands.append(single_datasource._data)
                 return operands
             case _:
-                return self | operand   # NEEDS AN ALTERNATIVE WITH SAME PRIORITY (NEW FILTER CLASS ???)
+                return self.filter(operand)   # NEEDS AN ALTERNATIVE WITH SAME PRIORITY (NEW FILTER CLASS ???)
 
     def len(self) -> int:
         return len(self._datasource_list)
@@ -540,3 +538,10 @@ class Sequence(Container):  # Just a container of Elements
                     if isinstance(single_datasource._data, oe.Element):
                         single_datasource._data << length
         return self.stack()
+
+class Stack(ol.Label):
+    def __rrshift__(self, operand: any) -> Sequence:
+        if isinstance(operand, Sequence):
+            return operand.stack()
+        else:
+            return super().__rrshift__(operand)
