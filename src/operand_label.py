@@ -49,7 +49,12 @@ class LSB(MidiValue):
     """
     pass
 
-class Copy(Label):
+class Process(Label):
+    def __init__(self, parameter: int = 0):
+        super().__init__()
+        self._parameter: int = parameter
+
+class Copy(Process):
     """
     Copy() does an total duplication of the Operand including its parts.
     """
@@ -59,7 +64,7 @@ class Copy(Label):
         else:
             return super().__rrshift__(operand)
 
-class Join(Label):
+class Join(Process):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
@@ -67,7 +72,7 @@ class Join(Label):
         else:
             return super().__rrshift__(operand)
 
-class Tie(Label):
+class Tie(Process):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
@@ -75,7 +80,7 @@ class Tie(Label):
         else:
             return super().__rrshift__(operand)
 
-class Smooth(Label):
+class Smooth(Process):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
@@ -83,8 +88,75 @@ class Smooth(Label):
         else:
             return super().__rrshift__(operand)
 
+class Play(Process):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : integer_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
+    def __init__(self, verbose: bool = False):
+        super().__init__(1 if verbose else 0)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case o.Operand():
+                c.jsonMidiPlay(operand.getPlaylist(), False if self._parameter == 0 else True )
+                return operand
+            case _:
+                return super().__rrshift__(operand)
+
+class Print(Process):
+    """
+    Print() allows to get on the console the configuration of the source Operand in a JSON layout.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Sets the indent of the JSON print layout with the default as 4
+    """
+    def __init__(self, formatted: bool = True):
+        super().__init__( 1 if formatted is None else formatted )
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case o.Operand():
+                operand_serialization = operand.getSerialization()
+                if self._parameter:
+                    serialized_json_str = json.dumps(operand_serialization)
+                    json_object = json.loads(serialized_json_str)
+                    json_formatted_str = json.dumps(json_object, indent=4)
+                    print(json_formatted_str)
+                else:
+                    print(operand_serialization)
+            case tuple():
+                return super().__rrshift__(operand)
+            case _: print(operand)
+        return operand
+
+class Link(Process):
+    def __init__(self, and_join: bool = False):
+        super().__init__( 0 if and_join is None else and_join )
+        
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.link(bool(self._parameter))
+        else:
+            return super().__rrshift__(operand)
+
 class Getter(Label):
-    pass
+    def __init__(self, parameter: int = 0):
+        super().__init__()
+        self._parameter: int = parameter
 
 class Len(Getter):
     def get(self, operand: o.Operand) -> o.Operand:
@@ -105,6 +177,24 @@ class Last(Getter):
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.last()
+        return Null()
+
+class Middle(Getter):
+    """
+    Middle() represent the Nth Operand in a Container or Sequence.
+    
+    Parameters
+    ----------
+    first : integer_like
+        The Nth Operand in a Container like 2 for the 2nd Operand
+    """
+    def __init__(self, nth: int = None):
+        super().__init__( 1 if nth is None else nth )
+
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.middle(self._parameter)
         return Null()
 
 class Start(Getter):

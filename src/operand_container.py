@@ -78,7 +78,6 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
-            case ou.Middle():       return self.middle(operand % int())
             case ol.Getter():       return operand.get(self)
             case list():
                 operands: list[o.Operand] = []
@@ -334,8 +333,6 @@ class Sequence(Container):  # Just a container of Elements
         """
         match operand:
             case od.DataSource():   return super().__mod__(operand)
-            case ol.Start():        return self.start()
-            case ol.End():          return self.end()
             case ot.Length():
                 import operand_element as oe
                 total_length = ot.Length()

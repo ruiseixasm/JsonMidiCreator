@@ -73,6 +73,7 @@ melodic_line % M2 % B1 << Foreach(G, A, G)
 melodic_line % M2 % B2 << Increment()**F
 melodic_line % M2 % B3 << Increment(-1)**C
 melodic_line % M2 % B4 << Increment()**G
+
 melodic_line % Len() >> Print()
 melodic_line >> R >> P
 
