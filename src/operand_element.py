@@ -498,7 +498,7 @@ class Rest(Element):
 class Note(Rest):
     def __init__(self, *parameters):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote() << os.staff % ou.Key() << os.staff % ou.Octave()
+        self._key_note: og.KeyNote  = og.KeyNote()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(.90)
         if len(parameters) > 0:
@@ -608,7 +608,7 @@ class Note(Rest):
                 self._key_note      << operand._key_note
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale() | int() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale() | int() | float() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -750,7 +750,7 @@ class KeyScale(Note):
             case ou.Mode():             self._mode << operand
             case ou.Degree():           self._degree << operand
             case _: super().__lshift__(operand)
-        if isinstance(o.Operand, (og.KeyNote, ou.Natural, ou.Degree)):
+        if isinstance(o.Operand, (og.KeyNote, ou.Natural, ou.Degree, str)):
             self._key_note << ou.Natural(1)
             self._key_note << ou.Degree(1)
         return self
@@ -818,8 +818,7 @@ class Chord(KeyScale):
         max_size = min(self._size % od.DataSource( int() ), max_size)
 
         original_key_note = self._key_note
-        root_key_note = self._key_note \
-            + float(self._scale.transposition(self._degree % od.DataSource( int() )))
+        root_key_note = self._key_note + float(self._scale.transposition(self._degree % od.DataSource( int() )))
         chord_key_notes = []
         for key_note_i in range(max_size):
             key_note_nth = key_note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
@@ -915,6 +914,8 @@ class Chord(KeyScale):
                     self._scale << "Major"
                 self._key_note << operand
                 self._degree << operand
+                self._key_note << ou.Natural(1)
+                self._key_note << ou.Degree(1)
             case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():
                 self._degree << operand
                 if self._degree._dominant or self._degree._diminished:  # mutual exclusive

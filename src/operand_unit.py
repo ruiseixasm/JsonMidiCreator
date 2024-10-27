@@ -439,6 +439,7 @@ class Key(Unit):
                     case str():
                         self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
                         self.key_to_int(operand % o.Operand())
+                        self._degree << operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Key():
                 self._unit          = operand._unit
@@ -461,6 +462,7 @@ class Key(Unit):
             case str():
                 self._flat << (operand.strip().lower().find("b") != -1) * 1
                 self.key_to_int(operand)
+                self._degree << operand
             case _:                 super().__lshift__(operand)
         return self
 
@@ -471,8 +473,10 @@ class Key(Unit):
             case int(): return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand) )
             case Integer():
                         return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand._unit) )
-            case Semitone():
-                        return self.__class__() << od.DataSource( self % int() + operand._unit )
+            case float() | Fraction():
+                        return self.__class__() << od.DataSource( self % int() + operand )
+            case Key() | Semitone() | ro.Float():
+                        return self.__class__() << od.DataSource( self % int() + operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -490,8 +494,10 @@ class Key(Unit):
             case int(): return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand * -1) )
             case Integer():
                         return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand._unit * -1) )
-            case Semitone():
-                        return self.__class__() << od.DataSource( self % int() - operand._unit )
+            case float() | Fraction():
+                        return self.__class__() << od.DataSource( self % int() - operand )
+            case Key() | Semitone() | ro.Float():
+                        return self.__class__() << od.DataSource( self % int() - operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
