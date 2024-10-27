@@ -527,6 +527,7 @@ class Key(Unit):
         for key_i in range(len(Key._keys)):
             if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
                 self._unit = key_i % 12
+                return
 
 class Root(Key):
     pass
@@ -1200,6 +1201,7 @@ class Program(Midi):
                 # Check if all input words are present in the name string
                 if all(word in instrument_name.lower() for word in name_split):
                     self._unit = instrument["midi_instrument"]
+                    return
 
     @staticmethod
     def numberToName(number: int) -> str:
@@ -1330,6 +1332,7 @@ class Number(Midi):
             for controller_name in controller["names"]:
                 if controller_name.lower().find(name.strip().lower()) != -1:
                     self._unit = controller["midi_number"]
+                    return
 
     @staticmethod
     def numberToName(number: int) -> str:
