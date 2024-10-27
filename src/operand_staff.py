@@ -208,7 +208,7 @@ class Staff(o.Operand):
                         self._key_signature = operand % o.Operand()
                         self.set_tonic_key()
                     case ou.Key():
-                        self._key = operand % o.Operand()
+                        self._key._unit = operand % o.Operand() % int() % 12
                         self.set_tonic_key()
                     case ro.BeatsPerMeasure() | ro.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
@@ -247,7 +247,7 @@ class Staff(o.Operand):
                                         self._key_signature << operand
                                         self.set_tonic_key()
             case ou.Key():
-                                        self._key << operand
+                                        self._key._unit = operand % int() % 12
                                         self.set_tonic_key()
             case od.Scale():
                                         self._scale << operand

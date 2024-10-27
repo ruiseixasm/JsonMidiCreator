@@ -222,12 +222,14 @@ class KeyNote(Generic):
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key = self._key.copy() << operand
-                self._octave._unit += self._key._unit // 12
-                self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
+                self._octave._unit += self._key % int() // 12
+                if self._key._unit != 12000:
+                    self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key = self._key.copy() << operand
-                self._octave._unit += self._key._unit // 12
-                self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
+                self._octave._unit += self._key % int() // 12
+                if self._key._unit != 12000:
+                    self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case tuple():
                 for single_operand in operand:
                     self << single_operand

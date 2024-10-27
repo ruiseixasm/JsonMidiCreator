@@ -328,15 +328,13 @@ class Key(Unit):
     """
     def __init__(self, *parameters):
         super().__init__()
+        self._unit              = 12000 # uses tonic key by default
         self._flat: Flat        = Flat(0)
         self._natural: Natural  = Natural(0)
         self._degree: Degree    = Degree(1)
         self._scale: od.Scale   = od.Scale([])
-        self._unit = -1
         if len(parameters) > 0:
             self << parameters
-        if self._unit < 0:
-            self._unit = os.staff._tonic_key._unit
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -352,11 +350,15 @@ class Key(Unit):
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
             case od.Scale():        return self._scale.copy()
+            case int():
+                if self._unit == 12000:
+                    return os.staff._tonic_key._unit
+                return self._unit
             case float():
                 if self._scale.hasScale() or os.staff._scale.hasScale():
-                    return self._unit
+                    return self % int()
                 else:
-                    key_int: int            = self._unit
+                    key_int: int            = self % int()
                     key_signature: KeySignature = os.staff._key_signature
                     key_signature_scale     = key_signature % list()
                     not_natural: bool       = self._natural._unit == 0
@@ -460,11 +462,11 @@ class Key(Unit):
         import operand_rational as ro
         operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int(): return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand) )
+            case int(): return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand) )
             case Integer():
-                        return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand._unit) )
+                        return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand._unit) )
             case Semitone():
-                        return self.__class__() << od.DataSource( self._unit + operand._unit )
+                        return self.__class__() << od.DataSource( self % int() + operand._unit )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -479,11 +481,11 @@ class Key(Unit):
         import operand_rational as ro
         operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int(): return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand * -1) )
+            case int(): return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand * -1) )
             case Integer():
-                        return self.__class__() << od.DataSource( self._unit + self.move_semitones(operand._unit * -1) )
+                        return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand._unit * -1) )
             case Semitone():
-                        return self.__class__() << od.DataSource( self._unit - operand._unit )
+                        return self.__class__() << od.DataSource( self % int() - operand._unit )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -503,11 +505,11 @@ class Key(Unit):
         move_semitones: int = 0
         while move_keys > 0:
             move_semitones += 1
-            if scale[(self._unit + move_semitones) % 12]:
+            if scale[(self % int() + move_semitones) % 12]:
                 move_keys -= 1
         while move_keys < 0:
             move_semitones -= 1
-            if scale[(self._unit + move_semitones) % 12]:
+            if scale[(self % int() + move_semitones) % 12]:
                 move_keys += 1
         return move_semitones
 
