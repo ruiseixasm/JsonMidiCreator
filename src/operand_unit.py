@@ -350,6 +350,10 @@ class Key(Unit):
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
             case od.Scale():        return self._scale.copy()
+            case str():
+                note_key = self % int() % 12
+                note_key += 12 * (self._flat._unit != 0)
+                return Key._keys[note_key]
             case int():
                 if self._unit == 12000:
                     return os.staff._tonic_key._unit
@@ -517,11 +521,6 @@ class Key(Unit):
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
                            "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
     
-    def int_to_key(self, note_key: int = 0) -> str:
-        note_key %= 12
-        note_key += 12 * (self._flat._unit != 0)
-        return Key._keys[note_key % 12]
-
     @staticmethod
     def key_to_int(key: str = "C") -> int:
         for key_i in range(len(Key._keys)):

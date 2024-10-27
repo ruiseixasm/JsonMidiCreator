@@ -21,8 +21,8 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-
 staff << "#"
+K % str() >> Print()
 notes_B     = Note("B") * 3 << Foreach((0), (0, Beat(2)), (1, Beat(1)))**Position()
 notes_A     = Note("A") * 2 << Foreach(Position(0, Beat(1)), Position(1, Beat(2)))
 notes_C5    = Note("C", 5) * 2 << Foreach(Position(0, Beat(3)), Position(2))
@@ -37,10 +37,12 @@ notes = notes_B + notes_A + notes_C5 + notes_D5 + notes_E + notes_F5 + notes_G +
 # notes >> Rest() >> Play()
 
 staff << ""
+K % str() >> Print()
 rising = Note() * 13 << Foreach(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link(True) >> Smooth()
 # rising >> Rest() >> Play()
 
 staff << "b"
+K % str() >> Print()
 slower = N * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
 faster = N * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
 slower + faster >> L >> R >> P
