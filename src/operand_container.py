@@ -374,12 +374,10 @@ class Sequence(Container):  # Just a container of Elements
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         super().__lshift__(operand)
         match operand:
-            case ot.Position():
-                self.sort() # Maybe completely unnecessary
             case ot.Length() | ro.NoteValue():
                 self.stack()
-            case ro.TimeUnit():
-                self.sort() # Maybe completely unnecessary
+            case ot.Position() | ro.TimeUnit():
+                self.link() # Maybe completely unnecessary
         return self
 
     def reverse(self) -> 'Sequence':
