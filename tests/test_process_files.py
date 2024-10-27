@@ -230,7 +230,7 @@ single_clock = Clock()
 
 # Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8
-triplets_two = (triplets_one << Length(1/8)) % End() >> triplets_two
+triplets_two = triplets_one % End() >> triplets_two
 triplets_one + triplets_two + single_clock >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10_sequence_compare.json")
 results_list.append({
