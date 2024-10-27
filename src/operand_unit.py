@@ -650,7 +650,7 @@ class Degree(Unit):
         Accepts a numeral (5) or the string (V) with 1 as the default
     """
     def __init__(self, *parameters):
-        super().__init__(1)
+        super().__init__(1)             # Default Degree is I (tonic)
         self._sharp: Sharp              = Sharp(0)
         self._flat: Flat                = Flat(0)
         self._dominant: Dominant        = Dominant(0)
@@ -770,7 +770,7 @@ class Degree(Unit):
             self._dominant << False
             self._diminished << False
         # Removing all non-alphabetic characters (keeping only a-z)
-        match re.sub(r'[^a-z]', '', string.lower()):
+        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
             case "i"   | "tonic":                   self._unit = 1
             case "ii"  | "supertonic":              self._unit = 2
             case "iii" | "mediant":                 self._unit = 3
@@ -778,7 +778,6 @@ class Degree(Unit):
             case "v"   | "dominant":                self._unit = 5
             case "vi"  | "submediant":              self._unit = 6
             case "vii" | "leading tone":            self._unit = 7
-            case _:                                 self._unit = 1
 
     _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "vii"]
 
@@ -806,7 +805,7 @@ class Size(Unit):
         A Size Number varies from "1st" to "13th" with "3rd" being the triad default
     """
     def __init__(self, *parameters):
-        super().__init__(3)
+        super().__init__(3)         # Default Size is 3
         if len(parameters) > 0:
             self << parameters
             
@@ -823,25 +822,23 @@ class Size(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case str():                     self.stringToNumber(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
-            case str():             self._unit = __class__.stringToNumber(operand)
+            case str():             self.stringToNumber(operand)
             case _:                 super().__lshift__(operand)
         return self
 
     _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
 
-    @staticmethod
-    def stringToNumber(string: str) -> int:
+    def stringToNumber(self, string: str) -> int:
         match string.strip().lower():
-            case '1'  | "1st":              return 1
-            case '3'  | "3rd":              return 2
-            case '5'  | "5th":              return 3
-            case '7'  | "7th":              return 4
-            case '9'  | "9th":              return 5
-            case '11' | "11th":             return 6
-            case '13' | "13th":             return 7
-            case _:                         return 3
+            case '1'  | "1st":              self._unit = 1
+            case '3'  | "3rd":              self._unit = 2
+            case '5'  | "5th":              self._unit = 3
+            case '7'  | "7th":              self._unit = 4
+            case '9'  | "9th":              self._unit = 5
+            case '11' | "11th":             self._unit = 6
+            case '13' | "13th":             self._unit = 7
 
     @staticmethod
     def numberToString(number: int) -> str:

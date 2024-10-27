@@ -886,7 +886,7 @@ class Chord(KeyScale):
             self._sus4          = ou.Sus4()         << od.DataSource( serialization["parameters"]["sus4"] )
         return self
       
-    def __lshift__(self, operand: o.Operand) -> 'Chord':
+    def __lshift__(self, operand: any) -> 'Chord':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -906,6 +906,15 @@ class Chord(KeyScale):
                 self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
+            case str():
+                operand = operand.strip()
+                if operand.find("m") != -1:
+                    self._scale << "minor"
+                    operand = operand.replace("m", "")
+                else:
+                    self._scale << "Major"
+                self._key_note << operand
+                self._degree << operand
             case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():
                 self._degree << operand
                 if self._degree._dominant or self._degree._diminished:  # mutual exclusive
