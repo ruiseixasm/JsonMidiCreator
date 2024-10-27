@@ -608,7 +608,7 @@ class Note(Rest):
                 self._key_note      << operand._key_note
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale() | int() | float() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Flat() | ou.Sharp() | ou.Natural() | ou.Degree() | od.Scale() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -906,8 +906,9 @@ class Chord(KeyScale):
             case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
             case str():
+                minor_numerals = {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}
                 operand = operand.strip()
-                if operand.find("m") != -1:
+                if operand.find("m") != -1 or operand in minor_numerals:
                     self._scale << "minor"
                     operand = operand.replace("m", "")
                 else:
