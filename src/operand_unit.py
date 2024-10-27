@@ -438,7 +438,7 @@ class Key(Unit):
                         self._scale << operand % o.Operand()
                     case str():
                         self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
-                        self._unit = Key.key_to_int(operand % o.Operand())
+                        self.key_to_int(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
             case Key():
                 self._unit          = operand._unit
@@ -460,7 +460,7 @@ class Key(Unit):
                 self._scale << operand
             case str():
                 self._flat << (operand.strip().lower().find("b") != -1) * 1
-                self._unit = Key.key_to_int(operand)
+                self.key_to_int(operand)
             case _:                 super().__lshift__(operand)
         return self
 
@@ -523,12 +523,10 @@ class Key(Unit):
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
                            "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
     
-    @staticmethod
-    def key_to_int(key: str = "C") -> int:
+    def key_to_int(self, key: str = "C"):
         for key_i in range(len(Key._keys)):
             if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                return key_i % 12
-        return 0
+                self._unit = key_i % 12
 
 class Root(Key):
     pass
@@ -591,7 +589,7 @@ class Mode(Unit):
         A Mode Number varies from 1 to 7 with 1 being normally the default
     """
     def __init__(self, *parameters):
-        super().__init__(1)
+        super().__init__(1)         # By default the mode is 1 (1st)
         if len(parameters) > 0:
             self << parameters
 
@@ -608,9 +606,9 @@ class Mode(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._unit = __class__.stringToNumber(operand % o.Operand())
+                    case str():                     self.stringToNumber(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
-            case str():             self._unit = __class__.stringToNumber(operand)
+            case str():             self.stringToNumber(operand)
             case _:                 super().__lshift__(operand)
         self._unit = max(1, self._unit)
         return self
@@ -622,18 +620,16 @@ class Mode(Unit):
 
     _modes_str = ["None" , "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
 
-    @staticmethod
-    def stringToNumber(string: str) -> int:
+    def stringToNumber(self, string: str):
         match string.strip().lower():
-            case '1'  | "1st":              return 1
-            case '2'  | "2nd":              return 2
-            case '3'  | "3rd":              return 3
-            case '4'  | "4th":              return 4
-            case '5'  | "5th":              return 5
-            case '6'  | "6th":              return 6
-            case '7'  | "7th":              return 7
-            case '8'  | "8th":              return 8
-            case _:                         return 1
+            case '1'  | "1st":              self._unit = 1
+            case '2'  | "2nd":              self._unit = 2
+            case '3'  | "3rd":              self._unit = 3
+            case '4'  | "4th":              self._unit = 4
+            case '5'  | "5th":              self._unit = 5
+            case '6'  | "6th":              self._unit = 6
+            case '7'  | "7th":              self._unit = 7
+            case '8'  | "8th":              self._unit = 8
 
     @staticmethod
     def numberToString(number: int) -> str:
@@ -830,7 +826,7 @@ class Size(Unit):
 
     _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
 
-    def stringToNumber(self, string: str) -> int:
+    def stringToNumber(self, string: str):
         match string.strip().lower():
             case '1'  | "1st":              self._unit = 1
             case '3'  | "3rd":              self._unit = 2
@@ -1020,14 +1016,13 @@ class Program(Midi):
     first : integer_like
         A Program Number varies from 0 to 127
     """
-    def __init__(self, unit: str = "Pan"):
+    def __init__(self, unit: str = "Piano"):
+        super().__init__()
         match unit:
             case str():
-                super().__init__( Program.nameToNumber(unit) )
+                self.nameToNumber(unit)
             case int() | float():
-                super().__init__(unit)
-            case _:
-                super().__init__(None)
+                self._unit = int(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1043,9 +1038,9 @@ class Program(Midi):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._unit = Program.nameToNumber(operand % o.Operand())
+                    case str():                     self.nameToNumber(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
-            case str():             self._unit = Program.nameToNumber(operand)
+            case str():             self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1196,8 +1191,7 @@ class Program(Midi):
         {   "midi_instrument": 127, "names": ["Gunshot"]    }
     ]
 
-    @staticmethod
-    def nameToNumber(name: str = "Piano") -> int:
+    def nameToNumber(self, name: str = "Piano"):
         # Convert input words to lowercase
         name_split = name.lower().split()
         # Iterate over the instruments list
@@ -1205,8 +1199,7 @@ class Program(Midi):
             for instrument_name in instrument["names"]:
                 # Check if all input words are present in the name string
                 if all(word in instrument_name.lower() for word in name_split):
-                    return instrument["midi_instrument"]
-        return 0
+                    self._unit = instrument["midi_instrument"]
 
     @staticmethod
     def numberToName(number: int) -> str:
@@ -1250,13 +1243,12 @@ class Number(Midi):
         Allows the direct set with a number or in alternative with a name relative to the Controller
     """
     def __init__(self, unit: str = "Pan"):
+        super().__init__()
         match unit:
             case str():
-                super().__init__( Number.nameToNumber(unit) )
+                self.nameToNumber(unit)
             case int() | float():
-                super().__init__(unit)
-            case _:
-                super().__init__(None)
+                self._unit = int(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1272,9 +1264,9 @@ class Number(Midi):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._unit = Number.nameToNumber(operand % o.Operand())
+                    case str():                     self.nameToNumber(operand % o.Operand())
                     case _:                         super().__lshift__(operand)
-            case str():             self._unit = Number.nameToNumber(operand)
+            case str():             self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1333,13 +1325,11 @@ class Number(Midi):
                 return controller["default_value"]
         return 0
 
-    @staticmethod
-    def nameToNumber(name: str = "Pan") -> int:
+    def nameToNumber(self, name: str = "Pan"):
         for controller in Number._controllers:
             for controller_name in controller["names"]:
                 if controller_name.lower().find(name.strip().lower()) != -1:
-                    return controller["midi_number"]
-        return 0
+                    self._unit = controller["midi_number"]
 
     @staticmethod
     def numberToName(number: int) -> str:
