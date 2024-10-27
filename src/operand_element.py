@@ -632,6 +632,14 @@ class Note(Rest):
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
+    
+class Cluster(Note):
+    # A tone cluster is a musical chord comprising at least three adjacent tones in a scale.
+    ...
+
+class Dyad(Cluster):
+    # In music, a dyad is a set of two notes or pitches.
+    ...
 
 class KeyScale(Note):
     def __init__(self, *parameters):
