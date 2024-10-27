@@ -63,17 +63,33 @@ K % str() >> Print()    # Prints the Tonic for the given Key Signature
 sixteenth_group = (N << sixteenth) * 4
 dotted_rhythm = N * 3 << Foreach(sixteenth, sixteenth, eight) >> Stack()
 duplet = (N << eight) * 2
+dotted_rhythm >> N >> dotted_rhythm >> N >> Print()
 melodic_line = \
     dotted_rhythm >> N >> dotted_rhythm >> N >> \
     dotted_rhythm >> sixteenth_group >> dotted_rhythm >> sixteenth_group >> \
-    duplet >> dotted_rhythm.reverse() >> sixteenth_group >> dotted_rhythm >> \
+    duplet >> dotted_rhythm % Reverse() >> sixteenth_group >> dotted_rhythm >> \
     sixteenth_group * 2 >> (N << half)
-melodic_line % M1 << Foreach(B, C, B, A) >> Smooth()
+melodic_line % M1 << Foreach(B, C, B, A)
 melodic_line % M2 % B1 << Foreach(G, A, G)
 melodic_line % M2 % B2 << Increment()**F
 melodic_line % M2 % B3 << Increment(-1)**C
 melodic_line % M2 % B4 << Increment()**G
+melodic_line % M3 % B1 << Foreach((D, 5), G)
+melodic_line % M3 % B2 << Increment()**A
+melodic_line % M3 % B3 << Foreach(D, F, E, C)
+melodic_line % M3 % B4 << Foreach(D, C, D)
+melodic_line % M4 << Foreach((G, 5), E, C, G, B, G, E, B, A)
 
+melodic_line % M1 >> Smooth()
+melodic_line % M2 >> Smooth()
+melodic_line % M3 % Greater(B1) >> Smooth()
+melodic_line % M4 >> Smooth()
+
+melodic_line % M1 % Len() >> Print()
+melodic_line % M2 % Len() >> Print()
+melodic_line % M3 % Len() >> Print()
+melodic_line % M4 % Len() >> Print()
+melodic_line % M5 % Len() >> Print()
 melodic_line % Len() >> Print()
 melodic_line >> R >> P
 

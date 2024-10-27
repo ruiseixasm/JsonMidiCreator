@@ -79,6 +79,7 @@ class Container(o.Operand):
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
             case ol.Getter():       return operand.get(self)
+            case ol.Process():      return self >> operand
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
@@ -149,6 +150,32 @@ class Container(o.Operand):
                     if new_operand: self._datasource_list.append(od.DataSource( new_operand.loadSerialization(single_operand_serialization) ))
         return self
        
+    def __lshift__(self, operand: o.Operand) -> 'Container':
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case list():        self._datasource_list = operand % o.Operand()
+            case Container():
+                last_datasource: int = min(self.len(), operand.len())
+                for datasource_i in range(last_datasource):
+                    if isinstance(self._datasource_list[datasource_i]._data, o.Operand):
+                        self._datasource_list[datasource_i]._data << operand._datasource_list[datasource_i]._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():
+                self._datasource_list = []
+                for single_operand in operand:
+                    match single_operand:
+                        case o.Operand():
+                            self._datasource_list.append(od.DataSource( single_operand.copy() ))
+                        case _:
+                            self._datasource_list.append(od.DataSource( single_operand ))
+            case _: # Works for Frame too
+                for single_datasource in self._datasource_list:
+                    if isinstance(single_datasource._data, o.Operand):
+                        single_datasource._data << operand
+        return self
+
     def copy(self) -> 'Container':
         container_copy: Container = self.__class__()
         for single_datasource in self._datasource_list:
@@ -179,32 +206,6 @@ class Container(o.Operand):
         new_container: Container = self.__class__()
         new_container._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         return new_container
-
-    def __lshift__(self, operand: o.Operand) -> 'Container':
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case list():        self._datasource_list = operand % o.Operand()
-            case Container():
-                last_datasource: int = min(self.len(), operand.len())
-                for datasource_i in range(last_datasource):
-                    if isinstance(self._datasource_list[datasource_i]._data, o.Operand):
-                        self._datasource_list[datasource_i]._data << operand._datasource_list[datasource_i]._data
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case list():
-                self._datasource_list = []
-                for single_operand in operand:
-                    match single_operand:
-                        case o.Operand():
-                            self._datasource_list.append(od.DataSource( single_operand.copy() ))
-                        case _:
-                            self._datasource_list.append(od.DataSource( single_operand ))
-            case _: # Works for Frame too
-                for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, o.Operand):
-                        single_datasource._data << operand
-        return self
 
     def __add__(self, operand: o.Operand) -> 'Container':
         match operand:
@@ -369,6 +370,11 @@ class Sequence(Container):  # Just a container of Elements
         return play_list
 
     # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Sequence':
+        match operand:
+            case _:                 super().__lshift__(operand)
+        return self
 
     def reverse(self) -> 'Sequence':
         super().reverse()
