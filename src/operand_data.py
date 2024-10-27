@@ -150,6 +150,9 @@ class Data(o.Operand):
                         case _:
                             many_operands.append(single_operand)
                 self._data = many_operands
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
             case _: self._data = operand
         return self
 
@@ -262,9 +265,10 @@ class Scale(Data):
     first : integer_like and string_like
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
-    def __init__(self, scale: list[int] | str | int = None):
-        self_scale = __class__.get_scale(scale)
-        super().__init__( self_scale.copy() )
+    def __init__(self, *parameters):
+        super().__init__([])
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -325,10 +329,13 @@ class Scale(Data):
     def __lshift__(self, operand: any) -> 'Scale':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case list() | str() | int():
+            case str() | int():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
                     self._data = self_scale.copy()
+            case list():
+                if len(operand) == 12 and all(x in {0, 1} for x in operand):
+                    self._data = operand.copy()
             case _: super().__lshift__(operand)
         return self
 

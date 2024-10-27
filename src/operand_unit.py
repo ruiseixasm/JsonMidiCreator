@@ -252,6 +252,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
+            case od.Scale():            return od.Scale(self % list())
             case list():
                 key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
                 key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
@@ -349,7 +350,12 @@ class Key(Unit):
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
-            case od.Scale():        return self._scale.copy()
+            case od.Scale():
+                if self._scale.hasScale():
+                    return self._scale.copy()
+                if os.staff._scale.hasScale():
+                    return os.staff._scale.copy()
+                return os.staff._key_signature % operand
             case str():
                 note_key = self % int() % 12
                 note_key += 12 * (self._flat._unit != 0)
