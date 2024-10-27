@@ -355,7 +355,7 @@ class Key(Unit):
                 note_key += 12 * (self._flat._unit != 0)
                 return Key._keys[note_key]
             case int():
-                if self._unit == None:
+                if self._unit is None:
                     return os.staff._tonic_key._unit
                 return self._unit
             case float():

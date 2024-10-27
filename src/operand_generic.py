@@ -106,7 +106,7 @@ class KeyNote(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
-        self._key: ou.Key           = os.staff._tonic_key
+        self._key: ou.Key           = ou.Key()      # By default it's the Tonic key
         if len(parameters) > 0:
             self << parameters
 
@@ -212,23 +212,24 @@ class KeyNote(Generic):
                     case ou.Octave():       self._octave    = operand % o.Operand()
                     case ou.Key():
                                             self._key       = operand % o.Operand()
-                                            self._key._unit %= 12
+                                            if self._key._unit is not None:
+                                                self._key._unit %= 12
             case KeyNote():
                 self._octave    << operand._octave
-                self._key       = operand._key.copy()
+                self._key       << operand._key
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.Integer():
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
-                self._key = self._key.copy() << operand
+                self._key << operand
                 self._octave._unit += self._key % int() // 12
-                if self._key._unit != None:
+                if self._key._unit is not None:
                     self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
-                self._key = self._key.copy() << operand
+                self._key << operand
                 self._octave._unit += self._key % int() // 12
-                if self._key._unit != None:
+                if self._key._unit is not None:
                     self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case tuple():
                 for single_operand in operand:
