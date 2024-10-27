@@ -45,6 +45,16 @@ staff << "b"
 K % str() >> Print()
 slower = N * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
 faster = N * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
-slower + faster >> L >> R >> P
+# slower + faster >> L >> R >> P
 
+staff << ""
+K % str() >> Print()
+syncopation = N * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
+syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
+# syncopation >> R >> P
+
+staff << "#"
+K % str() >> Print()
+volume = N * 7 << half << Foreach(60, 70, 80, 90, 100, 110, 120)**Velocity() >> S >> LJ << Foreach(D, A, B, F, G, C, B)
+volume >> R >> P
 
