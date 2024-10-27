@@ -328,7 +328,7 @@ class Key(Unit):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._unit              = 12000 # uses tonic key by default
+        self._unit              = None  # uses tonic key by default
         self._flat: Flat        = Flat(0)
         self._natural: Natural  = Natural(0)
         self._degree: Degree    = Degree(1)
@@ -355,7 +355,7 @@ class Key(Unit):
                 note_key += 12 * (self._flat._unit != 0)
                 return Key._keys[note_key]
             case int():
-                if self._unit == 12000:
+                if self._unit == None:
                     return os.staff._tonic_key._unit
                 return self._unit
             case float():

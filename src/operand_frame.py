@@ -389,7 +389,7 @@ class Subject(OperandFilter):
         return subject
 
 class Increment(OperandFilter):
-    def __init__(self, step: float = None):
+    def __init__(self, step = None):
         super().__init__()
         self._step: float = 1 if step is None else step
 

@@ -55,6 +55,6 @@ syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth
 
 staff << "#"
 K % str() >> Print()
-volume = N * 7 << half << Foreach(60, 70, 80, 90, 100, 110, 120)**Velocity() >> S >> LJ << Foreach(D, A, B, F, G, C, B)
+volume = N * 7 << half << Increment(15)**Velocity(30) >> S >> LJ << Foreach(D, A, B, F, G, C, B)
 volume >> R >> P
 
