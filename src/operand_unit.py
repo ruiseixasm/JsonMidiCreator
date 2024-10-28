@@ -776,8 +776,6 @@ class Degree(Unit):
         else:
             self._sharp << False
             self._flat << False
-        if string.lower in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
-            self._scale << []
         if string.find("7") != -1:
             self._scale << []
             self._dominant << True
