@@ -776,6 +776,7 @@ class Degree(Unit):
         else:
             self._sharp << False
             self._flat << False
+        self._scale << []
         if string.find("7") != -1:
             self._dominant << True
             self._diminished << False
@@ -786,8 +787,8 @@ class Degree(Unit):
             self._scale << "minor"
             self._dominant << False
             self._diminished << False
-        else:
-            self._scale << []
+        elif string in {'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'}:
+            self._scale << "Major"
             self._dominant << False
             self._diminished << False
         # Removing all non-alphabetic characters (keeping only a-z)
