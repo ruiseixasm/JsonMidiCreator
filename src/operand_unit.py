@@ -664,7 +664,7 @@ class Degree(Unit):
         self._flat: Flat                = Flat(0)
         self._dominant: Dominant        = Dominant(0)
         self._diminished: Diminished    = Diminished(0)
-        self._scale: od.Scale           = od.Scale("Major")
+        self._scale: od.Scale           = od.Scale([])
         if len(parameters) > 0:
             self << parameters
 
@@ -741,6 +741,7 @@ class Degree(Unit):
                 self._flat._unit        = operand._flat._unit
                 self._dominant._unit    = operand._dominant._unit
                 self._diminished._unit  = operand._diminished._unit
+                self._scale             = operand._scale.copy()
             case str():                 self.stringSetDegree(operand)
             case Sharp():
                 self._sharp << operand
@@ -786,7 +787,7 @@ class Degree(Unit):
             self._dominant << False
             self._diminished << False
         else:
-            self._scale << "Major"
+            self._scale << []
             self._dominant << False
             self._diminished << False
         # Removing all non-alphabetic characters (keeping only a-z)
