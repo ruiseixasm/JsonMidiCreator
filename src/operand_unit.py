@@ -664,6 +664,7 @@ class Degree(Unit):
         self._flat: Flat                = Flat(0)
         self._dominant: Dominant        = Dominant(0)
         self._diminished: Diminished    = Diminished(0)
+        self._scale: od.Scale           = od.Scale("C")
         if len(parameters) > 0:
             self << parameters
 
@@ -675,12 +676,14 @@ class Degree(Unit):
                     case Flat():            return self._flat
                     case Dominant():        return self._dominant
                     case Diminished():      return self._diminished
+                    case od.Scale():        return self._scale
                     case _:                 return super().__mod__(operand)
             case str():         return self.degreeToString()
             case Sharp():       return self._sharp.copy()
             case Flat():        return self._flat.copy()
             case Dominant():    return self._dominant.copy()
             case Diminished():  return self._diminished.copy()
+            case od.Scale():    return self._scale.copy()
             case _:             return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -701,6 +704,7 @@ class Degree(Unit):
         element_serialization["parameters"]["flat"]         = self._flat % od.DataSource( int() )
         element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
         element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
+        element_serialization["parameters"]["scale"]        = self._scale % od.DataSource( list() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -708,13 +712,14 @@ class Degree(Unit):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "dominant" in serialization["parameters"] and
-            "diminished" in serialization["parameters"]):
+            "diminished" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._sharp         = Sharp()        << od.DataSource( serialization["parameters"]["sharp"] )
             self._flat          = Flat()         << od.DataSource( serialization["parameters"]["flat"] )
             self._dominant      = Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
             self._diminished    = Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
+            self._scale         = Diminished()   << od.DataSource( serialization["parameters"]["scale"] )
         return self
       
     def __lshift__(self, operand: any) -> 'Size':
