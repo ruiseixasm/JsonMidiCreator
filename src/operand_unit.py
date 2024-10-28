@@ -715,11 +715,11 @@ class Degree(Unit):
             "diminished" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sharp         = Sharp()        << od.DataSource( serialization["parameters"]["sharp"] )
-            self._flat          = Flat()         << od.DataSource( serialization["parameters"]["flat"] )
-            self._dominant      = Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
-            self._diminished    = Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
-            self._scale         = Diminished()   << od.DataSource( serialization["parameters"]["scale"] )
+            self._sharp         = Sharp()       << od.DataSource( serialization["parameters"]["sharp"] )
+            self._flat          = Flat()        << od.DataSource( serialization["parameters"]["flat"] )
+            self._dominant      = Dominant()    << od.DataSource( serialization["parameters"]["dominant"] )
+            self._diminished    = Diminished()  << od.DataSource( serialization["parameters"]["diminished"] )
+            self._scale         = od.Scale()    << od.DataSource( serialization["parameters"]["scale"] )
         return self
       
     def __lshift__(self, operand: any) -> 'Size':
