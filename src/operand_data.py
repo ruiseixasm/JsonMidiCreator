@@ -336,6 +336,8 @@ class Scale(Data):
             case list():
                 if len(operand) == 12 and all(x in {0, 1} for x in operand):
                     self._data = operand.copy()
+                elif operand == []:
+                    self._data = []
             case _: super().__lshift__(operand)
         return self
 

@@ -664,7 +664,7 @@ class Degree(Unit):
         self._flat: Flat                = Flat(0)
         self._dominant: Dominant        = Dominant(0)
         self._diminished: Diminished    = Diminished(0)
-        self._scale: od.Scale           = od.Scale("C")
+        self._scale: od.Scale           = od.Scale("Major")
         if len(parameters) > 0:
             self << parameters
 
@@ -694,7 +694,8 @@ class Degree(Unit):
                     and self._sharp         == other_operand % od.DataSource( Sharp() ) \
                     and self._flat          == other_operand % od.DataSource( Flat() ) \
                     and self._dominant      == other_operand % od.DataSource( Dominant() ) \
-                    and self._diminished    == other_operand % od.DataSource( Diminished() )
+                    and self._diminished    == other_operand % od.DataSource( Diminished() ) \
+                    and self._scale         == other_operand % od.DataSource( od.Scale() )
             case _:
                 return super().__eq__(other_operand)
     
@@ -780,7 +781,12 @@ class Degree(Unit):
         elif string.find("º") != -1:
             self._dominant << False
             self._diminished << True
+        elif string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
+            self._scale << "minor"
+            self._dominant << False
+            self._diminished << False
         else:
+            self._scale << "Major"
             self._dominant << False
             self._diminished << False
         # Removing all non-alphabetic characters (keeping only a-z)

@@ -758,6 +758,7 @@ class KeyScale(Note):
 class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
+        self._scale                     << []   # By default it has no scale!
         self._size: ou.Size             = ou.Size(3)
         self._inversion: ou.Inversion   = ou.Inversion(0)
         self._degree: ou.Degree         = ou.Degree()
@@ -810,7 +811,10 @@ class Chord(KeyScale):
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
+        chord_scale = self._degree._scale
+        if self._scale.hasScale():
+            chord_scale = self._scale
+        modulated_scale: od.Scale = chord_scale.copy().modulate(self._mode)
 
         max_size = modulated_scale.keys()
         if max_size % 2 == 0:
@@ -818,7 +822,7 @@ class Chord(KeyScale):
         max_size = min(self._size % od.DataSource( int() ), max_size)
 
         original_key_note = self._key_note
-        root_key_note = self._key_note + float(self._scale.transposition(self._degree % od.DataSource( int() )))
+        root_key_note = self._key_note + float(chord_scale.transposition(self._degree % od.DataSource( int() )))
         chord_key_notes = []
         for key_note_i in range(max_size):
             key_note_nth = key_note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
@@ -908,7 +912,7 @@ class Chord(KeyScale):
             case str():
                 minor_numerals = {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}
                 operand = operand.strip()
-                if operand.find("m") != -1 or operand in minor_numerals:
+                if operand.find("m") != -1:
                     self._scale << "minor"
                     operand = operand.replace("m", "")
                 else:
