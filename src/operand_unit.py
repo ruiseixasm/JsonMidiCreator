@@ -789,15 +789,15 @@ class Degree(Unit):
                 self._scale << "Major"
                 self._dominant << False
                 self._diminished << False
-        if string.find("7") != -1:
-            self._scale << []
-            self._dominant << True
-            self._diminished << False
-        elif string.find("º") != -1 or string.find("dim") != -1:
+        if string.find("º") != -1 or string.find("dim") != -1:
             self._scale << []
             self._dominant << False
             self._diminished << True
             string = string.replace("dim", "")
+        elif string.find("M") == -1 and len(re.findall(r"\d+", string)) > 0:
+            self._scale << []
+            self._dominant << True
+            self._diminished << False
             # Removing all non-alphabetic characters (keeping only a-z)
             match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
                 case "i"   | "tonic":                   self._unit = 1
