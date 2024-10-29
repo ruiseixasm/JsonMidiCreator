@@ -330,6 +330,7 @@ class Key(Unit):
     def __init__(self, *parameters):
         super().__init__()
         self._unit              = None  # uses tonic key by default
+        self._sharp: Sharp      = Sharp(0)
         self._flat: Flat        = Flat(0)
         self._natural: Natural  = Natural(0)
         self._degree: Degree    = Degree(1)
@@ -341,12 +342,14 @@ class Key(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case Sharp():           return self._sharp
                     case Flat():            return self._flat
                     case Natural():         return self._natural
                     case Degree():          return self._degree
                     case od.Scale():        return self._scale
                     case float():           return self % float()
                     case _:                 return super().__mod__(operand)
+            case Sharp():           return self._sharp.copy()
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
@@ -404,6 +407,7 @@ class Key(Unit):
 
     def getSerialization(self):
         element_serialization = super().getSerialization()
+        element_serialization["parameters"]["sharp"]    = self._sharp._unit
         element_serialization["parameters"]["flat"]     = self._flat._unit
         element_serialization["parameters"]["natural"]  = self._natural._unit
         element_serialization["parameters"]["degree"]   = self._degree._unit
@@ -414,10 +418,11 @@ class Key(Unit):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and
-            "scale" in serialization["parameters"]):
+            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and 
+            "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._sharp     = Sharp()   << od.DataSource( serialization["parameters"]["sharp"] )
             self._flat      = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
             self._natural   = Natural() << od.DataSource( serialization["parameters"]["natural"] )
             self._degree    = Degree()  << od.DataSource( serialization["parameters"]["degree"] )
@@ -434,6 +439,8 @@ class Key(Unit):
                     case float() | Fraction():      self._unit = int(operand % o.Operand())
                     case Semitone() | Integer() | ro.Float():
                                                     self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case Sharp():
+                        self._sharp << operand % o.Operand()
                     case Flat():
                         self._flat << operand % o.Operand()
                     case Natural():
@@ -449,6 +456,7 @@ class Key(Unit):
                     case _:                         super().__lshift__(operand)
             case Key():
                 self._unit          = operand._unit
+                self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
                 self._degree        = operand._degree.copy()
@@ -457,8 +465,10 @@ class Key(Unit):
                                     self._unit = operand % int()
             case int() | float() | Fraction():
                                     self._unit = int(operand)
+            case Sharp():
+                self._sharp << operand
             case Flat():
-                 self._flat << operand
+                self._flat << operand
             case Natural():
                 self._natural << operand
             case Degree():
