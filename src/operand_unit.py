@@ -467,11 +467,11 @@ class Key(Unit):
                 self._scale << operand
             case str():
                 string: str = operand.strip()
+                self._degree << string
+                string = string.replace("7", "").replace("º", "")
                 if any(substring in string.upper() for substring in Key._keys):
                     self._flat << (string.lower().find("b") != -1) * 1
                     self.key_to_int(string)
-                else:
-                    self._degree << string
             case _:                 super().__lshift__(operand)
         return self
 
@@ -768,6 +768,14 @@ class Degree(Unit):
 
     def stringSetDegree(self, string: str):
         string = string.strip()
+        if string.find("7") != -1:
+            self._scale << []
+            self._dominant << True
+            self._diminished << False
+        elif string.find("º") != -1:
+            self._scale << []
+            self._dominant << False
+            self._diminished << True
         if any(substring in string.lower() for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
             if string.find("#") == 0:
                 self._sharp << True
@@ -780,15 +788,7 @@ class Degree(Unit):
             else:
                 self._sharp << False
                 self._flat << False
-            if string.find("7") != -1:
-                self._scale << []
-                self._dominant << True
-                self._diminished << False
-            elif string.find("º") != -1:
-                self._scale << []
-                self._dominant << False
-                self._diminished << True
-            elif string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
+            if string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
                 self._scale << "minor"
                 self._dominant << False
                 self._diminished << False
