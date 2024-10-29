@@ -399,8 +399,13 @@ class Increment(OperandFilter):
             self_operand &= subject
         match self_operand:
             case ol.Null():
-                self._data += self._step
+                self._data += self._step    # iterates whenever called
                 return self_operand
+            case tuple():
+                for single_operand in self_operand:
+                    if isinstance(single_operand, o.Operand):
+                        single_operand << single_operand + self._data
+                stepped_operand = self_operand
             case _:
                 if self_operand.__class__ == o.Operand:
                     stepped_operand = self._data
@@ -423,13 +428,20 @@ class Iterate(OperandFilter):
             self_operand &= subject
         match self_operand:
             case ol.Null():
-                self._data += self._step
+                self._data += self._step    # iterates whenever called
                 return self_operand
+            case tuple():
+                for single_operand in self_operand:
+                    if isinstance(single_operand, o.Operand):
+                        single_operand << self._data
+                stepped_operand = self_operand
             case o.Operand():
                 if self_operand.__class__ == o.Operand:
                     stepped_operand = self._data
                 else:
                     stepped_operand = self_operand << self._data
+            case tuple():
+                ...
             case _:
                 stepped_operand = self._data
         self._data += self._step
@@ -453,6 +465,11 @@ class Foreach(OperandFilter):
             return self_operand
         if self_operand.__class__ == o.Operand:
             stepped_operand = self._data[self._index]
+        elif isinstance(self_operand, tuple):
+            for single_operand in self_operand:
+                if isinstance(single_operand, o.Operand):
+                    single_operand << single_operand + self._data
+            stepped_operand = self_operand
         elif isinstance(self_operand, o.Operand):
             stepped_operand = self_operand << self._data[self._index]
         else:

@@ -74,10 +74,10 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) == other_time % od.DataSource( Fraction() )
             case ro.Measure():
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) == other_time % od.DataSource( int() )
-            case ro.Beat():
+            case ro.Beat(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int()) \
                     == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.BeatsPerMeasure() ) % int())
-            case ro.Step():
+            case ro.Step(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
                 return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int()) \
                     == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ro.StepsPerMeasure() ) % int())
             case Time():
