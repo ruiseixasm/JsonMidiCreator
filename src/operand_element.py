@@ -811,6 +811,9 @@ class Chord(KeyScale):
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
+        # TO STUDY THE HYPOTHESIS OF A SINGLE DEGREE INSTEAD OF TWO!
+        key_note_degree = self._key_note._key._degree
+
         if self._degree._scale.hasScale():
             modulated_scale: od.Scale = self._degree._scale.copy().modulate(self._mode)
         else:

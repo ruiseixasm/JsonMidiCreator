@@ -470,6 +470,7 @@ class Key(Unit):
                 self._degree << string
                 string = string.replace("7", "").replace("º", "")
                 if any(substring in string.upper() for substring in Key._keys):
+                    # THE PROCESSING OF FLAT AND SHARP IN THE DEGREE SHOULD PASS TO HERE OR VICE-VERSA
                     self._flat << (string.lower().find("b") != -1) * 1
                     self.key_to_int(string)
             case _:                 super().__lshift__(operand)
