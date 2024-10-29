@@ -374,7 +374,7 @@ class Sequence(Container):  # Just a container of Elements
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         super().__lshift__(operand)
         match operand:
-            case ot.Length() | ro.NoteValue():
+            case ot.Length() | ro.NoteValue() | float() | Fraction():
                 self.stack()
             case ot.Position() | ro.TimeUnit():
                 self.link() # Maybe completely unnecessary
