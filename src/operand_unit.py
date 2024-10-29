@@ -466,9 +466,12 @@ class Key(Unit):
             case od.Scale():
                 self._scale << operand
             case str():
-                self._flat << (operand.strip().lower().find("b") != -1) * 1
-                self.key_to_int(operand)
-                self._degree << operand
+                string: str = operand.strip()
+                if any(substring in string.upper() for substring in Key._keys):
+                    self._flat << (string.lower().find("b") != -1) * 1
+                    self.key_to_int(string)
+                else:
+                    self._degree << string
             case _:                 super().__lshift__(operand)
         return self
 
@@ -765,8 +768,7 @@ class Degree(Unit):
 
     def stringSetDegree(self, string: str):
         string = string.strip()
-        string_lower = string.lower()
-        if any(substring in string_lower for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
+        if any(substring in string.lower() for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
             if string.find("#") == 0:
                 self._sharp << True
                 self._flat << False
@@ -778,31 +780,31 @@ class Degree(Unit):
             else:
                 self._sharp << False
                 self._flat << False
-        if string.find("7") != -1:
-            self._scale << []
-            self._dominant << True
-            self._diminished << False
-        elif string.find("º") != -1:
-            self._scale << []
-            self._dominant << False
-            self._diminished << True
-        elif string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
-            self._scale << "minor"
-            self._dominant << False
-            self._diminished << False
-        elif string in {'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'}:
-            self._scale << "Major"
-            self._dominant << False
-            self._diminished << False
-        # Removing all non-alphabetic characters (keeping only a-z)
-        match re.sub(r'[^a-z]', '', string_lower):    # also removes "º"
-            case "i"   | "tonic":                   self._unit = 1
-            case "ii"  | "supertonic":              self._unit = 2
-            case "iii" | "mediant":                 self._unit = 3
-            case "iv"  | "subdominant":             self._unit = 4
-            case "v"   | "dominant":                self._unit = 5
-            case "vi"  | "submediant":              self._unit = 6
-            case "vii" | "leading tone":            self._unit = 7
+            if string.find("7") != -1:
+                self._scale << []
+                self._dominant << True
+                self._diminished << False
+            elif string.find("º") != -1:
+                self._scale << []
+                self._dominant << False
+                self._diminished << True
+            elif string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
+                self._scale << "minor"
+                self._dominant << False
+                self._diminished << False
+            elif string in {'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'}:
+                self._scale << "Major"
+                self._dominant << False
+                self._diminished << False
+            # Removing all non-alphabetic characters (keeping only a-z)
+            match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
+                case "i"   | "tonic":                   self._unit = 1
+                case "ii"  | "supertonic":              self._unit = 2
+                case "iii" | "mediant":                 self._unit = 3
+                case "iv"  | "subdominant":             self._unit = 4
+                case "v"   | "dominant":                self._unit = 5
+                case "vi"  | "submediant":              self._unit = 6
+                case "vii" | "leading tone":            self._unit = 7
 
     _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "vii"]
 
