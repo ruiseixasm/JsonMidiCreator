@@ -468,7 +468,7 @@ class Key(Unit):
             case str():
                 string: str = operand.strip()
                 self._degree << string
-                string = string.replace("7", "").replace("º", "")
+                string = string.replace("7", "").replace("º", "").replace("dim", "")
                 if any(substring in string.upper() for substring in Key._keys):
                     # THE PROCESSING OF FLAT AND SHARP IN THE DEGREE SHOULD PASS TO HERE OR VICE-VERSA
                     self._flat << (string.lower().find("b") != -1) * 1
@@ -769,14 +769,6 @@ class Degree(Unit):
 
     def stringSetDegree(self, string: str):
         string = string.strip()
-        if string.find("7") != -1:
-            self._scale << []
-            self._dominant << True
-            self._diminished << False
-        elif string.find("º") != -1:
-            self._scale << []
-            self._dominant << False
-            self._diminished << True
         if any(substring in string.lower() for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
             if string.find("#") == 0:
                 self._sharp << True
@@ -797,6 +789,15 @@ class Degree(Unit):
                 self._scale << "Major"
                 self._dominant << False
                 self._diminished << False
+        if string.find("7") != -1:
+            self._scale << []
+            self._dominant << True
+            self._diminished << False
+        elif string.find("º") != -1 or string.find("dim") != -1:
+            self._scale << []
+            self._dominant << False
+            self._diminished << True
+            string = string.replace("dim", "")
             # Removing all non-alphabetic characters (keeping only a-z)
             match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
                 case "i"   | "tonic":                   self._unit = 1
@@ -859,14 +860,16 @@ class Size(Unit):
     _types_str = ["None" , "1st", "3rd", "5th", "7th", "9th", "11th", "13th"]
 
     def stringToNumber(self, string: str):
-        match string.strip().lower():
-            case '1'  | "1st":              self._unit = 1
-            case '3'  | "3rd":              self._unit = 2
-            case '5'  | "5th":              self._unit = 3
-            case '7'  | "7th":              self._unit = 4
-            case '9'  | "9th":              self._unit = 5
-            case '11' | "11th":             self._unit = 6
-            case '13' | "13th":             self._unit = 7
+        size = re.findall(r"\d+", string)
+        if len(size) > 0:
+            match size[0].lower():
+                case '1'  | "1st":              self._unit = 1
+                case '3'  | "3rd":              self._unit = 2
+                case '5'  | "5th":              self._unit = 3
+                case '7'  | "7th":              self._unit = 4
+                case '9'  | "9th":              self._unit = 5
+                case '11' | "11th":             self._unit = 6
+                case '13' | "13th":             self._unit = 7
 
     @staticmethod
     def numberToString(number: int) -> str:

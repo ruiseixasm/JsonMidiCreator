@@ -914,13 +914,15 @@ class Chord(KeyScale):
             case ou.Inversion():            self._inversion << operand
             case str():
                 operand = operand.strip()
-                if operand.find("m") != -1:
+                if operand.find("m") != -1 and operand.find("dim") == -1:
                     self._scale << "minor"
                     operand = operand.replace("m", "")
                 else:
                     self._scale << "Major"
+                    operand = operand.replace("M", "")
                 self._key_note << operand
                 self._degree << operand
+                self._size << operand
                 self._key_note << ou.Natural(1)
                 self._key_note << ou.Degree(1)
             case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():
