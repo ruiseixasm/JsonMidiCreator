@@ -266,7 +266,7 @@ class Staff(o.Operand):
             case ro.StepsPerNote():
                 self._quantization = ro.Quantization( 1 / (operand % Fraction()) )
             case int():
-                ...
+                self._tempo << operand
             case float():
                 self._tempo << operand
             case Fraction():

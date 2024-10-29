@@ -36,5 +36,22 @@ single_notes << Foreach("I", "ii", "I", "viiº", "V", "vi", "viiº", "vi", "IV",
 # single_notes + chords >> L >> R >> P
 
 staff << 60.0 << ""
+K % str() >> Print()
 chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), O3), "F")
-chords >> R >> P
+# chords >> R >> P
+
+staff << 120
+original_melody = N * 14 << Foreach(
+    quarter, quarter, dotted_quarter, eight,
+    eight, eight, eight, eight, half,
+    quarter, quarter, dotted_quarter, eight,
+    whole)
+original_melody << Foreach(
+    (E, 5), F, E, D,
+    C, D, E, D, E,
+    D, E, D, C,
+    C) >> Smooth()
+# original_melody >> R >> P
+
+melodic_outline = original_melody % B1 + original_melody % M2 % B3 >> LJ
+melodic_outline >> R >> P
