@@ -765,17 +765,19 @@ class Degree(Unit):
 
     def stringSetDegree(self, string: str):
         string = string.strip()
-        if string.find("#") == 0:
-            self._sharp << True
-            self._flat << False
-            string = string[1:]
-        elif string.find("b") == 0:
-            self._sharp << False
-            self._flat << True
-            string = string[1:]
-        else:
-            self._sharp << False
-            self._flat << False
+        string_lower = string.lower()
+        if any(substring in string_lower for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
+            if string.find("#") == 0:
+                self._sharp << True
+                self._flat << False
+                string = string[1:]
+            elif string.find("b") == 0:
+                self._sharp << False
+                self._flat << True
+                string = string[1:]
+            else:
+                self._sharp << False
+                self._flat << False
         if string.find("7") != -1:
             self._scale << []
             self._dominant << True
@@ -793,7 +795,7 @@ class Degree(Unit):
             self._dominant << False
             self._diminished << False
         # Removing all non-alphabetic characters (keeping only a-z)
-        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
+        match re.sub(r'[^a-z]', '', string_lower):    # also removes "º"
             case "i"   | "tonic":                   self._unit = 1
             case "ii"  | "supertonic":              self._unit = 2
             case "iii" | "mediant":                 self._unit = 3

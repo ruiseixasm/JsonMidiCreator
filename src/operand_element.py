@@ -914,6 +914,8 @@ class Chord(KeyScale):
                 if operand.find("m") != -1:
                     self._scale << "minor"
                     operand = operand.replace("m", "")
+                else:
+                    self._scale << "Major"
                 self._key_note << operand
                 self._degree << operand
                 self._key_note << ou.Natural(1)
