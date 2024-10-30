@@ -466,6 +466,9 @@ class Key(Unit):
                                         else:
                                             self._unit -= 1
                                             self._sharp << True
+                                    else:
+                                        self._sharp << False
+                                        self._flat << False
             case int() | float() | Fraction():
                                     self._unit = int(operand)
                                     if Key._major_scale[self._unit % 12] == 0:
@@ -475,6 +478,9 @@ class Key(Unit):
                                         else:
                                             self._unit -= 1
                                             self._sharp << True
+                                    else:
+                                        self._sharp << False
+                                        self._flat << False
             case Sharp():
                 self._sharp << operand
             case Flat():
