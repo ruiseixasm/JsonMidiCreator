@@ -646,7 +646,6 @@ class KeyScale(Note):
         super().__init__()
         self._scale: od.Scale   = od.Scale("Major")    # Major scale as default
         self._mode: ou.Mode     = ou.Mode()
-        self._degree: ou.Degree = ou.Degree(1)
         self._key_note << ou.Natural(1)
         if len(parameters) > 0:
             self << parameters
@@ -674,13 +673,11 @@ class KeyScale(Note):
                 match operand % o.Operand():
                     case od.Scale():        return self._scale
                     case ou.Mode():         return self._mode
-                    case ou.Degree():       return self._degree
                     case _:                 return super().__mod__(operand)
             case od.Scale():        return self._scale.copy()
             case list():            return self._scale % list()
             case str():             return self._scale % str()
             case ou.Mode():         return self._mode.copy()
-            case ou.Degree():       return self._degree.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -689,8 +686,7 @@ class KeyScale(Note):
             case self.__class__():
                 return super().__eq__(other_operand) \
                     and self._scale == other_operand % od.DataSource( od.Scale() ) \
-                    and self._mode == other_operand % od.DataSource( ou.Mode() ) \
-                    and self._degree == other_operand % od.DataSource( ou.Degree() )
+                    and self._mode == other_operand % od.DataSource( ou.Mode() )
             case _:
                 return super().__eq__(other_operand)
     
@@ -718,19 +714,17 @@ class KeyScale(Note):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]    = self._scale % od.DataSource( list() )
         element_serialization["parameters"]["mode"]     = self._mode % od.DataSource( int() )
-        element_serialization["parameters"]["degree"]   = self._degree % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"] and "scale" in serialization["parameters"] and "degree" in serialization["parameters"]):
+            "mode" in serialization["parameters"] and "scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
             self._scale     = od.Scale()    << od.DataSource( serialization["parameters"]["scale"] )
             self._mode      = ou.Mode()     << od.DataSource( serialization["parameters"]["mode"] )
-            self._degree    = ou.Degree()   << od.DataSource( serialization["parameters"]["degree"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -745,14 +739,9 @@ class KeyScale(Note):
                 super().__lshift__(operand)
                 self._scale     << operand._scale
                 self._mode      << operand._mode
-                self._degree    << operand._degree
             case od.Scale() | list():   self._scale << operand
             case ou.Mode():             self._mode << operand
-            case ou.Degree():           self._degree << operand
             case _: super().__lshift__(operand)
-        if isinstance(o.Operand, (og.KeyNote, ou.Natural, ou.Degree, str)):
-            self._key_note << ou.Natural(1)
-            self._key_note << ou.Degree(1)
         return self
 
 class Chord(KeyScale):
@@ -821,9 +810,7 @@ class Chord(KeyScale):
                 return super().__eq__(other_operand)
     
     def getPlaylist(self, position: ot.Position = None):
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
-
         chord_key_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -840,15 +827,11 @@ class Chord(KeyScale):
                     if self._sus4:
                         key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
                 transposition = modulated_scale.transposition(key_note_nth)
-                if self._degree._flat:
-                    transposition -= 1
-                if self._degree._sharp:
-                    transposition += 1   # cancels out if both flat and sharp are set to true
                 if key_note_nth == 7:   # Seventh
-                    if self._degree._dominant:
+                    if self._dominant:
                         transposition -= 1
                 if key_note_nth == 3 or key_note_nth == 5:   # flattens Third and Fifth
-                    if self._degree._diminished:
+                    if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
                 chord_key_notes.append(
                     Note(self) + float(transposition)   # Jumps by semitones
@@ -885,62 +868,63 @@ class Chord(KeyScale):
 
         self_playlist = []
         for key_note in chord_key_notes:
-            self_playlist.extend(key_note.getPlaylist())    # extends the list with other list
+            self_playlist.extend(key_note.getPlaylist(position))    # extends the list with other list
 
-        # TO STUDY THE HYPOTHESIS OF A SINGLE DEGREE INSTEAD OF TWO!
-        key_note_degree = self._key_note._key._degree
+        # # TO STUDY THE HYPOTHESIS OF A SINGLE DEGREE INSTEAD OF TWO!
+        # key_note_degree = self._key_note._key._degree
 
-        if self._degree._scale.hasScale():
-            modulated_scale: od.Scale = self._degree._scale.copy().modulate(self._mode)
-        else:
-            modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
+        # if self._degree._scale.hasScale():
+        #     modulated_scale: od.Scale = self._degree._scale.copy().modulate(self._mode)
+        # else:
+        #     modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
 
-        max_size = modulated_scale.keys()
-        if max_size % 2 == 0:
-            max_size //= 2
-        max_size = min(self._size % od.DataSource( int() ), max_size)
+        # max_size = modulated_scale.keys()
+        # if max_size % 2 == 0:
+        #     max_size //= 2
+        # max_size = min(self._size % od.DataSource( int() ), max_size)
 
-        original_key_note = self._key_note
-        root_key_note = self._key_note + float(self._scale.transposition(self._degree % od.DataSource( int() )))
-        chord_key_notes = []
-        for key_note_i in range(max_size):
-            key_note_nth = key_note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
-            if key_note_nth == 3:   # Third
-                if self._sus2:
-                    key_note_nth -= 1
-                if self._sus4:
-                    key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
-            transposition = modulated_scale.transposition(key_note_nth)
-            if self._degree._flat:
-                transposition -= 1
-            if self._degree._sharp:
-                transposition += 1   # cancels out if both flat and sharp are set to true
-            if key_note_nth == 7:   # Seventh
-                if self._degree._dominant:
-                    transposition -= 1
-            if key_note_nth == 3 or key_note_nth == 5:   # flattens Third and Fifth
-                if self._degree._diminished:
-                    transposition -= 1   # cancels out if both dominant and diminished are set to true
-            chord_key_notes.append(root_key_note + float(transposition))
+        # original_key_note = self._key_note
+        # root_key_note = self._key_note + float(self._scale.transposition(self._degree % od.DataSource( int() )))
+        # chord_key_notes = []
+        # for key_note_i in range(max_size):
+        #     key_note_nth = key_note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
+        #     if key_note_nth == 3:   # Third
+        #         if self._sus2:
+        #             key_note_nth -= 1
+        #         if self._sus4:
+        #             key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
+        #     transposition = modulated_scale.transposition(key_note_nth)
+        #     if self._degree._flat:
+        #         transposition -= 1
+        #     if self._degree._sharp:
+        #         transposition += 1   # cancels out if both flat and sharp are set to true
+        #     if key_note_nth == 7:   # Seventh
+        #         if self._degree._dominant:
+        #             transposition -= 1
+        #     if key_note_nth == 3 or key_note_nth == 5:   # flattens Third and Fifth
+        #         if self._degree._diminished:
+        #             transposition -= 1   # cancels out if both dominant and diminished are set to true
+        #     chord_key_notes.append(root_key_note + float(transposition))
 
-        # Where the inversions are done
-        inversion = min(self._inversion % od.DataSource( int() ), self._size % od.DataSource( int() ) - 1)
-        if inversion:
-            first_key_note = chord_key_notes[inversion]
-            not_first_key_note = True
-            while not_first_key_note:   # Try to implement while inversion > 0 here
-                not_first_key_note = False
-                for key_note in chord_key_notes:
-                    if key_note < first_key_note:   # Critical operation
-                        key_note << key_note % ou.Octave() + 1
-                        if key_note % od.DataSource( int() ) < 128:
-                            not_first_key_note = True # to result in another while loop
+        # # Where the inversions are done
+        # inversion = min(self._inversion % od.DataSource( int() ), self._size % od.DataSource( int() ) - 1)
+        # if inversion:
+        #     first_key_note = chord_key_notes[inversion]
+        #     not_first_key_note = True
+        #     while not_first_key_note:   # Try to implement while inversion > 0 here
+        #         not_first_key_note = False
+        #         for key_note in chord_key_notes:
+        #             if key_note < first_key_note:   # Critical operation
+        #                 key_note << key_note % ou.Octave() + 1
+        #                 if key_note % od.DataSource( int() ) < 128:
+        #                     not_first_key_note = True # to result in another while loop
 
-        self_playlist = []
-        for key_note in chord_key_notes:
-            self._key_note = key_note
-            self_playlist.extend(self.getNotePlaylist(self_position))
-        self._key_note = original_key_note
+        # self_position: ot.Position  = self._position + ot.Position() if position is None else position
+        # self_playlist = []
+        # for key_note in chord_key_notes:
+        #     self._key_note = key_note
+        #     self_playlist.extend(self.getNotePlaylist(self_position))
+        # self._key_note = original_key_note
 
         return self_playlist
     
@@ -1016,11 +1000,9 @@ class Chord(KeyScale):
                     operand = operand.replace("Maj", "").replace("M", "")
                 self._degree << operand
                 self.set_all(operand)
-
-                self._key_note << ou.Natural(1)
-                self._key_note << ou.Degree(1)
             case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():
                 self._degree << operand
+                self._key_note << operand
                 if self._degree._dominant or self._degree._diminished:  # mutual exclusive
                     self._sus2 << False
                     self._sus4 << False

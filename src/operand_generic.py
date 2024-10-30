@@ -141,7 +141,7 @@ class KeyNote(Generic):
             case float():
                 return self._key % int(operand)
             case int():
-                return 12 * (self._octave._unit + 1) + int(self._key % float()) % 12    # until better solution, %12 is needed!
+                return 12 * (self._octave._unit + 1) + int(self._key % float())    # until better solution, %12 is needed!
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, operand: any) -> bool:

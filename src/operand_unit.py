@@ -458,8 +458,8 @@ class Key(Unit):
                 self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
-                self._degree        = operand._degree.copy()
-                self._scale         = operand._scale.copy()
+                self._degree        << operand._degree
+                self._scale         << operand._scale
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
             case int() | float() | Fraction():
@@ -491,13 +491,13 @@ class Key(Unit):
         import operand_rational as ro
         operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int(): return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand) )
+            case int(): return self.copy() << od.DataSource( self % int() + self.move_semitones(operand) )
             case Integer():
-                        return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand._unit) )
+                        return self.copy() << od.DataSource( self % int() + self.move_semitones(operand._unit) )
             case float() | Fraction():
-                        return self.__class__() << od.DataSource( self % int() + operand )
+                        return self.copy() << od.DataSource( self % int() + operand )
             case Key() | Semitone() | ro.Float():
-                        return self.__class__() << od.DataSource( self % int() + operand % int() )
+                        return self.copy() << od.DataSource( self % int() + operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -512,13 +512,13 @@ class Key(Unit):
         import operand_rational as ro
         operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int(): return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand * -1) )
+            case int(): return self.copy() << od.DataSource( self % int() + self.move_semitones(operand * -1) )
             case Integer():
-                        return self.__class__() << od.DataSource( self % int() + self.move_semitones(operand._unit * -1) )
+                        return self.copy() << od.DataSource( self % int() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
-                        return self.__class__() << od.DataSource( self % int() - operand )
+                        return self.copy() << od.DataSource( self % int() - operand )
             case Key() | Semitone() | ro.Float():
-                        return self.__class__() << od.DataSource( self % int() - operand % int() )
+                        return self.copy() << od.DataSource( self % int() - operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -655,9 +655,9 @@ class Dominant(Boolean):    # Flats the seventh
             case str():
                 self._unit = 0
                 operand = operand.replace("#", "").replace("b", "").lower()
-                if operand.find("º") == -1 \
+                if operand.find("º") == -1 and len(re.findall(r"\d+", operand)) > 0 \
                     and re.sub(r'[^a-z]', '', operand) in {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
-                    self._unit = 1  # triads are both Major and Dominant
+                    self._unit = 1
             case _: super().__lshift__(operand)
         return self
 
