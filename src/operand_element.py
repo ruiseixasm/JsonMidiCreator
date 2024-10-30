@@ -951,7 +951,6 @@ class Chord(KeyScale):
                     self._scale << "Major"
                     operand = operand.replace("Maj", "").replace("M", "")
                 self._degree << operand
-                self.set_all()  # clears all first
                 self.set_all(operand)
 
                 self._key_note << ou.Natural(1)

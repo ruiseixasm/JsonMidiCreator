@@ -477,12 +477,13 @@ class Key(Unit):
                 self._scale << operand
             case str():
                 string: str = operand.strip()
+                self._sharp << operand
+                self._flat << operand
                 self._degree << string
                 string = string.replace("7", "").replace("º", "").replace("dim", "")
                 if any(substring in string.upper() for substring in Key._keys):
-                    # THE PROCESSING OF FLAT AND SHARP IN THE DEGREE SHOULD PASS TO HERE OR VICE-VERSA
-                    self._flat << (string.lower().find("b") != -1) * 1
                     self.key_to_int(string)
+
             case _:                 super().__lshift__(operand)
         return self
 
@@ -544,6 +545,23 @@ class Key(Unit):
             if scale[(self % int() + move_semitones) % 12]:
                 move_keys += 1
         return move_semitones
+
+    _white_keys: dict = {
+            "c": 0,
+            "d": 2,
+            "e": 4,
+            "f": 5,
+            "g": 7,
+            "a": 9,
+            "b": 11
+         }
+    
+    def stringToNumber(self, string: str):
+        string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
+        for key, value in Key._white_keys.items():
+            if string.find(key):
+                self._unit = value
+                return
 
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
