@@ -808,15 +808,15 @@ class Degree(Unit):
             self._scale << []
             self._dominant << True
             self._diminished << False
-            # Removing all non-alphabetic characters (keeping only a-z)
-            match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
-                case "i"   | "tonic":                   self._unit = 1
-                case "ii"  | "supertonic":              self._unit = 2
-                case "iii" | "mediant":                 self._unit = 3
-                case "iv"  | "subdominant":             self._unit = 4
-                case "v"   | "dominant":                self._unit = 5
-                case "vi"  | "submediant":              self._unit = 6
-                case "vii" | "leading tone":            self._unit = 7
+        # Removing all non-alphabetic characters (keeping only a-z)
+        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
+            case "i"   | "tonic":                   self._unit = 1
+            case "ii"  | "supertonic":              self._unit = 2
+            case "iii" | "mediant":                 self._unit = 3
+            case "iv"  | "subdominant":             self._unit = 4
+            case "v"   | "dominant":                self._unit = 5
+            case "vi"  | "submediant":              self._unit = 6
+            case "vii" | "leading tone":            self._unit = 7
 
     _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "vii"]
 
