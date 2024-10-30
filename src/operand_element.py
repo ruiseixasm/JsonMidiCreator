@@ -759,8 +759,8 @@ class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
         # self._scale                     << []   # By default it has no scale!
-        self._size: ou.Size             = ou.Size(3)
-        self._inversion: ou.Inversion   = ou.Inversion(0)
+        self._size: ou.Size             = ou.Size()
+        self._inversion: ou.Inversion   = ou.Inversion()
         self._degree: ou.Degree         = ou.Degree()
         self._dominant: ou.Dominant     = ou.Dominant(0)
         self._diminished: ou.Diminished = ou.Diminished(0)
@@ -948,6 +948,8 @@ class Chord(KeyScale):
                 self._key_note << operand
                 self._degree << operand
                 self._size << operand
+
+                
                 self._key_note << ou.Natural(1)
                 self._key_note << ou.Degree(1)
             case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():

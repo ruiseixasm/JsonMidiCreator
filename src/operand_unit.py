@@ -579,10 +579,16 @@ class Octave(Unit):
             self << parameters
 
 class Sharp(Unit):  # Sharp (#)
-    pass
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
 
 class Flat(Unit):   # Flat (b)
-    pass
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
 
 class Boolean(Unit):
     def __init__(self, *parameters):
