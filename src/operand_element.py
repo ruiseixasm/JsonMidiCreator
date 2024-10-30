@@ -948,33 +948,29 @@ class Chord(KeyScale):
                     self._sus2 << False
                     self._sus4 << False
             case ou.Dominant():
+                if operand:
+                    self.set_all_false()
                 self._dominant << operand
-                if self._sus2:          # mutual exclusive
-                    self._diminished << False
-                    self._sus2 << False
-                    self._sus4 << False
             case ou.Diminished():
+                if operand:
+                    self.set_all_false()
                 self._diminished << operand
-                if self._sus2:          # mutual exclusive
-                    self._dominant << False
-                    self._sus2 << False
-                    self._sus4 << False
             case ou.Sus2():
+                if operand:
+                    self.set_all_false()
                 self._sus2 << operand
-                if self._sus2:          # mutual exclusive
-                    self._degree << ou.Dominant(0) << ou.Diminished(0)
-                    self._dominant << False
-                    self._diminished << False
-                    self._sus4 << False
             case ou.Sus4():
+                if operand:
+                    self.set_all_false()
                 self._sus4 << operand
-                if self._sus4:          # mutual exclusive
-                    self._degree << ou.Dominant(0) << ou.Diminished(0)
-                    self._dominant << False
-                    self._diminished << False
-                    self._sus2 << False
             case _: super().__lshift__(operand)
         return self
+    
+    def set_all_false(self):
+        self._dominant << False
+        self._diminished << False
+        self._sus2 << False
+        self._sus4 << False
 
 class Retrigger(Note):
     def __init__(self, *parameters):
