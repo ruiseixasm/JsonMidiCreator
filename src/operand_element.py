@@ -822,6 +822,47 @@ class Chord(KeyScale):
     
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
+        
+
+        chord_key_notes = []
+        # Sets Scale to be used
+        if self._scale.hasScale():
+            modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
+            max_size = modulated_scale.keys()
+            if max_size % 2 == 0:
+                max_size //= 2
+            max_size = min(self._size % od.DataSource( int() ), max_size)
+
+        else:   # Uses the staff keys straight away
+            modulated_scale: od.Scale = os.staff % od.Scale()   # already modulated
+            max_size = modulated_scale.keys()
+            if max_size % 2 == 0: max_size //= 2
+            max_size = min(self._size % od.DataSource( int() ), max_size)
+            chord_key_notes = []
+            for key_note_i in range(max_size):
+                key_note_int = key_note_i * 2
+                if key_note_int == 3:   # Third
+                    if self._sus2:
+                        key_note_int -= 1
+                    if self._sus4:
+                        key_note_int += 1   # cancels out if both sus2 and sus4 are set to true
+                chord_key_notes.append(
+                    Note(self) + key_note_int   # Jumps by degrees
+                )
+
+        # Where the inversions are done
+        inversion = min(self._inversion % od.DataSource( int() ), len(chord_key_notes) - 1)
+        if inversion > 0:
+            first_key_note = chord_key_notes[inversion]
+            not_first_key_note = True
+            while not_first_key_note:   # Try to implement while inversion > 0 here
+                not_first_key_note = False
+                for key_note in chord_key_notes:
+                    if key_note < first_key_note:   # Critical operation
+                        key_note << key_note % ou.Octave() + 1
+                        if key_note % od.DataSource( int() ) < 128:
+                            not_first_key_note = True # to result in another while loop
+
 
         # TO STUDY THE HYPOTHESIS OF A SINGLE DEGREE INSTEAD OF TWO!
         key_note_degree = self._key_note._key._degree

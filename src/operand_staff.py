@@ -102,7 +102,11 @@ class Staff(o.Operand):
             case ou.Key():              return self._key.copy()
             case ro.BeatsPerMeasure():  return self._time_signature % ro.BeatsPerMeasure()
             case ro.BeatNoteValue():    return self._time_signature % ro.BeatNoteValue()
-            case od.Scale():            return self._scale.copy()
+            case od.Scale():
+                                    if self._scale.hasScale():
+                                        return self._scale.copy()
+                                    else:
+                                        return self._key_signature % od.Scale()
             case ro.Quantization():     return self._quantization.copy()
             case ot.Duration():         return self._duration.copy()
             case ou.Octave():           return self._octave.copy()
