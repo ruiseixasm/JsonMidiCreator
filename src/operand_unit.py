@@ -477,12 +477,13 @@ class Key(Unit):
                 self._scale << operand
             case str():
                 string: str = operand.strip()
-                self._sharp << operand
-                self._flat << operand
+                self._sharp << string
+                self._flat << string
                 self._degree << string
-                string = string.replace("7", "").replace("º", "").replace("dim", "")
-                if any(substring in string.upper() for substring in Key._keys):
-                    self.key_to_int(string)
+                self.stringToNumber(string)
+                # string = string.replace("7", "").replace("º", "").replace("dim", "")
+                # if any(substring in string.upper() for substring in Key._keys):
+                #     self.key_to_int(string)
 
             case _:                 super().__lshift__(operand)
         return self
@@ -559,7 +560,7 @@ class Key(Unit):
     def stringToNumber(self, string: str):
         string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
         for key, value in Key._white_keys.items():
-            if string.find(key):
+            if string.find(key) != -1:
                 self._unit = value
                 return
 
