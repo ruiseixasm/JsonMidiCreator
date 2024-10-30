@@ -348,6 +348,10 @@ class Key(Unit):
                     case Degree():          return self._degree
                     case od.Scale():        return self._scale
                     case float():           return self % float()
+                    case str():
+                        note_key = self % int() % 12
+                        note_key += 12 * (self._flat._unit != 0)
+                        return Key._keys[note_key]
                     case _:                 return super().__mod__(operand)
             case Sharp():           return self._sharp.copy()
             case Flat():            return self._flat.copy()
@@ -360,7 +364,7 @@ class Key(Unit):
                     return os.staff._scale.copy()
                 return os.staff._key_signature % operand
             case str():
-                note_key = self % int() % 12
+                note_key = int(self % float()) % 12
                 note_key += 12 * (self._flat._unit != 0)
                 return Key._keys[note_key]
             case int():
@@ -373,20 +377,9 @@ class Key(Unit):
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     return self % int() + self._sharp._unit - self._flat._unit
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
-                    key_int: int            = self % int() + self._sharp._unit - self._flat._unit
+                    key_int: int            = self % int()
                     key_signature: KeySignature = os.staff._key_signature
                     key_signature_scale     = key_signature % list()
-                    if self._natural._unit == 0:
-                        accidentals_int = key_signature._unit
-                        sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15]
-                        key_int += sharps_flats[key_int % 12]
-                    key_offset: int      = 0
-                    if key_signature_scale[key_int % 12] == 0:
-                        if self._flat._unit:
-                            key_offset = +1
-                        else:
-                            key_offset = -1
-                    key_int += key_offset
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
@@ -401,7 +394,11 @@ class Key(Unit):
                         semitone_transpose -= 1
                         if key_signature_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    return float(key_int - key_offset + semitone_transpose)
+                    if self._natural._unit == 0:
+                        accidentals_int = key_signature._unit
+                        sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+                        key_int += sharps_flats[(key_int + self._sharp._unit - self._flat._unit) % 12]
+                    return float(key_int + self._sharp._unit - self._flat._unit + semitone_transpose)
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self):
@@ -462,8 +459,22 @@ class Key(Unit):
                 self._scale         << operand._scale
             case Semitone() | Integer() | ro.Float():
                                     self._unit = operand % int()
+                                    if Key._major_scale[self._unit % 12] == 0:
+                                        if self._flat:
+                                            self._unit += 1
+                                            self._flat << True
+                                        else:
+                                            self._unit -= 1
+                                            self._sharp << True
             case int() | float() | Fraction():
                                     self._unit = int(operand)
+                                    if Key._major_scale[self._unit % 12] == 0:
+                                        if self._flat:
+                                            self._unit += 1
+                                            self._flat << True
+                                        else:
+                                            self._unit -= 1
+                                            self._sharp << True
             case Sharp():
                 self._sharp << operand
             case Flat():
@@ -480,24 +491,21 @@ class Key(Unit):
                 self._flat << string
                 self._degree << string
                 self.stringToNumber(string)
-                # string = string.replace("7", "").replace("º", "").replace("dim", "")
-                # if any(substring in string.upper() for substring in Key._keys):
-                #     self.key_to_int(string)
-
             case _:                 super().__lshift__(operand)
         return self
 
     def __add__(self, operand: any) -> 'Unit':
         import operand_rational as ro
-        operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
+        operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
+        new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
-            case int(): return self.copy() << od.DataSource( self % int() + self.move_semitones(operand) )
+            case int(): new_key << od.DataSource( self % float() + self.move_semitones(operand) )
             case Integer():
-                        return self.copy() << od.DataSource( self % int() + self.move_semitones(operand._unit) )
+                        new_key << od.DataSource( self % float() + self.move_semitones(operand._unit) )
             case float() | Fraction():
-                        return self.copy() << od.DataSource( self % int() + operand )
+                        new_key << od.DataSource( self % float() + operand )
             case Key() | Semitone() | ro.Float():
-                        return self.copy() << od.DataSource( self % int() + operand % int() )
+                        new_key << od.DataSource( self % float() + operand % float() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -507,18 +515,27 @@ class Key(Unit):
                 self_copy._degree._unit += operand._unit
                 return self_copy
             case _:     return super().__add__(operand)
+        if Key._major_scale[new_key._unit % 12] == 0:
+            if self._flat:
+                new_key._unit += 1
+                new_key._flat << True
+            else:
+                new_key._unit -= 1
+                new_key._sharp << True
+        return new_key
     
     def __sub__(self, operand: any) -> 'Unit':
         import operand_rational as ro
-        operand = self & operand      # Processes the tailed self operands or the Frame operand if any exists
+        operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
+        new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
-            case int(): return self.copy() << od.DataSource( self % int() + self.move_semitones(operand * -1) )
+            case int(): new_key << od.DataSource( self % float() + self.move_semitones(operand * -1) )
             case Integer():
-                        return self.copy() << od.DataSource( self % int() + self.move_semitones(operand._unit * -1) )
+                        new_key << od.DataSource( self % float() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
-                        return self.copy() << od.DataSource( self % int() - operand )
+                        new_key << od.DataSource( self % float() - operand )
             case Key() | Semitone() | ro.Float():
-                        return self.copy() << od.DataSource( self % int() - operand % int() )
+                        new_key << od.DataSource( self % float() - operand % float() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -528,9 +545,17 @@ class Key(Unit):
                 self_copy._degree._unit -= operand._unit
                 return self_copy
             case _:     return super().__sub__(operand)
+        if Key._major_scale[new_key._unit % 12] == 0:
+            if self._flat:
+                new_key._unit += 1
+                new_key._flat << True
+            else:
+                new_key._unit -= 1
+                new_key._sharp << True
+        return new_key
     
     def move_semitones(self, move_keys: int) -> int:
-        scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff
+        scale = Key._major_scale    # Major scale for the default staff
         if self._scale.hasScale():
             scale = self._scale % list()
         elif os.staff._scale.hasScale():
@@ -545,6 +570,8 @@ class Key(Unit):
             if scale[(self % int() + move_semitones) % 12]:
                 move_keys += 1
         return move_semitones
+    
+    _major_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff
 
     _white_keys: dict = {
             "c": 0,

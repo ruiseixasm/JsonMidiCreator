@@ -811,29 +811,29 @@ class Chord(KeyScale):
     
     def getPlaylist(self, position: ot.Position = None):
         
-        chord_key_notes: list[Note] = []
+        chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
             modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
             max_size = modulated_scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
-            chord_key_notes = []
-            for key_note_i in range(max_size):
-                key_note_nth = key_note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
-                if key_note_nth == 3:   # Third
+            chord_notes = []
+            for note_i in range(max_size):
+                key_degree = note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
+                if key_degree == 3:   # Third
                     if self._sus2:
-                        key_note_nth -= 1
+                        key_degree -= 1
                     if self._sus4:
-                        key_note_nth += 1   # cancels out if both sus2 and sus4 are set to true
-                transposition = modulated_scale.transposition(key_note_nth)
-                if key_note_nth == 7:   # Seventh
+                        key_degree += 1   # cancels out if both sus2 and sus4 are set to true
+                transposition = modulated_scale.transposition(key_degree)
+                if key_degree == 7:   # Seventh
                     if self._dominant:
                         transposition -= 1
-                if key_note_nth == 3 or key_note_nth == 5:   # flattens Third and Fifth
+                if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                chord_key_notes.append(
+                chord_notes.append(
                     Note(self) + float(transposition)   # Jumps by semitones
                 )
         else:   # Uses the staff keys straight away
@@ -841,33 +841,33 @@ class Chord(KeyScale):
             max_size = modulated_scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
-            chord_key_notes = []
-            for key_note_i in range(max_size):
-                key_note_int = key_note_i * 2
-                if key_note_int == 3:   # Third
+            chord_notes = []
+            for note_i in range(max_size):
+                key_step = note_i * 2
+                if key_step == 3:   # Third
                     if self._sus2:
-                        key_note_int -= 1
+                        key_step -= 1
                     if self._sus4:
-                        key_note_int += 1   # cancels out if both sus2 and sus4 are set to true
-                chord_key_notes.append(
-                    Note(self) + key_note_int   # Jumps by degrees
+                        key_step += 1   # cancels out if both sus2 and sus4 are set to true
+                chord_notes.append(
+                    Note(self) + key_step   # Jumps by degrees
                 )
 
         # Where the inversions are done
-        inversion = min(self._inversion % od.DataSource( int() ), len(chord_key_notes) - 1)
+        inversion = min(self._inversion % od.DataSource( int() ), len(chord_notes) - 1)
         if inversion > 0:
-            first_key_note = chord_key_notes[inversion]
-            not_first_key_note = True
-            while not_first_key_note:   # Try to implement while inversion > 0 here
-                not_first_key_note = False
-                for key_note in chord_key_notes:
-                    if key_note < first_key_note:   # Critical operation
-                        key_note << key_note % ou.Octave() + 1
-                        if key_note % od.DataSource( int() ) < 128:
-                            not_first_key_note = True # to result in another while loop
+            first_note = chord_notes[inversion]
+            not_first_note = True
+            while not_first_note:   # Try to implement while inversion > 0 here
+                not_first_note = False
+                for single_note in chord_notes:
+                    if single_note % og.KeyNote() < first_note % og.KeyNote():   # Critical operation
+                        single_note << single_note % ou.Octave() + 1
+                        if single_note % od.DataSource( int() ) < 128:
+                            not_first_note = True # to result in another while loop
 
         self_playlist = []
-        for key_note in chord_key_notes:
+        for key_note in chord_notes:
             self_playlist.extend(key_note.getPlaylist(position))    # extends the list with other list
 
         # # TO STUDY THE HYPOTHESIS OF A SINGLE DEGREE INSTEAD OF TWO!
