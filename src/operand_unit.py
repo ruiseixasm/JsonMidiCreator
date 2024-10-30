@@ -635,7 +635,10 @@ class Dominant(Boolean):    # Flats the seventh
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
-                if operand.find("M") == -1 and operand.find("Maj") == -1:
+                self._unit = 0
+                operand = operand.replace("#", "").replace("b", "").lower()
+                if operand.find("º") == -1 \
+                    and re.sub(r'[^a-z]', '', operand) in {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
                     self._unit = 1  # triads are both Major and Dominant
             case _: super().__lshift__(operand)
         return self
@@ -646,6 +649,7 @@ class Diminished(Boolean):  # Flats the third and the fifth
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
+                self._unit = 0
                 if operand.find("º") != -1 or operand.lower().find("dim") != -1:
                     self._unit = 1
             case _: super().__lshift__(operand)
@@ -657,6 +661,7 @@ class Augmented(Boolean):   # Sharps the fifth
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
+                self._unit = 0
                 if operand.lower().find("aug") != -1:
                     self._unit = 1
             case _: super().__lshift__(operand)
@@ -668,6 +673,7 @@ class Sus2(Boolean):        # Second instead of the third
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
+                self._unit = 0
                 if operand.lower().find("sus2") != -1:
                     self._unit = 1
             case _: super().__lshift__(operand)
@@ -679,6 +685,7 @@ class Sus4(Boolean):        # Fourth instead of the third
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
+                self._unit = 0
                 if operand.lower().find("sus4") != -1:
                     self._unit = 1
             case _: super().__lshift__(operand)
