@@ -938,12 +938,6 @@ class Chord(KeyScale):
                     operand = operand.replace("Maj", "").replace("M", "")
                 self._degree << operand
                 self.set_all(operand)
-            case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():
-                self._degree << operand
-                self._key_note << operand
-                if self._degree._dominant or self._degree._diminished:  # mutual exclusive
-                    self._sus2 << False
-                    self._sus4 << False
             case ou.Dominant():
                 if operand:
                     self.set_all()
