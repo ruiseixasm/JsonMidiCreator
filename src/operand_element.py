@@ -764,6 +764,7 @@ class Chord(KeyScale):
         self._degree: ou.Degree         = ou.Degree()
         self._dominant: ou.Dominant     = ou.Dominant(0)
         self._diminished: ou.Diminished = ou.Diminished(0)
+        self._augmented: ou.Augmented   = ou.Augmented(0)
         self._sus2: ou.Sus2             = ou.Sus2(0)
         self._sus4: ou.Sus4             = ou.Sus4(0)
         if len(parameters) > 0:
@@ -789,6 +790,7 @@ class Chord(KeyScale):
                     case ou.Degree():       return self._degree
                     case ou.Dominant():     return self._dominant
                     case ou.Diminished():   return self._diminished
+                    case ou.Augmented():    return self._augmented
                     case ou.Sus2():         return self._sus2
                     case ou.Sus4():         return self._sus4
                     case _:                 return super().__mod__(operand)
@@ -797,6 +799,7 @@ class Chord(KeyScale):
             case ou.Degree():       return self._degree.copy()
             case ou.Dominant():     return self._dominant.copy()
             case ou.Diminished():   return self._diminished.copy()
+            case ou.Augmented():    return self._augmented.copy()
             case ou.Sus2():         return self._sus2.copy()
             case ou.Sus4():         return self._sus4.copy()
             case _:                 return super().__mod__(operand)
@@ -811,6 +814,7 @@ class Chord(KeyScale):
                     and self._degree        == other_operand % od.DataSource( ou.Degree() ) \
                     and self._dominant      == other_operand % od.DataSource( ou.Dominant() ) \
                     and self._diminished    == other_operand % od.DataSource( ou.Diminished() ) \
+                    and self._augmented     == other_operand % od.DataSource( ou.Augmented() ) \
                     and self._sus2          == other_operand % od.DataSource( ou.Sus2() ) \
                     and self._sus4          == other_operand % od.DataSource( ou.Sus4() )
             case _:
@@ -883,6 +887,7 @@ class Chord(KeyScale):
         element_serialization["parameters"]["degree"]       = self._degree.getSerialization()
         element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
         element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
+        element_serialization["parameters"]["augmented"]    = self._augmented % od.DataSource( int() )
         element_serialization["parameters"]["sus2"]         = self._sus2 % od.DataSource( int() )
         element_serialization["parameters"]["sus4"]         = self._sus4 % od.DataSource( int() )
         return element_serialization
@@ -893,7 +898,7 @@ class Chord(KeyScale):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and 
             "degree" in serialization["parameters"] and "dominant" in serialization["parameters"] and "diminished" in serialization["parameters"] and 
-            "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
+            "augmented" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
@@ -901,6 +906,7 @@ class Chord(KeyScale):
             self._degree        = ou.Degree().loadSerialization( serialization["parameters"]["degree"] )
             self._dominant      = ou.Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
             self._diminished    = ou.Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
+            self._augmented     = ou.Augmented()    << od.DataSource( serialization["parameters"]["augmented"] )
             self._sus2          = ou.Sus2()         << od.DataSource( serialization["parameters"]["sus2"] )
             self._sus4          = ou.Sus4()         << od.DataSource( serialization["parameters"]["sus4"] )
         return self
@@ -915,6 +921,7 @@ class Chord(KeyScale):
                     case ou.Degree():               self._degree = operand % o.Operand()
                     case ou.Dominant():             self._dominant = operand % o.Operand()
                     case ou.Diminished():           self._diminished = operand % o.Operand()
+                    case ou.Augmented():            self._augmented = operand % o.Operand()
                     case ou.Sus2():                 self._sus2 = operand % o.Operand()
                     case ou.Sus4():                 self._sus4 = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
@@ -925,6 +932,7 @@ class Chord(KeyScale):
                 self._degree        << operand._degree
                 self._dominant      << operand._dominant
                 self._diminished    << operand._diminished
+                self._augmented     << operand._augmented
                 self._sus2          << operand._sus2
                 self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
@@ -955,6 +963,10 @@ class Chord(KeyScale):
                 if operand:
                     self.set_all_false()
                 self._diminished << operand
+            case ou.Augmented():
+                if operand:
+                    self.set_all_false()
+                self._augmented << operand
             case ou.Sus2():
                 if operand:
                     self.set_all_false()
@@ -966,9 +978,10 @@ class Chord(KeyScale):
             case _: super().__lshift__(operand)
         return self
     
-    def set_all_false(self):
+    def set_all_false(self):    # mutual exclusive
         self._dominant << False
         self._diminished << False
+        self._augmented << False
         self._sus2 << False
         self._sus4 << False
 
