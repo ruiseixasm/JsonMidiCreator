@@ -744,7 +744,6 @@ class Chord(KeyScale):
         # self._scale                     << []   # By default it has no scale!
         self._size: ou.Size             = ou.Size()
         self._inversion: ou.Inversion   = ou.Inversion()
-        self._degree: ou.Degree         = ou.Degree()
         self._dominant: ou.Dominant     = ou.Dominant(0)
         self._diminished: ou.Diminished = ou.Diminished(0)
         self._augmented: ou.Augmented   = ou.Augmented(0)
@@ -770,7 +769,6 @@ class Chord(KeyScale):
                 match operand % o.Operand():
                     case ou.Size():         return self._size
                     case ou.Inversion():    return self._inversion
-                    case ou.Degree():       return self._degree
                     case ou.Dominant():     return self._dominant
                     case ou.Diminished():   return self._diminished
                     case ou.Augmented():    return self._augmented
@@ -779,7 +777,6 @@ class Chord(KeyScale):
                     case _:                 return super().__mod__(operand)
             case ou.Size():         return self._size.copy()
             case ou.Inversion():    return self._inversion.copy()
-            case ou.Degree():       return self._degree.copy()
             case ou.Dominant():     return self._dominant.copy()
             case ou.Diminished():   return self._diminished.copy()
             case ou.Augmented():    return self._augmented.copy()
@@ -794,7 +791,6 @@ class Chord(KeyScale):
                 return super().__eq__(other_operand) \
                     and self._size          == other_operand % od.DataSource( ou.Size() ) \
                     and self._inversion     == other_operand % od.DataSource( ou.Inversion() ) \
-                    and self._degree        == other_operand % od.DataSource( ou.Degree() ) \
                     and self._dominant      == other_operand % od.DataSource( ou.Dominant() ) \
                     and self._diminished    == other_operand % od.DataSource( ou.Diminished() ) \
                     and self._augmented     == other_operand % od.DataSource( ou.Augmented() ) \
@@ -870,7 +866,6 @@ class Chord(KeyScale):
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
-        element_serialization["parameters"]["degree"]       = self._degree.getSerialization()
         element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
         element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
         element_serialization["parameters"]["augmented"]    = self._augmented % od.DataSource( int() )
@@ -883,13 +878,12 @@ class Chord(KeyScale):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "inversion" in serialization["parameters"] and "size" in serialization["parameters"] and 
-            "degree" in serialization["parameters"] and "dominant" in serialization["parameters"] and "diminished" in serialization["parameters"] and 
+            "dominant" in serialization["parameters"] and "diminished" in serialization["parameters"] and 
             "augmented" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
-            self._degree        = ou.Degree().loadSerialization( serialization["parameters"]["degree"] )
             self._dominant      = ou.Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
             self._diminished    = ou.Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
             self._augmented     = ou.Augmented()    << od.DataSource( serialization["parameters"]["augmented"] )
@@ -904,7 +898,6 @@ class Chord(KeyScale):
                 match operand % o.Operand():
                     case ou.Size():                 self._size = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
-                    case ou.Degree():               self._degree = operand % o.Operand()
                     case ou.Dominant():             self._dominant = operand % o.Operand()
                     case ou.Diminished():           self._diminished = operand % o.Operand()
                     case ou.Augmented():            self._augmented = operand % o.Operand()
@@ -915,7 +908,6 @@ class Chord(KeyScale):
                 super().__lshift__(operand)
                 self._size          << operand._size
                 self._inversion     << operand._inversion
-                self._degree        << operand._degree
                 self._dominant      << operand._dominant
                 self._diminished    << operand._diminished
                 self._augmented     << operand._augmented
@@ -936,7 +928,6 @@ class Chord(KeyScale):
                 else:
                     self._scale << "Major"
                     operand = operand.replace("Maj", "").replace("M", "")
-                self._degree << operand
                 self.set_all(operand)
             case ou.Dominant():
                 if operand:
