@@ -584,11 +584,41 @@ class Sharp(Unit):  # Sharp (#)
         if len(parameters) > 0:
             self << parameters
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Sharp':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if len(operand) == 0:
+                    self._unit = 0
+                else:
+                    total_sharps = len(re.findall(r"#", operand))
+                    if total_sharps > 0:
+                        self._unit = total_sharps
+            case _: super().__lshift__(operand)
+        return self
+
 class Flat(Unit):   # Flat (b)
     def __init__(self, *parameters):
         super().__init__(1)
         if len(parameters) > 0:
             self << parameters
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Flat':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if len(operand) == 0:
+                    self._unit = 0
+                else:
+                    total_flats = len(re.findall(r"b", operand))
+                    if total_flats > 0:
+                        self._unit = total_flats
+            case _: super().__lshift__(operand)
+        return self
 
 class Boolean(Unit):
     def __init__(self, *parameters):
@@ -600,19 +630,59 @@ class Natural(Boolean):     # Natural (?)
     pass
 
 class Dominant(Boolean):    # Flats the seventh
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: any) -> 'Diminished':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if operand.find("M") == -1 and operand.find("Maj") == -1:
+                    self._unit = 1  # triads are both Major and Dominant
+            case _: super().__lshift__(operand)
+        return self
 
 class Diminished(Boolean):  # Flats the third and the fifth
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: any) -> 'Diminished':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if operand.find("º") != -1 or operand.lower().find("dim") != -1:
+                    self._unit = 1
+            case _: super().__lshift__(operand)
+        return self
 
 class Augmented(Boolean):   # Sharps the fifth
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: any) -> 'Augmented':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if operand.lower().find("aug") != -1:
+                    self._unit = 1
+            case _: super().__lshift__(operand)
+        return self
 
 class Sus2(Boolean):        # Second instead of the third
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: any) -> 'Sus2':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if operand.lower().find("sus2") != -1:
+                    self._unit = 1
+            case _: super().__lshift__(operand)
+        return self
 
 class Sus4(Boolean):        # Fourth instead of the third
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: any) -> 'Sus4':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if operand.lower().find("sus4") != -1:
+                    self._unit = 1
+            case _: super().__lshift__(operand)
+        return self
 
 class Mode(Unit):
     """
@@ -636,8 +706,7 @@ class Mode(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Size':
-        import operand_rational as ro
+    def __lshift__(self, operand: any) -> 'Mode':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():

@@ -939,17 +939,21 @@ class Chord(KeyScale):
             case ou.Inversion():            self._inversion << operand
             case str():
                 operand = operand.strip()
-                if operand.find("m") != -1 and operand.find("dim") == -1:
+                # Set Chord root note
+                self._key_note << operand
+                # Set Chord size
+                self._size << operand
+                # Set Chord scale
+                if (operand.find("m") != -1 or operand.find("min") != -1) and operand.find("dim") == -1:
                     self._scale << "minor"
-                    operand = operand.replace("m", "")
+                    operand = operand.replace("min", "").replace("m", "")
                 else:
                     self._scale << "Major"
-                    operand = operand.replace("M", "")
-                self._key_note << operand
+                    operand = operand.replace("Maj", "").replace("M", "")
                 self._degree << operand
-                self._size << operand
+                self.set_all()  # clears all first
+                self.set_all(operand)
 
-                
                 self._key_note << ou.Natural(1)
                 self._key_note << ou.Degree(1)
             case ou.Degree() | ou.Sharp() | ou.Flat() | ou.Dominant() | ou.Diminished():
@@ -959,33 +963,33 @@ class Chord(KeyScale):
                     self._sus4 << False
             case ou.Dominant():
                 if operand:
-                    self.set_all_false()
+                    self.set_all()
                 self._dominant << operand
             case ou.Diminished():
                 if operand:
-                    self.set_all_false()
+                    self.set_all()
                 self._diminished << operand
             case ou.Augmented():
                 if operand:
-                    self.set_all_false()
+                    self.set_all()
                 self._augmented << operand
             case ou.Sus2():
                 if operand:
-                    self.set_all_false()
+                    self.set_all()
                 self._sus2 << operand
             case ou.Sus4():
                 if operand:
-                    self.set_all_false()
+                    self.set_all()
                 self._sus4 << operand
             case _: super().__lshift__(operand)
         return self
     
-    def set_all_false(self):    # mutual exclusive
-        self._dominant << False
-        self._diminished << False
-        self._augmented << False
-        self._sus2 << False
-        self._sus4 << False
+    def set_all(self, data: any = False):    # mutual exclusive
+        self._dominant << data
+        self._diminished << data
+        self._augmented << data
+        self._sus2 << data
+        self._sus4 << data
 
 class Retrigger(Note):
     def __init__(self, *parameters):
