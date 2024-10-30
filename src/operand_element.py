@@ -899,6 +899,8 @@ class Chord(KeyScale):
             self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
             self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
             self._degree        = ou.Degree().loadSerialization( serialization["parameters"]["degree"] )
+            self._dominant      = ou.Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
+            self._diminished    = ou.Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
             self._sus2          = ou.Sus2()         << od.DataSource( serialization["parameters"]["sus2"] )
             self._sus4          = ou.Sus4()         << od.DataSource( serialization["parameters"]["sus4"] )
         return self
@@ -911,6 +913,8 @@ class Chord(KeyScale):
                     case ou.Size():                 self._size = operand % o.Operand()
                     case ou.Inversion():            self._inversion = operand % o.Operand()
                     case ou.Degree():               self._degree = operand % o.Operand()
+                    case ou.Dominant():             self._dominant = operand % o.Operand()
+                    case ou.Diminished():           self._diminished = operand % o.Operand()
                     case ou.Sus2():                 self._sus2 = operand % o.Operand()
                     case ou.Sus4():                 self._sus4 = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
@@ -919,6 +923,8 @@ class Chord(KeyScale):
                 self._size          << operand._size
                 self._inversion     << operand._inversion
                 self._degree        << operand._degree
+                self._dominant      << operand._dominant
+                self._diminished    << operand._diminished
                 self._sus2          << operand._sus2
                 self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
@@ -941,15 +947,31 @@ class Chord(KeyScale):
                 if self._degree._dominant or self._degree._diminished:  # mutual exclusive
                     self._sus2 << False
                     self._sus4 << False
+            case ou.Dominant():
+                self._dominant << operand
+                if self._sus2:          # mutual exclusive
+                    self._diminished << False
+                    self._sus2 << False
+                    self._sus4 << False
+            case ou.Diminished():
+                self._diminished << operand
+                if self._sus2:          # mutual exclusive
+                    self._dominant << False
+                    self._sus2 << False
+                    self._sus4 << False
             case ou.Sus2():
                 self._sus2 << operand
                 if self._sus2:          # mutual exclusive
                     self._degree << ou.Dominant(0) << ou.Diminished(0)
+                    self._dominant << False
+                    self._diminished << False
                     self._sus4 << False
             case ou.Sus4():
                 self._sus4 << operand
                 if self._sus4:          # mutual exclusive
                     self._degree << ou.Dominant(0) << ou.Diminished(0)
+                    self._dominant << False
+                    self._diminished << False
                     self._sus2 << False
             case _: super().__lshift__(operand)
         return self
