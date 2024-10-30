@@ -690,9 +690,6 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other_operand)
     
-    def getNotePlaylist(self, position: ot.Position = None):
-        return super().getPlaylist(position)
-
     def getPlaylist(self, position: ot.Position = None):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
@@ -705,7 +702,7 @@ class KeyScale(Note):
         self_playlist = []
         for key_note in scale_key_notes:
             self << key_note
-            self_playlist.extend(self.getNotePlaylist(self_position))
+            self_playlist.extend(super().getPlaylist(self_position))
         self << root_key_note
 
         return self_playlist
