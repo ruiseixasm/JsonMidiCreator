@@ -371,13 +371,12 @@ class Key(Unit):
                 return self._unit
             case float():
                 if self._scale.hasScale() or os.staff._scale.hasScale():
-                    return self % int()
-                else:
-                    key_int: int            = self % int()
+                    return self % int() + self._sharp._unit - self._flat._unit
+                else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
+                    key_int: int            = self % int() + self._sharp._unit - self._flat._unit
                     key_signature: KeySignature = os.staff._key_signature
                     key_signature_scale     = key_signature % list()
-                    not_natural: bool       = self._natural._unit == 0
-                    if not_natural:
+                    if self._natural._unit == 0:
                         accidentals_int = key_signature._unit
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15]
                         key_int += sharps_flats[key_int % 12]
