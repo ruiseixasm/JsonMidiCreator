@@ -578,31 +578,34 @@ class Octave(Unit):
         if len(parameters) > 0:
             self << parameters
 
+class Sharp(Unit):  # Sharp (#)
+    pass
+
+class Flat(Unit):   # Flat (b)
+    pass
+
 class Boolean(Unit):
     def __init__(self, *parameters):
         super().__init__(1)
         if len(parameters) > 0:
             self << parameters
 
-class Sharp(Boolean):      # Sharp (#)
+class Natural(Boolean):     # Natural (?)
     pass
 
-class Flat(Boolean):       # Flat (b)
+class Dominant(Boolean):    # Flats the seventh
     pass
 
-class Natural(Boolean):    # Natural (?)
+class Diminished(Boolean):  # Flats the third and the fifth
     pass
 
-class Dominant(Boolean):
+class Augmented(Boolean):   # Sharps the fifth
     pass
 
-class Diminished(Boolean):
+class Sus2(Boolean):        # Second instead of the third
     pass
 
-class Sus2(Boolean):
-    pass
-
-class Sus4(Boolean):
+class Sus4(Boolean):        # Fourth instead of the third
     pass
 
 class Mode(Unit):
