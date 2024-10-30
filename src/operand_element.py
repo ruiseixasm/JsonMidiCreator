@@ -691,19 +691,16 @@ class KeyScale(Note):
                 return super().__eq__(other_operand)
     
     def getPlaylist(self, position: ot.Position = None):
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
-
-        root_key_note = self._key_note.copy()
-        scale_key_notes = []
+        
+        scale_notes: list[Note] = []
         for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
             transposition = self._scale.transposition(self._mode % od.DataSource( int() ) + key_note_i)
-            scale_key_notes.append(root_key_note + float(transposition))
+            scale_notes.append(Note(self) + float(transposition))
 
         self_playlist = []
-        for key_note in scale_key_notes:
-            self << key_note
-            self_playlist.extend(super().getPlaylist(self_position))
-        self << root_key_note
+        for single_note in scale_notes:
+            self << single_note
+            self_playlist.extend(single_note.getPlaylist(position))
 
         return self_playlist
     
