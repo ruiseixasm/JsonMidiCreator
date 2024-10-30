@@ -457,24 +457,15 @@ class Key(Unit):
                 self._natural._unit = operand._natural._unit
                 self._degree        << operand._degree
                 self._scale         << operand._scale
-            case Semitone() | Integer() | ro.Float():
-                                    self._unit = operand % int()
-                                    if Key._major_scale[self._unit % 12] == 0:
-                                        if self._flat:
-                                            self._unit += 1
-                                            self._flat << True
-                                        else:
-                                            self._unit -= 1
-                                            self._sharp << True
+            case int() | float() | Fraction() | Semitone() | Integer() | ro.Float():
+                                    if isinstance(operand, o.Operand):
+                                        self._unit = operand % int()
                                     else:
-                                        self._sharp << False
-                                        self._flat << False
-            case int() | float() | Fraction():
-                                    self._unit = int(operand)
+                                        self._unit = int(operand)
                                     if Key._major_scale[self._unit % 12] == 0:
                                         if self._flat:
                                             self._unit += 1
-                                            self._flat << True
+                                            self._sharp << False
                                         else:
                                             self._unit -= 1
                                             self._sharp << True
