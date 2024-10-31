@@ -365,8 +365,9 @@ class Key(Unit):
                 return os.staff._key_signature % operand
             case str():
                 note_key = int(self % float()) % 12
-                note_key += 12 * (self._flat._unit != 0)
-                return ["C",  "C#/Bb", "D", "D#/Eb", "E",  "F",  "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"][note_key]
+                if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
+                    note_key += 12
+                return Key._keys[note_key]
             case int():
                 key_int: int            = self._unit
                 if self._unit is None:
@@ -468,12 +469,14 @@ class Key(Unit):
                                     else:
                                         self._unit = int(operand)
                                     if Key._major_scale[self._unit % 12] == 0:
-                                        if self._flat:
+                                        if os.staff._key_signature._unit < 0:
                                             self._unit += 1
                                             self._sharp << False
+                                            self._flat << True
                                         else:
                                             self._unit -= 1
                                             self._sharp << True
+                                            self._flat << False
                                     else:
                                         self._sharp << False
                                         self._flat << False
@@ -519,7 +522,7 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__add__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
-            if self._flat:
+            if os.staff._key_signature._unit < 0:
                 new_key._unit += 1
                 new_key._flat << True
             else:
@@ -550,7 +553,7 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__sub__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
-            if self._flat:
+            if os.staff._key_signature._unit < 0:
                 new_key._unit += 1
                 new_key._flat << True
             else:
