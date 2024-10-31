@@ -434,10 +434,12 @@ class Key(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case int():                     self._unit = operand % o.Operand()
-                    case float() | Fraction():      self._unit = int(operand % o.Operand())
+                    case int():
+                        self._unit = operand % o.Operand()
+                    case float() | Fraction():
+                        self._unit = int(operand % o.Operand())
                     case Semitone() | Integer() | ro.Float():
-                                                    self._unit = operand % o.Operand() % od.DataSource( int() )
+                        self._unit = operand % o.Operand() % od.DataSource( int() )
                     case Sharp():
                         self._sharp << operand % o.Operand()
                     case Flat():
@@ -500,13 +502,13 @@ class Key(Unit):
         new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
             case int():
-                new_key << od.DataSource( self % float() + self.move_semitones(operand) )
+                new_key << ( self % float() + self.move_semitones(operand) )
             case Integer():
-                new_key << od.DataSource( self % float() + self.move_semitones(operand._unit) )
+                new_key << ( self % float() + self.move_semitones(operand._unit) )
             case float() | Fraction():
-                new_key << od.DataSource( self % float() + operand )
+                new_key << ( self % float() + operand )
             case Key() | Semitone() | ro.Float():
-                new_key << od.DataSource( self % float() + operand % float() )
+                new_key << ( self % float() + operand % float() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -531,13 +533,13 @@ class Key(Unit):
         new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
             case int():
-                new_key << od.DataSource( self % float() + self.move_semitones(operand * -1) )
+                new_key << ( self % float() + self.move_semitones(operand * -1) )
             case Integer():
-                new_key << od.DataSource( self % float() + self.move_semitones(operand._unit * -1) )
+                new_key << ( self % float() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
-                new_key << od.DataSource( self % float() - operand )
+                new_key << ( self % float() - operand )
             case Key() | Semitone() | ro.Float():
-                new_key << od.DataSource( self % float() - operand % float() )
+                new_key << ( self % float() - operand % float() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:

@@ -139,7 +139,7 @@ class KeyNote(Generic):
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | float() | str():
                 return self._key % operand
             case float():
-                return self._key % int(operand)
+                return self._key % int(operand) # NEEDS TO BE REVIEWED
             case int():
                 return 12 * (self._octave._unit + 1) + int(self._key % float())    # until better solution, %12 is needed!
             case _:                 return super().__mod__(operand)
@@ -280,6 +280,7 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy -= operand
                 octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
+                key_copy._unit %= 12
             case ou.Degree():
                 key_copy -= operand
             case _: return super().__add__(operand)
