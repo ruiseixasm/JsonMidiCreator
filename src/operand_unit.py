@@ -368,37 +368,40 @@ class Key(Unit):
                 note_key += 12 * (self._flat._unit != 0)
                 return Key._keys[note_key]
             case int():
+                key_int: int            = self._unit
                 if self._unit is None:
                     if self._scale.hasScale() or os.staff._scale.hasScale():
-                        return os.staff._key._unit
-                    return os.staff._tonic_key._unit
-                return self._unit
+                        key_int = os.staff._key._unit
+                    else:
+                        key_int = os.staff._tonic_key._unit
+                key_signature: KeySignature = os.staff._key_signature
+                key_signature_scale     = key_signature % list()
+                degree_transpose: int   = 0
+                if self._degree._unit > 0:
+                    degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
+                elif self._degree._unit < 0:
+                    degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
+                semitone_transpose: int = 0
+                while degree_transpose > 0:
+                    semitone_transpose += 1
+                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                        degree_transpose -= 1
+                while degree_transpose < 0:
+                    semitone_transpose -= 1
+                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                        degree_transpose += 1
+                return key_int + semitone_transpose
             case float():
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     return self % int() + self._sharp._unit - self._flat._unit
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     key_int: int            = self % int()
-                    key_signature: KeySignature = os.staff._key_signature
-                    key_signature_scale     = key_signature % list()
-                    degree_transpose: int   = 0
-                    if self._degree._unit > 0:
-                        degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
-                    elif self._degree._unit < 0:
-                        degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
-                    semitone_transpose: int = 0
-                    while degree_transpose > 0:
-                        semitone_transpose += 1
-                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
-                            degree_transpose -= 1
-                    while degree_transpose < 0:
-                        semitone_transpose -= 1
-                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
-                            degree_transpose += 1
                     if self._natural._unit == 0:
+                        key_signature: KeySignature = os.staff._key_signature
                         accidentals_int = key_signature._unit
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                         key_int += sharps_flats[(key_int + self._sharp._unit - self._flat._unit) % 12]
-                    return float(key_int + self._sharp._unit - self._flat._unit + semitone_transpose)
+                    return float(key_int + self._sharp._unit - self._flat._unit)
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self):
@@ -496,13 +499,14 @@ class Key(Unit):
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
         new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
-            case int(): new_key << od.DataSource( self % float() + self.move_semitones(operand) )
+            case int():
+                new_key << od.DataSource( self % float() + self.move_semitones(operand) )
             case Integer():
-                        new_key << od.DataSource( self % float() + self.move_semitones(operand._unit) )
+                new_key << od.DataSource( self % float() + self.move_semitones(operand._unit) )
             case float() | Fraction():
-                        new_key << od.DataSource( self % float() + operand )
+                new_key << od.DataSource( self % float() + operand )
             case Key() | Semitone() | ro.Float():
-                        new_key << od.DataSource( self % float() + operand % float() )
+                new_key << od.DataSource( self % float() + operand % float() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -526,13 +530,14 @@ class Key(Unit):
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
         new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
-            case int(): new_key << od.DataSource( self % float() + self.move_semitones(operand * -1) )
+            case int():
+                new_key << od.DataSource( self % float() + self.move_semitones(operand * -1) )
             case Integer():
-                        new_key << od.DataSource( self % float() + self.move_semitones(operand._unit * -1) )
+                new_key << od.DataSource( self % float() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
-                        new_key << od.DataSource( self % float() - operand )
+                new_key << od.DataSource( self % float() - operand )
             case Key() | Semitone() | ro.Float():
-                        new_key << od.DataSource( self % float() - operand % float() )
+                new_key << od.DataSource( self % float() - operand % float() )
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:

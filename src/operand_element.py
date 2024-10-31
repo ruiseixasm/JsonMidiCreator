@@ -733,15 +733,16 @@ class KeyScale(Note):
                 super().__lshift__(operand)
                 self._scale     << operand._scale
                 self._mode      << operand._mode
-            case od.Scale() | list():   self._scale << operand
-            case ou.Mode():             self._mode << operand
+            case od.Scale() | list():
+                self._scale << operand
+            case ou.Mode():
+                self._mode << operand
             case _: super().__lshift__(operand)
         return self
 
 class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
-        # self._scale                     << []   # By default it has no scale!
         self._size: ou.Size             = ou.Size()
         self._inversion: ou.Inversion   = ou.Inversion()
         self._dominant: ou.Dominant     = ou.Dominant(0)
@@ -810,7 +811,7 @@ class Chord(KeyScale):
             max_size = min(self._size % od.DataSource( int() ), max_size)
             chord_notes = []
             for note_i in range(max_size):
-                key_degree = note_i * 2 + 1   # all odd numbers, 1, 3, 5, ...
+                key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
                     if self._sus2:
                         key_degree -= 1
@@ -827,13 +828,14 @@ class Chord(KeyScale):
                     Note(self) + float(transposition)   # Jumps by semitones
                 )
         else:   # Uses the staff keys straight away
-            modulated_scale: od.Scale = os.staff % od.Scale()   # already modulated
+            modulated_scale: od.Scale = os.staff % od.Scale(self._mode) # already modulated
             max_size = modulated_scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
+            tonic_key: ou.Key = ou.Key()
             chord_notes = []
             for note_i in range(max_size):
-                key_step = note_i * 2
+                key_step: int = note_i * 2
                 if key_step == 3:   # Third
                     if self._sus2:
                         key_step -= 1

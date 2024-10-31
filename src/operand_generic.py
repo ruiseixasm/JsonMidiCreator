@@ -223,13 +223,13 @@ class KeyNote(Generic):
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone():
                 self._key << operand
-                self._octave._unit += self._key % int() // 12
                 if self._key._unit is not None:
+                    self._octave._unit += self._key._unit // 12
                     self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key << operand
-                self._octave._unit += self._key % int() // 12
                 if self._key._unit is not None:
+                    self._octave._unit += self._key._unit // 12
                     self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
             case tuple():
                 for single_operand in operand:
@@ -255,6 +255,7 @@ class KeyNote(Generic):
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
                 key_copy += operand
                 octave_int += key_copy._unit // 12
+                key_copy._unit %= 12
             case ou.Degree():
                 key_copy += operand
             case _: return super().__add__(operand)
