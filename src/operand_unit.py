@@ -366,7 +366,7 @@ class Key(Unit):
             case str():
                 note_key = int(self % float()) % 12
                 note_key += 12 * (self._flat._unit != 0)
-                return Key._keys[note_key]
+                return ["C",  "C#/Bb", "D", "D#/Eb", "E",  "F",  "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"][note_key]
             case int():
                 key_int: int            = self._unit
                 if self._unit is None:
