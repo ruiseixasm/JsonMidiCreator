@@ -487,9 +487,9 @@ class Key(Unit):
                 self._scale << operand
             case str():
                 string: str = operand.strip()
-                self._sharp << string
-                self._flat << string
-                self._degree << string
+                self._sharp << False << string
+                self._flat << False << string
+                self._degree << 1 << string
                 self.stringToNumber(string)
             case _:                 super().__lshift__(operand)
         return self
