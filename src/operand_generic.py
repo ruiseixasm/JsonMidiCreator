@@ -107,6 +107,7 @@ class KeyNote(Generic):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
         self._key: ou.Key           = ou.Key()      # By default it's the Tonic key
+        self._key_offset: int       = 0
         if len(parameters) > 0:
             self << parameters
 
@@ -141,7 +142,7 @@ class KeyNote(Generic):
             case float():
                 return self._key % int(operand) # NEEDS TO BE REVIEWED
             case int():
-                return 12 * (self._octave._unit + 1) + int(self._key % float())    # until better solution, %12 is needed!
+                return 12 * (self._octave._unit + 1) + int(self._key % float()) + self._key_offset
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, operand: any) -> bool:
@@ -226,11 +227,21 @@ class KeyNote(Generic):
                 if self._key._unit is not None:
                     self._octave._unit += self._key._unit // 12
                     self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
-            case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
+                self._key_offset = 0
+                gross_octave: int = self % int() // 12 - 1
+                octave_offset: int = gross_octave - self._octave._unit
+                self._key_offset = octave_offset * -12
+                self._octave._unit += octave_offset
+            case ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                 self._key << operand
                 if self._key._unit is not None:
                     self._octave._unit += self._key._unit // 12
                     self._key._unit %= 12   # TO BE REVIEWED IF NECESSARY (YES IT IS)
+                # self._key_offset = 0
+                # gross_octave: int = self % int() // 12 - 1
+                # octave_offset: int = gross_octave - self._octave._unit
+                # self._key_offset = octave_offset * -12
+                # self._octave._unit += octave_offset
             case tuple():
                 for single_operand in operand:
                     self << single_operand
