@@ -396,13 +396,14 @@ class Key(Unit):
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     return self % int() + self._sharp._unit - self._flat._unit
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
-                    key_int: int            = self % int()
                     if self._natural._unit == 0:
+                        semitone_int: int            = self % int() + self._sharp._unit - self._flat._unit
                         key_signature: KeySignature = os.staff._key_signature
                         accidentals_int = key_signature._unit
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                        key_int += sharps_flats[(key_int + self._sharp._unit - self._flat._unit) % 12]
-                    return float(key_int + self._sharp._unit - self._flat._unit)
+                        semitone_transpose = sharps_flats[semitone_int % 12]
+                        return float(semitone_int + semitone_transpose)
+                    return float(self % int())
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self):
