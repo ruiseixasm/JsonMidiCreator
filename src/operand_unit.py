@@ -822,17 +822,6 @@ class Degree(Unit):
     def stringSetDegree(self, string: str):
         string = string.strip()
         # if any(substring in string.lower() for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
-        #     if string.find("#") == 0:
-        #         self._sharp << True
-        #         self._flat << False
-        #         string = string[1:]
-        #     elif string.find("b") == 0:
-        #         self._sharp << False
-        #         self._flat << True
-        #         string = string[1:]
-        #     else:
-        #         self._sharp << False
-        #         self._flat << False
         #     if string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
         #         self._scale << "minor"
         #         self._dominant << False
