@@ -278,8 +278,10 @@ class KeyNote(Generic):
             case ou.Octave():
                 octave_int -= operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
+                # key_copy += operand * -1
                 key_copy -= operand
-                octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
+                # octave_int -= max(-1 * key_copy._unit + 11, 0) // 12
+                octave_int += key_copy._unit // 12
                 key_copy._unit %= 12
             case ou.Degree():
                 key_copy -= operand
