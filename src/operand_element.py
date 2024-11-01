@@ -923,7 +923,8 @@ class Chord(KeyScale):
                 # Set Chord size
                 self._size << operand
                 # Set Chord scale
-                if (operand.find("m") != -1 or operand.find("min") != -1) and operand.find("dim") == -1:
+                if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
+                    and operand.find("dim") == -1:
                     self._scale << "minor"
                 else:
                     self._scale << "Major"
