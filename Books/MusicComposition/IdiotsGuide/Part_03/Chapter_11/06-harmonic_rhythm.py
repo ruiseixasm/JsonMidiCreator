@@ -23,12 +23,17 @@ from JsonMidiCreator import *
 
 
 staff << "bb"
-K % str() >> Print()
+K % str() >> Print()    # Returns the tonic key (I)
 
 note_group = (N * 4 << 1/8 << "iii") - Iterate()
-note_group >> R >> P
+# note_group >> R >> P
 melody = N + N + note_group + N + N + Note(half) + N + N + note_group + Note(whole) >> S
 melody << Nth(1, 2, 7, 8, 9, 10, 11, 16)**Foreach("V", "I", "I", "ii", "iii", "IV", "I", "I")
 melody >> R >> P
-chords = Chord(1/2)
+chords = Chord() * 4 << Foreach("Bb", "Gm", "Eb", "Bb") << O3
+# chords >> R >> P
+melody + chords >> L >> R >> P
+
+chords_2 = Chord(1/2) * 6 + Chord() >> S << Foreach("Bb", "Gm", "Eb", "Dm", "Eb", F, "Bb") << O3
+melody + chords_2 >> L >> R >> P
 
