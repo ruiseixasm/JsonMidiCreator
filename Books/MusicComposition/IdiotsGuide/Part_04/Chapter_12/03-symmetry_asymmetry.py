@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << 120
+staff << 140
 K % str() >> Print()    # Returns the tonic key (I)
 
 phrase_1 = N * 7 >> LJ
@@ -37,3 +37,15 @@ symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
 symmetrical >> S
 symmetrical % Length() >> Print(0)
 symmetrical >> rest_play
+
+phrase_1 = N * 7 >> LJ  >> Slur()
+phrase_2 = N * 8        >> Slur()
+phrase_3 = N * 5 >> LJ  >> Slur()
+asymmetrical = \
+    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()) + \
+    (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7, 5, 6, 7)**Degree()) + \
+    (phrase_3 % Copy()  << Foreach(8, 6, 7, 8, 9)**Degree()) + \
+    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()) + \
+    (phrase_3 % Copy()  << Foreach(10, 11, 10, 9, 10)**Degree()) >> S
+asymmetrical % Length() >> Print(0)
+asymmetrical >> rest_play
