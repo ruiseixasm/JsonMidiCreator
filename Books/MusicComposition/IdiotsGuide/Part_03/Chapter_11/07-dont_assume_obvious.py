@@ -38,7 +38,7 @@ K % str() >> Print()    # Returns the tonic key (I)
 
 fast_melody = \
     (N * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 3, 2, 1, 2, 3)**Degree()) + \
-    (N * 7 << eight << Nth(5)**quarter      << Foreach(1, -1, 1, 2, 3, -3, 2)**Degree()) + \
+    (N * 7 << eight << Nth(5)**quarter      << Foreach(1, -2, 1, 2, 3, -4, 2)**Degree()) + \
     (N * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 5, 3, 2, 1)**Degree()) + \
     (N * 5 << eight << Nth(5)**half         << Foreach(2, 2, 2, 3, 2)**Degree()) << Gate(0.7) >> S
 fast_melody >> R >> P

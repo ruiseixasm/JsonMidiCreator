@@ -384,7 +384,7 @@ class Key(Unit):
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
                     elif self._degree._unit < 0:
-                        degree_transpose    = self._degree._unit        # Negative degrees always change steps bellow
+                        degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
                     semitone_transpose: int = 0
                     while degree_transpose > 0:
                         semitone_transpose += 1
