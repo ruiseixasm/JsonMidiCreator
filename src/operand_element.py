@@ -832,7 +832,6 @@ class Chord(KeyScale):
             max_size = modulated_scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
-            tonic_key: ou.Key = ou.Key()
             chord_notes = []
             for note_i in range(max_size):
                 key_step: int = note_i * 2
@@ -842,7 +841,7 @@ class Chord(KeyScale):
                     if self._sus4:
                         key_step += 1   # cancels out if both sus2 and sus4 are set to true
                 chord_notes.append(
-                    Note(self) + key_step   # Jumps by degrees
+                    Note(self) + key_step   # Jumps by steps
                 )
 
         # Where the inversions are done
