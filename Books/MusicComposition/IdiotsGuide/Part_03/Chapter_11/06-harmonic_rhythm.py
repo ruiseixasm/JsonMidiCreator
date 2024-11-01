@@ -22,8 +22,13 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-staff << "bb" << 40
+staff << "bb"
 K % str() >> Print()
 
 note_group = (N * 4 << 1/8 << "iii") - Iterate()
 note_group >> R >> P
+melody = N + N + note_group + N + N + Note(half) + N + N + note_group + Note(whole) >> S
+melody << Nth(1, 2, 7, 8, 9, 10, 11, 16)**Foreach("V", "I", "I", "ii", "iii", "IV", "I", "I")
+melody >> R >> P
+chords = Chord(1/2)
+

@@ -646,7 +646,7 @@ class KeyScale(Note):
         super().__init__()
         self._scale: od.Scale   = od.Scale("Major")    # Major scale as default
         self._mode: ou.Mode     = ou.Mode()
-        self._key_note << ou.Natural(1)
+        self << ro.NoteValue(ro.Measure(1)) # By default a Scale and a Chord has one Measure length
         if len(parameters) > 0:
             self << parameters
 

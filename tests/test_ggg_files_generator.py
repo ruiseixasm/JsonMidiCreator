@@ -147,12 +147,12 @@ Chord("G") << Size("13th") << Scale("5th") << NoteValue(8) << Octave(3) \
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-(Chord() * 7 << Size("7th")) << Even()**Increment()**Degree(2) << Even()**Increment()**Mode(2) \
+(Chord(1/4) * 7 << Size("7th")) << Even()**Increment()**Degree(2) << Even()**Increment()**Mode(2) \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
-(Chord() * 7 << Size("7th")) << Increment()**Even()**Degree() << Increment()**Even()**Mode() \
+(Chord(1/4) * 7 << Size("7th")) << Increment()**Even()**Degree() << Increment()**Even()**Mode() \
     >> Save("json/testing/_Save_Play_p.15_first_note.json") >> Export("json/testing/_Export_Play_p.15_sequence.json")
 
-all_chords = (Chord() * 7 << Size("7th"))
+all_chords = (Chord(1/4) * 7 << Size("7th"))
 first_chords = all_chords | Beat(0)
 first_chords << Degree(5) << Mode(5)
 all_chords >> Save("json/testing/_Save_Play_p.15.2_first_note.json") >> Export("json/testing/_Export_Play_p.15.2_sequence.json")
