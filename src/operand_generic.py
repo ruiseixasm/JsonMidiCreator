@@ -124,6 +124,7 @@ class KeyNote(Generic):
         >>> key_note % Key() % str() >> Print(0)
         C
         """
+        self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -155,7 +156,7 @@ class KeyNote(Generic):
             case str() | ou.Key():
                 return self._key    == operand
             case int() | ou.Octave():
-                return self._octave == operand
+                return self % od.DataSource( ou.Octave() ) == operand
         return False
     
     def __lt__(self, operand: any) -> bool:
@@ -166,7 +167,7 @@ class KeyNote(Generic):
             case str() | ou.Key():
                 return self._key    < operand
             case int() | ou.Octave():
-                return self._octave < operand
+                return self % od.DataSource( ou.Octave() ) < operand
         return False
     
     def __gt__(self, operand: any) -> bool:
@@ -177,7 +178,7 @@ class KeyNote(Generic):
             case str() | ou.Key():
                 return self._key    > operand
             case int() | ou.Octave():
-                return self._octave > operand
+                return self % od.DataSource( ou.Octave() ) > operand
         return False
     
     def __le__(self, operand: any) -> bool:
@@ -187,6 +188,7 @@ class KeyNote(Generic):
         return self == operand or self > operand
     
     def getSerialization(self):
+        self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -205,6 +207,7 @@ class KeyNote(Generic):
             self._key           = ou.Key().loadSerialization(serialization["parameters"]["key"])
             self._octave        = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
             self._key_offset    = serialization["parameters"]["key_offset"]
+            self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
@@ -232,9 +235,9 @@ class KeyNote(Generic):
         return self
     
     def octave_correction(self):
-        gross_octave: int = self % int() // 12 - 1
+        gross_octave: int = (12 * (self._octave._unit + 1) + int(self._key % float()) + self._key_offset) // 12 - 1
         octave_offset: int = gross_octave - self._octave._unit
-        self._key_offset += octave_offset * -12
+        self._key_offset -= 12 * octave_offset
         self._octave._unit += octave_offset
 
     def __add__(self, operand) -> 'KeyNote':
@@ -265,6 +268,7 @@ class KeyNote(Generic):
         self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote(): # It may result in negative KeyNotes (unplayable)!
+                # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
                 new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
