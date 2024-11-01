@@ -190,8 +190,9 @@ class KeyNote(Generic):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "key":      self._key.getSerialization(),
-                "octave":   self._octave % od.DataSource( int() )
+                "key":          self._key.getSerialization(),
+                "octave":       self._octave % od.DataSource( int() ),
+                "key_offset":   self._key_offset
             }
         }
 
@@ -199,10 +200,11 @@ class KeyNote(Generic):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "octave" in serialization["parameters"] and "key" in serialization["parameters"]):
+            "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
-            self._key       = ou.Key().loadSerialization(serialization["parameters"]["key"])
-            self._octave    = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
+            self._key           = ou.Key().loadSerialization(serialization["parameters"]["key"])
+            self._octave        = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
+            self._key_offset    = serialization["parameters"]["key_offset"]
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'KeyNote':
