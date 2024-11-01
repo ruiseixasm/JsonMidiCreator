@@ -370,28 +370,31 @@ class Key(Unit):
                 return Key._keys[note_key]
             case int():
                 key_int: int            = self._unit
-                if self._unit is None:
-                    if self._scale.hasScale() or os.staff._scale.hasScale():
-                        key_int = os.staff._key._unit
-                    else:
-                        key_int = os.staff._tonic_key._unit
-                key_signature: KeySignature = os.staff._key_signature
-                key_signature_scale     = key_signature % list()
-                degree_transpose: int   = 0
-                if self._degree._unit > 0:
-                    degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
-                elif self._degree._unit < 0:
-                    degree_transpose    = self._degree._unit        # Negative degrees always change steps bellow
-                semitone_transpose: int = 0
-                while degree_transpose > 0:
-                    semitone_transpose += 1
-                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
-                        degree_transpose -= 1
-                while degree_transpose < 0:
-                    semitone_transpose -= 1
-                    if key_signature_scale[(key_int + semitone_transpose) % 12]:
-                        degree_transpose += 1
-                return key_int + semitone_transpose
+                if self._scale.hasScale() or os.staff._scale.hasScale():
+                    return key_int
+                else:
+                    if self._unit is None:
+                        if self._scale.hasScale() or os.staff._scale.hasScale():
+                            key_int = os.staff._key._unit
+                        else:
+                            key_int = os.staff._tonic_key._unit
+                    key_signature: KeySignature = os.staff._key_signature
+                    key_signature_scale     = key_signature % list()
+                    degree_transpose: int   = 0
+                    if self._degree._unit > 0:
+                        degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
+                    elif self._degree._unit < 0:
+                        degree_transpose    = self._degree._unit        # Negative degrees always change steps bellow
+                    semitone_transpose: int = 0
+                    while degree_transpose > 0:
+                        semitone_transpose += 1
+                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                            degree_transpose -= 1
+                    while degree_transpose < 0:
+                        semitone_transpose -= 1
+                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                            degree_transpose += 1
+                    return key_int + semitone_transpose
             case float():
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     return self % int() + self._sharp._unit - self._flat._unit

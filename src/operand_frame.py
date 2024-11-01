@@ -461,7 +461,8 @@ class Foreach(OperandFilter):
             self_operand &= subject
         if isinstance(self_operand, ol.Null):
             self._index += self._step
-            self._index %= self._len
+            if self._len > 0:
+                self._index %= self._len
             return self_operand
         if self_operand.__class__ == o.Operand:
             if self._len > 0:
@@ -478,11 +479,11 @@ class Foreach(OperandFilter):
                 stepped_operand = self_operand << self._data[self._index]
             else:
                 stepped_operand = self._data[self._index]
-            self._index += self._step
-            self._index %= self._len
         else:
             stepped_operand = self._index
-            self._index += self._step
+        self._index += self._step
+        if self._len > 0:
+            self._index %= self._len
         return stepped_operand
     
 class Wrap(OperandFilter):
