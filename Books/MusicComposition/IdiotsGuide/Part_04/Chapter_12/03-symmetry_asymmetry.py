@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-
+rest_play = (R, P)
 staff << 120
 K % str() >> Print()    # Returns the tonic key (I)
 
@@ -36,4 +36,4 @@ symmetrical = \
 symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
 symmetrical >> S
 symmetrical % Length() >> Print(0)
-symmetrical >> R >> P
+symmetrical >> rest_play

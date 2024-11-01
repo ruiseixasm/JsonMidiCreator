@@ -165,6 +165,12 @@ class Operand:
     
     # self is the pusher
     def __rshift__(self, operand: T) -> T:
+        if isinstance(operand, tuple):
+            last_operand = self
+            for single_operand in operand:
+                if isinstance(single_operand, Operand):
+                    last_operand >>= single_operand
+            return last_operand
         return operand.__rrshift__(self)
 
     # operand is the pusher
