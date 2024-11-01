@@ -682,8 +682,18 @@ class Boolean(Unit):
         if len(parameters) > 0:
             self << parameters
 
-class Natural(Boolean):     # Natural (?)
-    pass
+class Natural(Boolean):     # Natural (n)
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: any) -> 'Natural':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if len(operand) == 0:
+                    self._unit = 0
+                elif len(re.findall(r"n", operand)) > 0:
+                    self._unit = 1
+            case _: super().__lshift__(operand)
+        return self
 
 class Dominant(Boolean):    # Flats the seventh
     # CHAINABLE OPERATIONS

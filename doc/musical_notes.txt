@@ -1,0 +1,80 @@
+Key Signatures with no Sharps or Flats ()
+
+    C Major / A Minor (no sharps)
+        Attributes: Neutral, simple, clear.
+        Suitability: Friendly for all instruments; the default key for many beginners.
+        Range: Mid-range, making it easy for most instruments and voices.
+
+Key Signatures with Sharps (♯)
+
+    G Major / E Minor (1 sharp)
+        Attributes: Bright, pastoral.
+        Suitability: Ideal for string instruments (open G string resonates).
+        Range: Comfortable for vocal range, slightly brighter than C.
+
+    D Major / B Minor (2 sharps)
+        Attributes: Joyful, strong.
+        Suitability: Great for violins and guitars (open D and A strings).
+        Range: Balanced, suitable for most ensembles.
+
+    A Major / F♯ Minor (3 sharps)
+        Attributes: Warm, optimistic.
+        Suitability: Comfortable for guitar and string instruments.
+        Range: Good for mid-to-high vocal ranges, adds a touch of warmth.
+
+    E Major / C♯ Minor (4 sharps)
+        Attributes: Brilliant, lively.
+        Suitability: Favored in pop/rock for guitar, slightly challenging for winds.
+        Range: Bright and lively, with a natural resonance on strings.
+
+    B Major / G♯ Minor (5 sharps)
+        Attributes: Bold, complex.
+        Suitability: Common in jazz, suitable for piano and some strings.
+        Range: Upper range but rich with harmonic possibilities.
+
+    F♯ Major / D♯ Minor (6 sharps)
+        Attributes: Shimmering, icy.
+        Suitability: Tends to be challenging on some instruments; used for dramatic effect.
+        Range: High-pitched and bright, excellent for complex arrangements.
+
+    C♯ Major / A♯ Minor (7 sharps)
+        Attributes: Unique, intense.
+        Suitability: Rare, often used for a highly specific character.
+        Range: Very bright; rarely used due to technical difficulty.
+
+Key Signatures with Flats (♭)
+
+    F Major / D Minor (1 flat)
+        Attributes: Calm, pastoral, gentle.
+        Suitability: Great for wind instruments (especially horns); easy for singers.
+        Range: Comfortable and warm, gentle on the ear.
+
+    B♭ Major / G Minor (2 flats)
+        Attributes: Warm, graceful, nostalgic.
+        Suitability: Ideal for brass instruments (common in marches, jazz).
+        Range: Smooth and mid-range, enhancing lyrical melodies.
+
+    E♭ Major / C Minor (3 flats)
+        Attributes: Bold, heroic.
+        Suitability: Friendly for brass and woodwinds.
+        Range: Balanced, used widely for harmonic depth.
+
+    A♭ Major / F Minor (4 flats)
+        Attributes: Lush, rich.
+        Suitability: Suitable for orchestras, resonant on piano.
+        Range: Lower and warmer; great for expansive soundscapes.
+
+    D♭ Major / B♭ Minor (5 flats)
+        Attributes: Dreamy, somber.
+        Suitability: Rich on piano, used in jazz and cinematic music.
+        Range: Rich and mellow, good for evocative textures.
+
+    G♭ Major / E♭ Minor (6 flats)
+        Attributes: Dark, mellow.
+        Suitability: Resonant on piano but tricky for other instruments.
+        Range: Deep, mellow, and mysterious; often used in jazz.
+
+    C♭ Major / A♭ Minor (7 flats)
+        Attributes: Dark, melancholy.
+        Suitability: Very rare, but works on piano for unique textures.
+        Range: Deeply resonant, somber, often symbolic.
