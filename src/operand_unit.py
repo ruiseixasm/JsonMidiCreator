@@ -379,9 +379,9 @@ class Key(Unit):
                 key_signature_scale     = key_signature % list()
                 degree_transpose: int   = 0
                 if self._degree._unit > 0:
-                    degree_transpose    = self._degree._unit - 1    # Where the self._degree is processed
+                    degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
                 elif self._degree._unit < 0:
-                    degree_transpose    = self._degree._unit + 1    # Where the self._degree is processed
+                    degree_transpose    = self._degree._unit        # Negative degrees always change steps bellow
                 semitone_transpose: int = 0
                 while degree_transpose > 0:
                     semitone_transpose += 1
@@ -818,7 +818,6 @@ class Degree(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Size':
-        import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -827,30 +826,12 @@ class Degree(Unit):
                     case _:                         super().__lshift__(operand)
             case str():                 self.stringSetDegree(operand)
             case _:                 super().__lshift__(operand)
-        self._unit = max(1, self._unit)
+        if self._unit == 0: # By default a zero Degree means a "I" (Tonic)
+            self._unit = 1  # It's possible to have negative degrees
         return self
 
     def stringSetDegree(self, string: str):
         string = string.strip()
-        # if any(substring in string.lower() for substring in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}):
-        #     if string in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}:
-        #         self._scale << "minor"
-        #         self._dominant << False
-        #         self._diminished << False
-        #     elif string in {'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'}:
-        #         self._scale << "Major"
-        #         self._dominant << False
-        #         self._diminished << False
-        # if string.find("º") != -1 or string.find("dim") != -1:
-        #     self._scale << []
-        #     self._dominant << False
-        #     self._diminished << True
-        #     string = string.replace("dim", "")
-        # elif string.find("M") == -1 and len(re.findall(r"\d+", string)) > 0:
-        #     self._scale << []
-        #     self._dominant << True
-        #     self._diminished << False
-        # Removing all non-alphabetic characters (keeping only a-z)
         match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
             case "i"   | "tonic":                   self._unit = 1
             case "ii"  | "supertonic":              self._unit = 2

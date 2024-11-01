@@ -1,0 +1,45 @@
+'''
+JsonMidiCreator - Json Midi Creator is intended to be used
+in conjugation with the Json Midi Player to Play composed Elements
+Original Copyright (c) 2024 Rui Seixas Monteiro. All right reserved.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+https://github.com/ruiseixasm/JsonMidiCreator
+https://github.com/ruiseixasm/JsonMidiPlayer
+'''
+import sys
+import os
+src_path = os.path.join(os.path.dirname(__file__), '../../../../..', 'src')
+if src_path not in sys.path:
+    sys.path.append(src_path)
+
+from JsonMidiCreator import *
+
+
+staff << "#"
+K % str() >> Print()    # Returns the tonic key (I)
+
+slow_melody = N * 5 << 1/1 << Nth(2, 3)**half >> S
+slow_melody << Foreach(G, G, A, B, G)
+# slow_melody >> R >> P
+
+chords = Chord(1/2) * 6 + Chord() >> S
+chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << O3
+# chords + slow_melody >> L >> R >> P
+
+staff << "b"
+K % str() >> Print()    # Returns the tonic key (I)
+
+fast_melody = \
+    (N * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 3, 2, 1, 2, 3)**Degree()) + \
+    (N * 7 << eight << Nth(5)**quarter      << Foreach(1, -1, 1, 2, 3, -3, 2)**Degree()) + \
+    (N * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 5, 3, 2, 1)**Degree()) + \
+    (N * 5 << eight << Nth(5)**half         << Foreach(2, 2, 2, 3, 2)**Degree()) >> S
+fast_melody >> R >> P
+

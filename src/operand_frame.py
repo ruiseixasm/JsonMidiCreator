@@ -464,18 +464,25 @@ class Foreach(OperandFilter):
             self._index %= self._len
             return self_operand
         if self_operand.__class__ == o.Operand:
-            stepped_operand = self._data[self._index]
+            if self._len > 0:
+                stepped_operand = self._data[self._index]
+            else:
+                stepped_operand = self._index
         elif isinstance(self_operand, tuple):
             for single_operand in self_operand:
                 if isinstance(single_operand, o.Operand):
                     single_operand << single_operand + self._data
             stepped_operand = self_operand
-        elif isinstance(self_operand, o.Operand):
-            stepped_operand = self_operand << self._data[self._index]
+        elif self._len > 0:
+            if isinstance(self_operand, o.Operand):
+                stepped_operand = self_operand << self._data[self._index]
+            else:
+                stepped_operand = self._data[self._index]
+            self._index += self._step
+            self._index %= self._len
         else:
-            stepped_operand = self._data[self._index]
-        self._index += self._step
-        self._index %= self._len
+            stepped_operand = self._index
+            self._index += self._step
         return stepped_operand
     
 class Wrap(OperandFilter):
