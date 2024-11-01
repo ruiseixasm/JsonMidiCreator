@@ -50,9 +50,9 @@ class LSB(MidiValue):
     pass
 
 class Process(Label):
-    def __init__(self, parameter: int = 0):
+    def __init__(self, parameter: any = 0):
         super().__init__()
-        self._parameter: int = parameter
+        self._parameter: any = parameter
 
 class Copy(Process):
     """
@@ -77,6 +77,17 @@ class Tie(Process):
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.tie()
+        else:
+            return super().__rrshift__(operand)
+
+class Slur(Process):
+    def __init__(self, gate: float = 1.0):
+        super().__init__(gate)
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.slur(self._parameter)
         else:
             return super().__rrshift__(operand)
 

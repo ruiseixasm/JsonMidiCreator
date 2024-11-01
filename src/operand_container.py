@@ -423,9 +423,20 @@ class Sequence(Container):  # Just a container of Elements
         last_element = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
+                if last_element is not None and single_datasource._data._key_note == last_element._key_note:
+                    last_element << ro.Gate(1.0)
+                last_element = single_datasource._data
+        if last_element is not None:
+            last_element << ro.Gate(1.0)
+        return self
+    
+    def slur(self, gate: float = 1.0) -> 'Sequence':
+        import operand_element as oe
+        last_element = None
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Note):
                 if last_element is not None:
-                    if single_datasource._data._key_note == last_element._key_note:
-                        last_element << ro.Gate(1.0)
+                    last_element << ro.Gate(gate)
                 last_element = single_datasource._data
         return self
     
