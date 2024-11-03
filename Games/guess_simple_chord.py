@@ -33,8 +33,12 @@ elements = (
 
 def print_menu():
     for choice_i in range(len(choices)):
-        print(f"{choice_i} - {choices[choice_i]}", end=" | ")
+        print(f"{choice_i + 1} - {choices[choice_i]}", end=" | ")
     print(f"r to repeat | q to quit")
+
+def press_enter():
+    print("Press ENTER to try again.")
+    return input()
 
 user_choice = ""
 while user_choice != 'q':
@@ -43,10 +47,10 @@ while user_choice != 'q':
     elements[right_choice_int] >> Play()
     print_menu()
     user_choice = input()
-    if user_choice == 'r':
+    if user_choice == 'r' or user_choice == 'q':
         continue
-    elif user_choice == str(right_choice_int):
+    elif user_choice == str(right_choice_int + 1):
         print(f"You guess it!")
     else:
         print(f"Wrong, it's \"{choices[right_choice_int]}\"! Better luck next time...")
-
+    user_choice = press_enter()
