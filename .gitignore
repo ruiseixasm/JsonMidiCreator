@@ -183,5 +183,7 @@ cython_debug/
 *.so
 *.dll
 *.dylib
+Midi/*.mid
+Midi/*.smf
 json/*.json
 json/*/*.json
