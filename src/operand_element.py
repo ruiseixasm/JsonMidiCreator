@@ -725,21 +725,26 @@ class KeyScale(Note):
                     and self._mode == other_operand % od.DataSource( ou.Mode() )
             case _:
                 return super().__eq__(other_operand)
-    
-    def getPlaylist(self, position: ot.Position = None) -> list:
-        
+            
+    def get_scale_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
         for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
             transposition = self._scale.transposition(self._mode % od.DataSource( int() ) + key_note_i)
             scale_notes.append(Note(self) + float(transposition))
-
+        return scale_notes
+    
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_playlist = []
-        for single_note in scale_notes:
-            self << single_note
+        for single_note in self.get_scale_notes():
             self_playlist.extend(single_note.getPlaylist(position))
-
         return self_playlist
     
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist = []
+        for single_note in self.get_scale_notes():
+            self_midilist.extend(single_note.getMidilist(position))
+        return self_midilist
+
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]    = self._scale % od.DataSource( list() )
