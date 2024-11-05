@@ -154,3 +154,14 @@ def jsonMidiPlay(play_list, verbose: bool = False):
             print(f"An error occurred while accessing the function: {e}")
         except Exception as e:
             print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
+
+def create_midi_file(filename="output.mid"):
+    try:
+        # pip install midiutil
+        from midiutil import MIDIFile
+    except ImportError:
+        print("Error: The 'midiutil' library is not installed.")
+        print("Please install it by running 'pip install midiutil'.")
+        return
+    
+    

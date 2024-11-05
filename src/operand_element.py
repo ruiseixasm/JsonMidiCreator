@@ -40,6 +40,7 @@ class Element(o.Operand):
         self._length: ot.Length             = ot.Length()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
+        self._track: ou.Track               = ou.Track()
         if len(parameters) > 0:
             self << parameters
 
@@ -61,6 +62,7 @@ class Element(o.Operand):
                     case ot.Length():       return self._length
                     case ou.Channel():      return self._channel
                     case od.Device():       return self._device
+                    case ou.Track():        return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -70,6 +72,7 @@ class Element(o.Operand):
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
+            case ou.Track():        return self._track.copy()
             case Element():         return self.copy()
             case ol.Start():        return self.start()
             case ol.End():          return self.end()
@@ -79,10 +82,11 @@ class Element(o.Operand):
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
             case self.__class__():
-                return  self._position == other_operand % od.DataSource( ot.Position() ) \
-                    and self._length == other_operand % od.DataSource( ot.Length() ) \
-                    and self._channel == other_operand % od.DataSource( ou.Channel() ) \
-                    and self._device == other_operand % od.DataSource( od.Device() )
+                return  self._position  == other_operand % od.DataSource( ot.Position() ) \
+                    and self._length    == other_operand % od.DataSource( ot.Length() ) \
+                    and self._channel   == other_operand % od.DataSource( ou.Channel() ) \
+                    and self._device    == other_operand % od.DataSource( od.Device() ) \
+                    and self._track     == other_operand % od.DataSource( ou.Track() )
             case ro.TimeUnit():
                 return self._position == other_operand
             case _:
@@ -131,6 +135,19 @@ class Element(o.Operand):
                 }
             ]
 
+    def getMidifile(self, position: ot.Position = None):
+        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
+
+        return {
+            "track": 0,
+            "channel": 0,
+            "time": 0,      # beats
+            "tempo": 120,   # bpm
+        }
+
     def getSerialization(self):
         return {
             "class": self.__class__.__name__,
@@ -138,7 +155,8 @@ class Element(o.Operand):
                 "position": self._position.getSerialization(),
                 "length":   self._length.getSerialization(),
                 "channel":  self._channel % od.DataSource( int() ),
-                "device":   self._device % od.DataSource( list() )
+                "device":   self._device % od.DataSource( list() ),
+                "track":    self._track % od.DataSource( int() )
             }
         }
 
@@ -147,12 +165,13 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "length" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"] and "track" in serialization["parameters"]):
 
             self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
             self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
             self._channel   = ou.Channel()  << od.DataSource( serialization["parameters"]["channel"] )
             self._device    = od.Device()   << od.DataSource( serialization["parameters"]["device"] )
+            self._track     = ou.Track()    << od.DataSource( serialization["parameters"]["track"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
@@ -164,11 +183,13 @@ class Element(o.Operand):
                     case ot.Length():       self._length = operand % o.Operand()
                     case ou.Channel():      self._channel = operand % o.Operand()
                     case od.Device():       self._device = operand % o.Operand()
+                    case ou.Track():        self._track = operand % o.Operand()
             case Element():
                 self._position      << operand._position
                 self._length        << operand._length
                 self._channel       << operand._channel
                 self._device        << operand._device
+                self._track         << operand._track
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Length() | ro.NoteValue():
@@ -177,6 +198,7 @@ class Element(o.Operand):
                                     self._position << operand
             case ou.Channel():      self._channel << operand
             case od.Device():       self._device << operand
+            case ou.Track():        self._track << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
             case tuple():
@@ -553,6 +575,45 @@ class Note(Rest):
 
         on_time_ms = self_position.getTime_ms()
         off_time_ms = (self_position + duration * self._gate).getTime_ms()
+        return [
+                {
+                    "time_ms": on_time_ms,
+                    "midi_message": {
+                        "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
+                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_2": Element.midi_128(velocity_int),
+                        "device": device_list
+                    }
+                },
+                {
+                    "time_ms": off_time_ms,
+                    "midi_message": {
+                        "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
+                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_2": 0,
+                        "device": device_list
+                    }
+                }
+            ]
+    
+    def getMidifile(self, position: ot.Position = None):
+        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+
+        duration: ot.Duration       = self._duration
+        key_note_int: int           = self._key_note % od.DataSource( int() )
+        velocity_int: int           = self._velocity % od.DataSource( int () )
+        channel_int: int            = self._channel % od.DataSource( int() )
+        device_list: list           = self._device % od.DataSource( list() )
+
+        return {
+            "track": 0,
+            "channel": 0,
+            "time": 0,      # beats
+            "duration": 0,  # beats
+            "tempo": 120,   # bpm
+            "velocity": 100
+        }
+
         return [
                 {
                     "time_ms": on_time_ms,

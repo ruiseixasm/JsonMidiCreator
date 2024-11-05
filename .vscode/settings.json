@@ -18,6 +18,8 @@
         "infile",
         "konstants",
         "Locrian",
+        "Midifile",
+        "midiutil",
         "Mixolydian",
         "Monteiro",
         "nths",

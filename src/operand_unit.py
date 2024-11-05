@@ -1010,6 +1010,30 @@ class PPQN(Unit):
 class Midi(Unit):
     pass
 
+class Track(Midi):
+    """
+    A Track() is how arrangements are split in multiple compositions in Midi files.
+    
+    Parameters
+    ----------
+    first : integer_like
+        For a given track concerning a composition, there default is 0.
+    """
+    def __init__(self, unit: int = None):
+        super().__init__(unit)
+
+class Channel(Midi):
+    """
+    A Channel() is an identifier normally associated to an instrument in a given midi device.
+    
+    Parameters
+    ----------
+    first : integer_like
+        For a given device, there are 16 channels ranging from 1 to 16
+    """
+    def __init__(self, unit: int = None):
+        super().__init__( os.staff % od.DataSource( self ) % int() if unit is None else unit )
+
 class Velocity(Midi):
     """
     Velocity() represents the velocity or strength by which a key is pressed.
@@ -1033,18 +1057,6 @@ class Pressure(Midi):
     """
     def __init__(self, unit: int = None):
         super().__init__(unit)
-
-class Channel(Midi):
-    """
-    A Channel() is an identifier normally associated to an instrument in a given midi device.
-    
-    Parameters
-    ----------
-    first : integer_like
-        For a given device, there are 16 channels ranging from 1 to 16
-    """
-    def __init__(self, unit: int = None):
-        super().__init__( os.staff % od.DataSource( self ) % int() if unit is None else unit )
 
 class Pitch(Midi):
     """
