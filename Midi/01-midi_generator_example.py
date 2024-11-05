@@ -13,6 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+# pip install MIDIFile
 from MIDI import MIDIFile
 from sys import argv
 

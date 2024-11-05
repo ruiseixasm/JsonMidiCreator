@@ -13,6 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+# pip install midiutil
 from midiutil import MIDIFile
 
 # Create a single-track MIDI file
