@@ -140,6 +140,7 @@ class Element(o.Operand):
 
         return [
                 {
+                    "event":        "None",
                     "track":        self._track % int(),
                     "channel":      Element.midi_16(self._channel % int()),
                     "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
@@ -485,9 +486,9 @@ class Rest(Element):
     
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["event"] = "Rest"
         self_midilist.append(
                 {
-                    "event":    "Rest",
                     "duration": self._duration % od.DataSource( ro.Beat() ) % float()
                 }
             )
