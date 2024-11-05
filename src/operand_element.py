@@ -142,7 +142,7 @@ class Element(o.Operand):
                 {
                     "event":        "None",
                     "track":        self._track % int(),
-                    "channel":      Element.midi_16(self._channel % int()),
+                    "channel":      Element.midi_16(self._channel % int() - 1),
                     "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
                     "tempo":        os.staff._tempo % float()   # bpm
                 }
