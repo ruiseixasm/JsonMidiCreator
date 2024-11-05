@@ -19,6 +19,7 @@
         "konstants",
         "Locrian",
         "Midifile",
+        "Midilist",
         "midiutil",
         "Mixolydian",
         "Monteiro",

@@ -135,15 +135,17 @@ class Element(o.Operand):
                 }
             ]
 
-    def getMidifile(self, position: ot.Position = None) -> dict:
+    def getMidilist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        return {
-            "track":        self._track % int(),
-            "channel":      Element.midi_16(self._channel % int()),
-            "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
-            "tempo":        os.staff._tempo % float()   # bpm
-        }
+        return [
+                {
+                    "track":        self._track % int(),
+                    "channel":      Element.midi_16(self._channel % int()),
+                    "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
+                    "tempo":        os.staff._tempo % float()   # bpm
+                }
+            ]
 
     def getSerialization(self) -> dict:
         return {
@@ -481,10 +483,14 @@ class Rest(Element):
                 }
             ]
     
-    def getMidifile(self, position: ot.Position = None) -> dict:
-        self_midifile: dict = super().getMidifile(position)
-        self_midifile["duration"] = self._duration % od.DataSource( ro.Beat() ) % float()
-        return self_midifile
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist.append(
+                {
+                    "duration": self._duration % od.DataSource( ro.Beat() ) % float()
+                }
+            )
+        return self_midilist
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
@@ -598,11 +604,16 @@ class Note(Rest):
                 }
             ]
     
-    def getMidifile(self, position: ot.Position = None) -> dict:
-        self_midifile: dict = super().getMidifile(position)
-        self_midifile["pitch"]      = Element.midi_128(self._key_note % int())
-        self_midifile["velocity"]   = Element.midi_128(self._velocity % int())
-        return self_midifile
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["duration"] = self._duration % od.DataSource( ro.Beat() ) % float() * (self._gate % float())
+        self_midilist.append(
+                {
+                    "pitch": Element.midi_128(self._key_note % int()),
+                    "velocity": Element.midi_128(self._velocity % int())
+                }
+            )
+        return self_midilist
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()

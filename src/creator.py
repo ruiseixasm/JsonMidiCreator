@@ -155,7 +155,7 @@ def jsonMidiPlay(play_list, verbose: bool = False):
         except Exception as e:
             print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
 
-def create_midi_file(filename="output.mid"):
+def create_midi_file(midi_list, filename="output.mid"):
     try:
         # pip install midiutil
         from midiutil import MIDIFile
@@ -164,4 +164,54 @@ def create_midi_file(filename="output.mid"):
         print("Please install it by running 'pip install midiutil'.")
         return
     
+    set_tracks: set = {}
+    tracks_config: list = []
+    for element in midi_list:
+        if element["track"] not in set_tracks:  # track not yet processed
+            track_config: dict = {
+                "track":    element["track"],
+                "tempo":    element["tempo"]
+            }
+            min_time = element["time"]
+            for track_element in midi_list:
+                if track_element["track"] == element["track"]:
+                    min_time = min(track_element["time"], min_time)
+            for track_element in midi_list:
+                if track_element["track"] == element["track"]:
+                    track_element["time"] -= min_time
+            track_config["time"] = min_time
+            set_tracks.add(element["track"])    # sets don't allow duplicates nevertheless
+            tracks_config.append(track_config)
+
+    MyMIDI = MIDIFile(len(set_tracks))
+    for track_config in tracks_config:
+        MyMIDI.addTempo(
+            track_config["track"],
+            track_config["time"],
+            track_config["tempo"]
+        )
     
+
+# #!/usr/bin/env python
+
+# from midiutil import MIDIFile
+
+# degrees  = [60, 62, 64, 65, 67, 69, 71, 72]  # MIDI note number
+# track    = 0
+# channel  = 0
+# time     = 0    # In beats
+# duration = 1    # In beats
+# tempo    = 60   # In BPM
+# volume   = 100  # 0-127, as per the MIDI standard
+
+# MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created
+#                       # automatically)
+# MyMIDI.addTempo(track, time, tempo)
+
+# for i, pitch in enumerate(degrees):
+#     MyMIDI.addNote(track, channel, pitch, time + i, duration, volume)
+
+# with open("major-scale.mid", "wb") as output_file:
+#     MyMIDI.writeFile(output_file)
+
+# https://pypi.org/project/MIDIUtil/
