@@ -155,7 +155,7 @@ def jsonMidiPlay(play_list, verbose: bool = False):
         except Exception as e:
             print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
 
-def create_midi_file(midi_list, filename="output.mid"):
+def saveMidiFile(midi_list, filename="output.mid"):
     try:
         # pip install midiutil
         from midiutil import MIDIFile
@@ -165,32 +165,45 @@ def create_midi_file(midi_list, filename="output.mid"):
         return
     
     set_tracks: set = {}
-    tracks_config: list = []
+    tracks_list: list = []
     for element in midi_list:
         if element["track"] not in set_tracks:  # track not yet processed
-            track_config: dict = {
+            track_content: dict = {
                 "track":    element["track"],
-                "tempo":    element["tempo"]
+                "tempo":    element["tempo"],
+                "elements": []
             }
-            min_time = element["time"]
             for track_element in midi_list:
                 if track_element["track"] == element["track"]:
-                    min_time = min(track_element["time"], min_time)
+                    track_content["elements"].append(track_element)
+            track_content["elements"] = sorted(track_content["elements"], key=lambda x: x["time"])
+            track_content["time"] = track_content["elements"][0]["time"] # elements sorted by time (min time)
             for track_element in midi_list:
                 if track_element["track"] == element["track"]:
-                    track_element["time"] -= min_time
-            track_config["time"] = min_time
+                    track_element["time"] -= track_content["time"]
+            tracks_list.append(track_content)
             set_tracks.add(element["track"])    # sets don't allow duplicates nevertheless
-            tracks_config.append(track_config)
 
     MyMIDI = MIDIFile(len(set_tracks))
-    for track_config in tracks_config:
+    for track_content in tracks_list:
         MyMIDI.addTempo(
-            track_config["track"],
-            track_config["time"],
-            track_config["tempo"]
+            track_content["track"],
+            track_content["time"],
+            track_content["tempo"]
         )
-    
+        for element in track_content["elements"]:
+            match element["event"]:
+                case "Note":
+                    MyMIDI.addNote(
+                        track_content["track"],
+                        element["channel"],
+                        element["pitch"],
+                        element["time"],
+                        element["duration"],
+                        element["velocity"]
+                    )
+    with open(filename, "wb") as output_file:   # opened to write in binary mode
+        MyMIDI.writeFile(output_file)
 
 # #!/usr/bin/env python
 
@@ -215,3 +228,20 @@ def create_midi_file(midi_list, filename="output.mid"):
 #     MyMIDI.writeFile(output_file)
 
 # https://pypi.org/project/MIDIUtil/
+
+# In the line with open(filename, "wb") as output_file:, the "wb" stands for:
+
+# w: This indicates that the file is being opened for writing. If the file already exists, it will be truncated (i.e., its contents will be erased). If the file does not exist, a new file will be created.
+# b: This indicates that the file is being opened in binary mode. This is important when dealing with non-text files, such as MIDI files, which contain binary data.
+# Alternatives
+# Here are some common alternatives for the mode parameter in the open() function:
+
+# "r": Open the file for reading (default mode). The file must exist.
+# "rb": Open the file for reading in binary mode. Useful for reading binary files.
+# "w": Open the file for writing. Creates a new file or truncates an existing file.
+# "wb": Open the file for writing in binary mode.
+# "a": Open the file for appending. Writes new data at the end of the file without truncating it.
+# "ab": Open the file for appending in binary mode.
+# "r+": Open the file for both reading and writing. The file must exist.
+# "rb+": Open the file for both reading and writing in binary mode.
+# These modes allow you to control how you interact with the file and whether you are reading from it, writing to it, or both.

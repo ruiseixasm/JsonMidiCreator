@@ -487,6 +487,7 @@ class Rest(Element):
         self_midilist: list = super().getMidilist(position)
         self_midilist.append(
                 {
+                    "event":    "Rest",
                     "duration": self._duration % od.DataSource( ro.Beat() ) % float()
                 }
             )
@@ -606,7 +607,8 @@ class Note(Rest):
     
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
-        self_midilist[0]["duration"] = self._duration % od.DataSource( ro.Beat() ) % float() * (self._gate % float())
+        self_midilist[0]["event"]       = "Note"
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ro.Beat() ) % float() * (self._gate % float())
         self_midilist.append(
                 {
                     "pitch": Element.midi_128(self._key_note % int()),
