@@ -109,7 +109,7 @@ def loadJsonMidiCreator(filename):
         print(f"Unable to Load the file: {filename}")
     return []
 
-def saveJsonMidiPlay(play_list, filename):
+def saveJsonMidiPlay(play_list: list[dict], filename):
     json_file_dict = {
             "filetype": "Json Midi Player",
             "url": "https://github.com/ruiseixasm/JsonMidiPlayer",
@@ -129,7 +129,7 @@ def loadJsonMidiPlay(filename):
         print(f"Unable to Import the file: {filename}")
     return []
         
-def jsonMidiPlay(play_list, verbose: bool = False):
+def jsonMidiPlay(play_list: list[dict], verbose: bool = False):
     global lib
     global not_found_library_message_already_shown
     if not lib and not not_found_library_message_already_shown: loadLibrary()
@@ -155,7 +155,7 @@ def jsonMidiPlay(play_list, verbose: bool = False):
         except Exception as e:
             print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
 
-def saveMidiFile(midi_list, filename="output.mid"):
+def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     try:
         # pip install midiutil
         from midiutil import MIDIFile
@@ -164,22 +164,22 @@ def saveMidiFile(midi_list, filename="output.mid"):
         print("Please install it by running 'pip install midiutil'.")
         return
     
-    set_tracks: set = {}
+    set_tracks: set = set()
     tracks_list: list = []
     for element in midi_list:
-        if element["track"] not in set_tracks:  # track not yet processed
+        if "track" in element and element["track"] not in set_tracks:  # track not yet processed
             track_content: dict = {
                 "track":    element["track"],
                 "tempo":    element["tempo"],
                 "elements": []
             }
             for track_element in midi_list:
-                if track_element["track"] == element["track"]:
+                if "track" in track_element and track_element["track"] == element["track"]:
                     track_content["elements"].append(track_element)
             track_content["elements"] = sorted(track_content["elements"], key=lambda x: x["time"])
             track_content["time"] = track_content["elements"][0]["time"] # elements sorted by time (min time)
             for track_element in midi_list:
-                if track_element["track"] == element["track"]:
+                if "track" in track_element and track_element["track"] == element["track"]:
                     track_element["time"] -= track_content["time"]
             tracks_list.append(track_content)
             set_tracks.add(element["track"])    # sets don't allow duplicates nevertheless

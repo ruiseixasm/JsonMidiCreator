@@ -581,7 +581,6 @@ class Playlist(Data):
         if len(parameters) > 0:
             self << parameters
 
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, for the case a Playlist(),
@@ -680,6 +679,19 @@ class Sort(Data):
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.sort()
+        else:
+            return super().__rrshift__(operand)
+
+class MidiExport(Data):
+    def __init__(self, file_name: str = "song.mid"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            c.saveMidiFile(operand.getMidilist(), self % str())
+            return operand
         else:
             return super().__rrshift__(operand)
 

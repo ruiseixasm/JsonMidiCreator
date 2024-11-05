@@ -30,4 +30,6 @@ replacing_notes = \
     (N * 4 << Foreach(1, -2, -4, -2)**Degree() << Foreach(None, Flat(), None, None)) \
     >> S
 replacing_notes % Length() >> Print(0)
-replacing_notes >> R >> P
+# replacing_notes >> R >> P
+
+replacing_notes >> MidiExport("example_song.mid")

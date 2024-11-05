@@ -486,12 +486,8 @@ class Rest(Element):
     
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
-        self_midilist[0]["event"] = "Rest"
-        self_midilist.append(
-                {
-                    "duration": self._duration % od.DataSource( ro.Beat() ) % float()
-                }
-            )
+        self_midilist[0]["event"]       = "Rest"
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ro.Beat() ) % float()
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -610,12 +606,8 @@ class Note(Rest):
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["duration"]    = self._duration % od.DataSource( ro.Beat() ) % float() * (self._gate % float())
-        self_midilist.append(
-                {
-                    "pitch": Element.midi_128(self._key_note % int()),
-                    "velocity": Element.midi_128(self._velocity % int())
-                }
-            )
+        self_midilist[0]["pitch"]       = Element.midi_128(self._key_note % int())
+        self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist
 
     def getSerialization(self) -> dict:

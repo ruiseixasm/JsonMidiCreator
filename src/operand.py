@@ -114,6 +114,9 @@ class Operand:
     def getPlaylist(self):
         return []
 
+    def getMidilist(self):
+        return []
+
     def getSerialization(self) -> dict:
         return { 
             "class": self.__class__.__name__,

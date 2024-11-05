@@ -369,6 +369,14 @@ class Sequence(Container):  # Just a container of Elements
                 play_list.extend(single_datasource._data.getPlaylist(position))
         return play_list
 
+    def getMidilist(self, position: ot.Position = None) -> list:
+        import operand_element as oe
+        midi_list = []
+        for single_datasource in self._datasource_list:   # Read only (extracts the play list)
+            if isinstance(single_datasource._data, oe.Element):
+                midi_list.extend(single_datasource._data.getMidilist(position))
+        return midi_list
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
