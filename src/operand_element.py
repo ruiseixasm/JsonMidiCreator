@@ -898,14 +898,14 @@ class Chord(KeyScale):
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_playlist = []
-        for key_note in self.get_chord_notes():
-            self_playlist.extend(key_note.getPlaylist(position))    # extends the list with other list
+        for single_note in self.get_chord_notes():
+            self_playlist.extend(single_note.getPlaylist(position))    # extends the list with other list
         return self_playlist
     
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist = []
-        for key_note in self.get_chord_notes():
-            self_midilist.extend(key_note.getMidilist(position))    # extends the list with other list
+        for single_note in self.get_chord_notes():
+            self_midilist.extend(single_note.getMidilist(position))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
