@@ -104,7 +104,7 @@ class Frame(o.Operand):
             return self_operand_list == other_operand_list
         return False
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         next_operand = None
         if isinstance(self._next_operand, o.Operand):
             next_operand = self._next_operand.getSerialization()

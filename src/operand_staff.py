@@ -147,7 +147,7 @@ class Staff(o.Operand):
             and self._channel           == other_staff % od.DataSource( ou.Channel() ) \
             and self._device            == other_staff % od.DataSource( od.Device() )
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {

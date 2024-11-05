@@ -144,7 +144,7 @@ class Time(o.Operand):
                 }
             ]
 
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {

@@ -135,20 +135,17 @@ class Element(o.Operand):
                 }
             ]
 
-    def getMidifile(self, position: ot.Position = None):
+    def getMidifile(self, position: ot.Position = None) -> dict:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        channel_int: int            = self._channel % od.DataSource( int() )
-        device_list: list           = self._device % od.DataSource( list() )
-
         return {
-            "track": 0,
-            "channel": 0,
-            "time": 0,      # beats
-            "tempo": 120,   # bpm
+            "track":        self._track % int(),
+            "channel":      Element.midi_16(self._channel % int()),
+            "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
+            "tempo":        os.staff._tempo % float()   # bpm
         }
 
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -316,7 +313,7 @@ class Clock(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         device = self % od.Device()
@@ -365,7 +362,7 @@ class Clock(Element):
         
         return self_playlist
 
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"]                 = self._duration.getSerialization()
         element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource( int() )
@@ -458,7 +455,7 @@ class Rest(Element):
             case _:
                 return super().__gt__(other_operand)
 
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
@@ -484,7 +481,12 @@ class Rest(Element):
                 }
             ]
     
-    def getSerialization(self):
+    def getMidifile(self, position: ot.Position = None) -> dict:
+        self_midifile: dict = super().getMidifile(position)
+        self_midifile["duration"] = self._duration % od.DataSource( ro.Beat() ) % float()
+        return self_midifile
+
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["duration"] = self._duration.getSerialization()
         return element_serialization
@@ -564,7 +566,7 @@ class Note(Rest):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
@@ -596,46 +598,13 @@ class Note(Rest):
                 }
             ]
     
-    def getMidifile(self, position: ot.Position = None):
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
+    def getMidifile(self, position: ot.Position = None) -> dict:
+        self_midifile: dict = super().getMidifile(position)
+        self_midifile["pitch"]      = Element.midi_128(self._key_note % int())
+        self_midifile["velocity"]   = Element.midi_128(self._velocity % int())
+        return self_midifile
 
-        duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % od.DataSource( int() )
-        velocity_int: int           = self._velocity % od.DataSource( int () )
-        channel_int: int            = self._channel % od.DataSource( int() )
-        device_list: list           = self._device % od.DataSource( list() )
-
-        return {
-            "track": 0,
-            "channel": 0,
-            "time": 0,      # beats
-            "duration": 0,  # beats
-            "tempo": 120,   # bpm
-            "velocity": 100
-        }
-
-        return [
-                {
-                    "time_ms": on_time_ms,
-                    "midi_message": {
-                        "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
-                        "data_byte_2": Element.midi_128(velocity_int),
-                        "device": device_list
-                    }
-                },
-                {
-                    "time_ms": off_time_ms,
-                    "midi_message": {
-                        "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
-                        "data_byte_2": 0,
-                        "device": device_list
-                    }
-                }
-            ]
-    
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
@@ -751,7 +720,7 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         
         scale_notes: list[Note] = []
         for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
@@ -765,7 +734,7 @@ class KeyScale(Note):
 
         return self_playlist
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["scale"]    = self._scale % od.DataSource( list() )
         element_serialization["parameters"]["mode"]     = self._mode % od.DataSource( int() )
@@ -861,7 +830,7 @@ class Chord(KeyScale):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         
         chord_notes: list[Note] = []
         # Sets Scale to be used
@@ -924,7 +893,7 @@ class Chord(KeyScale):
 
         return self_playlist
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
         element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
@@ -1052,7 +1021,7 @@ class Retrigger(Note):
             case ro.Swing():        return self._swing.copy()
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         self_playlist = []
@@ -1069,7 +1038,7 @@ class Retrigger(Note):
         self._duration = original_duration
         return self_playlist
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["division"] = self._division % od.DataSource( int() )
         element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
@@ -1186,7 +1155,7 @@ class Tuplet(Rest):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
         
         self_playlist = []
@@ -1201,7 +1170,7 @@ class Tuplet(Rest):
             self_iteration += 1
         return self_playlist
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
         elements = []
@@ -1313,7 +1282,7 @@ class ControlChange(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         number_int: int     = self % ou.Number() % od.DataSource( int() )
@@ -1334,7 +1303,7 @@ class ControlChange(Element):
                 }
             ]
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["controller"] = self._controller.getSerialization()
         return element_serialization
@@ -1420,7 +1389,7 @@ class PitchBend(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         msb_midi: int               = self._pitch % ol.MSB()
@@ -1441,7 +1410,7 @@ class PitchBend(Element):
                 }
             ]
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["pitch"] = self._pitch % od.DataSource( int() )
         return element_serialization
@@ -1527,7 +1496,7 @@ class Aftertouch(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         pressure_int: int   = self._pressure % od.DataSource( int() )
@@ -1546,7 +1515,7 @@ class Aftertouch(Element):
                 }
             ]
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["pressure"] = self._pressure % od.DataSource( int() )
         return element_serialization
@@ -1633,7 +1602,7 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         key_note_int: int   = self._key_note % od.DataSource( int() )
@@ -1654,7 +1623,7 @@ class PolyAftertouch(Aftertouch):
                 }
             ]
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         return element_serialization
@@ -1722,7 +1691,7 @@ class ProgramChange(Element):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         program_int: int    = self._program % od.DataSource( int() )
@@ -1741,7 +1710,7 @@ class ProgramChange(Element):
                 }
             ]
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["program"] = self._program % od.DataSource( int() )
         return element_serialization
@@ -1790,7 +1759,7 @@ class ProgramChange(Element):
         return self_copy
 
 class Panic(Element):
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         self_playlist = []

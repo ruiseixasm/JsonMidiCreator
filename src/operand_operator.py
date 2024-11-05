@@ -79,7 +79,7 @@ class Operator(o.Operand):
                 and self._operand == other_operator % od.DataSource( o.Operand() )
         return False
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         operators_serialization = []
         if isinstance(self._operand, Operator):
             for single_operator in self % list():
@@ -210,7 +210,7 @@ class Oscillator(Operator):
                 and self._offset == other_operator % od.DataSource( ro.Offset() )
         return False
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["position"]     = self._position.getSerialization()
         element_serialization["parameters"]["length"]       = self._length.getSerialization()

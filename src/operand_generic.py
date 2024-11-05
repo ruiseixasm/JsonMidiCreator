@@ -67,7 +67,7 @@ class TimeSignature(Generic):
         return  self._top           == other_time_signature._top \
             and self._bottom        == other_time_signature._bottom
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -187,7 +187,7 @@ class KeyNote(Generic):
     def __ge__(self, operand: any) -> bool:
         return self == operand or self > operand
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return {
             "class": self.__class__.__name__,
@@ -333,7 +333,7 @@ class Controller(Generic):
             return True
         return False
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {

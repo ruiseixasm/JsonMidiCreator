@@ -136,7 +136,7 @@ class Unit(o.Operand):
     def __ge__(self, other_number: any) -> bool:
         return self == other_number or self > other_number
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {
@@ -409,7 +409,7 @@ class Key(Unit):
                     return float(self % int())
             case _:                 return super().__mod__(operand)
 
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["sharp"]    = self._sharp._unit
         element_serialization["parameters"]["flat"]     = self._flat._unit

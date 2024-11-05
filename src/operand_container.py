@@ -123,7 +123,7 @@ class Container(o.Operand):
                 return self._datasource_list[index]._data
         return ol.Null()
  
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         operands_serialization = []
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, o.Operand):
@@ -361,7 +361,7 @@ class Sequence(Container):  # Just a container of Elements
             return end_position # already a copy (+)
         return ol.Null()
 
-    def getPlaylist(self, position: ot.Position = None):
+    def getPlaylist(self, position: ot.Position = None) -> list:
         import operand_element as oe
         play_list = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)

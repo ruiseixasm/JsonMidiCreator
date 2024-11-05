@@ -125,7 +125,7 @@ class Rational(o.Operand):
     def __ge__(self, other_number: any) -> bool:
         return self == other_number or self > other_number
     
-    def getSerialization(self):
+    def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {
