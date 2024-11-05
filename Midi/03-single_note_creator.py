@@ -13,28 +13,13 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-# pip install MIDIFile
-from MIDI import MIDIFile
+import sys
+import os
+src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
+if src_path not in sys.path:
+    sys.path.append(src_path)
 
-# Initialize a new MIDI file with one track
-midi_file = MIDIFile(1)  # One track in the file
-track = 0  # Track index
-time = 0   # Start time in beats
-channel = 0
-pitch = 60  # Middle C (MIDI note number)
-duration = 1  # Duration in beats
-volume = 100  # Max volume (0-127)
+from JsonMidiCreator import *
 
-# Set up track name and tempo
-midi_file.addTrackName(track, time, "Track 1")
-midi_file.addTempo(track, time, 120)
-
-# Add a note to the MIDI file
-midi_file.addNote(track, channel, pitch, time, duration, volume)
-
-# Write the file to disk
-with open("output.mid", "wb") as output_file:
-    midi_file.writeFile(output_file)
-
-print("MIDI file 'output.mid' created successfully!")
-
+single_note = Note(1/1)
+single_note >> MidiExport("single_note.mid")
