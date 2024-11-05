@@ -841,8 +841,7 @@ class Chord(KeyScale):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None) -> list:
-        
+    def get_chord_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -850,7 +849,6 @@ class Chord(KeyScale):
             max_size = modulated_scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
-            chord_notes = []
             for note_i in range(max_size):
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
@@ -873,7 +871,6 @@ class Chord(KeyScale):
             max_size = modulated_scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
-            chord_notes = []
             for note_i in range(max_size):
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
@@ -897,12 +894,19 @@ class Chord(KeyScale):
                         single_note << single_note % ou.Octave() + 1
                         if single_note % od.DataSource( int() ) < 128:
                             not_first_note = True # to result in another while loop
-
+        return chord_notes
+    
+    def getPlaylist(self, position: ot.Position = None) -> list:
         self_playlist = []
-        for key_note in chord_notes:
+        for key_note in self.get_chord_notes():
             self_playlist.extend(key_note.getPlaylist(position))    # extends the list with other list
-
         return self_playlist
+    
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist = []
+        for key_note in self.get_chord_notes():
+            self_midilist.extend(key_note.getMidilist(position))    # extends the list with other list
+        return self_midilist
     
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
