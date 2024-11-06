@@ -169,7 +169,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     for event in midi_list:
         if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")):
             processed_events.append(event)
-    processed_events = sorted(processed_events, key=lambda x: x["time"])
+    processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
     
     midi_tracks: set[int] = set()
     tracks_list: list[dict] = []
