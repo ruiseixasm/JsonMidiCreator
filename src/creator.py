@@ -211,6 +211,29 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     with open(filename, "wb") as output_file:   # opened to write in binary mode
         MyMIDI.writeFile(output_file)
 
+# Note Events
+# addNote: Adds a note-on and note-off pair for a specific pitch, channel, time, duration, and velocity.
+# Tempo and Time Events
+# addTempo: Sets the tempo for a given track and time, in beats per minute (BPM).
+# addTimeSignature: Adds a time signature event.
+# addKeySignature: Adds a key signature event.
+# Control Change (CC) Events
+# addControllerEvent: Adds a MIDI Control Change (CC) message, which is often used for controls like modulation, volume, pan, etc. Each control number corresponds to a specific MIDI controller (e.g., control number 7 is volume).
+# Program Change (PC) Events
+# addProgramChange: Changes the instrument for a specified channel at a particular time, often used to switch between instrument sounds within a track.
+# Pitch Bend and Aftertouch Events
+# addPitchWheelEvent: Adds a pitch bend message for a specific channel.
+# addChannelPressure: Adds a channel aftertouch (pressure) event for a specified channel and time.
+# addPolyPressure: Adds polyphonic (per-note) aftertouch events for individual notes.
+# System and Meta Events
+# addSysEx: Adds a System Exclusive (SysEx) message to the track, useful for custom data specific to MIDI hardware or software.
+# addUniversalSysEx: Adds a Universal System Exclusive message for broader, standard SysEx applications.
+# addText: Adds text to the MIDI file, often for lyrics, titles, or other annotations.
+# addCopyright: Adds copyright information to the file.
+# addTrackName: Adds a name to the track, which appears in most MIDI editors.
+# addMarker: Adds a marker at a specific point in the track, often for structural cues.
+# addCuePoint: Adds a cue point for synchronizing MIDI with external media.
+
 # #!/usr/bin/env python
 
 # from midiutil import MIDIFile

@@ -1319,6 +1319,13 @@ class ControlChange(Element):
                 }
             ]
     
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["event"]       = "ControllerEvent"
+        self_midilist[0]["number"]      = Element.midi_128(self._controller._number % int())
+        self_midilist[0]["value"]       = Element.midi_128(self._controller._value % int())
+        return self_midilist
+
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["controller"] = self._controller.getSerialization()
@@ -1426,6 +1433,13 @@ class PitchBend(Element):
                 }
             ]
     
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["event"]       = "PitchWheelEvent"
+        self_midilist[0]["lsb"]         = self._pitch % ol.LSB()
+        self_midilist[0]["msb"]         = self._pitch % ol.MSB()
+        return self_midilist
+
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["pitch"] = self._pitch % od.DataSource( int() )
@@ -1531,6 +1545,12 @@ class Aftertouch(Element):
                 }
             ]
     
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["event"]       = "ChannelPressure"
+        self_midilist[0]["pressure"]    = Element.midi_128(self._pressure % int())
+        return self_midilist
+
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["pressure"] = self._pressure % od.DataSource( int() )
@@ -1639,6 +1659,13 @@ class PolyAftertouch(Aftertouch):
                 }
             ]
     
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["event"]       = "PolyPressure"
+        self_midilist[0]["key"]         = Element.midi_128(self._key_note % int())
+        self_midilist[0]["pressure"]    = Element.midi_128(self._pressure % int())
+        return self_midilist
+
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
@@ -1726,6 +1753,12 @@ class ProgramChange(Element):
                 }
             ]
     
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(position)
+        self_midilist[0]["event"]       = "ProgramChange"
+        self_midilist[0]["program"]     = Element.midi_128(self._program % int())
+        return self_midilist
+
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["program"] = self._program % od.DataSource( int() )
