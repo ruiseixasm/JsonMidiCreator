@@ -1019,8 +1019,34 @@ class Track(Midi):
     first : integer_like
         For a given track concerning a composition, there default is 0.
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    def __init__(self, *parameters):
+        super().__init__()
+        self._name: str = None
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._name
+                    case _:                         super().__mod__(operand)
+            case str():                 return "Track " + str(self._unit) if not isinstance(self._name, str) else self._name
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Program':
+        import operand_rational as ro
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._name = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case str():             self._name = operand
+            case _:                 super().__lshift__(operand)
+        return self
 
 class Channel(Midi):
     """
@@ -1105,7 +1131,10 @@ class Program(Midi):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():       return super().__mod__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     Program.numberToName(self._unit)
+                    case _:                         super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 
