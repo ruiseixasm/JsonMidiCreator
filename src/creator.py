@@ -163,46 +163,53 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
         print("Error: The 'midiutil' library is not installed.")
         print("Please install it by running 'pip install midiutil'.")
         return
-    
-    set_tracks: set = set()
-    tracks_list: list = []
-    for element in midi_list:
-        if "track" in element and element["track"] not in set_tracks:  # track not yet processed
-            track_content: dict = {
-                "track":    element["track"],
-                "tempo":    element["tempo"],
-                "elements": []
-            }
-            for track_element in midi_list:
-                if "track" in track_element and track_element["track"] == element["track"]:
-                    track_content["elements"].append(track_element)
-            track_content["elements"] = sorted(track_content["elements"], key=lambda x: x["time"])
-            track_content["time"] = track_content["elements"][0]["time"] # elements sorted by time (min time)
-            for track_element in midi_list:
-                if "track" in track_element and track_element["track"] == element["track"]:
-                    track_element["time"] -= track_content["time"]
-            tracks_list.append(track_content)
-            set_tracks.add(element["track"])    # sets don't allow duplicates nevertheless
 
-    MyMIDI = MIDIFile(len(set_tracks))
+    processed_events: list[dict] = []
+    # Starts by validating all events by time
+    for event in midi_list:
+        if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")):
+            processed_events.append(event)
+    processed_events = sorted(processed_events, key=lambda x: x["time"])
+    
+    midi_tracks: set[int] = set()
+    tracks_list: list[dict] = []
+    for event in processed_events:
+        if event["track"] not in midi_tracks:  # track not yet processed
+            event_content: dict = {
+                "track":        event["track"],
+                "track_name":   event["track_name"],
+                "tempo":        event["tempo"],
+                "time":         event["time"]
+            }
+            for track_event in processed_events:
+                if track_event["track"] == event["track"]:
+                    track_event["time"] -= event_content["time"]
+            tracks_list.append(event_content)
+            midi_tracks.add(int(event["track"]))    # sets don't allow duplicates nevertheless
+
+    MyMIDI = MIDIFile(len(midi_tracks))
     for track_content in tracks_list:
+        MyMIDI.addTrackName(
+            track_content["track"],
+            track_content["time"],
+            track_content["track_name"]
+        )
         MyMIDI.addTempo(
             track_content["track"],
             track_content["time"],
             track_content["tempo"]
         )
-        # Has to be reviewed because is the entire Notes that need to be sorted and not just a specific track!!!
-        for element in track_content["elements"]:
-            match element["event"]:
-                case "Note":
-                    MyMIDI.addNote(
-                        element["track"],
-                        element["channel"],
-                        element["pitch"],
-                        element["time"],
-                        element["duration"],
-                        element["velocity"]
-                    )
+    for event in processed_events:
+        match event["event"]:
+            case "Note":
+                MyMIDI.addNote(
+                    event["track"],
+                    event["channel"],
+                    event["pitch"],
+                    event["time"],
+                    event["duration"],
+                    event["velocity"]
+                )
     with open(filename, "wb") as output_file:   # opened to write in binary mode
         MyMIDI.writeFile(output_file)
 
