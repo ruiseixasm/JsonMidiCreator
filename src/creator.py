@@ -174,18 +174,16 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     midi_tracks: set[int] = set()
     tracks_list: list[dict] = []
     for event in processed_events:
-        if event["track"] not in midi_tracks:  # track not yet processed
+        if event["track"] not in midi_tracks:  # events already sorted (processed)
+            midi_tracks.add(event["track"])    # sets don't allow duplicates nevertheless
             event_content: dict = {
                 "track":        event["track"],
                 "track_name":   event["track_name"],
                 "tempo":        event["tempo"],
                 "time":         event["time"]
             }
-            for track_event in processed_events:
-                if track_event["track"] == event["track"]:
-                    track_event["time"] -= event_content["time"]
             tracks_list.append(event_content)
-            midi_tracks.add(int(event["track"]))    # sets don't allow duplicates nevertheless
+        event["time"] -= event_content["time"]  # Events are sorted by "track" and then by "time"
 
     MyMIDI = MIDIFile(len(midi_tracks))
     for track_content in tracks_list:
