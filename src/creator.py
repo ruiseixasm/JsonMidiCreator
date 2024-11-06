@@ -208,6 +208,35 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                     event["duration"],
                     event["velocity"]
                 )
+            case "ControllerEvent":
+                MyMIDI.addControllerEvent(
+                    event["track"],
+                    event["channel"],
+                    event["time"],
+                    event["number"],
+                    event["value"]
+                )
+            case "PitchWheelEvent":
+                MyMIDI.addPitchWheelEvent(
+                    event["track"],
+                    event["channel"],
+                    event["time"],
+                    event["value"]
+                )
+            case "ChannelPressure":
+                MyMIDI.addChannelPressure(
+                    event["track"],
+                    event["channel"],
+                    event["time"],
+                    event["pressure"]
+                )
+            case "ProgramChange":
+                MyMIDI.addProgramChange(
+                    event["track"],
+                    event["channel"],
+                    event["time"],
+                    event["program"]
+                )
     with open(filename, "wb") as output_file:   # opened to write in binary mode
         MyMIDI.writeFile(output_file)
 

@@ -1436,8 +1436,7 @@ class PitchBend(Element):
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["lsb"]         = self._pitch % ol.LSB()
-        self_midilist[0]["msb"]         = self._pitch % ol.MSB()
+        self_midilist[0]["value"]       = self._pitch % int()
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1659,13 +1658,6 @@ class PolyAftertouch(Aftertouch):
                 }
             ]
     
-    def getMidilist(self, position: ot.Position = None) -> list:
-        self_midilist: list = super().getMidilist(position)
-        self_midilist[0]["event"]       = "PolyPressure"
-        self_midilist[0]["key"]         = Element.midi_128(self._key_note % int())
-        self_midilist[0]["pressure"]    = Element.midi_128(self._pressure % int())
-        return self_midilist
-
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
