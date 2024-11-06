@@ -1020,7 +1020,7 @@ class Track(Midi):
         For a given track concerning a composition, there default is 0.
     """
     def __init__(self, *parameters):
-        super().__init__()
+        super().__init__(1)
         self._name: str = None
         if len(parameters) > 0:
             self << parameters
@@ -1031,7 +1031,7 @@ class Track(Midi):
                 match operand % o.Operand():
                     case str():                     self._name
                     case _:                         super().__mod__(operand)
-            case str():                 return "Track " + str(self._unit + 1) if not isinstance(self._name, str) else self._name
+            case str():                 return "Track " + str(self._unit) if not isinstance(self._name, str) else self._name
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
