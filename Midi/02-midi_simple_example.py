@@ -39,7 +39,7 @@ for pitch, duration in notes:
     start_time += duration
 
 # Write to file
-with open("example.mid", "wb") as output_file:
+with open("Midi/example_1.mid", "wb") as output_file:
     midi_file.writeFile(output_file)
 
 print("MIDI file 'example.mid' created.")

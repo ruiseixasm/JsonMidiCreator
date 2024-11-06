@@ -32,4 +32,4 @@ replacing_notes = \
 replacing_notes % Length() >> Print(0)
 # replacing_notes >> R >> P
 
-replacing_notes >> MidiExport("example_song.mid")
+replacing_notes >> MidiExport("Midi/example_song.mid")

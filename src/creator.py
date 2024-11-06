@@ -191,11 +191,12 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
             track_content["time"],
             track_content["tempo"]
         )
+        # Has to be reviewed because is the entire Notes that need to be sorted and not just a specific track!!!
         for element in track_content["elements"]:
             match element["event"]:
                 case "Note":
                     MyMIDI.addNote(
-                        track_content["track"],
+                        element["track"],
                         element["channel"],
                         element["pitch"],
                         element["time"],
