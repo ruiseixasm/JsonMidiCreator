@@ -167,90 +167,93 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     processed_events: list[dict] = []
     # Starts by validating all events by time
     for event in midi_list:
-        if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")):
+        if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")) \
+            and isinstance(event["track"], int) and isinstance(event["time"], (float, int)):
             processed_events.append(event)
-    processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
     
-    midi_tracks: set[int] = set()
-    tracks_list: list[dict] = []
-    for event in processed_events:
-        if event["track"] not in midi_tracks:  # events already sorted (processed)
-            midi_tracks.add(event["track"])    # sets don't allow duplicates nevertheless
-            track_content: dict = {
-                "track":        event["track"],
-                "track_name":   event["track_name"],
-                "tempo":        event["tempo"],
-                "time":         event["time"]
-            }
-            if all(key in event for key in ("numerator", "denominator")) \
-                and isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
-                and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
-                track_content["numerator"] = event["numerator"]
-                track_content["denominator"] = event["denominator"]
-            tracks_list.append(track_content)
+    if len(processed_events) > 0:
+        processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
+        
+        midi_tracks: set[int] = set()
+        tracks_list: list[dict] = []
+        for event in processed_events:
+            if event["track"] not in midi_tracks:  # events already sorted (processed)
+                midi_tracks.add(event["track"])    # sets don't allow duplicates nevertheless
+                track_content: dict = {
+                    "track":        event["track"],
+                    "track_name":   event["track_name"],
+                    "tempo":        event["tempo"],
+                    "time":         event["time"]
+                }
+                if all(key in event for key in ("numerator", "denominator")) \
+                    and isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
+                    and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
+                    track_content["numerator"] = event["numerator"]
+                    track_content["denominator"] = event["denominator"]
+                tracks_list.append(track_content)
 
-    MyMIDI = MIDIFile(len(midi_tracks))
-    for track_content in tracks_list:
-        MyMIDI.addTrackName(
-            track_content["track"],
-            track_content["time"],
-            track_content["track_name"]
-        )
-        MyMIDI.addTempo(
-            track_content["track"],
-            track_content["time"],
-            track_content["tempo"]
-        )
-        if all(key in track_content for key in ("numerator", "denominator")):
-            MyMIDI.addTimeSignature(
+        MyMIDI = MIDIFile(len(midi_tracks))
+        for track_content in tracks_list:
+            MyMIDI.addTrackName(
                 track_content["track"],
                 track_content["time"],
-                track_content["numerator"],
-                track_content["denominator"],
-                24
+                track_content["track_name"]
             )
-    for event in processed_events:
-        match event["event"]:
-            case "Note":
-                MyMIDI.addNote(
-                    event["track"],
-                    event["channel"],
-                    event["pitch"],
-                    event["time"],
-                    event["duration"],
-                    event["velocity"]
+            MyMIDI.addTempo(
+                track_content["track"],
+                track_content["time"],
+                track_content["tempo"]
+            )
+            if all(key in track_content for key in ("numerator", "denominator")):
+                MyMIDI.addTimeSignature(
+                    track_content["track"],
+                    track_content["time"],
+                    track_content["numerator"],
+                    track_content["denominator"],
+                    24
                 )
-            case "ControllerEvent":
-                MyMIDI.addControllerEvent(
-                    event["track"],
-                    event["channel"],
-                    event["time"],
-                    event["number"],
-                    event["value"]
-                )
-            case "PitchWheelEvent":
-                MyMIDI.addPitchWheelEvent(
-                    event["track"],
-                    event["channel"],
-                    event["time"],
-                    event["value"]
-                )
-            case "ChannelPressure":
-                MyMIDI.addChannelPressure(
-                    event["track"],
-                    event["channel"],
-                    event["time"],
-                    event["pressure"]
-                )
-            case "ProgramChange":
-                MyMIDI.addProgramChange(
-                    event["track"],
-                    event["channel"],
-                    event["time"],
-                    event["program"]
-                )
-    with open(filename, "wb") as output_file:   # opened to write in binary mode
-        MyMIDI.writeFile(output_file)
+        for event in processed_events:
+            match event["event"]:
+                case "Note":
+                    MyMIDI.addNote(
+                        event["track"],
+                        event["channel"],
+                        event["pitch"],
+                        event["time"],
+                        event["duration"],
+                        event["velocity"]
+                    )
+                case "ControllerEvent":
+                    MyMIDI.addControllerEvent(
+                        event["track"],
+                        event["channel"],
+                        event["time"],
+                        event["number"],
+                        event["value"]
+                    )
+                case "PitchWheelEvent":
+                    MyMIDI.addPitchWheelEvent(
+                        event["track"],
+                        event["channel"],
+                        event["time"],
+                        event["value"]
+                    )
+                case "ChannelPressure":
+                    MyMIDI.addChannelPressure(
+                        event["track"],
+                        event["channel"],
+                        event["time"],
+                        event["pressure"]
+                    )
+                case "ProgramChange":
+                    MyMIDI.addProgramChange(
+                        event["track"],
+                        event["channel"],
+                        event["time"],
+                        event["program"]
+                    )
+        with open(filename, "wb") as output_file:   # opened to write in binary mode
+            MyMIDI.writeFile(output_file)
 
 # Note Events
 # addNote: Adds a note-on and note-off pair for a specific pitch, channel, time, duration, and velocity.
