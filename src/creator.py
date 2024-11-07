@@ -183,7 +183,6 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                 "time":         event["time"]
             }
             tracks_list.append(track_content)
-        event["time"] -= track_content["time"]  # Events are sorted by "track" and then by "time"
 
     MyMIDI = MIDIFile(len(midi_tracks))
     for track_content in tracks_list:
