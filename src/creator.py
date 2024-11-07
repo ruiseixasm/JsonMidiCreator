@@ -203,7 +203,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
             if all(key in event for key in ("numerator", "denominator")):
                 if event["track"] != last_event["track"] \
                     or event["numerator"] != last_event["numerator"] or event["denominator"] != last_event["denominator"]:
-                    
+
                     if isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
                         and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
 
@@ -218,7 +218,6 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                         )
             last_event["track"] = event["track"]
 
-        for event in processed_events:
             match event["event"]:
                 case "Note":
                     MyMIDI.addNote(
