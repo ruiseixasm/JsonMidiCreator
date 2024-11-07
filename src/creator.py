@@ -206,7 +206,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                     or event["numerator"] != last_event["numerator"] or event["denominator"] != last_event["denominator"]:
 
                     if isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
-                        and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
+                        and event["numerator"] > 0 and event["denominator"] > 0:
 
                         last_event["numerator"] = event["numerator"]
                         last_event["denominator"] = event["denominator"]
