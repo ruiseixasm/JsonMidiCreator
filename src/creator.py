@@ -168,50 +168,56 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     # Starts by validating all events by time
     for event in midi_list:
         if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")) \
-            and isinstance(event["track"], int) and isinstance(event["time"], (float, int)):
+            and isinstance(event["track"], int) and isinstance(event["time"], (float, int)) \
+            and event["track"] >= 0 and event["time"] >= 0:
             processed_events.append(event)
     
     if len(processed_events) > 0:
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
-        
-        midi_tracks: set[int] = set()
-        tracks_list: list[dict] = []
-        for event in processed_events:
-            if event["track"] not in midi_tracks:  # events already sorted (processed)
-                midi_tracks.add(event["track"])    # sets don't allow duplicates nevertheless
-                track_content: dict = {
-                    "track":        event["track"],
-                    "track_name":   event["track_name"],
-                    "tempo":        event["tempo"],
-                    "time":         event["time"]
-                }
-                if all(key in event for key in ("numerator", "denominator")) \
-                    and isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
-                    and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
-                    track_content["numerator"] = event["numerator"]
-                    track_content["denominator"] = event["denominator"]
-                tracks_list.append(track_content)
 
+        midi_tracks: set[int] = set()
+        for event in processed_events:
+            midi_tracks.add(event["track"]) # sets don't allow duplicates
         MyMIDI = MIDIFile(len(midi_tracks))
-        for track_content in tracks_list:
-            MyMIDI.addTrackName(
-                track_content["track"],
-                track_content["time"],
-                track_content["track_name"]
-            )
-            MyMIDI.addTempo(
-                track_content["track"],
-                track_content["time"],
-                track_content["tempo"]
-            )
-            if all(key in track_content for key in ("numerator", "denominator")):
-                MyMIDI.addTimeSignature(
-                    track_content["track"],
-                    track_content["time"],
-                    track_content["numerator"],
-                    track_content["denominator"],
-                    24
+
+        last_event: dict = {
+            "track":        -1,
+            "tempo":        -1,
+            "numerator":    -1,
+            "denominator":  -1
+        }
+        for event in processed_events:
+            if event["track"] != last_event["track"]:  # events already sorted (processed)
+                MyMIDI.addTrackName(
+                    event["track"],
+                    event["time"],
+                    event["track_name"]
                 )
+            if event["track"] != last_event["track"] or event["tempo"] != last_event["tempo"]:  # events already sorted (processed)
+                last_event["tempo"] = event["tempo"]
+                MyMIDI.addTempo(
+                    event["track"],
+                    event["time"],
+                    event["tempo"]
+                )
+            if all(key in event for key in ("numerator", "denominator")):
+                if event["track"] != last_event["track"] \
+                    or event["numerator"] != last_event["numerator"] or event["denominator"] != last_event["denominator"]:
+                    
+                    if isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
+                        and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
+
+                        last_event["numerator"] = event["numerator"]
+                        last_event["denominator"] = event["denominator"]
+                        MyMIDI.addTimeSignature(
+                            event["track"],
+                            event["time"],
+                            event["numerator"],
+                            event["denominator"],
+                            24
+                        )
+            last_event["track"] = event["track"]
+
         for event in processed_events:
             match event["event"]:
                 case "Note":
