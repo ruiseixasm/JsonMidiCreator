@@ -1046,6 +1046,7 @@ class Track(Midi):
                     case _:                         super().__lshift__(operand)
             case str():             self._name = operand
             case _:                 super().__lshift__(operand)
+        self._unit = max(1, self._unit)
         return self
 
 class Channel(Midi):
