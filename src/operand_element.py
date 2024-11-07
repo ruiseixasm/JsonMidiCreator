@@ -532,6 +532,7 @@ class Note(Rest):
         self._key_note: og.KeyNote  = og.KeyNote()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ro.Gate         = ro.Gate(1.0)
+        self._tied: ou.Tied         = ou.Tied(False)
         if len(parameters) > 0:
             self << parameters
 
@@ -554,12 +555,14 @@ class Note(Rest):
                     case og.KeyNote():      return self._key_note
                     case ou.Velocity():     return self._velocity
                     case ro.Gate():         return self._gate
+                    case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
+            case ou.Tied():         return self._tied.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -569,7 +572,8 @@ class Note(Rest):
                 return super().__eq__(other_operand) \
                     and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
-                    and self._gate == other_operand % od.DataSource( ro.Gate() )
+                    and self._gate == other_operand % od.DataSource( ro.Gate() ) \
+                    and self._tied == other_operand % od.DataSource( ou.Tied() )
             case _:
                 return super().__eq__(other_operand)
     
@@ -618,18 +622,21 @@ class Note(Rest):
         element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
+        element_serialization["parameters"]["tied"]     = self._tied % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"]):
+            "key_note" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
+            "tied" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ro.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
+            self._tied      = ou.Tied()     << od.DataSource( serialization["parameters"]["tied"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
@@ -641,16 +648,19 @@ class Note(Rest):
                     case ou.Degree():       self._degree = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ro.Gate():         self._gate = operand % o.Operand()
+                    case ou.Tied():         self._tied = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
                 self._key_note      << operand._key_note
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
+                self._tied          << operand._tied
             case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
+            case ou.Tied():         self._tied << operand
             case _: super().__lshift__(operand)
         return self
 
