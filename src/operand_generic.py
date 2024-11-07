@@ -17,6 +17,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union
 from fractions import Fraction
 import enum
+import math
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -35,8 +36,8 @@ class Generic(o.Operand):
 class TimeSignature(Generic):
     def __init__(self, top: int = 4, bottom: int = 4):
         super().__init__()
-        self._top: int      = 4 if top is None else top
-        self._bottom: int   = 4 if bottom is None else bottom
+        self._top: int      = 4 if top is None else int(max(1, top))
+        self._bottom: int   = 4 if bottom is None else int(math.pow(2, int(max(0, math.log2(bottom)))))
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -98,8 +99,8 @@ class TimeSignature(Generic):
                 self._bottom            = operand._bottom
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ro.BeatsPerMeasure():  self._top       = operand % o.Operand() % int()
-            case ro.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % int()))
+            case ro.BeatsPerMeasure():  self._top       = int(max(1, operand % o.Operand() % int()))
+            case ro.BeatNoteValue():    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % o.Operand() % int()))))))
         return self
 
 class KeyNote(Generic):

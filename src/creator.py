@@ -17,6 +17,7 @@ import json
 import platform
 import os
 import ctypes
+import math
 
 # Determine the directory of the current Python file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -173,7 +174,6 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
             processed_events.append(event)
     
     if len(processed_events) > 0:
-        import math
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
 
         midi_tracks: set[int] = set()
