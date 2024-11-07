@@ -531,7 +531,7 @@ class Note(Rest):
         super().__init__()
         self._key_note: og.KeyNote  = og.KeyNote()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
-        self._gate: ro.Gate         = ro.Gate(.99)
+        self._gate: ro.Gate         = ro.Gate(1.0)
         if len(parameters) > 0:
             self << parameters
 

@@ -682,6 +682,9 @@ class Boolean(Unit):
         if len(parameters) > 0:
             self << parameters
 
+class Tied(Boolean):
+    pass
+
 class Natural(Boolean):     # Natural (n)
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Natural':
