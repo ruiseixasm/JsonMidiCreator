@@ -163,7 +163,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
         print("Error: The 'midiutil' library is not installed.")
         print("Please install it by running 'pip install midiutil'.")
         return
-
+    
     processed_events: list[dict] = []
     # Starts by validating all events by time
     for event in midi_list:
@@ -173,6 +173,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
             processed_events.append(event)
     
     if len(processed_events) > 0:
+        import math
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
 
         midi_tracks: set[int] = set()
@@ -213,8 +214,8 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                             event["track"],
                             event["time"],
                             event["numerator"],
-                            event["denominator"],
-                            24
+                            int(math.log2(event["denominator"])),
+                            24, 8
                         )
             last_event["track"] = event["track"]
 
@@ -262,118 +263,123 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
 
 
 
-def save_midi_file(midi_list: list[dict], filename="output.mid"):
-
+def saveMidiFile2(midi_list: list[dict], filename="output.mid"):
     try:
-        # pip install mido
+        # Importing mido for MIDI file processing
         from mido import MidiFile, MidiTrack, Message, MetaMessage
     except ImportError:
-        print("Error: The 'midiutil' library is not installed.")
+        print("Error: The 'mido' library is not installed.")
         print("Please install it by running 'pip install mido'.")
         return
 
-    # Initialize a MIDI file and create tracks as needed
+    # Initialize the MIDI file
     midi_file = MidiFile()
-
-    # Collect unique track numbers and initialize a dictionary to store tracks
+    
+    # Dictionary to store tracks by their track number
     track_dict = {}
+    processed_events = []
+
+    # Validate and process each event
     for event in midi_list:
-        track_num = event.get("track")
-        if track_num is not None and track_num not in track_dict:
-            track = MidiTrack()
-            track_dict[track_num] = track
-            midi_file.tracks.append(track)
+        if all(key in event for key in ("event", "track", "time", "channel")) \
+                and isinstance(event["track"], int) and isinstance(event["time"], (int, float)) \
+                and event["track"] >= 0 and event["time"] >= 0:
+            processed_events.append(event)
 
-    # Sort events by track and time
-    processed_events = sorted(midi_list, key=lambda x: (x["track"], x["time"]))
+    # Sort events by track and time for proper ordering
+    processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
 
-    last_event = {
-        "track": -1,
-        "tempo": None,
-        "time_signature": None
-    }
-
+    # Initialize unique tracks and store them in track_dict
     for event in processed_events:
         track_num = event["track"]
-        track = track_dict[track_num]
-        
-        # Set track name if provided
-        if "track_name" in event and event["track"] != last_event["track"]:
-            track.append(MetaMessage('track_name', name=event["track_name"], time=event["time"]))
+        if track_num not in track_dict:
+            # Create a new MidiTrack object for each unique track number
+            track = MidiTrack()
+            midi_file.tracks.append(track)  # Add new track to the MIDI file
+            track_dict[track_num] = track  # Map track number to the MidiTrack object
 
-        # Set tempo if provided
-        if "tempo" in event and (event["track"] != last_event["track"] or event["tempo"] != last_event["tempo"]):
-            tempo_meta = MetaMessage('set_tempo', tempo=int(60000000 / event["tempo"]), time=event["time"])
-            track.append(tempo_meta)
+            # If track_name exists, add it to the track
+            if "track_name" in event:
+                track.append(MetaMessage('track_name', name=event["track_name"], time=0))
+
+    last_event = {"track": -1, "tempo": None, "time_signature": None}
+
+    # Process each event and add it to the corresponding track
+    for event in processed_events:
+        track_num = event["track"]
+        track = track_dict[track_num]  # Retrieve the MidiTrack object for this track number
+
+        # Tempo setting if provided and different from last set tempo
+        if "tempo" in event and (last_event["track"] != track_num or last_event["tempo"] != event["tempo"]):
+            track.append(MetaMessage('set_tempo', tempo=int(60000000 / event["tempo"]), time=event["time"]))
             last_event["tempo"] = event["tempo"]
 
-        # Set time signature if provided
+        # Time signature if provided
         if "numerator" in event and "denominator" in event:
-            if event["track"] != last_event["track"] or \
-               last_event["time_signature"] != (event["numerator"], event["denominator"]):
-                time_sig_meta = MetaMessage(
+            if last_event["track"] != track_num or \
+                    last_event["time_signature"] != (event["numerator"], event["denominator"]):
+                track.append(MetaMessage(
                     'time_signature',
                     numerator=event["numerator"],
                     denominator=event["denominator"],
+                    clocks_per_click=24,
                     time=event["time"]
-                )
-                track.append(time_sig_meta)
+                ))
                 last_event["time_signature"] = (event["numerator"], event["denominator"])
 
         # Process different event types
-        if event["event"] == "Note":
-            track.append(Message(
-                'note_on',
-                channel=event["channel"],
-                note=event["pitch"],
-                velocity=event["velocity"],
-                time=event["time"]
-            ))
-            track.append(Message(
-                'note_off',
-                channel=event["channel"],
-                note=event["pitch"],
-                velocity=0,
-                time=int(event["duration"])
-            ))
-        
-        elif event["event"] == "ControllerEvent":
-            track.append(Message(
-                'control_change',
-                channel=event["channel"],
-                control=event["number"],
-                value=event["value"],
-                time=event["time"]
-            ))
-        
-        elif event["event"] == "PitchWheelEvent":
-            track.append(Message(
-                'pitchwheel',
-                channel=event["channel"],
-                pitch=event["value"],
-                time=event["time"]
-            ))
+        match event["event"]:
+            case "Note":
+                # Start note (note_on)
+                track.append(Message(
+                    'note_on',
+                    channel=event["channel"],
+                    note=event["pitch"],
+                    velocity=event["velocity"],
+                    time=event["time"]
+                ))
+                # End note (note_off), time calculated from duration
+                track.append(Message(
+                    'note_off',
+                    channel=event["channel"],
+                    note=event["pitch"],
+                    velocity=0,
+                    time=event["duration"]
+                ))
+            case "ControllerEvent":
+                track.append(Message(
+                    'control_change',
+                    channel=event["channel"],
+                    control=event["number"],
+                    value=event["value"],
+                    time=event["time"]
+                ))
+            case "PitchWheelEvent":
+                track.append(Message(
+                    'pitchwheel',
+                    channel=event["channel"],
+                    pitch=event["value"],
+                    time=event["time"]
+                ))
+            case "ChannelPressure":
+                track.append(Message(
+                    'aftertouch',
+                    channel=event["channel"],
+                    value=event["pressure"],
+                    time=event["time"]
+                ))
+            case "ProgramChange":
+                track.append(Message(
+                    'program_change',
+                    channel=event["channel"],
+                    program=event["program"],
+                    time=event["time"]
+                ))
 
-        elif event["event"] == "ChannelPressure":
-            track.append(Message(
-                'aftertouch',
-                channel=event["channel"],
-                value=event["pressure"],
-                time=event["time"]
-            ))
+        # Update the last event's track number
+        last_event["track"] = track_num
 
-        elif event["event"] == "ProgramChange":
-            track.append(Message(
-                'program_change',
-                channel=event["channel"],
-                program=event["program"],
-                time=event["time"]
-            ))
-
-        # Update the last event track
-        last_event["track"] = event["track"]
-
-    # Save the MIDI file
+    # Write the MIDI file to disk
     midi_file.save(filename)
 
 

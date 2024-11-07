@@ -1037,13 +1037,15 @@ class Track(Midi):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Program':
-        import operand_rational as ro
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     self._name = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
+            case Track():
+                self._unit          = operand._unit
+                self._name          = operand._name
             case str():             self._name = operand
             case _:                 super().__lshift__(operand)
         self._unit = max(1, self._unit)
