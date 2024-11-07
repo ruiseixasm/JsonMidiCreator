@@ -229,6 +229,15 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                         event["duration"],
                         event["velocity"]
                     )
+                case "Rest":
+                    MyMIDI.addNote(
+                        event["track"],
+                        event["channel"],
+                        0,
+                        event["time"],
+                        event["duration"],
+                        0
+                    )
                 case "ControllerEvent":
                     MyMIDI.addControllerEvent(
                         event["track"],

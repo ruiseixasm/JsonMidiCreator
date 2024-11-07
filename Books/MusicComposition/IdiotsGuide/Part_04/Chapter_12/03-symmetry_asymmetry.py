@@ -36,7 +36,7 @@ symmetrical = \
 symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
 symmetrical >> S
 symmetrical % Length() >> Print(0)
-# symmetrical >> rest_play
+symmetrical >> rest_play
 
 phrase_1 = N * 7 >> LJ  >> Slur()
 phrase_2 = N * 8        >> Slur()
@@ -48,7 +48,7 @@ asymmetrical = \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()) + \
     (phrase_3 % Copy()  << Foreach(10, 11, 10, 9, 10)**Degree()) >> S
 asymmetrical % Length() >> Print(0)
-# asymmetrical >> rest_play
+asymmetrical >> rest_play
 
 first_track     = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(114)) + ProgramChange(5) + symmetrical << Channel(1) << Track(1, "Symmetrical")
 second_track    = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(118)) + ProgramChange(19) + asymmetrical << Channel(2) << Track(2, "Asymmetrical")
