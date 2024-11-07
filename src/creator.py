@@ -182,6 +182,11 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                 "tempo":        event["tempo"],
                 "time":         event["time"]
             }
+            if all(key in event for key in ("numerator", "denominator")) \
+                and isinstance(event["numerator"], int) and isinstance(event["denominator"], int) \
+                and event["numerator"] > 0 and event["denominator"] > 0 and event["denominator"] % 2 == 0:
+                track_content["numerator"] = event["numerator"]
+                track_content["denominator"] = event["denominator"]
             tracks_list.append(track_content)
 
     MyMIDI = MIDIFile(len(midi_tracks))
@@ -196,6 +201,14 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
             track_content["time"],
             track_content["tempo"]
         )
+        if all(key in track_content for key in ("numerator", "denominator")):
+            MyMIDI.addTimeSignature(
+                track_content["track"],
+                track_content["time"],
+                track_content["numerator"],
+                track_content["denominator"],
+                24
+            )
     for event in processed_events:
         match event["event"]:
             case "Note":

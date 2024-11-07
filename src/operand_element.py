@@ -143,6 +143,8 @@ class Element(o.Operand):
                     "event":        "None",
                     "track":        max(0, self._track % int() - 1),
                     "track_name":   self._track % str(),
+                    "numerator":    os.staff % ro.BeatsPerMeasure() % int(),
+                    "denominator":  int(1 / (os.staff % ro.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
                     "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
                     "tempo":        os.staff._tempo % float()   # bpm
