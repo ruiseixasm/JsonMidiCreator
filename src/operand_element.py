@@ -1039,22 +1039,31 @@ class Retrigger(Note):
             case ro.Swing():        return self._swing.copy()
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, position: ot.Position = None) -> list:
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
-
-        self_playlist = []
-        self_iteration = 0
-        original_duration = self._duration
-        single_note_duration = self._duration * 2/(self._division % int())
+    def get_retrigger_notes(self) -> list[Note]:
+        retrigger_notes: list[Note] = []
+        self_iteration: int = 0
+        note_position: ot.Position = self % ot.Position()
+        single_note_duration: ot.Duration = self._duration * 2/(self._division % int())
         for _ in range(self._division % od.DataSource( int() )):
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
-            self._duration = single_note_duration * 2 * swing_ratio
-            self_playlist.extend(super().getPlaylist(self_position))
-            self_position += self._duration
+            note_duration: ot.Duration = single_note_duration * 2 * swing_ratio
+            retrigger_notes.append(Note(self, note_duration, note_position))
+            note_position += note_duration
             self_iteration += 1
-        self._duration = original_duration
+        return retrigger_notes
+
+    def getPlaylist(self, position: ot.Position = None) -> list:
+        self_playlist: list = []
+        for single_note in self.get_retrigger_notes():
+            self_playlist.extend(single_note.getPlaylist(position))
         return self_playlist
+    
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist = []
+        for single_note in self.get_retrigger_notes():
+            self_midilist.extend(single_note.getMidilist(position))    # extends the list with other list
+        return self_midilist
     
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
@@ -1173,20 +1182,31 @@ class Tuplet(Rest):
             case _:
                 return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None) -> list:
-        self_position: ot.Position  = self._position + ot.Position() if position is None else position
-        
-        self_playlist = []
-        self_iteration = 0
+    def get_tuplet_elements(self) -> list[Element]:
+        tuplet_elements: list[Element] = []
+        element_position: ot.Position = self % ot.Position()
+        self_iteration: int = 0
         for element_i in range(len(self._elements)):
             element_duration = self._elements[element_i] % od.DataSource( ot.Duration() )
-            self_playlist.extend(self._elements[element_i].getPlaylist(self_position))
+            tuplet_elements.append(self._elements[element_i].copy() << element_position)
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
-            self_position += element_duration * 2 * swing_ratio
+            element_position += element_duration * 2 * swing_ratio
             self_iteration += 1
+        return tuplet_elements
+
+    def getPlaylist(self, position: ot.Position = None) -> list:
+        self_playlist = []
+        for single_element in self.get_tuplet_elements():
+            self_playlist.extend(single_element.getPlaylist(position))
         return self_playlist
+    
+    def getMidilist(self, position: ot.Position = None) -> list:
+        self_midilist = []
+        for single_element in self.get_tuplet_elements():
+            self_midilist.extend(single_element.getMidilist(position))    # extends the list with other list
+        return self_midilist
     
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
