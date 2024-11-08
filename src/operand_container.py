@@ -367,21 +367,21 @@ class Sequence(Container):  # Just a container of Elements
         tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
-                if isinstance(single_datasource._data, oe.Note) and single_datasource._data % ou.Tied():
+                if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
                     tied_notes.append(single_datasource._data.copy())
                 else:
                     play_list.extend(single_datasource._data.getPlaylist(position))
         if len(tied_notes) > 0:
-            tied_notes = sorted(tied_notes, key=lambda x: (x % ou.Track() % int(), x % ou.Channel() % int()))
+            tied_notes = sorted(tied_notes, key=lambda x: (x._track._unit, x._channel._unit))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ot.Position = first_tied_note % ot.Position() + first_tied_note % ot.Duration()
-                if tied_notes[next_tied_note_i] % og.KeyNote() == first_tied_note % og.KeyNote() \
-                    and tied_notes[next_tied_note_i] % ou.Track() == first_tied_note % ou.Track() \
-                    and tied_notes[next_tied_note_i] % ou.Channel() == first_tied_note % ou.Channel() \
-                    and tied_notes[next_tied_note_i] % ot.Position() == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i] % ot.Duration()
+                next_note_position: ot.Position = first_tied_note._position + first_tied_note._duration
+                if tied_notes[next_tied_note_i]._key_note == first_tied_note._key_note \
+                    and tied_notes[next_tied_note_i]._track == first_tied_note._track \
+                    and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
+                    and tied_notes[next_tied_note_i]._position == next_note_position:
+                    first_tied_note += tied_notes[next_tied_note_i]._duration
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
                         play_list.extend(first_tied_note.getPlaylist(position))
                 else:
@@ -395,21 +395,21 @@ class Sequence(Container):  # Just a container of Elements
         tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
-                if isinstance(single_datasource._data, oe.Note) and single_datasource._data % ou.Tied():
+                if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
                     tied_notes.append(single_datasource._data.copy())
                 else:
                     midi_list.extend(single_datasource._data.getMidilist(position))
         if len(tied_notes) > 0:
-            tied_notes = sorted(tied_notes, key=lambda x: (x % ou.Track() % int(), x % ou.Channel() % int()))
+            tied_notes = sorted(tied_notes, key=lambda x: (x._track._unit, x._channel._unit))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ot.Position = first_tied_note % ot.Position() + first_tied_note % ot.Duration()
-                if tied_notes[next_tied_note_i] % og.KeyNote() == first_tied_note % og.KeyNote() \
-                    and tied_notes[next_tied_note_i] % ou.Track() == first_tied_note % ou.Track() \
-                    and tied_notes[next_tied_note_i] % ou.Channel() == first_tied_note % ou.Channel() \
-                    and tied_notes[next_tied_note_i] % ot.Position() == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i] % ot.Duration()
+                next_note_position: ot.Position = first_tied_note._position + first_tied_note._duration
+                if tied_notes[next_tied_note_i]._key_note == first_tied_note._key_note \
+                    and tied_notes[next_tied_note_i]._track == first_tied_note._track \
+                    and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
+                    and tied_notes[next_tied_note_i]._position == next_note_position:
+                    first_tied_note += tied_notes[next_tied_note_i]._duration
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
                         midi_list.extend(first_tied_note.getMidilist(position))
                 else:
