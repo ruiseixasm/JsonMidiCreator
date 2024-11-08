@@ -373,20 +373,42 @@ class Sequence(Container):  # Just a container of Elements
                     play_list.extend(single_datasource._data.getPlaylist(position))
         if len(tied_notes) > 0:
             first_tied_note: oe.Note = tied_notes[0]
-            for next_tied_note in range(1, len(tied_notes)):
-                if next_tied_note % og.KeyNote == first_tied_note % og.KeyNote:
-                    first_tied_note += next_tied_note % ot.Duration()
+            for next_tied_note_i in range(1, len(tied_notes)):
+                # Must be in sequence to be tied (FS - Finish to Start)!
+                next_note_position: ot.Position = first_tied_note % ot.Position() + first_tied_note % ot.Duration()
+                if tied_notes[next_tied_note_i] % og.KeyNote() == first_tied_note % og.KeyNote() \
+                    and tied_notes[next_tied_note_i] % ot.Position() == next_note_position:
+                    first_tied_note += tied_notes[next_tied_note_i] % ot.Duration()
+                    if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
+                        play_list.extend(first_tied_note.getPlaylist(position))
                 else:
                     play_list.extend(first_tied_note.getPlaylist(position))
-                    first_tied_note = next_tied_note
+                    first_tied_note = tied_notes[next_tied_note_i]
         return play_list
 
     def getMidilist(self, position: ot.Position = None) -> list:
         import operand_element as oe
         midi_list = []
+        tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
-                midi_list.extend(single_datasource._data.getMidilist(position))
+                if isinstance(single_datasource._data, oe.Note) and single_datasource._data % ou.Tied():
+                    tied_notes.append(single_datasource._data.copy())
+                else:
+                    midi_list.extend(single_datasource._data.getMidilist(position))
+        if len(tied_notes) > 0:
+            first_tied_note: oe.Note = tied_notes[0]
+            for next_tied_note_i in range(1, len(tied_notes)):
+                # Must be in sequence to be tied (FS - Finish to Start)!
+                next_note_position: ot.Position = first_tied_note % ot.Position() + first_tied_note % ot.Duration()
+                if tied_notes[next_tied_note_i] % og.KeyNote() == first_tied_note % og.KeyNote() \
+                    and tied_notes[next_tied_note_i] % ot.Position() == next_note_position:
+                    first_tied_note += tied_notes[next_tied_note_i] % ot.Duration()
+                    if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
+                        midi_list.extend(first_tied_note.getMidilist(position))
+                else:
+                    midi_list.extend(first_tied_note.getMidilist(position))
+                    first_tied_note = tied_notes[next_tied_note_i]
         return midi_list
 
     # CHAINABLE OPERATIONS
@@ -438,19 +460,14 @@ class Sequence(Container):  # Just a container of Elements
                 last_length = single_datasource._data._length
         return self
     
-    def tie(self) -> 'Sequence':
+    def tie(self, tied: bool = True) -> 'Sequence':
         import operand_element as oe
-        last_element = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
-                if last_element is not None and single_datasource._data._key_note == last_element._key_note:
-                    last_element << ro.Gate(1.0)
-                last_element = single_datasource._data
-        if last_element is not None:
-            last_element << ro.Gate(1.0)
+                single_datasource._data << ou.Tied(tied)
         return self
     
-    def slur(self, gate: float = 1.0) -> 'Sequence':
+    def slur(self, gate: float = 1.05) -> 'Sequence':
         import operand_element as oe
         last_element = None
         for single_datasource in self._datasource_list:

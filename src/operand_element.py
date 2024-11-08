@@ -1382,7 +1382,7 @@ class ControlChange(Element):
             case ControlChange():
                 super().__lshift__(operand)
                 self._controller << operand._controller
-            case og.Controller() | ou.Number() | ou.Value() | int() | float():
+            case og.Controller() | ou.Number() | ou.Value() | int() | float() | str():
                 self._controller << operand
             case _: super().__lshift__(operand)
         return self
@@ -1803,7 +1803,7 @@ class ProgramChange(Element):
             case ProgramChange():
                 super().__lshift__(operand)
                 self._program << operand._program
-            case ou.Program() | int() | float():
+            case ou.Program() | int() | float() | str():
                 self._program << operand
             case _: super().__lshift__(operand)
         return self

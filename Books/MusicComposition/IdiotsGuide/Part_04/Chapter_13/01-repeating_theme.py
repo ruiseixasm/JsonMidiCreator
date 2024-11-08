@@ -22,28 +22,33 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << "bbb"
+staff << "bbb" << 120
 K % str() >> Print()    # Returns the tonic key (I)
 
 motif = N * 5 << eight >> LJ << Foreach(9, 6, 8, 9, 9)**Degree() >> Tie()
 # motif >> rest_play
-measure_2 = N * 3 << Equal(B1)**half >> S << Foreach(9, 8, 7)**Degree()
+measure_2 = N * 3 << Equal(B1)**half >> S << Foreach(10, 9, 8)**Degree()
 measure_4 = N * 2 << half << Foreach(8, 7)**Degree()
-# motif >> measure_2 >> motif >> measure_4 >> rest_play
+motif % Length() >> Print(0)
+measure_2 % Length() >> Print(0)
+measure_4 % Length() >> Print(0)
+# (motif >> measure_2 >> motif >> measure_4 >> Rest(1/1) >> P >> MidiExport("Midi/short_motif.mid")) % Length() >> Print(0)
 
 clarinet = \
+    ProgramChange("Clarinet") + \
     (R << whole) + \
     motif + \
     (N * 3 << Nth(1)**half << Foreach(9, 11, 10)**Degree()) + \
     motif \
     >> S >> Tie() << Channel(1) << Track(1, "Clarinet")
 clarinet % M1 % Length() >> Print(0)
-clarinet >> rest_play >> MidiExport("Midi/clarinet.mid")
-# trumpet = \
-#     motif + \
-#     (N * 2 << half << Foreach(5, 7)**Degree()) + \
-#     motif + \
-#     (N * 2 << half << Foreach(7, 6)**Degree()) \
-#     >> S << Channel(2) << Track(2, "Trumpet")
+# clarinet >> rest_play >> MidiExport("Midi/clarinet.mid")
+trumpet = \
+    ProgramChange("Trumpet") + \
+    motif + \
+    (N * 2 << half << Foreach(5, 7)**Degree()) + \
+    motif + \
+    (N * 2 << half << Foreach(7, 6)**Degree()) \
+    >> S << Channel(2) << Track(2, "Trumpet")
 # trumpet >> rest_play
-# clarinet + trumpet >> L >> rest_play
+clarinet + trumpet >> L >> rest_play >> MidiExport("Midi/theme.mid")

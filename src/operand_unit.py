@@ -1032,8 +1032,8 @@ class Track(Midi):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._name
-                    case _:                         super().__mod__(operand)
+                    case str():                     return self._name
+                    case _:                         return super().__mod__(operand)
             case str():                 return "Track " + str(self._unit) if not isinstance(self._name, str) else self._name
             case _:                     return super().__mod__(operand)
 
@@ -1139,8 +1139,8 @@ class Program(Midi):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     Program.numberToName(self._unit)
-                    case _:                         super().__mod__(operand)
+                    case str():                     return Program.numberToName(self._unit)
+                    case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit)
             case _:                     return super().__mod__(operand)
 

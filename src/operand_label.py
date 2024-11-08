@@ -73,15 +73,18 @@ class Join(Process):
             return super().__rrshift__(operand)
 
 class Tie(Process):
+    def __init__(self, tied: bool = True):
+        super().__init__(tied)
+
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
-            return operand.tie()
+            return operand.tie(self._parameter)
         else:
             return super().__rrshift__(operand)
 
 class Slur(Process):
-    def __init__(self, gate: float = 1.0):
+    def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
