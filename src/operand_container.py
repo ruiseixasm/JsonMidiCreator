@@ -372,11 +372,14 @@ class Sequence(Container):  # Just a container of Elements
                 else:
                     play_list.extend(single_datasource._data.getPlaylist(position))
         if len(tied_notes) > 0:
+            tied_notes = sorted(tied_notes, key=lambda x: (x % ou.Track() % int(), x % ou.Channel() % int()))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
                 next_note_position: ot.Position = first_tied_note % ot.Position() + first_tied_note % ot.Duration()
                 if tied_notes[next_tied_note_i] % og.KeyNote() == first_tied_note % og.KeyNote() \
+                    and tied_notes[next_tied_note_i] % ou.Track() == first_tied_note % ou.Track() \
+                    and tied_notes[next_tied_note_i] % ou.Channel() == first_tied_note % ou.Channel() \
                     and tied_notes[next_tied_note_i] % ot.Position() == next_note_position:
                     first_tied_note += tied_notes[next_tied_note_i] % ot.Duration()
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
@@ -397,11 +400,14 @@ class Sequence(Container):  # Just a container of Elements
                 else:
                     midi_list.extend(single_datasource._data.getMidilist(position))
         if len(tied_notes) > 0:
+            tied_notes = sorted(tied_notes, key=lambda x: (x % ou.Track() % int(), x % ou.Channel() % int()))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
                 next_note_position: ot.Position = first_tied_note % ot.Position() + first_tied_note % ot.Duration()
                 if tied_notes[next_tied_note_i] % og.KeyNote() == first_tied_note % og.KeyNote() \
+                    and tied_notes[next_tied_note_i] % ou.Track() == first_tied_note % ou.Track() \
+                    and tied_notes[next_tied_note_i] % ou.Channel() == first_tied_note % ou.Channel() \
                     and tied_notes[next_tied_note_i] % ot.Position() == next_note_position:
                     first_tied_note += tied_notes[next_tied_note_i] % ot.Duration()
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
