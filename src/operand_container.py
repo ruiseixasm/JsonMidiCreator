@@ -364,9 +364,21 @@ class Sequence(Container):  # Just a container of Elements
     def getPlaylist(self, position: ot.Position = None) -> list:
         import operand_element as oe
         play_list = []
+        tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
-                play_list.extend(single_datasource._data.getPlaylist(position))
+                if isinstance(single_datasource._data, oe.Note) and single_datasource._data % ou.Tied():
+                    tied_notes.append(single_datasource._data.copy())
+                else:
+                    play_list.extend(single_datasource._data.getPlaylist(position))
+        if len(tied_notes) > 0:
+            first_tied_note: oe.Note = tied_notes[0]
+            for next_tied_note in range(1, len(tied_notes)):
+                if next_tied_note % og.KeyNote == first_tied_note % og.KeyNote:
+                    first_tied_note += next_tied_note % ot.Duration()
+                else:
+                    play_list.extend(first_tied_note.getPlaylist(position))
+                    first_tied_note = next_tied_note
         return play_list
 
     def getMidilist(self, position: ot.Position = None) -> list:
