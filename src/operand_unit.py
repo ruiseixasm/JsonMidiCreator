@@ -399,7 +399,7 @@ class Key(Unit):
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     return self % int() + self._sharp._unit - self._flat._unit
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
-                    if self._natural._unit == 0:
+                    if not self._natural:
                         semitone_int: int            = self % int() + self._sharp._unit - self._flat._unit
                         key_signature: KeySignature = os.staff._key_signature
                         accidentals_int = key_signature._unit

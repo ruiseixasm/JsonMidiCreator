@@ -137,8 +137,8 @@ class Operand:
                 return operand_instance.loadSerialization(serialization)
         return ol.Null()
        
-    def copy(self: T) -> T:
-        return self.__class__() << self
+    def copy(self: T, *parameters) -> T:
+        return self.__class__() << self << parameters
     
     def getOperand(self, operand_name: str) -> 'Operand':
         operand_class = Operand.find_subclass_by_name(Operand, operand_name)

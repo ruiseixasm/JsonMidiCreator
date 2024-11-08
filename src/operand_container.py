@@ -171,17 +171,20 @@ class Container(o.Operand):
                             self._datasource_list.append(od.DataSource( single_operand.copy() ))
                         case _:
                             self._datasource_list.append(od.DataSource( single_operand ))
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
             case _: # Works for Frame too
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, o.Operand):
                         single_datasource._data << operand
         return self
 
-    def copy(self) -> 'Container':
+    def copy(self, *parameters) -> 'Container':
         container_copy: Container = self.__class__()
         for single_datasource in self._datasource_list:
             container_copy._datasource_list.append( single_datasource.copy() )
-        return container_copy
+        return container_copy << parameters
     
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare

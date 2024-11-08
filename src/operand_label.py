@@ -58,9 +58,12 @@ class Copy(Process):
     """
     Copy() does an total duplication of the Operand including its parts.
     """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(operand, o.Operand):
-            return operand.copy()
+            return operand.copy(*self._parameter)
         else:
             return super().__rrshift__(operand)
 

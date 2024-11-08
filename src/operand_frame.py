@@ -237,12 +237,12 @@ class SubjectFilter(Frame):
         super().__init__()
         self._filter_operand: any = filter_operand
 
-    def copy(self) -> 'SubjectFilter':
+    def copy(self, *parameters) -> 'SubjectFilter':
         match self._filter_operand:
             case o.Operand():
-                return self.__class__( self._filter_operand.copy() )
+                return self.__class__( self._filter_operand.copy() ) << parameters
             case _:
-                return self.__class__( self._filter_operand )
+                return self.__class__( self._filter_operand ) << parameters
 
 class Type(SubjectFilter):
     def __init__(self, *parameters):

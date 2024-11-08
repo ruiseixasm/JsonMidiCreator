@@ -195,7 +195,7 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
-    def copy(self) -> 'DataSource':
+    def copy(self, *parameters) -> 'DataSource':
         self_copy = self.__class__()
         self_data = self._data
         match self_data:
@@ -212,7 +212,7 @@ class DataSource(Data):
                 self_copy._data = many_operands
             case _:
                 self_copy._data = self_data
-        return self_copy
+        return self_copy << parameters
     
 class SideEffects(Data):
     pass
@@ -495,8 +495,8 @@ class Serialization(Data):
         self._data.loadSerialization(serialization)
         return self
         
-    def copy(self):
-        return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() )
+    def copy(self, *parameters):
+        return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
 
     def __lshift__(self, operand: any) -> 'o.Operand':
         if isinstance(operand, o.Operand):
