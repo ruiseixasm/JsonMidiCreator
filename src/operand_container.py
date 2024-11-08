@@ -18,6 +18,7 @@ from typing import Union
 from fractions import Fraction
 import json
 import enum
+from typing import TYPE_CHECKING
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -360,17 +361,20 @@ class Sequence(Container):  # Just a container of Elements
                     end_position = single_datasource._data % ot.Position() + single_datasource._data % ot.Length()
             return end_position # already a copy (+)
         return ol.Null()
+    
+    if TYPE_CHECKING:
+        from operand_element import Element
 
-    def getPlaylist(self, position: ot.Position = None) -> list:
+    def get_sequence_elements(self) -> list['Element']:
         import operand_element as oe
-        play_list = []
+        sequence_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
                 if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
                     tied_notes.append(single_datasource._data.copy())
                 else:
-                    play_list.extend(single_datasource._data.getPlaylist(position))
+                    sequence_elements.append(single_datasource._data)
         if len(tied_notes) > 0:
             tied_notes = sorted(tied_notes, key=lambda x: (x._track._unit, x._channel._unit))
             first_tied_note: oe.Note = tied_notes[0]
@@ -383,38 +387,22 @@ class Sequence(Container):  # Just a container of Elements
                     and tied_notes[next_tied_note_i]._position == next_note_position:
                     first_tied_note += tied_notes[next_tied_note_i]._duration
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
-                        play_list.extend(first_tied_note.getPlaylist(position))
+                        sequence_elements.append(first_tied_note)
                 else:
-                    play_list.extend(first_tied_note.getPlaylist(position))
+                    sequence_elements.append(first_tied_note)
                     first_tied_note = tied_notes[next_tied_note_i]
+        return sequence_elements
+
+    def getPlaylist(self, position: ot.Position = None) -> list:
+        play_list = []
+        for single_element in self.get_sequence_elements():
+            play_list.extend(single_element.getPlaylist(position))
         return play_list
 
     def getMidilist(self, position: ot.Position = None) -> list:
-        import operand_element as oe
         midi_list = []
-        tied_notes: list[oe.Note] = []
-        for single_datasource in self._datasource_list:   # Read only (extracts the play list)
-            if isinstance(single_datasource._data, oe.Element):
-                if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
-                    tied_notes.append(single_datasource._data.copy())
-                else:
-                    midi_list.extend(single_datasource._data.getMidilist(position))
-        if len(tied_notes) > 0:
-            tied_notes = sorted(tied_notes, key=lambda x: (x._track._unit, x._channel._unit))
-            first_tied_note: oe.Note = tied_notes[0]
-            for next_tied_note_i in range(1, len(tied_notes)):
-                # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ot.Position = first_tied_note._position + first_tied_note._duration
-                if tied_notes[next_tied_note_i]._key_note == first_tied_note._key_note \
-                    and tied_notes[next_tied_note_i]._track == first_tied_note._track \
-                    and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
-                    and tied_notes[next_tied_note_i]._position == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i]._duration
-                    if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
-                        midi_list.extend(first_tied_note.getMidilist(position))
-                else:
-                    midi_list.extend(first_tied_note.getMidilist(position))
-                    first_tied_note = tied_notes[next_tied_note_i]
+        for single_element in self.get_sequence_elements():
+            midi_list.extend(single_element.getMidilist(position))
         return midi_list
 
     # CHAINABLE OPERATIONS
