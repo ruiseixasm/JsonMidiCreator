@@ -28,6 +28,8 @@ K % str() >> Print()    # Returns the tonic key (I)
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-# Key Scales implementation needs to be more developed
 side_slipping = motif >> (motif % Copy() + 1.0 << Nth(1,6)**Natural()) >> motif  # up a half-step
+side_slipping >> rest_play
+# Key Scales implementation needs to be more developed (disabled key signature with Key Scale)
+side_slipping = motif >> (motif % Copy() + 1.0 << Scale("Major")) >> motif  # up a half-step
 side_slipping >> rest_play
