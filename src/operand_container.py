@@ -394,6 +394,8 @@ class Sequence(Container):  # Just a container of Elements
                 else:
                     sequence_elements.append(first_tied_note)
                     first_tied_note = tied_notes[next_tied_note_i]
+                    if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
+                        sequence_elements.append(first_tied_note)
         return sequence_elements
 
     def getPlaylist(self, position: ot.Position = None) -> list:
