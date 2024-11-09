@@ -1020,6 +1020,7 @@ class Chord(KeyScale):
 class Retrigger(Note):
     def __init__(self, *parameters):
         super().__init__()
+        self._duration *= 2 # Equivalent to twice single note duration
         self._division  = ou.Division(16)
         self._gate      = ro.Gate(.50)
         self._swing     = ro.Swing(.50)
@@ -1047,13 +1048,17 @@ class Retrigger(Note):
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
             case ro.Swing():        return self._swing.copy()
+            case ro.NoteValue():
+                return self._duration / 2 % ro.NoteValue()
+            case ot.Duration():
+                return self._duration / 2
             case _:                 return super().__mod__(operand)
 
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ot.Position = self % ot.Position()
-        single_note_duration: ot.Duration = self._duration * 2/(self._division % int())
+        single_note_duration: ot.Duration = self._duration/(self._division % int()) # Already 2x single note duration
         for _ in range(self._division % od.DataSource( int() )):
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2: swing_ratio = 1 - swing_ratio
@@ -1111,6 +1116,8 @@ class Retrigger(Note):
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
+            case ro.NoteValue() | ot.Duration():
+                self._duration      << operand * 2  # Equivalent to two sized Notes
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1144,6 +1151,7 @@ class Note3(Retrigger):
 class Tuplet(Rest):
     def __init__(self, *parameters):
         super().__init__()
+        self._duration *= 2 # Equivalent to twice single note duration
         self._swing     = ro.Swing(.50)
         self._elements: list[Element] = [Note(ro.Gate(0.5)), Note(ro.Gate(0.5)), Note(ro.Gate(0.5))]
         self.set_elements_duration()
@@ -1152,9 +1160,11 @@ class Tuplet(Rest):
 
     def set_elements_duration(self):
         if len(self._elements) > 0:
-            elements_duration = self._duration * 2 / len(self._elements) # from 2 notes to division
+             # Already 2x single note duration
+            elements_duration = self._duration / len(self._elements) # from 2 notes to division
             if len(self._elements) == 2:
-                elements_duration = self._duration * 3/2 # from 3 notes to 2
+                 # Already 2x single note duration
+                elements_duration = self._duration/2 * 3/2 # from 3 notes to 2
             for single_element in self._elements:
                 single_element << elements_duration
 
@@ -1179,6 +1189,10 @@ class Tuplet(Rest):
             case ro.Swing():        return self._swing.copy()
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
+            case ro.NoteValue():
+                return self._duration / 2 % ro.NoteValue()
+            case ot.Duration():
+                return self._duration / 2
             case list():            return o.Operand.copy_operands_list(self._elements)
             case _:                 return super().__mod__(operand)
 
@@ -1263,6 +1277,8 @@ class Tuplet(Rest):
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
+            case ro.NoteValue() | ot.Duration():
+                self._duration      << operand * 2  # Equivalent to two sized Notes
             case list():
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
