@@ -338,10 +338,14 @@ class Get(SubjectFilter):
         import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        match subject:
-            case o.Operand():   return self_operand << subject % self._filter_operand
-            case _:             return self_operand << subject
+            match subject:
+                case o.Operand():   self_operand &= subject % self._filter_operand
+                case _:             self_operand &= subject
+        if self_operand.__class__ == o.Operand:
+            match subject:
+                case o.Operand():   self_operand = subject % self._filter_operand
+                case _:             self_operand = subject
+        return self_operand
         
 class Set(SubjectFilter):
     def __init__(self, operand: o.Operand = None):
@@ -374,44 +378,48 @@ class Add(SubjectFilter):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        return self_operand << subject + self._filter_operand
+            self_operand &= subject + self._filter_operand
+        if self_operand.__class__ == o.Operand:
+            self_operand = subject + self._filter_operand
+        return self_operand
 
 class Subtract(SubjectFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        return self_operand << subject - self._filter_operand
+            self_operand &= subject - self._filter_operand
+        if self_operand.__class__ == o.Operand:
+            self_operand = subject - self._filter_operand
+        return self_operand
 
 class Multiply(SubjectFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        return self_operand << subject * self._filter_operand
+            self_operand &= subject * self._filter_operand
+        if self_operand.__class__ == o.Operand:
+            self_operand = subject * self._filter_operand
+        return self_operand
 
 class Divide(SubjectFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        return self_operand << subject / self._filter_operand
+            self_operand &= subject / self._filter_operand
+        if self_operand.__class__ == o.Operand:
+            self_operand = subject / self._filter_operand
+        return self_operand
 
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 

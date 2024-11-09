@@ -28,5 +28,5 @@ K % str() >> Print()    # Returns the tonic key (I)
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-motif_inversion = motif >> (motif % Copy() << Get(Degree())**Multiply(-1))
+motif_inversion = motif >> (motif % Copy() << Get(Degree())**Multiply(-1)) - 4 # steps
 motif_inversion >> rest_play
