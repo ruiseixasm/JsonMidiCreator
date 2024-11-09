@@ -335,7 +335,6 @@ class Get(SubjectFilter):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             match subject:
@@ -352,26 +351,32 @@ class Set(SubjectFilter):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        match subject:
-            case o.Operand():   return subject << self_operand
-            case _:             return subject
+            match subject:
+                case o.Operand():   self_operand &= subject << self_operand
+                case _:             self_operand &= subject
+        if self_operand.__class__ == o.Operand:
+            match subject:
+                case o.Operand():   self_operand = subject << self_operand
+                case _:             self_operand = subject
+        return self_operand
         
 class Push(SubjectFilter):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= subject
-        match subject:
-            case o.Operand():   return self_operand >> subject
-            case _:             return subject
+            match subject:
+                case o.Operand():   self_operand &= self_operand >> subject
+                case _:             self_operand &= subject
+        if self_operand.__class__ == o.Operand:
+            match subject:
+                case o.Operand():   self_operand = self_operand >> subject
+                case _:             self_operand = subject
+        return self_operand
 
 class Add(SubjectFilter):
     def __init__(self, operand: o.Operand = None):
