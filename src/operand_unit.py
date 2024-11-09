@@ -390,7 +390,17 @@ class Key(Unit):
                         semitone_transpose -= 1
                         if staff_key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    return key_int + semitone_transpose
+                    staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                    if staff_white_keys[(key_int + semitone_transpose) % 12]:
+                        return key_int + semitone_transpose
+                    accidentals_int: int = os.staff._key_signature._unit
+                    if accidentals_int < 0:
+                        self._sharp << False
+                        self._flat << True
+                        return key_int + semitone_transpose + 1
+                    self._sharp << True
+                    self._flat << False
+                    return key_int + semitone_transpose - 1
                 else:
                     if self._unit is None:
                         key_int = os.staff._tonic_key._unit
@@ -413,7 +423,9 @@ class Key(Unit):
                     return key_int + semitone_transpose
             case float():
                 if self._scale.hasScale() or os.staff._scale.hasScale():
-                    return self % int() + self._sharp._unit - self._flat._unit
+                    if not self._natural:
+                        return self % int() + self._sharp._unit - self._flat._unit
+                    return self % int()
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     if not self._natural:
                         semitone_int: int            = self % int() + self._sharp._unit - self._flat._unit
