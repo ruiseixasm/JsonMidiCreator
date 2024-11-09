@@ -522,7 +522,7 @@ class Key(Unit):
     def __add__(self, operand: any) -> 'Unit':
         import operand_rational as ro
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
-        new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
+        new_key = self.__class__(self % Natural())  # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
             case int():
                 new_key << ( self % float() + self.move_semitones(operand) )
@@ -553,7 +553,7 @@ class Key(Unit):
     def __sub__(self, operand: any) -> 'Unit':
         import operand_rational as ro
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
-        new_key = self.__class__()      # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
+        new_key = self.__class__(self % Natural())  # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
             case int():
                 new_key << ( self % float() + self.move_semitones(operand * -1) )
