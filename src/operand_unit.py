@@ -371,13 +371,12 @@ class Key(Unit):
             case int():
                 key_int: int            = self._unit
                 if self._scale.hasScale() or os.staff._scale.hasScale():
+                    if self._unit is None:
+                        key_int = os.staff._key._unit
                     return key_int
                 else:
                     if self._unit is None:
-                        if self._scale.hasScale() or os.staff._scale.hasScale():
-                            key_int = os.staff._key._unit
-                        else:
-                            key_int = os.staff._tonic_key._unit
+                        key_int = os.staff._tonic_key._unit
                     key_signature: KeySignature = os.staff._key_signature
                     key_signature_scale     = key_signature % list()
                     degree_transpose: int   = 0
