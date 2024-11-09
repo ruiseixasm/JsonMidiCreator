@@ -28,13 +28,4 @@ K % str() >> Print()    # Returns the tonic key (I)
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-displacing_motif = motif >> R + motif % Copy() >> S >> LJ  # up a half-step
-displacing_motif % Length() >> Print(0)
-displacing_motif >> rest_play >> MidiExport("Midi/displacing_motif.mid")
-
-# Equivalent Staff notational format
-displacing_motif = motif \
-    >> ((R + motif % Copy() >> S) + Note(1/8, Degree(3), Position(M2, B1)) >> LJ >> Tie()) \
-    >> S  # up a half-step
-displacing_motif % Length() >> Print(0)
-displacing_motif >> rest_play
+motif_inversion = motif >> (motif % Copy() << Get(Degree()))
