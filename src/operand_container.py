@@ -431,11 +431,11 @@ class Sequence(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 if last_element is not None:
-                    last_element << ot.Length(single_datasource._data % od.DataSource( ot.Position() ) - last_element % od.DataSource( ot.Position() ))
+                    last_element << ot.Length(single_datasource._data._position - last_element._position)
                 last_element = single_datasource._data
         # Adjust last_element length based on its Measure position
         if last_element is not None:
-            last_element << ot.Length(ot.Position(last_element % ro.Measure() + 1) - last_element % od.DataSource( ot.Position() ))
+            last_element << ot.Length(ot.Position(last_element % ro.Measure() + 1) - last_element._position)
         if and_join:
             self << of.Get(ot.Length())**ot.Duration()
         return self
