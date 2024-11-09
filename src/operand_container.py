@@ -383,12 +383,12 @@ class Sequence(Container):  # Just a container of Elements
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ot.Position = first_tied_note._position + first_tied_note._duration
+                next_note_position: ot.Position = first_tied_note._position + first_tied_note % ot.Duration() # Duration is particularly tricky
                 if tied_notes[next_tied_note_i]._key_note == first_tied_note._key_note \
                     and tied_notes[next_tied_note_i]._track == first_tied_note._track \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
                     and tied_notes[next_tied_note_i]._position == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i]._duration
+                    first_tied_note += tied_notes[next_tied_note_i] % ot.Duration() # Duration is particularly tricky
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
                         sequence_elements.append(first_tied_note)
                 else:
