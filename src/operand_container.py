@@ -429,12 +429,23 @@ class Sequence(Container):  # Just a container of Elements
     def link(self, and_join: bool = False) -> 'Sequence':
         import operand_element as oe
         self.sort()
-        last_element = None
+        element_position: int = 0
+        first_element_position: int = None
+        last_element: oe.Element = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 if last_element is not None:
                     last_element << ot.Length(single_datasource._data._position - last_element._position)
+                else:
+                    first_element_position = element_position
                 last_element = single_datasource._data
+            element_position += 1
+        # Add a Rest in the beginning if necessary
+        if first_element_position is not None:
+            first_element: oe.Element = self._datasource_list[first_element_position]._data
+            if first_element._position != ot.Position(0):
+                rest_length = ot.Length(first_element._position)
+                self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element length based on its Measure position
         if last_element is not None:
             last_element << ot.Length(ot.Position(last_element % ro.Measure() + 1) - last_element._position)
