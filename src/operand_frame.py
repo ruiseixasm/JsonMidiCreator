@@ -235,9 +235,9 @@ class Nth(FrameFilter):
 # 2. SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
 
 class Left(Frame):  # LEFT TO RIGHT
-    def __init__(self, left_operand: any):
+    def __init__(self, left_parameter: any):
         super().__init__()
-        self._left_operand: any = left_operand
+        self._left_parameter: any = left_parameter
 
     def __and__(self, subject: any) -> any:
         self_operand = self._next_operand
@@ -269,11 +269,11 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
     
     def copy(self, *parameters) -> 'Left':
-        match self._left_operand:
+        match self._left_parameter:
             case o.Operand():
-                self_copy: Frame = self.__class__( self._left_operand.copy() ) << parameters
+                self_copy: Frame = self.__class__( self._left_parameter.copy() ) << parameters
             case _:
-                self_copy: Frame = self.__class__( self._left_operand ) << parameters
+                self_copy: Frame = self.__class__( self._left_parameter ) << parameters
         # COPY THE SELF OPERANDS RECURSIVELY
         if type(self._next_operand) is not o.Operand:
             match self._next_operand:
@@ -289,8 +289,8 @@ class Iterate(Left):
         super().__init__(self._step * 0)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(self._left_operand)
-        self._left_operand += self._step    # iterates whenever called
+        self_operand = super().__and__(self._left_parameter)
+        self._left_parameter += self._step    # iterates whenever called
         return self_operand
     
 class Foreach(Left):
@@ -341,7 +341,7 @@ class Type(Left):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        for condition in self._left_operand:
+        for condition in self._left_parameter:
             if type(subject) == type(condition):
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
@@ -354,7 +354,7 @@ class Equal(Left):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        for condition in self._left_operand:
+        for condition in self._left_parameter:
             if subject == condition:
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
@@ -363,11 +363,11 @@ class Equal(Left):
         return ol.Null()
 
 class NotEqual(Left):
-    def __init__(self, left_operand: o.Operand):
-        super().__init__(left_operand)
+    def __init__(self, left_parameter: o.Operand):
+        super().__init__(left_parameter)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject != self._left_operand:
+        if subject != self._left_parameter:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -375,11 +375,11 @@ class NotEqual(Left):
         return ol.Null()
 
 class Greater(Left):
-    def __init__(self, left_operand: o.Operand):
-        super().__init__(left_operand)
+    def __init__(self, left_parameter: o.Operand):
+        super().__init__(left_parameter)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject > self._left_operand:
+        if subject > self._left_parameter:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -387,11 +387,11 @@ class Greater(Left):
         return ol.Null()
 
 class Less(Left):
-    def __init__(self, left_operand: o.Operand):
-        super().__init__(left_operand)
+    def __init__(self, left_parameter: o.Operand):
+        super().__init__(left_parameter)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject < self._left_operand:
+        if subject < self._left_parameter:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -399,11 +399,11 @@ class Less(Left):
         return ol.Null()
 
 class GreaterEqual(Left):
-    def __init__(self, left_operand: o.Operand):
-        super().__init__(left_operand)
+    def __init__(self, left_parameter: o.Operand):
+        super().__init__(left_parameter)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject % self._left_operand >= self._left_operand:
+        if subject % self._left_parameter >= self._left_parameter:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -411,11 +411,11 @@ class GreaterEqual(Left):
         return ol.Null()
 
 class LessEqual(Left):
-    def __init__(self, left_operand: o.Operand):
-        super().__init__(left_operand)
+    def __init__(self, left_parameter: o.Operand):
+        super().__init__(left_parameter)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject % od.DataSource( self._left_operand ) <= self._left_operand:
+        if subject % od.DataSource( self._left_parameter ) <= self._left_parameter:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -430,11 +430,11 @@ class Get(Left):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             match subject:
-                case o.Operand():   self_operand &= subject % self._left_operand
+                case o.Operand():   self_operand &= subject % self._left_parameter
                 case _:             self_operand &= subject
         if self_operand.__class__ == o.Operand:
             match subject:
-                case o.Operand():   self_operand = subject % self._left_operand
+                case o.Operand():   self_operand = subject % self._left_parameter
                 case _:             self_operand = subject
         return self_operand
         
@@ -476,28 +476,28 @@ class Add(Left):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject + self._left_operand)
+        return super().__and__(subject + self._left_parameter)
 
 class Subtract(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject - self._left_operand)
+        return super().__and__(subject - self._left_parameter)
 
 class Multiply(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject * self._left_operand)
+        return super().__and__(subject * self._left_parameter)
 
 class Divide(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject / self._left_operand)
+        return super().__and__(subject / self._left_parameter)
 
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
