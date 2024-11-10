@@ -145,13 +145,14 @@ class Operand:
     def set_next_operand(self, other_operand: 'Operand'):
         if other_operand._next_operand is None:
             return
-        self._next_operand = other_operand._next_operand.copy()
+        self._next_operand = other_operand._next_operand.copy(copy_next_operand = False)
         self._next_operand.set_next_operand(other_operand._next_operand)
 
-    def copy(self: T, *parameters) -> T:
+    def copy(self: T, *parameters, copy_next_operand: bool = True) -> T:
         self_copy: Operand = self.__class__() << self << parameters
         # NEED TO ALSO COPY THE SELF OPERANDS RECURSIVELY
-        self_copy.set_next_operand(self)
+        if copy_next_operand:
+            self_copy.set_next_operand(self)
         # operators_list: list = []
         # for self_operator in self:
         #     operators_list.insert(0, self_operator.copy())
