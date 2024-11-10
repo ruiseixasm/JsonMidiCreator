@@ -437,6 +437,7 @@ class Set(Left):
             match subject:
                 case o.Operand():   self_operand = subject << self_operand
                 case _:             self_operand = subject
+            self_operand._set = True
         return self_operand
         
 class Push(Left):
@@ -552,16 +553,18 @@ class Wrap(Right):
         match self_operand:
             case o.Operand():
                 match self._data:
-                    case oo.Operator(): return self._data | self_operand.copy()
-                    case o.Operand():   return self._data.copy() << self_operand
-                    case None:          return ol.Null()
-                    case _:             return self._data
+                    case oo.Operator(): self_operand = self._data | self_operand.copy()
+                    case o.Operand():   self_operand = self._data.copy() << self_operand
+                    case None:          self_operand = ol.Null()
+                    case _:             self_operand = self._data
             case _:
                 match self._data:
-                    case oo.Operator(): return self._data | self_operand
-                    case o.Operand():   return self._data.copy() << self_operand
-                    case None:          return ol.Null()
-                    case _:             return self._data
+                    case oo.Operator(): self_operand = self._data | self_operand
+                    case o.Operand():   self_operand = self._data.copy() << self_operand
+                    case None:          self_operand = ol.Null()
+                    case _:             self_operand = self._data
+        self_operand._set = True
+        return self_operand
 
 class Extract(Right):
     def __init__(self, operand: o.Operand = None):
