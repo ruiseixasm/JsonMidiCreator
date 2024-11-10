@@ -246,12 +246,14 @@ class Left(Frame):  # LEFT TO RIGHT
         else:
             match self_operand:
                 case o.Operand():
-                    self_operand = self_operand << self._filter_operand
+                    self_operand << self._filter_operand
+                    self_operand._set = True
                 case tuple():
                     self_operand_tuple: tuple = ()
                     for single_operand in self_operand:
                         if isinstance(single_operand, o.Operand):
                             self_operand_tuple += (single_operand << self._filter_operand,)
+                            single_operand._set = True
                         else:
                             self_operand_tuple += (self._filter_operand,)
                     self_operand = self_operand_tuple        
@@ -304,10 +306,12 @@ class Foreach(Left):
             for single_operand in self_operand:
                 if isinstance(single_operand, o.Operand):
                     single_operand << single_operand + self._data
+                    single_operand._set = True
             stepped_operand = self_operand
         elif self._len > 0:
             if isinstance(self_operand, o.Operand):
                 stepped_operand = self_operand << self._data[self._index]
+                single_operand._set = True
             else:
                 stepped_operand = self._data[self._index]
         else:
@@ -523,6 +527,7 @@ class Increment(Right):
                 for single_operand in self_operand:
                     if isinstance(single_operand, o.Operand):
                         single_operand << single_operand + self._data
+                        single_operand._set = True
                 stepped_operand = self_operand
             case _:
                 if self_operand.__class__ == o.Operand:
