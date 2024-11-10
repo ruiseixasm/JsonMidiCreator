@@ -142,17 +142,24 @@ class Operand:
                 return operand_instance.loadSerialization(serialization)
         return ol.Null()
        
+    def set_next_operand(self, other_operand: 'Operand'):
+        if other_operand._next_operand is None:
+            return
+        self._next_operand = other_operand._next_operand.copy()
+        self._next_operand.set_next_operand(other_operand._next_operand)
+
     def copy(self: T, *parameters) -> T:
         self_copy: Operand = self.__class__() << self << parameters
-        # NEEDS TO ALSO COPY THE SELF OPERANDS RECURSIVELY
-        operators_list: list = []
-        for self_operator in self:
-            operators_list.insert(0, self_operator.copy())
-        if len(operators_list) > 0:
-            self_operators = operators_list[0]
-            for self_operator_i in range(1, len(operators_list)):
-                self_operators = operators_list[self_operator_i]**self_operators
-            self_copy._next_operand = self_operators
+        # NEED TO ALSO COPY THE SELF OPERANDS RECURSIVELY
+        self_copy.set_next_operand(self)
+        # operators_list: list = []
+        # for self_operator in self:
+        #     operators_list.insert(0, self_operator.copy())
+        # if len(operators_list) > 0:
+        #     self_operators = operators_list[0]
+        #     for self_operator_i in range(1, len(operators_list)):
+        #         self_operators = operators_list[self_operator_i]**self_operators
+        #     self_copy._next_operand = self_operators
         return self_copy
     
     def getOperand(self, operand_name: str) -> 'Operand':
