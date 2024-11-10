@@ -239,31 +239,31 @@ class Left(Frame):  # LEFT TO RIGHT
         super().__init__()
         self._filter_operand: any = filter_operand
 
-    def __and__(self, subject: o.Operand) -> o.Operand:
+    def __and__(self, subject: any) -> any:
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
-            self_operand &= self._filter_operand
+            self_operand &= subject
         else:
             match self_operand:
                 case o.Operand():
-                    self_operand << self._filter_operand
+                    self_operand << subject
                     self_operand._set = True
                 case tuple():
                     self_operand_tuple: tuple = ()
                     for single_operand in self_operand:
                         if isinstance(single_operand, o.Operand):
-                            self_operand_tuple += (single_operand << self._filter_operand,)
+                            self_operand_tuple += (single_operand << subject,)
                             single_operand._set = True
                         else:
-                            self_operand_tuple += (self._filter_operand,)
+                            self_operand_tuple += (subject,)
                     self_operand = self_operand_tuple
                     self_operand._set = True   
         if self_operand.__class__ == o.Operand:
-            self_operand = self._filter_operand
+            self_operand = subject
             if isinstance(self_operand, o.Operand):
                 self_operand._set = True
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
-            self_operand << self._filter_operand
+            self_operand << subject
             self_operand._set = True
         return self_operand
     
@@ -282,7 +282,7 @@ class Iterate(Left):
         super().__init__(self._step * 0)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(subject)
+        self_operand = super().__and__(self._filter_operand)
         self._filter_operand += self._step    # iterates whenever called
         return self_operand
     
@@ -465,38 +465,30 @@ class Push(Left):
 class Add(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
-        self._value = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._filter_operand = subject + self._value
-        return super().__and__(subject)
+        return super().__and__(subject + self._filter_operand)
 
 class Subtract(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
-        self._value = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._filter_operand = subject - self._value
-        return super().__and__(subject)
+        return super().__and__(subject - self._filter_operand)
 
 class Multiply(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
-        self._value = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._filter_operand = subject * self._value
-        return super().__and__(subject)
+        return super().__and__(subject * self._filter_operand)
 
 class Divide(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
-        self._value = operand
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._filter_operand = subject / self._value
-        return super().__and__(subject)
+        return super().__and__(subject / self._filter_operand)
 
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
