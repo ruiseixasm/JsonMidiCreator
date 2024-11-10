@@ -144,7 +144,15 @@ class Operand:
        
     def copy(self: T, *parameters) -> T:
         self_copy: Operand = self.__class__() << self << parameters
-        # self_copy._set = self._set
+        # NEEDS TO ALSO COPY THE SELF OPERANDS RECURSIVELY
+        operators_list: list = []
+        for self_operator in self:
+            operators_list.insert(0, self_operator.copy())
+        if len(operators_list) > 0:
+            self_operators = operators_list[0]
+            for self_operator_i in range(1, len(operators_list)):
+                self_operators**operators_list[self_operator_i]
+            self_copy._next_operand = self_operators
         return self_copy
     
     def getOperand(self, operand_name: str) -> 'Operand':

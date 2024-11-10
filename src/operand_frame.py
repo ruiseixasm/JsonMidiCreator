@@ -243,29 +243,26 @@ class Left(Frame):  # LEFT TO RIGHT
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        else:
-            match self_operand:
-                case o.Operand():
-                    self_operand << subject
-                    self_operand._set = True
-                case tuple():
-                    self_operand_tuple: tuple = ()
-                    for single_operand in self_operand:
-                        if isinstance(single_operand, o.Operand):
-                            self_operand_tuple += (single_operand << subject,)
-                            single_operand._set = True
-                        else:
-                            self_operand_tuple += (subject,)
-                    self_operand = self_operand_tuple
-                    self_operand._set = True   
+        # match self_operand:
+        #     case o.Operand():
+        #         self_operand << subject
+        #         self_operand._set = True
+        #     case tuple():
+        #         self_operand_tuple: tuple = ()
+        #         for single_operand in self_operand:
+        #             if isinstance(single_operand, o.Operand):
+        #                 self_operand_tuple += (single_operand << subject,)
+        #                 single_operand._set = True
+        #             else:
+        #                 self_operand_tuple += (subject,)
+        #         self_operand = self_operand_tuple
+        #         self_operand._set = True
+        if isinstance(self_operand, Frame):
+            print("FRAME")
         if self_operand.__class__ == o.Operand:
-            if isinstance(subject, o.Operand):
-                self_operand = subject.copy()
-                self_operand._set = True
-            else:
-                self_operand = subject
+            self_operand = subject
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
-            self_operand << subject
+            self_operand = self_operand.copy() << subject   # Has to use a copy of the frame operand
             self_operand._set = True
         return self_operand
     
@@ -307,27 +304,29 @@ class Foreach(Left):
             return self_operand
         if self_operand.__class__ == o.Operand:
             if self._len > 0:
-                stepped_operand = self._data[self._index]
+                if isinstance(self._data[self._index], o.Operand):
+                    self_operand = self._data[self._index].copy()
+                else:
+                    self_operand = self._data[self._index]
             else:
-                stepped_operand = self._index
+                self_operand = self._index
         elif isinstance(self_operand, tuple):
             for single_operand in self_operand:
                 if isinstance(single_operand, o.Operand):
                     single_operand << single_operand + self._data
                     single_operand._set = True
-            stepped_operand = self_operand
         elif self._len > 0:
-            if isinstance(self_operand, o.Operand):
-                stepped_operand = self_operand << self._data[self._index]
+            if isinstance(self_operand, o.Operand) and not self_operand._set:
+                self_operand = self_operand.copy() << self._data[self._index]
                 self_operand._set = True
             else:
-                stepped_operand = self._data[self._index]
+                self_operand = self._data[self._index]
         else:
-            stepped_operand = self._index
+            self_operand = self._index
         self._index += self._step
         if self._len > 0:
             self._index %= self._len
-        return stepped_operand
+        return self_operand
     
 class Type(Left):
     def __init__(self, *parameters):
