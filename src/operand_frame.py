@@ -268,14 +268,7 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand._set = True
         return self_operand
     
-    def set_next_operand(self, other_operand: 'Frame'):
-        if type(other_operand._next_operand) is o.Operand or other_operand._next_operand is None:
-            self._next_operand = o.Operand()
-            return
-        self._next_operand = other_operand._next_operand.copy(copy_next_operand = False)
-        self._next_operand.set_next_operand(other_operand._next_operand)
-
-    def copy(self, *parameters, copy_next_operand: bool = True) -> 'Left':
+    def copy(self, *parameters) -> 'Left':
         match self._left_operand:
             case o.Operand():
                 self_copy: Frame = self.__class__( self._left_operand.copy() ) << parameters
@@ -288,9 +281,6 @@ class Left(Frame):  # LEFT TO RIGHT
                     self_copy._next_operand = self._next_operand.copy()
                 case _:
                     self_copy._next_operand = self._next_operand
-        # if copy_next_operand:
-        #     self_copy.set_next_operand(self)
-        # self_copy._set = self._set
         return self_copy
 
 class Iterate(Left):
