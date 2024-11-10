@@ -75,7 +75,11 @@ class Modulus(ChaoticRandomness):
             case ro.Amplitude():        return self._amplitude.copy()
             case ro.Step():             return self._step.copy()
             case ro.Index():            return self._index.copy()
-            case int() | float():       return self._index % operand
+            case int() | float():
+                self_index = self._index % operand
+                self._index += self._step
+                self._index << (self._index % int()) % (self._amplitude % int())
+                return self_index
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Modulus') -> bool:
@@ -122,8 +126,14 @@ class Modulus(ChaoticRandomness):
                         self._index         << operand._index
             case ro.Amplitude():            self._amplitude << operand
             case ro.Step():                 self._step << operand
-            case ro.Index():                self._index << operand
-            case int() | float():           self._index << operand
+            case ro.Index():
+                self._index << operand
+                if self._index >= self._amplitude:
+                    self._index << (self._index % int()) % (self._amplitude % int())
+            case int() | float():
+                self._index << operand
+                if self._index >= self._amplitude:
+                    self._index << (self._index % int()) % (self._amplitude % int())
             case _: super().__lshift__(operand)
         return self
 
@@ -142,8 +152,8 @@ class Flipper(Modulus):
                     case _:                     return super().__mod__(operand)
             case Flipper():             return self.copy()
             case ro.Split():            return self._split.copy()
-            case int():                 return -1 if self._index < self._split else +1
-            case float():               return -1.0 if self._index < self._split else +1.0
+            case int():                 return -1 if super() % int() < self._split % int() else +1
+            case float():               return -1.0 if super() % float() < self._split % float() else +1.0
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Modulus') -> bool:
