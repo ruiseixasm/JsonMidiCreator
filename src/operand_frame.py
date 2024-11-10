@@ -256,9 +256,15 @@ class Left(Frame):  # LEFT TO RIGHT
                             single_operand._set = True
                         else:
                             self_operand_tuple += (self._filter_operand,)
-                    self_operand = self_operand_tuple        
+                    self_operand = self_operand_tuple
+                    self_operand._set = True   
         if self_operand.__class__ == o.Operand:
             self_operand = self._filter_operand
+            if isinstance(self_operand, o.Operand):
+                self_operand._set = True
+        elif isinstance(self_operand, o.Operand) and not self_operand._set:
+            self_operand << self._filter_operand
+            self_operand._set = True
         return self_operand
     
     def copy(self, *parameters) -> 'Left':
