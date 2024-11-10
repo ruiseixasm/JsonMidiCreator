@@ -25,8 +25,8 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Measure(7)
 
-(Chord() * 7 << Size("7th")) << Increment()**Add(1)**Degree() << Increment()**Mode() >> Play(True)
-(Chord("A") << Scale("minor") << Octave(3)) * 7 << Increment()**Degree() << Increment()**Mode() \
+(Chord() * 7 << Size("7th")) << Iterate()**Add(1)**Degree() << Increment()**Mode() >> Play(True)
+(Chord("A") << Scale("minor") << Octave(3)) * 7 << Iterate()**Add()**Degree() << Increment()**Mode() \
     >> Play(True) >> Print() << Inversion(1) >> Play(True)
 
 Chord("C") << Size("13th") << Scale("Major") << Degree("Dominant") << Mode("5th") << Octave(3) << NoteValue(2) >> Print() >> Play()

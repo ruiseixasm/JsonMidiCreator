@@ -25,8 +25,8 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Measure(7)
 
-(Chord(1/4) * 7 << Size("7th")) << Even()**Increment()**Degree(2) << Even()**Increment()**Mode(2) >> Print() >> Play(True)
-(Chord(1/4) * 7 << Size("7th")) << Increment()**Even()**Degree() << Increment()**Even()**Mode() >> Print() >> Play(True)
+(Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() << Even()**Increment()**Mode(2) >> Print() >> Play(True)
+(Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() << Increment()**Even()**Mode() >> Print() >> Play(True)
 
 all_chords = (Chord(1/4) * 7 << Size("7th"))
 first_chords = all_chords | Beat(0)
