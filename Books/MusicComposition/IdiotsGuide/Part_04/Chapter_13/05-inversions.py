@@ -22,11 +22,12 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << "#" << 120
+staff << "#" << 30
 K % str() >> Print()    # Returns the tonic key (I)
 
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-motif_inversion = motif >> (motif % Copy() << Get(Degree())**Multiply(-1)) - 4 # steps
+# Flips three degrees from -3 to +3 up needs to go 5 degrees down (6 less tonic 1)
+motif_inversion = motif >> (motif % Copy() << Get(Degree())**Add(3)**Multiply(-1))
 motif_inversion >> rest_play

@@ -885,8 +885,30 @@ class Degree(Unit):
             case "vi"  | "submediant":              self._unit = 6
             case "vii" | "leading tone":            self._unit = 7
 
-    _degrees_str = ["None" , "I", "ii", "iii", "IV", "V", "vi", "vii"]
-
+    def __add__(self, number: any) -> 'Unit':
+        import operand_rational as ro
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case self.__class__() | Integer() | ro.Float():
+                                                                                    # Needs to discount the Degree 1 (Tonic)
+                                        return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) - 1 )
+            case int() | float() | Fraction():
+                                                                                    # Needs to discount the Degree 1 (Tonic)
+                                        return self.__class__() << od.DataSource( self._unit + number - 1 )
+        return self.copy()
+    
+    def __sub__(self, number: any) -> 'Unit':
+        import operand_rational as ro
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        match number:
+            case self.__class__() | Integer() | ro.Float():
+                                                                                    # Needs to discount the Degree 1 (Tonic)
+                                        return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) + 1 )
+            case int() | float() | Fraction():
+                                                                                    # Needs to discount the Degree 1 (Tonic)
+                                        return self.__class__() << od.DataSource( self._unit - number + 1 )
+        return self.copy()
+    
 class Size(Unit):
     """
     Size() represents the size of the Chord, like "7th", "9th", etc.

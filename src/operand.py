@@ -21,6 +21,7 @@ T = TypeVar('T')  # T can represent any type, including user-defined classes
 class Operand:
     def __init__(self):
         self._next_operand: Operand = None
+        self._set: bool = False
 
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __iter__(self):
