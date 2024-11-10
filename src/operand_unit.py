@@ -392,15 +392,15 @@ class Key(Unit):
                             degree_transpose += 1
                     staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                     if staff_white_keys[(key_int + semitone_transpose) % 12]:
-                        return key_int + semitone_transpose
+                        return key_int + semitone_transpose + self._sharp._unit - self._flat._unit
                     accidentals_int: int = os.staff._key_signature._unit
                     if accidentals_int < 0:
                         self._sharp << False
                         self._flat << True
-                        return key_int + semitone_transpose + 1
+                        return key_int + semitone_transpose + 1 + self._sharp._unit - self._flat._unit
                     self._sharp << True
                     self._flat << False
-                    return key_int + semitone_transpose - 1
+                    return key_int + semitone_transpose - 1 + self._sharp._unit - self._flat._unit
                 else:
                     if self._unit is None:
                         key_int = os.staff._tonic_key._unit
@@ -420,15 +420,15 @@ class Key(Unit):
                         semitone_transpose -= 1
                         if key_signature_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    return key_int + semitone_transpose
+                    return key_int + semitone_transpose + self._sharp._unit - self._flat._unit
             case float():
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if not self._natural:
-                        return self % int() + self._sharp._unit - self._flat._unit
+                        return self % int()
                     return self % int()
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     if not self._natural:
-                        semitone_int: int            = self % int() + self._sharp._unit - self._flat._unit
+                        semitone_int: int            = self % int()
                         key_signature: KeySignature = os.staff._key_signature
                         accidentals_int = key_signature._unit
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
