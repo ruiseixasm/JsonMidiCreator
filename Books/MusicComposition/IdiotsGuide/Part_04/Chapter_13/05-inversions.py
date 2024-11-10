@@ -29,20 +29,22 @@ motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >>
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 # Flips three degrees from -3 to +3 up reversion by 3 Degrees up and 3 Degrees down
-# melodic_inversion = motif >> (motif % Copy() << Get(Degree())**Add(3)**Multiply(-1)**Subtract(3))
-# melodic_inversion >> rest_play
+melodic_inversion = motif >> (motif % Copy() << Get(Degree())**Add(3)**Multiply(-1)**Subtract(3))
+melodic_inversion >> rest_play
 
 # Flips three degrees from -3 to +3 up needs to go 6 - 1 degrees down
-# melodic_inversion = motif >> (motif % Copy() << Get(Degree())**Multiply(-1)) - Degree(6 - 1)
-# melodic_inversion >> rest_play
+melodic_inversion = motif >> (motif % Copy() << Get(Degree())**Multiply(-1)) - Degree(6 - 1)
+melodic_inversion >> rest_play
 
-# Flips three degrees from -3 to +3 up needs to go 6 - 1 degrees down
+# Floats multiplication on Key works in a Chromatic fashion while Integer works by Steps
 mirror_inversion = motif >> motif % Copy() - Get(KeyNote())**Get(int())**Subtract(KeyNote(E) % int())**Multiply(2.0)
 mirror_inversion >> rest_play
 
-# Flips three degrees from -3 to +3 up needs to go 6 - 1 degrees down
+# Integer multiplication on KeyNote ignores KeySignature sharps and flats while Floats don't
 mirror_inversion = motif >> motif % Copy() - Get(KeyNote())**Subtract(KeyNote(E))**Multiply(2)
 mirror_inversion >> rest_play
 
 
+contour_inversion = melodic_inversion - Less(KeyNote(E))**Less(B4)**1 + Less(KeyNote(E))**Equal(B4)**1
+contour_inversion >> rest_play
 

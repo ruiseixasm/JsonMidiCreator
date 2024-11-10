@@ -309,6 +309,25 @@ class KeyNote(Generic):
                 return new_keynote
             case _: return super().__mul__(operand)
     
+    def __div__(self, operand) -> 'KeyNote':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                new_keynote = self.__class__(self._key % ou.Natural())
+                self_int = self % int()
+                multiplied_int = int(self_int / operand)
+                new_keynote._key << multiplied_int % 12
+                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                return new_keynote
+            case float():
+                new_keynote = self.__class__(self._key % ou.Natural())
+                self_float = self % float()
+                multiplied_int = int(self_float / operand)
+                new_keynote._key << multiplied_int % 12
+                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                return new_keynote
+            case _: return super().__div__(operand)
+    
 class Controller(Generic):
     def __init__(self, *parameters):
         super().__init__()
