@@ -151,7 +151,7 @@ class Operand:
         if len(operators_list) > 0:
             self_operators = operators_list[0]
             for self_operator_i in range(1, len(operators_list)):
-                self_operators**operators_list[self_operator_i]
+                self_operators = operators_list[self_operator_i]**self_operators
             self_copy._next_operand = self_operators
         return self_copy
     
