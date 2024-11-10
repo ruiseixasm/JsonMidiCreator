@@ -134,17 +134,18 @@ class KeyNote(Generic):
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
                     case int():             return self % int()
+                    case float():           return self % float()
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | float() | str():
+            case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | str():
                 return self._key % operand
-            case float():
-                return self._key % int(operand) # NEEDS TO BE REVIEWED
             case int():
-                return 12 * (self._octave._unit + 1) + int(self._key % float()) + self._key_offset
+                return 12 * (self._octave._unit + 1) + self._key % int() + self._key_offset
+            case float():
+                return 12 * (self._octave._unit + 1) + self._key % float() + self._key_offset
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, operand: any) -> bool:

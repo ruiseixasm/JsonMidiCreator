@@ -272,12 +272,12 @@ class Element(o.Operand):
         return self_copy
 
     @staticmethod
-    def midi_128(midi_value: int = 0):
-        return min(max(midi_value, 0), 127)
+    def midi_128(midi_value: int | float = 0):
+        return min(max(int(midi_value), 0), 127)
 
     @staticmethod
-    def midi_16(midi_value: int = 0):
-        return min(max(midi_value, 0), 15)
+    def midi_16(midi_value: int | float = 0):
+        return min(max(int(midi_value), 0), 15)
 
 class Clock(Element):
     def __init__(self, *parameters):
@@ -581,7 +581,7 @@ class Note(Rest):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_int: int           = self._key_note % od.DataSource( int() )
+        key_note_float: float       = self._key_note % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -593,7 +593,7 @@ class Note(Rest):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_1": Element.midi_128(key_note_float),
                         "data_byte_2": Element.midi_128(velocity_int),
                         "device": device_list
                     }
@@ -602,7 +602,7 @@ class Note(Rest):
                     "time_ms": off_time_ms,
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_1": Element.midi_128(key_note_float),
                         "data_byte_2": 0,
                         "device": device_list
                     }
@@ -613,7 +613,7 @@ class Note(Rest):
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["duration"]    = self._duration % od.DataSource( ro.Beat() ) % float() * (self._gate % float())
-        self_midilist[0]["pitch"]       = Element.midi_128(self._key_note % int())
+        self_midilist[0]["pitch"]       = Element.midi_128(self._key_note % float())
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist
 
@@ -1668,7 +1668,8 @@ class PolyAftertouch(Aftertouch):
                     case og.KeyNote():  return self._key_note
                     case _:             return super().__mod__(operand)
             case og.KeyNote():  return self._key_note.copy()
-            case int():         return self._key_note % int()
+            case int() | float():
+                    return self._key_note % operand
             case ou.Octave():   return self._key_note % ou.Octave()
             case _:             return super().__mod__(operand)
 
@@ -1684,10 +1685,10 @@ class PolyAftertouch(Aftertouch):
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_int: int   = self._key_note % od.DataSource( int() )
-        pressure_int: int   = self._pressure % od.DataSource( int() )
-        channel_int: int    = self._channel % od.DataSource( int() )
-        device_list: list   = self._device % od.DataSource( list() )
+        key_note_float: float   = self._key_note % od.DataSource( float() )
+        pressure_int: int       = self._pressure % od.DataSource( int() )
+        channel_int: int        = self._channel % od.DataSource( int() )
+        device_list: list       = self._device % od.DataSource( list() )
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1695,7 +1696,7 @@ class PolyAftertouch(Aftertouch):
                     "time_ms": on_time_ms,
                     "midi_message": {
                         "status_byte": 0xA0 | 0x0F & Element.midi_16(channel_int - 1),
-                        "data_byte_1": Element.midi_128(key_note_int),
+                        "data_byte_1": Element.midi_128(key_note_float),
                         "data_byte_2": Element.midi_128(pressure_int),
                         "device": device_list
                     }
