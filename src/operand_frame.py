@@ -261,6 +261,8 @@ class Left(Frame):  # LEFT TO RIGHT
             print("FRAME")
         if self_operand.__class__ == o.Operand:
             self_operand = subject
+            if isinstance(self_operand, o.Operand):
+                self_operand._set = True
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
             self_operand = self_operand.copy() << subject   # Has to use a copy of the frame operand
             self_operand._set = True
