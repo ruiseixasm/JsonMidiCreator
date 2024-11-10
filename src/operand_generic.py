@@ -247,11 +247,11 @@ class KeyNote(Generic):
         match operand:
             case KeyNote():
                 # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
-                new_keynote = self.__class__()
+                new_keynote = self.__class__(self._key % ou.Natural())
                 self_int = self % int()
                 operand_int = operand % int()
                 sum_int = self_int + operand_int
-                new_keynote._key._unit = sum_int % 12
+                new_keynote._key << sum_int % 12
                 new_keynote._octave._unit = sum_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case ou.Octave():
@@ -270,11 +270,11 @@ class KeyNote(Generic):
         match operand:
             case KeyNote(): # It may result in negative KeyNotes (unplayable)!
                 # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
-                new_keynote = self.__class__()
+                new_keynote = self.__class__(self._key % ou.Natural())
                 self_int = self % int()
                 operand_int = operand % int()
                 delta_int = self_int - operand_int
-                new_keynote._key._unit = delta_int % 12
+                new_keynote._key << delta_int % 12
                 new_keynote._octave._unit = delta_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case ou.Octave():

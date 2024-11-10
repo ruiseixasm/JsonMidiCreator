@@ -257,8 +257,6 @@ class Left(Frame):  # LEFT TO RIGHT
         #                 self_operand_tuple += (subject,)
         #         self_operand = self_operand_tuple
         #         self_operand._set = True
-        if isinstance(self_operand, Frame):
-            print("FRAME")
         if self_operand.__class__ == o.Operand:
             self_operand = subject
             if isinstance(self_operand, o.Operand):
@@ -490,6 +488,7 @@ class Multiply(Left):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
+        subject % int() >> ol.Print(0)
         return super().__and__(subject * self._left_parameter)
 
 class Divide(Left):
