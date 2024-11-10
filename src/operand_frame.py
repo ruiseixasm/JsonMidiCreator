@@ -235,9 +235,9 @@ class Nth(FrameFilter):
 # 2. SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
 
 class Left(Frame):  # LEFT TO RIGHT
-    def __init__(self, filter_operand: any):
+    def __init__(self, left_operand: any):
         super().__init__()
-        self._filter_operand: any = filter_operand
+        self._left_operand: any = left_operand
 
     def __and__(self, subject: any) -> any:
         self_operand = self._next_operand
@@ -268,11 +268,11 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
     
     def copy(self, *parameters) -> 'Left':
-        match self._filter_operand:
+        match self._left_operand:
             case o.Operand():
-                self_copy: Frame = self.__class__( self._filter_operand.copy() ) << parameters
+                self_copy: Frame = self.__class__( self._left_operand.copy() ) << parameters
             case _:
-                self_copy: Frame = self.__class__( self._filter_operand ) << parameters
+                self_copy: Frame = self.__class__( self._left_operand ) << parameters
         self_copy._set = self._set
         return self_copy
 
@@ -282,8 +282,8 @@ class Iterate(Left):
         super().__init__(self._step * 0)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(self._filter_operand)
-        self._filter_operand += self._step    # iterates whenever called
+        self_operand = super().__and__(self._left_operand)
+        self._left_operand += self._step    # iterates whenever called
         return self_operand
     
 class Foreach(Left):
@@ -317,7 +317,7 @@ class Foreach(Left):
         elif self._len > 0:
             if isinstance(self_operand, o.Operand):
                 stepped_operand = self_operand << self._data[self._index]
-                single_operand._set = True
+                self_operand._set = True
             else:
                 stepped_operand = self._data[self._index]
         else:
@@ -332,7 +332,7 @@ class Type(Left):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        for condition in self._filter_operand:
+        for condition in self._left_operand:
             if type(subject) == type(condition):
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
@@ -345,7 +345,7 @@ class Equal(Left):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        for condition in self._filter_operand:
+        for condition in self._left_operand:
             if subject == condition:
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
@@ -354,11 +354,11 @@ class Equal(Left):
         return ol.Null()
 
 class NotEqual(Left):
-    def __init__(self, filter_operand: o.Operand):
-        super().__init__(filter_operand)
+    def __init__(self, left_operand: o.Operand):
+        super().__init__(left_operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject != self._filter_operand:
+        if subject != self._left_operand:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -366,11 +366,11 @@ class NotEqual(Left):
         return ol.Null()
 
 class Greater(Left):
-    def __init__(self, filter_operand: o.Operand):
-        super().__init__(filter_operand)
+    def __init__(self, left_operand: o.Operand):
+        super().__init__(left_operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject > self._filter_operand:
+        if subject > self._left_operand:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -378,11 +378,11 @@ class Greater(Left):
         return ol.Null()
 
 class Less(Left):
-    def __init__(self, filter_operand: o.Operand):
-        super().__init__(filter_operand)
+    def __init__(self, left_operand: o.Operand):
+        super().__init__(left_operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject < self._filter_operand:
+        if subject < self._left_operand:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -390,11 +390,11 @@ class Less(Left):
         return ol.Null()
 
 class GreaterEqual(Left):
-    def __init__(self, filter_operand: o.Operand):
-        super().__init__(filter_operand)
+    def __init__(self, left_operand: o.Operand):
+        super().__init__(left_operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject % self._filter_operand >= self._filter_operand:
+        if subject % self._left_operand >= self._left_operand:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -402,11 +402,11 @@ class GreaterEqual(Left):
         return ol.Null()
 
 class LessEqual(Left):
-    def __init__(self, filter_operand: o.Operand):
-        super().__init__(filter_operand)
+    def __init__(self, left_operand: o.Operand):
+        super().__init__(left_operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject % od.DataSource( self._filter_operand ) <= self._filter_operand:
+        if subject % od.DataSource( self._left_operand ) <= self._left_operand:
             self_operand = self._next_operand
             if isinstance(self_operand, Frame):
                 self_operand &= subject
@@ -421,11 +421,11 @@ class Get(Left):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             match subject:
-                case o.Operand():   self_operand &= subject % self._filter_operand
+                case o.Operand():   self_operand &= subject % self._left_operand
                 case _:             self_operand &= subject
         if self_operand.__class__ == o.Operand:
             match subject:
-                case o.Operand():   self_operand = subject % self._filter_operand
+                case o.Operand():   self_operand = subject % self._left_operand
                 case _:             self_operand = subject
         return self_operand
         
@@ -467,28 +467,28 @@ class Add(Left):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject + self._filter_operand)
+        return super().__and__(subject + self._left_operand)
 
 class Subtract(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject - self._filter_operand)
+        return super().__and__(subject - self._left_operand)
 
 class Multiply(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject * self._filter_operand)
+        return super().__and__(subject * self._left_operand)
 
 class Divide(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject / self._filter_operand)
+        return super().__and__(subject / self._left_operand)
 
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
