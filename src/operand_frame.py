@@ -488,7 +488,6 @@ class Multiply(Left):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        subject % int() >> ol.Print(0)
         return super().__and__(subject * self._left_parameter)
 
 class Divide(Left):

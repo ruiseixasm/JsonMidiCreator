@@ -37,7 +37,7 @@ motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 # melodic_inversion >> rest_play
 
 # Flips three degrees from -3 to +3 up needs to go 6 - 1 degrees down
-mirror_inversion = motif >> motif % Copy(Natural()) - Get(KeyNote())**Subtract(KeyNote(E))**Multiply(2)
+mirror_inversion = motif >> motif % Copy() - Get(KeyNote())**Get(int())**Subtract(KeyNote(E) % int())**Multiply(2.0)
 mirror_inversion >> rest_play
 
 

@@ -143,8 +143,10 @@ class KeyNote(Generic):
             case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | str():
                 return self._key % operand
             case int():
+                # IGNORES THE KEY SIGNATURE (CHROMATIC)
                 return 12 * (self._octave._unit + 1) + self._key % int() + self._key_offset
             case float():
+                # RESPECTS THE KEY SIGNATURE
                 return 12 * (self._octave._unit + 1) + self._key % float() + self._key_offset
             case _:                 return super().__mod__(operand)
 
@@ -154,7 +156,7 @@ class KeyNote(Generic):
             return True
         match operand:
             case KeyNote():
-                return self % int() == operand % int()
+                return self % float() == operand % float()
             case str() | ou.Key():
                 return self._key    == operand
             case int() | ou.Octave():
@@ -165,7 +167,7 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                return self % int() < operand % int()
+                return self % float() < operand % float()
             case str() | ou.Key():
                 return self._key    < operand
             case int() | ou.Octave():
@@ -176,7 +178,7 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyNote():
-                return self % int() > operand % int()
+                return self % float() > operand % float()
             case str() | ou.Key():
                 return self._key    > operand
             case int() | ou.Octave():
@@ -244,7 +246,7 @@ class KeyNote(Generic):
 
     def __add__(self, operand) -> 'KeyNote':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: KeyNote = self.copy()
+        self_copy: KeyNote = self.copy(self._key % ou.Natural())
         match operand:
             case KeyNote():
                 # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
@@ -267,7 +269,7 @@ class KeyNote(Generic):
     
     def __sub__(self, operand) -> 'KeyNote':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: KeyNote = self.copy()
+        self_copy: KeyNote = self.copy(self._key % ou.Natural())
         match operand:
             case KeyNote(): # It may result in negative KeyNotes (unplayable)!
                 # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
@@ -288,6 +290,22 @@ class KeyNote(Generic):
         self_copy.octave_correction()
         return self_copy
 
+    def __mul__(self, operand) -> 'KeyNote':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int():
+                # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
+                new_keynote = self.__class__(self._key % ou.Natural())
+                self_int = self % int()
+                operand_int = operand % int()
+                sum_int = self_int + operand_int
+                new_keynote._key << sum_int % 12
+                new_keynote._octave._unit = sum_int // 12 - 1 # rooted on -1 octave
+                return new_keynote
+            case _: return super().__mul__(operand)
+        self_copy.octave_correction()
+        return self_copy
+    
 class Controller(Generic):
     def __init__(self, *parameters):
         super().__init__()
