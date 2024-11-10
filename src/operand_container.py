@@ -184,7 +184,7 @@ class Container(o.Operand):
         container_copy: Container = self.__class__()
         for single_datasource in self._datasource_list:
             container_copy._datasource_list.append( single_datasource.copy() )
-        container_copy._set = self._set
+        # container_copy._set = self._set
         return container_copy << parameters
     
     def sort(self, compare: o.Operand = None) -> 'Container':

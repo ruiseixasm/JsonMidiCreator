@@ -259,9 +259,11 @@ class Left(Frame):  # LEFT TO RIGHT
                     self_operand = self_operand_tuple
                     self_operand._set = True   
         if self_operand.__class__ == o.Operand:
-            self_operand = subject
-            if isinstance(self_operand, o.Operand):
+            if isinstance(subject, o.Operand):
+                self_operand = subject.copy()
                 self_operand._set = True
+            else:
+                self_operand = subject
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
             self_operand << subject
             self_operand._set = True
@@ -273,7 +275,7 @@ class Left(Frame):  # LEFT TO RIGHT
                 self_copy: Frame = self.__class__( self._left_operand.copy() ) << parameters
             case _:
                 self_copy: Frame = self.__class__( self._left_operand ) << parameters
-        self_copy._set = self._set
+        # self_copy._set = self._set
         return self_copy
 
 class Iterate(Left):

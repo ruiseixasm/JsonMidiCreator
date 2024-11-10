@@ -144,7 +144,7 @@ class Operand:
        
     def copy(self: T, *parameters) -> T:
         self_copy: Operand = self.__class__() << self << parameters
-        self_copy._set = self._set
+        # self_copy._set = self._set
         return self_copy
     
     def getOperand(self, operand_name: str) -> 'Operand':
