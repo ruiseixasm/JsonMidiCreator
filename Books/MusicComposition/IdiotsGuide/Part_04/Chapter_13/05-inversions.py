@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << "#" << 30
+staff << "#" << 90
 K % str() >> Print()    # Returns the tonic key (I)
 
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
