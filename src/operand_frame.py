@@ -262,9 +262,11 @@ class Left(Frame):  # LEFT TO RIGHT
     def copy(self, *parameters) -> 'Left':
         match self._filter_operand:
             case o.Operand():
-                return self.__class__( self._filter_operand.copy() ) << parameters
+                self_copy: Frame = self.__class__( self._filter_operand.copy() ) << parameters
             case _:
-                return self.__class__( self._filter_operand ) << parameters
+                self_copy: Frame = self.__class__( self._filter_operand ) << parameters
+        self_copy._set = self._set
+        return self_copy
 
 class Iterate(Left):
     def __init__(self, step = None):

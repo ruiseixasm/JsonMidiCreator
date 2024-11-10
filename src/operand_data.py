@@ -212,6 +212,7 @@ class DataSource(Data):
                 self_copy._data = many_operands
             case _:
                 self_copy._data = self_data
+        self_copy._set = self._set
         return self_copy << parameters
     
 class SideEffects(Data):
@@ -496,7 +497,9 @@ class Serialization(Data):
         return self
         
     def copy(self, *parameters):
-        return self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
+        self_copy: Data = self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
+        self_copy._set = self._set
+        return self_copy
 
     def __lshift__(self, operand: any) -> 'o.Operand':
         if isinstance(operand, o.Operand):
