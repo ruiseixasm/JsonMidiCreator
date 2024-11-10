@@ -33,6 +33,154 @@ import operand_frame as of
 
 
 class ChaoticRandomness(o.Operand):
-    ...
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case _:                 return ol.Null()
+            case of.Frame():        return self % (operand % o.Operand())
+            case _:                 return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'ChaoticRandomness':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+class Modulus(ChaoticRandomness):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._amplitude: ro.Amplitude   = ro.Amplitude(12)
+        self._step: ro.Step             = ro.Step(1)
+        self._index: ro.Index           = ro.Index(0)
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Amplitude():        return self._amplitude
+                    case ro.Step():             return self._step
+                    case ro.Index():            return self._index
+                    case _:                     return super().__mod__(operand)
+            case Modulus():             return self.copy()
+            case ro.Amplitude():        return self._amplitude.copy()
+            case ro.Step():             return self._step.copy()
+            case ro.Index():            return self._index.copy()
+            case int() | float():       return self._index % operand
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: 'Modulus') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) != type(other):
+            return False
+        return  self._index           == other._index
+    
+    def getSerialization(self) -> dict:
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "amplitude":    self._amplitude % float(),
+                "step":         self._step % float(),
+                "index":        self._index % float()
+            }
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Modulus':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "amplitude" in serialization["parameters"] and "step" in serialization["parameters"] and "index" in serialization["parameters"]):
+
+            self._amplitude         << serialization["parameters"]["amplitude"]
+            self._step              << serialization["parameters"]["step"]
+            self._index             << serialization["parameters"]["index"]
+        return self
+        
+    def __lshift__(self, operand: o.Operand) -> 'Modulus':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Amplitude():            self._amplitude = operand % o.Operand()
+                    case ro.Step():                 self._step = operand % o.Operand()
+                    case ro.Index():                self._index = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case Modulus():
+                        self._amplitude     << operand._amplitude
+                        self._step          << operand._step
+                        self._index         << operand._index
+            case ro.Amplitude():            self._amplitude << operand
+            case ro.Step():                 self._step << operand
+            case ro.Index():                self._index << operand
+            case int() | float():           self._index << operand
+            case _: super().__lshift__(operand)
+        return self
+
+class Flipper(Modulus):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._split: ro.Split       = ro.Split(6)
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Split():            return self._split
+                    case _:                     return super().__mod__(operand)
+            case Flipper():             return self.copy()
+            case ro.Split():            return self._split.copy()
+            case int():                 return -1 if self._index < self._split else +1
+            case float():               return -1.0 if self._index < self._split else +1.0
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: 'Modulus') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) != type(other):
+            return False
+        return  self % int()        == other % int()
+    
+    def getSerialization(self) -> dict:
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["split"]    = self._split % od.DataSource( float() )
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "split" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._split = ro.Split()    << od.DataSource( serialization["parameters"]["split"] )
+        return self
+      
+    def __lshift__(self, operand: o.Operand) -> 'Modulus':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Split():                self._split = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case Flipper():
+                        super().__lshift__(operand)
+                        self._split         << operand._split
+            case ro.Split():                self._split << operand
+            case _: super().__lshift__(operand)
+        return self
 
 

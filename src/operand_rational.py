@@ -205,6 +205,12 @@ class Rational(o.Operand):
 class Float(Rational):
     pass
 
+class Index(Rational):
+    pass
+
+class Split(Rational):
+    pass
+
 class Negative(Rational):
     def __init__(self, value: float = None):
         super().__init__(value * (-1))
