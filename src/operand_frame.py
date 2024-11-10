@@ -282,8 +282,12 @@ class Left(Frame):  # LEFT TO RIGHT
             case _:
                 self_copy: Frame = self.__class__( self._left_operand ) << parameters
         # COPY THE SELF OPERANDS RECURSIVELY
-        if type(self._next_operand) is not o.Operand and self._next_operand is not None:
-            self_copy._next_operand = self._next_operand.copy()
+        if type(self._next_operand) is not o.Operand:
+            match self._next_operand:
+                case o.Operand():
+                    self_copy._next_operand = self._next_operand.copy()
+                case _:
+                    self_copy._next_operand = self._next_operand
         # if copy_next_operand:
         #     self_copy.set_next_operand(self)
         # self_copy._set = self._set
