@@ -14,8 +14,12 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from typing import TypeVar
+from typing import TYPE_CHECKING
 
-T = TypeVar('T')  # T can represent any type, including user-defined classes
+if TYPE_CHECKING:
+    from operand import Operand  # Replace with the actual module name
+
+T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
 
 
 class Operand:
@@ -132,14 +136,16 @@ class Operand:
             operand_name = serialization["class"]
             operand_class = Operand.find_subclass_by_name(Operand, operand_name)
             if operand_class:
-                operand_instance = operand_class()
+                operand_instance: Operand = operand_class()
                 if operand_class == __class__ or isinstance(operand_instance, ol.Label):
                     return operand_instance         # avoids infinite recursion
                 return operand_instance.loadSerialization(serialization)
         return ol.Null()
        
     def copy(self: T, *parameters) -> T:
-        return self.__class__() << self << parameters
+        self_copy: Operand = self.__class__() << self << parameters
+        self_copy._set = self._set
+        return self_copy
     
     def getOperand(self, operand_name: str) -> 'Operand':
         operand_class = Operand.find_subclass_by_name(Operand, operand_name)
