@@ -150,9 +150,11 @@ class Operand:
 
     def copy(self: T, *parameters, copy_next_operand: bool = True) -> T:
         self_copy: Operand = self.__class__() << self << parameters
-        # NEED TO ALSO COPY THE SELF OPERANDS RECURSIVELY
-        if copy_next_operand:
-            self_copy.set_next_operand(self)
+        # COPY THE SELF OPERANDS RECURSIVELY
+        if self._next_operand is not None:
+            self_copy._next_operand = self._next_operand.copy()
+        # if copy_next_operand:
+        #     self_copy.set_next_operand(self)
         # operators_list: list = []
         # for self_operator in self:
         #     operators_list.insert(0, self_operator.copy())

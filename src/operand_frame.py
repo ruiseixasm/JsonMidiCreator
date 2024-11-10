@@ -269,7 +269,7 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
     
     def set_next_operand(self, other_operand: 'Frame'):
-        if other_operand._next_operand is o.Operand or other_operand._next_operand is None:
+        if type(other_operand._next_operand) is o.Operand or other_operand._next_operand is None:
             self._next_operand = o.Operand()
             return
         self._next_operand = other_operand._next_operand.copy(copy_next_operand = False)
@@ -281,8 +281,11 @@ class Left(Frame):  # LEFT TO RIGHT
                 self_copy: Frame = self.__class__( self._left_operand.copy() ) << parameters
             case _:
                 self_copy: Frame = self.__class__( self._left_operand ) << parameters
-        if copy_next_operand:
-            self_copy.set_next_operand(self)
+        # COPY THE SELF OPERANDS RECURSIVELY
+        if type(self._next_operand) is not o.Operand and self._next_operand is not None:
+            self_copy._next_operand = self._next_operand.copy()
+        # if copy_next_operand:
+        #     self_copy.set_next_operand(self)
         # self_copy._set = self._set
         return self_copy
 
