@@ -888,25 +888,31 @@ class Degree(Unit):
     def __add__(self, number: any) -> 'Unit':
         import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        self_unit_0 = self._unit - 1
+        if self._unit < 0:
+            self_unit_0 = self._unit + 1
         match number:
             case self.__class__() | Integer() | ro.Float():
                                                                                     # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) - 1 )
+                                        return self.__class__() << od.DataSource( self_unit_0 + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                                                                     # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self._unit + number - 1 )
+                                        return self.__class__() << od.DataSource( self_unit_0 + number )
         return self.copy()
     
     def __sub__(self, number: any) -> 'Unit':
         import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        self_unit_0 = self._unit - 1
+        if self._unit < 0:
+            self_unit_0 = self._unit + 1
         match number:
             case self.__class__() | Integer() | ro.Float():
                                                                                     # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) + 1 )
+                                        return self.__class__() << od.DataSource( self_unit_0 - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                                                                     # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self._unit - number + 1 )
+                                        return self.__class__() << od.DataSource( self_unit_0 - number )
         return self.copy()
     
 class Size(Unit):

@@ -29,5 +29,5 @@ motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >>
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 # Flips three degrees from -3 to +3 up needs to go 5 degrees down (6 less tonic 1)
-motif_inversion = motif >> (motif % Copy() << Get(Degree())**Add(3)**Multiply(-1))
+motif_inversion = motif >> (motif % Copy() << Get(Degree())**Add(3)**Multiply(-1)**Subtract(3))
 motif_inversion >> rest_play

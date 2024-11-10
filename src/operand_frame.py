@@ -278,7 +278,7 @@ class Iterate(Left):
     
 class Foreach(Left):
     def __init__(self, *parameters):
-        super().__init__()
+        super().__init__(parameters)
         self._step: int     = 1
         self._index: int    = 0
         self._data: tuple   = parameters
