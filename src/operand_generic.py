@@ -294,17 +294,20 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
                 new_keynote = self.__class__(self._key % ou.Natural())
                 self_int = self % int()
-                operand_int = operand % int()
-                sum_int = self_int + operand_int
-                new_keynote._key << sum_int % 12
-                new_keynote._octave._unit = sum_int // 12 - 1 # rooted on -1 octave
+                multiplied_int = self_int * operand
+                new_keynote._key << multiplied_int % 12
+                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                return new_keynote
+            case float():
+                new_keynote = self.__class__(self._key % ou.Natural())
+                self_float = self % float()
+                multiplied_int = int(self_float * operand)
+                new_keynote._key << multiplied_int % 12
+                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case _: return super().__mul__(operand)
-        self_copy.octave_correction()
-        return self_copy
     
 class Controller(Generic):
     def __init__(self, *parameters):
