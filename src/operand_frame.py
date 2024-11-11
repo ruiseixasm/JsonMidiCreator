@@ -235,9 +235,9 @@ class Nth(FrameFilter):
 # 2. SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
 
 class Left(Frame):  # LEFT TO RIGHT
-    def __init__(self, left_parameter: any):
+    def __init__(self, left_parameter: any = None):
         super().__init__()
-        self._left_parameter: any = left_parameter
+        self._left_parameter = 0 if left_parameter is None else left_parameter
 
     def __and__(self, subject: any) -> any:
         self_operand = self._next_operand
