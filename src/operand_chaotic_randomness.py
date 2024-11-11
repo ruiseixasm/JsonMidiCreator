@@ -78,8 +78,7 @@ class Modulus(ChaoticRandomness):
             case ro.Index():            return self._index.copy()
             case int() | float():
                 self_index = self._index % operand
-                self._index += self._step
-                self._index << (self._index % int()) % (self._amplitude % int())
+                self * 1    # Iterate one time
                 return self_index
             case _:                     return super().__mod__(operand)
 
@@ -136,6 +135,20 @@ class Modulus(ChaoticRandomness):
                 if self._index >= self._amplitude:
                     self._index << (self._index % int()) % (self._amplitude % int())
             case _: super().__lshift__(operand)
+        return self
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Modulus':
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        iterations: int = 1
+        match number:
+            case ou.Unit() | ro.Rational():
+                iterations = number % int()
+            case int() | float() | Fraction():
+                iterations = round(number)
+        if iterations > 0:
+            for _ in range(iterations):
+                self._index += self._step
+                self._index << (self._index % int()) % (self._amplitude % int())
         return self
 
 class Flipper(Modulus):
