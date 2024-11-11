@@ -36,6 +36,7 @@ class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
         self._datasource_list: list[od.DataSource] = []
+        self._index: int = 0
         for single_operand in operands:
             match single_operand:
                 case Container():
@@ -50,7 +51,7 @@ class Container(o.Operand):
                     self._datasource_list.append(od.DataSource( single_operand.copy() ))
                 case _:
                     self._datasource_list.append(od.DataSource( single_operand ))
-        self._datasource_iterator = 0
+        self._datasource_iterator: int = 0
         
     def __iter__(self):
         return self
@@ -90,6 +91,17 @@ class Container(o.Operand):
                         case _:
                             operands.append(single_datasource._data)
                 return operands
+            case ou.Next():
+                self._index += operand - 1
+                single_datasource_data: any = self._datasource_list[self._index % len(self._datasource_list)]._data
+                self._index += 1
+                self._index %= len(self._datasource_list)
+                return single_datasource_data
+            case ou.Previous():
+                self._index -= operand
+                self._index %= len(self._datasource_list)
+                single_datasource_data: any = self._datasource_list[self._index]._data
+                return single_datasource_data
             case _:
                 return self.filter(operand)   # NEEDS AN ALTERNATIVE WITH SAME PRIORITY (NEW FILTER CLASS ???)
 
