@@ -27,7 +27,10 @@ K % str() >> Print()    # Returns the tonic key (I)
 
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
-motif >> rest_play
+# motif >> rest_play
+
+# rest_motif = R + motif % Copy() >> S >> LJ  # up a half-step
+# rest_motif >> rest_play
 
 displacing_motif = motif >> R + motif % Copy() >> S >> LJ  # up a half-step
 displacing_motif % Length() >> Print(0)

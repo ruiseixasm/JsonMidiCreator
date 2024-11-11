@@ -470,33 +470,41 @@ class Get(Left):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            match subject:
-                case o.Operand():   self_operand &= subject % self._left_parameter
-                case _:             self_operand &= subject
-        if self_operand.__class__ == o.Operand:
-            match subject:
-                case o.Operand():   self_operand = subject % self._left_parameter
-                case _:             self_operand = subject
-        return self_operand
+        if isinstance(subject, o.Operand):
+            return super().__and__(subject % self._left_parameter)
+        return super().__and__(subject)
+    
+        # self_operand = self._next_operand
+        # if isinstance(self_operand, Frame):
+        #     match subject:
+        #         case o.Operand():   self_operand &= subject % self._left_parameter
+        #         case _:             self_operand &= subject
+        # if self_operand.__class__ == o.Operand:
+        #     match subject:
+        #         case o.Operand():   self_operand = subject % self._left_parameter
+        #         case _:             self_operand = subject
+        # return self_operand
         
 class Set(Left):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            match subject:
-                case o.Operand():   self_operand &= subject << self_operand
-                case _:             self_operand &= subject
-        if self_operand.__class__ == o.Operand:
-            match subject:
-                case o.Operand():   self_operand = subject << self_operand
-                case _:             self_operand = subject
-            self_operand._set = True
-        return self_operand
+        if isinstance(subject, o.Operand):
+            return super().__and__(subject << self._left_parameter)
+        return super().__and__(subject)
+    
+        # self_operand = self._next_operand
+        # if isinstance(self_operand, Frame):
+        #     match subject:
+        #         case o.Operand():   self_operand &= subject << self_operand
+        #         case _:             self_operand &= subject
+        # if self_operand.__class__ == o.Operand:
+        #     match subject:
+        #         case o.Operand():   self_operand = subject << self_operand
+        #         case _:             self_operand = subject
+        #     self_operand._set = True
+        # return self_operand
         
 class Push(Left):
     def __init__(self, operand: o.Operand = None):
