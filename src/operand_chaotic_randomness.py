@@ -73,12 +73,13 @@ class Modulus(ChaoticRandomness):
                     case ro.Amplitude():        return self._amplitude
                     case ro.Step():             return self._step
                     case ro.Index():            return self._index
+                    case int() | float():       return self._index % (operand % o.Operand())
                     case _:                     return super().__mod__(operand)
             case ro.Amplitude():        return self._amplitude.copy()
             case ro.Step():             return self._step.copy()
             case ro.Index():            return self._index.copy()
             case int() | float():
-                self_index = self._index % operand
+                self_index = self % od.DataSource( operand )
                 self * 1    # Iterate one time
                 return self_index
             case _:                     return super().__mod__(operand)
@@ -162,10 +163,19 @@ class Flipper(Modulus):
             case od.DataSource():
                 match operand % o.Operand():
                     case ro.Split():            return self._split
+                    case int() | float():
+                        self_index = super().__mod__(od.DataSource( operand % o.Operand() ))
+                        if isinstance(operand % o.Operand(), int):
+                            return -1 if self_index < self._split % int() else +1
+                        return -1.0 if self_index < self._split % float() else +1.0
                     case _:                     return super().__mod__(operand)
             case ro.Split():            return self._split.copy()
             case int():                 return -1 if super().__mod__(int()) < self._split % int() else +1
             case float():               return -1.0 if super().__mod__(float()) < self._split % float() else +1.0
+            case int() | float():
+                self_flip = self % od.DataSource( operand )
+                self * 1    # Iterate one time
+                return self_flip
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Modulus') -> bool:
@@ -227,6 +237,16 @@ class Bouncer(ChaoticRandomness):
                     case ro.dY():               return self._dy
                     case ro.X():                return self._x
                     case ro.Y():                return self._y
+                    case int() | float():
+                        self_tuple = self % od.DataSource( tuple() )
+                        hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
+                        if isinstance(operand, int):
+                            return round(hypotenuse)
+                        return hypotenuse
+                    case tuple():
+                        self_x_float = self._x % float()
+                        self_y_float = self._y % float()
+                        return (self_x_float, self_y_float)
                     case _:                     return super().__mod__(operand)
             case ro.Width():            return self._width.copy()
             case ro.Height():           return self._height.copy()
@@ -241,16 +261,13 @@ class Bouncer(ChaoticRandomness):
                 self * 1    # Iterate one time
                 return self_y
             case int() | float():
-                self_tuple = self % tuple() # includes iteration already
-                hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
-                if isinstance(operand, int):
-                    return round(hypotenuse)
+                hypotenuse = self % od.DataSource( operand )
+                self * 1    # Iterate one time
                 return hypotenuse
             case tuple():
-                self_x_float = self._x % float()
-                self_y_float = self._y % float()
+                self_tuple = self % od.DataSource( tuple() )
                 self * 1    # Iterate one time
-                return (self_x_float, self_y_float)
+                return self_tuple
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
