@@ -131,6 +131,7 @@ class Modulus(ChaoticRandomness):
             case ro.Index():                self._index << operand
             case int() | float():           self._index << operand
             case _: super().__lshift__(operand)
+        self._step << (self._step % float()) % (self._amplitude % float())
         self._index << (self._index % float()) % (self._amplitude % float())
         return self
 
@@ -332,6 +333,8 @@ class Bouncer(ChaoticRandomness):
             case ro.X():                    self._x << operand
             case ro.Y():                    self._y << operand
             case _: super().__lshift__(operand)
+        self._dx << (self._dx % float()) % (self._width % float())
+        self._dy << (self._dy % float()) % (self._height % float())
         self._x << (self._x % float()) % (self._width % float())
         self._y << (self._y % float()) % (self._height % float())
         return self
