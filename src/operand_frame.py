@@ -306,7 +306,7 @@ class Pick(Left):
             picker %= len(self._left_parameter)
             return super().__and__(self._left_parameter[picker])
         return super().__and__(ol.Null())
-    
+
 class Lambda(Left):
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
         super().__init__(operation)
@@ -378,7 +378,45 @@ class Foreach(Left):
         # if self._len > 0:
         #     self._index %= self._len
         # return self_operand
-    
+
+class Transition(Left):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._step: int     = 1
+        self._index: int    = 0
+        self._data: tuple   = parameters
+        self._len: int      = len(parameters)
+        self._last_subject  = ol.Null()
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_container as oc
+        import operand_chaotic_randomness as ocr
+        if self._len > 0:
+            subject = self._data[self._index]
+            if not self._last_subject == subject:
+                if isinstance(subject, (oc.Container, ocr.ChaoticRandomness)):
+                    subject %= ou.Next()    # Iterates to next subject
+                self._index += self._step
+                self._index %= self._len
+                self._last_subject = subject
+        else:
+            subject = ol.Null()
+        return super().__and__(subject)
+
+class Repeat(Left):
+    def __init__(self, times: int = 1):
+        super().__init__(times)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        import operand_container as oc
+        new_container: oc.Container = oc.Container()
+        for _ in range(self._left_parameter):
+            datasource_data = super().__and__(subject)
+            if isinstance(datasource_data, o.Operand):
+                datasource_data = datasource_data.copy()
+            new_container += datasource_data
+        return new_container
+
 class Type(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
