@@ -222,6 +222,18 @@ class Unit(o.Operand):
 class Integer(Unit):
     pass
 
+class Next(Unit):
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
+
+class Previous(Unit):
+    def __init__(self, *parameters):
+        super().__init__(1)
+        if len(parameters) > 0:
+            self << parameters
+
 class Semitone(Unit):
     pass
 

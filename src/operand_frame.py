@@ -243,21 +243,16 @@ class Left(Frame):  # LEFT TO RIGHT
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        # match self_operand:
-        #     case o.Operand():
-        #         self_operand << subject
-        #         self_operand._set = True
-        #     case tuple():
-        #         self_operand_tuple: tuple = ()
-        #         for single_operand in self_operand:
-        #             if isinstance(single_operand, o.Operand):
-        #                 self_operand_tuple += (single_operand << subject,)
-        #                 single_operand._set = True
-        #             else:
-        #                 self_operand_tuple += (subject,)
-        #         self_operand = self_operand_tuple
-        #         self_operand._set = True
-        if self_operand.__class__ == o.Operand:
+        if isinstance(self_operand, tuple):
+            self_operand_tuple: tuple = ()
+            for single_operand in self_operand:
+                if isinstance(single_operand, o.Operand) and not single_operand._set:
+                    self_operand_tuple += (single_operand << subject,)
+                    single_operand._set = True
+                else:
+                    self_operand_tuple += (subject,)
+            self_operand = self_operand_tuple
+        elif self_operand.__class__ == o.Operand:
             self_operand = subject
             if isinstance(self_operand, o.Operand):
                 self_operand._set = True

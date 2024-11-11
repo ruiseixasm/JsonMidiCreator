@@ -34,6 +34,12 @@ import operand_frame as of
 
 
 class ChaoticRandomness(o.Operand):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._initiated: bool   = False
+        if len(parameters) > 0:
+            self << parameters
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
@@ -43,6 +49,12 @@ class ChaoticRandomness(o.Operand):
             case of.Frame():        return self % (operand % o.Operand())
             case ChaoticRandomness():
                                     return self.copy()
+            case ou.Next():
+                if self._initiated:
+                    return self * operand
+                self * (operand - 1)
+                self._initiated = True
+                return self
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -55,6 +67,10 @@ class ChaoticRandomness(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+        return self
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Modulus':
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         return self
 
 class Modulus(ChaoticRandomness):
@@ -80,7 +96,7 @@ class Modulus(ChaoticRandomness):
             case ro.Index():            return self._index.copy()
             case int() | float():
                 self_index = self % od.DataSource( operand )
-                self * 1    # Iterate one time
+                # self * 1    # Iterate one time
                 return self_index
             case _:                     return super().__mod__(operand)
 
@@ -174,7 +190,7 @@ class Flipper(Modulus):
             case float():               return 0.0 if super().__mod__(float()) < self._split % float() else 1.0
             case int() | float():
                 self_flip = self % od.DataSource( operand )
-                self * 1    # Iterate one time
+                # self * 1    # Iterate one time
                 return self_flip
             case _:                     return super().__mod__(operand)
 
@@ -254,19 +270,19 @@ class Bouncer(ChaoticRandomness):
             case ro.dY():               return self._dy.copy()
             case ro.X():
                 self_x = self._x.copy()
-                self * 1    # Iterate one time
+                # self * 1    # Iterate one time
                 return self_x
             case ro.Y():
                 self_y = self._y.copy()
-                self * 1    # Iterate one time
+                # self * 1    # Iterate one time
                 return self_y
             case int() | float():
                 hypotenuse = self % od.DataSource( operand )
-                self * 1    # Iterate one time
+                # self * 1    # Iterate one time
                 return hypotenuse
             case tuple():
                 self_tuple = self % od.DataSource( tuple() )
-                self * 1    # Iterate one time
+                # self * 1    # Iterate one time
                 return self_tuple
             case _:                     return super().__mod__(operand)
 
