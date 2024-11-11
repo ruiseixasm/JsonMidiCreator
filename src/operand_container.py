@@ -92,13 +92,13 @@ class Container(o.Operand):
                             operands.append(single_datasource._data)
                 return operands
             case ou.Next():
-                self._index += operand - 1
+                self._index += operand % int() - 1
                 single_datasource_data: any = self._datasource_list[self._index % len(self._datasource_list)]._data
                 self._index += 1
                 self._index %= len(self._datasource_list)
                 return single_datasource_data
             case ou.Previous():
-                self._index -= operand
+                self._index -= operand % int()
                 self._index %= len(self._datasource_list)
                 single_datasource_data: any = self._datasource_list[self._index]._data
                 return single_datasource_data
