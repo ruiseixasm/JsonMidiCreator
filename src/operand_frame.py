@@ -288,6 +288,24 @@ class Subject(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         return super().__and__(self._left_parameter)
 
+class Pick(Left):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        if len(self._left_parameter) > 0:
+            picker: int = 0
+            match subject:
+                case int() | float() | Fraction():
+                    picker = int(subject)
+                case o.Operand():
+                    picker_candidate = subject % int()
+                    if isinstance(picker_candidate, int):
+                        picker = picker_candidate
+            picker %= len(self._left_parameter)
+            return super().__and__(self._left_parameter[picker])
+        return ol.Null()
+
 class Iterate(Left):
     def __init__(self, step = None):
         self._step: int = 1 if step is None else step
