@@ -246,11 +246,17 @@ class Left(Frame):  # LEFT TO RIGHT
         if isinstance(self_operand, tuple):
             self_operand_tuple: tuple = ()
             for single_operand in self_operand:
-                if isinstance(single_operand, o.Operand) and not single_operand._set:
+                if single_operand.__class__ == o.Operand:
+                    single_operand = subject
+                    if isinstance(single_operand, o.Operand):
+                        single_operand._set = True
+                elif isinstance(single_operand, o.Operand) and not single_operand._set:
                     self_operand_tuple += (single_operand << subject,)
                     single_operand._set = True
                 else:
                     self_operand_tuple += (subject,)
+                    if isinstance(subject, o.Operand):
+                        subject._set = True
             self_operand = self_operand_tuple
         elif self_operand.__class__ == o.Operand:
             self_operand = subject
