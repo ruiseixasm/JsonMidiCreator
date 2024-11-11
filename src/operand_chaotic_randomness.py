@@ -19,6 +19,7 @@ from fractions import Fraction
 import json
 import enum
 from typing import TYPE_CHECKING
+import math
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -196,4 +197,5 @@ class Flipper(Modulus):
             case _: super().__lshift__(operand)
         return self
 
-
+class Bouncer(ChaoticRandomness):
+    ...

@@ -211,6 +211,21 @@ class Index(Rational):
 class Split(Rational):
     pass
 
+class Width(Rational):
+    pass
+
+class Height(Rational):
+    pass
+
+class X(Rational):
+    pass
+
+class Y(Rational):
+    pass
+
+class Z(Rational):
+    pass
+
 class Negative(Rational):
     def __init__(self, value: float = None):
         super().__init__(value * (-1))
