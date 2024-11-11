@@ -297,7 +297,7 @@ class Pick(Left):
             picker: int = 0
             match subject:
                 case int() | float() | Fraction():
-                    picker = round(subject)
+                    picker = int(subject)
                 case o.Operand():
                     picker_candidate = subject % int()
                     if isinstance(picker_candidate, int):
