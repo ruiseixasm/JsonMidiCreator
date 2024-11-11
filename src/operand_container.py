@@ -541,13 +541,23 @@ class Sequence(Container):  # Just a container of Elements
     def __add__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
         match operand:
-            case Sequence() | oe.Element():
-                return super().__add__(operand)
-            case Container():
-                last_datasource: int = min(self.len(), operand.len())
-                for datasource_i in range(last_datasource):
-                    self._datasource_list[datasource_i]._data += operand._datasource_list[datasource_i]._data
-                return self
+            case Container() | oe.Element():
+                # return super().__add__(operand)
+                self_copy: Sequence = self.__class__()
+                for single_datasource in self._datasource_list:
+                    self_copy._datasource_list.append(single_datasource.copy())
+                if isinstance(operand, Container):
+                    for single_datasource in operand._datasource_list:
+                        if isinstance(operand, Sequence) or isinstance(single_datasource._data, oe.Element):
+                            self_copy._datasource_list.append(single_datasource.copy())
+                else:   # It's an Element
+                    self_copy._datasource_list.append(od.DataSource( operand.copy() ))
+                return self_copy
+            # case Container():
+            #     last_datasource: int = min(self.len(), operand.len())
+            #     for datasource_i in range(last_datasource):
+            #         self._datasource_list[datasource_i]._data += operand._datasource_list[datasource_i]._data
+            #     return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data + operand
@@ -557,13 +567,13 @@ class Sequence(Container):  # Just a container of Elements
     def __sub__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
         match operand:
-            case Sequence() | oe.Element():
+            case Container() | oe.Element():
                 return super().__sub__(operand)
-            case Container():
-                last_datasource: int = min(self.len(), operand.len())
-                for datasource_i in range(last_datasource):
-                    self._datasource_list[datasource_i]._data -= operand._datasource_list[datasource_i]._data
-                return self
+            # case Container():
+            #     last_datasource: int = min(self.len(), operand.len())
+            #     for datasource_i in range(last_datasource):
+            #         self._datasource_list[datasource_i]._data -= operand._datasource_list[datasource_i]._data
+            #     return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data - operand
