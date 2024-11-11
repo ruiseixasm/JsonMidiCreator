@@ -152,8 +152,8 @@ class Flipper(Modulus):
                     case _:                     return super().__mod__(operand)
             case Flipper():             return self.copy()
             case ro.Split():            return self._split.copy()
-            case int():                 return -1 if super() % int() < self._split % int() else +1
-            case float():               return -1.0 if super() % float() < self._split % float() else +1.0
+            case int():                 return -1 if super().__mod__(int()) < self._split % int() else +1
+            case float():               return -1.0 if super().__mod__(float()) < self._split % float() else +1.0
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Modulus') -> bool:

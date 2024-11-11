@@ -165,7 +165,7 @@ class Rational(o.Operand):
     def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case self.__class__() | Float() | ou.Integer():
+            case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
@@ -174,7 +174,7 @@ class Rational(o.Operand):
     def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case self.__class__() | Float() | ou.Integer():
+            case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
@@ -183,7 +183,7 @@ class Rational(o.Operand):
     def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case self.__class__() | Float() | ou.Integer():
+            case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
             case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
@@ -192,7 +192,7 @@ class Rational(o.Operand):
     def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case self.__class__() | Float() | ou.Integer():
+            case Rational() | ou.Unit():
                 if value % od.DataSource( Fraction() ) != 0:
                     return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
             case Fraction():

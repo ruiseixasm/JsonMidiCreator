@@ -181,7 +181,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ro.Float():
+            case Unit() | ro.Rational():
                                         return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit + number )
@@ -191,7 +191,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ro.Float():
+            case Unit() | ro.Rational():
                                         return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit - number )
@@ -201,7 +201,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ro.Float():
+            case Unit() | ro.Rational():
                                         return self.__class__() << od.DataSource( self._unit * (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit * number )
@@ -211,7 +211,7 @@ class Unit(o.Operand):
         import operand_rational as ro
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case self.__class__() | Integer() | ro.Float():
+            case Unit() | ro.Rational():
                                     if number % od.DataSource( int() ) != 0:
                                         return self.__class__() << od.DataSource( self._unit / (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
@@ -892,7 +892,7 @@ class Degree(Unit):
         if self._unit < 0:
             self_unit_0 = self._unit + 1
         match number:
-            case self.__class__() | Integer() | ro.Float():
+            case Unit() | ro.Rational():
                                                                                     # Needs to discount the Degree 1 (Tonic)
                                         return self.__class__() << od.DataSource( self_unit_0 + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
@@ -907,7 +907,7 @@ class Degree(Unit):
         if self._unit < 0:
             self_unit_0 = self._unit + 1
         match number:
-            case self.__class__() | Integer() | ro.Float():
+            case Unit() | ro.Rational():
                                                                                     # Needs to discount the Degree 1 (Tonic)
                                         return self.__class__() << od.DataSource( self_unit_0 - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
