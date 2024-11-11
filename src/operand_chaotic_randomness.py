@@ -49,12 +49,7 @@ class ChaoticRandomness(o.Operand):
             case of.Frame():        return self % (operand % o.Operand())
             case ChaoticRandomness():
                                     return self.copy()
-            case ou.Next():
-                if self._initiated:
-                    return self * operand
-                self * (operand - 1)
-                self._initiated = True
-                return self
+            case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -158,6 +153,9 @@ class Modulus(ChaoticRandomness):
                 iterations = number % int()
             case int() | float() | Fraction():
                 iterations = int(number)
+        if not self._initiated:
+            self._initiated = True
+            iterations -= 1
         if iterations > 0:
             for _ in range(iterations):
                 self._index += self._step
@@ -360,6 +358,9 @@ class Bouncer(ChaoticRandomness):
                 iterations = number % int()
             case int() | float() | Fraction():
                 iterations = int(number)
+        if not self._initiated:
+            self._initiated = True
+            iterations -= 1
         if iterations > 0:
             for _ in range(iterations):
                 for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
