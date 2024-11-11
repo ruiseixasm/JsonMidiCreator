@@ -41,6 +41,8 @@ class ChaoticRandomness(o.Operand):
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
+            case ChaoticRandomness():
+                                    return self.copy()
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -72,7 +74,6 @@ class Modulus(ChaoticRandomness):
                     case ro.Step():             return self._step
                     case ro.Index():            return self._index
                     case _:                     return super().__mod__(operand)
-            case Modulus():             return self.copy()
             case ro.Amplitude():        return self._amplitude.copy()
             case ro.Step():             return self._step.copy()
             case ro.Index():            return self._index.copy()
@@ -126,15 +127,10 @@ class Modulus(ChaoticRandomness):
                         self._index         << operand._index
             case ro.Amplitude():            self._amplitude << operand
             case ro.Step():                 self._step << operand
-            case ro.Index():
-                self._index << operand
-                if self._index >= self._amplitude:
-                    self._index << (self._index % int()) % (self._amplitude % int())
-            case int() | float():
-                self._index << operand
-                if self._index >= self._amplitude:
-                    self._index << (self._index % int()) % (self._amplitude % int())
+            case ro.Index():                self._index << operand
+            case int() | float():           self._index << operand
             case _: super().__lshift__(operand)
+        self._index << (self._index % float()) % (self._amplitude % float())
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Modulus':
@@ -148,7 +144,7 @@ class Modulus(ChaoticRandomness):
         if iterations > 0:
             for _ in range(iterations):
                 self._index += self._step
-                self._index << (self._index % int()) % (self._amplitude % int())
+                self._index << (self._index % float()) % (self._amplitude % float())
         return self
 
 class Flipper(Modulus):
@@ -167,7 +163,6 @@ class Flipper(Modulus):
                 match operand % o.Operand():
                     case ro.Split():            return self._split
                     case _:                     return super().__mod__(operand)
-            case Flipper():             return self.copy()
             case ro.Split():            return self._split.copy()
             case int():                 return -1 if super().__mod__(int()) < self._split % int() else +1
             case float():               return -1.0 if super().__mod__(float()) < self._split % float() else +1.0
@@ -179,7 +174,7 @@ class Flipper(Modulus):
             return True
         if type(self) != type(other):
             return False
-        return  self % int()        == other % int()
+        return  self % float()        == other % float()
     
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
@@ -211,4 +206,132 @@ class Flipper(Modulus):
         return self
 
 class Bouncer(ChaoticRandomness):
-    ...
+    def __init__(self, *parameters):
+        super().__init__()
+        self._width: ro.Width           = ro.Width(16)
+        self._height: ro.Height         = ro.Height(9)
+        self._dx: ro.dX                 = ro.dX(0.555)
+        self._dy: ro.dY                 = ro.dY(0.555)
+        self._x: ro.X                   = ro.X(8.0)
+        self._y: ro.Y                   = ro.Y(4.5)
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Width():            return self._width
+                    case ro.Height():           return self._height
+                    case ro.dX():               return self._dx
+                    case ro.dY():               return self._dy
+                    case ro.X():                return self._x
+                    case ro.Y():                return self._y
+                    case _:                     return super().__mod__(operand)
+            case ro.Width():            return self._width.copy()
+            case ro.Height():           return self._height.copy()
+            case ro.dX():               return self._dx.copy()
+            case ro.dY():               return self._dy.copy()
+            case ro.X():
+                self_x = self._x.copy()
+                self * 1    # Iterate one time
+                return self_x
+            case ro.Y():
+                self_y = self._y.copy()
+                self * 1    # Iterate one time
+                return self_y
+            case int() | float():
+                self_tuple = self % tuple() # includes iteration already
+                hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
+                if isinstance(operand, int):
+                    return round(hypotenuse)
+                return hypotenuse
+            case tuple():
+                self_x_float = self._x % float()
+                self_y_float = self._y % float()
+                self * 1    # Iterate one time
+                return (self_x_float, self_y_float)
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: 'Bouncer') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) != type(other):
+            return False
+        return  self._x == other._x and self._y == other._y
+    
+    def getSerialization(self) -> dict:
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "width":        self._width % float(),
+                "height":       self._height % float(),
+                "dx":           self._dx % float(),
+                "dy":           self._dy % float(),
+                "x":            self._x % float(),
+                "y":            self._y % float()
+            }
+        }
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Modulus':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
+            "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"]):
+
+            self._width             << serialization["parameters"]["width"]
+            self._height            << serialization["parameters"]["height"]
+            self._dx                << serialization["parameters"]["dx"]
+            self._dy                << serialization["parameters"]["dy"]
+            self._x                 << serialization["parameters"]["x"]
+            self._y                 << serialization["parameters"]["y"]
+        return self
+        
+    def __lshift__(self, operand: o.Operand) -> 'Bouncer':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Width():                self._width = operand % o.Operand()
+                    case ro.Height():               self._height = operand % o.Operand()
+                    case ro.dX():                   self._dx = operand % o.Operand()
+                    case ro.dY():                   self._dy = operand % o.Operand()
+                    case ro.X():                    self._x = operand % o.Operand()
+                    case ro.Y():                    self._y = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case Bouncer():
+                        self._width         << operand._width
+                        self._height        << operand._height
+                        self._dx            << operand._dx
+                        self._dy            << operand._dy
+                        self._x             << operand._x
+                        self._y             << operand._y
+            case ro.Width():                self._width << operand
+            case ro.Height():               self._height << operand
+            case ro.dX():                   self._dx << operand
+            case ro.dY():                   self._dy << operand
+            case ro.X():                    self._x << operand
+            case ro.Y():                    self._y << operand
+            case _: super().__lshift__(operand)
+        self._x << (self._x % float()) % (self._width % float())
+        self._y << (self._y % float()) % (self._height % float())
+        return self
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Bouncer':
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        iterations: int = 1
+        match number:
+            case ou.Unit() | ro.Rational():
+                iterations = number % int()
+            case int() | float() | Fraction():
+                iterations = round(number)
+        if iterations > 0:
+            for _ in range(iterations):
+                self._x += self._dx
+                self._y += self._dy
+                self._x << (self._x % float()) % (self._width % float())
+                self._y << (self._y % float()) % (self._height % float())
+        return self
+
