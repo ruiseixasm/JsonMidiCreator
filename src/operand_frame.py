@@ -500,13 +500,13 @@ class Divide(Left):
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
 class Right(Frame):
-    def __init__(self):
+    def __init__(self, right_parameter: any = None):
         super().__init__()
-        self._data = 0
+        self._right_parameter = 0 if right_parameter is None else right_parameter
 
 class Subject(Right):
     def __init__(self):
-        super().__init__()
+        super().__init__(None)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
@@ -518,7 +518,7 @@ class Subject(Right):
 
 class Increment(Right):
     def __init__(self, step = None):
-        super().__init__()
+        super().__init__(0)
         self._step: float = 1 if step is None else step
 
     def __and__(self, subject: o.Operand) -> o.Operand:
@@ -527,28 +527,27 @@ class Increment(Right):
             self_operand &= subject
         match self_operand:
             case ol.Null():
-                self._data += self._step    # iterates whenever called
+                self._right_parameter += self._step    # iterates whenever called
                 return self_operand
             case tuple():
                 for single_operand in self_operand:
                     if isinstance(single_operand, o.Operand):
-                        single_operand << single_operand + self._data
+                        single_operand << single_operand + self._right_parameter
                         single_operand._set = True
                 stepped_operand = self_operand
             case _:
                 if self_operand.__class__ == o.Operand:
-                    stepped_operand = self._data
+                    stepped_operand = self._right_parameter
                 elif isinstance(self_operand, o.Operand):
-                    stepped_operand = self_operand + self._data
+                    stepped_operand = self_operand + self._right_parameter
                 else:
-                    stepped_operand = self._data
-        self._data += self._step
+                    stepped_operand = self._right_parameter
+        self._right_parameter += self._step
         return stepped_operand
 
 class Wrap(Right):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__()
-        self._data = operand    # data is the targeted operand
+    def __init__(self, wrapper: o.Operand = None):
+        super().__init__(wrapper)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_operator as oo
@@ -557,31 +556,32 @@ class Wrap(Right):
             self_operand &= subject
         match self_operand:
             case o.Operand():
-                match self._data:
-                    case oo.Operator(): self_operand = self._data | self_operand.copy()
-                    case o.Operand():   self_operand = self._data.copy() << self_operand
+                match self._right_parameter:
+                    case oo.Operator(): self_operand = self._right_parameter | self_operand.copy()
+                    case o.Operand():   self_operand = self._right_parameter.copy() << self_operand
                     case None:          self_operand = ol.Null()
-                    case _:             self_operand = self._data
+                    case _:             self_operand = self._right_parameter
             case _:
-                match self._data:
-                    case oo.Operator(): self_operand = self._data | self_operand
-                    case o.Operand():   self_operand = self._data.copy() << self_operand
+                match self._right_parameter:
+                    case oo.Operator(): self_operand = self._right_parameter | self_operand
+                    case o.Operand():   self_operand = self._right_parameter.copy() << self_operand
                     case None:          self_operand = ol.Null()
-                    case _:             self_operand = self._data
+                    case _:             self_operand = self._right_parameter
         self_operand._set = True
         return self_operand
 
 class Extract(Right):
     def __init__(self, operand: o.Operand = None):
-        super().__init__()
-        self._data = operand    # data is the targeted operand
+        super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_operator as oo
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        return self_operand % self._data
+        extracted_data = self_operand % self._right_parameter
+        extracted_data._set = self_operand._set # Set status has to be kept
+        return extracted_data
 
 # 4. OPERAND EDITORS (ALTERS THE SOURCE OPERAND DATA)
 
