@@ -557,18 +557,22 @@ class Wrap(Right):
         match self_operand:
             case o.Operand():
                 match self._right_parameter:
-                    case oo.Operator(): self_operand = self._right_parameter | self_operand.copy()
-                    case o.Operand():   self_operand = self._right_parameter.copy() << self_operand
-                    case None:          self_operand = ol.Null()
-                    case _:             self_operand = self._right_parameter
+                    case oo.Operator(): wrapped_operand = self._right_parameter | self_operand.copy()
+                    case o.Operand():   wrapped_operand = self._right_parameter.copy() << self_operand
+                    case None:          wrapped_operand = ol.Null()
+                    case _:             wrapped_operand = self._right_parameter
             case _:
                 match self._right_parameter:
-                    case oo.Operator(): self_operand = self._right_parameter | self_operand
-                    case o.Operand():   self_operand = self._right_parameter.copy() << self_operand
-                    case None:          self_operand = ol.Null()
-                    case _:             self_operand = self._right_parameter
-        self_operand._set = True
-        return self_operand
+                    case oo.Operator(): wrapped_operand = self._right_parameter | self_operand
+                    case o.Operand():   wrapped_operand = self._right_parameter.copy() << self_operand
+                    case None:          wrapped_operand = ol.Null()
+                    case _:             wrapped_operand = self._right_parameter
+        if isinstance(wrapped_operand, o.Operand):
+            if isinstance(self_operand, o.Operand):
+                wrapped_operand._set = self_operand._set
+            else:
+                wrapped_operand._set = True
+        return wrapped_operand
 
 class Extract(Right):
     def __init__(self, operand: o.Operand = None):
