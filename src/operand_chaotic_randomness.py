@@ -140,7 +140,10 @@ class Modulus(ChaoticRandomness):
 class Flipper(Modulus):
     def __init__(self, *parameters):
         super().__init__()
-        self._split: ro.Split       = ro.Split(6)
+        self._amplitude: ro.Amplitude   = ro.Amplitude(2)
+        self._step: ro.Step             = ro.Step(1)
+        self._index: ro.Index           = ro.Index(0)
+        self._split: ro.Split           = ro.Split(1)
         if len(parameters) > 0:
             self << parameters
 

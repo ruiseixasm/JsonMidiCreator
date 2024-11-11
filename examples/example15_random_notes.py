@@ -26,8 +26,8 @@ staff << 120
 K % str() >> Print()    # Returns the tonic key (I)
 
 some_notes = N * Subject(Modulus(20))**Pick(3, 4, 5, 6, 7)
-some_notes << Subject(Modulus(15))**Pick(eight, quarter, dotted_eight, dotted_quarter)
-some_notes + Subject(Flipper(Step(5)))**Get(int())**Multiply(2)
+some_notes << Subject(Modulus(15))**Get(int())**Pick(eight, quarter, dotted_eight, dotted_quarter)
+some_notes + Subject(Flipper())**Get(int())**Lambda(lambda n: (n * 5 + 4) % 3)**Multiply(2)
 some_notes >> rest_play
 
 
