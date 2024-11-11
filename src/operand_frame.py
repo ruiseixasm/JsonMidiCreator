@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, Callable, Tuple, Any
 from fractions import Fraction
 import enum
 # Json Midi Creator Libraries
@@ -304,8 +304,15 @@ class Pick(Left):
                         picker = picker_candidate
             picker %= len(self._left_parameter)
             return super().__and__(self._left_parameter[picker])
-        return ol.Null()
+        return super().__and__(ol.Null())
+    
+class Lambda(Left):
+    def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
+        super().__init__(operation)
 
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        return super().__and__(self._left_parameter(subject))
+    
 class Iterate(Left):
     def __init__(self, step = None):
         self._step: int = 1 if step is None else step
