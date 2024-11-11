@@ -166,12 +166,12 @@ class Flipper(Modulus):
                     case int() | float():
                         self_index = super().__mod__(od.DataSource( operand % o.Operand() ))
                         if isinstance(operand % o.Operand(), int):
-                            return -1 if self_index < self._split % int() else +1
-                        return -1.0 if self_index < self._split % float() else +1.0
+                            return 0 if self_index < self._split % int() else 1
+                        return 0.0 if self_index < self._split % float() else 1.0
                     case _:                     return super().__mod__(operand)
             case ro.Split():            return self._split.copy()
-            case int():                 return -1 if super().__mod__(int()) < self._split % int() else +1
-            case float():               return -1.0 if super().__mod__(float()) < self._split % float() else +1.0
+            case int():                 return 0 if super().__mod__(int()) < self._split % int() else 1
+            case float():               return 0.0 if super().__mod__(float()) < self._split % float() else 1.0
             case int() | float():
                 self_flip = self % od.DataSource( operand )
                 self * 1    # Iterate one time
