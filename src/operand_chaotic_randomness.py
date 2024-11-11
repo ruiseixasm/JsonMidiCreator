@@ -141,7 +141,7 @@ class Modulus(ChaoticRandomness):
             case ou.Unit() | ro.Rational():
                 iterations = number % int()
             case int() | float() | Fraction():
-                iterations = round(number)
+                iterations = int(number)
         if iterations > 0:
             for _ in range(iterations):
                 self._index += self._step
@@ -241,7 +241,7 @@ class Bouncer(ChaoticRandomness):
                         self_tuple = self % od.DataSource( tuple() )
                         hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
                         if isinstance(operand, int):
-                            return round(hypotenuse)
+                            return int(hypotenuse)
                         return hypotenuse
                     case tuple():
                         self_x_float = self._x % float()
@@ -343,7 +343,7 @@ class Bouncer(ChaoticRandomness):
             case ou.Unit() | ro.Rational():
                 iterations = number % int()
             case int() | float() | Fraction():
-                iterations = round(number)
+                iterations = int(number)
         if iterations > 0:
             for _ in range(iterations):
                 for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
