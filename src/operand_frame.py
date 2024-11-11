@@ -333,39 +333,51 @@ class Foreach(Left):
         self._len: int      = len(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= subject
-        if isinstance(self_operand, ol.Null):
-            self._index += self._step
-            if self._len > 0:
-                self._index %= self._len
-            return self_operand
-        if self_operand.__class__ == o.Operand:
-            if self._len > 0:
-                if isinstance(self._data[self._index], o.Operand):
-                    self_operand = self._data[self._index].copy()
-                else:
-                    self_operand = self._data[self._index]
-            else:
-                self_operand = self._index
-        elif isinstance(self_operand, tuple):
-            for single_operand in self_operand:
-                if isinstance(single_operand, o.Operand):
-                    single_operand << single_operand + self._data
-                    single_operand._set = True
-        elif self._len > 0:
-            if isinstance(self_operand, o.Operand) and not self_operand._set:
-                self_operand = self_operand.copy() << self._data[self._index]
-                self_operand._set = True
-            else:
-                self_operand = self._data[self._index]
-        else:
-            self_operand = self._index
-        self._index += self._step
+        import operand_container as oc
+        import operand_chaotic_randomness as ocr
         if self._len > 0:
+            subject = self._data[self._index]
+            if isinstance(subject, (oc.Container, ocr.ChaoticRandomness)):
+                subject %= ou.Next()    # Iterates to next subject
+            self._index += self._step
             self._index %= self._len
-        return self_operand
+        else:
+            subject = ol.Null()
+        return super().__and__(subject)
+
+        # self_operand = self._next_operand
+        # if isinstance(self_operand, Frame):
+        #     self_operand &= subject
+        # if isinstance(self_operand, ol.Null):
+        #     self._index += self._step
+        #     if self._len > 0:
+        #         self._index %= self._len
+        #     return self_operand
+        # if self_operand.__class__ == o.Operand:
+        #     if self._len > 0:
+        #         if isinstance(self._data[self._index], o.Operand):
+        #             self_operand = self._data[self._index].copy()
+        #         else:
+        #             self_operand = self._data[self._index]
+        #     else:
+        #         self_operand = self._index
+        # elif isinstance(self_operand, tuple):
+        #     for single_operand in self_operand:
+        #         if isinstance(single_operand, o.Operand):
+        #             single_operand << single_operand + self._data
+        #             single_operand._set = True
+        # elif self._len > 0:
+        #     if isinstance(self_operand, o.Operand) and not self_operand._set:
+        #         self_operand = self_operand.copy() << self._data[self._index]
+        #         self_operand._set = True
+        #     else:
+        #         self_operand = self._data[self._index]
+        # else:
+        #     self_operand = self._index
+        # self._index += self._step
+        # if self._len > 0:
+        #     self._index %= self._len
+        # return self_operand
     
 class Type(Left):
     def __init__(self, *parameters):
