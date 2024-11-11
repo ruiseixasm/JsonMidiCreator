@@ -281,6 +281,13 @@ class Left(Frame):  # LEFT TO RIGHT
                     self_copy._next_operand = self._next_operand
         return self_copy
 
+class Subject(Left):
+    def __init__(self, subject):
+        super().__init__(subject)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        return super().__and__(self._left_parameter)
+
 class Iterate(Left):
     def __init__(self, step = None):
         self._step: int = 1 if step is None else step
@@ -504,18 +511,6 @@ class Right(Frame):
         super().__init__()
         self._right_parameter = 0 if right_parameter is None else right_parameter
 
-class Subject(Right):
-    def __init__(self):
-        super().__init__(None)
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= subject
-        if isinstance(self_operand, ol.Null):
-            return self_operand
-        return subject
-
 class Increment(Right):
     def __init__(self, step = None):
         super().__init__(0)
@@ -534,16 +529,21 @@ class Increment(Right):
                     if isinstance(single_operand, o.Operand):
                         single_operand << single_operand + self._right_parameter
                         single_operand._set = True
-                stepped_operand = self_operand
+                incremented_operand = self_operand
             case _:
                 if self_operand.__class__ == o.Operand:
-                    stepped_operand = self._right_parameter
+                    incremented_operand = self._right_parameter
                 elif isinstance(self_operand, o.Operand):
-                    stepped_operand = self_operand + self._right_parameter
+                    incremented_operand = self_operand + self._right_parameter
                 else:
-                    stepped_operand = self._right_parameter
+                    incremented_operand = self._right_parameter
         self._right_parameter += self._step
-        return stepped_operand
+        if isinstance(incremented_operand, o.Operand):
+            if isinstance(self_operand, o.Operand):
+                incremented_operand._set = self_operand._set
+            else:
+                incremented_operand._set = True
+        return incremented_operand
 
 class Wrap(Right):
     def __init__(self, wrapper: o.Operand = None):
