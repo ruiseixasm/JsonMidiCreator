@@ -170,11 +170,29 @@ class Staff(o.Operand):
     # CHAINABLE OPERATIONS
 
     def set_tonic_key(self):
+        self._tonic_key._unit = self._key._unit
         if self._scale % od.DataSource( list() ) == []:
-            circle_fifths_position: int = self._key_signature % int()
-            self._tonic_key._unit = (self._key._unit + circle_fifths_position * 7) % 12
-        else:
-            self._tonic_key._unit = self._key._unit
+            major_scale: tuple = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)   # Major scale
+            num_accidentals: int = self._key_signature._unit
+            while num_accidentals > 0:
+                white_keys: int = 4 # Jumps the tonic, so, 5 - 1
+                while white_keys > 0:
+                    self._tonic_key._unit += 1
+                    self._tonic_key._unit %= 12
+                    if major_scale[self._tonic_key._unit]:
+                        white_keys -= 1
+                num_accidentals -= 1
+            while num_accidentals < 0:
+                white_keys: int = -4 # Jumps the tonic, so, -5 + 1
+                while white_keys < 0:
+                    self._tonic_key._unit -= 1
+                    self._tonic_key._unit %= 12
+                    if major_scale[self._tonic_key._unit]:
+                        white_keys += 1
+                num_accidentals += 1
+
+            # circle_fifths_position: int = self._key_signature % int()
+            # self._tonic_key._unit = (self._key._unit + circle_fifths_position * 7) % 12
         
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and

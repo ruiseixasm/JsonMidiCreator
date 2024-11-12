@@ -416,12 +416,12 @@ class Key(Unit):
                 else:
                     if self._unit is None:
                         key_int = os.staff._tonic_key._unit
-                        # Needs to remove KeySignature Sharps and Flats
-                        if staff_white_keys[key_int % 12] == 0:  # if a black key
-                            if accidentals_int < 0:
-                                key_int += 1    # it will be flatten by the KeySignature
-                            else:
-                                key_int -= 1    # it will be sharpen by the KeySignature
+                        # # Needs to remove KeySignature Sharps and Flats
+                        # if staff_white_keys[key_int % 12] == 0:  # if a black key
+                        #     if accidentals_int < 0:
+                        #         key_int += 1    # it will be flatten by the KeySignature
+                        #     else:
+                        #         key_int -= 1    # it will be sharpen by the KeySignature
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
