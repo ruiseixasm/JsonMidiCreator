@@ -1052,6 +1052,8 @@ class Retrigger(Note):
                 return self._duration / 2 % ro.NoteValue()
             case ot.Duration():
                 return self._duration / 2
+            case ot.Length():   # To guarantee compatibility
+                return self._length / 2
             case _:                 return super().__mod__(operand)
 
     def get_retrigger_notes(self) -> list[Note]:
@@ -1116,8 +1118,13 @@ class Retrigger(Note):
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
-            case ro.NoteValue() | ot.Duration():
+            case ot.Duration():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
+            case ro.NoteValue():
+                self._duration      << operand * 2  # Equivalent to two sized Notes
+                self._length        << operand * 2  # To guarantee compatibility
+            case ot.Length():
+                self._length        << operand * 2  # To guarantee compatibility
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1193,6 +1200,8 @@ class Tuplet(Rest):
                 return self._duration / 2 % ro.NoteValue()
             case ot.Duration():
                 return self._duration / 2
+            case ot.Length():
+                return self._length / 2  # To guarantee compatibility
             case list():            return o.Operand.copy_operands_list(self._elements)
             case _:                 return super().__mod__(operand)
 
@@ -1277,8 +1286,13 @@ class Tuplet(Rest):
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
-            case ro.NoteValue() | ot.Duration():
+            case ot.Duration():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
+            case ro.NoteValue():
+                self._duration      << operand * 2  # Equivalent to two sized Notes
+                self._length        << operand * 2  # To guarantee compatibility
+            case ot.Length():
+                self._length        << operand * 2  # To guarantee compatibility
             case list():
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):

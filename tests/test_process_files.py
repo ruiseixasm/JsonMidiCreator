@@ -199,7 +199,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.8_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.8_sequence.json")
 start_time = time.time()
-triplets_one = (Note3("E") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
+triplets_one = (Note3("E") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
     >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -211,7 +211,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.9_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.9_sequence.json")
 start_time = time.time()
-triplets_two = (Note3("G") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
+triplets_two = (Note3("G") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
     >> Export("json/testing/_Export_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

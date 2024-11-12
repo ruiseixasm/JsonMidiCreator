@@ -29,10 +29,10 @@ single_clock = Clock()
 single_note = Note() << (Duration() << Measure(2)) >> Play()
 note_transposed = single_note + 5.0 >> Play()
 
-triplets_one = (Note3("E") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
+triplets_one = (Note3("E") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
     >> Save("json/_Save_3.1_triple_note3.json") >> Play(True)
 
-triplets_two = (Note3("G") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
+triplets_two = (Note3("G") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
     >> Export("json/_Export_3.1_triple_note3.json") >> Play(True)
 
 staff << Measure(2)

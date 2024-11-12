@@ -91,10 +91,10 @@ single_clock = Clock()
 single_note = Note() << (Duration() << Measure(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
 
-triplets_one = (Note3("E") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
+triplets_one = (Note3("E") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
     >> Save("json/testing/_Save_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.8_first_note.json") >> Export("json/testing/_Export_Play_p.8_sequence.json")
 
-triplets_two = (Note3("G") << Duration(1/16) << Length(1/8)) * 8 + single_clock \
+triplets_two = (Note3("G") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
     >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
 staff << Measure(2)
