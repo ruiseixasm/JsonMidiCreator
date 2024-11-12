@@ -292,7 +292,7 @@ class Scale(Data):
                     case ou.Mode():         return self._mode
                     case _:                 return super().__mod__(operand)
             case ou.Mode():             return self._mode.copy()
-            case list():                return self._data.copy()
+            case list():                return self.modulation(None)
             case str():                 return __class__.get_scale_name(self._data)
             case int():                 return __class__.get_scale_number(self._data)
             case ou.Transposition():    return self.transposition(operand % int())
@@ -313,19 +313,22 @@ class Scale(Data):
 
     def transposition(self, mode: int | str = "5th") -> int:        # Starting in C
         transposition = 0
-        mode_transpose = ou.Mode(mode) % DataSource( int() ) - 1    # processes strings, for 0 and 1 does nothing
-        while mode_transpose > 0:
-            transposition += 1
-            if self._data[transposition % 12]:
-                mode_transpose -= 1
+        if isinstance(self._data, list) and len(self._data) == 12:
+            mode = self._mode if mode is None else mode
+            mode_transpose = ou.Mode(mode) % DataSource( int() ) - 1    # processes strings, for 0 and 1 does nothing
+            while mode_transpose > 0:
+                transposition += 1
+                if self._data[transposition % 12]:
+                    mode_transpose -= 1
         return transposition
 
     def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
         self_scale = self._data.copy()
-        transposition = self.transposition(mode)
-        if transposition != 0:
-            for key_i in range(12):
-                self_scale[key_i] = self._data[(key_i + transposition) % 12]
+        if isinstance(self._data, list) and len(self._data) == 12:
+            transposition = self.transposition(mode)
+            if transposition != 0:
+                for key_i in range(12):
+                    self_scale[key_i] = self._data[(key_i + transposition) % 12]
         return self_scale
 
     def getSerialization(self) -> dict:
