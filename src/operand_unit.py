@@ -380,7 +380,7 @@ class Key(Unit):
                 if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
                     note_key += 12
                 return Key._keys[note_key]
-            case int():
+            case int(): # WITHOUT KEY SIGNATURE
                 staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 accidentals_int: int = os.staff._key_signature._unit
                 key_int: int            = self._unit
@@ -440,7 +440,7 @@ class Key(Unit):
                         if key_signature_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
                     return key_int + semitone_transpose + self._sharp._unit - self._flat._unit
-            case float():
+            case float(): # WITH KEY SIGNATURE
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if not self._natural:
                         return self % int()
