@@ -270,6 +270,7 @@ class Scale(Data):
     """
     def __init__(self, *parameters):
         super().__init__([])
+        self._mode: ou.Mode     = ou.Mode()
         if len(parameters) > 0:
             self << parameters
 
@@ -286,7 +287,11 @@ class Scale(Data):
         Mixolydian
         """
         match operand:
-            case DataSource():          return super().__mod__(operand)
+            case DataSource():
+                match operand % o.Operand():
+                    case ou.Mode():         return self._mode
+                    case _:                 return super().__mod__(operand)
+            case ou.Mode():             return self._mode.copy()
             case list():                return self._data.copy()
             case str():                 return __class__.get_scale_name(self._data)
             case int():                 return __class__.get_scale_number(self._data)
@@ -323,8 +328,21 @@ class Scale(Data):
                 self_scale[key_i] = self._data[(key_i + transposition) % 12]
         return self_scale
 
+    def getSerialization(self) -> dict:
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["mode"]     = self._mode % DataSource( int() )
+        return element_serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> 'Scale':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "mode" in serialization["parameters"]):
+            
+            super().loadSerialization(serialization)
+            self._mode      = ou.Mode()     << DataSource( serialization["parameters"]["mode"] )
+        return self
+        
     def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
         self._data = self.modulation(mode)
         return self
@@ -332,6 +350,15 @@ class Scale(Data):
     def __lshift__(self, operand: any) -> 'Scale':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case DataSource():
+                match operand % o.Operand():
+                    case ou.Mode():         self._mode = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case Scale():
+                super().__lshift__(operand)
+                self._mode      << operand._mode
+            case ou.Mode():
+                self._mode << operand
             case str() | int():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
