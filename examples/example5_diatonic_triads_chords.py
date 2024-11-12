@@ -23,12 +23,12 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Measure(7)
+staff << Measure(7) << 240
 
 (Chord() * 7 << Size("7th")) << Iterate()**Add(1)**Degree() << Increment()**Mode() >> Play(True)
-(Chord("A") << Scale("minor") << Octave(3)) * 7 << Iterate()**Add()**Degree() << Increment()**Mode() \
-    >> Play(True) >> Print() << Inversion(1) >> Play(True)
+# (Chord("A") << Scale("minor") << Octave(3)) * 7 << Iterate()**Add()**Degree() << Increment()**Mode() \
+#     >> Play(True) >> Print() << Inversion(1) >> Play(True)
 
-Chord("C") << Size("13th") << Scale("Major") << Degree("Dominant") << Mode("5th") << Octave(3) << NoteValue(2) >> Print() >> Play()
-Chord("G") << Size("13th") << Scale("5th") << NoteValue(2) << Octave(3) >> Print() >> Play()
+# Chord("C") << Size("13th") << Scale("Major") << Degree("Dominant") << Mode("5th") << Octave(3) << NoteValue(2) >> Print() >> Play()
+# Chord("G") << Size("13th") << Scale("5th") << NoteValue(2) << Octave(3) >> Print() >> Play()
 

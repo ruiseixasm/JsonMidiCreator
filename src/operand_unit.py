@@ -388,9 +388,9 @@ class Key(Unit):
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if self._unit is None:
                         key_int = os.staff._key._unit
-                    staff_key_scale     = os.staff._scale % list()
+                    staff_key_scale     = os.staff._scale % list()  # Already modulated
                     if self._scale.hasScale():
-                        staff_key_scale     = self._scale % list()
+                        staff_key_scale     = self._scale % list()  # Already modulated
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps

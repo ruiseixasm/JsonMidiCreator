@@ -693,9 +693,9 @@ class Dyad(Cluster):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self._scale: od.Scale   = od.Scale("Major")    # Major scale as default
-        self._mode: ou.Mode     = ou.Mode()
         self << ro.NoteValue(ro.Measure(1)) # By default a Scale and a Chord has one Measure length
+        # self._key_note._key._scale  << "Major"
+        self._self_scale: od.Scale  = od.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters
 
@@ -720,13 +720,11 @@ class KeyScale(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Scale():        return self._scale
-                    case ou.Mode():         return self._mode
+                    case od.Scale():        return self._self_scale
                     case _:                 return super().__mod__(operand)
-            case od.Scale():        return self._scale.copy()
-            case list():            return self._scale % list()
-            case str():             return self._scale % str()
-            # case ou.Mode():         return self._key_note % operand
+            case od.Scale():        return self._self_scale.copy()
+            case list() | str() | ou.Mode():
+                                    return self._self_scale % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -734,15 +732,14 @@ class KeyScale(Note):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._scale == other_operand % od.DataSource( od.Scale() ) \
-                    and self._mode == other_operand % od.DataSource( ou.Mode() )
+                    and self._self_scale == other_operand._self_scale
             case _:
                 return super().__eq__(other_operand)
             
     def get_scale_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
-        for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
-            transposition = self._scale.transposition(key_note_i)
+        for key_note_i in range(self._self_scale.keys()): # presses entire scale, 7 keys for diatonic scales
+            transposition: int = self._self_scale.transposition(key_note_i)
             scale_notes.append(Note(self) + float(transposition))
         return scale_notes
     
@@ -760,19 +757,17 @@ class KeyScale(Note):
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale"]    = self._scale % od.DataSource( list() )
-        element_serialization["parameters"]["mode"]     = self._mode % od.DataSource( int() )
+        element_serialization["parameters"]["self_scale"]   = self._self_scale.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "self_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale     = od.Scale()    << od.DataSource( serialization["parameters"]["scale"] )
-            self._mode      = ou.Mode()     << od.DataSource( serialization["parameters"]["mode"] )
+            self._self_scale  = og.KeyNote().loadSerialization(serialization["parameters"]["self_scale"])
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -780,19 +775,13 @@ class KeyScale(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Scale():        self._scale = operand % o.Operand()
-                    case ou.Mode():         self._mode = operand % o.Operand()
+                    case od.Scale():        self._self_scale = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
-                self._scale     << operand._scale
-                self._mode      << operand._mode
-            case od.Scale() | list():
-                self._scale << operand
-            case ou.Mode():
-                self._key_note     << operand
-                self._scale     << operand
-                self._mode << operand
+                self._self_scale     << operand._self_scale
+            case od.Scale() | list() | ou.Mode():
+                self._self_scale << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -858,12 +847,12 @@ class Chord(KeyScale):
     
     def get_chord_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
+        max_size = self._self_scale.keys()
+        if max_size % 2 == 0: max_size //= 2
+        max_size = min(self._size % od.DataSource( int() ), max_size)
         # Sets Scale to be used
-        if self._scale.hasScale():
+        if self._self_scale.hasScale():
             # modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
-            max_size = self._scale.keys()
-            if max_size % 2 == 0: max_size //= 2
-            max_size = min(self._size % od.DataSource( int() ), max_size)
             for note_i in range(max_size):
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
@@ -871,7 +860,7 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                transposition = self._scale.transposition(key_degree - 1)
+                transposition: int = self._self_scale.transposition(key_degree - 1)
                 if key_degree == 7:   # Seventh
                     if self._dominant:
                         transposition -= 1
@@ -883,9 +872,6 @@ class Chord(KeyScale):
                 )
         else:   # Uses the staff keys straight away
             # modulated_scale: od.Scale = os.staff % od.Scale(self._mode) # already modulated
-            max_size = self._scale.keys()
-            if max_size % 2 == 0: max_size //= 2
-            max_size = min(self._size % od.DataSource( int() ), max_size)
             for note_i in range(max_size):
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
@@ -985,9 +971,9 @@ class Chord(KeyScale):
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
-                    self._scale << "minor"
+                    self._self_scale << "minor"
                 else:
-                    self._scale << "Major"
+                    self._self_scale << "Major"
                 self.set_all(operand)
             case ou.Dominant():
                 if operand:
