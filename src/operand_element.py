@@ -738,9 +738,17 @@ class KeyScale(Note):
             
     def get_scale_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
-        for key_note_i in range(self._self_scale.keys()): # presses entire scale, 7 keys for diatonic scales
-            transposition: int = self._self_scale.transposition(key_note_i)
-            scale_notes.append(Note(self) + float(transposition))
+        # Sets Scale to be used
+        if self._self_scale.hasScale():
+            for key_note_i in range(self._self_scale.keys()): # presses entire scale, 7 keys for diatonic scales
+                transposition: int = self._self_scale.transposition(key_note_i)
+                scale_notes.append(Note(self) + float(transposition))
+        else:   # Uses the staff keys straight away
+            key_note_scale: od.Scale = self._key_note._key % od.Scale()
+            for note_i in range(key_note_scale.keys()):
+                scale_notes.append(
+                    Note(self) + note_i   # Jumps by steps (scale tones)
+                )
         return scale_notes
     
     def getPlaylist(self, position: ot.Position = None) -> list:
