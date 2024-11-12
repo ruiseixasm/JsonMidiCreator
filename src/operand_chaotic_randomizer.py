@@ -33,7 +33,7 @@ import operand_generic as og
 import operand_frame as of
 
 
-class ChaoticRandomness(o.Operand):
+class ChaoticRandomizer(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._initiated: bool   = False
@@ -47,14 +47,14 @@ class ChaoticRandomness(o.Operand):
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case ChaoticRandomness():
+            case ChaoticRandomizer():
                                     return self.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'ChaoticRandomness':
+    def __lshift__(self, operand: o.Operand) -> 'ChaoticRandomizer':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.Serialization():
@@ -68,7 +68,7 @@ class ChaoticRandomness(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         return self
 
-class Modulus(ChaoticRandomness):
+class Modulus(ChaoticRandomizer):
     def __init__(self, *parameters):
         super().__init__()
         self._amplitude: ro.Amplitude   = ro.Amplitude(12)
@@ -229,7 +229,7 @@ class Flipper(Modulus):
             case _: super().__lshift__(operand)
         return self
 
-class Bouncer(ChaoticRandomness):
+class Bouncer(ChaoticRandomizer):
     def __init__(self, *parameters):
         super().__init__()
         self._width: ro.Width           = ro.Width(16)
