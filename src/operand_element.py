@@ -767,7 +767,7 @@ class KeyScale(Note):
             "self_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._self_scale  = og.KeyNote().loadSerialization(serialization["parameters"]["self_scale"])
+            self._self_scale  = od.Scale().loadSerialization(serialization["parameters"]["self_scale"])
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
