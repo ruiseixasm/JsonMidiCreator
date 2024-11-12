@@ -433,10 +433,18 @@ class Type(Left):
 class Equal(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
+        self._previous: list = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
+        self._previous.insert(0, subject)
         for condition in self._left_parameter:
-            if subject == condition:
+            if isinstance(condition, ou.Previous):
+                previous_i: int = condition % int()
+                if previous_i < len(self._previous):
+                    condition = self._previous[previous_i]
+                else:
+                    continue
+            if subject == condition:    # global "or" condition, only one needs to be verified as True
                 self_operand = self._next_operand
                 if isinstance(self_operand, Frame):
                     self_operand &= subject
@@ -444,63 +452,108 @@ class Equal(Left):
         return ol.Null()
 
 class NotEqual(Left):
-    def __init__(self, left_parameter: o.Operand):
-        super().__init__(left_parameter)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._previous: list = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject != self._left_parameter:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                self_operand &= subject
-            return self_operand
+        self._previous.insert(0, subject)
+        for condition in self._left_parameter:
+            if isinstance(condition, ou.Previous):
+                previous_i: int = condition % int()
+                if previous_i < len(self._previous):
+                    condition = self._previous[previous_i]
+                else:
+                    continue
+            if not subject == condition:    # global "or" condition, only one needs to be verified as True
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
         return ol.Null()
 
 class Greater(Left):
-    def __init__(self, left_parameter: o.Operand):
-        super().__init__(left_parameter)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._previous: list = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject > self._left_parameter:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                self_operand &= subject
-            return self_operand
+        self._previous.insert(0, subject)
+        for condition in self._left_parameter:
+            if isinstance(condition, ou.Previous):
+                previous_i: int = condition % int()
+                if previous_i < len(self._previous):
+                    condition = self._previous[previous_i]
+                else:
+                    continue
+            if subject > condition:    # global "or" condition, only one needs to be verified as True
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
         return ol.Null()
 
 class Less(Left):
-    def __init__(self, left_parameter: o.Operand):
-        super().__init__(left_parameter)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._previous: list = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject < self._left_parameter:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                self_operand &= subject
-            return self_operand
+        self._previous.insert(0, subject)
+        for condition in self._left_parameter:
+            if isinstance(condition, ou.Previous):
+                previous_i: int = condition % int()
+                if previous_i < len(self._previous):
+                    condition = self._previous[previous_i]
+                else:
+                    continue
+            if subject < condition:    # global "or" condition, only one needs to be verified as True
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
         return ol.Null()
 
 class GreaterEqual(Left):
-    def __init__(self, left_parameter: o.Operand):
-        super().__init__(left_parameter)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._previous: list = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject % self._left_parameter >= self._left_parameter:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                self_operand &= subject
-            return self_operand
+        self._previous.insert(0, subject)
+        for condition in self._left_parameter:
+            if isinstance(condition, ou.Previous):
+                previous_i: int = condition % int()
+                if previous_i < len(self._previous):
+                    condition = self._previous[previous_i]
+                else:
+                    continue
+            if subject >= condition:    # global "or" condition, only one needs to be verified as True
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
         return ol.Null()
 
 class LessEqual(Left):
-    def __init__(self, left_parameter: o.Operand):
-        super().__init__(left_parameter)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._previous: list = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if subject % od.DataSource( self._left_parameter ) <= self._left_parameter:
-            self_operand = self._next_operand
-            if isinstance(self_operand, Frame):
-                self_operand &= subject
-            return self_operand
+        self._previous.insert(0, subject)
+        for condition in self._left_parameter:
+            if isinstance(condition, ou.Previous):
+                previous_i: int = condition % int()
+                if previous_i < len(self._previous):
+                    condition = self._previous[previous_i]
+                else:
+                    continue
+            if subject <= condition:    # global "or" condition, only one needs to be verified as True
+                self_operand = self._next_operand
+                if isinstance(self_operand, Frame):
+                    self_operand &= subject
+                return self_operand
         return ol.Null()
 
 class Get(Left):
