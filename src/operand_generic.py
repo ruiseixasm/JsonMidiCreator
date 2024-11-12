@@ -246,11 +246,11 @@ class KeyNote(Generic):
 
     def __add__(self, operand) -> 'KeyNote':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: KeyNote = self.copy(self._key % ou.Natural())
+        self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote():
                 # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
-                new_keynote = self.__class__(self._key % ou.Natural())
+                new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
                 sum_int = self_int + operand_int
@@ -267,11 +267,11 @@ class KeyNote(Generic):
     
     def __sub__(self, operand) -> 'KeyNote':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: KeyNote = self.copy(self._key % ou.Natural())
+        self_copy: KeyNote = self.copy()
         match operand:
             case KeyNote(): # It may result in negative KeyNotes (unplayable)!
                 # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
-                new_keynote = self.__class__(self._key % ou.Natural())
+                new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
                 delta_int = self_int - operand_int
@@ -290,14 +290,14 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                new_keynote = self.__class__(self._key % ou.Natural())
+                new_keynote = self.__class__()
                 self_int = self % int()
                 multiplied_int = self_int * operand
                 new_keynote._key << multiplied_int % 12
                 new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case float():
-                new_keynote = self.__class__(self._key % ou.Natural())
+                new_keynote = self.__class__()
                 self_float = self % float()
                 multiplied_int = int(self_float * operand)
                 new_keynote._key << multiplied_int % 12
@@ -309,14 +309,14 @@ class KeyNote(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
-                new_keynote = self.__class__(self._key % ou.Natural())
+                new_keynote = self.__class__()
                 self_int = self % int()
                 multiplied_int = int(self_int / operand)
                 new_keynote._key << multiplied_int % 12
                 new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case float():
-                new_keynote = self.__class__(self._key % ou.Natural())
+                new_keynote = self.__class__()
                 self_float = self % float()
                 multiplied_int = int(self_float / operand)
                 new_keynote._key << multiplied_int % 12
