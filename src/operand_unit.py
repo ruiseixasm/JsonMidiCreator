@@ -381,6 +381,8 @@ class Key(Unit):
                     note_key += 12
                 return Key._keys[note_key]
             case int():
+                staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                accidentals_int: int = os.staff._key_signature._unit
                 key_int: int            = self._unit
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if self._unit is None:
@@ -402,10 +404,8 @@ class Key(Unit):
                         semitone_transpose -= 1
                         if staff_key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                     if staff_white_keys[(key_int + semitone_transpose) % 12]:
                         return key_int + semitone_transpose + self._sharp._unit - self._flat._unit
-                    accidentals_int: int = os.staff._key_signature._unit
                     if accidentals_int < 0:
                         self._sharp << False
                         self._flat << True
@@ -416,6 +416,12 @@ class Key(Unit):
                 else:
                     if self._unit is None:
                         key_int = os.staff._tonic_key._unit
+                        # Needs to remove KeySignature Sharps and Flats
+                        if staff_white_keys[key_int % 12] == 0:  # if a black key
+                            if accidentals_int < 0:
+                                key_int += 1    # it will be flatten by the KeySignature
+                            else:
+                                key_int -= 1    # it will be sharpen by the KeySignature
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
