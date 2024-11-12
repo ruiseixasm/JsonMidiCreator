@@ -289,12 +289,15 @@ class Scale(Data):
         match operand:
             case DataSource():
                 match operand % o.Operand():
-                    case ou.Mode():         return self._mode
-                    case _:                 return super().__mod__(operand)
+                    case ou.Mode():             return self._mode
+                    case list():                return self._data
+                    case str():                 return __class__.get_scale_name(self._data)
+                    case int():                 return __class__.get_scale_number(self._data)
+                    case _:                     return super().__mod__(operand)
             case ou.Mode():             return self._mode.copy()
             case list():                return self.modulation(None)
-            case str():                 return __class__.get_scale_name(self._data)
-            case int():                 return __class__.get_scale_number(self._data)
+            case str():                 return __class__.get_scale_name(self.modulation(None))
+            case int():                 return __class__.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
             case _:                     return super().__mod__(operand)
