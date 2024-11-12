@@ -140,7 +140,7 @@ class KeyNote(Generic):
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | str():
+            case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | list() | str():
                 return self._key % operand
             case int():
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)

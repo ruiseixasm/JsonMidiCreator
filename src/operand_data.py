@@ -329,7 +329,7 @@ class Scale(Data):
         if isinstance(self._data, list) and len(self._data) == 12:
             mode = self._mode if mode is None else mode
             # transposition = self.transposition(max(1, mode % int()) - 1)
-            tones = max(1, mode % int()) - 1
+            tones = max(1, mode % int()) - 1    # Modes start on 1, so, mode - 1 = tones
             transposition = 0
             if isinstance(self._data, list) and len(self._data) == 12:
                 while tones > 0:

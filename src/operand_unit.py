@@ -375,7 +375,7 @@ class Key(Unit):
                 if os.staff._scale.hasScale():
                     return os.staff._scale.copy()
                 return os.staff._key_signature % operand
-            case Mode():            return (self % od.Scale()) % operand
+            case Mode() | list():   return (self % od.Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
                 if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
