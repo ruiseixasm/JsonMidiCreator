@@ -28,6 +28,7 @@ from operand_generic import *
 from operand_container import *
 from operand_element import *
 from operand_chaotic_randomizer import *
+from operand_iterator import *
 
 # Determine the operating system
 import platform
