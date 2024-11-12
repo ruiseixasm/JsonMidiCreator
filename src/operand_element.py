@@ -656,7 +656,7 @@ class Note(Rest):
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
                 self._tied          << operand._tied
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | int() | str():
+            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
             case ro.Gate():         self._gate << operand
@@ -726,7 +726,7 @@ class KeyScale(Note):
             case od.Scale():        return self._scale.copy()
             case list():            return self._scale % list()
             case str():             return self._scale % str()
-            case ou.Mode():         return self._scale._mode.copy()
+            case ou.Mode():         return self._key_note % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -742,7 +742,7 @@ class KeyScale(Note):
     def get_scale_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
         for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
-            transposition = self._scale.transposition(self._mode % od.DataSource( int() ) + key_note_i)
+            transposition = self._scale.transposition(key_note_i)
             scale_notes.append(Note(self) + float(transposition))
         return scale_notes
     
@@ -860,8 +860,8 @@ class Chord(KeyScale):
         chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
-            modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
-            max_size = modulated_scale.keys()
+            # modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
+            max_size = self._scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
             for note_i in range(max_size):
@@ -871,7 +871,7 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                transposition = modulated_scale.transposition(key_degree)
+                transposition = self._scale.transposition(key_degree - 1)
                 if key_degree == 7:   # Seventh
                     if self._dominant:
                         transposition -= 1
@@ -882,8 +882,8 @@ class Chord(KeyScale):
                     Note(self) + float(transposition)   # Jumps by semitones
                 )
         else:   # Uses the staff keys straight away
-            modulated_scale: od.Scale = os.staff % od.Scale(self._mode) # already modulated
-            max_size = modulated_scale.keys()
+            # modulated_scale: od.Scale = os.staff % od.Scale(self._mode) # already modulated
+            max_size = self._scale.keys()
             if max_size % 2 == 0: max_size //= 2
             max_size = min(self._size % od.DataSource( int() ), max_size)
             for note_i in range(max_size):

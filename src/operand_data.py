@@ -314,21 +314,28 @@ class Scale(Data):
             scale_keys += key
         return scale_keys
 
-    def transposition(self, mode: int | str = "5th") -> int:        # Starting in C
+    def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
         if isinstance(self._data, list) and len(self._data) == 12:
-            mode = self._mode if mode is None else mode
-            mode_transpose = ou.Mode(mode) % DataSource( int() ) - 1    # processes strings, for 0 and 1 does nothing
-            while mode_transpose > 0:
+            modulated_scale = self.modulation(None)
+            while tones > 0:
                 transposition += 1
-                if self._data[transposition % 12]:
-                    mode_transpose -= 1
+                if modulated_scale[transposition % 12]:
+                    tones -= 1
         return transposition
 
     def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
         self_scale = self._data.copy()
         if isinstance(self._data, list) and len(self._data) == 12:
-            transposition = self.transposition(mode)
+            mode = self._mode if mode is None else mode
+            # transposition = self.transposition(max(1, mode % int()) - 1)
+            tones = max(1, mode % int()) - 1
+            transposition = 0
+            if isinstance(self._data, list) and len(self._data) == 12:
+                while tones > 0:
+                    transposition += 1
+                    if self._data[transposition % 12]:
+                        tones -= 1
             if transposition != 0:
                 for key_i in range(12):
                     self_scale[key_i] = self._data[(key_i + transposition) % 12]
@@ -363,9 +370,9 @@ class Scale(Data):
             case Scale():
                 super().__lshift__(operand)
                 self._mode      << operand._mode
-            case ou.Mode():
+            case ou.Mode() | int():
                 self._mode << operand
-            case str() | int():
+            case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
                     self._data = self_scale.copy()

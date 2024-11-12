@@ -1010,9 +1010,8 @@ class Transposition(Operation):
     first : integer_like
         Transposition along the given Scale with 1 ("1st") as the default mode
     """
-    def __init__(self, mode: int | str = None):
-        unit = Mode(mode) % od.DataSource( int() )
-        super().__init__(unit)
+    def __init__(self, tones: int = 5):
+        super().__init__(tones)
 
 class Modulation(Operation):    # Modal Modulation
     """
