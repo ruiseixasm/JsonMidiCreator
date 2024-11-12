@@ -259,10 +259,8 @@ class KeyNote(Generic):
                 return new_keynote
             case ou.Octave():
                 self_copy._octave._unit += operand._unit
-            case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
+            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ro.Rational():
                 self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
-            case ou.Degree():
-                self_copy._key += operand
             case _: return super().__add__(operand)
         self_copy.octave_correction()
         return self_copy
@@ -282,9 +280,7 @@ class KeyNote(Generic):
                 return new_keynote
             case ou.Octave():
                 self_copy._octave._unit -= operand._unit
-            case ou.Key() | int() | float() | Fraction() | ou.Semitone() | ou.Integer() | ro.Rational() | ro.Float():
-                self_copy._key -= operand
-            case ou.Degree():
+            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ro.Rational():
                 self_copy._key -= operand
             case _: return super().__add__(operand)
         self_copy.octave_correction()
