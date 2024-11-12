@@ -216,7 +216,10 @@ class DataSource(Data):
         if self._next_operand is not None:
             self_copy._next_operand = self._next_operand.copy()
         return self_copy << parameters
-    
+
+class Reporter(Data):
+    pass
+
 class SideEffects(Data):
     pass
 

@@ -126,6 +126,9 @@ class Frame(o.Operand):
             self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])
         return self
     
+    def __rrshift__(self, operand: any) -> any:
+        return operand & self   # operand is the subject
+
     def pop(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self
         for single_frame in self:

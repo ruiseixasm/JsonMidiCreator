@@ -271,6 +271,6 @@ class Operand:
                 copy_list.append(single_operand.copy())
         return copy_list
 
-    # Frame trigger without right side effect
     def __xor__(self, operand: 'Operand') -> 'Operand':
-        return self & operand  # Processes the tailed self operands or the Frame operand if any exists
+        self & operand  # Processes the tailed self operands or the Frame operand if any exists
+        return self

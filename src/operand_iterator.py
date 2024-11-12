@@ -38,6 +38,9 @@ import operand_chaotic_randomizer as ocr
 class Iterator(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
+        self._subject: o.Operand    = ol.Null()
+        self._frame: of.Frame       = of.Frame()
+        self._reporter: od.Reporter = od.Reporter()
         if len(parameters) > 0:
             self << parameters
 
@@ -45,11 +48,14 @@ class Iterator(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case od.Reporter():     return self._reporter
+                    case of.Frame():        return self._frame
+                    case o.Operand():       return self._subject
                     case _:                 return ol.Null()
-            case of.Frame():        return self % (operand % o.Operand())
-            case Iterator():
-                                    return self.copy()
+            case Iterator():        return self.copy()
+            case od.Reporter():     return self._reporter.copy()
+            case of.Frame():        return self._frame.copy()
+            case o.Operand():       return self._subject.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
@@ -58,8 +64,20 @@ class Iterator(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Iterator':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ro.Width():                self._width = operand % o.Operand()
+                    case ro.Height():               self._height = operand % o.Operand()
+                    case ro.dX():                   self._dx = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case Iterator():
+                        self._width         << operand._width
+                        self._height        << operand._height
+                        self._dx            << operand._dx
+            case ro.Width():                self._width << operand
+            case ro.Height():               self._height << operand
+            case ro.dX():                   self._dx << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
