@@ -38,7 +38,6 @@ import operand_chaotic_randomizer as ocr
 class Iterator(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._initiated: bool   = False
         if len(parameters) > 0:
             self << parameters
 

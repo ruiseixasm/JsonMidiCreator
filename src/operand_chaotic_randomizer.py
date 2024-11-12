@@ -36,7 +36,6 @@ import operand_frame as of
 class ChaoticRandomizer(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._initiated: bool   = False
         if len(parameters) > 0:
             self << parameters
 

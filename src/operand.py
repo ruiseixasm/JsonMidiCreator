@@ -25,6 +25,7 @@ T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
 class Operand:
     def __init__(self):
         self._next_operand: Operand = None
+        self._initiated: bool   = False
         self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
 
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
