@@ -292,6 +292,13 @@ class Subject(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         return super().__and__(self._left_parameter)
 
+class Push(Left):
+    def __init__(self, operand: o.Operand):
+        super().__init__(operand)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        return super().__and__(subject >> self._left_parameter)
+
 class Pick(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)

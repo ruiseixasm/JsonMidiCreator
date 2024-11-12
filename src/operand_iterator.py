@@ -40,7 +40,7 @@ class Iterator(o.Operand):
         super().__init__()
         self._subject: o.Operand        = ol.Null()
         self._frame: of.Frame           = of.Frame()
-        self._reporter: od.Reporter     = od.Reporter()
+        self._reporter: od.Reporter     = od.Reporter(of.Push(ol.Play()))
         # self._operator: Callable[[o.Operand, of.Frame], o.Operand] \
         #                                 = lambda subject, frame: subject << frame
         self._operator: str             = "<<"
