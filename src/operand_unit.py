@@ -375,6 +375,7 @@ class Key(Unit):
                 if os.staff._scale.hasScale():
                     return os.staff._scale.copy()
                 return os.staff._key_signature % operand
+            case Mode():            return (self % od.Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
                 if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
@@ -462,12 +463,12 @@ class Key(Unit):
         element_serialization["parameters"]["flat"]     = self._flat._unit
         element_serialization["parameters"]["natural"]  = self._natural._unit
         element_serialization["parameters"]["degree"]   = self._degree._unit
-        element_serialization["parameters"]["scale"]    = self._scale._data
+        element_serialization["parameters"]["scale"]    = self._scale.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Key':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and 
             "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
@@ -477,7 +478,7 @@ class Key(Unit):
             self._flat      = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
             self._natural   = Natural() << od.DataSource( serialization["parameters"]["natural"] )
             self._degree    = Degree()  << od.DataSource( serialization["parameters"]["degree"] )
-            self._scale     = od.Scale(serialization["parameters"]["scale"])
+            self._scale     = od.Scale().loadSerialization(serialization["parameters"]["scale"])
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
@@ -539,7 +540,7 @@ class Key(Unit):
                 self._natural << operand
             case Degree():
                 self._degree << operand
-            case od.Scale():
+            case od.Scale() | Mode():
                 self._scale << operand
             case str():
                 string: str = operand.strip()

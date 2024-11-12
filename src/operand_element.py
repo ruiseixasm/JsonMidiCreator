@@ -558,7 +558,7 @@ class Note(Rest):
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
-            case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
+            case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
             case ro.Gate():         return self._gate.copy()
@@ -726,7 +726,7 @@ class KeyScale(Note):
             case od.Scale():        return self._scale.copy()
             case list():            return self._scale % list()
             case str():             return self._scale % str()
-            case ou.Mode():         return self._mode.copy()
+            case ou.Mode():         return self._scale._mode.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -790,6 +790,8 @@ class KeyScale(Note):
             case od.Scale() | list():
                 self._scale << operand
             case ou.Mode():
+                self._key_note     << operand
+                self._scale     << operand
                 self._mode << operand
             case _: super().__lshift__(operand)
         return self

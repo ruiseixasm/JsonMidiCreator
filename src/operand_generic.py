@@ -140,7 +140,7 @@ class KeyNote(Generic):
             case KeyNote():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | str():
+            case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | str():
                 return self._key % operand
             case int():
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
@@ -229,7 +229,7 @@ class KeyNote(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.Integer():
                 self._octave << operand
-            case ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale():
+            case ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode():
                 self._key << operand
             case tuple():
                 for single_operand in operand:
