@@ -30,6 +30,7 @@ import operand_time as ot
 import operand_data as od
 import operand_label as ol
 import operand_generic as og
+import operand_element as oe
 import operand_frame as of
 import operand_container as oc
 import operand_chaotic_randomizer as ocr
@@ -38,8 +39,8 @@ import operand_chaotic_randomizer as ocr
 class Iterator(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._subject: o.Operand        = ol.Null()
-        self._frame: of.Frame           = of.Frame()
+        self._subject: o.Operand        = oe.Note() * 4
+        self._frame: of.Frame           = of.Foreach(ocr.Flipper())**ou.Degree()
         self._reporter: od.Reporter     = od.Reporter(of.PushTo(ol.Play()))
         # self._operator: Callable[[o.Operand, of.Frame], o.Operand] \
         #                                 = lambda subject, frame: subject << frame
@@ -94,7 +95,7 @@ class Iterator(o.Operand):
             "operator" in serialization["parameters"]):
 
             self._subject           = o.Operand().loadSerialization(serialization["parameters"]["subject"])
-            self._frame             = of.Frame().loadSerialization(serialization["parameters"]["frame"])
+            self._frame             = o.Operand().loadSerialization(serialization["parameters"]["frame"])
             self._reporter          = od.Reporter().loadSerialization(serialization["parameters"]["reporter"])
             self._operator          = serialization["parameters"]["operator"]
         return self
@@ -150,4 +151,13 @@ class Iterator(o.Operand):
                     case "//":  result: o.Operand = self._subject // self._frame
                     case _:     result: o.Operand = self._subject << self._frame
                 result >> self._reporter._data
+                self._index += 1
         return self
+
+    def reset(self, *parameters) -> 'Iterator':
+        super().reset(parameters)
+        self._subject.reset()
+        self._frame.reset()
+        self._reporter._data.reset()
+        return self
+    

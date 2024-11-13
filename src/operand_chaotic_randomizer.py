@@ -380,7 +380,7 @@ class Bouncer(ChaoticRandomizer):
                     direction_data[0] << new_position
         return self
 
-    def reset(self, *parameters) -> 'Modulus':
+    def reset(self, *parameters) -> 'Bouncer':
         super().reset(parameters)
         self._x         << self._set_index[0]
         self._y         << self._set_index[1]

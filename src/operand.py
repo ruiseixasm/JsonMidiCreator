@@ -69,6 +69,7 @@ class Operand:
         0.5
         """
         import operand_label as ol
+        import operand_rational as ro
         import operand_frame as of
         import operand_data as od
         import operand_time as ot
@@ -84,6 +85,8 @@ class Operand:
                 return self.len()
             case ol.Name():
                 return self.name()
+            case ro.Index():
+                return ro.Index(self._index)
             case self.__class__():  return self.copy()
             case _:                 return ol.Null()
 
