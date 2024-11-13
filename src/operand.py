@@ -150,6 +150,12 @@ class Operand:
             self_copy._next_operand = self._next_operand.copy()
         return self_copy
     
+    def reset(self: T, *parameters) -> T:
+        self._next_operand  = None
+        self._initiated     = False
+        self._set           = False
+        return self << self.__class__() << parameters
+    
     def getOperand(self, operand_name: str) -> 'Operand':
         operand_class = Operand.find_subclass_by_name(Operand, operand_name)
         if operand_class: return operand_class()

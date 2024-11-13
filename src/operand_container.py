@@ -201,6 +201,10 @@ class Container(o.Operand):
             container_copy._next_operand = self._next_operand.copy()
         return container_copy << parameters
     
+    def reset(self, *parameters) -> 'Container':
+        self._index         = 0
+        return super().reset(parameters)
+    
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare
         for operand_i in range(self.len() - 1):

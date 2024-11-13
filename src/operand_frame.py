@@ -270,7 +270,7 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand._set = True
         return self_operand
     
-    def copy(self, *parameters) -> 'Left':
+    def copy(self, *parameters) -> 'Frame':
         match self._left_parameter:
             case o.Operand():
                 self_copy: Frame = self.__class__( self._left_parameter.copy() ) << parameters
@@ -285,6 +285,12 @@ class Left(Frame):  # LEFT TO RIGHT
                     self_copy._next_operand = self._next_operand
         return self_copy
 
+    def reset(self, *parameters) -> 'Frame':
+        self._next_operand  = o.Operand()
+        self._initiated     = False
+        self._set           = False
+        return self << self.__class__() << parameters
+    
 class Subject(Left):
     def __init__(self, subject):
         super().__init__(subject)
