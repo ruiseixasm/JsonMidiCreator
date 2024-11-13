@@ -162,7 +162,12 @@ class Frame(o.Operand):
             self._next_operand.reset()
         self._initiated     = False
         self._set           = False
-        return self << self.__class__() << parameters
+        self._index         = 0
+        return self << parameters
+    
+    def clear(self, *parameters) -> 'Frame':
+        self._next_operand = o.Operand()
+        return self.reset() << self.__class__() << parameters
     
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA) Operand isn't the Subject
 
@@ -301,7 +306,11 @@ class Left(Frame):  # LEFT TO RIGHT
             case _:
                 self_copy._left_parameter = self._left_parameter
         return self_copy
-
+    
+    def clear(self, *parameters) -> 'Frame':
+        self._left_parameter = 0
+        return super().clear(parameters)
+    
 class Subject(Left):
     def __init__(self, subject):
         super().__init__(subject)
@@ -351,31 +360,24 @@ class Lambda(Left):
     
 class Iterate(Left):
     def __init__(self, step = None):
-        self._step: int = 1 if step is None else step
-        super().__init__(self._step * 0)
+        super().__init__(1 if step is None else step)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(self._left_parameter)
-        self._left_parameter += self._step    # iterates whenever called
+        self_operand = super().__and__(self._index)
+        self._index += self._left_parameter    # iterates whenever called
         return self_operand
-    
-    def reset(self, *parameters) -> 'Iterate':
-        self._left_parameter *= 0
-        return super().reset(parameters)
     
 class Foreach(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._step: int     = 1
-        self._index: int    = 0
-        self._data: tuple   = parameters
         self._len: int      = len(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaotic_randomizer as ocr
         if self._len > 0:
-            subject = self._data[self._index]
+            subject = self._left_parameter[self._index]
             if isinstance(subject, (oc.Container, ocr.ChaoticRandomizer)):
                 subject %= ou.Next()    # Iterates to next subject
             self._index += self._step
@@ -384,46 +386,11 @@ class Foreach(Left):
             subject = ol.Null()
         return super().__and__(subject)
 
-        # self_operand = self._next_operand
-        # if isinstance(self_operand, Frame):
-        #     self_operand &= subject
-        # if isinstance(self_operand, ol.Null):
-        #     self._index += self._step
-        #     if self._len > 0:
-        #         self._index %= self._len
-        #     return self_operand
-        # if self_operand.__class__ == o.Operand:
-        #     if self._len > 0:
-        #         if isinstance(self._data[self._index], o.Operand):
-        #             self_operand = self._data[self._index].copy()
-        #         else:
-        #             self_operand = self._data[self._index]
-        #     else:
-        #         self_operand = self._index
-        # elif isinstance(self_operand, tuple):
-        #     for single_operand in self_operand:
-        #         if isinstance(single_operand, o.Operand):
-        #             single_operand << single_operand + self._data
-        #             single_operand._set = True
-        # elif self._len > 0:
-        #     if isinstance(self_operand, o.Operand) and not self_operand._set:
-        #         self_operand = self_operand.copy() << self._data[self._index]
-        #         self_operand._set = True
-        #     else:
-        #         self_operand = self._data[self._index]
-        # else:
-        #     self_operand = self._index
-        # self._index += self._step
-        # if self._len > 0:
-        #     self._index %= self._len
-        # return self_operand
-
-    def reset(self, *parameters) -> 'Iterate':
-        self._index *= 0
-        for single_operand in self._left_parameter:
-            if isinstance(single_operand, o.Operand):
-                single_operand.reset()
-        return super().reset(parameters)
+    def clear(self, *parameters) -> 'Foreach':
+        self._left_parameter = ()
+        self._len = 0
+        self._step = 1
+        return super().clear(parameters)
     
 class Transition(Left):
     def __init__(self, *parameters):

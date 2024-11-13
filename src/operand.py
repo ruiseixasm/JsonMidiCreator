@@ -27,6 +27,7 @@ class Operand:
         self._next_operand: Operand = None
         self._initiated: bool   = False
         self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
+        self._index: int = 0
 
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __iter__(self):
@@ -156,7 +157,12 @@ class Operand:
             self._next_operand.reset()
         self._initiated     = False
         self._set           = False
-        return self << self.__class__() << parameters
+        self._index         = 0
+        return self << parameters
+    
+    def clear(self: T, *parameters) -> T:
+        self._next_operand = None
+        return self.reset() << self.__class__() << parameters
     
     def getOperand(self, operand_name: str) -> 'Operand':
         operand_class = Operand.find_subclass_by_name(Operand, operand_name)
