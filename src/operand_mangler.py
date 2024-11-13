@@ -36,7 +36,7 @@ import operand_container as oc
 import operand_chaotic_randomizer as ocr
 
 
-class Blender(o.Operand):
+class Mangler(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._operand: o.Operand        = oe.Note() * 4
@@ -63,7 +63,7 @@ class Blender(o.Operand):
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return ol.Null()
-            case Blender():         return self.copy()
+            case Mangler():         return self.copy()
             case od.Reporter():     return self._reporter.copy()
             case of.Frame():        return self._frame.copy()
             case ro.Index():        return ro.Index(self._index)
@@ -76,7 +76,7 @@ class Blender(o.Operand):
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
-    # def __eq__(self, other: 'Blender') -> bool:
+    # def __eq__(self, other: 'Mangler') -> bool:
     #     other = self & other    # Processes the tailed self operands or the Frame operand if any exists
     #     if other.__class__ == o.Operand:
     #         return True
@@ -97,7 +97,7 @@ class Blender(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Blender':
+    def loadSerialization(self, serialization: dict) -> 'Mangler':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operand" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
@@ -108,7 +108,7 @@ class Blender(o.Operand):
             self._operator          = serialization["parameters"]["operator"]
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'Blender':
+    def __lshift__(self, operand: o.Operand) -> 'Mangler':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -119,7 +119,7 @@ class Blender(o.Operand):
                     case str():                     self._operator = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Blender():
+            case Mangler():
                         self._operand       = operand._operand.copy()
                         self._frame         = operand._frame.copy()
                         self._reporter      << operand._reporter
@@ -135,7 +135,7 @@ class Blender(o.Operand):
                     self << single_operand
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Blender':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Mangler':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         iterations: int = 1
         match number:
@@ -168,7 +168,7 @@ class Blender(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'Blender':
+    def reset(self, *parameters) -> 'Mangler':
         super().reset(parameters)
         self._operand.reset()
         self._frame.reset()
