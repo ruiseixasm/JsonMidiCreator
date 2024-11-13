@@ -141,6 +141,29 @@ class Frame(o.Operand):
                     previous_frame = single_frame
         return self      
     
+    def copy(self, *parameters) -> 'Frame':
+        match self._left_parameter:
+            case o.Operand():
+                self_copy: Frame = self.__class__( self._left_parameter.copy() ) << parameters
+            case _:
+                self_copy: Frame = self.__class__( self._left_parameter ) << parameters
+        # COPY THE SELF OPERANDS RECURSIVELY
+        if type(self._next_operand) is not o.Operand:
+            match self._next_operand:
+                case o.Operand():
+                    self_copy._next_operand = self._next_operand.copy()
+                case _:
+                    self_copy._next_operand = self._next_operand
+        return self_copy
+
+    def reset(self, *parameters) -> 'Frame':
+        # RESET THE SELF OPERANDS RECURSIVELY
+        if type(self._next_operand) is not o.Operand and isinstance(self._next_operand, o.Operand):
+            self._next_operand.reset()
+        self._initiated     = False
+        self._set           = False
+        return self << self.__class__() << parameters
+    
 # 1. FRAME FILTERS (INDEPENDENT OF OPERAND DATA) Operand isn't the Subject
 
 class FrameFilter(Frame):
@@ -271,26 +294,14 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
     
     def copy(self, *parameters) -> 'Frame':
+        self_copy = super().copy(parameters)
         match self._left_parameter:
             case o.Operand():
-                self_copy: Frame = self.__class__( self._left_parameter.copy() ) << parameters
+                self_copy._left_parameter = self._left_parameter.copy()
             case _:
-                self_copy: Frame = self.__class__( self._left_parameter ) << parameters
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if type(self._next_operand) is not o.Operand:
-            match self._next_operand:
-                case o.Operand():
-                    self_copy._next_operand = self._next_operand.copy()
-                case _:
-                    self_copy._next_operand = self._next_operand
+                self_copy._left_parameter = self._left_parameter
         return self_copy
 
-    def reset(self, *parameters) -> 'Frame':
-        self._next_operand  = o.Operand()
-        self._initiated     = False
-        self._set           = False
-        return self << self.__class__() << parameters
-    
 class Subject(Left):
     def __init__(self, subject):
         super().__init__(subject)
@@ -348,6 +359,10 @@ class Iterate(Left):
         self._left_parameter += self._step    # iterates whenever called
         return self_operand
     
+    def reset(self, *parameters) -> 'Iterate':
+        self._left_parameter *= 0
+        return super().reset(parameters)
+    
 class Foreach(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -403,6 +418,13 @@ class Foreach(Left):
         #     self._index %= self._len
         # return self_operand
 
+    def reset(self, *parameters) -> 'Iterate':
+        self._index *= 0
+        for single_operand in self._left_parameter:
+            if isinstance(single_operand, o.Operand):
+                single_operand.reset()
+        return super().reset(parameters)
+    
 class Transition(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -427,6 +449,10 @@ class Transition(Left):
             subject = ol.Null()
         return super().__and__(subject)
 
+    def reset(self, *parameters) -> 'Iterate':
+        self._index *= 0
+        return super().reset(parameters)
+    
 class Repeat(Left):
     def __init__(self, times: int = 1):
         super().__init__(times)

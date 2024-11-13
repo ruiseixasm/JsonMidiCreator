@@ -151,7 +151,9 @@ class Operand:
         return self_copy
     
     def reset(self: T, *parameters) -> T:
-        self._next_operand  = None
+        # RESET THE SELF OPERANDS RECURSIVELY
+        if self._next_operand is not None:
+            self._next_operand.reset()
         self._initiated     = False
         self._set           = False
         return self << self.__class__() << parameters
