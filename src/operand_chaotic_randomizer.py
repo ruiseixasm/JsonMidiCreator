@@ -177,6 +177,7 @@ class Flipper(Modulus):
     def __init__(self, *parameters):
         super().__init__()
         self._split: ro.Split           = ro.Split(1)
+        self._amplitude                 << 2
         if len(parameters) > 0:
             self << parameters
 
