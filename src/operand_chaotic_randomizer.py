@@ -73,6 +73,7 @@ class Modulus(ChaoticRandomizer):
         self._amplitude: ro.Amplitude   = ro.Amplitude(12)
         self._step: ro.Step             = ro.Step(1)
         self._index: ro.Index           = ro.Index(0)
+        self._set_index: ro.Index       = ro.Index(0)
         if len(parameters) > 0:
             self << parameters
 
@@ -108,7 +109,8 @@ class Modulus(ChaoticRandomizer):
             "parameters": {
                 "amplitude":    self._amplitude % float(),
                 "step":         self._step % float(),
-                "index":        self._index % float()
+                "index":        self._index % float(),
+                "set_index":    self._set_index % float()
             }
         }
 
@@ -116,11 +118,13 @@ class Modulus(ChaoticRandomizer):
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "amplitude" in serialization["parameters"] and "step" in serialization["parameters"] and "index" in serialization["parameters"]):
+            "amplitude" in serialization["parameters"] and "step" in serialization["parameters"] and "index" in serialization["parameters"] and
+            "set_index" in serialization["parameters"]):
 
             self._amplitude         << serialization["parameters"]["amplitude"]
             self._step              << serialization["parameters"]["step"]
             self._index             << serialization["parameters"]["index"]
+            self._set_index         << serialization["parameters"]["set_index"]
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
@@ -130,7 +134,9 @@ class Modulus(ChaoticRandomizer):
                 match operand % o.Operand():
                     case ro.Amplitude():            self._amplitude = operand % o.Operand()
                     case ro.Step():                 self._step = operand % o.Operand()
-                    case ro.Index():                self._index = operand % o.Operand()
+                    case ro.Index():
+                                                    self._index = operand % o.Operand()
+                                                    self._set_index = self._index.copy()
                     case _:                         super().__lshift__(operand)
             case Modulus():
                         self._amplitude     << operand._amplitude
@@ -138,8 +144,9 @@ class Modulus(ChaoticRandomizer):
                         self._index         << operand._index
             case ro.Amplitude():            self._amplitude << operand
             case ro.Step():                 self._step << operand
-            case ro.Index():                self._index << operand
-            case int() | float():           self._index << operand
+            case ro.Index() | int() | float():
+                                            self._index << operand
+                                            self._set_index << operand
             case _: super().__lshift__(operand)
         self._index << (self._index % float()) % (self._amplitude % float())
         return self
@@ -160,13 +167,15 @@ class Modulus(ChaoticRandomizer):
                 self._index += self._step
                 self._index << (self._index % float()) % (self._amplitude % float())
         return self
-
+    
+    def reset(self, *parameters) -> 'Modulus':
+        super().reset(parameters)
+        self._index         << self._set_index
+        return self
+    
 class Flipper(Modulus):
     def __init__(self, *parameters):
         super().__init__()
-        self._amplitude: ro.Amplitude   = ro.Amplitude(2)
-        self._step: ro.Step             = ro.Step(1)
-        self._index: ro.Index           = ro.Index(0)
         self._split: ro.Split           = ro.Split(1)
         if len(parameters) > 0:
             self << parameters
@@ -235,8 +244,9 @@ class Bouncer(ChaoticRandomizer):
         self._height: ro.Height         = ro.Height(9)
         self._dx: ro.dX                 = ro.dX(0.555)
         self._dy: ro.dY                 = ro.dY(0.555)
-        self._x: ro.X                   = ro.X(8.0)
-        self._y: ro.Y                   = ro.Y(4.5)
+        self._x: ro.X                   = ro.X(self._width / 2 % Fraction())
+        self._y: ro.Y                   = ro.Y(self._height / 2 % Fraction())
+        self._set_index: tuple          = (self._x.copy(), self._y.copy())
         if len(parameters) > 0:
             self << parameters
 
@@ -265,22 +275,10 @@ class Bouncer(ChaoticRandomizer):
             case ro.Height():           return self._height.copy()
             case ro.dX():               return self._dx.copy()
             case ro.dY():               return self._dy.copy()
-            case ro.X():
-                self_x = self._x.copy()
-                # self * 1    # Iterate one time
-                return self_x
-            case ro.Y():
-                self_y = self._y.copy()
-                # self * 1    # Iterate one time
-                return self_y
-            case int() | float():
-                hypotenuse = self % od.DataSource( operand )
-                # self * 1    # Iterate one time
-                return hypotenuse
-            case tuple():
-                self_tuple = self % od.DataSource( tuple() )
-                # self * 1    # Iterate one time
-                return self_tuple
+            case ro.X():                return self._x.copy()
+            case ro.Y():                return self._y.copy()
+            case int() | float():       return self % od.DataSource( operand )
+            case tuple():               return self % od.DataSource( tuple() )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
@@ -300,7 +298,9 @@ class Bouncer(ChaoticRandomizer):
                 "dx":           self._dx % float(),
                 "dy":           self._dy % float(),
                 "x":            self._x % float(),
-                "y":            self._y % float()
+                "y":            self._y % float(),
+                "set_x":        self._set_index[0] % float(),
+                "set_y":        self._set_index[1] % float()
             }
         }
 
@@ -309,7 +309,8 @@ class Bouncer(ChaoticRandomizer):
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
-            "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"]):
+            "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"] and
+            "set_x" in serialization["parameters"] and "set_y" in serialization["parameters"]):
 
             self._width             << serialization["parameters"]["width"]
             self._height            << serialization["parameters"]["height"]
@@ -317,6 +318,9 @@ class Bouncer(ChaoticRandomizer):
             self._dy                << serialization["parameters"]["dy"]
             self._x                 << serialization["parameters"]["x"]
             self._y                 << serialization["parameters"]["y"]
+            set_x                   = ro.X(serialization["parameters"]["set_x"])
+            set_y                   = ro.Y(serialization["parameters"]["set_y"])
+            self._set_index         = (set_x, set_y)
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Bouncer':
@@ -338,6 +342,9 @@ class Bouncer(ChaoticRandomizer):
                         self._dy            << operand._dy
                         self._x             << operand._x
                         self._y             << operand._y
+                        set_x               = operand._set_index[0].copy()
+                        set_y               = operand._set_index[1].copy()
+                        self._set_index     = (set_x, set_y)
             case ro.Width():                self._width << operand
             case ro.Height():               self._height << operand
             case ro.dX():                   self._dx << operand
@@ -373,3 +380,9 @@ class Bouncer(ChaoticRandomizer):
                     direction_data[0] << new_position
         return self
 
+    def reset(self, *parameters) -> 'Modulus':
+        super().reset(parameters)
+        self._x         << self._set_index[0]
+        self._y         << self._set_index[1]
+        return self
+    
