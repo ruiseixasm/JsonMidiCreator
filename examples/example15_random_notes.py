@@ -30,4 +30,8 @@ some_notes << Foreach(Bouncer() * 100)**Get(int())**Pick(eight, quarter, dotted_
 some_notes + Foreach(Flipper())**Get(int())**Formula(lambda n: (n * 5 + 4) % 3)**Multiply(2)
 some_notes >> rest_play
 
+some_notes = N * Foreach(Modulus(20))**Pick(3, 4, 5, 6, 7)
+some_notes << Foreach(SinX())**Pick(eight, quarter, dotted_eight, dotted_quarter) >> S
+some_notes << Foreach(SinX())**Pick(O3, O4, O5) << Foreach(SinX())**Pick(C, D, E, F, G, A, B)
+some_notes >> rest_play
 
