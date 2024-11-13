@@ -389,13 +389,9 @@ class Bouncer(Chaos):
 class SinX(Chaos):
     def __init__(self, *parameters):
         super().__init__()
-        self._width: ra.Width           = ra.Width(16)
-        self._height: ra.Height         = ra.Height(9)
-        self._dx: ra.dX                 = ra.dX(0.555)
-        self._dy: ra.dY                 = ra.dY(0.555)
-        self._x: ra.X                   = ra.X(self._width / 2 % Fraction())
-        self._y: ra.Y                   = ra.Y(self._height / 2 % Fraction())
-        self._set_index: tuple          = (self._x.copy(), self._y.copy())
+        self._lambda: ra.Lambda         = ra.Lambda(8)
+        self._x0: ra.X0                 = ra.X0(2)
+        self._set_x0: ra.X0             = ra.X0(2)
         if len(parameters) > 0:
             self << parameters
 
@@ -403,53 +399,30 @@ class SinX(Chaos):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Width():            return self._width
-                    case ra.Height():           return self._height
-                    case ra.dX():               return self._dx
-                    case ra.dY():               return self._dy
-                    case ra.X():                return self._x
-                    case ra.Y():                return self._y
-                    case int() | float():
-                        self_tuple = self % od.DataSource( tuple() )
-                        hypotenuse = math.hypot(self_tuple[0], self_tuple[1])
-                        if isinstance(operand, int):
-                            return int(hypotenuse)
-                        return hypotenuse
-                    case tuple():
-                        self_x_float = self._x % float()
-                        self_y_float = self._y % float()
-                        return (self_x_float, self_y_float)
+                    case ra.Lambda():           return self._lambda
+                    case ra.X0():               return self._x0
+                    case int() | float():       return self._x0 % (operand % o.Operand())
                     case _:                     return super().__mod__(operand)
-            case ra.Width():            return self._width.copy()
-            case ra.Height():           return self._height.copy()
-            case ra.dX():               return self._dx.copy()
-            case ra.dY():               return self._dy.copy()
-            case ra.X():                return self._x.copy()
-            case ra.Y():                return self._y.copy()
-            case int() | float():       return self % od.DataSource( operand )
-            case tuple():               return self % od.DataSource( tuple() )
+            case ra.Lambda():           return self._lambda.copy()
+            case ra.X0():               return self._x0.copy()
+            case int() | float():       return self._x0 % operand
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Bouncer') -> bool:
+    def __eq__(self, other: 'SinX') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
         if type(self) != type(other):
             return False
-        return  self._x == other._x and self._y == other._y
+        return  self._x0 == other._x0
     
     def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "width":        self._width % float(),
-                "height":       self._height % float(),
-                "dx":           self._dx % float(),
-                "dy":           self._dy % float(),
-                "x":            self._x % float(),
-                "y":            self._y % float(),
-                "set_x":        self._set_index[0] % float(),
-                "set_y":        self._set_index[1] % float()
+                "lambda":           self._lambda % str(),
+                "x0":               self._x0 % str(),
+                "set_x0":           self._set_x0 % str()
             }
         }
 
@@ -457,55 +430,33 @@ class SinX(Chaos):
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
-            "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"] and
-            "set_x" in serialization["parameters"] and "set_y" in serialization["parameters"]):
+            "lambda" in serialization["parameters"] and "x0" in serialization["parameters"] and "set_x0" in serialization["parameters"]):
 
-            self._width             << serialization["parameters"]["width"]
-            self._height            << serialization["parameters"]["height"]
-            self._dx                << serialization["parameters"]["dx"]
-            self._dy                << serialization["parameters"]["dy"]
-            self._x                 << serialization["parameters"]["x"]
-            self._y                 << serialization["parameters"]["y"]
-            set_x                   = ra.X(serialization["parameters"]["set_x"])
-            set_y                   = ra.Y(serialization["parameters"]["set_y"])
-            self._set_index         = (set_x, set_y)
+            self._lambda            << serialization["parameters"]["lambda"]
+            self._x0                << serialization["parameters"]["x0"]
+            self._set_x0            << serialization["parameters"]["set_x0"]
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'Bouncer':
+    def __lshift__(self, operand: o.Operand) -> 'SinX':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Width():                self._width = operand % o.Operand()
-                    case ra.Height():               self._height = operand % o.Operand()
-                    case ra.dX():                   self._dx = operand % o.Operand()
-                    case ra.dY():                   self._dy = operand % o.Operand()
-                    case ra.X():                    self._x = operand % o.Operand()
-                    case ra.Y():                    self._y = operand % o.Operand()
+                    case ra.Lambda():               self._lambda = operand % o.Operand()
+                    case ra.X0():                   self._x0 = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Bouncer():
-                        self._width         << operand._width
-                        self._height        << operand._height
-                        self._dx            << operand._dx
-                        self._dy            << operand._dy
-                        self._x             << operand._x
-                        self._y             << operand._y
-                        set_x               = operand._set_index[0].copy()
-                        set_y               = operand._set_index[1].copy()
-                        self._set_index     = (set_x, set_y)
-            case ra.Width():                self._width << operand
-            case ra.Height():               self._height << operand
-            case ra.dX():                   self._dx << operand
-            case ra.dY():                   self._dy << operand
-            case ra.X():                    self._x << operand
-            case ra.Y():                    self._y << operand
+            case SinX():
+                        self._lambda        << operand._lambda
+                        self._x0            << operand._x0
+                        self._set_x0        << operand._set_x0
+            case ra.Lambda():               self._lambda << operand
+            case ra.X0() | int() | float():
+                                            self._x0 << operand
+                                            self._set_x0 << operand
             case _: super().__lshift__(operand)
-        self._x << (self._x % float()) % (self._width % float())
-        self._y << (self._y % float()) % (self._height % float())
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         iterations: int = 1
         match number:
@@ -518,20 +469,11 @@ class SinX(Chaos):
             iterations -= 1
         if iterations > 0:
             for _ in range(iterations):
-                for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
-                    new_position = direction_data[0] + direction_data[1]
-                    if new_position < 0:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = new_position * -1 % direction_data[2]
-                    elif new_position >= direction_data[2]:
-                        direction_data[1] << direction_data[1] * -1 # flips direction
-                        new_position = direction_data[2] - new_position % direction_data[2]
-                    direction_data[0] << new_position
+                self._x0 << self._x0 % float() + self._lambda % float() * math.sin(self._x0 % float())
         return self
 
-    def reset(self, *parameters) -> 'Bouncer':
+    def reset(self, *parameters) -> 'SinX':
         super().reset(parameters)
-        self._x         << self._set_index[0]
-        self._y         << self._set_index[1]
+        self._x0 << self._set_x0
         return self
 
