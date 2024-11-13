@@ -370,8 +370,8 @@ class Iterate(Left):
 class Foreach(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._step: int     = 1
         self._len: int      = len(parameters)
+        self._step: int     = 1
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
@@ -387,25 +387,24 @@ class Foreach(Left):
         return super().__and__(subject)
 
     def clear(self, *parameters) -> 'Foreach':
+        super().clear(parameters)
         self._left_parameter = ()
         self._len = 0
         self._step = 1
-        return super().clear(parameters)
+        return self
     
 class Transition(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._step: int     = 1
-        self._index: int    = 0
-        self._data: tuple   = parameters
         self._len: int      = len(parameters)
+        self._step: int     = 1
         self._last_subject  = ol.Null()
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaotic_randomizer as ocr
         if self._len > 0:
-            subject = self._data[self._index]
+            subject = self._left_parameter[self._index]
             if not self._last_subject == subject:
                 if isinstance(subject, (oc.Container, ocr.ChaoticRandomizer)):
                     subject %= ou.Next()    # Iterates to next subject
@@ -416,9 +415,13 @@ class Transition(Left):
             subject = ol.Null()
         return super().__and__(subject)
 
-    def reset(self, *parameters) -> 'Iterate':
-        self._index *= 0
-        return super().reset(parameters)
+    def clear(self, *parameters) -> 'Transition':
+        super().clear(parameters)
+        self._left_parameter = ()
+        self._len = 0
+        self._step = 1
+        self._last_subject  = ol.Null()
+        return self
     
 class Repeat(Left):
     def __init__(self, times: int = 1):
