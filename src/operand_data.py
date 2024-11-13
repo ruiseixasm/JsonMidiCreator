@@ -220,6 +220,9 @@ class DataSource(Data):
 class Reporter(Data):
     pass
 
+class Result(Data):
+    pass
+
 class SideEffects(Data):
     pass
 

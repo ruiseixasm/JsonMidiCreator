@@ -45,6 +45,7 @@ class Iterator(o.Operand):
         # self._operator: Callable[[o.Operand, of.Frame], o.Operand] \
         #                                 = lambda subject, frame: subject << frame
         self._operator: str             = "<<"
+        self._result: od.Result         = od.Result(ol.Null())
         if len(parameters) > 0:
             self << parameters
 
@@ -56,6 +57,7 @@ class Iterator(o.Operand):
                     case of.Frame():        return self._frame
                     case o.Operand():       return self._subject
                     case str():             return self._operator
+                    case od.Result():       return self._result
                     case _:                 return ol.Null()
             case Iterator():        return self.copy()
             case od.Reporter():     return self._reporter.copy()
@@ -65,6 +67,7 @@ class Iterator(o.Operand):
             #                         return self._operator
             # case FunctionType():    return self._operator
             case str():             return self._operator
+            case od.Result():       return self._result._data
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
@@ -150,7 +153,8 @@ class Iterator(o.Operand):
                     case "/":   result: o.Operand = self._subject / self._frame
                     case "//":  result: o.Operand = self._subject // self._frame
                     case _:     result: o.Operand = self._subject << self._frame
-                result >> self._reporter._data
+                self._result = od.Result(result)
+                self >> self._reporter._data
                 self._index += 1
         return self
 
