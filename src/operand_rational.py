@@ -235,6 +235,15 @@ class dY(Rational):
 class dZ(Rational):
     pass
 
+class X0(Rational):
+    pass
+
+class Xn(Rational):
+    pass
+
+class Lambda(Rational):
+    pass
+
 class Negative(Rational):
     def __init__(self, value: float = None):
         super().__init__(value * (-1))

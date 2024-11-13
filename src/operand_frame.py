@@ -351,7 +351,7 @@ class Pick(Left):
             return super().__and__(self._left_parameter[picker])
         return super().__and__(ol.Null())
 
-class Lambda(Left):
+class Formula(Left):
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
         super().__init__(operation)
 
