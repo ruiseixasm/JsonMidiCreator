@@ -25,4 +25,4 @@ rest_play = (R, P)
 staff << 120
 K % str() >> Print()    # Returns the tonic key (I)
 
-Mangler() * 4
+Jumbler() * 4
