@@ -299,6 +299,14 @@ class PushTo(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         return super().__and__(subject >> self._left_parameter)
 
+class PushOut(Left):
+    def __init__(self, operand: o.Operand):
+        super().__init__(operand)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        subject >> self._left_parameter
+        return super().__and__(subject)
+
 class Pick(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
