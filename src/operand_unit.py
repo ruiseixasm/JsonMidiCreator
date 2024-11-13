@@ -57,7 +57,7 @@ class Unit(o.Operand):
         >>> print(channel_int)
         12
         """
-        import operand_rational as ro
+        import operand_rational as ra
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -66,7 +66,7 @@ class Unit(o.Operand):
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
                     case Integer():         return Integer() << od.DataSource( self._unit )
-                    case ro.Float():        return ro.Float() << od.DataSource( self._unit )
+                    case ra.Float():        return ra.Float() << od.DataSource( self._unit )
                     case Unit():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -75,7 +75,7 @@ class Unit(o.Operand):
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case Integer():         return Integer() << self._unit
-            case ro.Float():        return ro.Float() << self._unit
+            case ra.Float():        return ra.Float() << self._unit
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
              
@@ -89,12 +89,12 @@ class Unit(o.Operand):
         return self._unit == 0
     
     def __eq__(self, other_number: any) -> bool:
-        import operand_rational as ro
+        import operand_rational as ra
         other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Unit():
                 return self._unit == other_number._unit
-            case ro.Rational():
+            case ra.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational == other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
@@ -105,12 +105,12 @@ class Unit(o.Operand):
         return False
     
     def __lt__(self, other_number: any) -> bool:
-        import operand_rational as ro
+        import operand_rational as ra
         other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Unit():
                 return self._unit < other_number._unit
-            case ro.Rational():
+            case ra.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational < other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
@@ -118,12 +118,12 @@ class Unit(o.Operand):
         return False
     
     def __gt__(self, other_number: any) -> bool:
-        import operand_rational as ro
+        import operand_rational as ra
         other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
         match other_number:
             case Unit():
                 return self._unit > other_number._unit
-            case ro.Rational():
+            case ra.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
                 return self_rational > other_number % od.DataSource( Fraction() )
             case int() | float() | Fraction():
@@ -154,7 +154,7 @@ class Unit(o.Operand):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -162,7 +162,7 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
-                    case Integer() | ro.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case Integer() | ra.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
             case self.__class__():          self._unit = operand._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -170,7 +170,7 @@ class Unit(o.Operand):
                 self._unit = int(operand)
             case bool():
                 self._unit = 1 if operand else 0
-            case ro.Float():
+            case ra.Float():
                 self._unit = operand % int()
             case tuple():
                 for single_operand in operand:
@@ -178,40 +178,40 @@ class Unit(o.Operand):
         return self
 
     def __add__(self, number: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ro.Rational():
+            case Unit() | ra.Rational():
                                         return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
     
     def __sub__(self, number: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ro.Rational():
+            case Unit() | ra.Rational():
                                         return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
     
     def __mul__(self, number: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ro.Rational():
+            case Unit() | ra.Rational():
                                         return self.__class__() << od.DataSource( self._unit * (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                                         return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
     
     def __truediv__(self, number: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ro.Rational():
+            case Unit() | ra.Rational():
                                     if number % od.DataSource( int() ) != 0:
                                         return self.__class__() << od.DataSource( self._unit / (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
@@ -482,7 +482,7 @@ class Key(Unit):
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -491,7 +491,7 @@ class Key(Unit):
                         self._unit = operand % o.Operand()
                     case float() | Fraction():
                         self._unit = int(operand % o.Operand())
-                    case Semitone() | Integer() | ro.Float():
+                    case Semitone() | Integer() | ra.Float():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
                     case Sharp():
                         self._sharp << operand % o.Operand()
@@ -515,7 +515,7 @@ class Key(Unit):
                 self._natural._unit = operand._natural._unit
                 self._degree        << operand._degree
                 self._scale         << operand._scale
-            case int() | float() | Fraction() | Semitone() | Integer() | ro.Float():
+            case int() | float() | Fraction() | Semitone() | Integer() | ra.Float():
                                     if isinstance(operand, o.Operand):
                                         self._unit = operand % int()
                                     else:
@@ -552,7 +552,7 @@ class Key(Unit):
         return self
 
     def __add__(self, operand: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
         new_key = self.__class__()  # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
@@ -562,7 +562,7 @@ class Key(Unit):
                 new_key << ( self % int() + self.move_semitones(operand._unit) )
             case float() | Fraction():
                 new_key << ( self % int() + operand )
-            case Key() | Semitone() | ro.Float():
+            case Key() | Semitone() | ra.Float():
                 new_key << ( self % int() + operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
@@ -583,7 +583,7 @@ class Key(Unit):
         return new_key
     
     def __sub__(self, operand: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
         new_key = self.__class__()  # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
         match operand:
@@ -593,7 +593,7 @@ class Key(Unit):
                 new_key << ( self % int() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
                 new_key << ( self % int() - operand )
-            case Key() | Semitone() | ro.Float():
+            case Key() | Semitone() | ra.Float():
                 new_key << ( self % int() - operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
@@ -906,13 +906,13 @@ class Degree(Unit):
             case "vii" | "leading tone":            self._unit = 7
 
     def __add__(self, number: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         self_unit_0 = self._unit - 1
         if self._unit < 0:
             self_unit_0 = self._unit + 1
         match number:
-            case Unit() | ro.Rational():
+            case Unit() | ra.Rational():
                                                                                     # Needs to discount the Degree 1 (Tonic)
                                         return self.__class__() << od.DataSource( self_unit_0 + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
@@ -921,13 +921,13 @@ class Degree(Unit):
         return self.copy()
     
     def __sub__(self, number: any) -> 'Unit':
-        import operand_rational as ro
+        import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         self_unit_0 = self._unit - 1
         if self._unit < 0:
             self_unit_0 = self._unit + 1
         match number:
-            case Unit() | ro.Rational():
+            case Unit() | ra.Rational():
                                                                                     # Needs to discount the Degree 1 (Tonic)
                                         return self.__class__() << od.DataSource( self_unit_0 - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
@@ -957,7 +957,7 @@ class Size(Unit):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Size':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -1222,7 +1222,7 @@ class Program(Midi):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Program':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -1449,7 +1449,7 @@ class Number(Midi):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Number':
-        import operand_rational as ro
+        import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():

@@ -72,7 +72,7 @@ class Operand:
         import operand_frame as of
         import operand_data as od
         import operand_time as ot
-        import operand_rational as ro
+        import operand_rational as ra
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case od.Playlist():
@@ -85,8 +85,8 @@ class Operand:
                 return self.len()
             case ol.Name():
                 return self.name()
-            case ro.Index():
-                return ro.Index(self._index)
+            case ra.Index():
+                return ra.Index(self._index)
             case self.__class__():  return self.copy()
             case _:                 return ol.Null()
 

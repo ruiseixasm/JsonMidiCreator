@@ -23,7 +23,7 @@ import creator as c
 import operand as o
 import operand_staff as os
 import operand_unit as ou
-import operand_rational as ro
+import operand_rational as ra
 import operand_time as ot
 import operand_data as od
 import operand_label as ol
@@ -67,8 +67,8 @@ class Element(o.Operand):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
-            case ro.NoteValue():    return self._length % operand
-            case ro.TimeUnit():     return self._position % operand
+            case ra.NoteValue():    return self._length % operand
+            case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
@@ -87,7 +87,7 @@ class Element(o.Operand):
                     and self._channel   == other_operand % od.DataSource( ou.Channel() ) \
                     and self._device    == other_operand % od.DataSource( od.Device() ) \
                     and self._track     == other_operand % od.DataSource( ou.Track() )
-            case ro.TimeUnit():
+            case ra.TimeUnit():
                 return self._position == other_operand
             case _:
                 if other_operand.__class__ == o.Operand:
@@ -99,7 +99,7 @@ class Element(o.Operand):
         match other_operand:
             case self.__class__():
                 return  False
-            case ro.TimeUnit():
+            case ra.TimeUnit():
                 return self._position < other_operand
             case _:
                 return self % od.DataSource( other_operand ) < other_operand
@@ -109,7 +109,7 @@ class Element(o.Operand):
         match other_operand:
             case self.__class__():
                 return  False
-            case ro.TimeUnit():
+            case ra.TimeUnit():
                 return self._position > other_operand
             case _:
                 return self % od.DataSource( other_operand ) > other_operand
@@ -143,10 +143,10 @@ class Element(o.Operand):
                     "event":        "None",
                     "track":        max(0, self._track % int() - 1),
                     "track_name":   self._track % str(),
-                    "numerator":    os.staff % ro.BeatsPerMeasure() % int(),
-                    "denominator":  int(1 / (os.staff % ro.BeatNoteValue() % Fraction())),
+                    "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
+                    "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
-                    "time":         self_position % od.DataSource( ro.Beat() ) % float(), # beats
+                    "time":         self_position % od.DataSource( ra.Beat() ) % float(), # beats
                     "tempo":        os.staff._tempo % float()   # bpm
                 }
             ]
@@ -195,9 +195,9 @@ class Element(o.Operand):
                 self._track         << operand._track
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Length() | ro.NoteValue():
+            case ot.Length() | ra.NoteValue():
                                     self._length << operand
-            case ot.Position() | ro.TimeUnit():
+            case ot.Position() | ra.TimeUnit():
                                     self._position << operand
             case ou.Channel():      self._channel << operand
             case od.Device():       self._device << operand
@@ -282,7 +282,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration = ot.Duration() << os.staff % od.DataSource( ro.Measure() )
+        self._duration = ot.Duration() << os.staff % od.DataSource( ra.Measure() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters
@@ -325,11 +325,11 @@ class Clock(Element):
         device = self % od.Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
-        pulses_per_beat = pulses_per_note * (os.staff % ro.BeatNoteValue() % od.DataSource( Fraction() ))
-        pulses_per_measure = pulses_per_beat * (os.staff % ro.BeatsPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )))
+        pulses_per_beat = pulses_per_note * (os.staff % ra.BeatNoteValue() % od.DataSource( Fraction() ))
+        pulses_per_measure = pulses_per_beat * (os.staff % ra.BeatsPerMeasure() % od.DataSource( Fraction() ))
+        clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measure() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = ro.Measure(1.0).getTime_rational()
+        single_measure_rational_ms = ra.Measure(1.0).getTime_rational()
         clock_start_rational_ms = self_position.getTime_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._duration.getTime_rational()
 
@@ -347,7 +347,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(float(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._duration % od.DataSource( ro.Measure() ) % od.DataSource( Fraction() )) \
+                                     + single_measure_rational_ms * (self._duration % od.DataSource( ra.Measure() ) % od.DataSource( Fraction() )) \
                                      * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
@@ -396,7 +396,7 @@ class Clock(Element):
             case Clock():
                 super().__lshift__(operand)
                 self._pulses_per_quarternote << operand._pulses_per_quarternote
-            case ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                                     self._duration << operand
                                     self._length << self._duration
             case ot.Duration():
@@ -440,7 +440,7 @@ class Rest(Element):
             case self.__class__():
                 return super().__eq__(other_operand) \
                     and self._duration == other_operand % od.DataSource( ot.Duration() )
-            case ro.NoteValue():
+            case ra.NoteValue():
                 return self._duration == other_operand
             case _:
                 return super().__eq__(other_operand)
@@ -448,7 +448,7 @@ class Rest(Element):
     def __lt__(self, other_operand: 'o.Operand') -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
-            case ro.NoteValue():
+            case ra.NoteValue():
                 return self._duration < other_operand
             case _:
                 return super().__lt__(other_operand)
@@ -456,7 +456,7 @@ class Rest(Element):
     def __gt__(self, other_operand: 'o.Operand') -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         match other_operand:
-            case ro.NoteValue():
+            case ra.NoteValue():
                 return self._duration > other_operand
             case _:
                 return super().__gt__(other_operand)
@@ -490,7 +490,7 @@ class Rest(Element):
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Rest"
-        self_midilist[0]["duration"]    = self._duration % od.DataSource( ro.Beat() ) % float()
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float()
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -518,7 +518,7 @@ class Rest(Element):
             case Rest():
                 super().__lshift__(operand)
                 self._duration      << operand._duration
-            case ro.NoteValue() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                                     self._duration << operand
                                     self._length << self._duration
             case ot.Duration():
@@ -531,7 +531,7 @@ class Note(Rest):
         super().__init__()
         self._key_note: og.KeyNote  = og.KeyNote()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
-        self._gate: ro.Gate         = ro.Gate(1.0)
+        self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
         if len(parameters) > 0:
             self << parameters
@@ -554,14 +554,14 @@ class Note(Rest):
                 match operand % o.Operand():
                     case og.KeyNote():      return self._key_note
                     case ou.Velocity():     return self._velocity
-                    case ro.Gate():         return self._gate
+                    case ra.Gate():         return self._gate
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.KeyNote():      return self._key_note.copy()
             case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | list():
                                     return self._key_note % operand
             case ou.Velocity():     return self._velocity.copy()
-            case ro.Gate():         return self._gate.copy()
+            case ra.Gate():         return self._gate.copy()
             case ou.Tied():         return self._tied.copy()
             case _:                 return super().__mod__(operand)
 
@@ -572,7 +572,7 @@ class Note(Rest):
                 return super().__eq__(other_operand) \
                     and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
-                    and self._gate == other_operand % od.DataSource( ro.Gate() ) \
+                    and self._gate == other_operand % od.DataSource( ra.Gate() ) \
                     and self._tied == other_operand % od.DataSource( ou.Tied() )
             case _:
                 return super().__eq__(other_operand)
@@ -612,7 +612,7 @@ class Note(Rest):
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Note"
-        self_midilist[0]["duration"]    = self._duration % od.DataSource( ro.Beat() ) % float() * (self._gate % float())
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
         self_midilist[0]["pitch"]       = Element.midi_128(self._key_note % float())
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist
@@ -635,7 +635,7 @@ class Note(Rest):
             super().loadSerialization(serialization)
             self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
-            self._gate      = ro.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
+            self._gate      = ra.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
             self._tied      = ou.Tied()     << od.DataSource( serialization["parameters"]["tied"] )
         return self
       
@@ -647,7 +647,7 @@ class Note(Rest):
                     case og.KeyNote():      self._key_note = operand % o.Operand()
                     case ou.Degree():       self._degree = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
-                    case ro.Gate():         self._gate = operand % o.Operand()
+                    case ra.Gate():         self._gate = operand % o.Operand()
                     case ou.Tied():         self._tied = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
@@ -659,7 +659,7 @@ class Note(Rest):
             case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | int() | str():
                                     self._key_note << operand
             case ou.Velocity():     self._velocity << operand
-            case ro.Gate():         self._gate << operand
+            case ra.Gate():         self._gate << operand
             case ou.Tied():         self._tied << operand
             case _: super().__lshift__(operand)
         return self
@@ -668,7 +668,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._key_note + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -677,7 +677,7 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._key_note - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -693,7 +693,7 @@ class Dyad(Cluster):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self << ro.NoteValue(ro.Measure(1)) # By default a Scale and a Chord has one Measure length
+        self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure length
         # self._key_note._key._scale  << "Major"
         self._self_scale: od.Scale  = od.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
@@ -1018,8 +1018,8 @@ class Retrigger(Note):
         super().__init__()
         self._duration *= 2 # Equivalent to twice single note duration
         self._division  = ou.Division(16)
-        self._gate      = ro.Gate(.50)
-        self._swing     = ro.Swing(.50)
+        self._gate      = ra.Gate(.50)
+        self._swing     = ra.Swing(.50)
         if len(parameters) > 0:
             self << parameters
 
@@ -1039,13 +1039,13 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():     return self._division
-                    case ro.Swing():        return self._swing
+                    case ra.Swing():        return self._swing
                     case _:                 return super().__mod__(operand)
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
-            case ro.Swing():        return self._swing.copy()
-            case ro.NoteValue():
-                return self._duration / 2 % ro.NoteValue()
+            case ra.Swing():        return self._swing.copy()
+            case ra.NoteValue():
+                return self._duration / 2 % ra.NoteValue()
             case ot.Duration():
                 return self._duration / 2
             case ot.Length():   # To guarantee compatibility
@@ -1092,7 +1092,7 @@ class Retrigger(Note):
 
             super().loadSerialization(serialization)
             self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
-            self._swing     = ro.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
+            self._swing     = ra.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
@@ -1101,7 +1101,7 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():             self._division = operand % o.Operand()
-                    case ro.Swing():                self._swing = operand % o.Operand()
+                    case ra.Swing():                self._swing = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Retrigger():
                 super().__lshift__(operand)
@@ -1110,13 +1110,13 @@ class Retrigger(Note):
             case ou.Division() | int():
                 if operand > 0:
                     self._division << operand
-            case ro.Swing():
+            case ra.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
             case ot.Duration():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
-            case ro.NoteValue():
+            case ra.NoteValue():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
                 self._length        << operand * 2  # To guarantee compatibility
             case ot.Length():
@@ -1155,8 +1155,8 @@ class Tuplet(Rest):
     def __init__(self, *parameters):
         super().__init__()
         self._duration *= 2 # Equivalent to twice single note duration
-        self._swing     = ro.Swing(.50)
-        self._elements: list[Element] = [Note(ro.Gate(0.5)), Note(ro.Gate(0.5)), Note(ro.Gate(0.5))]
+        self._swing     = ra.Swing(.50)
+        self._elements: list[Element] = [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
         self.set_elements_duration()
         if len(parameters) > 0:
             self << parameters
@@ -1186,14 +1186,14 @@ class Tuplet(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ro.Swing():        return self._swing
+                    case ra.Swing():        return self._swing
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case ro.Swing():        return self._swing.copy()
+            case ra.Swing():        return self._swing.copy()
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
-            case ro.NoteValue():
-                return self._duration / 2 % ro.NoteValue()
+            case ra.NoteValue():
+                return self._duration / 2 % ra.NoteValue()
             case ot.Duration():
                 return self._duration / 2
             case ot.Length():
@@ -1206,7 +1206,7 @@ class Tuplet(Rest):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._swing     == other_operand % od.DataSource( ro.Swing() ) \
+                    and self._swing     == other_operand % od.DataSource( ra.Swing() ) \
                     and self._elements  == other_operand % od.DataSource( list() )
             case _:
                 return super().__eq__(other_operand)
@@ -1253,7 +1253,7 @@ class Tuplet(Rest):
             "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._swing     = ro.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
+            self._swing     = ra.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
             for single_element_serialization in elements_serialization:
@@ -1271,20 +1271,20 @@ class Tuplet(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ro.Swing():            self._swing = operand % o.Operand()
+                    case ra.Swing():            self._swing = operand % o.Operand()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
                 self._swing     << operand._swing
                 self._elements  = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
-            case ro.Swing():
+            case ra.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
                 else:               self._swing << operand
             case ot.Duration():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
-            case ro.NoteValue():
+            case ra.NoteValue():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
                 self._length        << operand * 2  # To guarantee compatibility
             case ot.Length():
@@ -1417,7 +1417,7 @@ class ControlChange(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.Integer() | ro.Float():
+            case int() | float() | ou.Integer() | ra.Float():
                 self_copy << self._controller + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1426,7 +1426,7 @@ class ControlChange(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.Integer() | ro.Float():
+            case int() | float() | ou.Integer() | ra.Float():
                 self_copy << self._controller - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1528,7 +1528,7 @@ class PitchBend(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pitch() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ou.Pitch() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1537,7 +1537,7 @@ class PitchBend(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pitch() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ou.Pitch() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1639,7 +1639,7 @@ class Aftertouch(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pressure() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1648,7 +1648,7 @@ class Aftertouch(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pressure() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._pressure - operand
             case _:             return super().__sub__(operand)
         return self_copy
@@ -1839,7 +1839,7 @@ class ProgramChange(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Program() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._program + operand
             case _:             return super().__add__(operand)
         return self_copy
@@ -1848,7 +1848,7 @@ class ProgramChange(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Program() | int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self_copy << self._program - operand
             case _:             return super().__sub__(operand)
         return self_copy

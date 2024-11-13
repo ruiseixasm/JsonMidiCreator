@@ -17,7 +17,7 @@ from fractions import Fraction
 # Json Midi Creator Libraries
 import operand as o
 import operand_unit as ou
-import operand_rational as ro
+import operand_rational as ra
 import operand_time as ot
 import operand_data as od
 import operand_generic as og
@@ -29,16 +29,16 @@ class Staff(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         # Set Global Staff Defaults at the end of this file bottom bellow
-        self._measure: ro.Measure                   = ro.Measure(8)
-        self._tempo: ro.Tempo                       = ro.Tempo(120.0)
+        self._measure: ra.Measure                   = ra.Measure(8)
+        self._tempo: ra.Tempo                       = ra.Tempo(120.0)
         self._time_signature: og.TimeSignature      = og.TimeSignature(4, 4)
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature(0)
         self._key: ou.Key                           = ou.Key("C")
         self._tonic_key: ou.Key                     = ou.Key("C")
         self._scale: od.Scale                       = od.Scale([])  # By default, it has no scale besides the one given by the Key Signature
-        self._quantization: ro.Quantization         = ro.Quantization(1/16)
-        self._duration: ot.Duration                 = ot.Duration() << ro.NoteValue(1/4)
+        self._quantization: ra.Quantization         = ra.Quantization(1/16)
+        self._duration: ot.Duration                 = ot.Duration() << ra.NoteValue(1/4)
         self._octave: ou.Octave                     = ou.Octave(4)
         self._velocity: ou.Velocity                 = ou.Velocity(100)
         self._controller: og.Controller             = og.Controller("Pan") \
@@ -67,15 +67,15 @@ class Staff(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
-                    case ro.Measure():          return self._measure
-                    case ro.Tempo():            return self._tempo
+                    case ra.Measure():          return self._measure
+                    case ra.Tempo():            return self._tempo
                     case og.TimeSignature():    return self._time_signature
                     case ou.KeySignature():     return self._key_signature
                     case ou.Key():              return self._key
-                    case ro.BeatsPerMeasure():  return self._time_signature % od.DataSource( ro.BeatsPerMeasure() )
-                    case ro.BeatNoteValue():    return self._time_signature % od.DataSource( ro.BeatNoteValue() )
+                    case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
+                    case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
                     case od.Scale():            return self._scale
-                    case ro.Quantization():     return self._quantization
+                    case ra.Quantization():     return self._quantization
                     case ot.Duration():         return self._duration
                     case ou.Octave():           return self._octave
                     case ou.Velocity():         return self._velocity
@@ -83,31 +83,31 @@ class Staff(o.Operand):
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
                     # Calculated Values
-                    case ro.NotesPerMeasure():
-                        return self._time_signature % od.DataSource( ro.NotesPerMeasure() )
-                    case ro.StepsPerNote():
-                        return ro.StepsPerNote() << od.DataSource( 1 / (self._quantization % od.DataSource( Fraction() )) )
-                    case ro.StepsPerMeasure():
-                        return ro.StepsPerMeasure() \
-                            << od.DataSource( self % od.DataSource( ro.StepsPerNote() ) % od.DataSource( Fraction() ) \
-                                * (self % od.DataSource( ro.NotesPerMeasure() ) % od.DataSource( Fraction() )))
+                    case ra.NotesPerMeasure():
+                        return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
+                    case ra.StepsPerNote():
+                        return ra.StepsPerNote() << od.DataSource( 1 / (self._quantization % od.DataSource( Fraction() )) )
+                    case ra.StepsPerMeasure():
+                        return ra.StepsPerMeasure() \
+                            << od.DataSource( self % od.DataSource( ra.StepsPerNote() ) % od.DataSource( Fraction() ) \
+                                * (self % od.DataSource( ra.NotesPerMeasure() ) % od.DataSource( Fraction() )))
                     case Staff():               return self
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             # Direct Values
-            case ro.Measure():          return self._measure.copy()
-            case ro.Tempo():            return self._tempo.copy()
+            case ra.Measure():          return self._measure.copy()
+            case ra.Tempo():            return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case ou.KeySignature():     return self._key_signature.copy()
             case ou.Key():              return self._key.copy()
-            case ro.BeatsPerMeasure():  return self._time_signature % ro.BeatsPerMeasure()
-            case ro.BeatNoteValue():    return self._time_signature % ro.BeatNoteValue()
+            case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
+            case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case od.Scale():
                                     if self._scale.hasScale():
                                         return self._scale.copy()
                                     else:
                                         return self._key_signature % od.Scale()
-            case ro.Quantization():     return self._quantization.copy()
+            case ra.Quantization():     return self._quantization.copy()
             case ot.Duration():         return self._duration.copy()
             case ou.Octave():           return self._octave.copy()
             case ou.Velocity():         return self._velocity.copy()
@@ -117,13 +117,13 @@ class Staff(o.Operand):
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
             # Calculated Values
-            case ro.NotesPerMeasure():
-                return self._time_signature % ro.NotesPerMeasure()
-            case ro.StepsPerNote():
-                return ro.StepsPerNote() << 1 / (self._quantization % Fraction())
-            case ro.StepsPerMeasure():
-                return ro.StepsPerMeasure() \
-                    << (self % ro.StepsPerNote() % Fraction()) * (self % ro.NotesPerMeasure() % Fraction())
+            case ra.NotesPerMeasure():
+                return self._time_signature % ra.NotesPerMeasure()
+            case ra.StepsPerNote():
+                return ra.StepsPerNote() << 1 / (self._quantization % Fraction())
+            case ra.StepsPerMeasure():
+                return ra.StepsPerMeasure() \
+                    << (self % ra.StepsPerNote() % Fraction()) * (self % ra.NotesPerMeasure() % Fraction())
             case Staff():               return self.copy()
             case _:                     return super().__mod__(operand)
 
@@ -133,13 +133,13 @@ class Staff(o.Operand):
             return True
         if type(self) != type(other_staff):
             return False
-        return  self._measure           == other_staff % od.DataSource( ro.Measure() ) \
-            and self._tempo             == other_staff % od.DataSource( ro.Tempo() ) \
+        return  self._measure           == other_staff % od.DataSource( ra.Measure() ) \
+            and self._tempo             == other_staff % od.DataSource( ra.Tempo() ) \
             and self._time_signature    == other_staff % od.DataSource( og.TimeSignature() ) \
             and self._key_signature     == other_staff % od.DataSource( ou.KeySignature() ) \
             and self._key               == other_staff % od.DataSource( ou.Key() ) \
             and self._scale             == other_staff % od.DataSource( od.Scale() ) \
-            and self._quantization      == other_staff % od.DataSource( ro.Quantization() ) \
+            and self._quantization      == other_staff % od.DataSource( ra.Quantization() ) \
             and self._duration          == other_staff % od.DataSource( ot.Duration() ) \
             and self._octave            == other_staff % od.DataSource( ou.Octave() ) \
             and self._velocity          == other_staff % od.DataSource( ou.Velocity() ) \
@@ -202,13 +202,13 @@ class Staff(o.Operand):
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
-            self._measures          = ro.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
-            self._tempo             = ro.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
+            self._measures          = ra.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
+            self._tempo             = ra.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
             self._time_signature    = og.TimeSignature().loadSerialization(serialization["parameters"]["time_signature"])
             self._key_signature     = ou.KeySignature().loadSerialization(serialization["parameters"]["key_signature"])
             self._key               = ou.Key()              << od.DataSource( serialization["parameters"]["key"] )
             self._scale             = od.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
-            self._quantization      = ro.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
+            self._quantization      = ra.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
             self._duration          = ot.Duration()         << od.DataSource( serialization["parameters"]["duration"] )
             self._octave            = ou.Octave()           << od.DataSource( serialization["parameters"]["octave"] )
             self._velocity          = ou.Velocity()         << od.DataSource( serialization["parameters"]["velocity"] )
@@ -223,8 +223,8 @@ class Staff(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ro.Measure():          self._measure = operand % o.Operand()
-                    case ro.Tempo():            self._tempo = operand % o.Operand()
+                    case ra.Measure():          self._measure = operand % o.Operand()
+                    case ra.Tempo():            self._tempo = operand % o.Operand()
                     case og.TimeSignature():    self._time_signature = operand % o.Operand()
                     case ou.KeySignature():
                         self._key_signature = operand % o.Operand()
@@ -232,12 +232,12 @@ class Staff(o.Operand):
                     case ou.Key():
                         self._key._unit = operand % o.Operand() % int() % 12
                         self.set_tonic_key()
-                    case ro.BeatsPerMeasure() | ro.BeatNoteValue():
+                    case ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
                     case od.Scale():
                         self._scale = operand % o.Operand()
                         self.set_tonic_key()
-                    case ro.Quantization():     self._quantization = operand % o.Operand()    # Note Value
+                    case ra.Quantization():     self._quantization = operand % o.Operand()    # Note Value
                     case ot.Duration():         self._duration = operand % o.Operand()
                     case ou.Octave():           self._octave = operand % o.Operand()
                     case ou.Velocity():         self._velocity = operand % o.Operand()
@@ -261,9 +261,9 @@ class Staff(o.Operand):
                 self.set_tonic_key()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ro.Measure():          self._measure << operand
-            case ro.Tempo():            self._tempo << operand
-            case og.TimeSignature() | ro.BeatsPerMeasure() | ro.BeatNoteValue():
+            case ra.Measure():          self._measure << operand
+            case ra.Tempo():            self._tempo << operand
+            case og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                         self._time_signature << operand
             case ou.KeySignature():
                                         self._key_signature << operand
@@ -274,7 +274,7 @@ class Staff(o.Operand):
             case od.Scale():
                                         self._scale << operand
                                         self.set_tonic_key()
-            case ro.Quantization():     self._quantization << operand # Note Value
+            case ra.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand
             case ou.Octave():           self._octave << operand
             case ou.Velocity():         self._velocity << operand
@@ -283,10 +283,10 @@ class Staff(o.Operand):
             case ou.Channel():          self._channel << operand
             case od.Device():           self._device << operand
             # Calculated Values
-            case ro.StepsPerMeasure():
-                self._quantization = ro.Quantization( (self % ro.NotesPerMeasure()) / (operand % Fraction()) )
-            case ro.StepsPerNote():
-                self._quantization = ro.Quantization( 1 / (operand % Fraction()) )
+            case ra.StepsPerMeasure():
+                self._quantization = ra.Quantization( (self % ra.NotesPerMeasure()) / (operand % Fraction()) )
+            case ra.StepsPerNote():
+                self._quantization = ra.Quantization( 1 / (operand % Fraction()) )
             case int():
                 self._tempo << operand
             case float():

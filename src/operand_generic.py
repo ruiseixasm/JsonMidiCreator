@@ -24,7 +24,7 @@ import operand as o
 
 import operand_staff as os
 import operand_unit as ou
-import operand_rational as ro
+import operand_rational as ra
 import operand_data as od
 import operand_frame as of
 import operand_label as ol
@@ -45,18 +45,18 @@ class TimeSignature(Generic):
                 match operand % o.Operand():
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case TimeSignature():       return self
-                    case ro.BeatsPerMeasure():  return ro.BeatsPerMeasure() << self._top
-                    case ro.BeatNoteValue():    return ro.BeatNoteValue() << 1 / self._bottom
+                    case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
+                    case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
                     # Calculated Values
-                    case ro.NotesPerMeasure():  return ro.NotesPerMeasure() << self._top / self._bottom
+                    case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case TimeSignature():       return self.copy()
             # Direct Values
-            case ro.BeatsPerMeasure():  return ro.BeatsPerMeasure() << self._top
-            case ro.BeatNoteValue():    return ro.BeatNoteValue() << 1 / self._bottom
+            case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
+            case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
             # Calculated Values
-            case ro.NotesPerMeasure():  return ro.NotesPerMeasure() << self._top / self._bottom
+            case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other_time_signature: 'TimeSignature') -> bool:
@@ -92,15 +92,15 @@ class TimeSignature(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ro.BeatsPerMeasure():  self._top       = operand % o.Operand() % od.DataSource( int() )
-                    case ro.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
+                    case ra.BeatsPerMeasure():  self._top       = operand % o.Operand() % od.DataSource( int() )
+                    case ra.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
             case TimeSignature():
                 self._top               = operand._top
                 self._bottom            = operand._bottom
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ro.BeatsPerMeasure():  self._top       = int(max(1, operand % o.Operand() % int()))
-            case ro.BeatNoteValue():    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % o.Operand() % int()))))))
+            case ra.BeatsPerMeasure():  self._top       = int(max(1, operand % o.Operand() % int()))
+            case ra.BeatNoteValue():    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % o.Operand() % int()))))))
         return self
 
 class KeyNote(Generic):
@@ -259,7 +259,7 @@ class KeyNote(Generic):
                 return new_keynote
             case ou.Octave():
                 self_copy._octave._unit += operand._unit
-            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ro.Rational():
+            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
             case _: return super().__add__(operand)
         self_copy.octave_correction()
@@ -280,7 +280,7 @@ class KeyNote(Generic):
                 return new_keynote
             case ou.Octave():
                 self_copy._octave._unit -= operand._unit
-            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ro.Rational():
+            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self_copy._key -= operand
             case _: return super().__add__(operand)
         self_copy.octave_correction()
@@ -419,7 +419,7 @@ class Controller(Generic):
                 value += operand % ou.Value() % int()
             case ou.Value():
                 value += operand % int()
-            case int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case int() | float() | ou.Integer() | ra.Float() | Fraction():
                 value += operand
             case _:
                 return self.copy()
@@ -433,7 +433,7 @@ class Controller(Generic):
                 value -= operand % ou.Value() % int()
             case ou.Value():
                 value -= operand % int()
-            case int() | float() | ou.Integer() | ro.Float() | Fraction():
+            case int() | float() | ou.Integer() | ra.Float() | Fraction():
                 value -= operand
             case _:
                 return self.copy()

@@ -25,7 +25,7 @@ import creator as c
 import operand as o
 
 import operand_unit as ou
-import operand_rational as ro
+import operand_rational as ra
 import operand_time as ot
 import operand_data as od
 import operand_label as ol
@@ -33,16 +33,16 @@ import operand_generic as og
 import operand_element as oe
 import operand_frame as of
 import operand_container as oc
-import operand_chaotic_randomizer as ocr
+import operand_chaos as ocr
 
 
 class Jumbler(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._operand: o.Operand        = oe.Note() * 4
-        self._frame: of.Frame           = of.Foreach(ocr.Modulus(ro.Amplitude(23), ro.Step(101)))**of.Get(int())**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._frame: of.Frame           = of.Foreach(ocr.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Get(int())**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._reporter: od.Reporter     = od.Reporter(
-                of.Get(ro.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
+                of.Get(ra.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
                 of.Get(o.Operand())**of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play())
             )
@@ -66,7 +66,7 @@ class Jumbler(o.Operand):
             case Jumbler():         return self.copy()
             case od.Reporter():     return self._reporter.copy()
             case of.Frame():        return self._frame.copy()
-            case ro.Index():        return ro.Index(self._index)
+            case ra.Index():        return ra.Index(self._index)
             case o.Operand():       return self._operand.copy()
             # case FunctionType() if op.__name__ == "<lambda>":
             #                         return self._operator
@@ -135,11 +135,11 @@ class Jumbler(o.Operand):
                     self << single_operand
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ro.Rational) -> 'Jumbler':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         iterations: int = 1
         match number:
-            case ou.Unit() | ro.Rational():
+            case ou.Unit() | ra.Rational():
                 iterations = number % int()
             case int() | float() | Fraction():
                 iterations = int(number)

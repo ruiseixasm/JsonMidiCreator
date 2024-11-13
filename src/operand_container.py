@@ -24,7 +24,7 @@ import creator as c
 import operand as o
 
 import operand_unit as ou
-import operand_rational as ro
+import operand_rational as ra
 import operand_time as ot
 import operand_data as od
 import operand_label as ol
@@ -433,9 +433,9 @@ class Sequence(Container):  # Just a container of Elements
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         super().__lshift__(operand)
         match operand:
-            case ot.Length() | ro.NoteValue() | float() | Fraction():
+            case ot.Length() | ra.NoteValue() | float() | Fraction():
                 self.stack()
-            case ot.Position() | ro.TimeUnit():
+            case ot.Position() | ra.TimeUnit():
                 self.link() # Maybe completely unnecessary
         return self
 
@@ -466,7 +466,7 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element length based on its Measure position
         if last_element is not None:
-            last_element << ot.Length(ot.Position(last_element % ro.Measure() + 1) - last_element._position)
+            last_element << ot.Length(ot.Position(last_element % ra.Measure() + 1) - last_element._position)
         if and_join:
             self << of.Get(ot.Length())**ot.Duration()
         return self
@@ -501,7 +501,7 @@ class Sequence(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
                 if last_element is not None:
-                    last_element << ro.Gate(gate)
+                    last_element << ra.Gate(gate)
                 last_element = single_datasource._data
         return self
     
@@ -527,10 +527,10 @@ class Sequence(Container):  # Just a container of Elements
         import operand_element as oe
         self_copy: Sequence = self.copy()
         match operand:
-            case ot.Length() | ro.NoteValue():
+            case ot.Length() | ra.NoteValue():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ot.Position() + operand
-            case ot.Position() | ro.TimeUnit():
+            case ot.Position() | ra.TimeUnit():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
             case oe.Element() | Sequence():
@@ -622,7 +622,7 @@ class Sequence(Container):  # Just a container of Elements
         return super().__truediv__(operand)
     
     def __floordiv__(self, length: ot.Length) -> 'Sequence':
-        if isinstance(length, ro.TimeUnit):
+        if isinstance(length, ra.TimeUnit):
             length = ot.Length() << length
         match length:
             case ot.Length():

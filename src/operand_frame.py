@@ -22,7 +22,7 @@ import creator as c
 import operand as o
 
 import operand_unit as ou
-import operand_rational as ro
+import operand_rational as ra
 import operand_data as od
 import operand_time as ot
 import operand_frame as of
@@ -375,10 +375,10 @@ class Foreach(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
-        import operand_chaotic_randomizer as ocr
+        import operand_chaos as ocr
         if self._len > 0:
             subject = self._left_parameter[self._index]
-            if isinstance(subject, (oc.Container, ocr.ChaoticRandomizer)):
+            if isinstance(subject, (oc.Container, ocr.Chaos)):
                 subject %= ou.Next()    # Iterates to next subject
             self._index += self._step
             self._index %= self._len
@@ -402,11 +402,11 @@ class Transition(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
-        import operand_chaotic_randomizer as ocr
+        import operand_chaos as ocr
         if self._len > 0:
             subject = self._left_parameter[self._index]
             if not self._last_subject == subject:
-                if isinstance(subject, (oc.Container, ocr.ChaoticRandomizer)):
+                if isinstance(subject, (oc.Container, ocr.Chaos)):
                     subject %= ou.Next()    # Iterates to next subject
                 self._index += self._step
                 self._index %= self._len
