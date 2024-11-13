@@ -36,7 +36,6 @@ class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
         self._datasource_list: list[od.DataSource] = []
-        self._index: int = 0
         for single_operand in operands:
             match single_operand:
                 case Container():
