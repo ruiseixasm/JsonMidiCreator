@@ -67,6 +67,19 @@ class Copy(Process):
         else:
             return super().__rrshift__(operand)
 
+class Reset(Process):
+    """
+    Reset() does an total reset of the Operand including its non accessible parameters.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            return operand.reset(*self._parameter)
+        else:
+            return super().__rrshift__(operand)
+
 class Join(Process):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
