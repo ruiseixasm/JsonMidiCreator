@@ -142,20 +142,25 @@ class Iterator(o.Operand):
             self._initiated = True
         if iterations > 0:
             for _ in range(iterations):
-                # result: o.Operand = self._operator(self._subject, self._frame)
+                subject: o.Operand  = self._subject
+                frame: of.Frame     = self._frame
                 match self._operator:
-                    case "^":   result: o.Operand = self._subject ^ self._frame
-                    case ">>":  result: o.Operand = self._subject >> self._frame
-                    case "+":   result: o.Operand = self._subject + self._frame
-                    case "-":   result: o.Operand = self._subject - self._frame
-                    case "*":   result: o.Operand = self._subject * self._frame
-                    case "%":   result: o.Operand = self._subject % self._frame
-                    case "/":   result: o.Operand = self._subject / self._frame
-                    case "//":  result: o.Operand = self._subject // self._frame
-                    case _:     result: o.Operand = self._subject << self._frame
+                    case "^":   result: o.Operand = subject ^ frame
+                    case ">>":  result: o.Operand = subject >> frame
+                    case "+":   result: o.Operand = subject + frame
+                    case "-":   result: o.Operand = subject - frame
+                    case "*":   result: o.Operand = subject * frame
+                    case "%":   result: o.Operand = subject % frame
+                    case "/":   result: o.Operand = subject / frame
+                    case "//":  result: o.Operand = subject // frame
+                    case _:     result: o.Operand = subject << frame
                 self._result = od.Result(result)
-                self >> self._reporter._data
-                self._index += 1
+                if isinstance(self._reporter._data, tuple):
+                    for single_reporter in self._reporter._data:
+                        self >> single_reporter
+                else:
+                    self >> self._reporter._data
+                self._index += 1    # keeps track of each iteration
         return self
 
     def reset(self, *parameters) -> 'Iterator':
