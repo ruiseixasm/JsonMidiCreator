@@ -86,6 +86,8 @@ class Operand:
             case ol.Name():
                 return self.name()
             case ro.Index():
+                if isinstance(self._index, ro.Index):
+                    return self._index
                 return ro.Index(self._index)
             case self.__class__():  return self.copy()
             case _:                 return ol.Null()
