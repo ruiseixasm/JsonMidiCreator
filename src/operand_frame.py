@@ -292,7 +292,7 @@ class Subject(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         return super().__and__(self._left_parameter)
 
-class Push(Left):
+class PushTo(Left):
     def __init__(self, operand: o.Operand):
         super().__init__(operand)
 
