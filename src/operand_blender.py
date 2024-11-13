@@ -39,11 +39,11 @@ import operand_chaotic_randomizer as ocr
 class Blender(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._subject: o.Operand        = oe.Note() * 4
+        self._operand: o.Operand        = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ocr.Flipper())**ou.Degree()
-        self._reporter: od.Reporter     = od.Reporter(of.PushTo(ol.Play()))
+        self._reporter: od.Reporter     = od.Reporter(of.Get(ro.Index())**of.PushTo(ol.Print()), of.Get(o.Operand())**of.PushTo(ol.Play()))
         # self._operator: Callable[[o.Operand, of.Frame], o.Operand] \
-        #                                 = lambda subject, frame: subject << frame
+        #                                 = lambda operand, frame: operand << frame
         self._operator: str             = "<<"
         self._result: od.Result         = od.Result(ol.Null())
         if len(parameters) > 0:
@@ -83,7 +83,7 @@ class Blender(o.Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "subject":          self._subject.getSerialization(),
+                "operand":          self._subject.getSerialization(),
                 "frame":            self._frame.getSerialization(),
                 "reporter":         self._reporter.getSerialization(),
                 "operator":         self._operator
@@ -94,10 +94,10 @@ class Blender(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Blender':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "subject" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
+            "operand" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
 
-            self._subject           = o.Operand().loadSerialization(serialization["parameters"]["subject"])
+            self._subject           = o.Operand().loadSerialization(serialization["parameters"]["operand"])
             self._frame             = o.Operand().loadSerialization(serialization["parameters"]["frame"])
             self._reporter          = od.Reporter().loadSerialization(serialization["parameters"]["reporter"])
             self._operator          = serialization["parameters"]["operator"]
@@ -142,18 +142,18 @@ class Blender(o.Operand):
             self._initiated = True
         if iterations > 0:
             for _ in range(iterations):
-                subject: o.Operand  = self._subject
+                operand: o.Operand  = self._subject
                 frame: of.Frame     = self._frame
                 match self._operator:
-                    case "^":   result: o.Operand = subject ^ frame
-                    case ">>":  result: o.Operand = subject >> frame
-                    case "+":   result: o.Operand = subject + frame
-                    case "-":   result: o.Operand = subject - frame
-                    case "*":   result: o.Operand = subject * frame
-                    case "%":   result: o.Operand = subject % frame
-                    case "/":   result: o.Operand = subject / frame
-                    case "//":  result: o.Operand = subject // frame
-                    case _:     result: o.Operand = subject << frame
+                    case "^":   result: o.Operand = operand ^ frame
+                    case ">>":  result: o.Operand = operand >> frame
+                    case "+":   result: o.Operand = operand + frame
+                    case "-":   result: o.Operand = operand - frame
+                    case "*":   result: o.Operand = operand * frame
+                    case "%":   result: o.Operand = operand % frame
+                    case "/":   result: o.Operand = operand / frame
+                    case "//":  result: o.Operand = operand // frame
+                    case _:     result: o.Operand = operand << frame
                 self._result = od.Result(result)
                 if isinstance(self._reporter._data, tuple):
                     for single_reporter in self._reporter._data:
