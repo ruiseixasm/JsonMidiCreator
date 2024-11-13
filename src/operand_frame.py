@@ -577,12 +577,15 @@ class LessEqual(Left):
         return ol.Null()
 
 class Get(Left):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__(operand)
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         if isinstance(subject, o.Operand):
-            return super().__and__(subject % self._left_parameter)
+            parameter = subject
+            for single_parameter in self._left_parameter:
+                parameter %= single_parameter
+            return super().__and__(parameter)
         return super().__and__(subject)
         
 class Set(Left):

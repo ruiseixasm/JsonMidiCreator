@@ -40,8 +40,12 @@ class Blender(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._operand: o.Operand        = oe.Note() * 4
-        self._frame: of.Frame           = of.Foreach(ocr.Flipper())**ou.Degree()
-        self._reporter: od.Reporter     = od.Reporter(of.Get(ro.Index())**of.PushTo(ol.Print()), of.Get(o.Operand())**of.PushTo(ol.Play()))
+        self._frame: of.Frame           = of.Foreach(ocr.Modulus())**of.Get(int())**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._reporter: od.Reporter     = od.Reporter(
+                of.Get(ro.Index(), int())**of.PushTo(ol.Print()), 
+                of.Get(o.Operand())**of.PushTo(ol.Play()),
+                of.Subject(oe.Rest())**of.PushTo(ol.Play())
+            )
         # self._operator: Callable[[o.Operand, of.Frame], o.Operand] \
         #                                 = lambda operand, frame: operand << frame
         self._operator: str             = "<<"
@@ -55,14 +59,15 @@ class Blender(o.Operand):
                 match operand % o.Operand():
                     case od.Reporter():     return self._reporter
                     case of.Frame():        return self._frame
-                    case o.Operand():       return self._subject
+                    case o.Operand():       return self._operand
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return ol.Null()
-            case Blender():        return self.copy()
+            case Blender():         return self.copy()
             case od.Reporter():     return self._reporter.copy()
             case of.Frame():        return self._frame.copy()
-            case o.Operand():       return self._subject.copy()
+            case ro.Index():        return ro.Index(self._index)
+            case o.Operand():       return self._operand.copy()
             # case FunctionType() if op.__name__ == "<lambda>":
             #                         return self._operator
             # case FunctionType():    return self._operator
@@ -83,7 +88,7 @@ class Blender(o.Operand):
         return {
             "class": self.__class__.__name__,
             "parameters": {
-                "operand":          self._subject.getSerialization(),
+                "operand":          self._operand.getSerialization(),
                 "frame":            self._frame.getSerialization(),
                 "reporter":         self._reporter.getSerialization(),
                 "operator":         self._operator
@@ -97,7 +102,7 @@ class Blender(o.Operand):
             "operand" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
 
-            self._subject           = o.Operand().loadSerialization(serialization["parameters"]["operand"])
+            self._operand           = o.Operand().loadSerialization(serialization["parameters"]["operand"])
             self._frame             = o.Operand().loadSerialization(serialization["parameters"]["frame"])
             self._reporter          = od.Reporter().loadSerialization(serialization["parameters"]["reporter"])
             self._operator          = serialization["parameters"]["operator"]
@@ -110,17 +115,17 @@ class Blender(o.Operand):
                 match operand % o.Operand():
                     case od.Reporter():             self._reporter = operand % o.Operand()
                     case of.Frame():                self._frame = operand % o.Operand()
-                    case o.Operand():               self._subject = operand % o.Operand()
+                    case o.Operand():               self._operand = operand % o.Operand()
                     case str():                     self._operator = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Blender():
-                        self._subject       = operand._subject.copy()
+                        self._operand       = operand._operand.copy()
                         self._frame         = operand._frame.copy()
                         self._reporter      << operand._reporter
             case od.Reporter():             self._reporter << operand
             case of.Frame():                self._frame = operand.copy()
-            case o.Operand():               self._subject = operand.copy()
+            case o.Operand():               self._operand = operand.copy()
             # case FunctionType() if f.__name__ == "<lambda>":
             #                                 self._operator = operand
             # case FunctionType():            self._operator = operand
@@ -142,7 +147,7 @@ class Blender(o.Operand):
             self._initiated = True
         if iterations > 0:
             for _ in range(iterations):
-                operand: o.Operand  = self._subject
+                operand: o.Operand  = self._operand
                 frame: of.Frame     = self._frame
                 match self._operator:
                     case "^":   result: o.Operand = operand ^ frame
@@ -165,7 +170,7 @@ class Blender(o.Operand):
 
     def reset(self, *parameters) -> 'Blender':
         super().reset(parameters)
-        self._subject.reset()
+        self._operand.reset()
         self._frame.reset()
         self._reporter._data.reset()
         return self

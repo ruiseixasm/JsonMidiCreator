@@ -218,7 +218,8 @@ class DataSource(Data):
         return self_copy << parameters
 
 class Reporter(Data):
-    pass
+    def __init__(self, *parameters):
+        super().__init__( parameters )
 
 class Result(Data):
     pass
