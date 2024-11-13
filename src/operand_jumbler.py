@@ -40,7 +40,7 @@ class Jumbler(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._operand: o.Operand        = oe.Note() * 4
-        self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Get(int())**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._reporter: od.Reporter     = od.Reporter(
                 of.Get(ra.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
                 of.Get(o.Operand())**of.PushTo(ol.Play()),

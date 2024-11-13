@@ -88,10 +88,7 @@ class Modulus(Chaos):
             case ra.Amplitude():        return self._amplitude.copy()
             case ra.Step():             return self._step.copy()
             case ra.Index():            return self._index.copy()
-            case int() | float():
-                self_index = self % od.DataSource( operand )
-                # self * 1    # Iterate one time
-                return self_index
+            case int() | float():       return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Modulus') -> bool:
@@ -194,10 +191,7 @@ class Flipper(Modulus):
             case ra.Split():            return self._split.copy()
             case int():                 return 0 if super().__mod__(int()) < self._split % int() else 1
             case float():               return 0.0 if super().__mod__(float()) < self._split % float() else 1.0
-            case int() | float():
-                self_flip = self % od.DataSource( operand )
-                # self * 1    # Iterate one time
-                return self_flip
+            case int() | float():       return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Modulus') -> bool:
