@@ -26,4 +26,4 @@ staff << 120
 K % str() >> Print()    # Returns the tonic key (I)
 
 blending_notes = Blender()
-blending_notes * 2
+blending_notes * 4

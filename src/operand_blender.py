@@ -40,9 +40,9 @@ class Blender(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._operand: o.Operand        = oe.Note() * 4
-        self._frame: of.Frame           = of.Foreach(ocr.Modulus())**of.Get(int())**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._frame: of.Frame           = of.Foreach(ocr.Modulus(ro.Amplitude(23), ro.Step(101)))**of.Get(int())**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._reporter: od.Reporter     = od.Reporter(
-                of.Get(ro.Index(), int())**of.PushTo(ol.Print()), 
+                of.Get(ro.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
                 of.Get(o.Operand())**of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play())
             )
