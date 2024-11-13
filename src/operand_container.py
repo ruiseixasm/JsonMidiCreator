@@ -36,6 +36,7 @@ class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
         self._datasource_list: list[od.DataSource] = []
+        self._datasource_iterator: int = 0
         for single_operand in operands:
             match single_operand:
                 case Container():
@@ -50,7 +51,6 @@ class Container(o.Operand):
                     self._datasource_list.append(od.DataSource( single_operand.copy() ))
                 case _:
                     self._datasource_list.append(od.DataSource( single_operand ))
-        self._datasource_iterator: int = 0
         
     def __iter__(self):
         return self
@@ -200,13 +200,9 @@ class Container(o.Operand):
             container_copy._next_operand = self._next_operand.copy()
         return container_copy << parameters
     
-    def reset(self, *parameters) -> 'Container':
-        self._index         = 0
-        return super().reset(parameters)
-    
     def clear(self, *parameters) -> 'Container':
-        self._next_operand = o.Operand()
-        return self.reset() << self.__class__() << parameters
+        self._datasource_list = []
+        return super().clear(parameters)
     
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ot.Position() if compare is None else compare
