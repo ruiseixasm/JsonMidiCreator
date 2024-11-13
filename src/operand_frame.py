@@ -351,6 +351,30 @@ class Pick(Left):
             return super().__and__(self._left_parameter[picker])
         return super().__and__(ol.Null())
 
+class Until(Left):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._count_down: list = list(self._left_parameter)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        pick_subject: any = ol.Null()
+        if len(self._left_parameter) > 0:
+            picker: int = 0
+            match subject:
+                case int() | float() | Fraction():
+                    picker = int(subject)
+                case o.Operand():
+                    picker_candidate = subject % int()
+                    if isinstance(picker_candidate, int):
+                        picker = picker_candidate
+            picker %= len(self._left_parameter)
+            if isinstance(self._left_parameter[picker], int) and self._left_parameter[picker] > 0:
+                self._count_down[picker] -= 1
+                if self._count_down[picker] == 0:
+                    self._count_down[picker] = self._left_parameter[picker]
+                    pick_subject = picker
+        return super().__and__(pick_subject)
+
 class Formula(Left):
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
         super().__init__(operation)
