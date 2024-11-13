@@ -375,10 +375,10 @@ class Foreach(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
-        import operand_chaos as ocr
+        import operand_chaos as ch
         if self._len > 0:
             subject = self._left_parameter[self._index]
-            if isinstance(subject, (oc.Container, ocr.Chaos)):
+            if isinstance(subject, (oc.Container, ch.Chaos)):
                 subject %= ou.Next()    # Iterates to next subject
             self._index += self._step
             self._index %= self._len
@@ -402,11 +402,11 @@ class Transition(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
-        import operand_chaos as ocr
+        import operand_chaos as ch
         if self._len > 0:
             subject = self._left_parameter[self._index]
             if not self._last_subject == subject:
-                if isinstance(subject, (oc.Container, ocr.Chaos)):
+                if isinstance(subject, (oc.Container, ch.Chaos)):
                     subject %= ou.Next()    # Iterates to next subject
                 self._index += self._step
                 self._index %= self._len
