@@ -354,7 +354,12 @@ class Pick(Left):
 class Until(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._count_down: list = list(self._left_parameter)
+        self._count_down: list = []
+        for single_parameter in self._left_parameter:
+            if not isinstance(single_parameter, int):
+                single_parameter = -1
+            self._count_down.append(single_parameter)
+        self._left_parameter = tuple(self._count_down)  # tuples are read only
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         pick_subject: any = ol.Null()
@@ -368,20 +373,15 @@ class Until(Left):
                     if isinstance(picker_candidate, int):
                         picker = picker_candidate
             picker %= len(self._left_parameter)
-            if isinstance(self._left_parameter[picker], int) and self._left_parameter[picker] > 0:
-                self._count_down[picker] -= 1
-                closest_picker: int = picker
-                closest_place: int = self._count_down[picker]
-                if self._count_down[picker] == 0:
-                    self._count_down[picker] = self._left_parameter[picker]
-                    pick_subject = picker
-                else:
-                    for single_picker in range(len(self._left_parameter)):
-                        if self._count_down[single_picker] < closest_place:
-                            closest_picker = single_picker
-                            closest_place = self._count_down[single_picker]
-                    pick_subject = closest_picker
-                    self._count_down[pick_subject] = self._left_parameter[pick_subject] + closest_place
+            self._count_down[picker] -= 1
+            closest_picker: int = picker
+            closest_place: int  = self._count_down[picker]
+            for single_picker in range(len(self._left_parameter)):
+                if self._count_down[single_picker] < closest_place and self._left_parameter[single_picker] >= 0:
+                    closest_picker = single_picker
+                    closest_place = self._count_down[single_picker]
+            pick_subject = closest_picker
+            self._count_down[pick_subject] = self._left_parameter[pick_subject] + closest_place # adds position debt
         return super().__and__(pick_subject)
 
 class Formula(Left):
