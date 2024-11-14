@@ -48,6 +48,7 @@ class Chaos(o.Operand):
             case of.Frame():        return self % (operand % o.Operand())
             case Chaos():           return self.copy()
             case ou.Next():         return self * operand
+            case int() | float():   return type(operand)()  # more reliable than operand.__class__()
             case _:                 return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS

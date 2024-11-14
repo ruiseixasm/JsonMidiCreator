@@ -29,6 +29,7 @@ import operand_data as od
 import operand_label as ol
 import operand_generic as og
 import operand_frame as of
+import operand_chaos as ch
 
 
 class Container(o.Operand):
@@ -217,6 +218,12 @@ class Container(o.Operand):
                     sorted_list = False
             if sorted_list: break
         return self
+    
+    def shuffle(self, shuffler: ch.Chaos = None) -> 'Container':
+        if shuffler is None or not isinstance(shuffler, ch.Chaos):
+            shuffler = ch.SinX()
+
+        
 
     def reverse(self) -> 'Container':
         for operand_i in range(self.len() // 2):
