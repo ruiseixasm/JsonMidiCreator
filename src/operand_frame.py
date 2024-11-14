@@ -519,7 +519,7 @@ class Type(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         for object in self._left_parameter:
-            if isinstance(subject, object.__class__):
+            if isinstance(subject, type(object)):
                 return super().__and__(subject)
         return super().__and__(ol.Null())
 
