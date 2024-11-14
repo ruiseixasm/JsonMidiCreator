@@ -175,3 +175,5 @@ class Jumbler(o.Operand):
         self._reporter._data.reset()
         return self
     
+class JumbleRhythm(Jumbler):
+    pass
