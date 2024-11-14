@@ -382,6 +382,9 @@ class Until(Left):
                     closest_place = self._count_down[single_picker]
             pick_subject = closest_picker
             self._count_down[pick_subject] += self._left_parameter[pick_subject] # adds position debt
+            # Trim base, move closer (avoids astronomical distances)
+            for single_picker in range(len(self._left_parameter)):
+                self._count_down[single_picker] -= max(0, closest_place - 1)
         return super().__and__(pick_subject)
 
 class Frequency(Left):
