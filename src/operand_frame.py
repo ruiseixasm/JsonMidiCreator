@@ -518,13 +518,19 @@ class Type(Selector):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        for condition in self._left_parameter:
-            if type(subject) == type(condition):
-                self_operand = self._next_operand
-                if isinstance(self_operand, Frame):
-                    self_operand &= subject
-                return self_operand
-        return ol.Null()
+        for class_type in self._left_parameter:
+            if isinstance(subject, class_type):
+                return super().__and__(subject)
+        return super().__and__(ol.Null())
+
+    # def __and__(self, subject: o.Operand) -> o.Operand:
+    #     for condition in self._left_parameter:
+    #         if type(subject) == type(condition):
+    #             self_operand = self._next_operand
+    #             if isinstance(self_operand, Frame):
+    #                 self_operand &= subject
+    #             return self_operand
+    #     return ol.Null()
 
 class Equal(Selector):
     def __init__(self, *parameters):
