@@ -384,6 +384,35 @@ class Until(Left):
             self._count_down[pick_subject] += self._left_parameter[pick_subject] # adds position debt
         return super().__and__(pick_subject)
 
+class Frequency(Left):
+    def __init__(self, *parameters):
+        frequency_list: list = []
+        common_pi: int = 1
+        common_sigma: int = 0
+        top_frequency: int = 0
+        for single_frequency in parameters:
+            if isinstance(single_frequency, int) and single_frequency > 0:
+                frequency_list.append(single_frequency)
+                common_pi *= single_frequency
+                common_sigma += single_frequency
+                top_frequency = max(top_frequency, single_frequency)
+            else:
+                frequency_list.append(0)
+        common_denominator: int = round(common_pi * common_sigma / top_frequency)
+
+        until_list: list = []
+        for single_frequency in frequency_list:
+            if single_frequency > 0:
+                until_list.append(
+                    round(common_denominator / single_frequency)
+                )
+            else:
+                until_list.append(-1)
+        super().__init__(Until(*until_list))
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        return self._left_parameter.__and__(subject)
+
 class Formula(Left):
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
         super().__init__(operation)
