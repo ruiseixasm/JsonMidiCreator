@@ -370,9 +370,18 @@ class Until(Left):
             picker %= len(self._left_parameter)
             if isinstance(self._left_parameter[picker], int) and self._left_parameter[picker] > 0:
                 self._count_down[picker] -= 1
+                closest_picker: int = picker
+                closest_place: int = self._count_down[picker]
                 if self._count_down[picker] == 0:
                     self._count_down[picker] = self._left_parameter[picker]
                     pick_subject = picker
+                else:
+                    for single_picker in range(len(self._left_parameter)):
+                        if self._count_down[single_picker] < closest_place:
+                            closest_picker = single_picker
+                            closest_place = self._count_down[single_picker]
+                    pick_subject = closest_picker
+                    self._count_down[pick_subject] = self._left_parameter[pick_subject] + closest_place
         return super().__and__(pick_subject)
 
 class Formula(Left):
