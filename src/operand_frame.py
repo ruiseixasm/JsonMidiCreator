@@ -381,7 +381,7 @@ class Until(Left):
                     closest_picker = single_picker
                     closest_place = self._count_down[single_picker]
             pick_subject = closest_picker
-            self._count_down[pick_subject] = self._left_parameter[pick_subject] + closest_place # adds position debt
+            self._count_down[pick_subject] += self._left_parameter[pick_subject] # adds position debt
         return super().__and__(pick_subject)
 
 class Formula(Left):
