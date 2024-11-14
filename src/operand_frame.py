@@ -207,62 +207,6 @@ class Outer(FrameFilter):
     def __init__(self):
         super().__init__()
 
-class Odd(FrameFilter):
-    def __init__(self):
-        super().__init__()
-        self._call: int = 0
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call % 2 == 1:
-            return self._next_operand & subject
-        else:
-            return ol.Null()
-
-class Even(FrameFilter):
-    def __init__(self):
-        super().__init__()
-        self._call: int = 0
-        
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call % 2 == 0:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand & subject
-            return self._next_operand
-        else:
-            return ol.Null()
-
-class Nths(FrameFilter):
-    def __init__(self, nths: int = 4):
-        super().__init__()
-        self._call: int = 0
-        self._nths: int = nths
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call % self._nths == 0:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand & subject
-            return self._next_operand
-        else:
-            return ol.Null()
-
-class Nth(FrameFilter):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._call: int = 0
-        self._nth: tuple = parameters
-
-    def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call in self._nth:
-            if isinstance(self._next_operand, Frame):
-                return self._next_operand & subject
-            return self._next_operand
-        else:
-            return ol.Null()
-
 # 2. SUBJECT FILTERS (DEPENDENT ON SUBJECT'S OPERAND DATA)
 
 class Left(Frame):  # LEFT TO RIGHT
@@ -458,7 +402,7 @@ class Foreach(Left):
         self._len = 0
         self._step = 1
         return self
-    
+
 class Transition(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -503,7 +447,73 @@ class Repeat(Left):
             new_container += datasource_data
         return new_container
 
-class Type(Left):
+class Selector(Left):
+    pass
+
+class All(Selector):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        return super().__and__(subject)
+        
+class Odd(Selector):
+    def __init__(self):
+        super().__init__()
+        self._call: int = 0
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        self._call += 1
+        if self._call % 2 == 1:
+            return self._next_operand & subject
+        else:
+            return ol.Null()
+
+class Even(Selector):
+    def __init__(self):
+        super().__init__()
+        self._call: int = 0
+        
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        self._call += 1
+        if self._call % 2 == 0:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
+        else:
+            return ol.Null()
+
+class Nths(Selector):
+    def __init__(self, nths: int = 4):
+        super().__init__()
+        self._call: int = 0
+        self._nths: int = nths
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        self._call += 1
+        if self._call % self._nths == 0:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
+        else:
+            return ol.Null()
+
+class Nth(Selector):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._call: int = 0
+        self._nth: tuple = parameters
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        self._call += 1
+        if self._call in self._nth:
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
+        else:
+            return ol.Null()
+
+class Type(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
@@ -516,7 +526,7 @@ class Type(Left):
                 return self_operand
         return ol.Null()
 
-class Equal(Left):
+class Equal(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._previous: list = []
@@ -537,7 +547,7 @@ class Equal(Left):
                 return self_operand
         return ol.Null()
 
-class NotEqual(Left):
+class NotEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._previous: list = []
@@ -558,7 +568,7 @@ class NotEqual(Left):
                 return self_operand
         return ol.Null()
 
-class Greater(Left):
+class Greater(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._previous: list = []
@@ -579,7 +589,7 @@ class Greater(Left):
                 return self_operand
         return ol.Null()
 
-class Less(Left):
+class Less(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._previous: list = []
@@ -600,7 +610,7 @@ class Less(Left):
                 return self_operand
         return ol.Null()
 
-class GreaterEqual(Left):
+class GreaterEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._previous: list = []
@@ -621,7 +631,7 @@ class GreaterEqual(Left):
                 return self_operand
         return ol.Null()
 
-class LessEqual(Left):
+class LessEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._previous: list = []
@@ -662,34 +672,27 @@ class Set(Left):
         if isinstance(subject, o.Operand):
             return super().__and__(subject << self._left_parameter)
         return super().__and__(subject)
-    
-        # self_operand = self._next_operand
-        # if isinstance(self_operand, Frame):
-        #     match subject:
-        #         case o.Operand():   self_operand &= subject << self_operand
-        #         case _:             self_operand &= subject
-        # if self_operand.__class__ == o.Operand:
-        #     match subject:
-        #         case o.Operand():   self_operand = subject << self_operand
-        #         case _:             self_operand = subject
-        #     self_operand._set = True
-        # return self_operand
         
 class Push(Left):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            match subject:
-                case o.Operand():   self_operand &= self_operand >> subject
-                case _:             self_operand &= subject
-        if self_operand.__class__ == o.Operand:
-            match subject:
-                case o.Operand():   self_operand = self_operand >> subject
-                case _:             self_operand = subject
-        return self_operand
+        if isinstance(subject, o.Operand):
+            return super().__and__(self._left_parameter >> subject)
+        return super().__and__(subject)
+        
+    # def __and__(self, subject: o.Operand) -> o.Operand:
+    #     self_operand = self._next_operand
+    #     if isinstance(self_operand, Frame):
+    #         match subject:
+    #             case o.Operand():   self_operand &= self_operand >> subject
+    #             case _:             self_operand &= subject
+    #     if self_operand.__class__ == o.Operand:
+    #         match subject:
+    #             case o.Operand():   self_operand = self_operand >> subject
+    #             case _:             self_operand = subject
+    #     return self_operand
 
 class Add(Left):
     def __init__(self, operand: any = 1):
