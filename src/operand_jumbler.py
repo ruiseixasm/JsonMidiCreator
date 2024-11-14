@@ -49,7 +49,7 @@ class Jumbler(o.Operand):
         # self._operator: Callable[[o.Operand, of.Frame], o.Operand] \
         #                                 = lambda operand, frame: operand << frame
         self._operator: str             = "<<"
-        self._result: od.Result         = od.Result(ol.Null())
+        self._result: od.Result         = od.Result(self._operand.copy())
         if len(parameters) > 0:
             self << parameters
 
@@ -82,7 +82,7 @@ class Jumbler(o.Operand):
             return True
         if type(self) != type(other):
             return False
-        return  self._operand == other._operand
+        return  self._result == other._result
     
     def getSerialization(self) -> dict:
         return {
@@ -173,6 +173,7 @@ class Jumbler(o.Operand):
         self._operand.reset()
         self._frame.reset()
         self._reporter._data.reset()
+        self._result = od.Result(self._operand.copy())
         return self
     
 class JumbleRhythm(Jumbler):
@@ -216,6 +217,8 @@ class JumbleRhythm(Jumbler):
                 super().__lshift__(operand)
                 self._filter << operand._filter
             case od.Filter():               self._filter << operand
+            case od.Reporter():
+                super().__lshift__(operand)
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
@@ -229,8 +232,10 @@ class JumbleRhythm(Jumbler):
         if not self._initiated:
             self._initiated = True
         if iterations > 0:
+            filtered_operand = self._operand % self._filter
             for _ in range(iterations):
                 ...
+                self._operand >> ol.Link(True)
                 self._index += 1    # keeps track of each iteration
         return self
 

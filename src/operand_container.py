@@ -14,11 +14,10 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, TYPE_CHECKING
 from fractions import Fraction
 import json
 import enum
-from typing import TYPE_CHECKING
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -101,8 +100,10 @@ class Container(o.Operand):
                 self._index %= len(self._datasource_list)
                 single_datasource_data: any = self._datasource_list[self._index]._data
                 return single_datasource_data
+            case od.Filter():
+                return self.filter(operand % od.DataSource())
             case _:
-                return self.filter(operand)   # NEEDS AN ALTERNATIVE WITH SAME PRIORITY (NEW FILTER CLASS ???)
+                return super().__mod__(operand)
 
     def len(self) -> int:
         return len(self._datasource_list)
@@ -631,10 +632,3 @@ class Sequence(Container):  # Just a container of Elements
                     if isinstance(single_datasource._data, oe.Element):
                         single_datasource._data << length
         return self.stack()
-
-class Stack(ol.Label):
-    def __rrshift__(self, operand: any) -> Sequence:
-        if isinstance(operand, Sequence):
-            return operand.stack()
-        else:
-            return super().__rrshift__(operand)

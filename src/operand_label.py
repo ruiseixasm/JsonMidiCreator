@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, TYPE_CHECKING
 from fractions import Fraction
 import json
 from typing import TypeVar
@@ -93,8 +93,19 @@ class Clear(Process):
         else:
             return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_container import Sequence
+
+class Stack(Label):
+    def __rrshift__(self, operand: any) -> 'Sequence':
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.stack()
+        else:
+            return super().__rrshift__(operand)
+
 class Join(Process):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.join()
@@ -105,7 +116,7 @@ class Tie(Process):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.tie(self._parameter)
@@ -116,7 +127,7 @@ class Slur(Process):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.slur(self._parameter)
@@ -124,7 +135,7 @@ class Slur(Process):
             return super().__rrshift__(operand)
 
 class Smooth(Process):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.smooth()
