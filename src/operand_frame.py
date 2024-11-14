@@ -373,7 +373,8 @@ class Until(Left):
                     if isinstance(picker_candidate, int):
                         picker = picker_candidate
             picker %= len(self._left_parameter)
-            self._count_down[picker] -= 1
+            if self._count_down[picker] > 0:
+                self._count_down[picker] -= 1
             closest_picker: int = picker
             closest_place: int  = self._count_down[picker]
             for single_picker in range(len(self._left_parameter)):
