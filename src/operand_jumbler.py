@@ -179,7 +179,8 @@ class Jumbler(o.Operand):
 class JumbleRhythm(Jumbler):
     def __init__(self, *parameters):
         super().__init__()
-        self._filter: od.Filter   = od.Filter(of.All())
+        self._frame                 = of.Type(oe.Element())**of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._filter: od.Filter     = od.Filter(of.All())
         if len(parameters) > 0:
             self << parameters
 
@@ -217,8 +218,7 @@ class JumbleRhythm(Jumbler):
                 super().__lshift__(operand)
                 self._filter << operand._filter
             case od.Filter():               self._filter << operand
-            case od.Reporter():
-                super().__lshift__(operand)
+            case od.Reporter():             super().__lshift__(operand)
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
@@ -235,7 +235,13 @@ class JumbleRhythm(Jumbler):
             filtered_operand = self._operand % self._filter
             for _ in range(iterations):
                 ...
+
                 self._operand >> ol.Link(True)
+                if isinstance(self._reporter._data, tuple):
+                    for single_reporter in self._reporter._data:
+                        self >> single_reporter
+                else:
+                    self >> self._reporter._data
                 self._index += 1    # keeps track of each iteration
         return self
 
