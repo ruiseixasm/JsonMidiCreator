@@ -207,6 +207,9 @@ class Link(Process):
         else:
             return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_container import Container
+
 class Getter(Label):
     def __init__(self, parameter: int = 0):
         super().__init__()
