@@ -222,8 +222,14 @@ class Container(o.Operand):
     def shuffle(self, shuffler: ch.Chaos = None) -> 'Container':
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
-
-        
+        container_data: list = []
+        for single_datasource in self._datasource_list:
+            container_data.append(single_datasource._data)
+        for single_datasource in self._datasource_list:
+            data_to_extract: int = shuffler * 1 % int() % len(container_data)
+            single_datasource._data = container_data[data_to_extract]
+            del container_data[data_to_extract]
+        return self
 
     def reverse(self) -> 'Container':
         for operand_i in range(self.len() // 2):
