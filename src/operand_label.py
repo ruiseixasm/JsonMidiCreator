@@ -268,6 +268,20 @@ class End(Getter):
             return operand.end()
         return Null()
 
+class Shuffle(Getter):
+    def get(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.shuffle()
+        return Null()
+    
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.shuffle()
+        else:
+            return super().__rrshift__(operand)
+
 class Reverse(Getter):
     def get(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
