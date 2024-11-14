@@ -389,7 +389,7 @@ class Frequency(Left):
         frequency_list: list = []
         common_pi: int = 1
         common_sigma: int = 0
-        top_frequency: int = 0
+        top_frequency: int = 1
         for single_frequency in parameters:
             if isinstance(single_frequency, int) and single_frequency > 0:
                 frequency_list.append(single_frequency)
