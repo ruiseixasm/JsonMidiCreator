@@ -76,13 +76,13 @@ class Jumbler(o.Operand):
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
-    # def __eq__(self, other: 'Jumbler') -> bool:
-    #     other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-    #     if other.__class__ == o.Operand:
-    #         return True
-    #     if type(self) != type(other):
-    #         return False
-    #     return  self._x == other._x and self._y == other._y
+    def __eq__(self, other: 'Jumbler') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) != type(other):
+            return False
+        return  self._operand == other._operand
     
     def getSerialization(self) -> dict:
         return {
@@ -176,4 +176,65 @@ class Jumbler(o.Operand):
         return self
     
 class JumbleRhythm(Jumbler):
-    pass
+    def __init__(self, *parameters):
+        super().__init__()
+        self._filter: od.Filter   = od.Filter(of.All())
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case od.Filter():       return self._filter
+                    case _:                 return ol.Null()
+            case od.Filter():       return self._filter.copy()
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["filter"] = self._filter.getSerialization()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Jumbler':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "filter" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._operand           = od.Filter().loadSerialization(serialization["parameters"]["filter"])
+        return self
+        
+    def __lshift__(self, operand: o.Operand) -> 'Jumbler':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case od.Filter():               self._filter = operand % o.Operand()
+            case JumbleRhythm():
+                super().__lshift__(operand)
+                self._filter << operand._filter
+            case od.Filter():               self._filter << operand
+        return self
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
+        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        iterations: int = 1
+        match number:
+            case ou.Unit() | ra.Rational():
+                iterations = number % int()
+            case int() | float() | Fraction():
+                iterations = int(number)
+        if not self._initiated:
+            self._initiated = True
+        if iterations > 0:
+            for _ in range(iterations):
+                ...
+                self._index += 1    # keeps track of each iteration
+        return self
+
+    def reset(self, *parameters) -> 'Jumbler':
+        super().reset(parameters)
+        self._filter.reset()
+        return self
