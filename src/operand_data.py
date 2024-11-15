@@ -39,9 +39,9 @@ class Data(o.Operand):
 
         Examples
         --------
-        >>> some_data = Data(Pitch(8191))
+        >>> some_data = Data(Bend(8191))
         >>> some_data % Operand() >> Print(0)
-        {'class': 'Pitch', 'parameters': {'unit': 8191}}
+        {'class': 'Bend', 'parameters': {'unit': 8191}}
         """
         match operand:
             case DataSource():

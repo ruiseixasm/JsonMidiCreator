@@ -613,7 +613,7 @@ class Note(Rest):
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
-        self_midilist[0]["pitch"]       = Element.midi_128(self._key_note % float())
+        self_midilist[0]["bend"]       = Element.midi_128(self._key_note % float())
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist
 
@@ -1434,7 +1434,7 @@ class ControlChange(Element):
 class PitchBend(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._pitch: ou.Pitch = ou.Pitch()
+        self._bend: ou.Bend = ou.Bend()
         if len(parameters) > 0:
             self << parameters
 
@@ -1453,10 +1453,10 @@ class PitchBend(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Pitch():        return self._pitch
+                    case ou.Bend():         return self._bend
                     case _:                 return super().__mod__(operand)
-            case ou.Pitch():        return self._pitch.copy()
-            case int() | float():   return self._pitch % od.DataSource( int() )
+            case ou.Bend():         return self._bend.copy()
+            case int() | float():   return self._bend % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -1464,15 +1464,15 @@ class PitchBend(Element):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._pitch == other_operand % od.DataSource( ou.Pitch() )
+                    and self._bend == other_operand % od.DataSource( ou.Bend() )
             case _:
                 return super().__eq__(other_operand)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        msb_midi: int               = self._pitch % ol.MSB()
-        lsb_midi: int               = self._pitch % ol.LSB()
+        msb_midi: int               = self._bend % ol.MSB()
+        lsb_midi: int               = self._bend % ol.LSB()
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
@@ -1492,22 +1492,22 @@ class PitchBend(Element):
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["value"]       = self._pitch % int()
+        self_midilist[0]["value"]       = self._bend % int()
         return self_midilist
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pitch"] = self._pitch % od.DataSource( int() )
+        element_serialization["parameters"]["bend"] = self._bend % od.DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pitch" in serialization["parameters"]):
+            "bend" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch     = ou.Pitch()    << od.DataSource( serialization["parameters"]["pitch"] )
+            self._bend     = ou.Bend()    << od.DataSource( serialization["parameters"]["bend"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
@@ -1515,12 +1515,12 @@ class PitchBend(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Pitch():            self._pitch = operand % o.Operand()
+                    case ou.Bend():             self._bend = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case PitchBend():
                 super().__lshift__(operand)
-                self._pitch << operand._pitch
-            case ou.Pitch() | int() | float():  self._pitch << operand
+                self._bend << operand._bend
+            case ou.Bend() | int() | float():  self._bend << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -1528,8 +1528,8 @@ class PitchBend(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pitch() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._pitch + operand
+            case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                self_copy << self._bend + operand
             case _:             return super().__add__(operand)
         return self_copy
 
@@ -1537,8 +1537,8 @@ class PitchBend(Element):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pitch() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._pitch - operand
+            case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                self_copy << self._bend - operand
             case _:             return super().__sub__(operand)
         return self_copy
 
@@ -1906,7 +1906,7 @@ class Panic(Element):
 # Control Change                Bx      Controller number   Controller value
 # Program Change                Cx      Program number      None
 # Channel Pressure              Dx      Pressure value      None            
-# Pitch Bend                    Ex      MSB                 LSB
+# Bend Bend                    Ex      MSB                 LSB
 
 # System Real-Time Message         Status Byte 
 # ------------------------         -----------

@@ -1168,14 +1168,14 @@ class Pressure(Midi):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class Pitch(Midi):
+class Bend(Midi):
     """
-    Pitch() sets the variation in the pitch to be associated to the PitchBend() Element.
+    Bend() sets the variation in the pitch to be associated to the PitchBend() Element.
     
     Parameters
     ----------
     first : integer_like
-        Pitch variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
+        Bend variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
         this variation is 2 semi-tones bellow or above respectively
     """
     def __init__(self, unit: int = None):
