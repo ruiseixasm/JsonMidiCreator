@@ -25,6 +25,7 @@ rest_play = (R, P)
 staff << 120
 K % str() >> Print()    # Returns the tonic key (I)
 
-final_jumbling = Jumbler() * 2.0 % Sequence()
-final_jumbling = JumbleRhythm(final_jumbling) * 4.1 % Sequence()
-final_jumbling = JumblePitch(final_jumbling) * 4.1 % Sequence()
+# Has to pick up the Result and not the Sequence
+final_jumbling = Jumbler() * 40 * 4.0 % od.Result() % Sequence()
+final_jumbling = JumbleRhythm(final_jumbling) * 60 * 4.1 % od.Result() % Sequence()
+final_jumbling = JumblePitch(final_jumbling) * 35 * 4.1 % od.Result() % Sequence()

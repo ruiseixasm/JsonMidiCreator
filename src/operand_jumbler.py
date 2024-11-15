@@ -150,19 +150,16 @@ class Jumbler(o.Operand):
             self._initiated = True
         if iterations > 0:
             for _ in range(iterations):
-                sequence: oc.Sequence  = self._sequence
-                frame: of.Frame     = self._frame
                 match self._operator:
-                    case "^":   result: oc.Sequence = sequence ^ frame
-                    case ">>":  result: oc.Sequence = sequence >> frame
-                    case "+":   result: oc.Sequence = sequence + frame
-                    case "-":   result: oc.Sequence = sequence - frame
-                    case "*":   result: oc.Sequence = sequence * frame
-                    case "%":   result: oc.Sequence = sequence % frame
-                    case "/":   result: oc.Sequence = sequence / frame
-                    case "//":  result: oc.Sequence = sequence // frame
-                    case _:     result: oc.Sequence = sequence << frame
-                self._result << od.DataSource( result )
+                    case "^":   self._result._data ^ self._frame
+                    case ">>":  self._result._data >> self._frame
+                    case "+":   self._result._data + self._frame
+                    case "-":   self._result._data - self._frame
+                    case "*":   self._result._data * self._frame
+                    case "%":   self._result._data % self._frame
+                    case "/":   self._result._data / self._frame
+                    case "//":  self._result._data // self._frame
+                    case _:     self._result._data << self._frame
                 self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
