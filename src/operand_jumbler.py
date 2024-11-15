@@ -230,9 +230,6 @@ class JumbleParameters(Jumbler):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case oc.Container():
-                                                    super().__lshift__(operand)
-                                                    self._result << od.DataSource( oc.Sequence(self._container % of.Type(oe.Element())) )
                     case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
@@ -271,8 +268,8 @@ class JumbleParameters(Jumbler):
 
     def reset(self, *parameters) -> 'JumbleParameters':
         super().reset(parameters)
+        self._chaos.reset()
         self._filter.reset()
-        self._result << self._container
         return self
 
 class JumbleRhythm(JumbleParameters):
