@@ -390,6 +390,9 @@ class TimeUnit(Rational):
             case _: return super().__gt__(other_time_unit)
         return False
 
+    def __str__(self):
+        return f'{type(self).__name__}: {self % Fraction()}'
+    
     # CHAINABLE OPERATIONS
 
     def __add__(self, other_time_unit: 'TimeUnit') -> 'TimeUnit':

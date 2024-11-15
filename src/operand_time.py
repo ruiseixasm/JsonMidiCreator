@@ -128,7 +128,7 @@ class Time(o.Operand):
         return self == other_time or self > other_time
 
     def __str__(self):
-        return f'{type(self._time_unit).__name__}: {self % Fraction()}'
+        return f'{self._time_unit}'
     
     def getTime_rational(self) -> Fraction:
         return self._time_unit.getTime_rational()
