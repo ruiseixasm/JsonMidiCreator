@@ -288,7 +288,7 @@ class JumbleRhythm(JumbleParameters):
 class JumblePitch(JumbleParameters):
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters        = od.Parameters(og.KeyNote())
+        self._parameters        = od.Parameters(og.Pitch())
         if len(parameters) > 0:
             self << parameters
 
@@ -296,5 +296,5 @@ class JumblePitch(JumbleParameters):
 
     def __lshift__(self, operand: o.Operand) -> 'JumbleRhythm':
         super().__lshift__(operand)
-        self._parameters        = od.Parameters(og.KeyNote())
+        self._parameters        = od.Parameters(og.Pitch())
         return self

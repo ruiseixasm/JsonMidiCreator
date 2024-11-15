@@ -51,7 +51,7 @@ outline: Sequence = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
 outline *= 4
 outline + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
 (outline - outline % Last() | outline % Last()) << Dotted(1/2)
-outline << Equal(Measure(2))**Equal(Beat(6))**KeyNote("A", 4)
+outline << Equal(Measure(2))**Equal(Beat(6))**Pitch("A", 4)
 outline >> Play()
 
 outline -= outline | Beat(0)

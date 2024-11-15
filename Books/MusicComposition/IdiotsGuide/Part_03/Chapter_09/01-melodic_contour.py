@@ -34,11 +34,11 @@ arch_contour >> Rest() >> Play()
 
 staff << KeySignature("#")
 inverted_arch_1: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, Dotted(1/4), 1/8) >> Stack() \
-    << Foreach("C", "A", "B", "G") << Less(KeyNote("D", 4))**Octave(5) << Greater(KeyNote("D", 5))**Octave(4)
+    << Foreach("C", "A", "B", "G") << Less(Pitch("D", 4))**Octave(5) << Greater(Pitch("D", 5))**Octave(4)
 inverted_arch_2: Sequence = inverted_arch_1 >> Copy() \
-    << Foreach("A", "F", "G", "E") << Less(KeyNote("D", 4))**Octave(5) << Greater(KeyNote("D", 5))**Octave(4)
+    << Foreach("A", "F", "G", "E") << Less(Pitch("D", 4))**Octave(5) << Greater(Pitch("D", 5))**Octave(4)
 inverted_arch_3: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack() \
-    << Foreach("D", "E", "F", "G") << Less(KeyNote("D", 4))**Octave(5) << Greater(KeyNote("D", 5))**Octave(4)
+    << Foreach("D", "E", "F", "G") << Less(Pitch("D", 4))**Octave(5) << Greater(Pitch("D", 5))**Octave(4)
 inverted_arch_4: Sequence = Note("A", 1/1) * 1
 (inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
 

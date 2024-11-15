@@ -420,7 +420,7 @@ class Sequence(Container):  # Just a container of Elements
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
                 next_note_position: ot.Position = first_tied_note._position + first_tied_note._duration # Duration is particularly tricky
-                if tied_notes[next_tied_note_i]._key_note == first_tied_note._key_note \
+                if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
                     and tied_notes[next_tied_note_i]._track == first_tied_note._track \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
                     and tied_notes[next_tied_note_i]._position == next_note_position:
@@ -526,17 +526,17 @@ class Sequence(Container):  # Just a container of Elements
     def smooth(self) -> 'Sequence':
         import operand_element as oe
         last_note = None
-        smooth_range = og.KeyNote(ou.Key(12 // 2), -1)  # 6 chromatic steps
+        smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
                 actual_note = single_datasource._data
                 if last_note is not None:
-                    while actual_note._key_note > last_note._key_note:
-                        actual_note._key_note -= ou.Octave(1)
-                    while actual_note._key_note < last_note._key_note:
-                        actual_note._key_note += ou.Octave(1)
-                    if actual_note._key_note - last_note._key_note > smooth_range:
-                        actual_note._key_note -= ou.Octave(1)
+                    while actual_note._pitch > last_note._pitch:
+                        actual_note._pitch -= ou.Octave(1)
+                    while actual_note._pitch < last_note._pitch:
+                        actual_note._pitch += ou.Octave(1)
+                    if actual_note._pitch - last_note._pitch > smooth_range:
+                        actual_note._pitch -= ou.Octave(1)
                 last_note = actual_note
         return self
 

@@ -529,7 +529,7 @@ class Rest(Element):
 class Note(Rest):
     def __init__(self, *parameters):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote()
+        self._pitch: og.Pitch  = og.Pitch()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
@@ -540,7 +540,7 @@ class Note(Rest):
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
         those Parameters are the ones of the Element, like Position and Length,
-        plus the Rest's Duration and KeyNote, Velocity and Gate, the last one
+        plus the Rest's Duration and Pitch, Velocity and Gate, the last one
         with a value of 0.90 by default.
 
         Examples
@@ -552,14 +552,14 @@ class Note(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.KeyNote():      return self._key_note
+                    case og.Pitch():      return self._pitch
                     case ou.Velocity():     return self._velocity
                     case ra.Gate():         return self._gate
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
-            case og.KeyNote():      return self._key_note.copy()
+            case og.Pitch():      return self._pitch.copy()
             case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | list():
-                                    return self._key_note % operand
+                                    return self._pitch % operand
             case ou.Velocity():     return self._velocity.copy()
             case ra.Gate():         return self._gate.copy()
             case ou.Tied():         return self._tied.copy()
@@ -570,7 +570,7 @@ class Note(Rest):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._key_note == other_operand % od.DataSource( og.KeyNote() ) \
+                    and self._pitch == other_operand % od.DataSource( og.Pitch() ) \
                     and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
                     and self._gate == other_operand % od.DataSource( ra.Gate() ) \
                     and self._tied == other_operand % od.DataSource( ou.Tied() )
@@ -581,7 +581,7 @@ class Note(Rest):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        key_note_float: float       = self._key_note % od.DataSource( float() )
+        key_note_float: float       = self._pitch % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
@@ -613,13 +613,13 @@ class Note(Rest):
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
-        self_midilist[0]["bend"]       = Element.midi_128(self._key_note % float())
+        self_midilist[0]["bend"]       = Element.midi_128(self._pitch % float())
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
+        element_serialization["parameters"]["pitch"] = self._pitch.getSerialization()
         element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
         element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
         element_serialization["parameters"]["tied"]     = self._tied % od.DataSource( int() )
@@ -629,11 +629,11 @@ class Note(Rest):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
+            "pitch" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
             "tied" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._key_note  = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
+            self._pitch  = og.Pitch().loadSerialization(serialization["parameters"]["pitch"])
             self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
             self._gate      = ra.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
             self._tied      = ou.Tied()     << od.DataSource( serialization["parameters"]["tied"] )
@@ -644,7 +644,7 @@ class Note(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.KeyNote():      self._key_note = operand % o.Operand()
+                    case og.Pitch():      self._pitch = operand % o.Operand()
                     case ou.Degree():       self._degree = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ra.Gate():         self._gate = operand % o.Operand()
@@ -652,12 +652,12 @@ class Note(Rest):
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
-                self._key_note      << operand._key_note
+                self._pitch      << operand._pitch
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
                 self._tied          << operand._tied
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | int() | str():
-                                    self._key_note << operand
+            case og.Pitch() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | int() | str():
+                                    self._pitch << operand
             case ou.Velocity():     self._velocity << operand
             case ra.Gate():         self._gate << operand
             case ou.Tied():         self._tied << operand
@@ -668,8 +668,8 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._key_note + operand
+            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
         return self_copy
 
@@ -677,8 +677,8 @@ class Note(Rest):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.KeyNote() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._key_note - operand
+            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                self_copy << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self_copy
     
@@ -694,7 +694,7 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure length
-        # self._key_note._key._scale  << "Major"
+        # self._pitch._key._scale  << "Major"
         self._self_scale: od.Scale  = od.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters
@@ -703,7 +703,7 @@ class KeyScale(Note):
         """
         The % symbol is used to extract a Parameter, in the case of a KeyScale,
         those Parameters are the ones of the Element, like Position and Length,
-        together with the ones of a Note, like Duration and KeyNote,
+        together with the ones of a Note, like Duration and Pitch,
         plus the Scale and Mode, the last one as 1 by default.
 
         Examples
@@ -744,7 +744,7 @@ class KeyScale(Note):
                 transposition: int = self._self_scale.transposition(key_note_i)
                 scale_notes.append(Note(self) + float(transposition))
         else:   # Uses the staff keys straight away
-            key_note_scale: od.Scale = self._key_note._key % od.Scale()
+            key_note_scale: od.Scale = self._pitch._key % od.Scale()
             for note_i in range(key_note_scale.keys()):
                 scale_notes.append(
                     Note(self) + note_i   # Jumps by steps (scale tones)
@@ -899,7 +899,7 @@ class Chord(KeyScale):
             while not_first_note:   # Try to implement while inversion > 0 here
                 not_first_note = False
                 for single_note in chord_notes:
-                    if single_note % og.KeyNote() < first_note % og.KeyNote():   # Critical operation
+                    if single_note % og.Pitch() < first_note % og.Pitch():   # Critical operation
                         single_note << single_note % ou.Octave() + 1
                         if single_note % od.DataSource( int() ) < 128:
                             not_first_note = True # to result in another while loop
@@ -973,7 +973,7 @@ class Chord(KeyScale):
             case str():
                 operand = operand.strip()
                 # Set Chord root note
-                self._key_note << operand
+                self._pitch << operand
                 # Set Chord size
                 self._size << operand
                 # Set Chord scale
@@ -1656,7 +1656,7 @@ class Aftertouch(Element):
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
         super().__init__()
-        self._key_note: og.KeyNote  = og.KeyNote()
+        self._pitch: og.Pitch  = og.Pitch()
         if len(parameters) > 0:
             self << parameters
 
@@ -1675,12 +1675,12 @@ class PolyAftertouch(Aftertouch):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.KeyNote():  return self._key_note
+                    case og.Pitch():  return self._pitch
                     case _:             return super().__mod__(operand)
-            case og.KeyNote():  return self._key_note.copy()
+            case og.Pitch():  return self._pitch.copy()
             case int() | float():
-                    return self._key_note % operand
-            case ou.Octave():   return self._key_note % ou.Octave()
+                    return self._pitch % operand
+            case ou.Octave():   return self._pitch % ou.Octave()
             case _:             return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -1688,14 +1688,14 @@ class PolyAftertouch(Aftertouch):
         match other_operand:
             case self.__class__():
                 return super().__eq__(other_operand) \
-                    and self._key_note == other_operand % od.DataSource( og.KeyNote() )
+                    and self._pitch == other_operand % od.DataSource( og.Pitch() )
             case _:
                 return super().__eq__(other_operand)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        key_note_float: float   = self._key_note % od.DataSource( float() )
+        key_note_float: float   = self._pitch % od.DataSource( float() )
         pressure_int: int       = self._pressure % od.DataSource( int() )
         channel_int: int        = self._channel % od.DataSource( int() )
         device_list: list       = self._device % od.DataSource( list() )
@@ -1715,17 +1715,17 @@ class PolyAftertouch(Aftertouch):
     
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["key_note"] = self._key_note.getSerialization()
+        element_serialization["parameters"]["pitch"] = self._pitch.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_note" in serialization["parameters"]):
+            "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._key_note = og.KeyNote().loadSerialization(serialization["parameters"]["key_note"])
+            self._pitch = og.Pitch().loadSerialization(serialization["parameters"]["pitch"])
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
@@ -1733,13 +1733,13 @@ class PolyAftertouch(Aftertouch):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.KeyNote():          self._key_note = operand % o.Operand()
+                    case og.Pitch():          self._pitch = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case PolyAftertouch():
                 super().__lshift__(operand)
-                self._key_note << operand._key_note
-            case og.KeyNote() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
-                                self._key_note << operand
+                self._pitch << operand._pitch
+            case og.Pitch() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
+                                self._pitch << operand
             case _:             super().__lshift__(operand)
         return self
 

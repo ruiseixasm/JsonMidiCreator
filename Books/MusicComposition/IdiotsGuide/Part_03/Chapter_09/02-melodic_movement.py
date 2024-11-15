@@ -31,7 +31,7 @@ smooth_movement_3: Sequence = smooth_movement_p1.copy() << Nth(3, 4)**Foreach("D
  smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2 - 1, Rest()) >> Play()
 
 staff << KeySignature("b")
-whole_notes: Sequence = Note(1/1) * 4 << Foreach("F", "B", "E", KeyNote("C", 5))
+whole_notes: Sequence = Note(1/1) * 4 << Foreach("F", "B", "E", Pitch("C", 5))
 whole_notes >> Rest() >> Play()
 
 melodic_e: Sequence = Note(1/8, Position(1/2) - NoteValue(1/8)) * 5
@@ -49,30 +49,30 @@ staff << KeySignature("#")
 mixed = Note() * (2*6 + 2*5)
 mixed << Foreach(
     # 1st Measure
-    (1/8, KeyNote("G", 4)),
-    (1/8, KeyNote("F", 4)),
-    (1/8, KeyNote("G", 4)),
-    (1/8, KeyNote("D", 5)),
-    (1/4, KeyNote("C", 5)),
-    (1/4, KeyNote("A", 4)),
+    (1/8, Pitch("G", 4)),
+    (1/8, Pitch("F", 4)),
+    (1/8, Pitch("G", 4)),
+    (1/8, Pitch("D", 5)),
+    (1/4, Pitch("C", 5)),
+    (1/4, Pitch("A", 4)),
     # 2nd Measure
-    (1/8, KeyNote("G", 4)),
-    (1/8, KeyNote("F", 4)),
-    (1/8, KeyNote("G", 4)),
-    (1/8, KeyNote("C", 5)),
-    (1/2, KeyNote("B", 4)),
+    (1/8, Pitch("G", 4)),
+    (1/8, Pitch("F", 4)),
+    (1/8, Pitch("G", 4)),
+    (1/8, Pitch("C", 5)),
+    (1/2, Pitch("B", 4)),
     # 3rd Measure
-    (1/8, KeyNote("D", 5)),
-    (1/8, KeyNote("C", 5)),
-    (1/8, KeyNote("B", 4)),
-    (1/8, KeyNote("A", 4)),
-    (1/4, KeyNote("B", 4)),
-    (1/4, KeyNote("D", 4)),
+    (1/8, Pitch("D", 5)),
+    (1/8, Pitch("C", 5)),
+    (1/8, Pitch("B", 4)),
+    (1/8, Pitch("A", 4)),
+    (1/4, Pitch("B", 4)),
+    (1/4, Pitch("D", 4)),
     # 4th Measure
-    (1/8, KeyNote("F", 4)),
-    (1/8, KeyNote("E", 4)),
-    (1/8, KeyNote("B", 4)),
-    (1/8, KeyNote("A", 4)),
-    (1/2, KeyNote("G", 4))
+    (1/8, Pitch("F", 4)),
+    (1/8, Pitch("E", 4)),
+    (1/8, Pitch("B", 4)),
+    (1/8, Pitch("A", 4)),
+    (1/2, Pitch("G", 4))
 ) >> Stack()
 (mixed, Rest()) >> Play()

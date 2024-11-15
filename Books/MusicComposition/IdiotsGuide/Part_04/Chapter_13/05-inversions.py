@@ -37,14 +37,14 @@ melodic_inversion = motif >> (motif % Copy() << Get(Degree())**Multiply(-1)) - D
 melodic_inversion >> rest_play
 
 # Floats multiplication on Key works in a Chromatic fashion while Integer works by Steps
-mirror_inversion = motif >> motif % Copy() - Get(KeyNote())**Get(int())**Subtract(KeyNote(E) % int())**Multiply(2.0)
+mirror_inversion = motif >> motif % Copy() - Get(Pitch())**Get(int())**Subtract(Pitch(E) % int())**Multiply(2.0)
 mirror_inversion >> rest_play
 
-# Integer multiplication on KeyNote ignores KeySignature sharps and flats while Floats don't
-mirror_inversion = motif >> motif % Copy() - Get(KeyNote())**Subtract(KeyNote(E))**Multiply(2)
+# Integer multiplication on Pitch ignores KeySignature sharps and flats while Floats don't
+mirror_inversion = motif >> motif % Copy() - Get(Pitch())**Subtract(Pitch(E))**Multiply(2)
 mirror_inversion >> rest_play
 
 
-contour_inversion = melodic_inversion - Less(KeyNote(E))**Less(B4)**1 + Less(KeyNote(E))**Equal(B4)**1
+contour_inversion = melodic_inversion - Less(Pitch(E))**Less(B4)**1 + Less(Pitch(E))**Equal(B4)**1
 contour_inversion >> rest_play
 

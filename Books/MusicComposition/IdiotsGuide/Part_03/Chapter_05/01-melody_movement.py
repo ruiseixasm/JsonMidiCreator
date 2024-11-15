@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 movement = Note() * (3*4 + 1)
-movement << Equal(Measure(3))**KeyNote("D", 5) << Equal(Measure(3))**Duration(1) \
+movement << Equal(Measure(3))**Pitch("D", 5) << Equal(Measure(3))**Duration(1) \
          << Equal(Measure(0))**Key("E") << Equal(Measure(1))**Key("G") << Equal(Measure(2))**Key("B")
 movement += Equal(Measure(0))**Iterate()**Key()
 movement += Equal(Measure(1))**Iterate()**Key()
@@ -33,7 +33,7 @@ Rest(1) >> Export("json/_Export_Rest_01.1.json") >> Play(True)
 
 movement = Note(Octave(5)) * 9
 movement << Container(NoteValue(1/2), None, None, NoteValue(1/2), NoteValue(1/2), NoteValue(1/2), None, None, NoteValue(1))
-movement << Container(None, None, None, KeyNote("B", 4), None, Key("D"), Key("D"), Key("D"), None)
+movement << Container(None, None, None, Pitch("B", 4), None, Key("D"), Key("D"), Key("D"), None)
 movement >> Stack() >> Play()
 
 Rest(1) >> Export("json/_Export_Rest_01.2.json") >> Play(True)

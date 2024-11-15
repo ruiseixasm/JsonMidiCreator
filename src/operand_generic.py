@@ -103,7 +103,7 @@ class TimeSignature(Generic):
             case ra.BeatNoteValue():    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % o.Operand() % int()))))))
         return self
 
-class KeyNote(Generic):
+class Pitch(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
@@ -114,12 +114,12 @@ class KeyNote(Generic):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
-        The % symbol is used to extract a Parameter, in the case of a KeyNote,
+        The % symbol is used to extract a Parameter, in the case of a Pitch,
         those Parameters are the Key and the Octave.
 
         Examples
         --------
-        >>> key_note = KeyNote()
+        >>> key_note = Pitch()
         >>> key_note % Key() >> Print(0)
         {'class': 'Key', 'parameters': {'key': 0}}
         >>> key_note % Key() % str() >> Print(0)
@@ -130,14 +130,14 @@ class KeyNote(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case KeyNote():         return self
+                    case Pitch():         return self
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
                     case int():             return self % int()
                     case float():           return self % float()
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case KeyNote():         return self.copy()
+            case Pitch():         return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
             case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | list() | str():
@@ -155,7 +155,7 @@ class KeyNote(Generic):
         if operand.__class__ == o.Operand:
             return True
         match operand:
-            case KeyNote():
+            case Pitch():
                 return self % float() == operand % float()
             case str() | ou.Key():
                 return self._key    == operand
@@ -166,7 +166,7 @@ class KeyNote(Generic):
     def __lt__(self, operand: any) -> bool:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case KeyNote():
+            case Pitch():
                 return self % float() < operand % float()
             case str() | ou.Key():
                 return self._key    < operand
@@ -177,7 +177,7 @@ class KeyNote(Generic):
     def __gt__(self, operand: any) -> bool:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case KeyNote():
+            case Pitch():
                 return self % float() > operand % float()
             case str() | ou.Key():
                 return self._key    > operand
@@ -214,14 +214,14 @@ class KeyNote(Generic):
             self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'KeyNote':
+    def __lshift__(self, operand: o.Operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Octave():       self._octave    = operand % o.Operand()
                     case ou.Key():          self._key       = operand % o.Operand()
-            case KeyNote():
+            case Pitch():
                 self._octave    << operand._octave
                 self._key       << operand._key
                 self._key_offset = operand._key_offset
@@ -244,12 +244,12 @@ class KeyNote(Generic):
         self._key_offset -= 12 * octave_offset
         self._octave._unit += octave_offset
 
-    def __add__(self, operand) -> 'KeyNote':
+    def __add__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: KeyNote = self.copy()
+        self_copy: Pitch = self.copy()
         match operand:
-            case KeyNote():
-                # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
+            case Pitch():
+                # REVIEW TO DO A SUM OF "Pitch % int()" OF BOTH KEY NOTES
                 new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
@@ -265,12 +265,12 @@ class KeyNote(Generic):
         self_copy.octave_correction()
         return self_copy
     
-    def __sub__(self, operand) -> 'KeyNote':
+    def __sub__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: KeyNote = self.copy()
+        self_copy: Pitch = self.copy()
         match operand:
-            case KeyNote(): # It may result in negative KeyNotes (unplayable)!
-                # REVIEW TO DO A SUM OF "KeyNote % int()" OF BOTH KEY NOTES
+            case Pitch(): # It may result in negative KeyNotes (unplayable)!
+                # REVIEW TO DO A SUM OF "Pitch % int()" OF BOTH KEY NOTES
                 new_keynote = self.__class__()
                 self_int = self % int()
                 operand_int = operand % int()
@@ -286,7 +286,7 @@ class KeyNote(Generic):
         self_copy.octave_correction()
         return self_copy
 
-    def __mul__(self, operand) -> 'KeyNote':
+    def __mul__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
@@ -305,7 +305,7 @@ class KeyNote(Generic):
                 return new_keynote
             case _: return super().__mul__(operand)
     
-    def __div__(self, operand) -> 'KeyNote':
+    def __div__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
