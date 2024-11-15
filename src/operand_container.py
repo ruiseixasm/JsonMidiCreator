@@ -176,6 +176,8 @@ class Container(o.Operand):
                 for datasource_i in range(last_datasource):
                     if isinstance(self._datasource_list[datasource_i]._data, o.Operand):
                         self._datasource_list[datasource_i]._data << operand._datasource_list[datasource_i]._data
+                    else:
+                        self._datasource_list[datasource_i]._data = operand._datasource_list[datasource_i]._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():

@@ -124,7 +124,9 @@ class Jumbler(o.Operand):
                         self._reporter      << operand._reporter
             case od.Reporter():             self._reporter << operand
             case of.Frame():                self._frame = operand.copy()
-            case oc.Container():            self._container = operand.copy()
+            case oc.Container():
+                                            self._container << operand
+                                            self._result << operand
             # case FunctionType() if f.__name__ == "<lambda>":
             #                                 self._operator = operand
             # case FunctionType():            self._operator = operand
@@ -240,9 +242,6 @@ class JumbleParameters(Jumbler):
                 self._chaos         << operand._chaos
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
-            case oc.Container():
-                                            super().__lshift__(operand)
-                                            self._result << self._container
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case _:                         super().__lshift__(operand)
@@ -279,7 +278,7 @@ class JumbleParameters(Jumbler):
 class JumbleRhythm(JumbleParameters):
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters        << od.Parameters(ot.Position())
+        self._parameters        = od.Parameters(ot.Position())
         if len(parameters) > 0:
             self << parameters
 
@@ -297,13 +296,13 @@ class JumbleRhythm(JumbleParameters):
                 if not isinstance(operand, od.Parameters):
                     super().__lshift__(operand)
                 if isinstance(operand, JumbleParameters):
-                    self._parameters        << od.Parameters(ot.Position())
+                    self._parameters        = od.Parameters(ot.Position())
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleParameters':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleRhythm':
         self_filter = self._filter
         # Only Elements have Position() parameter
-        self._filter << od.DataSource( of.Type(oe.Element())**(self._filter % od.DataSource()) )
+        self._filter << of.Type(oe.Element())**(self._filter % od.DataSource())
         super().__mul__(number)
         self._filter = self_filter
         return self
