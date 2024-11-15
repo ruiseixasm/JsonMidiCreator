@@ -284,16 +284,20 @@ class JumbleRhythm(JumbleParameters):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'JumbleRhythm':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                if not isinstance(operand % o.Operand(), od.Parameters):
-                    super().__lshift__(operand)
-            case JumbleRhythm():
-                super().__lshift__(operand)
-            case _:
-                if not isinstance(operand, od.Parameters):
-                    super().__lshift__(operand)
-                if isinstance(operand, JumbleParameters):
-                    self._parameters        = od.Parameters(ot.Position())
+        super().__lshift__(operand)
+        self._parameters        = od.Parameters(ot.Position())
+        return self
+
+class JumblePitch(JumbleParameters):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._parameters        = od.Parameters(og.KeyNote())
+        if len(parameters) > 0:
+            self << parameters
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'JumbleRhythm':
+        super().__lshift__(operand)
+        self._parameters        = od.Parameters(og.KeyNote())
         return self
