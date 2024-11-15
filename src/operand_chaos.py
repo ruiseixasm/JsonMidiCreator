@@ -68,10 +68,13 @@ class Chaos(o.Operand):
         self._index += 1
         self.report(number)
         return self
-
+    
+    def __str__(self):
+        return f'{self._index}'
+    
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            self._index >> ol.Print(0)
+            print(f'{type(self).__name__} {self}')
         return self
 
 class Modulus(Chaos):
@@ -171,12 +174,9 @@ class Modulus(Chaos):
                 self.report(number)
         return self
     
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
-        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            super().report(number)
-            self._index >> ol.Print(0)
-        return self
-
+    def __str__(self):
+        return f'{self._index}: {self._index}'
+    
     def reset(self, *parameters) -> 'Modulus':
         super().reset(parameters)
         self._index         << self._set_index
@@ -244,12 +244,9 @@ class Flipper(Modulus):
             case _: super().__lshift__(operand)
         return self
 
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Flipper':
-        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            super().report(number)
-            self % float() >> ol.Print(0)
-        return self
-
+    def __str__(self):
+        return f'{self._index}: {self % float()}'
+    
 class Bouncer(Chaos):
     def __init__(self, *parameters):
         super().__init__()
@@ -393,12 +390,9 @@ class Bouncer(Chaos):
                 self.report(number)
         return self
 
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            super().report(number)
-            self % tuple() >> ol.Print(0)
-        return self
-
+    def __str__(self):
+        return f'{self._index}: {self % tuple()}'
+    
     def reset(self, *parameters) -> 'Bouncer':
         super().reset(parameters)
         self._x         << self._set_index[0]
@@ -491,12 +485,9 @@ class SinX(Chaos):
                 self.report(number)
         return self
 
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            super().report(number)
-            self._x0 % float() >> ol.Print(0)
-        return self
-
+    def __str__(self):
+        return f'{self._index}: {self._x0 % float()}'
+    
     def reset(self, *parameters) -> 'SinX':
         super().reset(parameters)
         self._x0 << self._set_x0
