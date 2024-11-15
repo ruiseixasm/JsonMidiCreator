@@ -114,7 +114,7 @@ class Jumbler(o.Operand):
                 match operand % o.Operand():
                     case od.Reporter():             self._reporter = operand % o.Operand()
                     case of.Frame():                self._frame = operand % o.Operand()
-                    case oc.Sequence():            self._sequence = operand % o.Operand()
+                    case oc.Sequence():             self._sequence = operand % o.Operand()
                     case str():                     self._operator = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -122,11 +122,13 @@ class Jumbler(o.Operand):
                         self._sequence      = operand._sequence.copy()
                         self._frame         = operand._frame.copy()
                         self._reporter      << operand._reporter
+                        self._operator      = operand._operator
+                        self._result        = self._result.copy()
             case od.Reporter():             self._reporter << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
-                                            self._sequence = operand.copy()
-                                            self._result = od.Result(self._sequence.copy())
+                                            self._sequence << operand
+                                            self._result << od.DataSource( self._sequence.copy() )
             # case FunctionType() if f.__name__ == "<lambda>":
             #                                 self._operator = operand
             # case FunctionType():            self._operator = operand
@@ -160,7 +162,7 @@ class Jumbler(o.Operand):
                     case "/":   result: oc.Sequence = sequence / frame
                     case "//":  result: oc.Sequence = sequence // frame
                     case _:     result: oc.Sequence = sequence << frame
-                self._result = od.Result(result)
+                self._result << od.DataSource( result )
                 self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
@@ -181,7 +183,7 @@ class Jumbler(o.Operand):
         self._sequence.reset()
         self._frame.reset()
         self._reporter._data.reset()
-        self._result = od.Result(self._sequence.copy())
+        self._result << od.DataSource( self._sequence.copy() )
         return self
     
 class JumbleParameters(Jumbler):
