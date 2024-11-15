@@ -58,6 +58,9 @@ class Chaos(o.Operand):
             case ou.Next():             return self * operand
             case _:                     return super().__mod__(operand)
 
+    def __str__(self) -> str:
+        return f'{self._index + 1}'
+    
     def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
@@ -104,9 +107,6 @@ class Chaos(o.Operand):
         self.report(number)
         self._index += 1
         return self
-    
-    def __str__(self):
-        return f'{self._index + 1}'
     
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
@@ -208,8 +208,8 @@ class Modulus(Chaos):
                 self.report(number)
         return self
     
-    def __str__(self):
-        return f'{self._index}: {self._index}'
+    def __str__(self) -> str:
+        return f'{self._index + 1}: {self._index}'
     
     def reset(self, *parameters) -> 'Modulus':
         super().reset(parameters)
@@ -278,8 +278,8 @@ class Flipper(Modulus):
             case _: super().__lshift__(operand)
         return self
 
-    def __str__(self):
-        return f'{self._index}: {self % float()}'
+    def __str__(self) -> str:
+        return f'{self._index + 1}: {self % float()}'
     
 class Bouncer(Chaos):
     def __init__(self, *parameters):
@@ -424,8 +424,8 @@ class Bouncer(Chaos):
                 self._index += 1
         return self
 
-    def __str__(self):
-        return f'{self._index}: {self % tuple()}'
+    def __str__(self) -> str:
+        return f'{self._index + 1}: {self % tuple()}'
     
     def reset(self, *parameters) -> 'Bouncer':
         super().reset(parameters)
@@ -522,8 +522,8 @@ class SinX(Chaos):
                 self._index += 1
         return self
 
-    def __str__(self):
-        return f'{self._index}: {self._xn % float()}'
+    def __str__(self) -> str:
+        return f'{self._index + 1}: {self._xn % float()}'
     
     def reset(self, *parameters) -> 'SinX':
         super().reset(parameters)
