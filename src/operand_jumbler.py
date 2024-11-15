@@ -251,7 +251,7 @@ class JumbleRhythm(Jumbler):
             jumbled_result: oc.Sequence = source_result.copy()
             for _ in range(iterations):
                 jumbled_result.shuffle(self._chaos)
-                source_result << of.Foreach(jumbled_result)**ot.Position()
+                source_result << of.Foreach(jumbled_result)**of.Get(ot.Position())
                 self._result % od.DataSource() >> ol.Link(True)
                 if isinstance(self._reporter._data, tuple):
                     for single_reporter in self._reporter._data:
