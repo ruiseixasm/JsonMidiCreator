@@ -113,7 +113,7 @@ class Chaos(o.Operand):
         return self
 
     def reset(self, *parameters) -> 'Chaos':
-        super().reset(parameters)
+        super().reset(*parameters)
         self._xn << self._x0
         return self
 
@@ -397,7 +397,7 @@ class Bouncer(Chaos):
         return f'{self._index + 1}: {self % tuple()}'
     
     def reset(self, *parameters) -> 'Bouncer':
-        super().reset(parameters)
+        super().reset(*parameters)
         self._x         << self._set_xy[0]
         self._y         << self._set_xy[1]
         return self
