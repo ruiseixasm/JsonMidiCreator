@@ -43,7 +43,7 @@ class Jumbler(o.Operand):
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._reporter: od.Reporter     = od.Reporter(
                 of.Get(ra.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
-                of.Get(oc.Container())**of.PushTo(ol.Play()),
+                of.Get(od.Result(), od.DataSource())**of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
             )
         # self._operator: Callable[[oc.Container, of.Frame], oc.Container] \
@@ -72,7 +72,7 @@ class Jumbler(o.Operand):
             #                         return self._operator
             # case FunctionType():    return self._operator
             case str():             return self._operator
-            case od.Result():       return self._result._data.copy()
+            case od.Result():       return self._result.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
