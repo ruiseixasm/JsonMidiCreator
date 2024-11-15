@@ -179,8 +179,10 @@ class Jumbler(o.Operand):
 class JumbleRhythm(Jumbler):
     def __init__(self, *parameters):
         super().__init__()
-        self._frame                 = of.Type(oe.Element())**of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._sequence: oc.Sequence = oc.Sequence()
+        self._chaos: ch.Chaos       = ch.SinX()
         self._filter: od.Filter     = od.Filter(of.All())
+        self._result                << self._sequence.copy()
         if len(parameters) > 0:
             self << parameters
 
@@ -188,40 +190,55 @@ class JumbleRhythm(Jumbler):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case oc.Sequence():     return self._sequence
+                    case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
-                    case _:                 return ol.Null()
+                    case _:                 return super().__mod__(operand)
+            case oc.Sequence():     return self._sequence.copy()
+            case ch.Chaos():        return self._chaos.copy()
             case od.Filter():       return self._filter.copy()
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["filter"] = self._filter.getSerialization()
+        element_serialization["parameters"]["sequence"] = self._sequence.getSerialization()
+        element_serialization["parameters"]["chaos"]    = self._chaos.getSerialization()
+        element_serialization["parameters"]["filter"]   = self._filter.getSerialization()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Jumbler':
+    def loadSerialization(self, serialization: dict) -> 'JumbleRhythm':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "filter" in serialization["parameters"]):
+            "sequence" in serialization["parameters"] and "chaos" in serialization["parameters"] and "filter" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._operand           = od.Filter().loadSerialization(serialization["parameters"]["filter"])
+            self._sequence          = oc.Sequence().loadSerialization(serialization["parameters"]["sequence"])
+            self._chaos             = ch.Chaos().loadSerialization(serialization["parameters"]["chaos"])
+            self._filter            = od.Filter().loadSerialization(serialization["parameters"]["filter"])
         return self
-        
-    def __lshift__(self, operand: o.Operand) -> 'Jumbler':
+
+    def __lshift__(self, operand: o.Operand) -> 'JumbleRhythm':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case oc.Sequence():             self._sequence = operand % o.Operand()
+                    case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
             case JumbleRhythm():
                 super().__lshift__(operand)
-                self._filter << operand._filter
+                self._sequence  << operand._sequence
+                self._chaos     << operand._chaos
+                self._filter    << operand._filter
+            case oc.Sequence():             self._sequence << operand
+            case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
-            case od.Reporter():             super().__lshift__(operand)
+            case _:                         super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleRhythm':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         iterations: int = 1
         match number:
@@ -245,7 +262,8 @@ class JumbleRhythm(Jumbler):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'Jumbler':
+    def reset(self, *parameters) -> 'JumbleRhythm':
         super().reset(parameters)
         self._filter.reset()
+        self._result << self._sequence.copy()
         return self
