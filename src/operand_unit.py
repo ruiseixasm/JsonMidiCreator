@@ -136,6 +136,9 @@ class Unit(o.Operand):
     def __ge__(self, other_number: any) -> bool:
         return self == other_number or self > other_number
     
+    def __str__(self):
+        return f'{self._unit}'
+    
     def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,

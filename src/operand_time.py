@@ -127,6 +127,9 @@ class Time(o.Operand):
     def __ge__(self, other_time: any) -> bool:
         return self == other_time or self > other_time
 
+    def __str__(self):
+        return f'{type(self._time_unit).__name__}: {self % Fraction()}'
+    
     def getTime_rational(self) -> Fraction:
         return self._time_unit.getTime_rational()
         
