@@ -96,7 +96,7 @@ class Clear(Process):
 if TYPE_CHECKING:
     from operand_container import Sequence
 
-class Stack(Label):
+class Stack(Process):
     def __rrshift__(self, operand: any) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
@@ -189,8 +189,8 @@ class Print(Process):
                     print(json_formatted_str)
                 else:
                     print(operand_serialization)
-            case tuple():
-                return super().__rrshift__(operand)
+            # case tuple():
+            #     return super().__rrshift__(operand)
             case _: print(operand)
         return operand
 

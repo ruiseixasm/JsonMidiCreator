@@ -65,6 +65,7 @@ class Chaos(o.Operand):
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        self._index += 1
         self.report(number)
         return self
 
@@ -162,16 +163,20 @@ class Modulus(Chaos):
                 iterations = number % int()
             case int() | float() | Fraction():
                 iterations = int(number)
-        if not self._initiated:
-            self._initiated = True
-            iterations -= 1
         if iterations > 0:
+            self._initiated = True
             for _ in range(iterations):
                 self._index += self._step
                 self._index << (self._index % float()) % (self._amplitude % float())
                 self.report(number)
         return self
     
+    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
+        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
+            super().report(number)
+            self._index >> ol.Print(0)
+        return self
+
     def reset(self, *parameters) -> 'Modulus':
         super().reset(parameters)
         self._index         << self._set_index
@@ -239,6 +244,12 @@ class Flipper(Modulus):
             case _: super().__lshift__(operand)
         return self
 
+    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Flipper':
+        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
+            super().report(number)
+            self % float() >> ol.Print(0)
+        return self
+
 class Bouncer(Chaos):
     def __init__(self, *parameters):
         super().__init__()
@@ -279,8 +290,8 @@ class Bouncer(Chaos):
             case ra.dY():               return self._dy.copy()
             case ra.X():                return self._x.copy()
             case ra.Y():                return self._y.copy()
-            case int() | float():       return self % od.DataSource( operand )
-            case tuple():               return self % od.DataSource( tuple() )
+            case int() | float() | tuple():
+                                        return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Bouncer') -> bool:
@@ -366,10 +377,8 @@ class Bouncer(Chaos):
                 iterations = number % int()
             case int() | float() | Fraction():
                 iterations = int(number)
-        if not self._initiated:
-            self._initiated = True
-            iterations -= 1
         if iterations > 0:
+            self._initiated = True
             for _ in range(iterations):
                 for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
                     new_position = direction_data[0] + direction_data[1]
@@ -380,7 +389,14 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] << new_position
+                self._index += 1
                 self.report(number)
+        return self
+
+    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
+        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
+            super().report(number)
+            self % tuple() >> ol.Print(0)
         return self
 
     def reset(self, *parameters) -> 'Bouncer':
@@ -467,17 +483,21 @@ class SinX(Chaos):
                 iterations = number % int()
             case int() | float() | Fraction():
                 iterations = int(number)
-        if not self._initiated:
-            self._initiated = True
-            iterations -= 1
         if iterations > 0:
+            self._initiated = True
             for _ in range(iterations):
                 self._x0 << self._x0 % float() + self._lambda % float() * math.sin(self._x0 % float())
+                self._index += 1
                 self.report(number)
+        return self
+
+    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
+        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
+            super().report(number)
+            self._x0 % float() >> ol.Print(0)
         return self
 
     def reset(self, *parameters) -> 'SinX':
         super().reset(parameters)
         self._x0 << self._set_x0
         return self
-
