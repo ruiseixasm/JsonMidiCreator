@@ -122,8 +122,6 @@ class Modulus(Chaos):
         super().__init__()
         self._amplitude: ra.Amplitude   = ra.Amplitude(12)
         self._step: ra.Step             = ra.Step(1)
-        self._index: ra.Index           = ra.Index(0)
-        self._set_index: ra.Index       = ra.Index(0)
         if len(parameters) > 0:
             self << parameters
 
@@ -133,43 +131,26 @@ class Modulus(Chaos):
                 match operand % o.Operand():
                     case ra.Amplitude():        return self._amplitude
                     case ra.Step():             return self._step
-                    case ra.Index():            return self._index
-                    case int() | float():       return self._index % (operand % o.Operand())
                     case _:                     return super().__mod__(operand)
             case ra.Amplitude():        return self._amplitude.copy()
             case ra.Step():             return self._step.copy()
-            case ra.Index():            return self._index.copy()
-            case int() | float():       return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Modulus') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if type(self) != type(other):
-            return False
-        return  self._index           == other._index
-    
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
         element_serialization["parameters"]["amplitude"]    = self._amplitude % str()
         element_serialization["parameters"]["step"]         = self._step % str()
-        element_serialization["parameters"]["index"]        = self._index % str()
-        element_serialization["parameters"]["set_index"]    = self._set_index % str()
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "amplitude" in serialization["parameters"] and "step" in serialization["parameters"] and "index" in serialization["parameters"] and
-            "set_index" in serialization["parameters"]):
+            "amplitude" in serialization["parameters"] and "step" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._amplitude         << serialization["parameters"]["amplitude"]
             self._step              << serialization["parameters"]["step"]
-            self._index             << serialization["parameters"]["index"]
-            self._set_index         << serialization["parameters"]["set_index"]
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
@@ -179,21 +160,15 @@ class Modulus(Chaos):
                 match operand % o.Operand():
                     case ra.Amplitude():            self._amplitude = operand % o.Operand()
                     case ra.Step():                 self._step = operand % o.Operand()
-                    case ra.Index():
-                                                    self._index = operand % o.Operand()
-                                                    self._set_index = self._index.copy()
                     case _:                         super().__lshift__(operand)
             case Modulus():
+                        super().__lshift__(operand)
                         self._amplitude     << operand._amplitude
                         self._step          << operand._step
-                        self._index         << operand._index
             case ra.Amplitude():            self._amplitude << operand
             case ra.Step():                 self._step << operand
-            case ra.Index() | int() | float():
-                                            self._index << operand
-                                            self._set_index << operand
             case _: super().__lshift__(operand)
-        self._index << (self._index % float()) % (self._amplitude % float())
+        self._xn << (self._xn % float()) % (self._amplitude % float())
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
@@ -207,24 +182,16 @@ class Modulus(Chaos):
         if iterations > 0:
             self._initiated = True
             for _ in range(iterations):
-                self._index += self._step
-                self._index << (self._index % float()) % (self._amplitude % float())
+                self._xn += self._step
+                self._xn << (self._xn % float()) % (self._amplitude % float())
                 self.report(number)
-        return self
-    
-    def __str__(self) -> str:
-        return f'{self._index + 1}: {self._index}'
-    
-    def reset(self, *parameters) -> 'Modulus':
-        super().reset(parameters)
-        self._index         << self._set_index
         return self
     
 class Flipper(Modulus):
     def __init__(self, *parameters):
         super().__init__()
-        self._split: ra.Split           = ra.Split(1)
         self._amplitude                 << 2
+        self._split: ra.Split           = ra.Split(1)
         if len(parameters) > 0:
             self << parameters
 
@@ -282,9 +249,6 @@ class Flipper(Modulus):
             case _: super().__lshift__(operand)
         return self
 
-    def __str__(self) -> str:
-        return f'{self._index + 1}: {self % float()}'
-    
 class Bouncer(Chaos):
     def __init__(self, *parameters):
         super().__init__()
@@ -294,7 +258,7 @@ class Bouncer(Chaos):
         self._dy: ra.dY                 = ra.dY(0.555)
         self._x: ra.X                   = ra.X(self._width / 2 % Fraction())
         self._y: ra.Y                   = ra.Y(self._height / 2 % Fraction())
-        self._set_index: tuple          = (self._x.copy(), self._y.copy())
+        self._set_xy: tuple             = (self._x.copy(), self._y.copy())
         if len(parameters) > 0:
             self << parameters
 
@@ -347,8 +311,8 @@ class Bouncer(Chaos):
                 "dy":           self._dy % float(),
                 "x":            self._x % float(),
                 "y":            self._y % float(),
-                "set_x":        self._set_index[0] % float(),
-                "set_y":        self._set_index[1] % float()
+                "set_x":        self._set_xy[0] % float(),
+                "set_y":        self._set_xy[1] % float()
             }
         }
 
@@ -368,7 +332,7 @@ class Bouncer(Chaos):
             self._y                 << serialization["parameters"]["y"]
             set_x                   = ra.X(serialization["parameters"]["set_x"])
             set_y                   = ra.Y(serialization["parameters"]["set_y"])
-            self._set_index         = (set_x, set_y)
+            self._set_xy            = (set_x, set_y)
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Bouncer':
@@ -384,15 +348,16 @@ class Bouncer(Chaos):
                     case ra.Y():                    self._y = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Bouncer():
+                        super().__lshift__(operand)
                         self._width         << operand._width
                         self._height        << operand._height
                         self._dx            << operand._dx
                         self._dy            << operand._dy
                         self._x             << operand._x
                         self._y             << operand._y
-                        set_x               = operand._set_index[0].copy()
-                        set_y               = operand._set_index[1].copy()
-                        self._set_index     = (set_x, set_y)
+                        set_x               = operand._set_xy[0].copy()
+                        set_y               = operand._set_xy[1].copy()
+                        self._set_xy        = (set_x, set_y)
             case ra.Width():                self._width << operand
             case ra.Height():               self._height << operand
             case ra.dX():                   self._dx << operand
@@ -433,8 +398,8 @@ class Bouncer(Chaos):
     
     def reset(self, *parameters) -> 'Bouncer':
         super().reset(parameters)
-        self._x         << self._set_index[0]
-        self._y         << self._set_index[1]
+        self._x         << self._set_xy[0]
+        self._y         << self._set_xy[1]
         return self
 
 class SinX(Chaos):
