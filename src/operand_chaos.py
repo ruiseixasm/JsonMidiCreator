@@ -63,8 +63,14 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
+        self.report(number)
+        return self
+
+    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
+        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
+            self._index >> ol.Print(0)
         return self
 
 class Modulus(Chaos):
@@ -163,6 +169,7 @@ class Modulus(Chaos):
             for _ in range(iterations):
                 self._index += self._step
                 self._index << (self._index % float()) % (self._amplitude % float())
+                self.report(number)
         return self
     
     def reset(self, *parameters) -> 'Modulus':
@@ -373,6 +380,7 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] << new_position
+                self.report(number)
         return self
 
     def reset(self, *parameters) -> 'Bouncer':
@@ -465,6 +473,7 @@ class SinX(Chaos):
         if iterations > 0:
             for _ in range(iterations):
                 self._x0 << self._x0 % float() + self._lambda % float() * math.sin(self._x0 % float())
+                self.report(number)
         return self
 
     def reset(self, *parameters) -> 'SinX':

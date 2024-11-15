@@ -171,6 +171,7 @@ class Jumbler(o.Operand):
                     self >> single_reporter
             else:
                 self >> self._reporter._data
+        return self
 
     def reset(self, *parameters) -> 'Jumbler':
         super().reset(parameters)
