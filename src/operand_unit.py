@@ -1170,13 +1170,13 @@ class Pressure(Midi):
 
 class Bend(Midi):
     """
-    Bend() sets the variation in the pitch to be associated to the PitchBend() Element.
+    Bend() sets the bending of the pitch to be associated to the PitchBend() Element.
     
     Parameters
     ----------
     first : integer_like
-        Bend variation where 0 is no variation and other values from -8192 to 8191 are the intended variation,
-        this variation is 2 semi-tones bellow or above respectively
+        Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
+        this bending is 2 semi-tones bellow or above respectively
     """
     def __init__(self, unit: int = None):
         super().__init__(unit)

@@ -1442,7 +1442,7 @@ class PitchBend(Element):
         """
         The % symbol is used to extract a Parameter, in the case of a PitchBend,
         those Parameters are the ones of the Element, like Position and Length,
-        and the PitchBend pitch with 0 as default.
+        and the PitchBend bend with 0 as default.
 
         Examples
         --------
