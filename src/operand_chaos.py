@@ -403,8 +403,8 @@ class SinX(Chaos):
     def __init__(self, *parameters):
         super().__init__()
         self._lambda: ra.Lambda         = ra.Lambda(8)
-        self._x0: ra.X0                 = ra.X0(2)
-        self._set_x0: ra.X0             = ra.X0(2)
+        self._xn: ra.Xn                 = ra.Xn(2)
+        self._x0: ra.X0                 = ra.X0(self._xn)
         if len(parameters) > 0:
             self << parameters
 
@@ -413,12 +413,14 @@ class SinX(Chaos):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Lambda():           return self._lambda
+                    case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
-                    case int() | float():       return self._x0 % (operand % o.Operand())
+                    case int() | float():       return self._xn % (operand % o.Operand())
                     case _:                     return super().__mod__(operand)
             case ra.Lambda():           return self._lambda.copy()
+            case ra.Xn():               return self._xn.copy()
             case ra.X0():               return self._x0.copy()
-            case int() | float():       return self._x0 % operand
+            case int() | float():       return self._xn % operand
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'SinX') -> bool:
@@ -427,15 +429,15 @@ class SinX(Chaos):
             return True
         if type(self) != type(other):
             return False
-        return  self._x0 == other._x0
+        return  self._xn == other._xn
     
     def getSerialization(self) -> dict:
         return {
             "class": self.__class__.__name__,
             "parameters": {
                 "lambda":           self._lambda % str(),
-                "x0":               self._x0 % str(),
-                "set_x0":           self._set_x0 % str()
+                "xn":               self._xn % str(),
+                "x0":               self._x0 % str()
             }
         }
 
@@ -443,11 +445,11 @@ class SinX(Chaos):
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "lambda" in serialization["parameters"] and "x0" in serialization["parameters"] and "set_x0" in serialization["parameters"]):
+            "lambda" in serialization["parameters"] and "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             self._lambda            << serialization["parameters"]["lambda"]
+            self._xn                << serialization["parameters"]["xn"]
             self._x0                << serialization["parameters"]["x0"]
-            self._set_x0            << serialization["parameters"]["set_x0"]
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'SinX':
@@ -456,16 +458,18 @@ class SinX(Chaos):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Lambda():               self._lambda = operand % o.Operand()
+                    case ra.Xn():                   self._xn = operand % o.Operand()
                     case ra.X0():                   self._x0 = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case SinX():
                         self._lambda        << operand._lambda
+                        self._xn            << operand._xn
                         self._x0            << operand._x0
-                        self._set_x0        << operand._set_x0
             case ra.Lambda():               self._lambda << operand
-            case ra.X0() | int() | float():
+            case ra.Xn():                   self._xn << operand
+            case int() | float():
+                                            self._xn << operand
                                             self._x0 << operand
-                                            self._set_x0 << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -480,15 +484,15 @@ class SinX(Chaos):
         if iterations > 0:
             self._initiated = True
             for _ in range(iterations):
-                self._x0 << self._x0 % float() + self._lambda % float() * math.sin(self._x0 % float())
+                self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
                 self.report(number)
                 self._index += 1
         return self
 
     def __str__(self):
-        return f'{self._index}: {self._x0 % float()}'
+        return f'{self._index}: {self._xn % float()}'
     
     def reset(self, *parameters) -> 'SinX':
         super().reset(parameters)
-        self._x0 << self._set_x0
+        self._xn << self._x0
         return self
