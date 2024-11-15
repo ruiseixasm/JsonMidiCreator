@@ -36,6 +36,8 @@ import operand_frame as of
 class Chaos(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
+        self._xn: ra.Xn                 = ra.Xn()
+        self._x0: ra.X0                 = ra.X0(self._xn)
         if len(parameters) > 0:
             self << parameters
 
@@ -43,21 +45,55 @@ class Chaos(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case _:                 return ol.Null()
-            case of.Frame():        return self % (operand % o.Operand())
-            case Chaos():           return self.copy()
-            case ou.Next():         return self * operand
-            case int() | float():   return type(operand)()  # more reliable than operand.__class__()
-            case _:                 return super().__mod__(operand)
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case ra.Xn():               return self._xn
+                    case ra.X0():               return self._x0
+                    case int() | float():       return self._xn % (operand % o.Operand())
+                    case _:                     return ol.Null()
+            case of.Frame():            return self % (operand % o.Operand())
+            case Chaos():               return self.copy()
+            case ra.Xn():               return self._xn.copy()
+            case ra.X0():               return self._x0.copy()
+            case int() | float():       return self._xn % operand
+            case ou.Next():             return self * operand
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        return {
+            "class": self.__class__.__name__,
+            "parameters": {
+                "xn":               self._xn % str(),
+                "x0":               self._x0 % str()
+            }
+        }
 
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> 'Chaos':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
+
+            self._xn                << serialization["parameters"]["xn"]
+            self._x0                << serialization["parameters"]["x0"]
+        return self
+        
     def __lshift__(self, operand: o.Operand) -> 'Chaos':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ra.Xn():                   self._xn = operand % o.Operand()
+                    case ra.X0():                   self._x0 = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case Chaos():
+                        self._xn            << operand._xn
+                        self._x0            << operand._x0
+            case ra.Xn():                   self._xn << operand
+            case ra.X0():                   self._x0 << operand
+            case int() | float():
+                                            self._xn << operand
+                                            self._x0 << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -111,15 +147,12 @@ class Modulus(Chaos):
         return  self._index           == other._index
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "amplitude":    self._amplitude % float(),
-                "step":         self._step % float(),
-                "index":        self._index % float(),
-                "set_index":    self._set_index % float()
-            }
-        }
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["amplitude"]    = self._amplitude % str()
+        element_serialization["parameters"]["step"]         = self._step % str()
+        element_serialization["parameters"]["index"]        = self._index % str()
+        element_serialization["parameters"]["set_index"]    = self._set_index % str()
+        return element_serialization
 
     # CHAINABLE OPERATIONS
 
@@ -128,6 +161,7 @@ class Modulus(Chaos):
             "amplitude" in serialization["parameters"] and "step" in serialization["parameters"] and "index" in serialization["parameters"] and
             "set_index" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._amplitude         << serialization["parameters"]["amplitude"]
             self._step              << serialization["parameters"]["step"]
             self._index             << serialization["parameters"]["index"]
@@ -432,14 +466,11 @@ class SinX(Chaos):
         return  self._xn == other._xn
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "lambda":           self._lambda % str(),
-                "xn":               self._xn % str(),
-                "x0":               self._x0 % str()
-            }
-        }
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["lambda"]   = self._lambda % str()
+        element_serialization["parameters"]["xn"]       = self._xn % str()
+        element_serialization["parameters"]["x0"]       = self._x0 % str()
+        return element_serialization
 
     # CHAINABLE OPERATIONS
 
@@ -447,6 +478,7 @@ class SinX(Chaos):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "lambda" in serialization["parameters"] and "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._lambda            << serialization["parameters"]["lambda"]
             self._xn                << serialization["parameters"]["xn"]
             self._x0                << serialization["parameters"]["x0"]
@@ -467,6 +499,7 @@ class SinX(Chaos):
                         self._x0            << operand._x0
             case ra.Lambda():               self._lambda << operand
             case ra.Xn():                   self._xn << operand
+            case ra.X0():                   self._x0 << operand
             case int() | float():
                                             self._xn << operand
                                             self._x0 << operand
