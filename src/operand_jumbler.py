@@ -181,7 +181,7 @@ class JumbleRhythm(Jumbler):
         super().__init__()
         self._chaos: ch.Chaos       = ch.SinX()
         self._filter: od.Filter     = od.Filter(of.All())
-        self._result                << od.DataSource( self._container.copy() )
+        self._result                << od.DataSource( oc.Sequence(self._container % of.Type(oe.Element())) )
         if len(parameters) > 0:
             self << parameters
 
@@ -220,7 +220,7 @@ class JumbleRhythm(Jumbler):
                 match operand % o.Operand():
                     case oc.Container():
                                                     super().__lshift__(operand)
-                                                    self._result << od.DataSource( self._container.copy() )
+                                                    self._result << od.DataSource( oc.Sequence(self._container % of.Type(oe.Element())) )
                     case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
@@ -230,7 +230,7 @@ class JumbleRhythm(Jumbler):
                 self._filter    << operand._filter
             case oc.Container():
                                             super().__lshift__(operand)
-                                            self._result << od.DataSource( self._container.copy() )
+                                            self._result << od.DataSource( oc.Sequence(self._container % of.Type(oe.Element())) )
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case _:                         super().__lshift__(operand)
@@ -247,9 +247,11 @@ class JumbleRhythm(Jumbler):
         if not self._initiated:
             self._initiated = True
         if iterations > 0:
-            filtered_result: oc.Sequence = self._result % od.DataSource() % self._filter
+            source_result: oc.Sequence  = self._result % od.DataSource() % self._filter
+            jumbled_result: oc.Sequence = source_result.copy()
             for _ in range(iterations):
-                filtered_result.shuffle(self._chaos)
+                jumbled_result.shuffle(self._chaos)
+                source_result << of.Foreach(jumbled_result)**ot.Position()
                 self._result % od.DataSource() >> ol.Link(True)
                 if isinstance(self._reporter._data, tuple):
                     for single_reporter in self._reporter._data:
@@ -262,5 +264,5 @@ class JumbleRhythm(Jumbler):
     def reset(self, *parameters) -> 'JumbleRhythm':
         super().reset(parameters)
         self._filter.reset()
-        self._result << od.DataSource( self._container.copy() )
+        self._result << od.DataSource( oc.Sequence(self._container % of.Type(oe.Element())) )
         return self
