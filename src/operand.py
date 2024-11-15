@@ -130,7 +130,13 @@ class Operand:
     def getSerialization(self) -> dict:
         return { 
             "class": self.__class__.__name__,
-            "parameters": {}
+            "parameters": {
+                # "next_operand": self._next_operand.getSerialization(),
+                "next_operand": None,
+                "initialized":  self._initiated,
+                "set":          self._set,
+                "index":        self._index
+            }
         }
 
     # CHAINABLE OPERATIONS
@@ -138,13 +144,23 @@ class Operand:
     def loadSerialization(self, serialization: dict):
         import operand_label as ol
         if isinstance(serialization, dict) and ("class" in serialization and "parameters" in serialization):
-            operand_name = serialization["class"]
-            operand_class = Operand.find_subclass_by_name(Operand, operand_name)
-            if operand_class:
-                operand_instance: Operand = operand_class()
-                if operand_class == __class__ or isinstance(operand_instance, ol.Label):
-                    return operand_instance         # avoids infinite recursion
-                return operand_instance.loadSerialization(serialization)
+            if type(self) == Operand:   # Means unknown instantiation from random dict class name
+                operand_name = serialization["class"]
+                operand_class = Operand.find_subclass_by_name(Operand, operand_name)
+                if operand_class:
+                    operand_instance: Operand = operand_class()
+                    if operand_class == __class__ or isinstance(operand_instance, ol.Label):
+                        return operand_instance         # avoids infinite recursion
+                    return operand_instance.loadSerialization(serialization)
+            elif (serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+                "next_operand" in serialization["parameters"] and "initialized" in serialization["parameters"] and
+                "set" in serialization["parameters"] and "index" in serialization["parameters"]):
+
+                # self._next_operand  = Operand().loadSerialization(serialization["parameters"]["next_operand"])
+                self._next_operand  = None
+                self._initiated     = serialization["parameters"]["initialized"]
+                self._set           = serialization["parameters"]["set"]
+                self._index         = serialization["parameters"]["index"]
         return ol.Null()
        
     def copy(self: T, *parameters) -> T:
