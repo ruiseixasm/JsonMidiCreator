@@ -44,7 +44,7 @@ class Jumbler(o.Operand):
         self._reporter: od.Reporter     = od.Reporter(
                 of.Get(ra.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
                 of.Get(oc.Container())**of.PushTo(ol.Play()),
-                of.Subject(oe.Rest())**of.PushTo(ol.Play())
+                of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
             )
         # self._operator: Callable[[oc.Container, of.Frame], oc.Container] \
         #                                 = lambda container, frame: container << frame
@@ -218,8 +218,8 @@ class JumbleRhythm(Jumbler):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case oc.Sequence():
-                                                    self._container = operand % o.Operand()
+                    case oc.Container():
+                                                    super().__lshift__(operand)
                                                     self._result << od.DataSource( self._container.copy() )
                     case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()
@@ -228,9 +228,9 @@ class JumbleRhythm(Jumbler):
                 super().__lshift__(operand)
                 self._chaos     << operand._chaos
                 self._filter    << operand._filter
-            case oc.Sequence():
-                                            self._container = operand.copy()
-                                            self._result << od.DataSource( self._operand.copy() )
+            case oc.Container():
+                                            super().__lshift__(operand)
+                                            self._result << od.DataSource( self._container.copy() )
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case _:                         super().__lshift__(operand)
@@ -262,5 +262,5 @@ class JumbleRhythm(Jumbler):
     def reset(self, *parameters) -> 'JumbleRhythm':
         super().reset(parameters)
         self._filter.reset()
-        self._result << self._container.copy()
+        self._result << od.DataSource( self._container.copy() )
         return self
