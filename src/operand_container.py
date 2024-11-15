@@ -103,6 +103,8 @@ class Container(o.Operand):
                 return single_datasource_data
             case od.Filter():
                 return self.filter(operand % od.DataSource())
+            case of.Frame():
+                return self.filter(operand)
             case _:
                 return super().__mod__(operand)
 
