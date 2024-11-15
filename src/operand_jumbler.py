@@ -42,8 +42,7 @@ class Jumbler(o.Operand):
         self._container: oc.Container   = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(101)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._reporter: od.Reporter     = od.Reporter(
-                of.Get(ra.Index(), int())**of.Add(1)**of.PushTo(ol.Print()), 
-                of.Get(od.Result(), od.DataSource())**of.PushTo(ol.Play()),
+                of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
             )
         # self._operator: Callable[[oc.Container, of.Frame], oc.Container] \
@@ -160,17 +159,19 @@ class Jumbler(o.Operand):
                     case "//":  result: oc.Container = container // frame
                     case _:     result: oc.Container = container << frame
                 self._result = od.Result(result)
-                self.report(number)
                 self._index += 1    # keeps track of each iteration
+                self.report(number)
         return self
 
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
+            print(f'{type(self).__name__} {self._index}', end = " ")
             if isinstance(self._reporter._data, tuple):
                 for single_reporter in self._reporter._data:
-                    self >> single_reporter
+                    self._result._data >> single_reporter
             else:
-                self >> self._reporter._data
+                self._result._data >> self._reporter._data
+            print()
         return self
 
     def reset(self, *parameters) -> 'Jumbler':
@@ -258,8 +259,8 @@ class JumbleRhythm(Jumbler):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
                 source_result << of.Foreach(jumbled_result)**of.Get(ot.Position())
                 self._result % od.DataSource() >> ol.Link(True)
-                self.report(number)
                 self._index += 1    # keeps track of each iteration
+                self.report(number)
         return self
 
     def reset(self, *parameters) -> 'JumbleRhythm':
