@@ -65,12 +65,12 @@ class Chaos(o.Operand):
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        self._index += 1
         self.report(number)
+        self._index += 1
         return self
     
     def __str__(self):
-        return f'{self._index}'
+        return f'{self._index + 1}'
     
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
@@ -386,8 +386,8 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] << new_position
-                self._index += 1
                 self.report(number)
+                self._index += 1
         return self
 
     def __str__(self):
@@ -481,8 +481,8 @@ class SinX(Chaos):
             self._initiated = True
             for _ in range(iterations):
                 self._x0 << self._x0 % float() + self._lambda % float() * math.sin(self._x0 % float())
-                self._index += 1
                 self.report(number)
+                self._index += 1
         return self
 
     def __str__(self):

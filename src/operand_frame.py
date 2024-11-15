@@ -807,8 +807,10 @@ class Extract(Right):
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
-        extracted_data = self_operand % self._right_parameter
-        extracted_data._set = self_operand._set # Set status has to be kept
+        extracted_data = self_operand
+        if isinstance(self_operand, o.Operand):
+            extracted_data = self_operand % self._right_parameter
+            extracted_data._set = self_operand._set # Set status has to be kept
         return extracted_data
 
 # 4. OPERAND EDITORS (ALTERS THE SOURCE OPERAND DATA)
