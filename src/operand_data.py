@@ -217,8 +217,12 @@ class DataSource(Data):
             self_copy._next_operand = self._next_operand.copy()
         return self_copy << parameters
 
+class Parameters(Data):
+    def __init__(self, *parameters):    # Allows multiple parameters
+        super().__init__( parameters )
+
 class Reporter(Data):
-    def __init__(self, *parameters):
+    def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__( parameters )
 
 class Result(Data):
