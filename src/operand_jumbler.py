@@ -60,7 +60,7 @@ class Jumbler(o.Operand):
                     case of.Frame():        return self._frame
                     case oc.Sequence():     return self._sequence
                     case str():             return self._operator
-                    case od.Result():       return self._result
+                    case od.Result():       return self._result._data
                     case _:                 return ol.Null()
             case Jumbler():         return self.copy()
             case od.Reporter():     return self._reporter.copy()
@@ -71,7 +71,7 @@ class Jumbler(o.Operand):
             #                         return self._operator
             # case FunctionType():    return self._operator
             case str():             return self._operator
-            case od.Result():       return self._result.copy()
+            case od.Result():       return self._result._data.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
@@ -138,18 +138,24 @@ class Jumbler(o.Operand):
                     self << single_operand
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
+    def muted_and_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        iterations: int = 1
+        iterations = 1
         match number:
             case ou.Unit() | ra.Rational():
-                iterations = number % int()
+                iterations = number % float()
             case int() | float() | Fraction():
-                iterations = int(number)
-        if not self._initiated:
+                iterations = float(number)
+        fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
+        muted_iterations: int = round(abs(fractional_part) * (10 ** 2) + 1)
+        total_iterations: int = round(integer_part * muted_iterations)
+        return muted_iterations, total_iterations
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
             self._initiated = True
-        if iterations > 0:
-            for _ in range(iterations):
+            for actual_iteration in range(1, total_iterations + 1):
                 match self._operator:
                     case "^":   self._result._data ^ self._frame
                     case ">>":  self._result._data >> self._frame
@@ -160,7 +166,8 @@ class Jumbler(o.Operand):
                     case "/":   self._result._data / self._frame
                     case "//":  self._result._data // self._frame
                     case _:     self._result._data << self._frame
-                self.report(number)
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -244,24 +251,18 @@ class JumbleParameters(Jumbler):
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleParameters':
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        iterations: int = 1
-        match number:
-            case ou.Unit() | ra.Rational():
-                iterations = number % int()
-            case int() | float() | Fraction():
-                iterations = int(number)
-        if not self._initiated:
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
             self._initiated = True
-        if iterations > 0:
             source_result: oc.Sequence  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
             jumbled_result: oc.Sequence = source_result.copy()
-            for _ in range(iterations):
+            for actual_iteration in range(1, total_iterations + 1):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
                 for single_parameter in self._parameters._data:
                     source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
                 self._result % od.DataSource() >> ol.Link(True)
-                self.report(number)
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
