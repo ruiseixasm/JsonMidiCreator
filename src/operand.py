@@ -163,6 +163,13 @@ class Operand:
                 self._index         = serialization["parameters"]["index"]
         return ol.Null()
        
+    def __lshift__(self, operand: 'Operand') -> 'Operand':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(operand, type(self)):
+            self._initiated = operand._initiated
+            self._index = operand._index
+        return self
+
     def copy(self: T, *parameters) -> T:
         self_copy: Operand = self.__class__() << self << parameters
         # COPY THE SELF OPERANDS RECURSIVELY
@@ -201,10 +208,6 @@ class Operand:
         
         # If no matching subclass is found, return None
         return None
-
-    def __lshift__(self, operand: 'Operand') -> 'Operand':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self
 
     def __ilshift__(self, other):
         return self.__lshift__(other)

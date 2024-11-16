@@ -119,7 +119,7 @@ class Jumbler(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Jumbler():
-                        self._sequence      = operand._result._data.copy()
+                        self._sequence      = operand._sequence.copy()
                         self._frame         = operand._frame.copy()
                         self._reporters     << operand._reporters
                         self._operator      = operand._operator # The string str()
