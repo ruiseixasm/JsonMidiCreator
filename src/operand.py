@@ -175,8 +175,7 @@ class Operand:
         return self
 
     def copy(self: T, *parameters) -> T:
-        self_copy: Operand = self.__class__() << self << parameters
-        return self_copy
+        return type(self)() << self << parameters
     
     def reset(self: T, *parameters) -> T:
         # RESET THE SELF OPERANDS RECURSIVELY

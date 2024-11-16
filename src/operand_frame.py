@@ -141,16 +141,20 @@ class Frame(o.Operand):
                     previous_frame = single_frame
         return self      
     
-    def copy(self, *parameters) -> 'Frame':
-        self_copy: Frame = self.__class__() << parameters
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if type(self._next_operand) is not o.Operand:
-            match self._next_operand:
-                case o.Operand():
-                    self_copy._next_operand = self._next_operand.copy()
-                case _:
-                    self_copy._next_operand = self._next_operand
-        return self_copy
+    def __lshift__(self, operand: 'o.Operand') -> 'Frame':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(operand, type(self)):
+            self._initiated = operand._initiated
+            self._index = operand._index
+            self._set = False   # by default a new copy of data unsets the Operand
+            # COPY THE SELF OPERANDS RECURSIVELY
+            if type(operand._next_operand) is not o.Operand:
+                match operand._next_operand:
+                    case o.Operand():
+                        self._next_operand = operand._next_operand.copy()
+                    case _:
+                        self._next_operand = operand._next_operand
+        return self
 
     def reset(self, *parameters) -> 'Frame':
         # RESET THE SELF OPERANDS RECURSIVELY
