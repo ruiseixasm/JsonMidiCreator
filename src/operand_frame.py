@@ -142,11 +142,7 @@ class Frame(o.Operand):
         return self      
     
     def copy(self, *parameters) -> 'Frame':
-        match self._left_parameter:
-            case o.Operand():
-                self_copy: Frame = self.__class__( self._left_parameter.copy() ) << parameters
-            case _:
-                self_copy: Frame = self.__class__( self._left_parameter ) << parameters
+        self_copy: Frame = self.__class__() << parameters
         # COPY THE SELF OPERANDS RECURSIVELY
         if type(self._next_operand) is not o.Operand:
             match self._next_operand:
@@ -242,8 +238,8 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand._set = True
         return self_operand
     
-    def copy(self, *parameters) -> 'Frame':
-        self_copy = super().copy(parameters)
+    def copy(self, *parameters) -> 'Left':
+        self_copy: Left = super().copy(parameters)
         match self._left_parameter:
             case o.Operand():
                 self_copy._left_parameter = self._left_parameter.copy()

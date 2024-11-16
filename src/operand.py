@@ -169,13 +169,13 @@ class Operand:
             self._initiated = operand._initiated
             self._index = operand._index
             self._set = False   # by default a new copy of data unsets the Operand
+            # COPY THE SELF OPERANDS RECURSIVELY
+            if operand._next_operand is not None:
+                self._next_operand = operand._next_operand.copy()
         return self
 
     def copy(self: T, *parameters) -> T:
         self_copy: Operand = self.__class__() << self << parameters
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if self._next_operand is not None:
-            self_copy._next_operand = self._next_operand.copy()
         return self_copy
     
     def reset(self: T, *parameters) -> T:
