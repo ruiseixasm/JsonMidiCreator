@@ -60,18 +60,17 @@ class Jumbler(o.Operand):
                     case of.Frame():        return self._frame
                     case oc.Sequence():     return self._sequence
                     case str():             return self._operator
-                    case od.Result():       return self._result._data
+                    case od.Result():       return self._result
                     case _:                 return ol.Null()
             case Jumbler():         return self.copy()
             case od.Reporter():     return self._reporter.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
-            case oc.Sequence():     return self._sequence.copy()
+            case oc.Sequence():     return self._result._data.copy()
             # case FunctionType() if op.__name__ == "<lambda>":
             #                         return self._operator
             # case FunctionType():    return self._operator
             case str():             return self._operator
-            case od.Result():       return self._result._data.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
@@ -116,14 +115,15 @@ class Jumbler(o.Operand):
                     case of.Frame():                self._frame = operand % o.Operand()
                     case oc.Sequence():             self._sequence = operand % o.Operand()
                     case str():                     self._operator = operand % o.Operand()
+                    case od.Result():               self._result = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Jumbler():
-                        self._sequence      = operand._sequence.copy()
+                        self._sequence      = operand._result._data.copy()
                         self._frame         = operand._frame.copy()
                         self._reporter      << operand._reporter
-                        self._operator      = operand._operator
-                        self._result        = self._result.copy()
+                        self._operator      = operand._operator # The string str()
+                        self._result        = operand._result.copy()
             case od.Reporter():             self._reporter << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
