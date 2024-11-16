@@ -41,7 +41,7 @@ class Jumbler(o.Operand):
         super().__init__()
         self._sequence: oc.Sequence     = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
-        self._reporter: od.Reporter     = od.Reporter(
+        self._reporters: od.Reporters   = od.Reporters(
                 of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
             )
@@ -56,14 +56,14 @@ class Jumbler(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Reporter():     return self._reporter
+                    case od.Reporters():    return self._reporters
                     case of.Frame():        return self._frame
                     case oc.Sequence():     return self._sequence
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return ol.Null()
             case Jumbler():         return self.copy()
-            case od.Reporter():     return self._reporter.copy()
+            case od.Reporters():    return self._reporters.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
             case oc.Sequence():     return self._result._data.copy()
@@ -88,7 +88,7 @@ class Jumbler(o.Operand):
             "parameters": {
                 "sequence":         self._sequence.getSerialization(),
                 "frame":            self._frame.getSerialization(),
-                "reporter":         self._reporter.getSerialization(),
+                "reporter":         self._reporters.getSerialization(),
                 "operator":         self._operator
             }
         }
@@ -102,7 +102,7 @@ class Jumbler(o.Operand):
 
             self._sequence          = o.Operand().loadSerialization(serialization["parameters"]["sequence"])
             self._frame             = o.Operand().loadSerialization(serialization["parameters"]["frame"])
-            self._reporter          = od.Reporter().loadSerialization(serialization["parameters"]["reporter"])
+            self._reporters         = od.Reporters().loadSerialization(serialization["parameters"]["reporter"])
             self._operator          = serialization["parameters"]["operator"]
         return self
         
@@ -111,7 +111,7 @@ class Jumbler(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Reporter():             self._reporter = operand % o.Operand()
+                    case od.Reporters():            self._reporters = operand % o.Operand()
                     case of.Frame():                self._frame = operand % o.Operand()
                     case oc.Sequence():             self._sequence = operand % o.Operand()
                     case str():                     self._operator = operand % o.Operand()
@@ -121,10 +121,10 @@ class Jumbler(o.Operand):
             case Jumbler():
                         self._sequence      = operand._result._data.copy()
                         self._frame         = operand._frame.copy()
-                        self._reporter      << operand._reporter
+                        self._reporters     << operand._reporters
                         self._operator      = operand._operator # The string str()
                         self._result        = operand._result.copy()
-            case od.Reporter():             self._reporter << operand
+            case od.Reporters():            self._reporters << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
                                             self._sequence << operand
@@ -174,11 +174,11 @@ class Jumbler(o.Operand):
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self._index + 1}', end = " ")
-            if isinstance(self._reporter._data, tuple):
-                for single_reporter in self._reporter._data:
-                    self._result._data >> single_reporter
+            if isinstance(self._reporters._data, tuple):
+                for single_reporters in self._reporters._data:
+                    self._result._data >> single_reporters
             else:
-                self._result._data >> self._reporter._data
+                self._result._data >> self._reporters._data
             print()
         return self
 
@@ -186,7 +186,7 @@ class Jumbler(o.Operand):
         super().reset(*parameters)
         self._sequence.reset()
         self._frame.reset()
-        self._reporter._data.reset()
+        self._reporters._data.reset()
         self._result << od.DataSource( self._sequence.copy() )
         return self
     

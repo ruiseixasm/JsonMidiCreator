@@ -221,7 +221,7 @@ class Parameters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__( parameters )
 
-class Reporter(Data):
+class Reporters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__( parameters )
 

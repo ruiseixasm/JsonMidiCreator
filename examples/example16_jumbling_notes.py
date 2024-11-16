@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << 120
+staff << 150
 K % str() >> Print()    # Returns the tonic key (I)
 
 final_jumbling = Jumbler() * 40 * 4.37
