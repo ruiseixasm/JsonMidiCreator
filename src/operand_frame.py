@@ -33,11 +33,11 @@ import operand_label as ol
 class Frame(o.Operand):
     def __init__(self):
         super().__init__()
-        self._next_operand: o.Operand = o.Operand()
+        self._next_operand: any = o.Operand()
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
     def __iter__(self):
-        self._current_node: o.Operand = self    # Reset to the start node on new iteration
+        self._current_node: any = self    # Reset to the start node on new iteration
         return self
     
     # It has to skip NON Frame Operand, contrary to the Operand __next__ that includes all operands!!
