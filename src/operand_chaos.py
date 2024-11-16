@@ -89,6 +89,7 @@ class Chaos(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Chaos():
+                        super().__lshift__(operand)
                         self._xn            << operand._xn
                         self._x0            << operand._x0
             case ra.Xn():                   self._xn << operand

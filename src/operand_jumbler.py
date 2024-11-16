@@ -119,6 +119,7 @@ class Jumbler(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Jumbler():
+                        super().__lshift__(operand)
                         self._sequence      = operand._sequence.copy()
                         self._frame         = operand._frame.copy()
                         self._reporters     << operand._reporters

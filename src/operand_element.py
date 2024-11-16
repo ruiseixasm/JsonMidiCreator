@@ -188,6 +188,7 @@ class Element(o.Operand):
                     case od.Device():       self._device = operand % o.Operand()
                     case ou.Track():        self._track = operand % o.Operand()
             case Element():
+                super().__lshift__(operand)
                 self._position      << operand._position
                 self._length        << operand._length
                 self._channel       << operand._channel

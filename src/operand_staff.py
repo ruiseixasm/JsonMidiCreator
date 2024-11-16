@@ -245,6 +245,7 @@ class Staff(o.Operand):
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
             case Staff():
+                super().__lshift__(operand)
                 self._measure           << operand._measure
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature

@@ -122,6 +122,7 @@ class Data(o.Operand):
         match operand:
             case DataSource():      self._data = operand % o.Operand()
             case Data():
+                super().__lshift__(operand)
                 operand_data = operand._data
                 match operand_data:
                     case o.Operand():

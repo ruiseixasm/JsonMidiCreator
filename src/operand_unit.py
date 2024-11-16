@@ -166,7 +166,9 @@ class Unit(o.Operand):
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
                     case Integer() | ra.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
-            case self.__class__():          self._unit = operand._unit
+            case Unit():
+                super().__lshift__(operand)
+                self._unit = operand._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
@@ -294,10 +296,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case od.DataSource():
                 match operand % o.Operand():
                     case int():     self._unit   = operand % o.Operand()
-            case KeySignature():
-                self._unit       = operand._unit
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
             case int():     self._unit   = operand
             case str():
                 if len(operand) == 0:
@@ -310,6 +308,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                         flats = re.findall(r"b+", operand)
                         if len(flats) > 0:
                             self._unit = -len(flats[0])
+            case _: 
+                super().__lshift__(operand)
         return self
 
     _key_signatures: list[list] = [
@@ -512,7 +512,7 @@ class Key(Unit):
                         self._degree << operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Key():
-                self._unit          = operand._unit
+                super().__lshift__(operand)
                 self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
@@ -1125,7 +1125,7 @@ class Track(Midi):
                     case str():                     self._name = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Track():
-                self._unit          = operand._unit
+                super().__lshift__(operand)
                 self._name          = operand._name
             case str():             self._name = operand
             case _:                 super().__lshift__(operand)

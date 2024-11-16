@@ -95,6 +95,7 @@ class TimeSignature(Generic):
                     case ra.BeatsPerMeasure():  self._top       = operand % o.Operand() % od.DataSource( int() )
                     case ra.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
             case TimeSignature():
+                super().__lshift__(operand)
                 self._top               = operand._top
                 self._bottom            = operand._bottom
             case od.Serialization():
@@ -222,6 +223,7 @@ class Pitch(Generic):
                     case ou.Octave():       self._octave    = operand % o.Operand()
                     case ou.Key():          self._key       = operand % o.Operand()
             case Pitch():
+                super().__lshift__(operand)
                 self._octave    << operand._octave
                 self._key       << operand._key
                 self._key_offset = operand._key_offset
@@ -398,6 +400,7 @@ class Controller(Generic):
                     case ou.Number():    self._number = operand % o.Operand()
                     case ou.Value():     self._value = operand % o.Operand()
             case Controller():
+                super().__lshift__(operand)
                 self._number    << operand._number
                 self._value     << operand._value
             case od.Serialization():

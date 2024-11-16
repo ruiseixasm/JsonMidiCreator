@@ -173,6 +173,7 @@ class Time(o.Operand):
                     case ra.TimeUnit():
                         self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
             case Time():
+                super().__lshift__(operand)
                 self._time_unit         << operand._time_unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )

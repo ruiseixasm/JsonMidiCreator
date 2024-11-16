@@ -168,6 +168,7 @@ class Operand:
         if isinstance(operand, type(self)):
             self._initiated = operand._initiated
             self._index = operand._index
+            self._set = False   # by default a new copy of data unsets the Operand
         return self
 
     def copy(self: T, *parameters) -> T:

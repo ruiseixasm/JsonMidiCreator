@@ -172,6 +172,7 @@ class Container(o.Operand):
                 match operand % o.Operand():
                     case list():        self._datasource_list = operand % o.Operand()
             case Container():
+                super().__lshift__(operand)
                 last_datasource: int = min(self.len(), operand.len())
                 for datasource_i in range(last_datasource):
                     if isinstance(self._datasource_list[datasource_i]._data, o.Operand):

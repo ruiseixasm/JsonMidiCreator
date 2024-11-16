@@ -127,6 +127,7 @@ class Operator(o.Operand):
                     case list():            self._operator_list = operand % o.Operand()
                     case _:                 self._operand = operand % o.Operand()
             case Operator():
+                super().__lshift__(operand)
                 operator_list = []
                 for single_operator in operand % od.DataSource( list() ):
                     operator_list.append(single_operator.copy())
