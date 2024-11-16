@@ -101,10 +101,27 @@ class Chaos(o.Operand):
                     self << single_operand
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
+    def muted_and_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        self.report(number)
-        self._index += 1
+        iterations = 1
+        match number:
+            case ou.Unit() | ra.Rational():
+                iterations = number % float()
+            case int() | float() | Fraction():
+                iterations = float(number)
+        fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
+        muted_iterations: int = round(abs(fractional_part) * (10 ** 2) + 1)
+        total_iterations: int = round(integer_part * muted_iterations)
+        return muted_iterations, total_iterations
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
+            self._initiated = True
+            for actual_iteration in range(1, total_iterations + 1):
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
+                self._index += 1    # keeps track of each iteration
         return self
     
     def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Chaos':
@@ -172,21 +189,17 @@ class Modulus(Chaos):
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Modulus':
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        iterations: int = 1
-        match number:
-            case ou.Unit() | ra.Rational():
-                iterations = number % int()
-            case int() | float() | Fraction():
-                iterations = int(number)
-        if iterations > 0:
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
             self._initiated = True
-            for _ in range(iterations):
+            for actual_iteration in range(1, total_iterations + 1):
                 self._xn += self._step
                 self._xn << (self._xn % float()) % (self._amplitude % float())
-                self.report(number)
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
+                self._index += 1    # keeps track of each iteration
         return self
-    
+
 class Flipper(Modulus):
     def __init__(self, *parameters):
         super().__init__()
@@ -370,16 +383,10 @@ class Bouncer(Chaos):
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Bouncer':
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        iterations: int = 1
-        match number:
-            case ou.Unit() | ra.Rational():
-                iterations = number % int()
-            case int() | float() | Fraction():
-                iterations = int(number)
-        if iterations > 0:
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
             self._initiated = True
-            for _ in range(iterations):
+            for actual_iteration in range(1, total_iterations + 1):
                 for direction_data in [(self._x, self._dx, self._width), (self._y, self._dy, self._height)]:
                     new_position = direction_data[0] + direction_data[1]
                     if new_position < 0:
@@ -389,8 +396,9 @@ class Bouncer(Chaos):
                         direction_data[1] << direction_data[1] * -1 # flips direction
                         new_position = direction_data[2] - new_position % direction_data[2]
                     direction_data[0] << new_position
-                self.report(number)
-                self._index += 1
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
+                self._index += 1    # keeps track of each iteration
         return self
 
     def __str__(self) -> str:
@@ -455,17 +463,12 @@ class SinX(Chaos):
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'SinX':
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        iterations: int = 1
-        match number:
-            case ou.Unit() | ra.Rational():
-                iterations = number % int()
-            case int() | float() | Fraction():
-                iterations = int(number)
-        if iterations > 0:
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
             self._initiated = True
-            for _ in range(iterations):
+            for actual_iteration in range(1, total_iterations + 1):
                 self._xn << self._xn % float() + self._lambda % float() * math.sin(self._xn % float())
-                self.report(number)
-                self._index += 1
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
+                self._index += 1    # keeps track of each iteration
         return self
