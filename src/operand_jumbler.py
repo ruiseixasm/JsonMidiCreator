@@ -299,3 +299,85 @@ class JumblePitch(JumbleParameters):
         super().__lshift__(operand)
         self._parameters        = od.Parameters(og.Pitch())
         return self
+
+class JumbleData(Jumbler):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._chaos: ch.Chaos           = ch.SinX()
+        self._filter: od.Filter         = od.Filter(of.All())
+        self._parameters: od.Parameters = od.Parameters(ot.Position(), ra.NoteValue())
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ch.Chaos():        return self._chaos
+                    case od.Filter():       return self._filter
+                    case od.Parameters():   return self._parameters
+                    case _:                 return super().__mod__(operand)
+            case ch.Chaos():        return self._chaos.copy()
+            case od.Filter():       return self._filter.copy()
+            case od.Parameters():   return self._parameters.copy()
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
+        element_serialization["parameters"]["filter"]       = self._filter.getSerialization()
+        element_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'JumbleParameters':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._chaos             = ch.Chaos().loadSerialization(serialization["parameters"]["chaos"])
+            self._filter            = od.Filter().loadSerialization(serialization["parameters"]["filter"])
+            self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'JumbleParameters':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ch.Chaos():                self._chaos = operand % o.Operand()
+                    case od.Filter():               self._filter = operand % o.Operand()
+                    case od.Parameters():           self._parameters = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case JumbleParameters():
+                super().__lshift__(operand)
+                self._chaos         << operand._chaos
+                self._filter        << operand._filter
+                self._parameters    << operand._parameters
+            case ch.Chaos():                self._chaos << operand
+            case od.Filter():               self._filter << operand
+            case _:                         super().__lshift__(operand)
+        return self
+
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleParameters':
+        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        if total_iterations > 0:
+            self._initiated = True
+            source_result: oc.Sequence  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
+            jumbled_result: oc.Sequence = source_result.copy()
+            for actual_iteration in range(1, total_iterations + 1):
+                jumbled_result.shuffle(self._chaos) # a single shuffle
+                for single_parameter in self._parameters._data:
+                    source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
+                self._result % od.DataSource() >> ol.Link(True)
+                if actual_iteration % muted_iterations == 0:
+                    self.report(number)
+                self._index += 1    # keeps track of each iteration
+        return self
+
+    def reset(self, *parameters) -> 'JumbleParameters':
+        super().reset(*parameters)
+        self._chaos.reset()
+        self._filter.reset()
+        return self
