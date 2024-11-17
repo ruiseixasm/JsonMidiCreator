@@ -482,7 +482,7 @@ class Scale(Data):
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
-        super().__init__( os.staff % DataSource( self ) % list() if device_list is None else device_list )
+        super().__init__( os.staff._device % list() if device_list is None else device_list )
 
 class Save(Data):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):

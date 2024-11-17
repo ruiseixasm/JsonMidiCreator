@@ -1140,7 +1140,7 @@ class Channel(Midi):
         For a given device, there are 16 channels ranging from 1 to 16
     """
     def __init__(self, unit: int = None):
-        super().__init__( os.staff % od.DataSource( self ) % int() if unit is None else unit )
+        super().__init__( os.staff._channel % int() if unit is None else unit )
 
 class Velocity(Midi):
     """
