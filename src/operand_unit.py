@@ -140,19 +140,23 @@ class Unit(o.Operand):
         return f'{self._unit}'
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "unit": self._unit
-            }
-        }
+        unit_serialization = super().getSerialization()
+        unit_serialization["parameters"]["unit"] = self._unit
+        return unit_serialization
+        # return {
+        #     "class": self.__class__.__name__,
+        #     "parameters": {
+        #         "unit": self._unit
+        #     }
+        # }
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Unit':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "unit" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._unit = serialization["parameters"]["unit"]
         return self
 

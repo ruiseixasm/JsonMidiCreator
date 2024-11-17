@@ -177,6 +177,7 @@ class Element(o.Operand):
             "position" in serialization["parameters"] and "length" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"] and "track" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
             self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
             self._channel   = ou.Channel().loadSerialization(serialization["parameters"]["channel"])
