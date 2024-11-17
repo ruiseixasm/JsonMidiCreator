@@ -1266,9 +1266,7 @@ class Tuplet(Rest):
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
             for single_element_serialization in elements_serialization:
-                if isinstance(single_element_serialization, dict) and "class" in single_element_serialization:
-                    element = self.getOperand(single_element_serialization["class"])
-                    if element: elements.append(element.loadSerialization(single_element_serialization))
+                elements.append( o.Operand().loadSerialization(single_element_serialization) )
             self._elements = elements
         return self
 

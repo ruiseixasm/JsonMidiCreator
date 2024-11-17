@@ -164,7 +164,7 @@ class Container(o.Operand):
             "datasource_list" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._datasource_list: list = []
+            self._datasource_list: list[od.DataSource] = []
             operands_serialization = serialization["parameters"]["datasource_list"]
             for single_operand_serialization in operands_serialization:
                 self._datasource_list.append( od.DataSource( o.Operand().loadSerialization(single_operand_serialization) ) )
