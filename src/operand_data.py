@@ -27,9 +27,11 @@ import operand_time as ot
 
 
 class Data(o.Operand):
+
     def __init__(self, data = None):
         super().__init__()
         self._data = data
+
     # def __init__(self, *parameters):
     #     super().__init__()
     #     self._data = None
@@ -123,6 +125,8 @@ class Data(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case DataSource():      self._data = operand % o.Operand()
+            case Serialization():
+                self.loadSerialization(operand % DataSource( dict() ))
             case Data():
                 super().__lshift__(operand)
                 operand_data = operand._data
@@ -140,8 +144,6 @@ class Data(o.Operand):
                         self._data = many_operands
                     case _:
                         self._data = operand_data
-            case Serialization():
-                self.loadSerialization(operand % DataSource( dict() ))
             case o.Operand():
                 self._data = self._data.copy()
             case list():
