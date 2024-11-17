@@ -258,6 +258,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     self._unit = num_accidentals
     
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        import operand_generic as og
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -341,6 +342,7 @@ class Key(Unit):
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
     def __init__(self, *parameters):
+        import operand_generic as og
         super().__init__()
         self._unit              = None  # uses tonic key by default
         self._sharp: Sharp      = Sharp(0)
@@ -352,6 +354,7 @@ class Key(Unit):
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        import operand_generic as og
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -470,6 +473,7 @@ class Key(Unit):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Key':
+        import operand_generic as og
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and 
             "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
@@ -484,6 +488,7 @@ class Key(Unit):
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
         import operand_rational as ra
+        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -1043,6 +1048,7 @@ class Modulate(Operation):    # Modal Modulation
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_generic as og
         if isinstance(operand, od.Scale):
             operand = operand.copy().modulate(self._unit)
             return operand
