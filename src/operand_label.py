@@ -54,6 +54,20 @@ class Process(Label):
         super().__init__()
         self._parameter: any = parameter
 
+    def __mod__(self, operand: any) -> any:
+        import operand_data as od
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case _:                 return self._parameter               
+                    # case _:                 return ol.Null()
+            case Process():         return self.copy()
+            case _:
+                if isinstance(self._parameter, o.Operand):
+                    return self._parameter.copy()
+                return self._parameter
+                # return super().__mod__(operand)
+
 class Save(Process):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)

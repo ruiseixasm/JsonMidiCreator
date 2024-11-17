@@ -101,7 +101,7 @@ class Container(o.Operand):
                 self._index %= len(self._datasource_list)
                 single_datasource_data: any = self._datasource_list[self._index]._data
                 return single_datasource_data
-            case od.Filter():
+            case ol.Filter():
                 return self.filter(operand % od.DataSource())
             case of.Frame():
                 return self.filter(operand)

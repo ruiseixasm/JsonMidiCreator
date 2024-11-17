@@ -193,7 +193,7 @@ class JumbleParameters(Jumbler):
     def __init__(self, *parameters):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
-        self._filter: od.Filter         = od.Filter(of.All())
+        self._filter: ol.Filter         = ol.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(ot.Position(), ra.NoteValue())
         if len(parameters) > 0:
             self << parameters
@@ -203,11 +203,11 @@ class JumbleParameters(Jumbler):
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():        return self._chaos
-                    case od.Filter():       return self._filter
+                    case ol.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
             case ch.Chaos():        return self._chaos.copy()
-            case od.Filter():       return self._filter.copy()
+            case ol.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
             case _:                 return super().__mod__(operand)
 
@@ -226,7 +226,7 @@ class JumbleParameters(Jumbler):
 
             super().loadSerialization(serialization)
             self._chaos             = ch.Chaos().loadSerialization(serialization["parameters"]["chaos"])
-            self._filter            = od.Filter().loadSerialization(serialization["parameters"]["filter"])
+            self._filter            = ol.Filter().loadSerialization(serialization["parameters"]["filter"])
             self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
         return self
 
@@ -236,7 +236,7 @@ class JumbleParameters(Jumbler):
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case od.Filter():               self._filter = operand % o.Operand()
+                    case ol.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case JumbleParameters():
@@ -245,7 +245,7 @@ class JumbleParameters(Jumbler):
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case ch.Chaos():                self._chaos << operand
-            case od.Filter():               self._filter << operand
+            case ol.Filter():               self._filter << operand
             case _:                         super().__lshift__(operand)
         return self
 
@@ -303,7 +303,7 @@ class JumbleData(Jumbler):
     def __init__(self, *parameters):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
-        self._filter: od.Filter         = od.Filter(of.All())
+        self._filter: ol.Filter         = ol.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(ot.Position(), ra.NoteValue())
         if len(parameters) > 0:
             self << parameters
@@ -313,11 +313,11 @@ class JumbleData(Jumbler):
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():        return self._chaos
-                    case od.Filter():       return self._filter
+                    case ol.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
             case ch.Chaos():        return self._chaos.copy()
-            case od.Filter():       return self._filter.copy()
+            case ol.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
             case _:                 return super().__mod__(operand)
 
@@ -336,7 +336,7 @@ class JumbleData(Jumbler):
 
             super().loadSerialization(serialization)
             self._chaos             = ch.Chaos().loadSerialization(serialization["parameters"]["chaos"])
-            self._filter            = od.Filter().loadSerialization(serialization["parameters"]["filter"])
+            self._filter            = ol.Filter().loadSerialization(serialization["parameters"]["filter"])
             self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
         return self
 
@@ -346,7 +346,7 @@ class JumbleData(Jumbler):
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case od.Filter():               self._filter = operand % o.Operand()
+                    case ol.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case JumbleParameters():
@@ -355,7 +355,7 @@ class JumbleData(Jumbler):
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case ch.Chaos():                self._chaos << operand
-            case od.Filter():               self._filter << operand
+            case ol.Filter():               self._filter << operand
             case _:                         super().__lshift__(operand)
         return self
 

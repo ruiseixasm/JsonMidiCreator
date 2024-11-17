@@ -248,7 +248,6 @@ class SideEffects(Data):
 
 class LeftShift(SideEffects):
     # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(self._data, o.Operand):
             self._data << operand
@@ -258,7 +257,6 @@ class LeftShift(SideEffects):
 
 class RightShift(SideEffects):
     # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         if isinstance(self._data, o.Operand):
             operand >> self._data
