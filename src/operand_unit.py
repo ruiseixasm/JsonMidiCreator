@@ -268,7 +268,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
-            case od.Scale():            return od.Scale(self % list())
+            case og.Scale():            return og.Scale(self % list())
             case list():
                 key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
                 key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
@@ -349,7 +349,7 @@ class Key(Unit):
         self._flat: Flat        = Flat(0)
         self._natural: Natural  = Natural(0)
         self._degree: Degree    = Degree(1)
-        self._scale: od.Scale   = od.Scale([])
+        self._scale: og.Scale   = og.Scale([])
         if len(parameters) > 0:
             self << parameters
 
@@ -362,7 +362,7 @@ class Key(Unit):
                     case Flat():            return self._flat
                     case Natural():         return self._natural
                     case Degree():          return self._degree
-                    case od.Scale():        return self._scale
+                    case og.Scale():        return self._scale
                     case float():           return self % float()
                     case str():
                         note_key = self % int() % 12
@@ -373,13 +373,13 @@ class Key(Unit):
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
-            case od.Scale():
+            case og.Scale():
                 if self._scale.hasScale():
                     return self._scale.copy()
                 if os.staff._scale.hasScale():
                     return os.staff._scale.copy()
                 return os.staff._key_signature % operand
-            case Mode() | list():   return (self % od.Scale()) % operand
+            case Mode() | list():   return (self % og.Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
                 if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
@@ -483,7 +483,7 @@ class Key(Unit):
             self._flat      = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
             self._natural   = Natural() << od.DataSource( serialization["parameters"]["natural"] )
             self._degree    = Degree()  << od.DataSource( serialization["parameters"]["degree"] )
-            self._scale     = od.Scale().loadSerialization(serialization["parameters"]["scale"])
+            self._scale     = og.Scale().loadSerialization(serialization["parameters"]["scale"])
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
@@ -507,7 +507,7 @@ class Key(Unit):
                         self._natural << operand % o.Operand()
                     case Degree():
                         self._degree << operand % o.Operand()
-                    case od.Scale():
+                    case og.Scale():
                         self._scale << operand % o.Operand()
                     case str():
                         self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
@@ -546,7 +546,7 @@ class Key(Unit):
                 self._natural << operand
             case Degree():
                 self._degree << operand
-            case od.Scale() | Mode():
+            case og.Scale() | Mode():
                 self._scale << operand
             case str():
                 string: str = operand.strip()
@@ -1049,7 +1049,7 @@ class Modulate(Operation):    # Modal Modulation
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_generic as og
-        if isinstance(operand, od.Scale):
+        if isinstance(operand, og.Scale):
             operand = operand.copy().modulate(self._unit)
             return operand
         else:

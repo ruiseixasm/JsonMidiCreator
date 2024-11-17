@@ -567,7 +567,7 @@ class Note(Rest):
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.Pitch():      return self._pitch.copy()
-            case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | list():
+            case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
                                     return self._pitch % operand
             case ou.Velocity():     return self._velocity.copy()
             case ra.Gate():         return self._gate.copy()
@@ -665,7 +665,7 @@ class Note(Rest):
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
                 self._tied          << operand._tied
-            case og.Pitch() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | od.Scale() | ou.Mode() | int() | str():
+            case og.Pitch() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str():
                                     self._pitch << operand
             case ou.Velocity():     self._velocity << operand
             case ra.Gate():         self._gate << operand
@@ -704,7 +704,7 @@ class KeyScale(Note):
         super().__init__()
         self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure length
         # self._pitch._key._scale  << "Major"
-        self._self_scale: od.Scale  = od.Scale("Major")    # Major scale as default
+        self._self_scale: og.Scale  = og.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters
 
@@ -729,9 +729,9 @@ class KeyScale(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Scale():        return self._self_scale
+                    case og.Scale():        return self._self_scale
                     case _:                 return super().__mod__(operand)
-            case od.Scale():        return self._self_scale.copy()
+            case og.Scale():        return self._self_scale.copy()
             case list() | str() | ou.Mode():
                                     return self._self_scale % operand
             case _:                 return super().__mod__(operand)
@@ -753,7 +753,7 @@ class KeyScale(Note):
                 transposition: int = self._self_scale.transposition(key_note_i)
                 scale_notes.append(Note(self) + float(transposition))
         else:   # Uses the staff keys straight away
-            key_note_scale: od.Scale = self._pitch._key % od.Scale()
+            key_note_scale: og.Scale = self._pitch._key % og.Scale()
             for note_i in range(key_note_scale.keys()):
                 scale_notes.append(
                     Note(self) + note_i   # Jumps by steps (scale tones)
@@ -784,7 +784,7 @@ class KeyScale(Note):
             "self_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._self_scale  = od.Scale().loadSerialization(serialization["parameters"]["self_scale"])
+            self._self_scale  = og.Scale().loadSerialization(serialization["parameters"]["self_scale"])
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -792,12 +792,12 @@ class KeyScale(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Scale():        self._self_scale = operand % o.Operand()
+                    case og.Scale():        self._self_scale = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
                 self._self_scale << operand._self_scale
-            case od.Scale() | list() | ou.Mode():
+            case og.Scale() | list() | ou.Mode():
                 self._self_scale << operand
             case _: super().__lshift__(operand)
         return self
@@ -869,7 +869,7 @@ class Chord(KeyScale):
         max_size = min(self._size % od.DataSource( int() ), max_size)
         # Sets Scale to be used
         if self._self_scale.hasScale():
-            # modulated_scale: od.Scale = self._scale.copy().modulate(self._mode)
+            # modulated_scale: og.Scale = self._scale.copy().modulate(self._mode)
             for note_i in range(max_size):
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
@@ -888,7 +888,7 @@ class Chord(KeyScale):
                     Note(self) + float(transposition)   # Jumps by semitones
                 )
         else:   # Uses the staff keys straight away
-            # modulated_scale: od.Scale = os.staff % od.Scale(self._mode) # already modulated
+            # modulated_scale: og.Scale = os.staff % og.Scale(self._mode) # already modulated
             for note_i in range(max_size):
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
