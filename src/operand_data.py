@@ -143,8 +143,9 @@ class Data(o.Operand):
                         self._data = operand_data
             case DataSource():
                 self._data = operand % o.Operand()
-            case Serialization():
-                self.loadSerialization(operand % DataSource( dict() ))
+            # Data doesn't load serialization, just processed data!!
+            # case Serialization():
+            #     self.loadSerialization(operand % DataSource( dict() ))
             case o.Operand():
                 self._data = operand.copy()
             case list():
