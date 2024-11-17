@@ -79,6 +79,8 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
+            case ol.Filter():   # Filter is now also a Process
+                return self.filter(operand % od.DataSource())
             case ol.Getter():       return operand.get(self)
             case ol.Process():      return self >> operand
             case list():
@@ -101,8 +103,6 @@ class Container(o.Operand):
                 self._index %= len(self._datasource_list)
                 single_datasource_data: any = self._datasource_list[self._index]._data
                 return single_datasource_data
-            case ol.Filter():
-                return self.filter(operand % od.DataSource())
             case of.Frame():
                 return self.filter(operand)
             case _:
@@ -233,7 +233,7 @@ class Container(o.Operand):
             shuffler = ch.SinX()
         container_data: list = []
         for single_datasource in self._datasource_list:
-            container_data.append(single_datasource._data)
+            container_data.append(single_datasource._data)   # No need to copy
         for single_datasource in self._datasource_list:
             data_to_extract: int = shuffler * 1 % int() % len(container_data)
             single_datasource._data = container_data[data_to_extract]
