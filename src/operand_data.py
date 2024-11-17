@@ -503,17 +503,13 @@ class Save(Data):
 
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
+        super().__init__()
         if isinstance(serialization, o.Operand):
             self._data = serialization.copy()
         elif isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
-            operand_class_name = serialization["class"]
-            new_operand = self.getOperand(operand_class_name)
-            if new_operand:
-                super().__init__( new_operand.loadSerialization(serialization) )
-            else:
-                super().__init__( ol.Null() )
+            self._data = o.Operand().loadSerialization(serialization)
         else:
-            super().__init__( ol.Null() )
+            self._data = ol.Null()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -630,7 +626,7 @@ class Load(Serialization):
             case str():
                 super().__init__( c.loadJsonMidiCreator(file_name) )
             case _:
-                super().__init__( ol.Null() )
+                super().__init__()
 
 class Export(Data):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
