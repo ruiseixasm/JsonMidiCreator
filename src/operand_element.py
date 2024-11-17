@@ -796,7 +796,7 @@ class KeyScale(Note):
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
-                self._self_scale     << operand._self_scale
+                self._self_scale << operand._self_scale
             case od.Scale() | list() | ou.Mode():
                 self._self_scale << operand
             case _: super().__lshift__(operand)

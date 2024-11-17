@@ -625,6 +625,8 @@ class Scale(Data):
                 super().__lshift__(operand)
                 self._scale_list    = operand._scale_list.copy()
                 self._mode          << operand._mode
+            case Serialization():
+                self.loadSerialization(operand % DataSource( dict() ))
             case ou.Mode() | int():
                 self._mode << operand
             case str():
@@ -636,6 +638,9 @@ class Scale(Data):
                     self._scale_list = operand.copy()
                 elif operand == []:
                     self._scale_list = []
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
             case _: super().__lshift__(operand)
         return self
 
