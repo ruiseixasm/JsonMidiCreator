@@ -39,7 +39,7 @@ class Element(o.Operand):
         self._position: ot.Position         = ot.Position()
         self._length: ot.Length             = ot.Length()
         self._channel: ou.Channel           = ou.Channel()
-        self._device: od.Device             = od.Device()
+        self._device: og.Device             = og.Device()
         self._track: ou.Track               = ou.Track()
         if len(parameters) > 0:
             self << parameters
@@ -61,7 +61,7 @@ class Element(o.Operand):
                     case ot.Position():     return self._position
                     case ot.Length():       return self._length
                     case ou.Channel():      return self._channel
-                    case od.Device():       return self._device
+                    case og.Device():       return self._device
                     case ou.Track():        return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
@@ -71,7 +71,7 @@ class Element(o.Operand):
             case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
-            case od.Device():       return self._device.copy()
+            case og.Device():       return self._device.copy()
             case ou.Track():        return self._track.copy()
             case Element():         return self.copy()
             case ol.Start():        return self.start()
@@ -85,7 +85,7 @@ class Element(o.Operand):
                 return  self._position  == other_operand % od.DataSource( ot.Position() ) \
                     and self._length    == other_operand % od.DataSource( ot.Length() ) \
                     and self._channel   == other_operand % od.DataSource( ou.Channel() ) \
-                    and self._device    == other_operand % od.DataSource( od.Device() ) \
+                    and self._device    == other_operand % od.DataSource( og.Device() ) \
                     and self._track     == other_operand % od.DataSource( ou.Track() )
             case ra.TimeUnit():
                 return self._position == other_operand
@@ -181,7 +181,7 @@ class Element(o.Operand):
             self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
             self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
             self._channel   = ou.Channel().loadSerialization(serialization["parameters"]["channel"])
-            self._device    = od.Device().loadSerialization(serialization["parameters"]["device"])
+            self._device    = og.Device().loadSerialization(serialization["parameters"]["device"])
             self._track     = ou.Track().loadSerialization(serialization["parameters"]["track"])
         return self
 
@@ -193,7 +193,7 @@ class Element(o.Operand):
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
                     case ou.Channel():      self._channel = operand % o.Operand()
-                    case od.Device():       self._device = operand % o.Operand()
+                    case og.Device():       self._device = operand % o.Operand()
                     case ou.Track():        self._track = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
@@ -209,7 +209,7 @@ class Element(o.Operand):
             case ot.Position() | ra.TimeUnit():
                                     self._position << operand
             case ou.Channel():      self._channel << operand
-            case od.Device():       self._device << operand
+            case og.Device():       self._device << operand
             case ou.Track():        self._track << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
@@ -331,7 +331,7 @@ class Clock(Element):
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
-        device = self % od.Device()
+        device = self % og.Device()
 
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
         pulses_per_beat = pulses_per_note * (os.staff % ra.BeatNoteValue() % od.DataSource( Fraction() ))
