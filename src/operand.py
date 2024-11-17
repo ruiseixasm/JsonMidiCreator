@@ -172,7 +172,7 @@ class Operand:
                 self._initiated     = serialization["parameters"]["initiated"]
                 self._set           = serialization["parameters"]["set"]
                 self._index         = serialization["parameters"]["index"]
-        return ol.Null()
+        return self
        
     def __lshift__(self, operand: 'Operand') -> 'Operand':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
