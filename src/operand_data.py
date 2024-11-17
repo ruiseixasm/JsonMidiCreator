@@ -572,7 +572,8 @@ class Scale(Data):
     """
     def __init__(self, *parameters):
         super().__init__([])
-        self._mode: ou.Mode     = ou.Mode()
+        self._scale_list: list[int] = []
+        self._mode: ou.Mode         = ou.Mode()
         if len(parameters) > 0:
             self << parameters
 
@@ -645,17 +646,19 @@ class Scale(Data):
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["mode"]     = self._mode % DataSource( int() )
+        element_serialization["parameters"]["scale_list"]   = self._scale_list
+        element_serialization["parameters"]["mode"]         = self._mode % DataSource( int() )
         return element_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Scale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"]):
+            "scale_list" in serialization["parameters"] and "mode" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._mode      = ou.Mode()     << DataSource( serialization["parameters"]["mode"] )
+            self._scale_list    = serialization["parameters"]["scale_list"]
+            self._mode          = ou.Mode()     << DataSource( serialization["parameters"]["mode"] )
         return self
         
     def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
