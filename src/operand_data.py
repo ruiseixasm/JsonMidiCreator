@@ -72,7 +72,7 @@ class Data(o.Operand):
     def __eq__(self, other_data: o.Operand) -> bool:
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
-            return self._data == other_data % DataSource()
+            return self._data == other_data._data
         if other_data.__class__ == o.Operand:
             return True
         return False
@@ -80,13 +80,13 @@ class Data(o.Operand):
     def __lt__(self, other_data: o.Operand) -> bool:
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
-            return self._data < other_data % DataSource()
+            return self._data < other_data._data
         return False
     
     def __gt__(self, other_data: o.Operand) -> bool:
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other_data, Data):
-            return self._data > other_data % DataSource()
+            return self._data > other_data._data
         return False
     
     def __le__(self, other_data: o.Operand) -> bool:
@@ -662,6 +662,10 @@ class Playlist(Data):
 
     def __eq__(self, other_operand: any) -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
+        if self._data is None:
+            if other_operand is None:
+                return True
+            return False
         match other_operand:
             case list():
                 return self._data == other_operand
