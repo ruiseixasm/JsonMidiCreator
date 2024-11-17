@@ -145,9 +145,9 @@ class Operand:
 
     def loadSerialization(self, serialization: dict) -> 'Operand':
         import operand_label as ol
-        if serialization is None: # avoids infinite recursion
+        if serialization is None or not isinstance(serialization, dict): # avoids infinite recursion
             return serialization
-        if isinstance(serialization, dict) and ("class" in serialization and "parameters" in serialization):
+        if "class" in serialization and "parameters" in serialization:
             if type(self) == Operand:   # Means unknown instantiation from random dict class name
                 operand_name = serialization["class"]
                 operand_class = Operand.find_subclass_by_name(Operand, operand_name)    # Heavy duty call
