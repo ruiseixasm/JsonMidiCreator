@@ -575,7 +575,7 @@ class Scale(Data):
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
     def __init__(self, *parameters):
-        super().__init__([])
+        super().__init__()
         self._scale_list: list[int] = []
         self._mode: ou.Mode         = ou.Mode()
         if len(parameters) > 0:
