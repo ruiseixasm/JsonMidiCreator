@@ -148,24 +148,21 @@ class Staff(o.Operand):
             and self._device            == other_staff % od.DataSource( od.Device() )
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "measures":             self._measure % od.DataSource( str() ),
-                "tempo":                self._tempo % od.DataSource( str() ),
-                "time_signature":       self._time_signature.getSerialization(),
-                "key_signature":        self._key_signature.getSerialization(),
-                "key":                  self._key % od.DataSource( int() ),
-                "scale":                self._scale % od.DataSource( list() ),
-                "quantization":         self._quantization % od.DataSource( str() ),
-                "duration":             self._duration.getSerialization(),
-                "octave":               self._octave % od.DataSource( int() ),
-                "velocity":             self._velocity % od.DataSource( int() ),
-                "controller":           self._controller.getSerialization(),
-                "channel":              self._channel % od.DataSource( int() ),
-                "device":               self._device % od.DataSource( list() )
-            }
-        }
+        staff_serialization = super().getSerialization()
+        staff_serialization["parameters"]["measures"]       = self._measure % od.DataSource( str() )
+        staff_serialization["parameters"]["tempo"]          = self._tempo % od.DataSource( str() )
+        staff_serialization["parameters"]["time_signature"] = self._time_signature.getSerialization()
+        staff_serialization["parameters"]["key_signature"]  = self._key_signature.getSerialization()
+        staff_serialization["parameters"]["key"]            = self._key % od.DataSource( int() )
+        staff_serialization["parameters"]["scale"]          = self._scale % od.DataSource( list() )
+        staff_serialization["parameters"]["quantization"]   = self._quantization % od.DataSource( str() )
+        staff_serialization["parameters"]["duration"]       = self._duration.getSerialization()
+        staff_serialization["parameters"]["octave"]         = self._octave % od.DataSource( int() )
+        staff_serialization["parameters"]["velocity"]       = self._velocity % od.DataSource( int() )
+        staff_serialization["parameters"]["controller"]     = self._controller.getSerialization()
+        staff_serialization["parameters"]["channel"]        = self._channel % od.DataSource( int() )
+        staff_serialization["parameters"]["device"]         = self._device % od.DataSource( list() )
+        return staff_serialization
 
     # CHAINABLE OPERATIONS
 
@@ -194,7 +191,7 @@ class Staff(o.Operand):
             # circle_fifths_position: int = self._key_signature % int()
             # self._tonic_key._unit = (self._key._unit + circle_fifths_position * 7) % 12
         
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"] and

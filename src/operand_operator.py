@@ -80,31 +80,20 @@ class Operator(o.Operand):
         return False
     
     def getSerialization(self) -> dict:
-        operators_serialization = []
-        if isinstance(self._operand, Operator):
-            for single_operator in self % list():
-                if isinstance(single_operator, Operator):
-                    operators_serialization.append(single_operator.getSerialization())
-                elif isinstance(single_operator, (int, float, str, list, dict)):
-                    operators_serialization.append(single_operator)
-            return {
-                "class": self.__class__.__name__,
-                "parameters": {
-                    "operand":          self._operand.getSerialization(),
-                    "operator_list":    operators_serialization
-                }
-            }
-        return {
-                "class": self.__class__.__name__,
-                "parameters": {
-                    "operand":          self._operand,
-                    "operator_list":    operators_serialization
-                }
-            }
+        operator_serialization = super().getSerialization()
+        operator_serialization["parameters"]["operand"]         = self._operand.getSerialization()
+        operators_serialization: list = []
+        for single_operator in self._operator_list:
+            if isinstance(single_operator, Operator):
+                operators_serialization.append(single_operator.getSerialization())
+            elif isinstance(single_operator, (int, float, str, list, dict)):
+                operators_serialization.append(single_operator)
+        operator_serialization["parameters"]["operator_list"]   = operators_serialization
+        return operator_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Operator':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "parameters" in serialization["parameters"]["operand"]
             and "operator_list" in serialization["parameters"]):
@@ -213,12 +202,12 @@ class Oscillator(Operator):
         return False
     
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["position"]     = self._position.getSerialization()
-        element_serialization["parameters"]["length"]       = self._length.getSerialization()
-        element_serialization["parameters"]["amplitude"]    = self._amplitude % od.DataSource( float() )
-        element_serialization["parameters"]["offset"]       = self._offset % od.DataSource( float() )
-        return element_serialization
+        oscillator_serialization = super().getSerialization()
+        oscillator_serialization["parameters"]["position"]     = self._position.getSerialization()
+        oscillator_serialization["parameters"]["length"]       = self._length.getSerialization()
+        oscillator_serialization["parameters"]["amplitude"]    = self._amplitude % od.DataSource( float() )
+        oscillator_serialization["parameters"]["offset"]       = self._offset % od.DataSource( float() )
+        return oscillator_serialization
 
     # CHAINABLE OPERATIONS
 

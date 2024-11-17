@@ -61,13 +61,10 @@ class Chaos(o.Operand):
         return f'{self._index + 1}: {self._xn % float()}'
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "xn":               self._xn % str(),
-                "x0":               self._x0 % str()
-            }
-        }
+        chaos_serialization = super().getSerialization()
+        chaos_serialization["parameters"]["xn"] = self._xn.getSerialization()
+        chaos_serialization["parameters"]["x0"] = self._x0.getSerialization()
+        return chaos_serialization
 
     # CHAINABLE OPERATIONS
 
@@ -76,8 +73,8 @@ class Chaos(o.Operand):
             "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._xn                << serialization["parameters"]["xn"]
-            self._x0                << serialization["parameters"]["x0"]
+            self._xn    = ra.Xn().loadSerialization(serialization["parameters"]["xn"])
+            self._x0    = ra.X0().loadSerialization(serialization["parameters"]["x0"])
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Chaos':

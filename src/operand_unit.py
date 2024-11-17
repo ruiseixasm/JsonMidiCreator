@@ -143,12 +143,6 @@ class Unit(o.Operand):
         unit_serialization = super().getSerialization()
         unit_serialization["parameters"]["unit"] = self._unit
         return unit_serialization
-        # return {
-        #     "class": self.__class__.__name__,
-        #     "parameters": {
-        #         "unit": self._unit
-        #     }
-        # }
 
     # CHAINABLE OPERATIONS
 
@@ -465,13 +459,13 @@ class Key(Unit):
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["sharp"]    = self._sharp._unit
-        element_serialization["parameters"]["flat"]     = self._flat._unit
-        element_serialization["parameters"]["natural"]  = self._natural._unit
-        element_serialization["parameters"]["degree"]   = self._degree._unit
-        element_serialization["parameters"]["scale"]    = self._scale.getSerialization()
-        return element_serialization
+        key_serialization = super().getSerialization()
+        key_serialization["parameters"]["sharp"]    = self._sharp._unit
+        key_serialization["parameters"]["flat"]     = self._flat._unit
+        key_serialization["parameters"]["natural"]  = self._natural._unit
+        key_serialization["parameters"]["degree"]   = self._degree._unit
+        key_serialization["parameters"]["scale"]    = self._scale.getSerialization()
+        return key_serialization
 
     # CHAINABLE OPERATIONS
 

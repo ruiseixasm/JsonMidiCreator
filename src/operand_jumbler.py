@@ -83,15 +83,12 @@ class Jumbler(o.Operand):
         return  self._result == other._result
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "sequence":         self._sequence.getSerialization(),
-                "frame":            self._frame.getSerialization(),
-                "reporter":         self._reporters.getSerialization(),
-                "operator":         self._operator
-            }
-        }
+        jumbler_serialization = super().getSerialization()
+        jumbler_serialization["parameters"]["sequence"]     = self._sequence.getSerialization()
+        jumbler_serialization["parameters"]["frame"]        = self._frame.getSerialization()
+        jumbler_serialization["parameters"]["reporters"]    = self._reporters.getSerialization()
+        jumbler_serialization["parameters"]["operator"]     = self._operator
+        return jumbler_serialization
 
     # CHAINABLE OPERATIONS
 
@@ -101,8 +98,8 @@ class Jumbler(o.Operand):
             "operator" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sequence          = o.Operand().loadSerialization(serialization["parameters"]["sequence"])
-            self._frame             = o.Operand().loadSerialization(serialization["parameters"]["frame"])
+            self._sequence          = oc.Sequence().loadSerialization(serialization["parameters"]["sequence"])
+            self._frame             = of.Frame().loadSerialization(serialization["parameters"]["frame"])
             self._reporters         = od.Reporters().loadSerialization(serialization["parameters"]["reporter"])
             self._operator          = serialization["parameters"]["operator"]
         return self
@@ -215,11 +212,11 @@ class JumbleParameters(Jumbler):
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
-        element_serialization["parameters"]["filter"]       = self._filter.getSerialization()
-        element_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
-        return element_serialization
+        jumbleparameters_serialization = super().getSerialization()
+        jumbleparameters_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
+        jumbleparameters_serialization["parameters"]["filter"]       = self._filter.getSerialization()
+        jumbleparameters_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
+        return jumbleparameters_serialization
 
     # CHAINABLE OPERATIONS
 
@@ -325,11 +322,11 @@ class JumbleData(Jumbler):
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
-        element_serialization["parameters"]["filter"]       = self._filter.getSerialization()
-        element_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
-        return element_serialization
+        jumbledata_serialization = super().getSerialization()
+        jumbledata_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
+        jumbledata_serialization["parameters"]["filter"]       = self._filter.getSerialization()
+        jumbledata_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
+        return jumbledata_serialization
 
     # CHAINABLE OPERATIONS
 

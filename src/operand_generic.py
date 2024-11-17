@@ -69,17 +69,14 @@ class TimeSignature(Generic):
             and self._bottom        == other_time_signature._bottom
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "top":          self._top,
-                "bottom":       self._bottom
-            }
-        }
+        timesignature_serialization = super().getSerialization()
+        timesignature_serialization["parameters"]["top"]    = self._top
+        timesignature_serialization["parameters"]["bottom"] = self._bottom
+        return timesignature_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'TimeSignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "top" in serialization["parameters"] and "bottom" in serialization["parameters"]):
 
@@ -195,24 +192,21 @@ class Pitch(Generic):
     
     def getSerialization(self) -> dict:
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "key":          self._key.getSerialization(),
-                "octave":       self._octave % od.DataSource( int() ),
-                "key_offset":   self._key_offset
-            }
-        }
+        pitch_serialization = super().getSerialization()
+        pitch_serialization["parameters"]["key"]        = self._key.getSerialization()
+        pitch_serialization["parameters"]["octave"]     = self._octave.getSerialization()
+        pitch_serialization["parameters"]["key_offset"] = self._key_offset
+        return pitch_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Pitch':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._key           = ou.Key().loadSerialization(serialization["parameters"]["key"])
-            self._octave        = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
+            self._octave        = ou.Octave().loadSerialization(serialization["parameters"]["octave"])
             self._key_offset    = serialization["parameters"]["key_offset"]
             self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return self
@@ -376,23 +370,20 @@ class Controller(Generic):
         return False
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "number":   self._number % od.DataSource( int() ),
-                "value":    self._value % od.DataSource( int() )
-            }
-        }
+        controller_serialization = super().getSerialization()
+        controller_serialization["parameters"]["number"] = self._number.getSerialization()
+        controller_serialization["parameters"]["value"]  = self._value.getSerialization()
+        return controller_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Controller':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "number" in serialization["parameters"] and "value" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number    = ou.Number()    << od.DataSource( serialization["parameters"]["number"] )
-            self._value     = ou.Value()     << od.DataSource( serialization["parameters"]["value"] )
+            self._number    = ou.Number().loadSerialization(serialization["parameters"]["number"])
+            self._value     = ou.Value().loadSerialization(serialization["parameters"]["value"])
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':

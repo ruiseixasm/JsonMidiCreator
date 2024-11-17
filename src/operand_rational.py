@@ -129,17 +129,14 @@ class Rational(o.Operand):
         return f'{self._rational}'
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "fraction": str(self._rational),
-                "float": float(self._rational)
-            }
-        }
+        rational_serialization = super().getSerialization()
+        rational_serialization["parameters"]["fraction"]  = str(self._rational)
+        rational_serialization["parameters"]["float"]     = float(self._rational)
+        return rational_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Rational':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "fraction" in serialization["parameters"]):
 
