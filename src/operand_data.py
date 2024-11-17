@@ -32,6 +32,7 @@ class Data(o.Operand):
         super().__init__()
         self._data = data
 
+    # ERROR ON RECURSIVE COPY DUE TO AMBIGUOUS OPERAND COPY WITH DATA COPY
     # def __init__(self, *parameters):
     #     super().__init__()
     #     self._data = None
@@ -126,13 +127,12 @@ class Data(o.Operand):
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
-                operand_data = operand._data
-                match operand_data:
+                match operand._data:
                     case o.Operand():
-                        self._data = operand_data.copy()
+                        self._data = operand._data.copy()
                     case list():
                         many_operands: list = []
-                        for single_operand in operand_data:
+                        for single_operand in operand._data:
                             match single_operand:
                                 case o.Operand():
                                     many_operands.append(single_operand.copy())
@@ -140,23 +140,29 @@ class Data(o.Operand):
                                     many_operands.append(single_operand)
                         self._data = many_operands
                     case _:
-                        self._data = operand_data
+                        self._data = operand._data
             case DataSource():
                 self._data = operand % o.Operand()
             # Data doesn't load serialization, just processed data!!
             # case Serialization():
             #     self.loadSerialization(operand % DataSource( dict() ))
+            case Data():
+                super().__lshift__(operand)
+                if isinstance(operand._data, o.Operand):
+                    self._data = operand._data.copy()
+                elif isinstance(operand._data, list):
+                    many_operands: list = []
+                    for single_operand in operand._data:
+                        match single_operand:
+                            case o.Operand():
+                                many_operands.append(single_operand.copy())
+                            case _:
+                                many_operands.append(single_operand)
+                    self._data = many_operands
+                else:
+                    self._data = operand._data
             case o.Operand():
                 self._data = operand.copy()
-            case list():
-                many_operands: list = []
-                for single_operand in operand:
-                    match single_operand:
-                        case o.Operand():
-                            many_operands.append(single_operand.copy())
-                        case _:
-                            many_operands.append(single_operand)
-                self._data = many_operands
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -203,6 +209,9 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
+    # def copy(self, *parameters) -> 'DataSource':
+    #     ...
+
     # # STILL NEEDED BECAUSE DataSource is DataSource before Data!!!!
     # # CAN'T USE << SELF!!!
     # # # NEEDS TO REMOVE THIS METHOD
@@ -243,8 +252,7 @@ class Result(Data):
 
 class SideEffects(Data):
     def __init__(self, operand: o.Operand):
-        super().__init__()
-        self._data = operand
+        super().__init__(operand)
 
 class LeftShift(SideEffects):
     # CHAINABLE OPERATIONS
@@ -496,7 +504,3 @@ class Load(Serialization):
 class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
-
-# LABEL - Process
-
-# GENERIC
