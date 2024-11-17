@@ -450,6 +450,14 @@ class Device(Generic):
             case list():                return self._device_list.copy()
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other_device: 'Device') -> bool:
+        other_device = self & other_device    # Processes the tailed self operands or the Frame operand if any exists
+        if other_device.__class__ == o.Operand:
+            return True
+        if type(self) != type(other_device):
+            return False
+        return  self._device_list == other_device._device_list
+    
     def getSerialization(self) -> dict:
         device_serialization = super().getSerialization()
         device_serialization["parameters"]["device_list"] = self._device_list
