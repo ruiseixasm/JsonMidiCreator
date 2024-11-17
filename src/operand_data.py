@@ -265,19 +265,6 @@ class RightShift(SideEffects):
         else:
             return super().__rrshift__(operand)
 
-class Save(Data):
-    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, o.Operand):
-            c.saveJsonMidiCreator(operand.getSerialization(), self % str())
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
         super().__init__()
@@ -403,27 +390,6 @@ class Serialization(Data):
             # Base case: return the value directly if it's neither a list nor a dictionary
             return data
 
-class Load(Serialization):
-    def __init__(self, file_name: str = None):
-        match file_name:
-            case str():
-                super().__init__( c.loadJsonMidiCreator(file_name) )
-            case _:
-                super().__init__()
-
-class Export(Data):
-    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, o.Operand):
-            c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
 class Playlist(Data):
     def __init__(self, *parameters):
         super().__init__([])
@@ -520,11 +486,45 @@ class Playlist(Data):
             copy_play_list.append(single_dict.copy())
         return copy_play_list
 
+# LABEL - Process
+
+class Save(Data):
+    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiCreator(operand.getSerialization(), self % str())
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
+class Load(Serialization):
+    def __init__(self, file_name: str = None):
+        match file_name:
+            case str():
+                super().__init__( c.loadJsonMidiCreator(file_name) )
+            case _:
+                super().__init__()
+
+class Export(Data):
+    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
 class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
-
-# LABEL - Process
 
 class MidiExport(Data):
     def __init__(self, file_name: str = "song.mid"):
