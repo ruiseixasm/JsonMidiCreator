@@ -144,7 +144,6 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Operand':
-        import operand_label as ol
         if not isinstance(serialization, dict): # avoids infinite recursion
             return serialization
         if "class" in serialization and "parameters" in serialization:

@@ -201,7 +201,7 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
-    # NEEDS TO REMOVE THIS METHOD
+    # # NEEDS TO REMOVE THIS METHOD
     def copy(self, *parameters) -> 'DataSource':
         self_copy = self.__class__()
         self_data = self._data
@@ -560,13 +560,13 @@ class Serialization(Data):
         self._data.loadSerialization(serialization)
         return self
         
-    # NEEDS TO REMOVE THIS METHOD
-    def copy(self, *parameters):
-        self_copy: Data = self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if self._next_operand is not None:
-            self_copy._next_operand = self._next_operand.copy()
-        return self_copy
+    # # NEEDS TO REMOVE THIS METHOD
+    # def copy(self, *parameters):
+    #     self_copy: Data = self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
+    #     # COPY THE SELF OPERANDS RECURSIVELY
+    #     if self._next_operand is not None:
+    #         self_copy._next_operand = self._next_operand.copy()
+    #     return self_copy
 
     def __lshift__(self, operand: any) -> 'o.Operand':
         if isinstance(operand, o.Operand):
