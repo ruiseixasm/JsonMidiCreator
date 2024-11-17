@@ -28,15 +28,15 @@ import operand_time as ot
 
 class Data(o.Operand):
 
-    def __init__(self, data = None):
-        super().__init__()
-        self._data = data
-
-    # def __init__(self, *parameters):
+    # def __init__(self, data = None):
     #     super().__init__()
-    #     self._data = None
-    #     if len(parameters) > 0:
-    #         self << parameters
+    #     self._data = data
+
+    def __init__(self, *parameters):
+        super().__init__()
+        self._data = None
+        if len(parameters) > 0:
+            self << parameters
 
     def __mod__(self, operand: o.Operand):
         """
@@ -241,12 +241,11 @@ class Result(Data):
     pass
 
 class SideEffects(Data):
-    pass
+    def __init__(self, operand: o.Operand):
+        super().__init__()
+        self._data = operand
 
 class LeftShift(SideEffects):
-    def __init__(self, operand: o.Operand):
-        super().__init__( operand )
-
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
@@ -257,9 +256,6 @@ class LeftShift(SideEffects):
             return super().__rrshift__(operand)
 
 class RightShift(SideEffects):
-    def __init__(self, operand: o.Operand):
-        super().__init__( operand )
-
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
