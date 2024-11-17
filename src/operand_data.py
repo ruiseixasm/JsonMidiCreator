@@ -175,7 +175,8 @@ class DataSource(Data):
     1941604026545
     """
     def __init__(self, operand: o.Operand = None):
-        super().__init__( o.Operand() if operand is None else operand )
+        super().__init__()
+        self._data = o.Operand() if operand is None else operand
 
     def __mod__(self, operand: o.Operand):
         """
@@ -530,6 +531,8 @@ class Serialization(Data):
 
     def __eq__(self, other_operand: any) -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
+        if self._data is None:
+            return False
         match other_operand:
             case dict():
                 return self._data.getSerialization() == other_operand
@@ -541,6 +544,8 @@ class Serialization(Data):
         return self._data.getPlaylist(position)
 
     def getSerialization(self) -> dict:
+        if self._data is None:
+            return {}
         return self._data.getSerialization()
 
     # CHAINABLE OPERATIONS
