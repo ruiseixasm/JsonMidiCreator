@@ -546,6 +546,14 @@ class Scale(Data):
             case ou.Modulation():       return self.modulation(operand % int())
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other_scale: 'Scale') -> bool:
+        other_scale = self & other_scale    # Processes the tailed self operands or the Frame operand if any exists
+        if other_scale.__class__ == o.Operand:
+            return True
+        if type(self) != type(other_scale):
+            return False
+        return  self._scale_list == other_scale._scale_list
+    
     def hasScale(self) -> bool:
         if self._scale_list == [] or self._scale_list == -1 or self._scale_list == "":
             return False
