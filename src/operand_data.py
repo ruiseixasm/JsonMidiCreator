@@ -524,6 +524,8 @@ class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
 
+# LABEL - Process
+
 class MidiExport(Data):
     def __init__(self, file_name: str = "song.mid"):
         super().__init__(file_name)
@@ -560,6 +562,8 @@ class Filter(Data):
             return operand.filter(self._data)
         else:
             return super().__rrshift__(operand)
+
+# GENERIC
 
 class Scale(Data):
     """
