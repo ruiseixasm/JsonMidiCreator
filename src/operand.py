@@ -91,7 +91,7 @@ class Operand:
             case _:                 return ol.Null()
 
     def __eq__(self, operand: 'Operand') -> bool:
-        return False
+        return self is operand
     
     def __ne__(self, operand: 'Operand') -> bool:
         if self == operand:

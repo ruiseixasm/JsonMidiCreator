@@ -79,8 +79,8 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
-            case ol.Filter():   # Filter is now also a Process
-                return self.filter(operand % od.DataSource())
+            # case ol.Filter():   # Filter is now also a Process
+            #     return self.filter(operand % od.DataSource())
             case ol.Getter():       return operand.get(self)
             case ol.Process():      return self >> operand
             case list():
