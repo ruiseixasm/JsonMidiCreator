@@ -128,12 +128,14 @@ class Operand:
         return []
 
     def getSerialization(self) -> dict:
+        next_operand = self._next_operand
+        if isinstance(self._next_operand, Operand):
+            next_operand = self._next_operand.getSerialization()
         return { 
-            "class": self.__class__.__name__,
+            "class": type(self).__name__,
             "parameters": {
-                # "next_operand": self._next_operand.getSerialization(),
-                "next_operand": None,
-                "initialized":  self._initiated,
+                "next_operand": next_operand,
+                "initiated":    self._initiated,
                 "set":          self._set,
                 "index":        self._index
             }
@@ -141,24 +143,33 @@ class Operand:
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Operand':
         import operand_label as ol
         if isinstance(serialization, dict) and ("class" in serialization and "parameters" in serialization):
             if type(self) == Operand:   # Means unknown instantiation from random dict class name
                 operand_name = serialization["class"]
-                operand_class = Operand.find_subclass_by_name(Operand, operand_name)
+                operand_class = Operand.find_subclass_by_name(Operand, operand_name)    # Heavy duty call
                 if operand_class:
                     operand_instance: Operand = operand_class()
-                    if operand_class == __class__ or isinstance(operand_instance, ol.Label):
-                        return operand_instance         # avoids infinite recursion
+                    if operand_class == Operand:    # avoids infinite recursion
+                        if (serialization["class"] == Operand.__name__ and "parameters" in serialization and
+                            "next_operand" in serialization["parameters"] and "initiated" in serialization["parameters"] and
+                            "set" in serialization["parameters"] and "index" in serialization["parameters"]):
+                            operand_instance._next_operand  = Operand().loadSerialization(serialization["parameters"]["next_operand"])
+                            operand_instance._initiated     = serialization["parameters"]["initiated"]
+                            operand_instance._set           = serialization["parameters"]["set"]
+                            operand_instance._index         = serialization["parameters"]["index"]
+                        return operand_instance
+                    # if isinstance(operand_instance, ol.Label):
+                    #     return operand_instance         # avoids infinite recursion
                     return operand_instance.loadSerialization(serialization)
             elif (serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "next_operand" in serialization["parameters"] and "initialized" in serialization["parameters"] and
+                "next_operand" in serialization["parameters"] and "initiated" in serialization["parameters"] and
                 "set" in serialization["parameters"] and "index" in serialization["parameters"]):
 
-                # self._next_operand  = Operand().loadSerialization(serialization["parameters"]["next_operand"])
-                self._next_operand  = None
-                self._initiated     = serialization["parameters"]["initialized"]
+                self._next_operand  = Operand().loadSerialization(serialization["parameters"]["next_operand"])
+                # self._next_operand  = None
+                self._initiated     = serialization["parameters"]["initiated"]
                 self._set           = serialization["parameters"]["set"]
                 self._index         = serialization["parameters"]["index"]
         return ol.Null()

@@ -140,26 +140,31 @@ class Container(o.Operand):
         return ol.Null()
  
     def getSerialization(self) -> dict:
-        operands_serialization = []
+        container_serialization = super().getSerialization()
+        datasource_list_serialization: list[od.DataSource] = []
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, o.Operand):
-                operands_serialization.append(single_datasource._data.getSerialization())
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "operands": operands_serialization
-            }
-        }
+                datasource_list_serialization.append(single_datasource._data.getSerialization())
+            else:
+                datasource_list_serialization.append(single_datasource._data)
+        container_serialization["parameters"]["datasource_list"] = datasource_list_serialization
+        return container_serialization
+        # return {
+        #     "class": self.__class__.__name__,
+        #     "parameters": {
+        #         "datasource_list":  datasource_list_serialization
+        #     }
+        # }
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         import operand_element as oe
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "operands" in serialization["parameters"]):
+            "datasource_list" in serialization["parameters"]):
 
             self._datasource_list = []
-            operands_serialization = serialization["parameters"]["operands"]
+            operands_serialization = serialization["parameters"]["datasource_list"]
             for single_operand_serialization in operands_serialization:
                 if "class" in single_operand_serialization:
                     new_operand = self.getOperand(single_operand_serialization["class"])

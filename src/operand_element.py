@@ -152,16 +152,23 @@ class Element(o.Operand):
             ]
 
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "position": self._position.getSerialization(),
-                "length":   self._length.getSerialization(),
-                "channel":  self._channel % od.DataSource( int() ),
-                "device":   self._device % od.DataSource( list() ),
-                "track":    self._track % od.DataSource( int() )
-            }
-        }
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["position"]     = self._position.getSerialization()
+        element_serialization["parameters"]["length"]       = self._length.getSerialization()
+        element_serialization["parameters"]["channel"]      = self._channel.getSerialization()
+        element_serialization["parameters"]["device"]       = self._device.getSerialization()
+        element_serialization["parameters"]["track"]        = self._track.getSerialization()
+        return element_serialization
+        # return {
+        #     "class": self.__class__.__name__,
+        #     "parameters": {
+        #         "position": self._position.getSerialization(),
+        #         "length":   self._length.getSerialization(),
+        #         "channel":  self._channel % od.DataSource( int() ),
+        #         "device":   self._device % od.DataSource( list() ),
+        #         "track":    self._track % od.DataSource( int() )
+        #     }
+        # }
 
     # CHAINABLE OPERATIONS
 
@@ -172,9 +179,9 @@ class Element(o.Operand):
 
             self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
             self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
-            self._channel   = ou.Channel()  << od.DataSource( serialization["parameters"]["channel"] )
-            self._device    = od.Device()   << od.DataSource( serialization["parameters"]["device"] )
-            self._track     = ou.Track()    << od.DataSource( serialization["parameters"]["track"] )
+            self._channel   = ou.Channel().loadSerialization(serialization["parameters"]["channel"])
+            self._device    = od.Device().loadSerialization(serialization["parameters"]["device"])
+            self._track     = ou.Track().loadSerialization(serialization["parameters"]["track"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Element':

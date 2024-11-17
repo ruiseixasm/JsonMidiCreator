@@ -106,16 +106,22 @@ class Frame(o.Operand):
             return self_operand_list == other_operand_list
         return False
     
-    def getSerialization(self) -> dict:
-        next_operand = None
-        if isinstance(self._next_operand, o.Operand):
-            next_operand = self._next_operand.getSerialization()
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "next_operand": next_operand
-            }
-        }
+    # def getSerialization(self) -> dict:
+    #     frame_serialization = super().getSerialization()
+    #     next_operand = self._next_operand
+    #     if isinstance(self._next_operand, o.Operand):
+    #         next_operand = self._next_operand.getSerialization()
+    #     frame_serialization["parameters"]["next_operand"]     = next_operand
+    #     return frame_serialization
+    #     # return {
+    #     #     "class": self.__class__.__name__,
+    #     #     "parameters": {
+    #     #         "next_operand": next_operand,
+    #     #         "initialized":  self._initiated,
+    #     #         "set":          self._set,
+    #     #         "index":        self._index
+    #     #     }
+    #     # }
 
     # CHAINABLE OPERATIONS
 
