@@ -486,21 +486,6 @@ class Playlist(Data):
             copy_play_list.append(single_dict.copy())
         return copy_play_list
 
-# LABEL - Process
-
-class Save(Data):
-    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, o.Operand):
-            c.saveJsonMidiCreator(operand.getSerialization(), self % str())
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
 class Load(Serialization):
     def __init__(self, file_name: str = None):
         match file_name:
@@ -509,59 +494,11 @@ class Load(Serialization):
             case _:
                 super().__init__()
 
-class Export(Data):
-    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, o.Operand):
-            c.saveJsonMidiPlay(operand.getPlaylist(), self % str())
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
 class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
 
-class MidiExport(Data):
-    def __init__(self, file_name: str = "song.mid"):
-        super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(operand, o.Operand):
-            c.saveMidiFile(operand.getMidilist(), self % str())
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
-class Sort(Data):
-    def __init__(self, compare: o.Operand = None):
-        super().__init__(compare)
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.sort()
-        else:
-            return super().__rrshift__(operand)
-
-class Filter(Data):
-    def __init__(self, criteria: any):
-        super().__init__(criteria)
-        
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.filter(self._data)
-        else:
-            return super().__rrshift__(operand)
+# LABEL - Process
 
 # GENERIC
 

@@ -54,6 +54,69 @@ class Process(Label):
         super().__init__()
         self._parameter: any = parameter
 
+class Save(Process):
+    def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiCreator(operand.getSerialization(), self._parameter)
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
+class Export(Process):
+    def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            c.saveJsonMidiPlay(operand.getPlaylist(), self._parameter)
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
+class MidiExport(Process):
+    def __init__(self, file_name: str = "song.mid"):
+        super().__init__(file_name)
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(operand, o.Operand):
+            c.saveMidiFile(operand.getMidilist(), self._parameter)
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
+class Sort(Process):
+    def __init__(self, compare: o.Operand = None):
+        super().__init__(compare)
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.sort()
+        else:
+            return super().__rrshift__(operand)
+
+class Filter(Process):
+    def __init__(self, criteria: any):
+        super().__init__(criteria)
+        
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.filter(self._data)
+        else:
+            return super().__rrshift__(operand)
+
 class Copy(Process):
     """
     Copy() does an total duplication of the Operand including its parts.
