@@ -532,6 +532,8 @@ class Serialization(Data):
     def __eq__(self, other_operand: any) -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
         if self._data is None:
+            if other_operand is None:
+                return True
             return False
         match other_operand:
             case dict():
