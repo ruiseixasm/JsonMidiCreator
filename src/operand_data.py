@@ -96,19 +96,15 @@ class Data(o.Operand):
         return self == other_data or self > other_data
 
     def getSerialization(self) -> dict:
-        serialization = {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "data": self._data
-            }
-        }
+        data_serialization = super().getSerialization()
+        data_serialization["parameters"]["data"] = self._data
         if isinstance(self._data, o.Operand):
-            serialization["parameters"]["data"] = self._data.getSerialization()
-        return serialization
+            data_serialization["parameters"]["data"] = self._data.getSerialization()
+        return data_serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Data':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "data" in serialization["parameters"]):
 
