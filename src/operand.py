@@ -203,11 +203,6 @@ class Operand:
         self._next_operand = None
         return self.reset() << self.__class__() << parameters
     
-    def getOperand(self, operand_name: str) -> 'Operand':
-        operand_class = Operand.find_subclass_by_name(Operand, operand_name)
-        if operand_class: return operand_class()
-        return operand_class
-    
     @staticmethod
     def find_subclass_by_name(root_class, name: str):
         # Check if the current class matches the name

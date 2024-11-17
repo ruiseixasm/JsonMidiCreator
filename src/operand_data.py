@@ -568,10 +568,7 @@ class Serialization(Data):
         if isinstance(operand, o.Operand):
             self._data = operand.copy()
         elif isinstance(operand, dict) and "class" in operand and "parameters" in operand:
-            operand_class_name = operand["class"]
-            new_operand = self.getOperand(operand_class_name)
-            if new_operand:
-                self._data = new_operand.loadSerialization(operand)
+            self._data = o.Operand().loadSerialization(operand)
         return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
