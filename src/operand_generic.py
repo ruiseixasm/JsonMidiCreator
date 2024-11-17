@@ -717,7 +717,9 @@ class Scale(Generic):
 class Single(Generic):
     def __init__(self, parameter: any):
         super().__init__()
-        self._parameter: any = parameter
+        self._parameter = parameter
+        if isinstance(parameter, (o.Operand, list)):
+            self._parameter = parameter.copy()
 
     def __mod__(self, operand: any) -> any:
         match operand:
