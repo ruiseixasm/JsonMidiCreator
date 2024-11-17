@@ -28,15 +28,15 @@ import operand_time as ot
 
 class Data(o.Operand):
 
-    # def __init__(self, data = None):
-    #     super().__init__()
-    #     self._data = data
-
-    def __init__(self, *parameters):
+    def __init__(self, data = None):
         super().__init__()
-        self._data = None
-        if len(parameters) > 0:
-            self << parameters
+        self._data = data
+
+    # def __init__(self, *parameters):
+    #     super().__init__()
+    #     self._data = None
+    #     if len(parameters) > 0:
+    #         self << parameters
 
     def __mod__(self, operand: o.Operand):
         """
