@@ -105,10 +105,10 @@ class Operand:
         return False
     
     def __le__(self, operand: 'Operand') -> bool:
-        return False
+        return self.__eq__(operand) or self.__lt__(operand)
     
     def __ge__(self, operand: 'Operand') -> bool:
-        return False
+        return self.__eq__(operand) or self.__gt__(operand)
     
     def start(self):
         import operand_label as ol
