@@ -517,7 +517,7 @@ class Serialization(Data):
         else:
             self._data = ol.Null()
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, for the case a Serialization(),
         those Operands are pass right away to the self Data Operand, with the
@@ -532,9 +532,17 @@ class Serialization(Data):
         >>> serialization % DataSource( Duration() ) >> Print(False)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.08333333333333333}}}}
         """
-        if operand.__class__ == o.Operand:
-            return self._data
-        return self._data % operand
+        match operand:
+            case o.Operand():
+                return self._data
+            case dict():
+                if isinstance(self._data, o.Operand):
+                    return self._data.getSerialization()
+                if isinstance(self._data, dict):
+                    return self.deep_copy_dict(self._data)
+                return dict()
+            case _:
+                return self._data % operand
 
     def __eq__(self, other_operand: any) -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
