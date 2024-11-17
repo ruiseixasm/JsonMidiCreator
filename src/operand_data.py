@@ -124,29 +124,7 @@ class Data(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Data':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case DataSource():
-                if type(self) == DataSource:    # Used by copy!
-                    super().__lshift__(operand)
-                    operand_data = operand._data
-                    match operand_data:
-                        case o.Operand():
-                            self._data = operand_data.copy()
-                        case list():
-                            many_operands: list = []
-                            for single_operand in operand_data:
-                                match single_operand:
-                                    case o.Operand():
-                                        many_operands.append(single_operand.copy())
-                                    case _:
-                                        many_operands.append(single_operand)
-                            self._data = many_operands
-                        case _:
-                            self._data = operand_data
-                else:
-                    self._data = operand % o.Operand()
-            case Serialization():
-                self.loadSerialization(operand % DataSource( dict() ))
-            case Data():
+            case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
                 operand_data = operand._data
                 match operand_data:
@@ -163,6 +141,10 @@ class Data(o.Operand):
                         self._data = many_operands
                     case _:
                         self._data = operand_data
+            case DataSource():
+                self._data = operand % o.Operand()
+            case Serialization():
+                self.loadSerialization(operand % DataSource( dict() ))
             case o.Operand():
                 self._data = self._data.copy()
             case list():
