@@ -265,231 +265,6 @@ class RightShift(SideEffects):
         else:
             return super().__rrshift__(operand)
 
-class Filter(Data):
-    def __init__(self, criteria: any):
-        super().__init__(criteria)
-        
-    # CHAINABLE OPERATIONS
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.filter(self._data)
-        else:
-            return super().__rrshift__(operand)
-
-class Scale(Data):
-    """
-    A Scale() represents a given scale rooted in the key of C.
-    
-    Parameters
-    ----------
-    first : integer_like and string_like
-        It can have the name of a scale as input, like, "Major" or "Melodic"
-    """
-    def __init__(self, *parameters):
-        super().__init__([])
-        self._mode: ou.Mode     = ou.Mode()
-        if len(parameters) > 0:
-            self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, a Scale has many extraction modes
-        one type of extraction is its list() type of Parameter representing a scale
-        but it's also possible to extract the same scale on other Tonic() key based on C.
-
-        Examples
-        --------
-        >>> major_scale = Scale()
-        >>> (major_scale >> Modulate("5th")) % str() >> Print()
-        Mixolydian
-        """
-        match operand:
-            case DataSource():
-                match operand % o.Operand():
-                    case ou.Mode():             return self._mode
-                    case list():                return self._data
-                    case str():                 return __class__.get_scale_name(self._data)
-                    case int():                 return __class__.get_scale_number(self._data)
-                    case _:                     return super().__mod__(operand)
-            case ou.Mode():             return self._mode.copy()
-            case list():                return self.modulation(None)
-            case str():                 return __class__.get_scale_name(self.modulation(None))
-            case int():                 return __class__.get_scale_number(self.modulation(None))
-            case ou.Transposition():    return self.transposition(operand % int())
-            case ou.Modulation():       return self.modulation(operand % int())
-            case _:                     return super().__mod__(operand)
-
-    def hasScale(self) -> bool:
-        if self._data == [] or self._data == -1 or self._data == "":
-            return False
-        return True
-
-    def keys(self) -> int:
-        scale_keys = 0
-        self_scale = self._data
-        for key in self_scale:
-            scale_keys += key
-        return scale_keys
-
-    def transposition(self, tones: int) -> int:        # Starting in C
-        transposition = 0
-        if isinstance(self._data, list) and len(self._data) == 12:
-            modulated_scale = self.modulation(None)
-            while tones > 0:
-                transposition += 1
-                if modulated_scale[transposition % 12]:
-                    tones -= 1
-        return transposition
-
-    def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
-        self_scale = self._data.copy()
-        if isinstance(self._data, list) and len(self._data) == 12:
-            mode = self._mode if mode is None else mode
-            # transposition = self.transposition(max(1, mode % int()) - 1)
-            tones = max(1, mode % int()) - 1    # Modes start on 1, so, mode - 1 = tones
-            transposition = 0
-            if isinstance(self._data, list) and len(self._data) == 12:
-                while tones > 0:
-                    transposition += 1
-                    if self._data[transposition % 12]:
-                        tones -= 1
-            if transposition != 0:
-                for key_i in range(12):
-                    self_scale[key_i] = self._data[(key_i + transposition) % 12]
-        return self_scale
-
-    def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["mode"]     = self._mode % DataSource( int() )
-        return element_serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Scale':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "mode" in serialization["parameters"]):
-            
-            super().loadSerialization(serialization)
-            self._mode      = ou.Mode()     << DataSource( serialization["parameters"]["mode"] )
-        return self
-        
-    def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
-        self._data = self.modulation(mode)
-        return self
-
-    def __lshift__(self, operand: any) -> 'Scale':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case DataSource():
-                match operand % o.Operand():
-                    case ou.Mode():         self._mode = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
-            case Scale():
-                super().__lshift__(operand)
-                self._mode      << operand._mode
-            case ou.Mode() | int():
-                self._mode << operand
-            case str():
-                self_scale = __class__.get_scale(operand)
-                if len(self_scale) == 12:
-                    self._data = self_scale.copy()
-            case list():
-                if len(operand) == 12 and all(x in {0, 1} for x in operand):
-                    self._data = operand.copy()
-                elif operand == []:
-                    self._data = []
-            case _: super().__lshift__(operand)
-        return self
-
-    _names = [
-        ["Chromatic", "chromatic"],
-        # Diatonic Scales
-        ["Major", "Maj", "maj", "M", "Ionian", "ionian", "C", "1", "1st", "First"],
-        ["Dorian", "dorian", "D", "2", "2nd", "Second"],
-        ["Phrygian", "phrygian", "E", "3", "3rd", "Third"],
-        ["Lydian", "lydian", "F", "4", "4th", "Fourth"],
-        ["Mixolydian", "mixolydian", "G", "5", "5th", "Fifth"],
-        ["minor", "min", "m", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
-        ["Locrian", "locrian", "B", "7", "7th", "Seventh"],
-        # Other Scales
-        ["harmonic"],
-        ["melodic"],
-        ["octatonic_hw"],
-        ["octatonic_wh"],
-        ["pentatonic_maj", "Pentatonic"],
-        ["pentatonic_min", "pentatonic"],
-        ["Diminished", "diminished"],
-        ["Augmented", "augmented"],
-        ["Blues", "blues"],
-        ["Whole-tone", "Whole tone", "Whole", "whole"]
-    ]
-    _scales = [
-    #       Db    Eb       Gb    Ab    Bb
-    #       C#    D#       F#    G#    A#
-    #    C     D     E  F     G     A     B
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        # Diatonic Scales
-        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],   # Major
-        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],   # Dorian
-        [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],   # Phrygian
-        [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],   # Lydian
-        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0],   # Mixolydian
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],   # minor (Aeolian)
-        [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],   # Locrian
-        # Other Scales
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],   # Harmonic
-        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],   # Melodic
-        [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0],   # Octatonic HW
-        [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],   # Octatonic WH
-        [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],   # Pentatonic Major
-        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],   # Pentatonic minor
-        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],   # Diminished
-        [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],   # Augmented
-        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0],   # Blues
-        [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]    # Whole-tone
-    ]
-
-    @staticmethod
-    def get_scale_number(scale: int | str | list = 0) -> int:
-        match scale:
-            case int():
-                total_scales = len(__class__._scales)
-                if scale >= 0 and scale < total_scales:
-                    return scale
-            case str():
-                for scale_i in range(len(__class__._names)):
-                    for scale_j in range(len(__class__._names[scale_i])):
-                        if scale.strip() == __class__._names[scale_i][scale_j]:
-                            return scale_i
-            case list():
-                if len(scale) == 12:
-                    for scale_i in range(len(__class__._scales)):
-                        if __class__._scales[scale_i] == scale:
-                            return scale_i
-        return -1
-
-    @staticmethod
-    def get_scale_name(scale: int | str | list = 0) -> str:
-        scale_number = __class__.get_scale_number(scale)
-        if scale_number < 0:
-            return "Unknown Scale!"
-        else:
-            return __class__._names[scale_number][0]
-
-    @staticmethod
-    def get_scale(scale: int | str | list = 0) -> list:
-        if scale != [] and scale != -1 and scale != "":
-            scale_number = __class__.get_scale_number(scale)
-            if scale_number >= 0:
-                return __class__._scales[scale_number]
-        return []   # Has no scale at all
-
-class Device(Data):
-    def __init__(self, device_list: list[str] = None):
-        super().__init__( os.staff._device % list() if device_list is None else device_list )
-
 class Save(Data):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
@@ -749,17 +524,6 @@ class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
 
-class Sort(Data):
-    def __init__(self, compare: o.Operand = None):
-        super().__init__(compare)
-
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.sort()
-        else:
-            return super().__rrshift__(operand)
-
 class MidiExport(Data):
     def __init__(self, file_name: str = "song.mid"):
         super().__init__(file_name)
@@ -773,3 +537,278 @@ class MidiExport(Data):
         else:
             return super().__rrshift__(operand)
 
+class Sort(Data):
+    def __init__(self, compare: o.Operand = None):
+        super().__init__(compare)
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.sort()
+        else:
+            return super().__rrshift__(operand)
+
+class Filter(Data):
+    def __init__(self, criteria: any):
+        super().__init__(criteria)
+        
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.filter(self._data)
+        else:
+            return super().__rrshift__(operand)
+
+class Scale(Data):
+    """
+    A Scale() represents a given scale rooted in the key of C.
+    
+    Parameters
+    ----------
+    first : integer_like and string_like
+        It can have the name of a scale as input, like, "Major" or "Melodic"
+    """
+    def __init__(self, *parameters):
+        super().__init__([])
+        self._mode: ou.Mode     = ou.Mode()
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, a Scale has many extraction modes
+        one type of extraction is its list() type of Parameter representing a scale
+        but it's also possible to extract the same scale on other Tonic() key based on C.
+
+        Examples
+        --------
+        >>> major_scale = Scale()
+        >>> (major_scale >> Modulate("5th")) % str() >> Print()
+        Mixolydian
+        """
+        match operand:
+            case DataSource():
+                match operand % o.Operand():
+                    case ou.Mode():             return self._mode
+                    case list():                return self._data
+                    case str():                 return __class__.get_scale_name(self._data)
+                    case int():                 return __class__.get_scale_number(self._data)
+                    case _:                     return super().__mod__(operand)
+            case ou.Mode():             return self._mode.copy()
+            case list():                return self.modulation(None)
+            case str():                 return __class__.get_scale_name(self.modulation(None))
+            case int():                 return __class__.get_scale_number(self.modulation(None))
+            case ou.Transposition():    return self.transposition(operand % int())
+            case ou.Modulation():       return self.modulation(operand % int())
+            case _:                     return super().__mod__(operand)
+
+    def hasScale(self) -> bool:
+        if self._data == [] or self._data == -1 or self._data == "":
+            return False
+        return True
+
+    def keys(self) -> int:
+        scale_keys = 0
+        self_scale = self._data
+        for key in self_scale:
+            scale_keys += key
+        return scale_keys
+
+    def transposition(self, tones: int) -> int:        # Starting in C
+        transposition = 0
+        if isinstance(self._data, list) and len(self._data) == 12:
+            modulated_scale = self.modulation(None)
+            while tones > 0:
+                transposition += 1
+                if modulated_scale[transposition % 12]:
+                    tones -= 1
+        return transposition
+
+    def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
+        self_scale = self._data.copy()
+        if isinstance(self._data, list) and len(self._data) == 12:
+            mode = self._mode if mode is None else mode
+            # transposition = self.transposition(max(1, mode % int()) - 1)
+            tones = max(1, mode % int()) - 1    # Modes start on 1, so, mode - 1 = tones
+            transposition = 0
+            if isinstance(self._data, list) and len(self._data) == 12:
+                while tones > 0:
+                    transposition += 1
+                    if self._data[transposition % 12]:
+                        tones -= 1
+            if transposition != 0:
+                for key_i in range(12):
+                    self_scale[key_i] = self._data[(key_i + transposition) % 12]
+        return self_scale
+
+    def getSerialization(self) -> dict:
+        element_serialization = super().getSerialization()
+        element_serialization["parameters"]["mode"]     = self._mode % DataSource( int() )
+        return element_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Scale':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "mode" in serialization["parameters"]):
+            
+            super().loadSerialization(serialization)
+            self._mode      = ou.Mode()     << DataSource( serialization["parameters"]["mode"] )
+        return self
+        
+    def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
+        self._data = self.modulation(mode)
+        return self
+
+    def __lshift__(self, operand: any) -> 'Scale':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case DataSource():
+                match operand % o.Operand():
+                    case ou.Mode():         self._mode = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case Scale():
+                super().__lshift__(operand)
+                self._mode      << operand._mode
+            case ou.Mode() | int():
+                self._mode << operand
+            case str():
+                self_scale = __class__.get_scale(operand)
+                if len(self_scale) == 12:
+                    self._data = self_scale.copy()
+            case list():
+                if len(operand) == 12 and all(x in {0, 1} for x in operand):
+                    self._data = operand.copy()
+                elif operand == []:
+                    self._data = []
+            case _: super().__lshift__(operand)
+        return self
+
+    _names = [
+        ["Chromatic", "chromatic"],
+        # Diatonic Scales
+        ["Major", "Maj", "maj", "M", "Ionian", "ionian", "C", "1", "1st", "First"],
+        ["Dorian", "dorian", "D", "2", "2nd", "Second"],
+        ["Phrygian", "phrygian", "E", "3", "3rd", "Third"],
+        ["Lydian", "lydian", "F", "4", "4th", "Fourth"],
+        ["Mixolydian", "mixolydian", "G", "5", "5th", "Fifth"],
+        ["minor", "min", "m", "Aeolian", "aeolian", "A", "6", "6th", "Sixth"],
+        ["Locrian", "locrian", "B", "7", "7th", "Seventh"],
+        # Other Scales
+        ["harmonic"],
+        ["melodic"],
+        ["octatonic_hw"],
+        ["octatonic_wh"],
+        ["pentatonic_maj", "Pentatonic"],
+        ["pentatonic_min", "pentatonic"],
+        ["Diminished", "diminished"],
+        ["Augmented", "augmented"],
+        ["Blues", "blues"],
+        ["Whole-tone", "Whole tone", "Whole", "whole"]
+    ]
+    _scales = [
+    #       Db    Eb       Gb    Ab    Bb
+    #       C#    D#       F#    G#    A#
+    #    C     D     E  F     G     A     B
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        # Diatonic Scales
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],   # Major
+        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],   # Dorian
+        [1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0],   # Phrygian
+        [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],   # Lydian
+        [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0],   # Mixolydian
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],   # minor (Aeolian)
+        [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],   # Locrian
+        # Other Scales
+        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],   # Harmonic
+        [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],   # Melodic
+        [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0],   # Octatonic HW
+        [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],   # Octatonic WH
+        [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0],   # Pentatonic Major
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],   # Pentatonic minor
+        [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0],   # Diminished
+        [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],   # Augmented
+        [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0],   # Blues
+        [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]    # Whole-tone
+    ]
+
+    @staticmethod
+    def get_scale_number(scale: int | str | list = 0) -> int:
+        match scale:
+            case int():
+                total_scales = len(__class__._scales)
+                if scale >= 0 and scale < total_scales:
+                    return scale
+            case str():
+                for scale_i in range(len(__class__._names)):
+                    for scale_j in range(len(__class__._names[scale_i])):
+                        if scale.strip() == __class__._names[scale_i][scale_j]:
+                            return scale_i
+            case list():
+                if len(scale) == 12:
+                    for scale_i in range(len(__class__._scales)):
+                        if __class__._scales[scale_i] == scale:
+                            return scale_i
+        return -1
+
+    @staticmethod
+    def get_scale_name(scale: int | str | list = 0) -> str:
+        scale_number = __class__.get_scale_number(scale)
+        if scale_number < 0:
+            return "Unknown Scale!"
+        else:
+            return __class__._names[scale_number][0]
+
+    @staticmethod
+    def get_scale(scale: int | str | list = 0) -> list:
+        if scale != [] and scale != -1 and scale != "":
+            scale_number = __class__.get_scale_number(scale)
+            if scale_number >= 0:
+                return __class__._scales[scale_number]
+        return []   # Has no scale at all
+
+class Device(Data):
+    def __init__(self, device_list: list[str] = None):
+        super().__init__()
+        self._device_list = os.staff._device % list() if device_list is None else device_list
+
+    def __mod__(self, operand: any) -> any:
+        match operand:
+            case DataSource():
+                match operand % o.Operand():
+                    case list():                return self._device_list
+                    case _:                     return super().__mod__(operand)
+            case list():                return self._device_list.copy()
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        device_serialization = super().getSerialization()
+        device_serialization["parameters"]["device_list"] = self._device_list
+        return device_serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Device':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "device_list" in serialization["parameters"]):
+            
+            super().loadSerialization(serialization)
+            self._device_list = serialization["parameters"]["device_list"]
+        return self
+        
+    def __lshift__(self, operand: any) -> 'Device':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case DataSource():
+                match operand % o.Operand():
+                    case list():            self._device_list = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case Device():
+                super().__lshift__(operand)
+                self._device_list = operand._device_list.copy()
+            case list():
+                self._device_list = operand.copy()
+            case _: super().__lshift__(operand)
+        return self
