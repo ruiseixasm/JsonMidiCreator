@@ -201,6 +201,7 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
+    # NEEDS TO REMOVE THIS METHOD
     def copy(self, *parameters) -> 'DataSource':
         self_copy = self.__class__()
         self_data = self._data
@@ -559,6 +560,7 @@ class Serialization(Data):
         self._data.loadSerialization(serialization)
         return self
         
+    # NEEDS TO REMOVE THIS METHOD
     def copy(self, *parameters):
         self_copy: Data = self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
         # COPY THE SELF OPERANDS RECURSIVELY
