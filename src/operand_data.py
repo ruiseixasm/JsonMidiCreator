@@ -221,11 +221,13 @@ class DataSource(Data):
 
 class Parameters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__( parameters )
+        super().__init__()
+        self._data = parameters # Tuple
 
 class Reporters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__( parameters )
+        super().__init__()
+        self._data = parameters # Tuple
 
 class Result(Data):
     pass
