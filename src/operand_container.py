@@ -164,12 +164,10 @@ class Container(o.Operand):
             "datasource_list" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._datasource_list = []
+            self._datasource_list: list = []
             operands_serialization = serialization["parameters"]["datasource_list"]
             for single_operand_serialization in operands_serialization:
-                if "class" in single_operand_serialization:
-                    new_operand = self.getOperand(single_operand_serialization["class"])
-                    if new_operand: self._datasource_list.append(od.DataSource( new_operand.loadSerialization(single_operand_serialization) ))
+                self._datasource_list.append( od.DataSource( o.Operand().loadSerialization(single_operand_serialization) ) )
         return self
        
     def __lshift__(self, operand: o.Operand) -> 'Container':
