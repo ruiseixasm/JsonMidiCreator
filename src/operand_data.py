@@ -146,7 +146,7 @@ class Data(o.Operand):
             case Serialization():
                 self.loadSerialization(operand % DataSource( dict() ))
             case o.Operand():
-                self._data = self._data.copy()
+                self._data = operand.copy()
             case list():
                 many_operands: list = []
                 for single_operand in operand:
