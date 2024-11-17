@@ -124,7 +124,26 @@ class Data(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Data':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case DataSource():      self._data = operand % o.Operand()
+            case DataSource():
+                if type(self) == DataSource:    # Used by copy!
+                    super().__lshift__(operand)
+                    operand_data = operand._data
+                    match operand_data:
+                        case o.Operand():
+                            self._data = operand_data.copy()
+                        case list():
+                            many_operands: list = []
+                            for single_operand in operand_data:
+                                match single_operand:
+                                    case o.Operand():
+                                        many_operands.append(single_operand.copy())
+                                    case _:
+                                        many_operands.append(single_operand)
+                            self._data = many_operands
+                        case _:
+                            self._data = operand_data
+                else:
+                    self._data = operand % o.Operand()
             case Serialization():
                 self.loadSerialization(operand % DataSource( dict() ))
             case Data():
@@ -201,28 +220,30 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
-    # # NEEDS TO REMOVE THIS METHOD
-    def copy(self, *parameters) -> 'DataSource':
-        self_copy = self.__class__()
-        self_data = self._data
-        match self_data:
-            case o.Operand():
-                self_copy._data = self_data.copy()
-            case list():
-                many_operands: list = []
-                for single_operand in self_data:
-                    match single_operand:
-                        case o.Operand():
-                            many_operands.append(single_operand.copy())
-                        case _:
-                            many_operands.append(single_operand)
-                self_copy._data = many_operands
-            case _:
-                self_copy._data = self_data
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if self._next_operand is not None:
-            self_copy._next_operand = self._next_operand.copy()
-        return self_copy << parameters
+    # # STILL NEEDED BECAUSE DataSource is DataSource before Data!!!!
+    # # CAN'T USE << SELF!!!
+    # # # NEEDS TO REMOVE THIS METHOD
+    # def copy(self, *parameters) -> 'DataSource':
+    #     self_copy = self.__class__()
+    #     self_data = self._data
+    #     match self_data:
+    #         case o.Operand():
+    #             self_copy._data = self_data.copy()
+    #         case list():
+    #             many_operands: list = []
+    #             for single_operand in self_data:
+    #                 match single_operand:
+    #                     case o.Operand():
+    #                         many_operands.append(single_operand.copy())
+    #                     case _:
+    #                         many_operands.append(single_operand)
+    #             self_copy._data = many_operands
+    #         case _:
+    #             self_copy._data = self_data
+    #     # COPY THE SELF OPERANDS RECURSIVELY
+    #     if self._next_operand is not None:
+    #         self_copy._next_operand = self._next_operand.copy()
+    #     return self_copy << parameters
 
 class Parameters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
