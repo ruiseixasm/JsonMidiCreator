@@ -100,6 +100,7 @@ class Jumbler(o.Operand):
             "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._sequence          = o.Operand().loadSerialization(serialization["parameters"]["sequence"])
             self._frame             = o.Operand().loadSerialization(serialization["parameters"]["frame"])
             self._reporters         = od.Reporters().loadSerialization(serialization["parameters"]["reporter"])

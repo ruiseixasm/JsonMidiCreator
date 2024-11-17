@@ -112,6 +112,7 @@ class Data(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "data" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._data = serialization["parameters"]["data"]
             if isinstance(self._data, dict) and "class" in self._data and "parameters" in self._data:
                 self._data      = o.Operand().loadSerialization(self._data)

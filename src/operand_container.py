@@ -163,6 +163,7 @@ class Container(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "datasource_list" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._datasource_list = []
             operands_serialization = serialization["parameters"]["datasource_list"]
             for single_operand_serialization in operands_serialization:

@@ -202,6 +202,7 @@ class Staff(o.Operand):
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._measures          = ra.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
             self._tempo             = ra.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
             self._time_signature    = og.TimeSignature().loadSerialization(serialization["parameters"]["time_signature"])

@@ -143,6 +143,7 @@ class Rational(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "fraction" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._rational = Fraction(serialization["parameters"]["fraction"]).limit_denominator()
         return self
 

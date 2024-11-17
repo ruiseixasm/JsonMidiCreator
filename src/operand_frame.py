@@ -125,12 +125,12 @@ class Frame(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "next_operand" in serialization["parameters"]):
+    # def loadSerialization(self, serialization: dict):
+    #     if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+    #         "next_operand" in serialization["parameters"]):
 
-            self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])
-        return self
+    #         self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])
+    #     return self
     
     def __rrshift__(self, operand: any) -> any:
         return operand & self   # operand is the subject

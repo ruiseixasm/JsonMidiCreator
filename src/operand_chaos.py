@@ -75,6 +75,7 @@ class Chaos(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._xn                << serialization["parameters"]["xn"]
             self._x0                << serialization["parameters"]["x0"]
         return self
@@ -338,6 +339,7 @@ class Bouncer(Chaos):
             "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"] and
             "set_x" in serialization["parameters"] and "set_y" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._width             << serialization["parameters"]["width"]
             self._height            << serialization["parameters"]["height"]
             self._dx                << serialization["parameters"]["dx"]

@@ -109,6 +109,7 @@ class Operator(o.Operand):
             "operand" in serialization["parameters"] and "class" in serialization["parameters"]["operand"] and "parameters" in serialization["parameters"]["operand"]
             and "operator_list" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._operand = o.Operand().loadSerialization(serialization["parameters"]["operand"])
             operator_list = []
             operators_serialization = serialization["parameters"]["operator_list"]

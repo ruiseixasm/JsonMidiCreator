@@ -83,6 +83,7 @@ class TimeSignature(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "top" in serialization["parameters"] and "bottom" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._top           = serialization["parameters"]["top"]
             self._bottom        = serialization["parameters"]["bottom"]
         return self
@@ -209,6 +210,7 @@ class Pitch(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._key           = ou.Key().loadSerialization(serialization["parameters"]["key"])
             self._octave        = ou.Octave()   << od.DataSource( serialization["parameters"]["octave"] )
             self._key_offset    = serialization["parameters"]["key_offset"]
@@ -388,6 +390,7 @@ class Controller(Generic):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "number" in serialization["parameters"] and "value" in serialization["parameters"]):
 
+            super().loadSerialization(serialization)
             self._number    = ou.Number()    << od.DataSource( serialization["parameters"]["number"] )
             self._value     = ou.Value()     << od.DataSource( serialization["parameters"]["value"] )
         return self
