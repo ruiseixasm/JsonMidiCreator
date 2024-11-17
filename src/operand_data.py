@@ -597,9 +597,9 @@ class Scale(Data):
             case DataSource():
                 match operand % o.Operand():
                     case ou.Mode():             return self._mode
-                    case list():                return self._data
-                    case str():                 return __class__.get_scale_name(self._data)
-                    case int():                 return __class__.get_scale_number(self._data)
+                    case list():                return self._scale_list
+                    case str():                 return __class__.get_scale_name(self._scale_list)
+                    case int():                 return __class__.get_scale_number(self._scale_list)
                     case _:                     return super().__mod__(operand)
             case ou.Mode():             return self._mode.copy()
             case list():                return self.modulation(None)
@@ -610,20 +610,20 @@ class Scale(Data):
             case _:                     return super().__mod__(operand)
 
     def hasScale(self) -> bool:
-        if self._data == [] or self._data == -1 or self._data == "":
+        if self._scale_list == [] or self._scale_list == -1 or self._scale_list == "":
             return False
         return True
 
     def keys(self) -> int:
         scale_keys = 0
-        self_scale = self._data
+        self_scale = self._scale_list
         for key in self_scale:
             scale_keys += key
         return scale_keys
 
     def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
-        if isinstance(self._data, list) and len(self._data) == 12:
+        if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
             modulated_scale = self.modulation(None)
             while tones > 0:
                 transposition += 1
@@ -632,20 +632,20 @@ class Scale(Data):
         return transposition
 
     def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
-        self_scale = self._data.copy()
-        if isinstance(self._data, list) and len(self._data) == 12:
+        self_scale = self._scale_list.copy()
+        if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
             mode = self._mode if mode is None else mode
             # transposition = self.transposition(max(1, mode % int()) - 1)
             tones = max(1, mode % int()) - 1    # Modes start on 1, so, mode - 1 = tones
             transposition = 0
-            if isinstance(self._data, list) and len(self._data) == 12:
+            if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
                 while tones > 0:
                     transposition += 1
-                    if self._data[transposition % 12]:
+                    if self._scale_list[transposition % 12]:
                         tones -= 1
             if transposition != 0:
                 for key_i in range(12):
-                    self_scale[key_i] = self._data[(key_i + transposition) % 12]
+                    self_scale[key_i] = self._scale_list[(key_i + transposition) % 12]
         return self_scale
 
     def getSerialization(self) -> dict:
@@ -666,7 +666,7 @@ class Scale(Data):
         return self
         
     def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
-        self._data = self.modulation(mode)
+        self._scale_list = self.modulation(mode)
         return self
 
     def __lshift__(self, operand: any) -> 'Scale':
@@ -678,18 +678,19 @@ class Scale(Data):
                     case _:                 super().__lshift__(operand)
             case Scale():
                 super().__lshift__(operand)
-                self._mode      << operand._mode
+                self._scale_list    = operand._scale_list.copy()
+                self._mode          << operand._mode
             case ou.Mode() | int():
                 self._mode << operand
             case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
-                    self._data = self_scale.copy()
+                    self._scale_list = self_scale.copy()
             case list():
                 if len(operand) == 12 and all(x in {0, 1} for x in operand):
-                    self._data = operand.copy()
+                    self._scale_list = operand.copy()
                 elif operand == []:
-                    self._data = []
+                    self._scale_list = []
             case _: super().__lshift__(operand)
         return self
 
