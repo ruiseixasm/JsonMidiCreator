@@ -411,24 +411,22 @@ class All(Selector):
         
 class Odd(Selector):
     def __init__(self):
-        super().__init__()
-        self._call: int = 0
+        super().__init__(0)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call % 2 == 1:
+        self._multi_data['operand'] += 1
+        if self._multi_data['operand'] % 2 == 1:
             return self._next_operand & subject
         else:
             return ol.Null()
 
 class Even(Selector):
     def __init__(self):
-        super().__init__()
-        self._call: int = 0
+        super().__init__(0)
         
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call % 2 == 0:
+        self._multi_data['operand'] += 1
+        if self._multi_data['operand'] % 2 == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & subject
             return self._next_operand
@@ -437,13 +435,12 @@ class Even(Selector):
 
 class Nths(Selector):
     def __init__(self, nths: int = 4):
-        super().__init__()
-        self._call: int = 0
-        self._nths: int = nths
+        super().__init__(0)
+        self._multi_data['nths'] = nths
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call % self._nths == 0:
+        self._multi_data['operand'] += 1
+        if self._multi_data['operand'] % self._multi_data['nths'] == 0:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & subject
             return self._next_operand
@@ -452,13 +449,12 @@ class Nths(Selector):
 
 class Nth(Selector):
     def __init__(self, *parameters):
-        super().__init__()
-        self._call: int = 0
-        self._nth: tuple = parameters
+        super().__init__(0)
+        self._multi_data['parameters'] = parameters
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._call += 1
-        if self._call in self._nth:
+        self._multi_data['operand'] += 1
+        if self._multi_data['operand'] in self._multi_data['parameters']:
             if isinstance(self._next_operand, Frame):
                 return self._next_operand & subject
             return self._next_operand
@@ -475,27 +471,18 @@ class Type(Selector):
                 return super().__and__(subject)
         return super().__and__(ol.Null())
 
-    # def __and__(self, subject: o.Operand) -> o.Operand:
-    #     for condition in self._multi_data['operand']:
-    #         if type(subject) == type(condition):
-    #             self_operand = self._next_operand
-    #             if isinstance(self_operand, Frame):
-    #                 self_operand &= subject
-    #             return self_operand
-    #     return ol.Null()
-
 class Equal(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._previous: list = []
+        self._multi_data['previous'] = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._previous.insert(0, subject)
+        self._multi_data['previous'].insert(0, subject)
         for condition in self._multi_data['operand']:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
-                if previous_i < len(self._previous):
-                    condition = self._previous[previous_i]
+                if previous_i < len(self._multi_data['previous']):
+                    condition = self._multi_data['previous'][previous_i]
                 else:
                     continue
             if subject == condition:    # global "or" condition, only one needs to be verified as True
@@ -508,15 +495,15 @@ class Equal(Selector):
 class NotEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._previous: list = []
+        self._multi_data['previous'] = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._previous.insert(0, subject)
+        self._multi_data['previous'].insert(0, subject)
         for condition in self._multi_data['operand']:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
-                if previous_i < len(self._previous):
-                    condition = self._previous[previous_i]
+                if previous_i < len(self._multi_data['previous']):
+                    condition = self._multi_data['previous'][previous_i]
                 else:
                     continue
             if not subject == condition:    # global "or" condition, only one needs to be verified as True
@@ -529,15 +516,15 @@ class NotEqual(Selector):
 class Greater(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._previous: list = []
+        self._multi_data['previous'] = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._previous.insert(0, subject)
+        self._multi_data['previous'].insert(0, subject)
         for condition in self._multi_data['operand']:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
-                if previous_i < len(self._previous):
-                    condition = self._previous[previous_i]
+                if previous_i < len(self._multi_data['previous']):
+                    condition = self._multi_data['previous'][previous_i]
                 else:
                     continue
             if subject > condition:    # global "or" condition, only one needs to be verified as True
@@ -550,15 +537,15 @@ class Greater(Selector):
 class Less(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._previous: list = []
+        self._multi_data['previous'] = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._previous.insert(0, subject)
+        self._multi_data['previous'].insert(0, subject)
         for condition in self._multi_data['operand']:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
-                if previous_i < len(self._previous):
-                    condition = self._previous[previous_i]
+                if previous_i < len(self._multi_data['previous']):
+                    condition = self._multi_data['previous'][previous_i]
                 else:
                     continue
             if subject < condition:    # global "or" condition, only one needs to be verified as True
@@ -571,15 +558,15 @@ class Less(Selector):
 class GreaterEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._previous: list = []
+        self._multi_data['previous'] = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._previous.insert(0, subject)
+        self._multi_data['previous'].insert(0, subject)
         for condition in self._multi_data['operand']:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
-                if previous_i < len(self._previous):
-                    condition = self._previous[previous_i]
+                if previous_i < len(self._multi_data['previous']):
+                    condition = self._multi_data['previous'][previous_i]
                 else:
                     continue
             if subject >= condition:    # global "or" condition, only one needs to be verified as True
@@ -592,15 +579,15 @@ class GreaterEqual(Selector):
 class LessEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._previous: list = []
+        self._multi_data['previous'] = []
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self._previous.insert(0, subject)
+        self._multi_data['previous'].insert(0, subject)
         for condition in self._multi_data['operand']:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
-                if previous_i < len(self._previous):
-                    condition = self._previous[previous_i]
+                if previous_i < len(self._multi_data['previous']):
+                    condition = self._multi_data['previous'][previous_i]
                 else:
                     continue
             if subject <= condition:    # global "or" condition, only one needs to be verified as True
