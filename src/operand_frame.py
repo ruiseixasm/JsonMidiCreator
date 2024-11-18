@@ -34,6 +34,7 @@ class Frame(o.Operand):
     def __init__(self):
         super().__init__()
         self._next_operand: any = o.Operand()
+        self._multi_data: list[any] = []
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
     def __iter__(self):
@@ -132,6 +133,17 @@ class Frame(o.Operand):
     #         self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])
     #     return self
     
+    def __lshift__(self, operand: 'o.Operand') -> 'Frame':
+        if isinstance(operand, Frame):
+            self._multi_data = self.deep_copy(operand._multi_data)
+            self._initiated = operand._initiated
+            self._index = operand._index
+            self._set = False   # by default a new copy of data unsets the Operand
+            # COPY THE SELF OPERANDS RECURSIVELY
+            if type(operand._next_operand) is not o.Operand:
+                self._next_operand = self.deep_copy(operand._next_operand)
+        return self
+
     def __rrshift__(self, operand: any) -> any:
         return operand & self   # operand is the subject
 
@@ -147,22 +159,6 @@ class Frame(o.Operand):
                     previous_frame = single_frame
         return self      
     
-    def __lshift__(self, operand: 'o.Operand') -> 'Frame':
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(operand, Frame):
-            self._initiated = operand._initiated
-            self._index = operand._index
-            self._set = False   # by default a new copy of data unsets the Operand
-            # COPY THE SELF OPERANDS RECURSIVELY
-            if type(operand._next_operand) is not o.Operand:
-                self._next_operand = self.deep_copy(operand._next_operand)
-                # match operand._next_operand:
-                #     case o.Operand():
-                #         self._next_operand = operand._next_operand.copy()
-                #     case _:
-                #         self._next_operand = operand._next_operand
-        return self
-
     def reset(self, *parameters) -> 'Frame':
         # RESET THE SELF OPERANDS RECURSIVELY
         if type(self._next_operand) is not o.Operand and isinstance(self._next_operand, o.Operand):
@@ -250,7 +246,6 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
     
     def __lshift__(self, operand: 'o.Operand') -> 'Left':
-        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         super().__lshift__(operand)
         if isinstance(operand, Left):
             self._left_parameter = self.deep_copy(operand._left_parameter)
