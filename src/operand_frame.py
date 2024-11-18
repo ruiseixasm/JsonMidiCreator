@@ -665,7 +665,7 @@ class Right(Frame):
 class Increment(Right):
     def __init__(self, step = None):
         super().__init__(0)
-        self._step: float = 1 if step is None else step
+        self._multi_data['step'] = 1 if step is None else step
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = self._next_operand
@@ -673,7 +673,7 @@ class Increment(Right):
             self_operand &= subject
         match self_operand:
             case ol.Null():
-                self._multi_data['operand'] += self._step    # iterates whenever called
+                self._multi_data['operand'] += self._multi_data['step']    # iterates whenever called
                 return self_operand
             case tuple():
                 for single_operand in self_operand:
@@ -688,7 +688,7 @@ class Increment(Right):
                     incremented_operand = self_operand + self._multi_data['operand']
                 else:
                     incremented_operand = self._multi_data['operand']
-        self._multi_data['operand'] += self._step
+        self._multi_data['operand'] += self._multi_data['step']
         if isinstance(incremented_operand, o.Operand):
             if isinstance(self_operand, o.Operand):
                 incremented_operand._set = self_operand._set
