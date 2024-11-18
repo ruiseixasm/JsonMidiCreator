@@ -60,7 +60,7 @@ class Data(o.Operand):
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case Data():                    return self.copy()
-            case _:                         return Data.deep_copy(self._data)
+            case _:                         return self.deep_copy(self._data)
             
     def __eq__(self, other_data: o.Operand) -> bool:
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
@@ -112,20 +112,7 @@ class Data(o.Operand):
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
-                match operand._data:
-                    case o.Operand():
-                        self._data = operand._data.copy()
-                    case list():
-                        many_operands: list = []
-                        for single_operand in operand._data:
-                            match single_operand:
-                                case o.Operand():
-                                    many_operands.append(single_operand.copy())
-                                case _:
-                                    many_operands.append(single_operand)
-                        self._data = many_operands
-                    case _:
-                        self._data = operand._data
+                self._data = self.deep_copy(operand._data)
             case DataSource():
                 self._data = operand % o.Operand()
             # Data doesn't load serialization, just processed data!!
@@ -133,19 +120,7 @@ class Data(o.Operand):
             #     self.loadSerialization(operand % DataSource( dict() ))
             case Data():
                 super().__lshift__(operand)
-                if isinstance(operand._data, o.Operand):
-                    self._data = operand._data.copy()
-                elif isinstance(operand._data, list):
-                    many_operands: list = []
-                    for single_operand in operand._data:
-                        match single_operand:
-                            case o.Operand():
-                                many_operands.append(single_operand.copy())
-                            case _:
-                                many_operands.append(single_operand)
-                    self._data = many_operands
-                else:
-                    self._data = operand._data
+                self._data = self.deep_copy(operand._data)
             case o.Operand():
                 self._data = operand.copy()
             case tuple():
