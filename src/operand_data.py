@@ -114,11 +114,11 @@ class Data(o.Operand):
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
+            case DataSource():
+                self._data = operand % o.Operand()
             # Data doesn't load serialization, just processed data!!
             case Serialization():
                 self.loadSerialization(operand % DataSource( dict() ))
-            case DataSource():
-                self._data = operand % o.Operand()
             case Data():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
@@ -454,37 +454,37 @@ class DataCopy(Data):
         if isinstance(data, (o.Operand, list)):
             self._data = data.copy()
 
-    def __mod__(self, operand: any) -> any:
-        match operand:
-            case DataSource():
-                return super().__mod__(operand)
-            case of.Frame():
-                return self % (operand % o.Operand())
-            case _:
-                if isinstance(self._data, (o.Operand, list)):
-                    return self._data.copy()
-                return self._data
+    # def __mod__(self, operand: any) -> any:
+    #     match operand:
+    #         case DataSource():
+    #             return super().__mod__(operand)
+    #         case of.Frame():
+    #             return self % (operand % o.Operand())
+    #         case _:
+    #             if isinstance(self._data, (o.Operand, list)):
+    #                 return self._data.copy()
+    #             return self._data
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'DataCopy':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case DataSource():
-                self._data = operand % o.Operand()
-            case DataCopy():
-                super().__lshift__(operand)
-                if isinstance(operand._data, (o.Operand, list)):
-                    self._data = operand._data.copy()
-                else:
-                    self._data = operand._data
-            case Serialization():
-                self.loadSerialization(operand % DataSource( dict() ))
-            case o.Operand() | list():
-                self._data = operand.copy()
-            case _:
-                self._data = operand
-        return self
+    # def __lshift__(self, operand: any) -> 'DataCopy':
+    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     match operand:
+    #         case DataSource():
+    #             self._data = operand % o.Operand()
+    #         case DataCopy():
+    #             super().__lshift__(operand)
+    #             if isinstance(operand._data, (o.Operand, list)):
+    #                 self._data = operand._data.copy()
+    #             else:
+    #                 self._data = operand._data
+    #         case Serialization():
+    #             self.loadSerialization(operand % DataSource( dict() ))
+    #         case o.Operand() | list():
+    #             self._data = operand.copy()
+    #         case _:
+    #             self._data = operand
+    #     return self
 
 class Result(DataCopy):
     pass
