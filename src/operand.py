@@ -339,7 +339,9 @@ class Operand:
     def deserialize(data: any) -> any:
         match data:
             case dict():
-                return Operand().loadSerialization(data)
+                if "class" in data and "parameters" in data:
+                    return Operand().loadSerialization(data)
+                return data
             case Operand():
                 return data
             case list():
