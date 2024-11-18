@@ -48,7 +48,7 @@ class Jumbler(o.Operand):
         # self._operator: Callable[[oc.Sequence, of.Frame], oc.Sequence] \
         #                                 = lambda sequence, frame: sequence << frame
         self._operator: str             = "<<"
-        self._result: od.Result         = od.Result(self._sequence.copy())
+        self._result: od.Result         = od.Result(self._sequence)
         if len(parameters) > 0:
             self << parameters
 
@@ -122,12 +122,12 @@ class Jumbler(o.Operand):
                         self._frame         = operand._frame.copy()
                         self._reporters     << operand._reporters
                         self._operator      = operand._operator # The string str()
-                        self._result        = operand._result.copy()
+                        self._result        << operand._result
             case od.Reporters():            self._reporters << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
-                                            self._sequence << operand
-                                            self._result << od.DataSource( self._sequence.copy() )
+                                            self._sequence  << operand
+                                            self._result    << self._sequence
             # case FunctionType() if f.__name__ == "<lambda>":
             #                                 self._operator = operand
             # case FunctionType():            self._operator = operand
@@ -186,7 +186,7 @@ class Jumbler(o.Operand):
         self._sequence.reset()
         self._frame.reset()
         self._reporters._data.reset()
-        self._result << od.DataSource( self._sequence.copy() )
+        self._result << self._sequence
         return self
     
 class JumbleParameters(Jumbler):

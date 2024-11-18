@@ -247,9 +247,6 @@ class Reporters(Data):
         super().__init__()
         self._data = parameters # Tuple
 
-class Result(Data):
-    pass
-
 class SideEffects(Data):
     def __init__(self, operand: o.Operand):
         super().__init__(operand)
@@ -504,3 +501,46 @@ class Load(Serialization):
 class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
+
+class DataCopy(Data):
+    def __init__(self, data: any = None):
+        super().__init__()
+        self._data = data
+        if isinstance(data, (o.Operand, list)):
+            self._data = data.copy()
+
+    def __mod__(self, operand: any) -> any:
+        match operand:
+            case DataSource():
+                return super().__mod__(operand)
+            case of.Frame():
+                return self % (operand % o.Operand())
+            case _:
+                if isinstance(self._data, (o.Operand, list)):
+                    return self._data.copy()
+                return self._data
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'DataCopy':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case DataSource():
+                self._data = operand % o.Operand()
+            case DataCopy():
+                super().__lshift__(operand)
+                if isinstance(operand._data, (o.Operand, list)):
+                    self._data = operand._data.copy()
+                else:
+                    self._data = operand._data
+            case Serialization():
+                self.loadSerialization(operand % DataSource( dict() ))
+            case o.Operand() | list():
+                self._data = operand.copy()
+            case _:
+                self._data = operand
+        return self
+
+class Result(DataCopy):
+    pass
+
