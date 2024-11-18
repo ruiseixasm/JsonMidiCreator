@@ -215,10 +215,10 @@ class Serialization(Data):
         super().__init__()
         if isinstance(serialization, o.Operand):
             self._data = serialization.copy()
-        elif isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
+        elif isinstance(serialization, dict):
             self._data = o.Operand().loadSerialization(serialization)
         else:
-            self._data = ol.Null()
+            self._data = None
 
     def __mod__(self, operand: any) -> any:
         """
@@ -235,17 +235,17 @@ class Serialization(Data):
         >>> serialization % DataSource( Duration() ) >> Print(False)
         {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.08333333333333333}}}}
         """
-        match operand:
-            case o.Operand():
-                return self._data
-            case dict():
-                if isinstance(self._data, o.Operand):
-                    return self._data.getSerialization()
-                if isinstance(self._data, dict):
-                    return self.deep_copy_dict(self._data)
-                return dict()
-            case _:
-                return self._data % operand
+        if isinstance(self._data, o.Operand):
+            match operand:
+                case DataSource():
+                    return self._data
+                case dict():
+                    if isinstance(self._data, o.Operand):
+                        return self._data.getSerialization()
+                    return dict()
+                case o.Operand():
+                    return self._data.copy()
+        return self._data
 
     def __eq__(self, other_operand: any) -> bool:
         other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
