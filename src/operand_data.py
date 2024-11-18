@@ -121,10 +121,9 @@ class Data(o.Operand):
             case Data():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-                # self._data = self.deep_copy(operand)
+            # case tuple():
+            #     for single_operand in operand:
+            #         self << single_operand
             case _: self._data = self.deep_copy(operand)
         return self
 
@@ -167,6 +166,15 @@ class DataSource(Data):
         return self._data
     
     # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Data':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(operand, tuple) and isinstance(self._data, o.Operand):
+            for single_operand in operand:
+                self << single_operand
+        else:
+            super().__lshift__(operand)
+        return self
 
     # def copy(self, *parameters) -> 'DataSource':
     #     ...
