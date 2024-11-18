@@ -247,18 +247,18 @@ class Serialization(Data):
                     return self._data.copy()
         return self._data
 
-    def __eq__(self, other_operand: any) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
+    def __eq__(self, other: o.Operand | dict) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if self._data is None:
-            if other_operand is None:
+            if other is None:
                 return True
             return False
-        match other_operand:
+        match other:
             case dict():
-                return self.getSerialization() == other_operand
+                return self.getSerialization() == other
             case o.Operand():
-                return self.getSerialization() == other_operand.getSerialization()
-        return super().__eq__(other_operand)
+                return self.getSerialization() == other.getSerialization()
+        return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         match self._data:
@@ -280,14 +280,12 @@ class Serialization(Data):
         match self._data:
             case o.Operand():
                 return self._data.getSerialization()
-            case dict():
-                return self._data
         return {}
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        self._data.loadSerialization(serialization)
+        self._data = o.Operand().loadSerialization(serialization)
         return self
         
     # # NEEDS TO REMOVE THIS METHOD
@@ -299,12 +297,12 @@ class Serialization(Data):
     #     return self_copy
 
     def __lshift__(self, operand: any) -> 'o.Operand':
-        # if isinstance(operand, o.Operand):
-        #     self._data = operand.copy()
-        if isinstance(operand, dict) and "class" in operand and "parameters" in operand:
+        if isinstance(operand, o.Operand):
+            self._data = operand.copy()
+        elif isinstance(operand, dict):
             self._data = o.Operand().loadSerialization(operand)
-        else:
-            super().__lshift__(operand)
+        # else:
+        #     super().__lshift__(operand)
         return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
