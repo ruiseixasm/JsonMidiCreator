@@ -238,17 +238,12 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand._set = True
         return self_operand
     
-    def __lshift__(self, operand: 'o.Operand') -> 'Left':
-        super().__lshift__(operand)
-        if isinstance(operand, Left):
-            self._multi_data[0] = self.deep_copy(operand._multi_data[0])
-        return self
+    # def __lshift__(self, operand: 'o.Operand') -> 'Left':
+    #     super().__lshift__(operand)
+    #     if isinstance(operand, Left):
+    #         self._multi_data[0] = self.deep_copy(operand._multi_data[0])
+    #     return self
 
-    # def copy(self, *parameters) -> 'Left':
-    #     self_copy: Left = Left() << self
-    #     self_copy._multi_data[0] = self.deep_copy(self._multi_data[0])
-    #     return self_copy << parameters
-    
     def clear(self, *parameters) -> 'Frame':
         self._multi_data[0] = 0
         return super().clear(parameters)
