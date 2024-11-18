@@ -310,18 +310,18 @@ class Operand:
         self & operand  # Processes the tailed self operands or the Frame operand if any exists
         return self
 
-    @staticmethod
-    def copy_operands_list(operands_list: list['Operand'] | tuple['Operand']) -> list:
-        copy_list: list[Operand] = []
-        for single_operand in operands_list:
-            if isinstance(single_operand, Operand):
-                copy_list.append(single_operand.copy())
-        return copy_list
+    # @staticmethod
+    # def copy_operands_list(operands_list: list['Operand'] | tuple['Operand']) -> list:
+    #     copy_list: list[Operand] = []
+    #     for single_operand in operands_list:
+    #         if isinstance(single_operand, Operand):
+    #             copy_list.append(single_operand.copy())
+    #     return copy_list
 
     @staticmethod
     def deep_copy(data: any) -> any:
         match data:
-            case o.Operand():
+            case Operand():
                 return data.copy()
             case list():
                 many_data: list[any] = []

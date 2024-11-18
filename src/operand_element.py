@@ -1207,7 +1207,7 @@ class Tuplet(Rest):
                 return self._duration / 2
             case ot.Length():
                 return self._length / 2  # To guarantee compatibility
-            case list():            return o.Operand.copy_operands_list(self._elements)
+            case list():            return self.deep_copy(self._elements)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: o.Operand) -> bool:
@@ -1284,7 +1284,7 @@ class Tuplet(Rest):
             case Tuplet():
                 super().__lshift__(operand)
                 self._swing     << operand._swing
-                self._elements  = o.Operand.copy_operands_list(operand % od.DataSource( list() ))
+                self._elements  = self.deep_copy(operand % od.DataSource( list() ))
             case ra.Swing():
                 if operand < 0:     self._swing << 0
                 elif operand > 1:   self._swing << 1
@@ -1299,7 +1299,7 @@ class Tuplet(Rest):
             case list():
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
-                    self._elements = o.Operand.copy_operands_list(operand)
+                    self._elements = self.deep_copy(operand)
             case _:
                 super().__lshift__(operand)
         self.set_elements_duration()
