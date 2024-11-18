@@ -155,11 +155,12 @@ class Frame(o.Operand):
             self._set = False   # by default a new copy of data unsets the Operand
             # COPY THE SELF OPERANDS RECURSIVELY
             if type(operand._next_operand) is not o.Operand:
-                match operand._next_operand:
-                    case o.Operand():
-                        self._next_operand = operand._next_operand.copy()
-                    case _:
-                        self._next_operand = operand._next_operand
+                self._next_operand = self.deep_copy(operand._next_operand)
+                # match operand._next_operand:
+                #     case o.Operand():
+                #         self._next_operand = operand._next_operand.copy()
+                #     case _:
+                #         self._next_operand = operand._next_operand
         return self
 
     def reset(self, *parameters) -> 'Frame':
