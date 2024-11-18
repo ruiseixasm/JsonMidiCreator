@@ -148,8 +148,8 @@ class Frame(o.Operand):
         return self      
     
     def __lshift__(self, operand: 'o.Operand') -> 'Frame':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(operand, type(self)):
+        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(operand, Frame):
             self._initiated = operand._initiated
             self._index = operand._index
             self._set = False   # by default a new copy of data unsets the Operand
@@ -248,10 +248,17 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand._set = True
         return self_operand
     
-    def copy(self, *parameters) -> 'Left':
-        self_copy: Left = Left() << self
-        self_copy._left_parameter = self.deep_copy(self._left_parameter)
-        return self_copy << parameters
+    def __lshift__(self, operand: 'o.Operand') -> 'Left':
+        # operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        super().__lshift__(operand)
+        if isinstance(operand, Left):
+            self._left_parameter = self.deep_copy(operand._left_parameter)
+        return self
+
+    # def copy(self, *parameters) -> 'Left':
+    #     self_copy: Left = Left() << self
+    #     self_copy._left_parameter = self.deep_copy(self._left_parameter)
+    #     return self_copy << parameters
     
     def clear(self, *parameters) -> 'Frame':
         self._left_parameter = 0
