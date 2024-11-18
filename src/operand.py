@@ -371,16 +371,19 @@ class Operand:
         match data:
             case Operand():
                 return data.copy()
-            case list():
-                many_data: list[any] = []
-                for single_data in data:
-                    many_data.append(__class__.deep_copy(single_data))
-                return many_data
-            case tuple():
-                many_data: list = __class__.deep_copy(list(data))
-                return tuple(many_data)
             case dict():
-                return __class__.deep_copy_dict(data)
+                many_dict: dict = {}
+                for key, value in data.items():
+                    many_dict[key] = __class__.deep_copy(value)
+                return many_dict
+            case list():
+                many_list: list[any] = []
+                for single_data in data:
+                    many_list.append(__class__.deep_copy(single_data))
+                return many_list
+            case tuple():
+                many_list: list = __class__.deep_copy(list(data))
+                return tuple(many_list)
             case _:
                 return data
 
@@ -408,3 +411,31 @@ class Operand:
         else:
             # Base case: return the value directly if it's neither a list nor a dictionary
             return data
+
+    @staticmethod
+    def deep_reset(data: any):
+        match data:
+            case Operand():
+                return data.reset() # Only Operand has reset method
+            case dict():
+                for _, value in data.items():
+                    __class__.deep_reset(value)
+            case list():
+                for single_data in data:
+                    __class__.deep_reset(single_data)
+            case tuple():
+                __class__.deep_reset(list(data))
+
+    @staticmethod
+    def deep_clear(data: any):
+        match data:
+            case Operand():
+                return data.clear() # Only Operand has clear method
+            case dict():
+                for _, value in data.items():
+                    __class__.deep_clear(value)
+            case list():
+                for single_data in data:
+                    __class__.deep_clear(single_data)
+            case tuple():
+                __class__.deep_clear(list(data))
