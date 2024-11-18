@@ -31,6 +31,7 @@ class Data(o.Operand):
     def __init__(self, data = None):
         super().__init__()
         self._data = data
+        # self._data = self.deep_copy(data)
 
     # ERROR ON RECURSIVE COPY DUE TO AMBIGUOUS OPERAND COPY WITH DATA COPY
     # def __init__(self, *parameters):
@@ -207,14 +208,14 @@ class DataSource(Data):
 class Parameters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__()
-        self._data = parameters # Tuple
-        # self._data = self.deep_copy(parameters) # Tuple
+        # self._data = parameters # Tuple
+        self._data = self.deep_copy(parameters) # Tuple
 
 class Reporters(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__()
-        self._data = parameters # Tuple
-        # self._data = self.deep_copy(parameters) # Tuple
+        # self._data = parameters # Tuple
+        self._data = self.deep_copy(parameters) # Tuple
 
 class SideEffects(Data):
     def __init__(self, operand: o.Operand):
