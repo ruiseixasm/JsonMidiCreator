@@ -140,7 +140,7 @@ class Element(o.Operand):
 
         return [
                 {
-                    "event":        "None",
+                    "event":        "Element",
                     "track":        max(0, self._track % int() - 1),
                     "track_name":   self._track % str(),
                     "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
@@ -153,11 +153,11 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         element_serialization = super().getSerialization()
-        element_serialization["parameters"]["position"]     = self._position.getSerialization()
-        element_serialization["parameters"]["length"]       = self._length.getSerialization()
-        element_serialization["parameters"]["channel"]      = self._channel.getSerialization()
-        element_serialization["parameters"]["device"]       = self._device.getSerialization()
-        element_serialization["parameters"]["track"]        = self._track.getSerialization()
+        element_serialization["parameters"]["position"]     = self.serialize(self._position)
+        element_serialization["parameters"]["length"]       = self.serialize(self._length)
+        element_serialization["parameters"]["channel"]      = self.serialize(self._channel)
+        element_serialization["parameters"]["device"]       = self.serialize(self._device)
+        element_serialization["parameters"]["track"]        = self.serialize(self._track)
         return element_serialization
 
     # CHAINABLE OPERATIONS
@@ -168,11 +168,11 @@ class Element(o.Operand):
             "channel" in serialization["parameters"] and "device" in serialization["parameters"] and "track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
-            self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
-            self._channel   = ou.Channel().loadSerialization(serialization["parameters"]["channel"])
-            self._device    = og.Device().loadSerialization(serialization["parameters"]["device"])
-            self._track     = ou.Track().loadSerialization(serialization["parameters"]["track"])
+            self._position  = self.deserialize(serialization["parameters"]["position"])
+            self._length    = self.deserialize(serialization["parameters"]["length"])
+            self._channel   = self.deserialize(serialization["parameters"]["channel"])
+            self._device    = self.deserialize(serialization["parameters"]["device"])
+            self._track     = self.deserialize(serialization["parameters"]["track"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
