@@ -203,7 +203,7 @@ class Outer(FrameFilter):
 class Left(Frame):  # LEFT TO RIGHT
     def __init__(self, operand: any = None):
         super().__init__()
-        self._multi_data['operand'] = operand   # NO COPY !!
+        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
 
     def __and__(self, subject: any) -> any:
         self_operand = self._next_operand
@@ -626,18 +626,6 @@ class Push(Left):
         if isinstance(subject, o.Operand):
             return super().__and__(self._multi_data['operand'] >> subject)
         return super().__and__(subject)
-        
-    # def __and__(self, subject: o.Operand) -> o.Operand:
-    #     self_operand = self._next_operand
-    #     if isinstance(self_operand, Frame):
-    #         match subject:
-    #             case o.Operand():   self_operand &= self_operand >> subject
-    #             case _:             self_operand &= subject
-    #     if self_operand.__class__ == o.Operand:
-    #         match subject:
-    #             case o.Operand():   self_operand = self_operand >> subject
-    #             case _:             self_operand = subject
-    #     return self_operand
 
 class Add(Left):
     def __init__(self, operand: any = 1):
@@ -670,9 +658,9 @@ class Divide(Left):
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
 class Right(Frame):
-    def __init__(self, right_parameter: any = None):
+    def __init__(self, operand: any = None):
         super().__init__()
-        self._right_parameter = 0 if right_parameter is None else right_parameter
+        self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
 
 class Increment(Right):
     def __init__(self, step = None):
@@ -685,22 +673,22 @@ class Increment(Right):
             self_operand &= subject
         match self_operand:
             case ol.Null():
-                self._right_parameter += self._step    # iterates whenever called
+                self._multi_data['operand'] += self._step    # iterates whenever called
                 return self_operand
             case tuple():
                 for single_operand in self_operand:
                     if isinstance(single_operand, o.Operand):
-                        single_operand << single_operand + self._right_parameter
+                        single_operand << single_operand + self._multi_data['operand']
                         single_operand._set = True
                 incremented_operand = self_operand
             case _:
                 if self_operand.__class__ == o.Operand:
-                    incremented_operand = self._right_parameter
+                    incremented_operand = self._multi_data['operand']
                 elif isinstance(self_operand, o.Operand):
-                    incremented_operand = self_operand + self._right_parameter
+                    incremented_operand = self_operand + self._multi_data['operand']
                 else:
-                    incremented_operand = self._right_parameter
-        self._right_parameter += self._step
+                    incremented_operand = self._multi_data['operand']
+        self._multi_data['operand'] += self._step
         if isinstance(incremented_operand, o.Operand):
             if isinstance(self_operand, o.Operand):
                 incremented_operand._set = self_operand._set
@@ -719,17 +707,17 @@ class Wrap(Right):
             self_operand &= subject
         match self_operand:
             case o.Operand():
-                match self._right_parameter:
-                    case oo.Operator(): wrapped_operand = self._right_parameter | self_operand.copy()
-                    case o.Operand():   wrapped_operand = self._right_parameter.copy() << self_operand
+                match self._multi_data['operand']:
+                    case oo.Operator(): wrapped_operand = self._multi_data['operand'] | self_operand.copy()
+                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << self_operand
                     case None:          wrapped_operand = ol.Null()
-                    case _:             wrapped_operand = self._right_parameter
+                    case _:             wrapped_operand = self._multi_data['operand']
             case _:
-                match self._right_parameter:
-                    case oo.Operator(): wrapped_operand = self._right_parameter | self_operand
-                    case o.Operand():   wrapped_operand = self._right_parameter.copy() << self_operand
+                match self._multi_data['operand']:
+                    case oo.Operator(): wrapped_operand = self._multi_data['operand'] | self_operand
+                    case o.Operand():   wrapped_operand = self._multi_data['operand'].copy() << self_operand
                     case None:          wrapped_operand = ol.Null()
-                    case _:             wrapped_operand = self._right_parameter
+                    case _:             wrapped_operand = self._multi_data['operand']
         if isinstance(wrapped_operand, o.Operand):
             if isinstance(self_operand, o.Operand):
                 wrapped_operand._set = self_operand._set
@@ -748,7 +736,7 @@ class Extract(Right):
             self_operand &= subject
         extracted_data = self_operand
         if isinstance(self_operand, o.Operand):
-            extracted_data = self_operand % self._right_parameter
+            extracted_data = self_operand % self._multi_data['operand']
             extracted_data._set = self_operand._set # Set status has to be kept
         return extracted_data
 
