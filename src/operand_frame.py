@@ -249,36 +249,23 @@ class Left(Frame):  # LEFT TO RIGHT
         return self_operand
     
     def copy(self, *parameters) -> 'Left':
-        self_copy: Left = super().copy(parameters)
-        match self._left_parameter:
-            case o.Operand():
-                self_copy._left_parameter = self._left_parameter.copy()
-            case _:
-                self_copy._left_parameter = self._left_parameter
-        return self_copy
+        self_copy: Left = Left() << self
+        self_copy._left_parameter = self.deep_copy(self._left_parameter)
+        return self_copy << parameters
     
     def clear(self, *parameters) -> 'Frame':
         self._left_parameter = 0
         return super().clear(parameters)
     
 class Subject(Left):
-    def __init__(self, subject):
-        super().__init__(subject)
-
     def __and__(self, subject: o.Operand) -> o.Operand:
         return super().__and__(self._left_parameter)
 
 class PushTo(Left):
-    def __init__(self, operand: o.Operand):
-        super().__init__(operand)
-
     def __and__(self, subject: o.Operand) -> o.Operand:
         return super().__and__(subject >> self._left_parameter)
 
 class PushOut(Left):
-    def __init__(self, operand: o.Operand):
-        super().__init__(operand)
-
     def __and__(self, subject: o.Operand) -> o.Operand:
         subject >> self._left_parameter
         return super().__and__(subject)
