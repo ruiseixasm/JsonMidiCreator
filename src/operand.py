@@ -306,6 +306,10 @@ class Operand:
     def __ror__(self, operand: 'Operand') -> 'Operand':
         return self
     
+    def __xor__(self, operand: 'Operand') -> 'Operand':
+        self & operand  # Processes the tailed self operands or the Frame operand if any exists
+        return self
+
     @staticmethod
     def copy_operands_list(operands_list: list['Operand'] | tuple['Operand']) -> list:
         copy_list: list[Operand] = []
@@ -314,6 +318,45 @@ class Operand:
                 copy_list.append(single_operand.copy())
         return copy_list
 
-    def __xor__(self, operand: 'Operand') -> 'Operand':
-        self & operand  # Processes the tailed self operands or the Frame operand if any exists
-        return self
+    @staticmethod
+    def deep_copy(data: any) -> any:
+        match data:
+            case o.Operand():
+                return data.copy()
+            case list():
+                many_data: list[any] = []
+                for single_data in data:
+                    many_data.append(__class__.deep_copy(single_data))
+                return many_data
+            case tuple():
+                many_data: list = __class__.deep_copy(list(data))
+                return tuple(many_data)
+            case dict():
+                return __class__.deep_copy_dict(data)
+            case _:
+                return data
+
+    @staticmethod
+    def deep_copy_dict(data: dict) -> dict:
+        """
+        Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
+
+        Args:
+            data (dict): The dictionary to copy.
+
+        Returns:
+            dict: A deep copy of the original dictionary.
+        """
+        if isinstance(data, dict):
+            # Create a new dictionary
+            copy_dict = {}
+            for key, value in data.items():
+                # Recursively copy each value
+                copy_dict[key] = __class__.deep_copy_dict(value)
+            return copy_dict
+        elif isinstance(data, list):
+            # Create a new list and recursively copy each element
+            return [__class__.deep_copy_dict(element) for element in data]
+        else:
+            # Base case: return the value directly if it's neither a list nor a dictionary
+            return data
