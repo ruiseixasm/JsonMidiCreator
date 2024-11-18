@@ -210,41 +210,6 @@ class DataSource(Data):
     #         self_copy._next_operand = self._next_operand.copy()
     #     return self_copy << parameters
 
-class Parameters(Data):
-    def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__()
-        # self._data = parameters # Tuple
-        self._data = self.deep_copy(parameters) # Tuple
-
-class Reporters(Data):
-    def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__()
-        # self._data = parameters # Tuple
-        self._data = self.deep_copy(parameters) # Tuple
-
-class SideEffects(Data):
-    def __init__(self, operand: o.Operand):
-        super().__init__()
-        self._data = operand    # needs to keep the original reference (no copy)
-
-class LeftShift(SideEffects):
-    # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(self._data, o.Operand):
-            self._data << operand
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
-class RightShift(SideEffects):
-    # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        if isinstance(self._data, o.Operand):
-            operand >> self._data
-            return operand
-        else:
-            return super().__rrshift__(operand)
-
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
         super().__init__()
@@ -472,6 +437,37 @@ class Load(Serialization):
 class Import(Playlist):
     def __init__(self, file_name: str = None):
         super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
+
+class SideEffects(Data):
+    def __init__(self, operand: o.Operand):
+        super().__init__()
+        self._data = operand    # needs to keep the original reference (no copy)
+
+class LeftShift(SideEffects):
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(self._data, o.Operand):
+            self._data << operand
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
+class RightShift(SideEffects):
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        if isinstance(self._data, o.Operand):
+            operand >> self._data
+            return operand
+        else:
+            return super().__rrshift__(operand)
+
+class Parameters(Data):
+    def __init__(self, *parameters):    # Allows multiple parameters
+        super().__init__(parameters)
+
+class Reporters(Data):
+    def __init__(self, *parameters):    # Allows multiple parameters
+        super().__init__(parameters)
 
 class Result(Data):
     pass
