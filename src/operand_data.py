@@ -114,11 +114,11 @@ class Data(o.Operand):
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
+            # Data doesn't load serialization, just processed data!!
+            case Serialization():
+                self.loadSerialization(operand % DataSource( dict() ))
             case DataSource():
                 self._data = operand % o.Operand()
-            # Data doesn't load serialization, just processed data!!
-            # case Serialization():
-            #     self.loadSerialization(operand % DataSource( dict() ))
             case Data():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
