@@ -126,6 +126,7 @@ class Data(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+                # self._data = self.deep_copy(operand)
             case _: self._data = operand
         return self
 
