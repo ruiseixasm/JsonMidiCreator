@@ -322,14 +322,20 @@ class Operand:
         match data:
             case Operand():
                 return data.getSerialization()
+            case dict():
+                serialized_dict = {}
+                for key, value in data.items():
+                    # Recursively copy each value
+                    serialized_dict[key] = __class__.serialize(value)
+                return serialized_dict
             case list():
-                serialization_list: list[any] = []
+                serialized_list: list[any] = []
                 for single_data in data:
-                    serialization_list.append(__class__.serialize(single_data))
-                return serialization_list
+                    serialized_list.append(__class__.serialize(single_data))
+                return serialized_list
             case tuple():
-                serialization_list: list = __class__.serialize(list(data))
-                return tuple(serialization_list)
+                serialized_list: list = __class__.serialize(list(data))
+                return tuple(serialized_list)
             case Fraction():
                 return str(data)
             case _:
