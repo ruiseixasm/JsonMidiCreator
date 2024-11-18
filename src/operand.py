@@ -144,10 +144,11 @@ class Operand:
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Operand':
-        if not isinstance(serialization, dict): # avoids infinite recursion
-            return serialization
-        if "class" in serialization and "parameters" in serialization:
-            if type(self) == Operand:   # Means unknown instantiation from random dict class name
+        import operand_label as ol
+        # if not isinstance(serialization, dict): # avoids infinite recursion
+        #     return serialization
+        if type(self) == Operand:   # Means unknown instantiation from random dict class name
+            if isinstance(serialization, dict) and "class" in serialization and "parameters" in serialization:
                 operand_name = serialization["class"]
                 operand_class = Operand.find_subclass_by_name(Operand, operand_name)    # Heavy duty call
                 if operand_class:
@@ -164,15 +165,17 @@ class Operand:
                     # if isinstance(operand_instance, ol.Label):
                     #     return operand_instance         # avoids infinite recursion
                     return operand_instance.loadSerialization(serialization)
-            elif (serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-                "next_operand" in serialization["parameters"] and "initiated" in serialization["parameters"] and
-                "set" in serialization["parameters"] and "index" in serialization["parameters"]):
+            return None # Unable to recreate any Operand object from serialization !!
+        elif isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "next_operand" in serialization["parameters"] and "initiated" in serialization["parameters"] and
+            "set" in serialization["parameters"] and "index" in serialization["parameters"]):
 
-                self._next_operand  = Operand().loadSerialization(serialization["parameters"]["next_operand"])
-                # self._next_operand  = None
-                self._initiated     = serialization["parameters"]["initiated"]
-                self._set           = serialization["parameters"]["set"]
-                self._index         = serialization["parameters"]["index"]
+            self._next_operand  = Operand().loadSerialization(serialization["parameters"]["next_operand"])
+            # self._next_operand  = None
+            self._initiated     = serialization["parameters"]["initiated"]
+            self._set           = serialization["parameters"]["set"]
+            self._index         = serialization["parameters"]["index"]
+            return self
         return self
        
     def __lshift__(self, operand: 'Operand') -> 'Operand':

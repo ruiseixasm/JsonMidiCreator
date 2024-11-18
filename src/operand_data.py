@@ -255,9 +255,9 @@ class Serialization(Data):
             return False
         match other_operand:
             case dict():
-                return self._data.getSerialization() == other_operand
+                return self.getSerialization() == other_operand
             case o.Operand():
-                return self._data.getSerialization() == other_operand.getSerialization()
+                return self.getSerialization() == other_operand.getSerialization()
         return super().__eq__(other_operand)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
@@ -428,15 +428,18 @@ class Playlist(Data):
 
 class Load(Serialization):
     def __init__(self, file_name: str = None):
-        match file_name:
-            case str():
-                super().__init__( c.loadJsonMidiCreator(file_name) )
-            case _:
-                super().__init__()
+        super().__init__()
+        if isinstance(file_name, str):
+            # No need to copy (fresh data)
+            self._data = {} if file_name is None else c.loadJsonMidiCreator(file_name)
+            self._data = o.Operand().loadSerialization(self._data)    # Must convert to an Operand
 
 class Import(Playlist):
     def __init__(self, file_name: str = None):
-        super().__init__( [] if file_name is None else c.loadJsonMidiPlay(file_name) )
+        super().__init__()
+        if isinstance(file_name, str):
+            # No need to copy (fresh data)
+            self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
 
 class SideEffects(Data):
     def __init__(self, operand: o.Operand):

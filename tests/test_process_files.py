@@ -505,7 +505,8 @@ play_list_4 = Playlist() << (Position(24) >> (KeyScale("A") << Scale("minor") <<
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 play_list_1 + play_list_2 + play_list_3 + play_list_4 \
-    >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+    >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+    >> Save("json/testing/_Save_Play_p.21_first_note_compare.json") >> Export("json/testing/_Export_Play_p.21_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 9.1",
