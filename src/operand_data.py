@@ -39,7 +39,50 @@ class Data(o.Operand):
     #     if len(parameters) > 0:
     #         self << parameters
 
-    def __mod__(self, operand: o.Operand):
+    @staticmethod
+    def deep_copy(data: any) -> any:
+        match data:
+            case o.Operand():
+                return data.copy()
+            case list():
+                many_data: list[any] = []
+                for single_data in data:
+                    many_data.append(Data.deep_copy(single_data))
+                return many_data
+            case tuple():
+                many_data: list = Data.deep_copy(list(data))
+                return tuple(many_data)
+            case dict():
+                return Data.deep_copy_dict(data)
+            case _:
+                return data
+
+    @staticmethod
+    def deep_copy_dict(data: dict) -> dict:
+        """
+        Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
+
+        Args:
+            data (dict): The dictionary to copy.
+
+        Returns:
+            dict: A deep copy of the original dictionary.
+        """
+        if isinstance(data, dict):
+            # Create a new dictionary
+            copy_dict = {}
+            for key, value in data.items():
+                # Recursively copy each value
+                copy_dict[key] = Data.deep_copy_dict(value)
+            return copy_dict
+        elif isinstance(data, list):
+            # Create a new list and recursively copy each element
+            return [Data.deep_copy_dict(element) for element in data]
+        else:
+            # Base case: return the value directly if it's neither a list nor a dictionary
+            return data
+
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, because a Data has
         only one type of Parameters that's a generic type of Parameter
@@ -368,31 +411,6 @@ class Serialization(Data):
 
     def __floordiv__(self, length: ot.Length) -> 'o.Operand':
         return self._data // length
-
-    @staticmethod
-    def deep_copy_dict(data):
-        """
-        Recursively creates a deep copy of a dictionary that may contain lists and other dictionaries.
-
-        Args:
-            data (dict): The dictionary to copy.
-
-        Returns:
-            dict: A deep copy of the original dictionary.
-        """
-        if isinstance(data, dict):
-            # Create a new dictionary
-            copy_dict = {}
-            for key, value in data.items():
-                # Recursively copy each value
-                copy_dict[key] = Serialization.deep_copy_dict(value)
-            return copy_dict
-        elif isinstance(data, list):
-            # Create a new list and recursively copy each element
-            return [Serialization.deep_copy_dict(element) for element in data]
-        else:
-            # Base case: return the value directly if it's neither a list nor a dictionary
-            return data
 
 class Playlist(Data):
     def __init__(self, *parameters):
