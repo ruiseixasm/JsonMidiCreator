@@ -25,6 +25,6 @@ rest_play = (R, P)
 staff << 150
 K % str() >> Print()    # Returns the tonic key (I)
 
-final_jumbling = Jumbler() * 40 * 4.37
-final_jumbling = JumbleRhythm(final_jumbling) * 60 * 4.01
-final_jumbling = JumblePitch(final_jumbling) * 35 * 4.02
+final_mutation = Mutation() * 40 * 4.37
+final_mutation = TranslocateRhythm(final_mutation) * 60 * 4.01
+final_mutation = TranslocatePitch(final_mutation) * 35 * 4.02

@@ -36,7 +36,7 @@ import operand_container as oc
 import operand_chaos as ch
 
 
-class Jumbler(o.Operand):
+class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._sequence: oc.Sequence     = oe.Note() * 4
@@ -62,7 +62,7 @@ class Jumbler(o.Operand):
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return ol.Null()
-            case Jumbler():         return self.copy()
+            case Mutation():         return self.copy()
             case od.Reporters():    return self._reporters.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
@@ -74,7 +74,7 @@ class Jumbler(o.Operand):
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: 'Jumbler') -> bool:
+    def __eq__(self, other: 'Mutation') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
@@ -92,7 +92,7 @@ class Jumbler(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Jumbler':
+    def loadSerialization(self, serialization: dict) -> 'Mutation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
@@ -104,7 +104,7 @@ class Jumbler(o.Operand):
             self._operator          = serialization["parameters"]["operator"]
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'Jumbler':
+    def __lshift__(self, operand: o.Operand) -> 'Mutation':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -116,7 +116,7 @@ class Jumbler(o.Operand):
                     case od.Result():               self._result = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Jumbler():
+            case Mutation():
                         super().__lshift__(operand)
                         self._sequence      = operand._sequence.copy()
                         self._result        = operand._result.copy()
@@ -150,7 +150,7 @@ class Jumbler(o.Operand):
         total_iterations: int = round(integer_part * muted_iterations)
         return muted_iterations, total_iterations
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -170,7 +170,7 @@ class Jumbler(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Jumbler':
+    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self._index + 1}', end = " ")
             if isinstance(self._reporters._data, tuple):
@@ -181,7 +181,7 @@ class Jumbler(o.Operand):
             print()
         return self
 
-    def reset(self, *parameters) -> 'Jumbler':
+    def reset(self, *parameters) -> 'Mutation':
         super().reset(*parameters)
         self._sequence.reset()
         self._frame.reset()
@@ -189,7 +189,7 @@ class Jumbler(o.Operand):
         self._result << self._sequence
         return self
 
-class JumbleParameters(Jumbler):
+class Translocation(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
@@ -220,7 +220,7 @@ class JumbleParameters(Jumbler):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'JumbleParameters':
+    def loadSerialization(self, serialization: dict) -> 'Translocation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
@@ -230,7 +230,7 @@ class JumbleParameters(Jumbler):
             self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'JumbleParameters':
+    def __lshift__(self, operand: o.Operand) -> 'Translocation':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -239,7 +239,7 @@ class JumbleParameters(Jumbler):
                     case ol.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case JumbleParameters():
+            case Translocation():
                 super().__lshift__(operand)
                 self._chaos         << operand._chaos
                 self._filter        << operand._filter
@@ -249,7 +249,7 @@ class JumbleParameters(Jumbler):
             case _:                         super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleParameters':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Translocation':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -265,13 +265,13 @@ class JumbleParameters(Jumbler):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'JumbleParameters':
+    def reset(self, *parameters) -> 'Translocation':
         super().reset(*parameters)
         self._chaos.reset()
         self._filter.reset()
         return self
 
-class JumbleRhythm(JumbleParameters):
+class TranslocateRhythm(Translocation):
     def __init__(self, *parameters):
         super().__init__()
         self._parameters        = od.Parameters(ot.Position())
@@ -280,12 +280,12 @@ class JumbleRhythm(JumbleParameters):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'JumbleRhythm':
+    def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
         self._parameters        = od.Parameters(ot.Position())
         return self
 
-class JumblePitch(JumbleParameters):
+class TranslocatePitch(Translocation):
     def __init__(self, *parameters):
         super().__init__()
         self._parameters        = od.Parameters(og.Pitch())
@@ -294,12 +294,12 @@ class JumblePitch(JumbleParameters):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'JumbleRhythm':
+    def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
         self._parameters        = od.Parameters(og.Pitch())
         return self
 
-class JumbleData(Jumbler):
+class JumbleData(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
@@ -330,7 +330,7 @@ class JumbleData(Jumbler):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'JumbleParameters':
+    def loadSerialization(self, serialization: dict) -> 'Translocation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
@@ -340,7 +340,7 @@ class JumbleData(Jumbler):
             self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'JumbleParameters':
+    def __lshift__(self, operand: o.Operand) -> 'Translocation':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -349,7 +349,7 @@ class JumbleData(Jumbler):
                     case ol.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case JumbleParameters():
+            case Translocation():
                 super().__lshift__(operand)
                 self._chaos         << operand._chaos
                 self._filter        << operand._filter
@@ -359,7 +359,7 @@ class JumbleData(Jumbler):
             case _:                         super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleParameters':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Translocation':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -375,13 +375,13 @@ class JumbleData(Jumbler):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'JumbleParameters':
+    def reset(self, *parameters) -> 'Translocation':
         super().reset(*parameters)
         self._chaos.reset()
         self._filter.reset()
         return self
 
-class Crossover(Jumbler):
+class Crossover(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._sequences: list[oc.Sequence] = []
@@ -413,7 +413,7 @@ class Crossover(Jumbler):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'JumbleParameters':
+    def loadSerialization(self, serialization: dict) -> 'Translocation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
@@ -423,7 +423,7 @@ class Crossover(Jumbler):
             self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'JumbleParameters':
+    def __lshift__(self, operand: o.Operand) -> 'Translocation':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -432,7 +432,7 @@ class Crossover(Jumbler):
                     case ol.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case JumbleParameters():
+            case Translocation():
                 super().__lshift__(operand)
                 self._chaos         << operand._chaos
                 self._filter        << operand._filter
@@ -442,7 +442,7 @@ class Crossover(Jumbler):
             case _:                         super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'JumbleParameters':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Translocation':
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -458,7 +458,7 @@ class Crossover(Jumbler):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'JumbleParameters':
+    def reset(self, *parameters) -> 'Translocation':
         super().reset(*parameters)
         self._chaos.reset()
         self._filter.reset()
