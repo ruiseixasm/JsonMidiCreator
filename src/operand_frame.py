@@ -385,6 +385,11 @@ class Transition(Left):
             subject = ol.Null()
         return super().__and__(subject)
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['last_subject'] = ol.Null()
+        return self << parameters
+    
 class Repeat(Left):
     def __init__(self, times: int = 1):
         super().__init__(times)
@@ -420,6 +425,11 @@ class Odd(Selector):
         else:
             return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['operand'] = 0
+        return self << parameters
+    
 class Even(Selector):
     def __init__(self):
         super().__init__(0)
@@ -433,6 +443,11 @@ class Even(Selector):
         else:
             return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['operand'] = 0
+        return self << parameters
+    
 class Nths(Selector):
     def __init__(self, nths: int = 4):
         super().__init__(0)
@@ -447,6 +462,11 @@ class Nths(Selector):
         else:
             return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['operand'] = 0
+        return self << parameters
+    
 class Nth(Selector):
     def __init__(self, *parameters):
         super().__init__(0)
@@ -461,6 +481,11 @@ class Nth(Selector):
         else:
             return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['operand'] = 0
+        return self << parameters
+    
 class Type(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -492,6 +517,11 @@ class Equal(Selector):
                 return self_operand
         return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+    
 class NotEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -513,6 +543,11 @@ class NotEqual(Selector):
                 return self_operand
         return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+    
 class Greater(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -534,6 +569,11 @@ class Greater(Selector):
                 return self_operand
         return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+    
 class Less(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -555,6 +595,11 @@ class Less(Selector):
                 return self_operand
         return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+    
 class GreaterEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -576,6 +621,11 @@ class GreaterEqual(Selector):
                 return self_operand
         return ol.Null()
 
+    def reset(self, *parameters) -> 'Frame':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+    
 class LessEqual(Selector):
     def __init__(self, *parameters):
         super().__init__(parameters)
@@ -597,6 +647,11 @@ class LessEqual(Selector):
                 return self_operand
         return ol.Null()
 
+    def reset(self, *parameters) -> 'LessEqual':
+        super().reset()
+        self._multi_data['previous'] = []
+        return self << parameters
+    
 class Get(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
