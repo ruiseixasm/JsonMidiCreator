@@ -204,7 +204,11 @@ class Outer(FrameFilter):
 class Left(Frame):  # LEFT TO RIGHT
     def __init__(self, left_parameter: any = None):
         super().__init__()
-        self._left_parameter = 0 if left_parameter is None else left_parameter
+        self_parameter = 0 if left_parameter is None else left_parameter
+        if len(self._multi_data) < 1:
+            self._multi_data.append(self_parameter)
+        else:
+            self._multi_data[0] = self_parameter
 
     def __and__(self, subject: any) -> any:
         self_operand = self._next_operand
@@ -237,29 +241,29 @@ class Left(Frame):  # LEFT TO RIGHT
     def __lshift__(self, operand: 'o.Operand') -> 'Left':
         super().__lshift__(operand)
         if isinstance(operand, Left):
-            self._left_parameter = self.deep_copy(operand._left_parameter)
+            self._multi_data[0] = self.deep_copy(operand._multi_data[0])
         return self
 
     # def copy(self, *parameters) -> 'Left':
     #     self_copy: Left = Left() << self
-    #     self_copy._left_parameter = self.deep_copy(self._left_parameter)
+    #     self_copy._multi_data[0] = self.deep_copy(self._multi_data[0])
     #     return self_copy << parameters
     
     def clear(self, *parameters) -> 'Frame':
-        self._left_parameter = 0
+        self._multi_data[0] = 0
         return super().clear(parameters)
     
 class Subject(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(self._left_parameter)
+        return super().__and__(self._multi_data[0])
 
 class PushTo(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject >> self._left_parameter)
+        return super().__and__(subject >> self._multi_data[0])
 
 class PushOut(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
-        subject >> self._left_parameter
+        subject >> self._multi_data[0]
         return super().__and__(subject)
 
 class Pick(Left):
@@ -267,7 +271,7 @@ class Pick(Left):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        if len(self._left_parameter) > 0:
+        if len(self._multi_data[0]) > 0:
             picker: int = 0
             match subject:
                 case int() | float() | Fraction():
@@ -276,23 +280,23 @@ class Pick(Left):
                     picker_candidate = subject % int()
                     if isinstance(picker_candidate, int):
                         picker = picker_candidate
-            picker %= len(self._left_parameter)
-            return super().__and__(self._left_parameter[picker])
+            picker %= len(self._multi_data[0])
+            return super().__and__(self._multi_data[0][picker])
         return super().__and__(ol.Null())
 
 class Until(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
         self._count_down: list = []
-        for single_parameter in self._left_parameter:
+        for single_parameter in self._multi_data[0]:
             if not isinstance(single_parameter, int):
                 single_parameter = -1
             self._count_down.append(single_parameter)
-        self._left_parameter = tuple(self._count_down)  # tuples are read only
+        self._multi_data[0] = tuple(self._count_down)  # tuples are read only
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         pick_subject: any = ol.Null()
-        if len(self._left_parameter) > 0:
+        if len(self._multi_data[0]) > 0:
             picker: int = 0
             match subject:
                 case int() | float() | Fraction():
@@ -301,19 +305,19 @@ class Until(Left):
                     picker_candidate = subject % int()
                     if isinstance(picker_candidate, int):
                         picker = picker_candidate
-            picker %= len(self._left_parameter)
+            picker %= len(self._multi_data[0])
             if self._count_down[picker] > 0:
                 self._count_down[picker] -= 1
             closest_picker: int = picker
             closest_place: int  = self._count_down[picker]
-            for single_picker in range(len(self._left_parameter)):
-                if self._count_down[single_picker] < closest_place and self._left_parameter[single_picker] >= 0:
+            for single_picker in range(len(self._multi_data[0])):
+                if self._count_down[single_picker] < closest_place and self._multi_data[0][single_picker] >= 0:
                     closest_picker = single_picker
                     closest_place = self._count_down[single_picker]
             pick_subject = closest_picker
-            self._count_down[pick_subject] += self._left_parameter[pick_subject] # adds position debt
+            self._count_down[pick_subject] += self._multi_data[0][pick_subject] # adds position debt
             # Trim base, move closer (avoids astronomical distances)
-            for single_picker in range(len(self._left_parameter)):
+            for single_picker in range(len(self._multi_data[0])):
                 self._count_down[single_picker] -= max(0, closest_place - 1)
         return super().__and__(pick_subject)
 
@@ -344,14 +348,14 @@ class Frequency(Left):
         super().__init__(Until(*until_list))
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return self._left_parameter.__and__(subject)
+        return self._multi_data[0].__and__(subject)
 
 class Formula(Left):
     def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
         super().__init__(operation)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(self._left_parameter(subject))
+        return super().__and__(self._multi_data[0](subject))
     
 class Iterate(Left):
     def __init__(self, step = None):
@@ -359,7 +363,7 @@ class Iterate(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self_operand = super().__and__(self._index)
-        self._index += self._left_parameter    # iterates whenever called
+        self._index += self._multi_data[0]    # iterates whenever called
         return self_operand
     
 class Foreach(Left):
@@ -372,7 +376,7 @@ class Foreach(Left):
         import operand_container as oc
         import operand_chaos as ch
         if self._len > 0:
-            subject = self._left_parameter[self._index]
+            subject = self._multi_data[0][self._index]
             if isinstance(subject, (oc.Container, ch.Chaos)):
                 subject %= ou.Next()    # Iterates to next subject
             self._index += self._step
@@ -383,7 +387,7 @@ class Foreach(Left):
 
     def clear(self, *parameters) -> 'Foreach':
         super().clear(parameters)
-        self._left_parameter = ()
+        self._multi_data[0] = ()
         self._len = 0
         self._step = 1
         return self
@@ -399,7 +403,7 @@ class Transition(Left):
         import operand_container as oc
         import operand_chaos as ch
         if self._len > 0:
-            subject = self._left_parameter[self._index]
+            subject = self._multi_data[0][self._index]
             if not self._last_subject == subject:
                 if isinstance(subject, (oc.Container, ch.Chaos)):
                     subject %= ou.Next()    # Iterates to next subject
@@ -412,7 +416,7 @@ class Transition(Left):
 
     def clear(self, *parameters) -> 'Transition':
         super().clear(parameters)
-        self._left_parameter = ()
+        self._multi_data[0] = ()
         self._len = 0
         self._step = 1
         self._last_subject  = ol.Null()
@@ -425,7 +429,7 @@ class Repeat(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
         new_container: oc.Container = oc.Container()
-        for _ in range(self._left_parameter):
+        for _ in range(self._multi_data[0]):
             datasource_data = super().__and__(subject)
             if isinstance(datasource_data, o.Operand):
                 datasource_data = datasource_data.copy()
@@ -503,13 +507,13 @@ class Type(Selector):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        for object in self._left_parameter:
+        for object in self._multi_data[0]:
             if isinstance(subject, type(object)):
                 return super().__and__(subject)
         return super().__and__(ol.Null())
 
     # def __and__(self, subject: o.Operand) -> o.Operand:
-    #     for condition in self._left_parameter:
+    #     for condition in self._multi_data[0]:
     #         if type(subject) == type(condition):
     #             self_operand = self._next_operand
     #             if isinstance(self_operand, Frame):
@@ -524,7 +528,7 @@ class Equal(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._previous.insert(0, subject)
-        for condition in self._left_parameter:
+        for condition in self._multi_data[0]:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
                 if previous_i < len(self._previous):
@@ -545,7 +549,7 @@ class NotEqual(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._previous.insert(0, subject)
-        for condition in self._left_parameter:
+        for condition in self._multi_data[0]:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
                 if previous_i < len(self._previous):
@@ -566,7 +570,7 @@ class Greater(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._previous.insert(0, subject)
-        for condition in self._left_parameter:
+        for condition in self._multi_data[0]:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
                 if previous_i < len(self._previous):
@@ -587,7 +591,7 @@ class Less(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._previous.insert(0, subject)
-        for condition in self._left_parameter:
+        for condition in self._multi_data[0]:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
                 if previous_i < len(self._previous):
@@ -608,7 +612,7 @@ class GreaterEqual(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._previous.insert(0, subject)
-        for condition in self._left_parameter:
+        for condition in self._multi_data[0]:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
                 if previous_i < len(self._previous):
@@ -629,7 +633,7 @@ class LessEqual(Selector):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._previous.insert(0, subject)
-        for condition in self._left_parameter:
+        for condition in self._multi_data[0]:
             if isinstance(condition, ou.Previous):
                 previous_i: int = condition % int()
                 if previous_i < len(self._previous):
@@ -650,7 +654,7 @@ class Get(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         if isinstance(subject, o.Operand):
             parameter = subject
-            for single_parameter in self._left_parameter:
+            for single_parameter in self._multi_data[0]:
                 parameter %= single_parameter
             return super().__and__(parameter)
         return super().__and__(subject)
@@ -661,7 +665,7 @@ class Set(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         if isinstance(subject, o.Operand):
-            return super().__and__(subject << self._left_parameter)
+            return super().__and__(subject << self._multi_data[0])
         return super().__and__(subject)
         
 class Push(Left):
@@ -670,7 +674,7 @@ class Push(Left):
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         if isinstance(subject, o.Operand):
-            return super().__and__(self._left_parameter >> subject)
+            return super().__and__(self._multi_data[0] >> subject)
         return super().__and__(subject)
         
     # def __and__(self, subject: o.Operand) -> o.Operand:
@@ -690,28 +694,28 @@ class Add(Left):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject + self._left_parameter)
+        return super().__and__(subject + self._multi_data[0])
 
 class Subtract(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject - self._left_parameter)
+        return super().__and__(subject - self._multi_data[0])
 
 class Multiply(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject * self._left_parameter)
+        return super().__and__(subject * self._multi_data[0])
 
 class Divide(Left):
     def __init__(self, operand: any = 1):
         super().__init__(operand)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        return super().__and__(subject / self._left_parameter)
+        return super().__and__(subject / self._multi_data[0])
 
 # 3. OPERAND FILTERS (PROCESSES THE OPERAND DATA WITHOUT WRITING/ALTERING THE SOURCE OPERAND)
 
