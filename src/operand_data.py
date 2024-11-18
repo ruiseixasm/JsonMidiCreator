@@ -30,8 +30,13 @@ class Data(o.Operand):
 
     def __init__(self, data = None):
         super().__init__()
-        self._data = data
-        # self._data = self.deep_copy(data)
+        # self._data = data
+        # if not isinstance(data, o.Operand) or isinstance(data, Serialization):
+        #     self._data = data
+        # else:
+        #     self._data = self.deep_copy(data)
+        #     print(data)
+        self._data = self.deep_copy(data)
 
     # ERROR ON RECURSIVE COPY DUE TO AMBIGUOUS OPERAND COPY WITH DATA COPY
     # def __init__(self, *parameters):
@@ -168,7 +173,7 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Data':
+    def __lshift__(self, operand: any) -> 'Data':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, tuple) and isinstance(self._data, o.Operand):
             for single_operand in operand:
@@ -219,7 +224,8 @@ class Reporters(Data):
 
 class SideEffects(Data):
     def __init__(self, operand: o.Operand):
-        super().__init__(operand)
+        super().__init__()
+        self._data = operand    # needs to keep the original reference (no copy)
 
 class LeftShift(SideEffects):
     # CHAINABLE OPERATIONS
@@ -289,13 +295,29 @@ class Serialization(Data):
                 return self._data.getSerialization() == other_operand.getSerialization()
         return super().__eq__(other_operand)
     
-    def getPlaylist(self, position: ot.Position = None) -> dict:
-        return self._data.getPlaylist(position)
+    def getPlaylist(self, position: ot.Position = None) -> list:
+        match self._data:
+            case o.Operand():
+                return self._data.getPlaylist(position)
+            case list():
+                return self._data
+        return []
+
+    def getMidilist(self, position: ot.Position = None) -> list:
+        match self._data:
+            case o.Operand():
+                return self._data.getMidilist(position)
+            case list():
+                return self._data
+        return []
 
     def getSerialization(self) -> dict:
-        if self._data is None:
-            return {}
-        return self._data.getSerialization()
+        match self._data:
+            case o.Operand():
+                return self._data.getSerialization()
+            case dict():
+                return self._data
+        return {}
 
     # CHAINABLE OPERATIONS
 
@@ -312,10 +334,12 @@ class Serialization(Data):
     #     return self_copy
 
     def __lshift__(self, operand: any) -> 'o.Operand':
-        if isinstance(operand, o.Operand):
-            self._data = operand.copy()
-        elif isinstance(operand, dict) and "class" in operand and "parameters" in operand:
+        # if isinstance(operand, o.Operand):
+        #     self._data = operand.copy()
+        if isinstance(operand, dict) and "class" in operand and "parameters" in operand:
             self._data = o.Operand().loadSerialization(operand)
+        else:
+            super().__lshift__(operand)
         return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
@@ -388,6 +412,8 @@ class Playlist(Data):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case _:
+                super().__lshift__(operand)
         return self
 
     def __rrshift__(self, operand) -> 'Playlist':
