@@ -103,22 +103,7 @@ class Data(o.Operand):
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case Data():                    return self.copy()
-            case _:
-                if isinstance(self._data, operand.__class__):
-                    match self._data:
-                        case o.Operand():
-                            return self._data.copy()
-                        case list():
-                            many_operands: list = []
-                            for single_operand in self._data:
-                                match single_operand:
-                                    case o.Operand():
-                                        many_operands.append(single_operand.copy())
-                                    case _:
-                                        many_operands.append(single_operand)
-                            return many_operands
-                        case _: return self._data
-                return super().__mod__(operand)
+            case _:                         return Data.deep_copy(self._data)
             
     def __eq__(self, other_data: o.Operand) -> bool:
         other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
