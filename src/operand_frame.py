@@ -109,23 +109,18 @@ class Frame(o.Operand):
     
     def getSerialization(self) -> dict:
         frame_serialization = super().getSerialization()
-        multi_data_serialization: list = []
-        for single_data in self._multi_data:
-            if isinstance(single_data, o.Operand):
-                multi_data_serialization.append(single_data.getSerialization())
-            else:
-                multi_data_serialization.append(single_data)
-        frame_serialization["parameters"]["multi_data"] = multi_data_serialization
+        frame_serialization["parameters"]["multi_data"] = self.serialize(self._multi_data)
         return frame_serialization
 
     # CHAINABLE OPERATIONS
 
-    # def loadSerialization(self, serialization: dict):
-    #     if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-    #         "next_operand" in serialization["parameters"]):
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "multi_data" in serialization["parameters"]):
 
-    #         self._next_operand = o.Operand().loadSerialization(serialization["parameters"]["next_operand"])
-    #     return self
+            super().loadSerialization(serialization)
+            self._multi_data = self.deserialize(serialization["parameters"]["multi_data"])
+        return self
     
     def __lshift__(self, operand: 'o.Operand') -> 'Frame':
         if isinstance(operand, Frame):

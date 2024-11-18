@@ -344,8 +344,8 @@ class Operand:
                 return data
             case list():
                 data_list: list[any] = []
-                for single_data in data:
-                    data_list.append(__class__.deserialize(single_data))
+                for single_serialization in data:
+                    data_list.append(__class__.deserialize(single_serialization))
                 return data_list
             case tuple():
                 data_list: list = __class__.deserialize(list(data))
