@@ -193,6 +193,8 @@ class Operand:
         self_copy: T = type(self)() << self
         for single_parameter in parameters: # Safe for Data class
             self_copy << single_parameter
+        # !! DON'T DO THIS !!
+        # return type(self)() << self << parameters
         return self_copy
     
     def reset(self: T, *parameters) -> T:

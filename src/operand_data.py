@@ -245,7 +245,7 @@ class Serialization(Data):
                     return dict()
                 case o.Operand():
                     return self._data.copy()
-        return self._data
+        return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand | dict) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
@@ -301,6 +301,7 @@ class Serialization(Data):
             self._data = operand.copy()
         elif isinstance(operand, dict):
             self._data = o.Operand().loadSerialization(operand)
+        # !! DON'T DO THIS !!
         # else:
         #     super().__lshift__(operand)
         return self
