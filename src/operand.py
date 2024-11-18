@@ -187,7 +187,10 @@ class Operand:
         return self
 
     def copy(self: T, *parameters) -> T:
-        return type(self)() << self << parameters
+        self_copy: T = type(self)() << self
+        for single_parameter in parameters: # Safe for Data class
+            self_copy << single_parameter
+        return self_copy
     
     def reset(self: T, *parameters) -> T:
         # RESET THE SELF OPERANDS RECURSIVELY

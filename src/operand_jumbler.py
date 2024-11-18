@@ -119,10 +119,10 @@ class Jumbler(o.Operand):
             case Jumbler():
                         super().__lshift__(operand)
                         self._sequence      = operand._sequence.copy()
+                        self._result        = operand._result.copy()
                         self._frame         = operand._frame.copy()
                         self._reporters     = operand._reporters.copy()
                         self._operator      = operand._operator # The string str()
-                        self._result        << operand._result
             case od.Reporters():            self._reporters << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
