@@ -159,16 +159,6 @@ class Element(o.Operand):
         element_serialization["parameters"]["device"]       = self._device.getSerialization()
         element_serialization["parameters"]["track"]        = self._track.getSerialization()
         return element_serialization
-        # return {
-        #     "class": self.__class__.__name__,
-        #     "parameters": {
-        #         "position": self._position.getSerialization(),
-        #         "length":   self._length.getSerialization(),
-        #         "channel":  self._channel % od.DataSource( int() ),
-        #         "device":   self._device % od.DataSource( list() ),
-        #         "track":    self._track % od.DataSource( int() )
-        #     }
-        # }
 
     # CHAINABLE OPERATIONS
 

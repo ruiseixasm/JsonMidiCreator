@@ -13,8 +13,8 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
-from typing import TypeVar
-from typing import TYPE_CHECKING
+from typing import TypeVar, TYPE_CHECKING
+from fractions import Fraction
 
 if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
@@ -317,13 +317,46 @@ class Operand:
         self & operand  # Processes the tailed self operands or the Frame operand if any exists
         return self
 
-    # @staticmethod
-    # def copy_operands_list(operands_list: list['Operand'] | tuple['Operand']) -> list:
-    #     copy_list: list[Operand] = []
-    #     for single_operand in operands_list:
-    #         if isinstance(single_operand, Operand):
-    #             copy_list.append(single_operand.copy())
-    #     return copy_list
+    @staticmethod
+    def serialize(data: any) -> any:
+        match data:
+            case Operand():
+                return data.getSerialization()
+            case list():
+                serialization_list: list[any] = []
+                for single_data in data:
+                    serialization_list.append(__class__.serialize(single_data))
+                return serialization_list
+            case tuple():
+                serialization_list: list = __class__.serialize(list(data))
+                return tuple(serialization_list)
+            case Fraction():
+                return str(data)
+            case _:
+                return data
+
+    @staticmethod
+    def deserialize(data: any) -> any:
+        match data:
+            case dict():
+                return Operand().loadSerialization(data)
+            case Operand():
+                return data
+            case list():
+                data_list: list[any] = []
+                for single_data in data:
+                    data_list.append(__class__.deserialize(single_data))
+                return data_list
+            case tuple():
+                data_list: list = __class__.deserialize(list(data))
+                return tuple(data_list)
+            case str():
+                try:
+                    return Fraction(data)
+                except ValueError:
+                    return data
+            case _:
+                return data
 
     @staticmethod
     def deep_copy(data: any) -> any:
