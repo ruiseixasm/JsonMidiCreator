@@ -370,7 +370,7 @@ class Operand:
     def deep_copy(data: any) -> any:
         match data:
             case Operand():
-                return data.copy()
+                return data.copy() # Only Operand has copy method
             case dict():
                 many_dict: dict = {}
                 for key, value in data.items():

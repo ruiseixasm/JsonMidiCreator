@@ -349,59 +349,42 @@ class Iterate(Left):
 class Foreach(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._len: int      = len(parameters)
-        self._step: int     = 1
+        self._multi_data['step'] = 1
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaos as ch
-        if self._len > 0:
+        if len(self._multi_data['operand']) > 0:
             subject = self._multi_data['operand'][self._index]
             if isinstance(subject, (oc.Container, ch.Chaos)):
                 subject %= ou.Next()    # Iterates to next subject
-            self._index += self._step
-            self._index %= self._len
+            self._index += self._multi_data['step']
+            self._index %= len(self._multi_data['operand'])
         else:
             subject = ol.Null()
         return super().__and__(subject)
-
-    def clear(self, *parameters) -> 'Foreach':
-        super().clear(parameters)
-        self._multi_data['operand'] = ()
-        self._len = 0
-        self._step = 1
-        return self
 
 class Transition(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
-        self._len: int      = len(parameters)
-        self._step: int     = 1
-        self._last_subject  = ol.Null()
+        self._multi_data['step'] = 1
+        self._multi_data['last_subject'] = ol.Null()
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaos as ch
-        if self._len > 0:
+        if len(self._multi_data['operand']) > 0:
             subject = self._multi_data['operand'][self._index]
-            if not self._last_subject == subject:
+            if not self._multi_data['last_subject'] == subject:
                 if isinstance(subject, (oc.Container, ch.Chaos)):
                     subject %= ou.Next()    # Iterates to next subject
-                self._index += self._step
-                self._index %= self._len
-                self._last_subject = subject
+                self._index += self._multi_data['step']
+                self._index %= len(self._multi_data['operand'])
+                self._multi_data['last_subject'] = subject
         else:
             subject = ol.Null()
         return super().__and__(subject)
 
-    def clear(self, *parameters) -> 'Transition':
-        super().clear(parameters)
-        self._multi_data['operand'] = ()
-        self._len = 0
-        self._step = 1
-        self._last_subject  = ol.Null()
-        return self
-    
 class Repeat(Left):
     def __init__(self, times: int = 1):
         super().__init__(times)
