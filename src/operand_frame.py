@@ -361,9 +361,16 @@ class Foreach(Left):
                 subject %= ou.Next()    # Iterates to next subject
             self._index += self._multi_data['step']
             self._index %= len(self._multi_data['operand'])
-        else:
-            subject = ol.Null()
-        return super().__and__(subject)
+            return super().__and__(subject)
+        else:   # Uses subject as the iterator parameter!
+            last_data = ol.Null()
+            match subject:
+                case oc.Container():    # is iterable
+                    for single_data in subject:
+                        last_data = super().__and__(single_data)
+                case _:
+                    last_data = super().__and__(subject)
+            return last_data
 
 class Transition(Left):
     def __init__(self, *parameters):

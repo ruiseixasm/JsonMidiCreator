@@ -59,7 +59,7 @@ class Container(o.Operand):
         if self._datasource_iterator < len(self._datasource_list):
             single_datasource = self._datasource_list[self._datasource_iterator]
             self._datasource_iterator += 1
-            return single_datasource
+            return single_datasource._data  # It's the data that should be returned
         else:
             self._datasource_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration

@@ -40,7 +40,15 @@ sequences = Sequences(
 )
 
 sequence = N * 12   # blank sequence to work on
-crossing_over = Crossover(sequence, sequences)
 
-final_mutation = crossing_over * 40 * 8.37
-final_mutation >> Print()
+
+performers = od.Performers(
+        Stack(),
+        PushTo(Play()),
+        Subject(Rest())**PushTo(Play()), # Plays a single Rest at the end,
+        Foreach()**Get(Position())**PushOut(Print())  # To see what's data is being changed
+    )
+crossing_over = Crossover(sequence, sequences, performers)
+
+final_mutation = crossing_over * 40 * 2.37
+# final_mutation >> Print()

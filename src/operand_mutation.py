@@ -46,8 +46,6 @@ class Mutation(o.Operand):
                 of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
             )
-        # self._operator: Callable[[oc.Sequence, of.Frame], oc.Sequence] \
-        #                                 = lambda sequence, frame: sequence << frame
         self._operator: str             = "<<"
         self._result: od.Result         = od.Result(self._sequence)
         if len(parameters) > 0:
