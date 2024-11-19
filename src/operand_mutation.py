@@ -84,10 +84,10 @@ class Mutation(o.Operand):
     
     def getSerialization(self) -> dict:
         jumbler_serialization = super().getSerialization()
-        jumbler_serialization["parameters"]["sequence"]     = self._sequence.getSerialization()
-        jumbler_serialization["parameters"]["frame"]        = self._frame.getSerialization()
-        jumbler_serialization["parameters"]["reporters"]    = self._reporters.getSerialization()
-        jumbler_serialization["parameters"]["operator"]     = self._operator
+        jumbler_serialization["parameters"]["sequence"]     = self.serialize(self._sequence)
+        jumbler_serialization["parameters"]["frame"]        = self.serialize(self._frame)
+        jumbler_serialization["parameters"]["reporters"]    = self.serialize(self._reporters)
+        jumbler_serialization["parameters"]["operator"]     = self.serialize(self._operator)
         return jumbler_serialization
 
     # CHAINABLE OPERATIONS
@@ -98,10 +98,10 @@ class Mutation(o.Operand):
             "operator" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sequence          = oc.Sequence().loadSerialization(serialization["parameters"]["sequence"])
-            self._frame             = of.Frame().loadSerialization(serialization["parameters"]["frame"])
-            self._reporters         = od.Reporters().loadSerialization(serialization["parameters"]["reporter"])
-            self._operator          = serialization["parameters"]["operator"]
+            self._sequence          = self.deserialize(serialization["parameters"]["sequence"])
+            self._frame             = self.deserialize(serialization["parameters"]["frame"])
+            self._reporters         = self.deserialize(serialization["parameters"]["reporter"])
+            self._operator          = self.deserialize(serialization["parameters"]["operator"])
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Mutation':
@@ -297,88 +297,6 @@ class TranslocatePitch(Translocation):
     def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
         self._parameters        = od.Parameters(og.Pitch())
-        return self
-
-class JumbleData(Mutation):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._chaos: ch.Chaos           = ch.SinX()
-        self._filter: ol.Filter         = ol.Filter(of.All())
-        self._parameters: od.Parameters = od.Parameters(ot.Position(), ra.NoteValue())
-        if len(parameters) > 0:
-            self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ch.Chaos():        return self._chaos
-                    case ol.Filter():       return self._filter
-                    case od.Parameters():   return self._parameters
-                    case _:                 return super().__mod__(operand)
-            case ch.Chaos():        return self._chaos.copy()
-            case ol.Filter():       return self._filter.copy()
-            case od.Parameters():   return self._parameters.copy()
-            case _:                 return super().__mod__(operand)
-
-    def getSerialization(self) -> dict:
-        jumbledata_serialization = super().getSerialization()
-        jumbledata_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
-        jumbledata_serialization["parameters"]["filter"]       = self._filter.getSerialization()
-        jumbledata_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
-        return jumbledata_serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Translocation':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._chaos             = ch.Chaos().loadSerialization(serialization["parameters"]["chaos"])
-            self._filter            = ol.Filter().loadSerialization(serialization["parameters"]["filter"])
-            self._parameters        = od.Parameters().loadSerialization(serialization["parameters"]["parameters"])
-        return self
-
-    def __lshift__(self, operand: o.Operand) -> 'Translocation':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case ol.Filter():               self._filter = operand % o.Operand()
-                    case od.Parameters():           self._parameters = operand % o.Operand()
-                    case _:                         super().__lshift__(operand)
-            case Translocation():
-                super().__lshift__(operand)
-                self._chaos         << operand._chaos
-                self._filter        << operand._filter
-                self._parameters    << operand._parameters
-            case ch.Chaos():                self._chaos << operand
-            case ol.Filter():               self._filter << operand
-            case _:                         super().__lshift__(operand)
-        return self
-
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Translocation':
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
-        if total_iterations > 0:
-            self._initiated = True
-            source_result: oc.Sequence  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
-            jumbled_result: oc.Sequence = source_result.copy()
-            for actual_iteration in range(1, total_iterations + 1):
-                jumbled_result.shuffle(self._chaos) # a single shuffle
-                for single_parameter in self._parameters._data:
-                    source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
-                self._result % od.DataSource() >> ol.Link(True)
-                if actual_iteration % muted_iterations == 0:
-                    self.report(number)
-                self._index += 1    # keeps track of each iteration
-        return self
-
-    def reset(self, *parameters) -> 'Translocation':
-        super().reset(*parameters)
-        self._chaos.reset()
-        self._filter.reset()
         return self
 
 class Crossover(Mutation):

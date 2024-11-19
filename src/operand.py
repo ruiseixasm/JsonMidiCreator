@@ -355,7 +355,7 @@ class Operand:
                 for single_serialization in data:
                     data_list.append(__class__.deserialize(single_serialization))
                 return data_list
-            case tuple():
+            case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
                 data_list: list = __class__.deserialize(list(data))
                 return tuple(data_list)
             case str():
