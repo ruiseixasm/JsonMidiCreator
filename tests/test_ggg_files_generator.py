@@ -63,23 +63,23 @@ all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("j
 # Process Exported files
 first_import = Import("json/testing/_Export_1.1_sequence.json")
 second_import = Import("json/testing/_Export_1.2_all_elements.json")    # It has a clock!
-first_import >> first_import >> (Position(2) >> first_import) + (Position(3) >> first_import) + (Position(4) >> second_import) \
+first_import >> first_import >> first_import >> first_import >> second_import \
     >> Export("json/testing/_Export_2.1_multiple_imports.json") >> Save("json/testing/_Save_Play_p.5_first_note.json") >> Export("json/testing/_Export_Play_p.5_sequence.json")
 
 # Process Loaded files as Elements
 first_load = Load("json/testing/_Save_1.1_first_note.json")
-note_0 = Note() << (Position(0) >> first_load)
-note_1 = Note() << (Position(1) >> first_load)
-note_2 = Note() << (Position(2) >> first_load)
-note_3 = Note() << (Position(3) >> first_load)
-note_0 + note_1 + note_2 + note_3 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> Save("json/testing/_Save_Play_p.6_first_note.json") >> Export("json/testing/_Export_Play_p.6_sequence.json")
+note_0 = Note() << first_load
+note_1 = Note() << first_load
+note_2 = Note() << first_load
+note_3 = Note() << first_load
+note_0 >> note_1 >> note_2 >> note_3 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> Save("json/testing/_Save_Play_p.6_first_note.json") >> Export("json/testing/_Export_Play_p.6_sequence.json")
 
 # Process Loaded files as Serialization
-load_0 = Position(0) >> first_load >> Copy()
-load_1 = Position(1) >> first_load >> Copy()
-load_2 = Position(2) >> first_load >> Copy()
-load_3 = Position(3) >> first_load >> Copy()
-load_0 + load_1 + load_2 + load_3 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> Save("json/testing/_Save_Play_p.7_first_note.json") >> Export("json/testing/_Export_Play_p.7_sequence.json")
+load_0 = first_load >> Copy()
+load_1 = first_load >> Copy()
+load_2 = first_load >> Copy()
+load_3 = first_load >> Copy()
+load_0 >> load_1 >> load_2 >> load_3 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> Save("json/testing/_Save_Play_p.7_first_note.json") >> Export("json/testing/_Export_Play_p.7_sequence.json")
 
 
 ############### TEST3 #######################
