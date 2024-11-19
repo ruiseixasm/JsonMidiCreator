@@ -84,23 +84,23 @@ class Mutation(o.Operand):
     
     def getSerialization(self) -> dict:
         jumbler_serialization = super().getSerialization()
-        jumbler_serialization["parameters"]["sequence"]     = self.serialize(self._sequence)
-        jumbler_serialization["parameters"]["frame"]        = self.serialize(self._frame)
-        jumbler_serialization["parameters"]["reporters"]    = self.serialize(self._reporters)
-        jumbler_serialization["parameters"]["operator"]     = self.serialize(self._operator)
+        jumbler_serialization["parameters"]["sequence"]         = self.serialize(self._sequence)
+        jumbler_serialization["parameters"]["frame"]            = self.serialize(self._frame)
+        jumbler_serialization["parameters"]["reporters_tuple"]  = self.serialize(self._reporters)
+        jumbler_serialization["parameters"]["operator"]         = self.serialize(self._operator)
         return jumbler_serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Mutation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporter" in serialization["parameters"] and
+            "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporters_tuple" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._sequence          = self.deserialize(serialization["parameters"]["sequence"])
             self._frame             = self.deserialize(serialization["parameters"]["frame"])
-            self._reporters         = self.deserialize(serialization["parameters"]["reporter"])
+            self._reporters         = self.deserialize(serialization["parameters"]["reporters_tuple"])
             self._operator          = self.deserialize(serialization["parameters"]["operator"])
         return self
         

@@ -30,20 +30,7 @@ class Data(o.Operand):
 
     def __init__(self, data = None):
         super().__init__()
-        # self._data = data
-        # if not isinstance(data, o.Operand) or isinstance(data, Serialization):
-        #     self._data = data
-        # else:
-        #     self._data = self.deep_copy(data)
-        #     print(data)
         self._data = self.deep_copy(data)
-
-    # ERROR ON RECURSIVE COPY DUE TO AMBIGUOUS OPERAND COPY WITH DATA COPY
-    # def __init__(self, *parameters):
-    #     super().__init__()
-    #     self._data = None
-    #     if len(parameters) > 0:
-    #         self << parameters
 
     def __mod__(self, operand: any) -> any:
         """
@@ -96,9 +83,7 @@ class Data(o.Operand):
 
     def getSerialization(self) -> dict:
         data_serialization = super().getSerialization()
-        data_serialization["parameters"]["data"] = self._data
-        if isinstance(self._data, o.Operand):
-            data_serialization["parameters"]["data"] = self._data.getSerialization()
+        data_serialization["parameters"]["data"] = self.serialize(self._data)
         return data_serialization
 
     # CHAINABLE OPERATIONS
@@ -108,9 +93,7 @@ class Data(o.Operand):
             "data" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._data = serialization["parameters"]["data"]
-            if isinstance(self._data, dict) and "class" in self._data and "parameters" in self._data:
-                self._data      = o.Operand().loadSerialization(self._data)
+            self._data = self.deserialize(serialization["parameters"]["data"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Data':
@@ -127,9 +110,6 @@ class Data(o.Operand):
             case Data():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
-            # case tuple():
-            #     for single_operand in operand:
-            #         self << single_operand
             case _: self._data = self.deep_copy(operand)
         return self
 
@@ -181,34 +161,6 @@ class DataSource(Data):
         else:
             super().__lshift__(operand)
         return self
-
-    # def copy(self, *parameters) -> 'DataSource':
-    #     ...
-
-    # # STILL NEEDED BECAUSE DataSource is DataSource before Data!!!!
-    # # CAN'T USE << SELF!!!
-    # # # NEEDS TO REMOVE THIS METHOD
-    # def copy(self, *parameters) -> 'DataSource':
-    #     self_copy = self.__class__()
-    #     self_data = self._data
-    #     match self_data:
-    #         case o.Operand():
-    #             self_copy._data = self_data.copy()
-    #         case list():
-    #             many_operands: list = []
-    #             for single_operand in self_data:
-    #                 match single_operand:
-    #                     case o.Operand():
-    #                         many_operands.append(single_operand.copy())
-    #                     case _:
-    #                         many_operands.append(single_operand)
-    #             self_copy._data = many_operands
-    #         case _:
-    #             self_copy._data = self_data
-    #     # COPY THE SELF OPERANDS RECURSIVELY
-    #     if self._next_operand is not None:
-    #         self_copy._next_operand = self._next_operand.copy()
-    #     return self_copy << parameters
 
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
@@ -287,14 +239,6 @@ class Serialization(Data):
     def loadSerialization(self, serialization: dict):
         self._data = o.Operand().loadSerialization(serialization)
         return self
-        
-    # # NEEDS TO REMOVE THIS METHOD
-    # def copy(self, *parameters):
-    #     self_copy: Data = self.__class__(self._data.copy()).loadSerialization( self.getSerialization() ) << parameters
-    #     # COPY THE SELF OPERANDS RECURSIVELY
-    #     if self._next_operand is not None:
-    #         self_copy._next_operand = self._next_operand.copy()
-    #     return self_copy
 
     def __lshift__(self, operand: any) -> 'o.Operand':
         if isinstance(operand, o.Operand):
@@ -463,13 +407,22 @@ class RightShift(SideEffects):
         else:
             return super().__rrshift__(operand)
 
-class Parameters(Data):
+class DataTuple(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__(parameters)
 
-class Reporters(Data):
-    def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__(parameters)
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Data':
+        super().loadSerialization(serialization)    # sets data as a list
+        self._data = tuple(self._data)  # converts data as a tuple
+        return self
+
+class Parameters(DataTuple):
+    pass
+
+class Reporters(DataTuple):
+    pass
 
 class Result(Data):
     pass
