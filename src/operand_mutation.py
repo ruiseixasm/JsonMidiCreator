@@ -168,7 +168,7 @@ class Mutation(o.Operand):
     def perform(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self._index + 1}', end = " ")
-            if isinstance(self._performers._data, tuple):
+            if isinstance(self._performers._data, (list, tuple)):
                 for single_performers in self._performers._data:
                     self._result._data >> single_performers
             else:

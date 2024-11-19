@@ -407,24 +407,17 @@ class RightShift(SideEffects):
         else:
             return super().__rrshift__(operand)
 
-class DataTuple(Data):
+class DataMany(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__(parameters)
+        super().__init__(list(parameters))
 
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Data':
-        super().loadSerialization(serialization)    # sets data as a list
-        self._data = tuple(self._data)  # converts data as a tuple
-        return self
-
-class Parameters(DataTuple):
+class Parameters(DataMany):
     pass
 
-class Performers(DataTuple):
+class Performers(DataMany):
     pass
 
-class Sequences(DataTuple):
+class Sequences(DataMany):
     pass
 
 class Result(Data):
