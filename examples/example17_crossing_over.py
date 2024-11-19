@@ -50,5 +50,5 @@ performers = od.Performers(
     )
 crossing_over = Crossover(sequence, sequences, performers)
 
-final_mutation = crossing_over * 40 * 2.37
+final_mutation = crossing_over * 40 * 8.37
 # final_mutation >> Print()
