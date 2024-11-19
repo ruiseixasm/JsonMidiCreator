@@ -37,10 +37,11 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
+        self._duration: ot.Duration         = os.staff % ot.Duration()
         self._length: ot.Length             = ot.Length()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
-        self._track: ou.MidiTrack               = ou.MidiTrack()
+        self._track: ou.MidiTrack           = ou.MidiTrack()
         if len(parameters) > 0:
             self << parameters
 
@@ -59,20 +60,22 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     return self._position
+                    case ot.Duration():     return self._duration
                     case ot.Length():       return self._length
                     case ou.Channel():      return self._channel
                     case od.Device():       return self._device
-                    case ou.MidiTrack():        return self._track
+                    case ou.MidiTrack():    return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
+            case ot.Duration():     return self._duration.copy()
             case ra.NoteValue():    return self._length % operand
             case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
-            case ou.MidiTrack():        return self._track.copy()
+            case ou.MidiTrack():    return self._track.copy()
             case Element():         return self.copy()
             case ol.Start():        return self.start()
             case ol.End():          return self.end()
@@ -83,6 +86,7 @@ class Element(o.Operand):
         match other_operand:
             case self.__class__():
                 return  self._position  == other_operand % od.DataSource( ot.Position() ) \
+                    and self._duration  == other_operand % od.DataSource( ot.Duration() ) \
                     and self._length    == other_operand % od.DataSource( ot.Length() ) \
                     and self._channel   == other_operand % od.DataSource( ou.Channel() ) \
                     and self._device    == other_operand % od.DataSource( od.Device() ) \
@@ -141,12 +145,13 @@ class Element(o.Operand):
         return [
                 {
                     "event":        "Element",
-                    "track":        max(0, self._track % int() - 1),
+                    "track":        self._track % int() - 1,    # out of range shouldn't be exported as a midi track
                     "track_name":   self._track % str(),
                     "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
                     "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
-                    "time":         self_position % od.DataSource( ra.Beat() ) % float(), # beats
+                    "time":         self_position % od.DataSource( ra.Beat() ) % float(),   # beats
+                    "duration":     self._duration % od.DataSource( ra.Beat() ) % float(),  # beats
                     "tempo":        os.staff._tempo % float()   # bpm
                 }
             ]
