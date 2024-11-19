@@ -246,18 +246,10 @@ class Serialization(Data):
             case Serialization():
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
+            case o.Operand():   # DON'T REMOVE THIS STEP !!
+                self._data = operand.copy()
             case _: super().__lshift__(operand)
         return self
-    
-
-        # if isinstance(operand, o.Operand):
-        #     self._data = operand.copy()
-        # elif isinstance(operand, dict):
-        #     self._data = o.Operand().loadSerialization(operand)
-        # # !! DON'T DO THIS !!
-        # # else:
-        # #     super().__lshift__(operand)
-        # return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
         if not isinstance(self._data, ol.Null) and isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
