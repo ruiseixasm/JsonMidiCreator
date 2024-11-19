@@ -149,7 +149,7 @@ class Operand:
                 return serialization
             if "class" in serialization and "parameters" in serialization:
                 operand_name = serialization["class"]
-                operand_class = Operand.find_subclass_by_name(Operand, operand_name)    # Heavy duty call
+                operand_class = Operand.find_subclass_by_name(Operand, operand_name)    # Static heavy duty call
                 if operand_class:
                     operand_instance: Operand = operand_class()
                     if operand_class == Operand:    # avoids infinite recursion
@@ -209,20 +209,6 @@ class Operand:
         self._next_operand = None
         return self.reset() << self.__class__() << parameters
     
-    @staticmethod
-    def find_subclass_by_name(root_class, name: str):
-        # Check if the current class matches the name
-        if root_class.__name__ == name:
-            return root_class
-        
-        # Recursively search in all subclasses
-        for subclass in root_class.__subclasses__():
-            found = __class__.find_subclass_by_name(subclass, name)
-            if found: return found
-        
-        # If no matching subclass is found, return None
-        return None
-
     def __ilshift__(self, other):
         return self.__lshift__(other)
     
@@ -316,6 +302,22 @@ class Operand:
     def __xor__(self, operand: 'Operand') -> 'Operand':
         self & operand  # Processes the tailed self operands or the Frame operand if any exists
         return self
+
+    # STATIC FUNCTIONS
+
+    @staticmethod
+    def find_subclass_by_name(root_class, name: str):
+        # Check if the current class matches the name (class NOT an object)
+        if root_class.__name__ == name:
+            return root_class
+        
+        # Recursively search in all subclasses (classes NOT objects)
+        for subclass in root_class.__subclasses__():
+            result = __class__.find_subclass_by_name(subclass, name)
+            if result: return result
+        
+        # If no matching subclass is found, return None
+        return None
 
     @staticmethod
     def serialize(data: any) -> any:
