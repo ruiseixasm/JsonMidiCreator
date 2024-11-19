@@ -424,5 +424,8 @@ class Parameters(DataTuple):
 class Reporters(DataTuple):
     pass
 
+class Sequences(DataTuple):
+    pass
+
 class Result(Data):
     pass

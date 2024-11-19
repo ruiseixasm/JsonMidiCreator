@@ -551,12 +551,12 @@ class Note(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.Pitch():      return self._pitch
+                    case og.Pitch():        return self._pitch
                     case ou.Velocity():     return self._velocity
                     case ra.Gate():         return self._gate
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
-            case og.Pitch():      return self._pitch.copy()
+            case og.Pitch():        return self._pitch.copy()
             case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
                                     return self._pitch % operand
             case ou.Velocity():     return self._velocity.copy()
@@ -643,7 +643,7 @@ class Note(Rest):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.Pitch():      self._pitch = operand % o.Operand()
+                    case og.Pitch():        self._pitch = operand % o.Operand()
                     case ou.Degree():       self._degree = operand % o.Operand()
                     case ou.Velocity():     self._velocity = operand % o.Operand()
                     case ra.Gate():         self._gate = operand % o.Operand()
@@ -651,7 +651,7 @@ class Note(Rest):
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
-                self._pitch      << operand._pitch
+                self._pitch         << operand._pitch
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
                 self._tied          << operand._tied
