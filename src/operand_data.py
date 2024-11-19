@@ -421,14 +421,6 @@ class Device(Data):
             case list():                return self._device_list.copy()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_device: 'Device') -> bool:
-        other_device = self & other_device    # Processes the tailed self operands or the Frame operand if any exists
-        if other_device.__class__ == o.Operand:
-            return True
-        if type(self) != type(other_device):
-            return False
-        return  self._device_list == other_device._device_list
-    
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Device':
