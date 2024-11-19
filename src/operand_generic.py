@@ -436,58 +436,6 @@ class Controller(Generic):
                 return self.copy()
         return self.copy() << value
 
-class Device(Generic):
-    def __init__(self, device_list: list[str] = None):
-        super().__init__()
-        self._device_list = os.staff._device % list() if device_list is None else device_list
-
-    def __mod__(self, operand: any) -> any:
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case list():                return self._device_list
-                    case _:                     return super().__mod__(operand)
-            case list():                return self._device_list.copy()
-            case _:                     return super().__mod__(operand)
-
-    def __eq__(self, other_device: 'Device') -> bool:
-        other_device = self & other_device    # Processes the tailed self operands or the Frame operand if any exists
-        if other_device.__class__ == o.Operand:
-            return True
-        if type(self) != type(other_device):
-            return False
-        return  self._device_list == other_device._device_list
-    
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["device_list"] = self._device_list
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Device':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "device_list" in serialization["parameters"]):
-            
-            super().loadSerialization(serialization)
-            self._device_list = serialization["parameters"]["device_list"]
-        return self
-        
-    def __lshift__(self, operand: any) -> 'Device':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case list():            self._device_list = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
-            case Device():
-                super().__lshift__(operand)
-                self._device_list = operand._device_list.copy()
-            case list():
-                self._device_list = operand.copy()
-            case _: super().__lshift__(operand)
-        return self
-
 class Scale(Generic):
     """
     A Scale() represents a given scale rooted in the key of C.

@@ -51,7 +51,7 @@ class Names(o.Operand):
         #     "Data":             od.Data,
         #     "DataSource":       od.DataSource,
         #     "DataScale":        od.DataScale,
-        #     "Device":           og.Device,
+        #     "Device":           od.Device,
         #     "Save":             od.Save,
         #     "Serialization":    od.Serialization,
         #     "Load":             od.Load,

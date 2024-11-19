@@ -44,7 +44,7 @@ class Staff(o.Operand):
         self._controller: og.Controller             = og.Controller("Pan") \
                                                         << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
-        self._device: og.Device                     = og.Device(["Microsoft", "FLUID", "Apple"])
+        self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
         if len(parameters) > 0:
             self << parameters
 
@@ -81,7 +81,7 @@ class Staff(o.Operand):
                     case ou.Velocity():         return self._velocity
                     case og.Controller():       return self._controller
                     case ou.Channel():          return self._channel
-                    case og.Device():           return self._device
+                    case od.Device():           return self._device
                     # Calculated Values
                     case ra.NotesPerMeasure():
                         return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
@@ -115,7 +115,7 @@ class Staff(o.Operand):
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return self._channel.copy()
-            case og.Device():           return self._device.copy()
+            case od.Device():           return self._device.copy()
             # Calculated Values
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
@@ -145,7 +145,7 @@ class Staff(o.Operand):
             and self._velocity          == other_staff % od.DataSource( ou.Velocity() ) \
             and self._controller        == other_staff % od.DataSource( og.Controller() ) \
             and self._channel           == other_staff % od.DataSource( ou.Channel() ) \
-            and self._device            == other_staff % od.DataSource( og.Device() )
+            and self._device            == other_staff % od.DataSource( od.Device() )
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -212,7 +212,7 @@ class Staff(o.Operand):
             self._velocity          = ou.Velocity()         << od.DataSource( serialization["parameters"]["velocity"] )
             self._controller        = og.Controller().loadSerialization(serialization["parameters"]["controller"])
             self._channel           = ou.Channel()          << od.DataSource( serialization["parameters"]["channel"] )
-            self._device            = og.Device()           << od.DataSource( serialization["parameters"]["device"] )
+            self._device            = od.Device()           << od.DataSource( serialization["parameters"]["device"] )
             self.set_tonic_key()
         return self
     
@@ -241,7 +241,7 @@ class Staff(o.Operand):
                     case ou.Velocity():         self._velocity = operand % o.Operand()
                     case og.Controller():       self._controller = operand % o.Operand()
                     case ou.Channel():          self._channel = operand % o.Operand()
-                    case og.Device():           self._device = operand % o.Operand()
+                    case od.Device():           self._device = operand % o.Operand()
             case Staff():
                 super().__lshift__(operand)
                 self._measure           << operand._measure
@@ -280,7 +280,7 @@ class Staff(o.Operand):
             case og.Controller() | ou.Number() | ou.Value():
                                         self._controller << operand
             case ou.Channel():          self._channel << operand
-            case og.Device():           self._device << operand
+            case od.Device():           self._device << operand
             # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = ra.Quantization( (self % ra.NotesPerMeasure()) / (operand % Fraction()) )

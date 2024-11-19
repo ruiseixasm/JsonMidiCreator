@@ -1105,26 +1105,24 @@ class MidiTrack(Midi):
         For a given track concerning a composition, there default is 0.
     """
     def __init__(self, *parameters):
-        import operand_generic as og
         super().__init__(1)
         self._name: str         = None
         self._channel: Channel  = Channel()
-        self._device: og.Device = og.Device()
+        self._device: od.Device = od.Device()
         if len(parameters) > 0:
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
-        import operand_generic as og
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     return self._name
                     case Channel():                 return self._channel
-                    case og.Device():               return self._device
+                    case od.Device():               return self._device
                     case _:                         return super().__mod__(operand)
             case str():                 return "MidiTrack " + str(self._unit) if not isinstance(self._name, str) else self._name
             case Channel():             return self._channel.copy()
-            case og.Device():           return self._device.copy()
+            case od.Device():           return self._device.copy()
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -1147,14 +1145,13 @@ class MidiTrack(Midi):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'MidiTrack':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     self._name = operand % o.Operand()
                     case Channel():                 self._channel = operand % o.Operand()
-                    case og.Device():               self._device = operand % o.Operand()
+                    case od.Device():               self._device = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case MidiTrack():
                 super().__lshift__(operand)
@@ -1163,7 +1160,7 @@ class MidiTrack(Midi):
                 self._device        = operand._device
             case str():             self._name = operand
             case Channel():         self._channel << operand
-            case og.Device():       self._device << operand
+            case od.Device():       self._device << operand
             case _:                 super().__lshift__(operand)
         self._unit = max(1, self._unit)
         return self
