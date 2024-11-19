@@ -1119,7 +1119,20 @@ class Track(Midi):
             case str():                 return "Track " + str(self._unit) if not isinstance(self._name, str) else self._name
             case _:                     return super().__mod__(operand)
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["name"] = self.serialize(self._name)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Track':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "name" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._name  = self.deserialize(serialization["parameters"]["name"])
+        return self
 
     def __lshift__(self, operand: o.Operand) -> 'Program':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
