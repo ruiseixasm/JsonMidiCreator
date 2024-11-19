@@ -86,11 +86,7 @@ class Container(o.Operand):
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
-                    match single_datasource._data:
-                        case o.Operand():
-                            operands.append(single_datasource._data.copy())
-                        case _:
-                            operands.append(single_datasource._data)
+                    operands.append(self.deep_copy(single_datasource._data))
                 return operands
             case ou.Next():
                 self._index += operand % int() - 1
