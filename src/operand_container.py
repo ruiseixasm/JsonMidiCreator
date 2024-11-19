@@ -140,21 +140,18 @@ class Container(o.Operand):
         return ol.Null()
  
     def getSerialization(self) -> dict:
-        container_serialization = super().getSerialization()
-        datasource_list_serialization: list[od.DataSource] = []
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, o.Operand):
-                datasource_list_serialization.append(single_datasource._data.getSerialization())
-            else:
-                datasource_list_serialization.append(single_datasource._data)
-        container_serialization["parameters"]["datasource_list"] = datasource_list_serialization
-        return container_serialization
-        # return {
-        #     "class": self.__class__.__name__,
-        #     "parameters": {
-        #         "datasource_list":  datasource_list_serialization
-        #     }
-        # }
+        serialization = super().getSerialization()
+
+        # datasource_serialization: list[od.DataSource] = []
+        # for single_datasource in self._datasource_list:
+        #     if isinstance(single_datasource._data, o.Operand):
+        #         datasource_serialization.append(single_datasource._data.getSerialization())
+        #     else:
+        #         datasource_serialization.append(single_datasource._data)
+        # serialization["parameters"]["datasource_list"] = datasource_serialization
+
+        serialization["parameters"]["datasource_list"] = self.serialize(self._datasource_list)
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -164,10 +161,13 @@ class Container(o.Operand):
             "datasource_list" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._datasource_list: list[od.DataSource] = []
-            operands_serialization = serialization["parameters"]["datasource_list"]
-            for single_operand_serialization in operands_serialization:
-                self._datasource_list.append( od.DataSource( o.Operand().loadSerialization(single_operand_serialization) ) )
+
+            # self._datasource_list: list[od.DataSource] = []
+            # operands_serialization = serialization["parameters"]["datasource_list"]
+            # for single_operand_serialization in operands_serialization:
+            #     self._datasource_list.append( od.DataSource( o.Operand().loadSerialization(single_operand_serialization) ) )
+
+            self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
        
     def __lshift__(self, operand: o.Operand) -> 'Container':

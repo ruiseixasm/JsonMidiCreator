@@ -80,16 +80,19 @@ class Operator(o.Operand):
         return False
     
     def getSerialization(self) -> dict:
-        operator_serialization = super().getSerialization()
-        operator_serialization["parameters"]["operand"]         = self._operand.getSerialization()
-        operators_serialization: list = []
-        for single_operator in self._operator_list:
-            if isinstance(single_operator, Operator):
-                operators_serialization.append(single_operator.getSerialization())
-            elif isinstance(single_operator, (int, float, str, list, dict)):
-                operators_serialization.append(single_operator)
-        operator_serialization["parameters"]["operator_list"]   = operators_serialization
-        return operator_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["operand"]         = self._operand.getSerialization()
+
+        # operators_serialization: list = []
+        # for single_operator in self._operator_list:
+        #     if isinstance(single_operator, Operator):
+        #         operators_serialization.append(single_operator.getSerialization())
+        #     elif isinstance(single_operator, (int, float, str, list, dict)):
+        #         operators_serialization.append(single_operator)
+        # serialization["parameters"]["operator_list"]   = operators_serialization
+
+        serialization["parameters"]["operator_list"] = self.serialize(self._operator_list)
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -100,11 +103,14 @@ class Operator(o.Operand):
 
             super().loadSerialization(serialization)
             self._operand = o.Operand().loadSerialization(serialization["parameters"]["operand"])
-            operator_list = []
-            operators_serialization = serialization["parameters"]["operator_list"]
-            for single_operator_serialization in operators_serialization:
-                operator_list.append( o.Operand().loadSerialization(single_operator_serialization) )
-            self._operator_list = operator_list
+
+            # operator_list = []
+            # operators_serialization = serialization["parameters"]["operator_list"]
+            # for single_operator_serialization in operators_serialization:
+            #     operator_list.append( o.Operand().loadSerialization(single_operator_serialization) )
+            # self._operator_list = operator_list
+
+            self._operator_list = self.deserialize(serialization["parameters"]["operator_list"])
         return self
   
     def __lshift__(self, operand: o.Operand) -> 'Operator':
@@ -200,12 +206,12 @@ class Oscillator(Operator):
         return False
     
     def getSerialization(self) -> dict:
-        oscillator_serialization = super().getSerialization()
-        oscillator_serialization["parameters"]["position"]     = self._position.getSerialization()
-        oscillator_serialization["parameters"]["length"]       = self._length.getSerialization()
-        oscillator_serialization["parameters"]["amplitude"]    = self._amplitude % od.DataSource( float() )
-        oscillator_serialization["parameters"]["offset"]       = self._offset % od.DataSource( float() )
-        return oscillator_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["position"]     = self._position.getSerialization()
+        serialization["parameters"]["length"]       = self._length.getSerialization()
+        serialization["parameters"]["amplitude"]    = self._amplitude % od.DataSource( float() )
+        serialization["parameters"]["offset"]       = self._offset % od.DataSource( float() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 

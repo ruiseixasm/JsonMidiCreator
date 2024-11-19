@@ -148,21 +148,21 @@ class Staff(o.Operand):
             and self._device            == other_staff % od.DataSource( og.Device() )
     
     def getSerialization(self) -> dict:
-        staff_serialization = super().getSerialization()
-        staff_serialization["parameters"]["measures"]       = self._measure % od.DataSource( str() )
-        staff_serialization["parameters"]["tempo"]          = self._tempo % od.DataSource( str() )
-        staff_serialization["parameters"]["time_signature"] = self._time_signature.getSerialization()
-        staff_serialization["parameters"]["key_signature"]  = self._key_signature.getSerialization()
-        staff_serialization["parameters"]["key"]            = self._key % od.DataSource( int() )
-        staff_serialization["parameters"]["scale"]          = self._scale % od.DataSource( list() )
-        staff_serialization["parameters"]["quantization"]   = self._quantization % od.DataSource( str() )
-        staff_serialization["parameters"]["duration"]       = self._duration.getSerialization()
-        staff_serialization["parameters"]["octave"]         = self._octave % od.DataSource( int() )
-        staff_serialization["parameters"]["velocity"]       = self._velocity % od.DataSource( int() )
-        staff_serialization["parameters"]["controller"]     = self._controller.getSerialization()
-        staff_serialization["parameters"]["channel"]        = self._channel % od.DataSource( int() )
-        staff_serialization["parameters"]["device"]         = self._device % od.DataSource( list() )
-        return staff_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["measures"]       = self._measure % od.DataSource( str() )
+        serialization["parameters"]["tempo"]          = self._tempo % od.DataSource( str() )
+        serialization["parameters"]["time_signature"] = self._time_signature.getSerialization()
+        serialization["parameters"]["key_signature"]  = self._key_signature.getSerialization()
+        serialization["parameters"]["key"]            = self._key % od.DataSource( int() )
+        serialization["parameters"]["scale"]          = self._scale % od.DataSource( list() )
+        serialization["parameters"]["quantization"]   = self._quantization % od.DataSource( str() )
+        serialization["parameters"]["duration"]       = self._duration.getSerialization()
+        serialization["parameters"]["octave"]         = self._octave % od.DataSource( int() )
+        serialization["parameters"]["velocity"]       = self._velocity % od.DataSource( int() )
+        serialization["parameters"]["controller"]     = self._controller.getSerialization()
+        serialization["parameters"]["channel"]        = self._channel % od.DataSource( int() )
+        serialization["parameters"]["device"]         = self._device % od.DataSource( list() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 

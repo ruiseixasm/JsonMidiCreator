@@ -82,9 +82,9 @@ class Data(o.Operand):
         return self == other_data or self > other_data
 
     def getSerialization(self) -> dict:
-        data_serialization = super().getSerialization()
-        data_serialization["parameters"]["data"] = self.serialize(self._data)
-        return data_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["data"] = self.serialize(self._data)
+        return serialization
 
     # CHAINABLE OPERATIONS
 

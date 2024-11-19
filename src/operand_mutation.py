@@ -83,12 +83,12 @@ class Mutation(o.Operand):
         return  self._result == other._result
     
     def getSerialization(self) -> dict:
-        jumbler_serialization = super().getSerialization()
-        jumbler_serialization["parameters"]["sequence"]         = self.serialize(self._sequence)
-        jumbler_serialization["parameters"]["frame"]            = self.serialize(self._frame)
-        jumbler_serialization["parameters"]["reporters_tuple"]  = self.serialize(self._reporters)
-        jumbler_serialization["parameters"]["operator"]         = self.serialize(self._operator)
-        return jumbler_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["sequence"]         = self.serialize(self._sequence)
+        serialization["parameters"]["frame"]            = self.serialize(self._frame)
+        serialization["parameters"]["reporters_tuple"]  = self.serialize(self._reporters)
+        serialization["parameters"]["operator"]         = self.serialize(self._operator)
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -212,11 +212,11 @@ class Translocation(Mutation):
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        jumbleparameters_serialization = super().getSerialization()
-        jumbleparameters_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
-        jumbleparameters_serialization["parameters"]["filter"]       = self._filter.getSerialization()
-        jumbleparameters_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
-        return jumbleparameters_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
+        serialization["parameters"]["filter"]       = self._filter.getSerialization()
+        serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -323,11 +323,11 @@ class Crossover(Mutation):
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        jumbleparameters_serialization = super().getSerialization()
-        jumbleparameters_serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
-        jumbleparameters_serialization["parameters"]["filter"]       = self._filter.getSerialization()
-        jumbleparameters_serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
-        return jumbleparameters_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["chaos"]        = self._chaos.getSerialization()
+        serialization["parameters"]["filter"]       = self._filter.getSerialization()
+        serialization["parameters"]["parameters"]   = self._parameters.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 

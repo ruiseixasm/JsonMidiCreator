@@ -152,13 +152,13 @@ class Element(o.Operand):
             ]
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["position"]     = self.serialize(self._position)
-        element_serialization["parameters"]["length"]       = self.serialize(self._length)
-        element_serialization["parameters"]["channel"]      = self.serialize(self._channel)
-        element_serialization["parameters"]["device"]       = self.serialize(self._device)
-        element_serialization["parameters"]["track"]        = self.serialize(self._track)
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["position"]     = self.serialize(self._position)
+        serialization["parameters"]["length"]       = self.serialize(self._length)
+        serialization["parameters"]["channel"]      = self.serialize(self._channel)
+        serialization["parameters"]["device"]       = self.serialize(self._device)
+        serialization["parameters"]["track"]        = self.serialize(self._track)
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -368,10 +368,10 @@ class Clock(Element):
         return self_playlist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["duration"]                 = self._duration.getSerialization()
-        element_serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["duration"]                 = self._duration.getSerialization()
+        serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -493,9 +493,9 @@ class Rest(Element):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["duration"] = self._duration.getSerialization()
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["duration"] = self._duration.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -617,12 +617,12 @@ class Note(Rest):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pitch"] = self._pitch.getSerialization()
-        element_serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
-        element_serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
-        element_serialization["parameters"]["tied"]     = self._tied % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["pitch"] = self._pitch.getSerialization()
+        serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
+        serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
+        serialization["parameters"]["tied"]     = self._tied % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -763,9 +763,9 @@ class KeyScale(Note):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["self_scale"]   = self._self_scale.getSerialization()
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["self_scale"]   = self._self_scale.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -917,15 +917,15 @@ class Chord(KeyScale):
         return self_midilist
     
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
-        element_serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
-        element_serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
-        element_serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
-        element_serialization["parameters"]["augmented"]    = self._augmented % od.DataSource( int() )
-        element_serialization["parameters"]["sus2"]         = self._sus2 % od.DataSource( int() )
-        element_serialization["parameters"]["sus4"]         = self._sus4 % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
+        serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
+        serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
+        serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
+        serialization["parameters"]["augmented"]    = self._augmented % od.DataSource( int() )
+        serialization["parameters"]["sus2"]         = self._sus2 % od.DataSource( int() )
+        serialization["parameters"]["sus4"]         = self._sus4 % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1078,10 +1078,10 @@ class Retrigger(Note):
         return self_midilist
     
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["division"] = self._division % od.DataSource( int() )
-        element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["division"] = self._division % od.DataSource( int() )
+        serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1237,13 +1237,13 @@ class Tuplet(Rest):
         return self_midilist
     
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
+        serialization = super().getSerialization()
+        serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
         elements = []
         for single_element in self._elements:
             elements.append(single_element.getSerialization())
-        element_serialization["parameters"]["elements"] = elements
-        return element_serialization
+        serialization["parameters"]["elements"] = elements
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1255,8 +1255,8 @@ class Tuplet(Rest):
             self._swing     = ra.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
             elements = []
             elements_serialization = serialization["parameters"]["elements"]
-            for single_element_serialization in elements_serialization:
-                elements.append( o.Operand().loadSerialization(single_element_serialization) )
+            for single_serialization in elements_serialization:
+                elements.append( o.Operand().loadSerialization(single_serialization) )
             self._elements = elements
         return self
 
@@ -1381,9 +1381,9 @@ class ControlChange(Element):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["controller"] = self._controller.getSerialization()
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["controller"] = self._controller.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1493,9 +1493,9 @@ class PitchBend(Element):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["bend"] = self._bend % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["bend"] = self._bend % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1603,9 +1603,9 @@ class Aftertouch(Element):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pressure"] = self._pressure % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["pressure"] = self._pressure % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1711,9 +1711,9 @@ class PolyAftertouch(Aftertouch):
             ]
     
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["pitch"] = self._pitch.getSerialization()
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["pitch"] = self._pitch.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -1803,9 +1803,9 @@ class ProgramChange(Element):
         return self_midilist
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["program"] = self._program % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["program"] = self._program % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 

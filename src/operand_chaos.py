@@ -61,10 +61,10 @@ class Chaos(o.Operand):
         return f'{self._index + 1}: {self._xn % float()}'
     
     def getSerialization(self) -> dict:
-        chaos_serialization = super().getSerialization()
-        chaos_serialization["parameters"]["xn"] = self._xn.getSerialization()
-        chaos_serialization["parameters"]["x0"] = self._x0.getSerialization()
-        return chaos_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["xn"] = self._xn.getSerialization()
+        serialization["parameters"]["x0"] = self._x0.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -153,10 +153,10 @@ class Modulus(Chaos):
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["amplitude"]    = self._amplitude % str()
-        element_serialization["parameters"]["step"]         = self._step % str()
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["amplitude"]    = self._amplitude % str()
+        serialization["parameters"]["step"]         = self._step % str()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -233,9 +233,9 @@ class Flipper(Modulus):
         return  self % float()        == other % float()
     
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["split"]    = self._split % od.DataSource( float() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["split"]    = self._split % od.DataSource( float() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -429,9 +429,9 @@ class SinX(Chaos):
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["lambda"]   = self._lambda % str()
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["lambda"]   = self._lambda % str()
+        return serialization
 
     # CHAINABLE OPERATIONS
 

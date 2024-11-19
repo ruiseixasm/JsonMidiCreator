@@ -129,10 +129,10 @@ class Rational(o.Operand):
         return f'{self._rational}'
     
     def getSerialization(self) -> dict:
-        rational_serialization = super().getSerialization()
-        rational_serialization["parameters"]["fraction"]  = str(self._rational)
-        rational_serialization["parameters"]["float"]     = float(self._rational)
-        return rational_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["fraction"]  = str(self._rational)
+        serialization["parameters"]["float"]     = float(self._rational)
+        return serialization
 
     # CHAINABLE OPERATIONS
 

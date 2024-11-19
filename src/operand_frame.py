@@ -110,10 +110,10 @@ class Frame(o.Operand):
         return False
     
     def getSerialization(self) -> dict:
-        # frame_serialization = {'class': "some", "parameters": {}}
-        frame_serialization = super().getSerialization()
-        frame_serialization["parameters"]["multi_data"] = self.serialize(self._multi_data)
-        return frame_serialization
+        # serialization = {'class': "some", "parameters": {}}
+        serialization = super().getSerialization()
+        serialization["parameters"]["multi_data"] = self.serialize(self._multi_data)
+        return serialization
 
     # CHAINABLE OPERATIONS
 

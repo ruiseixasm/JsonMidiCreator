@@ -148,9 +148,9 @@ class Time(o.Operand):
             ]
 
     def getSerialization(self) -> dict:
-        time_serialization = super().getSerialization()
-        time_serialization["parameters"]["time_unit"] = self._time_unit.getSerialization()
-        return time_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["time_unit"] = self._time_unit.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 

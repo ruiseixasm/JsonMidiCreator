@@ -69,10 +69,10 @@ class TimeSignature(Generic):
             and self._bottom        == other_time_signature._bottom
     
     def getSerialization(self) -> dict:
-        timesignature_serialization = super().getSerialization()
-        timesignature_serialization["parameters"]["top"]    = self._top
-        timesignature_serialization["parameters"]["bottom"] = self._bottom
-        return timesignature_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["top"]    = self._top
+        serialization["parameters"]["bottom"] = self._bottom
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -192,11 +192,11 @@ class Pitch(Generic):
     
     def getSerialization(self) -> dict:
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
-        pitch_serialization = super().getSerialization()
-        pitch_serialization["parameters"]["key"]        = self._key.getSerialization()
-        pitch_serialization["parameters"]["octave"]     = self._octave.getSerialization()
-        pitch_serialization["parameters"]["key_offset"] = self._key_offset
-        return pitch_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["key"]        = self._key.getSerialization()
+        serialization["parameters"]["octave"]     = self._octave.getSerialization()
+        serialization["parameters"]["key_offset"] = self._key_offset
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -370,10 +370,10 @@ class Controller(Generic):
         return False
     
     def getSerialization(self) -> dict:
-        controller_serialization = super().getSerialization()
-        controller_serialization["parameters"]["number"] = self._number.getSerialization()
-        controller_serialization["parameters"]["value"]  = self._value.getSerialization()
-        return controller_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["number"] = self._number.getSerialization()
+        serialization["parameters"]["value"]  = self._value.getSerialization()
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -459,9 +459,9 @@ class Device(Generic):
         return  self._device_list == other_device._device_list
     
     def getSerialization(self) -> dict:
-        device_serialization = super().getSerialization()
-        device_serialization["parameters"]["device_list"] = self._device_list
-        return device_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["device_list"] = self._device_list
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -580,10 +580,10 @@ class Scale(Generic):
         return self_scale
 
     def getSerialization(self) -> dict:
-        element_serialization = super().getSerialization()
-        element_serialization["parameters"]["scale_list"]   = self._scale_list
-        element_serialization["parameters"]["mode"]         = self._mode % od.DataSource( int() )
-        return element_serialization
+        serialization = super().getSerialization()
+        serialization["parameters"]["scale_list"]   = self._scale_list
+        serialization["parameters"]["mode"]         = self._mode % od.DataSource( int() )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
