@@ -384,7 +384,7 @@ class Crossover(Mutation):
                     source_parameter = source_parameters[self._chaos * 1 % int() % len(source_parameters)]
                     destination_parameter = result_sequence % ou.Next()
                     destination_parameter << source_parameter
-                self._result % od.DataSource() >> ol.Link(True)
+                self._result % od.DataSource() >> ol.Stack()
                 if actual_iteration % muted_iterations == 0:
                     self.report(number)
                 self._index += 1    # keeps track of each iteration
