@@ -495,7 +495,7 @@ class Sequence(Container):  # Just a container of Elements
 
     def stack(self) -> 'Sequence':
         import operand_element as oe
-        last_position = None
+        last_position = ot.Position(0)  # everything starts on 0!
         last_length = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):

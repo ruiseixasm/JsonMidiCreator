@@ -30,7 +30,7 @@ single_clock = Clock() >> Save("json/_Save_1.1_jsonMidiCreator.json") >> Print()
 
 # Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Step(3*4 + 2)) << (Length() << NoteValue(1/2)) >> Save("json/_Save_1.1_first_note.json")
-multi_notes = Null() >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequence.json") >> Export("json/_Export_1.1_sequence.json")
+multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequence.json") >> Export("json/_Export_1.1_sequence.json")
 
 first_note << "F" >> Play()
 first_note << Load("json/_Save_1.1_first_note.json") >> Play()
@@ -40,15 +40,15 @@ Note3() << (Duration() << NoteValue(1/16)) >> Play(1) >> Save("json/_Save_1.3_no
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
-first_sequence =  Position(2) >> (base_note * 8 // Step(1) << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
+first_sequence = (base_note * 8 // Step(1) << Channel(10)) >> Save("json/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
-second_sequence = Position(0) >> second_sequence
 second_sequence /= Position(2)
 second_sequence /= Length(2)
-second_sequence = Position(4) >> second_sequence
+second_sequence = Rest(4) >> second_sequence
 second_sequence >> Save("json/_Save_1.5_second_sequence.json")
+first_sequence = Rest(2) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Sequence(first_sequence) + Sequence(second_sequence)

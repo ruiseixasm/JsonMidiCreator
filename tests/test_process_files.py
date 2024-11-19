@@ -39,7 +39,7 @@ original_save       = Load("json/testing/_Save_Play_p.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.1_sequence.json")
 start_time = time.time()
 first_note = Note() << (Position() << Step(3*4 + 2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Null() >> first_note * 3 >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> first_note * 3 >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json") \
     >> Save("json/testing/_Save_Play_p.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.1_sequence_compare.json")
 results_list.append({
@@ -89,16 +89,15 @@ start_time = time.time()
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
-first_sequence =  Position(2) >> \
-    (base_note * 8 // Step(1) << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note * 8 // Step(1) << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
-second_sequence = Position(0) >> second_sequence
 second_sequence /= Position(2)
 second_sequence /= Length(2)
-second_sequence = Position(4) >> second_sequence
+second_sequence = Rest(4) >> second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
+first_sequence = Rest(2) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Sequence(first_sequence) + Sequence(second_sequence)
@@ -230,8 +229,7 @@ single_clock = Clock()
 
 # Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8
-triplets_two = triplets_one % End() >> triplets_two
-triplets_one + triplets_two + single_clock >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+single_clock >> triplets_one >> triplets_two >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -243,7 +241,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.10.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10.1_sequence.json")
 start_time = time.time()
-triplets_one + triplets_two + single_clock + Equal(Beat(1))**Semitone(2) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+(triplets_one >> triplets_two >> single_clock) + Equal(Beat(1))**Semitone(2) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 3.6",
@@ -485,26 +483,26 @@ start_time = time.time()
 staff << Tempo(240) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-play_list_1 = Playlist() << (Position(0) >> (KeyScale("C") << Scale("Major") << Length(1)) * 8 
+play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << Length(1)) * 8 
     + Iterate(Scale("Major") % Transposition(5 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
-play_list_2 = Playlist() << (Position(8) >> (KeyScale("C") << Scale("Major") << Length(1)) * 8 
+play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << Length(1)) * 8 
     + Iterate(Scale("Major") % Transposition(4 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
-play_list_3 = Playlist() << (Position(16) >> (KeyScale("A") << Scale("minor") << Length(1)) * 8 
+play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << Length(1)) * 8 
     + Iterate(Scale("minor") % Transposition(5 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
-play_list_4 = Playlist() << (Position(24) >> (KeyScale("A") << Scale("minor") << Length(1)) * 8 
+play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << Length(1)) * 8 
     + Iterate(Scale("minor") % Transposition(4 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 
-play_list_1 + play_list_2 + play_list_3 + play_list_4 \
+play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.21_first_note_compare.json") >> Export("json/testing/_Export_Play_p.21_sequence_compare.json")
 results_list.append({

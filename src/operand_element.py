@@ -218,6 +218,8 @@ class Element(o.Operand):
                 return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
                 return operand + self >> ol.Stack()
+            case od.Serialization():
+                return operand % od.DataSource() >> self
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
             case _:

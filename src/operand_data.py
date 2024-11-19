@@ -236,19 +236,28 @@ class Serialization(Data):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Serialization':
         self._data = o.Operand().loadSerialization(serialization)
         return self
 
-    def __lshift__(self, operand: any) -> 'o.Operand':
-        if isinstance(operand, o.Operand):
-            self._data = operand.copy()
-        elif isinstance(operand, dict):
-            self._data = o.Operand().loadSerialization(operand)
-        # !! DON'T DO THIS !!
-        # else:
-        #     super().__lshift__(operand)
+    def __lshift__(self, operand: any) -> 'Serialization':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Serialization():
+                super().__lshift__(operand)
+                self._data = self.deep_copy(operand._data)
+            case _: super().__lshift__(operand)
         return self
+    
+
+        # if isinstance(operand, o.Operand):
+        #     self._data = operand.copy()
+        # elif isinstance(operand, dict):
+        #     self._data = o.Operand().loadSerialization(operand)
+        # # !! DON'T DO THIS !!
+        # # else:
+        # #     super().__lshift__(operand)
+        # return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
         if not isinstance(self._data, ol.Null) and isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
@@ -324,10 +333,10 @@ class Playlist(Data):
                 super().__lshift__(operand)
         return self
 
-    def __rrshift__(self, operand) -> 'Playlist':
+    def __rrshift__(self, operand: o.Operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(self._data, list) and len(self._data) > 0 and isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Length)):
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Length)) and isinstance(self._data, list) and len(self._data) > 0:
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
@@ -343,7 +352,6 @@ class Playlist(Data):
             for midi_element in self._data:
                 if "time_ms" in midi_element:
                     midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-            return self.copy()
         if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
             return operand + self
         else:
