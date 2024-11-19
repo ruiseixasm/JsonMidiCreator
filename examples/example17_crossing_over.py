@@ -28,7 +28,7 @@ K % str() >> Print()    # Returns the tonic key (I)
 single_notes = N * 12 << Nth(1, 2, 5, 6, 7, 8, 9, 12)**Foreach(dotted_quarter, eight, dotted_quarter, eight, half, dotted_quarter, eight, whole) >> S
 single_notes << Foreach(A, B, A, G, A, B, A, B, D, C, B, A) >> Smooth()
 slow_melody = N * 5 << 1/1 << Nth(2, 3)**half >> S
-slow_melody << Foreach((G, Gate(1)), G, A, B, G)
+slow_melody << Foreach(G, E, A, B, "G#")
 fast_melody = \
     (N * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 3, 2, 1, 2, 3)**Degree()) + \
     (N * 7 << eight << Nth(5)**quarter      << Foreach(1, -2, 1, 2, 3, -4, 2)**Degree()) + \
@@ -42,5 +42,5 @@ sequences = Sequences(
 sequence = N * 12   # blank sequence to work on
 crossing_over = Crossover(sequence, sequences)
 
-final_mutation = crossing_over * 40 * 4.37
+final_mutation = crossing_over * 40 * 8.37
 final_mutation >> Print()

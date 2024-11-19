@@ -41,7 +41,8 @@ class Mutation(o.Operand):
         super().__init__()
         self._sequence: oc.Sequence     = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
-        self._reporters: od.Reporters   = od.Reporters(
+        self._performers: od.Performers = od.Performers(
+                ol.Stack(),
                 of.PushTo(ol.Play()),
                 of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
             )
@@ -56,20 +57,17 @@ class Mutation(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Reporters():    return self._reporters
+                    case od.Performers():   return self._performers
                     case of.Frame():        return self._frame
                     case oc.Sequence():     return self._sequence
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return ol.Null()
-            case Mutation():         return self.copy()
-            case od.Reporters():    return self._reporters.copy()
+            case Mutation():        return self.copy()
+            case od.Performers():   return self._performers.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
             case oc.Sequence():     return self._result._data.copy()
-            # case FunctionType() if op.__name__ == "<lambda>":
-            #                         return self._operator
-            # case FunctionType():    return self._operator
             case str():             return self._operator
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
@@ -86,7 +84,7 @@ class Mutation(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["sequence"]         = self.serialize(self._sequence)
         serialization["parameters"]["frame"]            = self.serialize(self._frame)
-        serialization["parameters"]["reporters_tuple"]  = self.serialize(self._reporters)
+        serialization["parameters"]["performers"]       = self.serialize(self._performers)
         serialization["parameters"]["operator"]         = self.serialize(self._operator)
         return serialization
 
@@ -94,13 +92,13 @@ class Mutation(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Mutation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "reporters_tuple" in serialization["parameters"] and
+            "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "performers" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._sequence          = self.deserialize(serialization["parameters"]["sequence"])
             self._frame             = self.deserialize(serialization["parameters"]["frame"])
-            self._reporters         = self.deserialize(serialization["parameters"]["reporters_tuple"])
+            self._performers        = self.deserialize(serialization["parameters"]["performers"])
             self._operator          = self.deserialize(serialization["parameters"]["operator"])
         return self
         
@@ -109,7 +107,7 @@ class Mutation(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case od.Reporters():            self._reporters = operand % o.Operand()
+                    case od.Performers():           self._performers = operand % o.Operand()
                     case of.Frame():                self._frame = operand % o.Operand()
                     case oc.Sequence():             self._sequence = operand % o.Operand()
                     case str():                     self._operator = operand % o.Operand()
@@ -121,16 +119,13 @@ class Mutation(o.Operand):
                         self._sequence      = operand._sequence.copy()
                         self._result        = operand._result.copy()
                         self._frame         = operand._frame.copy()
-                        self._reporters     = operand._reporters.copy()
+                        self._performers    = operand._performers.copy()
                         self._operator      = operand._operator # The string str()
-            case od.Reporters():            self._reporters << operand
+            case od.Performers():           self._performers << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
                                             self._sequence  = operand.copy()
                                             self._result    << self._sequence
-            # case FunctionType() if f.__name__ == "<lambda>":
-            #                                 self._operator = operand
-            # case FunctionType():            self._operator = operand
             case str():                     self._operator = operand
             case tuple():
                 for single_operand in operand:
@@ -166,18 +161,18 @@ class Mutation(o.Operand):
                     case "//":  self._result._data // self._frame
                     case _:     self._result._data << self._frame
                 if actual_iteration % muted_iterations == 0:
-                    self.report(number)
+                    self.perform(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def report(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
+    def perform(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self._index + 1}', end = " ")
-            if isinstance(self._reporters._data, tuple):
-                for single_reporters in self._reporters._data:
-                    self._result._data >> single_reporters
+            if isinstance(self._performers._data, tuple):
+                for single_performers in self._performers._data:
+                    self._result._data >> single_performers
             else:
-                self._result._data >> self._reporters._data
+                self._result._data >> self._performers._data
             print()
         return self
 
@@ -185,7 +180,7 @@ class Mutation(o.Operand):
         super().reset(*parameters)
         self._sequence.reset()
         self._frame.reset()
-        self._reporters._data.reset()
+        self._performers._data.reset()
         self._result << self._sequence
         return self
 
@@ -262,7 +257,7 @@ class Translocation(Mutation):
                     source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
                 self._result % od.DataSource() >> ol.Link(True)
                 if actual_iteration % muted_iterations == 0:
-                    self.report(number)
+                    self.perform(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -384,9 +379,8 @@ class Crossover(Mutation):
                     source_parameter = source_parameters[self._chaos * 1 % int() % len(source_parameters)]
                     destination_parameter = result_sequence % ou.Next()
                     destination_parameter << source_parameter
-                self._result % od.DataSource() >> ol.Stack()
                 if actual_iteration % muted_iterations == 0:
-                    self.report(number)
+                    self.perform(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
