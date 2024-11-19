@@ -40,7 +40,7 @@ class Element(o.Operand):
         self._length: ot.Length             = ot.Length()
         self._channel: ou.Channel           = ou.Channel()
         self._device: og.Device             = og.Device()
-        self._track: ou.Track               = ou.Track()
+        self._track: ou.MidiTrack               = ou.MidiTrack()
         if len(parameters) > 0:
             self << parameters
 
@@ -62,7 +62,7 @@ class Element(o.Operand):
                     case ot.Length():       return self._length
                     case ou.Channel():      return self._channel
                     case og.Device():       return self._device
-                    case ou.Track():        return self._track
+                    case ou.MidiTrack():        return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -72,7 +72,7 @@ class Element(o.Operand):
             case ot.Length():       return self._length.copy()
             case ou.Channel():      return self._channel.copy()
             case og.Device():       return self._device.copy()
-            case ou.Track():        return self._track.copy()
+            case ou.MidiTrack():        return self._track.copy()
             case Element():         return self.copy()
             case ol.Start():        return self.start()
             case ol.End():          return self.end()
@@ -86,7 +86,7 @@ class Element(o.Operand):
                     and self._length    == other_operand % od.DataSource( ot.Length() ) \
                     and self._channel   == other_operand % od.DataSource( ou.Channel() ) \
                     and self._device    == other_operand % od.DataSource( og.Device() ) \
-                    and self._track     == other_operand % od.DataSource( ou.Track() )
+                    and self._track     == other_operand % od.DataSource( ou.MidiTrack() )
             case ra.TimeUnit():
                 return self._position == other_operand
             case _:
@@ -184,7 +184,7 @@ class Element(o.Operand):
                     case ot.Length():       self._length = operand % o.Operand()
                     case ou.Channel():      self._channel = operand % o.Operand()
                     case og.Device():       self._device = operand % o.Operand()
-                    case ou.Track():        self._track = operand % o.Operand()
+                    case ou.MidiTrack():        self._track = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
@@ -200,7 +200,7 @@ class Element(o.Operand):
                                     self._position << operand
             case ou.Channel():      self._channel << operand
             case og.Device():       self._device << operand
-            case ou.Track():        self._track << operand
+            case ou.MidiTrack():        self._track << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
             case tuple():

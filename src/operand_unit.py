@@ -1095,9 +1095,9 @@ class PPQN(Unit):
 class Midi(Unit):
     pass
 
-class Track(Midi):
+class MidiTrack(Midi):
     """
-    A Track() is how arrangements are split in multiple compositions in Midi files.
+    A MidiTrack() is how arrangements are split in multiple compositions in Midi files.
     
     Parameters
     ----------
@@ -1116,7 +1116,7 @@ class Track(Midi):
                 match operand % o.Operand():
                     case str():                     return self._name
                     case _:                         return super().__mod__(operand)
-            case str():                 return "Track " + str(self._unit) if not isinstance(self._name, str) else self._name
+            case str():                 return "MidiTrack " + str(self._unit) if not isinstance(self._name, str) else self._name
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -1126,7 +1126,7 @@ class Track(Midi):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Track':
+    def loadSerialization(self, serialization: dict) -> 'MidiTrack':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "name" in serialization["parameters"]):
 
@@ -1141,7 +1141,7 @@ class Track(Midi):
                 match operand % o.Operand():
                     case str():                     self._name = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Track():
+            case MidiTrack():
                 super().__lshift__(operand)
                 self._name          = operand._name
             case str():             self._name = operand

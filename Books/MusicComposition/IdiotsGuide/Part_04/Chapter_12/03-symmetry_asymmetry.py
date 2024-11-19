@@ -50,6 +50,6 @@ asymmetrical = \
 asymmetrical % Length() >> Print(0)
 asymmetrical >> rest_play
 
-first_track     = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(114)) + ProgramChange(5) + symmetrical << Channel(1) << Track(1, "Symmetrical")
-second_track    = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(118)) + ProgramChange(19) + asymmetrical << Channel(2) << Track(2, "Asymmetrical")
+first_track     = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(114)) + ProgramChange(5) + symmetrical << Channel(1) << MidiTrack(1, "Symmetrical")
+second_track    = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(118)) + ProgramChange(19) + asymmetrical << Channel(2) << MidiTrack(2, "Asymmetrical")
 first_track >> second_track >> MidiExport("Midi/symmetry.mid")

@@ -21,7 +21,7 @@ midi_file = MIDIFile(1)
 
 # Set track and tempo information
 track = 0
-midi_file.addTrackName(track, 0, "Track 1")
+midi_file.addTrackName(track, 0, "MidiTrack 1")
 midi_file.addTempo(track, 0, 120)
 
 # Define notes and durations
