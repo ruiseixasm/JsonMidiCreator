@@ -52,9 +52,8 @@ class Track(Generic):
 
     def __init__(self, *parameters):
         super().__init__()
-        staff_tracks: dict              = os.staff % od.DataSource( dict() )
-        self._name: str                 = "Staff"
-        self._midi_track: ou.MidiTrack  = ou.MidiTrack()
+        self._track_content: TrackContent   = TrackContent()
+        staff_tracks: dict                  = os.staff % od.DataSource( dict() )
         if len(parameters) > 0:
             entered_name: str = ""
             for single_operand in parameters:
@@ -63,66 +62,65 @@ class Track(Generic):
                         entered_name = single_operand
                     case _:
                         self << single_operand
-            self._name: str = self.generate_available_name(entered_name)
-            if entered_name == self._name or entered_name == "":
+            self._track_content._name = self.generate_available_name(entered_name)
+            if entered_name == self._track_content._name or entered_name == "":
                 # This is a new Track
-                staff_tracks[self._name] = self # adds self as Track to the staff
-                print(f"Created a new Track named '{self._name}'!")
+                staff_tracks[self._track_content._name] = self._track_content # adds self TrackContent to the staff
+                print(f"Created a new Track named '{self._track_content._name}'!")
             else:
                 # This is NOT a new Track, instead it's asking for the one with the respective name
-                self << staff_tracks["Staff"]
-        elif self._name in staff_tracks:
+                self._track_content = staff_tracks["Staff"]
+        elif self._track_content._name in staff_tracks:
             # No args means the default Staff Track
-            self << staff_tracks[self._name]
+            self._track_content = staff_tracks[self._track_content._name]
         else:
             # This is the new Staff Track
-            staff_tracks[self._name] = self # adds self as Track to the staff
+            staff_tracks[self._track_content._name] = self._track_content   # adds self TrackContent to the staff
             print(f"Created the default Staff Track!")
-        self._staff_source: Track       = staff_tracks[self._name]
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     return self._staff_source._name
-                    case ou.Channel():              return self._staff_source._midi_track._channel
-                    case od.Device():               return self._staff_source._midi_track._device
+                    case TrackContent():            return self._track_content
+                    case str():                     return self._track_content._name
+                    case ou.Channel():              return self._track_content._midi_track._channel
+                    case od.Device():               return self._track_content._midi_track._device
                     case _:                         return super().__mod__(operand)
-            case str():                 return self._staff_source._name
-            case ou.Channel():          return self._staff_source._midi_track._channel.copy()
-            case od.Device():           return self._staff_source._midi_track._device.copy()
-            case _:                     return super().__mod__(operand)
+            case TrackContent():            return self._track_content.copy()
+            case str():                     return self._track_content._name
+            case ou.Channel():              return self._track_content._midi_track._channel.copy()
+            case od.Device():               return self._track_content._midi_track._device.copy()
+            case _:                         return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._staff_source is other._staff_source   # is instead of ==
+                    and self._track_content is other._track_content # is instead of ==
             case _:
                 return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["name"]         = self.serialize(self._staff_source._name)
-        serialization["parameters"]["midi_track"]   = self.serialize(self._staff_source._midi_track)
+        serialization["parameters"]["track_content"]    = self.serialize(self._track_content)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Track':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "name" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
+            "track_content" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._name          = self.deserialize(serialization["parameters"]["name"])
-            self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
+            self._track_content = self.deserialize(serialization["parameters"]["track_content"])
+
             staff_tracks: dict  = os.staff % od.DataSource( dict() )
-            if self._name in staff_tracks:
-                self._midi_track << staff_tracks[self._name]
+            if self._track_content._name in staff_tracks:
+                self._track_content = staff_tracks[self._track_content._name]
             else:
-                staff_tracks[self._name] = self
-            self._staff_source  = staff_tracks[self._name]
+                staff_tracks[self._track_content._name] = self._track_content
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Track':
@@ -136,22 +134,94 @@ class Track(Generic):
                             if not operand % o.Operand() in staff_tracks:
                                 # Rename "old_key" to "new_key"
                                 staff_tracks[operand % o.Operand()] = staff_tracks.pop(self._name)
-                                self._staff_source._name = operand % o.Operand()
+                                self._track_content._name = operand % o.Operand()
                             else:
                                 print(f"Track named '{operand % o.Operand()}' already exists!")
                         else:
                             print(f"Track 'Staff' can't be renamed!")
-                    case ou.MidiTrack():            self._staff_source._midi_track = operand % o.Operand()
+                    case ou.MidiTrack():            self._track_content._midi_track = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case Track():
+                super().__lshift__(operand)
+                self._track_content = operand._track_content
+            case str():             self._track_content << od.DataSource( operand )
+            case ou.MidiTrack():    self._track_content._midi_track << operand
+            case ou.Channel():      self._track_content._midi_track._channel << operand
+            case od.Device():       self._track_content._midi_track._device << operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _:                 super().__lshift__(operand)
+        return self
+
+class TrackContent(Generic):
+
+    def __init__(self, *parameters):
+        super().__init__()
+        self._name: str                 = "Staff"
+        self._midi_track: ou.MidiTrack  = ou.MidiTrack()
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     return self._name
+                    case ou.MidiTrack():            return self._midi_track
+                    case ou.Channel():              return self._midi_track._channel
+                    case od.Device():               return self._midi_track._device
+                    case _:                         return super().__mod__(operand)
+            case str():                     return self._name
+            case ou.MidiTrack():            return self._midi_track.copy()
+            case ou.Channel():              return self._midi_track._channel.copy()
+            case od.Device():               return self._midi_track._device.copy()
+            case _:                         return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._name == other._name \
+                    and self._midi_track == other._midi_track
+            case _:
+                return super().__eq__(other)
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["name"]         = self.serialize(self._name)
+        serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Track':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "name" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._name          = self.deserialize(serialization["parameters"]["name"])
+            self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'Track':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._name = operand % o.Operand()
+                    case ou.MidiTrack():            self._midi_track = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Track():
                 super().__lshift__(operand)
                 self._name          = operand._name
                 self._midi_track    = operand._midi_track
-                self._staff_source  = operand._staff_source
-            case str():             self._staff_source << od.DataSource( operand )
-            case ou.MidiTrack():    self._staff_source._midi_track << operand
-            case ou.Channel():      self._staff_source._midi_track._channel << operand
-            case od.Device():       self._staff_source._midi_track._device << operand
+                self  = operand
+            case str():             self._name = operand
+            case ou.MidiTrack():    self._midi_track << operand
+            case ou.Channel():      self._midi_track._channel << operand
+            case od.Device():       self._midi_track._device << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
