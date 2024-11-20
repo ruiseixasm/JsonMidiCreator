@@ -106,7 +106,7 @@ class Frame(o.Operand):
             other_operand_list: list = []
             for single_operand in other_frame:
                 other_operand_list.append(single_operand)
-            return self_operand_list == other_operand_list
+            return self_operand_list == other_operand_list  # PRONE TO INFINITE RECURSION !!
         return False
     
     def getSerialization(self) -> dict:

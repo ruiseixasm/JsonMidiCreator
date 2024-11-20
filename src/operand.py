@@ -228,8 +228,8 @@ class Operand:
 
     def copy(self: T, *parameters) -> T:
         self_copy: T = type(self)() << self
-        if not self_copy == self:   # CONSUMES TOO MUCH RESOURCES !!
-            logging.error(f"Copied object {self.__class__.__name__} not identical!")
+        # if not self_copy == self:   # CONSUMES TOO MUCH RESOURCES !!
+        #     logging.error(f"Copied object {self.__class__.__name__} not identical!")
         for single_parameter in parameters: # Safe for Data class
             self_copy << single_parameter
         # !! DON'T DO THIS !!

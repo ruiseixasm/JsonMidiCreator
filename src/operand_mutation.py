@@ -43,8 +43,8 @@ class Mutation(o.Operand):
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._performers: od.Performers = od.Performers(
                 od.Stack(),
-                of.PushTo(ol.Play()),
-                of.Subject(oe.Rest())**of.PushTo(ol.Play()) # Finally plays a single Rest
+                of.PushTo(od.Play()),
+                of.Subject(oe.Rest())**of.PushTo(od.Play()) # Finally plays a single Rest
             )
         self._operator: str             = "<<"
         self._result: od.Result         = od.Result(self._sequence)
@@ -186,7 +186,7 @@ class Translocation(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
-        self._filter: ol.Filter         = ol.Filter(of.All())
+        self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(ot.Position(), ra.NoteValue())
         if len(parameters) > 0:
             self << parameters
@@ -196,11 +196,11 @@ class Translocation(Mutation):
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():        return self._chaos
-                    case ol.Filter():       return self._filter
+                    case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
             case ch.Chaos():        return self._chaos.copy()
-            case ol.Filter():       return self._filter.copy()
+            case od.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
             case _:                 return super().__mod__(operand)
 
@@ -229,7 +229,7 @@ class Translocation(Mutation):
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case ol.Filter():               self._filter = operand % o.Operand()
+                    case od.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Translocation():
@@ -238,7 +238,7 @@ class Translocation(Mutation):
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case ch.Chaos():                self._chaos << operand
-            case ol.Filter():               self._filter << operand
+            case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
             case _:                         super().__lshift__(operand)
         return self
@@ -253,7 +253,7 @@ class Translocation(Mutation):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
                 for single_parameter in self._parameters._data:
                     source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
-                self._result % od.DataSource() >> ol.Link(True)
+                self._result % od.DataSource() >> od.Link(True)
                 if actual_iteration % muted_iterations == 0:
                     self.perform(number)
                 self._index += 1    # keeps track of each iteration
@@ -298,7 +298,7 @@ class Crossover(Mutation):
         super().__init__()
         self._sequences: od.Sequences   = od.Sequences()
         self._chaos: ch.Chaos           = ch.SinX()
-        self._filter: ol.Filter         = ol.Filter(of.All())
+        self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(oe.Note())
         if len(parameters) > 0:
             self << parameters
@@ -309,12 +309,12 @@ class Crossover(Mutation):
                 match operand % o.Operand():
                     case od.Sequences():    return self._sequences
                     case ch.Chaos():        return self._chaos
-                    case ol.Filter():       return self._filter
+                    case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
             case od.Sequences():    return self._sequences.copy()
             case ch.Chaos():        return self._chaos.copy()
-            case ol.Filter():       return self._filter.copy()
+            case od.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
             case _:                 return super().__mod__(operand)
 
@@ -346,7 +346,7 @@ class Crossover(Mutation):
                 match operand % o.Operand():
                     case od.Sequences():            self._sequences = operand % o.Operand()
                     case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case ol.Filter():               self._filter = operand % o.Operand()
+                    case od.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Crossover():
@@ -357,7 +357,7 @@ class Crossover(Mutation):
                 self._parameters    << operand._parameters
             case od.Sequences():            self._sequences << operand
             case ch.Chaos():                self._chaos << operand
-            case ol.Filter():               self._filter << operand
+            case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
             case _:                         super().__lshift__(operand)
         return self
