@@ -113,6 +113,10 @@ class Track(Generic):
             super().loadSerialization(serialization)
             self._name          = self.deserialize(serialization["parameters"]["name"])
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
+            if self._name in self._staff_tracks:
+                self._midi_track << self._staff_tracks[self._name]
+            else:
+                self._staff_tracks[self._name] = self
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Track':

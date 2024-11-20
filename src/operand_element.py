@@ -181,8 +181,7 @@ class Element(o.Operand):
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._length        = self.deserialize(serialization["parameters"]["length"])
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
-            # NEEDS SPECIAL SOLUTION / CAN'T DO COPY / IT ALREADY EXISTS !!
-            # self._track         = self.deserialize(serialization["parameters"]["midi_track"])
+            self._track         = self.deserialize(serialization["parameters"]["track"])
 
         return self
 
