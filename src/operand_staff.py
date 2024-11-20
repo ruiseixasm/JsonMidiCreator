@@ -47,8 +47,8 @@ class Staff(o.Operand):
                                                         << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
-        self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 10000) % 1000)
-        self._chaos << ra.Lambda( self._chaos % ra.Lambda() + self._chaos % float() )   # Lambda is the SinX chaotic blueprint !!
+        self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 10000) % 100)
+        self._chaos << ra.Lambda( self._chaos % ra.Lambda() + int(time.time() * 10000) % 100 )   # Lambda is the SinX chaotic blueprint !!
         self._tracks: dict                          = {}    # where the multiple tracks will be saved
         if len(parameters) > 0:
             self << parameters

@@ -45,7 +45,7 @@ class Track(Generic):
         staff_tracks: dict      = os.staff % od.DataSource( dict() )
         while self._name in staff_tracks:
             if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and self._name != "Staff":
-                o.logging.info(f"Track name {self._name} is already taken in a total of {len(staff_tracks)} tracks!")
+                o.logging.info(f"Track name '{self._name}' is already taken in a total of {len(staff_tracks)} tracks!")
             self._name = ""
             for _ in range(5):  # randomly generated 5 chars name [a-z]
                 ascii_char: int = 97 + staff_chaos * 1 % int() % 26
