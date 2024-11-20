@@ -60,6 +60,15 @@ class Chaos(o.Operand):
     def __str__(self) -> str:
         return f'{self._index + 1}: {self._xn % float()}'
     
+    def __eq__(self, other: 'Chaos') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) == type(other):
+            return  self._xn == other._xn \
+                and self._x0 == other._x0
+        return False
+    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["xn"] = self._xn.getSerialization()
@@ -152,6 +161,15 @@ class Modulus(Chaos):
             case ra.Step():             return self._step.copy()
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other: 'Chaos') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if super().__eq__(other):
+            return  self._amplitude == other % od.DataSource( ra.Amplitude() ) \
+                and self._step == other % od.DataSource( ra.Step() )
+        return False
+    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["amplitude"]    = self._amplitude % str()
@@ -224,13 +242,13 @@ class Flipper(Modulus):
             case int() | float():       return self % od.DataSource( operand )
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Modulus') -> bool:
+    def __eq__(self, other: 'Flipper') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if type(self) != type(other):
-            return False
-        return  self % float()        == other % float()
+        if super().__eq__(other):
+            return  self._split == other % od.DataSource( ra.Split() )
+        return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -428,6 +446,14 @@ class SinX(Chaos):
             case ra.Lambda():           return self._lambda.copy()
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other: 'SinX') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if super().__eq__(other):
+            return  self._lambda == other % od.DataSource( ra.Lambda() )
+        return False
+    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["lambda"]   = self._lambda % str()
