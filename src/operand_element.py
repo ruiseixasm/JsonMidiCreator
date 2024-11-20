@@ -91,6 +91,8 @@ class Element(o.Operand):
                     and self._channel   == other % od.DataSource( ou.Channel() ) \
                     and self._device    == other % od.DataSource( od.Device() ) \
                     and self._track     == other % od.DataSource( ou.MidiTrack() )
+            case ra.NoteValue():
+                return self._duration == other
             case ra.TimeUnit():
                 return self._position == other
             case _:
@@ -103,6 +105,8 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  False
+            case ra.NoteValue():
+                return self._duration < other
             case ra.TimeUnit():
                 return self._position < other
             case _:
@@ -113,6 +117,8 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  False
+            case ra.NoteValue():
+                return self._duration > other
             case ra.TimeUnit():
                 return self._position > other
             case _:
@@ -207,7 +213,7 @@ class Element(o.Operand):
                 self._duration      << operand
             case ot.Length():
                 self._length        << operand
-            case ra.NoteValue():
+            case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                 self._duration      << operand
                 self._length        << operand
             case ot.Position() | ra.TimeUnit():
@@ -425,57 +431,8 @@ class Clock(Element):
 class Rest(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration: ot.Duration = os.staff % ot.Duration()
-        self._length << self._duration
         if len(parameters) > 0:
             self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Rest,
-        those Parameters are the ones of the Element, like Position and Length,
-        plus the Duration with 1/4 as default.
-
-        Examples
-        --------
-        >>> rest = Rest()
-        >>> rest % Duration() >> Print(0)
-        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'NoteValue', 'parameters': {'value': 0.25}}}}
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ot.Duration():     return self._duration
-                    case _:                 return super().__mod__(operand)
-            case ot.Duration():     return self._duration.copy()
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._duration == other % od.DataSource( ot.Duration() )
-            case ra.NoteValue():
-                return self._duration == other
-            case _:
-                return super().__eq__(other)
-    
-    def __lt__(self, other: 'o.Operand') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case ra.NoteValue():
-                return self._duration < other
-            case _:
-                return super().__lt__(other)
-    
-    def __gt__(self, other: 'o.Operand') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case ra.NoteValue():
-                return self._duration > other
-            case _:
-                return super().__gt__(other)
 
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -506,41 +463,7 @@ class Rest(Element):
     def getMidilist(self, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(position)
         self_midilist[0]["event"]       = "Rest"
-        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float()
         return self_midilist
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["duration"] = self._duration.getSerialization()
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict):
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._duration  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-        return self
-      
-    def __lshift__(self, operand: o.Operand) -> 'Note':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ot.Duration():     self._duration = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
-            case Rest():
-                super().__lshift__(operand)
-                self._duration      << operand._duration
-            case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                                    self._duration << operand
-                                    self._length << self._duration
-            case ot.Duration():
-                                    self._duration << operand
-            case _: super().__lshift__(operand)
-        return self
 
 class Note(Rest):
     def __init__(self, *parameters):
