@@ -98,7 +98,7 @@ triplets_two = (Note3("G") << Duration(1/16) << Length(1/16)) * 8 + single_clock
     >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
 staff << Measure(2)
-single_clock = Clock()
+single_clock = Clock() << Length(0)
 
 # Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8

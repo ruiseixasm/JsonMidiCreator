@@ -225,7 +225,7 @@ original_export     = Import("json/testing/_Export_Play_p.10_sequence.json")
 start_time = time.time()
 
 staff << Measure(2)
-single_clock = Clock()
+single_clock = Clock() << Length(0)
 
 # Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
 # A 1/16 triplet has a total length of a 1/8

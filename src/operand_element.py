@@ -38,7 +38,7 @@ class Element(o.Operand):
         super().__init__()
         self._position: ot.Position         = ot.Position()
         self._duration: ot.Duration         = os.staff % ot.Duration()
-        self._length: ot.Length             = ot.Length()
+        self._length: ot.Length             = ot.Length() << self._duration
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
         self._track: ou.MidiTrack           = ou.MidiTrack()
@@ -297,7 +297,8 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration = ot.Duration() << os.staff % od.DataSource( ra.Measure() )
+        self._duration << os.staff % od.DataSource( ra.Measure() )
+        self._length << self._duration
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters
