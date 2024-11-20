@@ -69,12 +69,11 @@ class Track(Generic):
 
     def loadSerialization(self, serialization: dict) -> 'Track':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "name" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+            "name" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._name      = self.deserialize(serialization["parameters"]["name"])
-            self._channel   = self.deserialize(serialization["parameters"]["channel"])
-            self._device    = self.deserialize(serialization["parameters"]["device"])
+            self._name          = self.deserialize(serialization["parameters"]["name"])
+            self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Track':
