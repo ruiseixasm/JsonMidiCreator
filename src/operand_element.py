@@ -289,8 +289,9 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration << os.staff % od.DataSource( ra.Measure() )
-        self._length << self._duration
+        self._duration      << os.staff % od.DataSource( ra.Measure() )
+        self._length        << self._duration
+        self._midi_track    << 0    # Clock is intended to be used only by JsonMidiPlayer
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters

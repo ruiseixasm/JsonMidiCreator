@@ -1162,7 +1162,6 @@ class MidiTrack(Midi):
             case Channel():         self._channel << operand
             case od.Device():       self._device << operand
             case _:                 super().__lshift__(operand)
-        self._unit = max(1, self._unit)
         return self
 
 class Channel(Midi):
