@@ -259,7 +259,7 @@ class Staff(o.Operand):
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
                     case ch.Chaos():            self._chaos = operand % o.Operand()
-                    case og.Track():            self._track = operand % o.Operand()
+                    case dict():                self._tracks = operand % o.Operand()
             case Staff():
                 super().__lshift__(operand)
                 self._measure           << operand._measure
@@ -276,7 +276,7 @@ class Staff(o.Operand):
                 self._channel           << operand._channel
                 self._device            << operand._device
                 self._chaos             << operand._chaos
-                self._track             << operand._track
+                self._tracks            = operand._tracks
                 self.set_tonic_key()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -325,4 +325,4 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
-og.Track("Staff")   # Adds itself to the staff automatically
+og.Track()   # Adds the default Track as "Staff" to the staff automatically

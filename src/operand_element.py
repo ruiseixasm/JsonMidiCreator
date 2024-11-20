@@ -40,7 +40,7 @@ class Element(o.Operand):
         self._duration: ot.Duration         = os.staff % ot.Duration()
         self._length: ot.Length             = ot.Length() << self._duration
         self._midi_track: ou.MidiTrack      = ou.MidiTrack()
-        self._track: og.Track               = os.staff % od.DataSource( og.Track() )
+        self._track: og.Track               = og.Track()
         if len(parameters) > 0:
             self << parameters
 
@@ -183,6 +183,7 @@ class Element(o.Operand):
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
             # NEEDS SPECIAL SOLUTION / CAN'T DO COPY / IT ALREADY EXISTS !!
             # self._track         = self.deserialize(serialization["parameters"]["midi_track"])
+
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Element':
