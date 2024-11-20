@@ -113,12 +113,12 @@ class Names(o.Operand):
         #     "MSB":              ol.MSB,
         #     "LSB":              ol.LSB,
         #     "Copy":             ol.Copy,
-        #     "Len":              ol.Len,
+        #     "Len":              od.Len,
         #     "Reverse":          ol.Reverse,
         #     "First":            ol.First,
         #     "Last":             ol.Last,
-        #     "Start":            ol.Start,
-        #     "End":              ol.End,
+        #     "Start":            od.Start,
+        #     "End":              od.End,
 
         #     # Names class operands (on)
         #     "Names":            Names,

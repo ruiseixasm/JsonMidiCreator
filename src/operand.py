@@ -117,9 +117,9 @@ class Operand:
                 return self.getPlaylist()
             case od.Serialization():
                 return self.getSerialization()
-            case ol.Len():
+            case od.Len():
                 return self.len()
-            case ol.Name():
+            case od.Name():
                 return self.name()
             case ra.Index():
                 return ra.Index(self._index)

@@ -77,8 +77,8 @@ class Element(o.Operand):
             case od.Device():       return self._device.copy()
             case ou.MidiTrack():    return self._track.copy()
             case Element():         return self.copy()
-            case ol.Start():        return self.start()
-            case ol.End():          return self.end()
+            case od.Start():        return self.start()
+            case od.End():          return self.end()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other_operand: 'o.Operand') -> bool:
@@ -231,7 +231,7 @@ class Element(o.Operand):
                 self_copy = self.copy()
                 return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
-                return operand + self >> ol.Stack()
+                return operand + self >> od.Stack()
             case od.Serialization():
                 return operand % od.DataSource() >> self
             case od.Playlist():

@@ -81,8 +81,8 @@ class Container(o.Operand):
             case Container():       return self.copy()
             # case ol.Filter():   # Filter is now also a Process
             #     return self.filter(operand % od.DataSource())
-            case ol.Getter():       return operand.get(self)
-            case ol.Process():      return self >> operand
+            case od.Getter():       return operand.get(self)
+            case od.Process():      return self >> operand
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
