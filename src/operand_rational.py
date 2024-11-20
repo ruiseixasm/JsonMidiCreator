@@ -86,44 +86,44 @@ class Rational(o.Operand):
             case Rational():        return self.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_number: any) -> bool:
-        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
-        match other_number:
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Rational() | ou.Unit():
-                return self._rational == other_number % od.DataSource( Fraction() )
+                return self._rational == other % od.DataSource( Fraction() )
             case int() | float():
-                other_rational = Fraction( other_number ).limit_denominator()
-                return self._rational == other_rational
+                other = Fraction( other ).limit_denominator()
+                return self._rational == other
             case _:
-                if other_number.__class__ == o.Operand:
+                if other.__class__ == o.Operand:
                     return True
         return False
     
-    def __lt__(self, other_number: any) -> bool:
-        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
-        match other_number:
+    def __lt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Rational() | ou.Unit():
-                return self._rational < other_number % od.DataSource( Fraction() )
+                return self._rational < other % od.DataSource( Fraction() )
             case int() | float():
-                other_rational = Fraction( other_number ).limit_denominator()
-                return self._rational < other_rational
+                other = Fraction( other ).limit_denominator()
+                return self._rational < other
         return False
     
-    def __gt__(self, other_number: any) -> bool:
-        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
-        match other_number:
+    def __gt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Rational() | ou.Unit():
-                return self._rational > other_number % od.DataSource( Fraction() )
+                return self._rational > other % od.DataSource( Fraction() )
             case int() | float():
-                other_rational = Fraction( other_number ).limit_denominator()
-                return self._rational > other_rational
+                other = Fraction( other ).limit_denominator()
+                return self._rational > other
         return False
     
-    def __le__(self, other_number: any) -> bool:
-        return self == other_number or self < other_number
+    def __le__(self, other: any) -> bool:
+        return self == other or self < other
     
-    def __ge__(self, other_number: any) -> bool:
-        return self == other_number or self > other_number
+    def __ge__(self, other: any) -> bool:
+        return self == other or self > other
     
     def __str__(self):
         return f'{self._rational}'
@@ -366,28 +366,28 @@ class TimeUnit(Rational):
     def getTime_rational(self) -> Fraction:
         return self._rational * 0
     
-    def __eq__(self, other_time_unit: any) -> bool:
-        match other_time_unit:
+    def __eq__(self, other_unit: any) -> bool:
+        match other_unit:
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 return self._rational == self_class_time_unit % od.DataSource( Fraction() )
-            case _: return super().__eq__(other_time_unit)
+            case _: return super().__eq__(other_unit)
         return False
     
-    def __lt__(self, other_time_unit: any) -> bool:
-        match other_time_unit:
+    def __lt__(self, other_unit: any) -> bool:
+        match other_unit:
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 return self._rational < self_class_time_unit % od.DataSource( Fraction() )
-            case _: return super().__lt__(other_time_unit)
+            case _: return super().__lt__(other_unit)
         return False
     
-    def __gt__(self, other_time_unit: any) -> bool:
-        match other_time_unit:
+    def __gt__(self, other_unit: any) -> bool:
+        match other_unit:
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 return self._rational > self_class_time_unit % od.DataSource( Fraction() )
-            case _: return super().__gt__(other_time_unit)
+            case _: return super().__gt__(other_unit)
         return False
 
     def __str__(self):
@@ -395,43 +395,43 @@ class TimeUnit(Rational):
     
     # CHAINABLE OPERATIONS
 
-    def __add__(self, other_time_unit: 'TimeUnit') -> 'TimeUnit':
-        other_time_unit = self & other_time_unit    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time_unit:
+    def __add__(self, other_unit: 'TimeUnit') -> 'TimeUnit':
+        other_unit = self & other_unit    # Processes the tailed self operands or the Frame operand if any exists
+        match other_unit:
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational + self_class_time_unit % od.DataSource( Fraction() ) )
-            case _: return super().__add__(other_time_unit)
+            case _: return super().__add__(other_unit)
     
-    def __sub__(self, other_time_unit: 'TimeUnit') -> 'TimeUnit':
-        other_time_unit = self & other_time_unit    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time_unit:
+    def __sub__(self, other_unit: 'TimeUnit') -> 'TimeUnit':
+        other_unit = self & other_unit    # Processes the tailed self operands or the Frame operand if any exists
+        match other_unit:
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational - self_class_time_unit % od.DataSource( Fraction() ) )
-            case _: return super().__sub__(other_time_unit)
+            case _: return super().__sub__(other_unit)
     
-    def __mul__(self, other_time_unit: 'TimeUnit') -> 'TimeUnit':
-        other_time_unit = self & other_time_unit    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time_unit:
+    def __mul__(self, other_unit: 'TimeUnit') -> 'TimeUnit':
+        other_unit = self & other_unit    # Processes the tailed self operands or the Frame operand if any exists
+        match other_unit:
             case Gate() | Swing() | ou.Division():
-                return self.__class__() << od.DataSource( self._rational * (other_time_unit % od.DataSource( Fraction() )) )
+                return self.__class__() << od.DataSource( self._rational * (other_unit % od.DataSource( Fraction() )) )
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational * (self_class_time_unit % od.DataSource( Fraction() )) )
-            case _: return super().__mul__(other_time_unit)
+            case _: return super().__mul__(other_unit)
     
-    def __truediv__(self, other_time_unit: 'TimeUnit') -> 'TimeUnit':
-        other_time_unit = self & other_time_unit    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time_unit:
+    def __truediv__(self, other_unit: 'TimeUnit') -> 'TimeUnit':
+        other_unit = self & other_unit    # Processes the tailed self operands or the Frame operand if any exists
+        match other_unit:
             case Gate() | Swing() | ou.Division():
-                if other_time_unit % od.DataSource( Fraction() ) != 0:
-                    return self.__class__() << od.DataSource( self._rational / (other_time_unit % od.DataSource( Fraction() )) )
+                if other_unit % od.DataSource( Fraction() ) != 0:
+                    return self.__class__() << od.DataSource( self._rational / (other_unit % od.DataSource( Fraction() )) )
             case TimeUnit():
-                self_class_time_unit = other_time_unit % od.DataSource( self )
+                self_class_time_unit = other_unit % od.DataSource( self )
                 if self_class_time_unit % od.DataSource( Fraction() ) != 0:
                     return self.__class__() << od.DataSource( self._rational / (self_class_time_unit % od.DataSource( Fraction() )) )
-            case _: return super().__truediv__(other_time_unit)
+            case _: return super().__truediv__(other_unit)
 
 class Measure(TimeUnit):
     """

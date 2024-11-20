@@ -66,20 +66,20 @@ class Key:
             case _:  # By default, return key as integer
                 return self._key
 
-    def __eq__(self, other_key: any) -> bool:
-        return self % int() == other_key % int()
+    def __eq__(self, other: any) -> bool:
+        return self % int() == other % int()
     
-    def __lt__(self, other_key: any) -> bool:
-        return self % int() < other_key % int()
+    def __lt__(self, other: any) -> bool:
+        return self % int() < other % int()
     
-    def __gt__(self, other_key: any) -> bool:
-        return self % int() > other_key % int()
+    def __gt__(self, other: any) -> bool:
+        return self % int() > other % int()
     
-    def __le__(self, other_key: any) -> bool:
-        return self == other_key or self < other_key
+    def __le__(self, other: any) -> bool:
+        return self == other or self < other
     
-    def __ge__(self, other_key: any) -> bool:
-        return self == other_key or self > other_key
+    def __ge__(self, other: any) -> bool:
+        return self == other or self > other
 
     @staticmethod
     def int_to_key(note_key: int = 0) -> str:

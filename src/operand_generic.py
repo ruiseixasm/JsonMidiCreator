@@ -59,14 +59,14 @@ class TimeSignature(Generic):
             case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_time_signature: 'TimeSignature') -> bool:
-        other_time_signature = self & other_time_signature    # Processes the tailed self operands or the Frame operand if any exists
-        if other_time_signature.__class__ == o.Operand:
+    def __eq__(self, other_signature: 'TimeSignature') -> bool:
+        other_signature = self & other_signature    # Processes the tailed self operands or the Frame operand if any exists
+        if other_signature.__class__ == o.Operand:
             return True
-        if type(self) != type(other_time_signature):
+        if type(self) != type(other_signature):
             return False
-        return  self._top           == other_time_signature._top \
-            and self._bottom        == other_time_signature._bottom
+        return  self._top           == other_signature._top \
+            and self._bottom        == other_signature._bottom
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -361,11 +361,11 @@ class Controller(Generic):
             case Controller():          return self.copy()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_controller: 'Controller') -> bool:
-        other_controller = self & other_controller    # Processes the tailed self operands or the Frame operand if any exists
-        if other_controller.__class__ == o.Operand:
+    def __eq__(self, other: 'Controller') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        if self % ou.Number() == other_controller % ou.Number() and self % ou.Value() == other_controller % ou.Value():
+        if self % ou.Number() == other % ou.Number() and self % ou.Value() == other % ou.Value():
             return True
         return False
     
@@ -480,13 +480,13 @@ class Scale(Generic):
             case ou.Modulation():       return self.modulation(operand % int())
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_scale: 'Scale') -> bool:
-        other_scale = self & other_scale    # Processes the tailed self operands or the Frame operand if any exists
-        if other_scale.__class__ == o.Operand:
+    def __eq__(self, other: 'Scale') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        if type(self) != type(other_scale):
+        if type(self) != type(other):
             return False
-        return  self._scale_list == other_scale._scale_list
+        return  self._scale_list == other._scale_list
     
     def hasScale(self) -> bool:
         if self._scale_list == [] or self._scale_list == -1 or self._scale_list == "":

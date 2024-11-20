@@ -104,10 +104,10 @@ class Frame(o.Operand):
             # self_operand_list: list = []
             # for single_operand in self:
             #     self_operand_list.append(single_operand)
-            # other_list: list = []
+            # other: list = []
             # for single_operand in other:
-            #     other_list.append(single_operand)
-            # return self_operand_list == other_list  # PRONE TO INFINITE RECURSION !!
+            #     other.append(single_operand)
+            # return self_operand_list == other  # PRONE TO INFINITE RECURSION !!
         return False
     
     def getSerialization(self) -> dict:

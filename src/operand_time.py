@@ -67,65 +67,65 @@ class Time(o.Operand):
                 return self._time_unit % operand
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_time: any) -> bool:
-        other_time = self & other_time    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time:
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case ra.NoteValue():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) == other_time % od.DataSource( Fraction() )
+                return self._time_unit % od.DataSource( other ) % od.DataSource( Fraction() ) == other % od.DataSource( Fraction() )
             case ra.Measure():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) == other_time % od.DataSource( int() )
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) == other % od.DataSource( int() )
             case ra.Beat(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
-                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
+                    == other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
             case ra.Step(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
-                    == other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
+                    == other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
             case Time():
-                return self.getTime_rational() == other_time.getTime_rational()
+                return self.getTime_rational() == other.getTime_rational()
             case _:
-                if other_time.__class__ == o.Operand:
+                if other.__class__ == o.Operand:
                     return True
         return False
 
-    def __lt__(self, other_time: any) -> bool:
-        other_time = self & other_time    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time:
+    def __lt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case ra.NoteValue():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) < other_time % od.DataSource( Fraction() )
+                return self._time_unit % od.DataSource( other ) % od.DataSource( Fraction() ) < other % od.DataSource( Fraction() )
             case ra.Measure():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) < other_time % od.DataSource( int() )
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) < other % od.DataSource( int() )
             case ra.Beat():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
-                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
+                    < other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
             case ra.Step():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
-                    < other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
+                    < other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
             case Time():
-                return self.getTime_rational() < other_time.getTime_rational()
+                return self.getTime_rational() < other.getTime_rational()
         return False
     
-    def __gt__(self, other_time: any) -> bool:
-        other_time = self & other_time    # Processes the tailed self operands or the Frame operand if any exists
-        match other_time:
+    def __gt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case ra.NoteValue():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( Fraction() ) > other_time % od.DataSource( Fraction() )
+                return self._time_unit % od.DataSource( other ) % od.DataSource( Fraction() ) > other % od.DataSource( Fraction() )
             case ra.Measure():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) > other_time % od.DataSource( int() )
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) > other % od.DataSource( int() )
             case ra.Beat():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
-                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
+                    > other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
             case ra.Step():
-                return self._time_unit % od.DataSource( other_time ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
-                    > other_time % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
+                return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
+                    > other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
             case Time():
-                return self.getTime_rational() > other_time.getTime_rational()
+                return self.getTime_rational() > other.getTime_rational()
         return False
     
-    def __le__(self, other_time: any) -> bool:
-        return self == other_time or self < other_time
+    def __le__(self, other: any) -> bool:
+        return self == other or self < other
     
-    def __ge__(self, other_time: any) -> bool:
-        return self == other_time or self > other_time
+    def __ge__(self, other: any) -> bool:
+        return self == other or self > other
 
     def __str__(self):
         return f'{self._time_unit}'

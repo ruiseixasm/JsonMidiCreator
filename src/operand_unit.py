@@ -88,53 +88,53 @@ class Unit(o.Operand):
     def __not__(self) -> bool:
         return self._unit == 0
     
-    def __eq__(self, other_number: any) -> bool:
+    def __eq__(self, other: any) -> bool:
         import operand_rational as ra
-        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
-        match other_number:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Unit():
-                return self._unit == other_number._unit
+                return self._unit == other._unit
             case ra.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
-                return self_rational == other_number % od.DataSource( Fraction() )
+                return self_rational == other % od.DataSource( Fraction() )
             case int() | float() | Fraction():
-                return self._unit == other_number
+                return self._unit == other
             case _:
-                if other_number.__class__ == o.Operand:
+                if other.__class__ == o.Operand:
                     return True
         return False
     
-    def __lt__(self, other_number: any) -> bool:
+    def __lt__(self, other: any) -> bool:
         import operand_rational as ra
-        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
-        match other_number:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Unit():
-                return self._unit < other_number._unit
+                return self._unit < other._unit
             case ra.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
-                return self_rational < other_number % od.DataSource( Fraction() )
+                return self_rational < other % od.DataSource( Fraction() )
             case int() | float() | Fraction():
-                return self._unit < other_number
+                return self._unit < other
         return False
     
-    def __gt__(self, other_number: any) -> bool:
+    def __gt__(self, other: any) -> bool:
         import operand_rational as ra
-        other_number = self & other_number    # Processes the tailed self operands or the Frame operand if any exists
-        match other_number:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Unit():
-                return self._unit > other_number._unit
+                return self._unit > other._unit
             case ra.Rational():
                 self_rational = Fraction( self._unit ).limit_denominator()
-                return self_rational > other_number % od.DataSource( Fraction() )
+                return self_rational > other % od.DataSource( Fraction() )
             case int() | float() | Fraction():
-                return self._unit > other_number
+                return self._unit > other
         return False
     
-    def __le__(self, other_number: any) -> bool:
-        return self == other_number or self < other_number
+    def __le__(self, other: any) -> bool:
+        return self == other or self < other
     
-    def __ge__(self, other_number: any) -> bool:
-        return self == other_number or self > other_number
+    def __ge__(self, other: any) -> bool:
+        return self == other or self > other
     
     def __str__(self):
         return f'{self._unit}'
@@ -279,13 +279,13 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 return key_signature_scale
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_key_signature: 'KeySignature') -> bool:
-        other_key_signature = self & other_key_signature    # Processes the tailed self operands or the Frame operand if any exists
-        if other_key_signature.__class__ == o.Operand:
+    def __eq__(self, other_signature: 'KeySignature') -> bool:
+        other_signature = self & other_signature    # Processes the tailed self operands or the Frame operand if any exists
+        if other_signature.__class__ == o.Operand:
             return True
-        if type(self) != type(other_key_signature):
+        if type(self) != type(other_signature):
             return False
-        return  self._unit   == other_key_signature._unit
+        return  self._unit   == other_signature._unit
     
     # CHAINABLE OPERATIONS
 

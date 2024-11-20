@@ -72,12 +72,12 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 
 #     # adding two lengths 
-#     def __add__(self, other_length):
+#     def __add__(self, other):
 #         return Length(
-#                 self._measures + other_length._measures,
-#                 self._beats + other_length._beats,
-#                 self._note + other_length._note,
-#                 self._steps + other_length._steps
+#                 self._measures + other._measures,
+#                 self._beats + other._beats,
+#                 self._note + other._note,
+#                 self._steps + other._steps
 #             )
     
 
@@ -87,8 +87,8 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #         super().__init__(measures, beats, note, steps)
     
 #     # adding two durations 
-#     def __add__(self, other_length: Length) -> 'Duration':
-#         return self + other_length
+#     def __add__(self, other: Length) -> 'Duration':
+#         return self + other
     
 
 # class Position:

@@ -127,25 +127,25 @@ class Staff(o.Operand):
             case Staff():               return self.copy()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_staff: 'Staff') -> bool:
-        other_staff = self & other_staff    # Processes the tailed self operands or the Frame operand if any exists
-        if other_staff.__class__ == o.Operand:
+    def __eq__(self, other: 'Staff') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        if type(self) != type(other_staff):
+        if type(self) != type(other):
             return False
-        return  self._measure           == other_staff % od.DataSource( ra.Measure() ) \
-            and self._tempo             == other_staff % od.DataSource( ra.Tempo() ) \
-            and self._time_signature    == other_staff % od.DataSource( og.TimeSignature() ) \
-            and self._key_signature     == other_staff % od.DataSource( ou.KeySignature() ) \
-            and self._key               == other_staff % od.DataSource( ou.Key() ) \
-            and self._scale             == other_staff % od.DataSource( og.Scale() ) \
-            and self._quantization      == other_staff % od.DataSource( ra.Quantization() ) \
-            and self._duration          == other_staff % od.DataSource( ot.Duration() ) \
-            and self._octave            == other_staff % od.DataSource( ou.Octave() ) \
-            and self._velocity          == other_staff % od.DataSource( ou.Velocity() ) \
-            and self._controller        == other_staff % od.DataSource( og.Controller() ) \
-            and self._channel           == other_staff % od.DataSource( ou.Channel() ) \
-            and self._device            == other_staff % od.DataSource( od.Device() )
+        return  self._measure           == other % od.DataSource( ra.Measure() ) \
+            and self._tempo             == other % od.DataSource( ra.Tempo() ) \
+            and self._time_signature    == other % od.DataSource( og.TimeSignature() ) \
+            and self._key_signature     == other % od.DataSource( ou.KeySignature() ) \
+            and self._key               == other % od.DataSource( ou.Key() ) \
+            and self._scale             == other % od.DataSource( og.Scale() ) \
+            and self._quantization      == other % od.DataSource( ra.Quantization() ) \
+            and self._duration          == other % od.DataSource( ot.Duration() ) \
+            and self._octave            == other % od.DataSource( ou.Octave() ) \
+            and self._velocity          == other % od.DataSource( ou.Velocity() ) \
+            and self._controller        == other % od.DataSource( og.Controller() ) \
+            and self._channel           == other % od.DataSource( ou.Channel() ) \
+            and self._device            == other % od.DataSource( od.Device() )
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
