@@ -67,6 +67,7 @@ class Track(Generic):
             if entered_name == self._name or entered_name == "":
                 # This is a new Track
                 staff_tracks[self._name] = self # adds self as Track to the staff
+                print(f"Created a new Track named '{self._name}'!")
             else:
                 # This is NOT a new Track, instead it's asking for the one with the respective name
                 self << staff_tracks["Staff"]
@@ -76,6 +77,7 @@ class Track(Generic):
         else:
             # This is the new Staff Track
             staff_tracks[self._name] = self # adds self as Track to the staff
+            print(f"Created the default Staff Track!")
         self._staff_source: Track       = staff_tracks[self._name]
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
