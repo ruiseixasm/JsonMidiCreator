@@ -409,34 +409,7 @@ class RightShift(SideEffects):
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
-        super().__init__()
-        self._device_list = os.staff._device % list() if device_list is None else device_list
-
-    def __mod__(self, operand: any) -> any:
-        match operand:
-            case DataSource():
-                match operand % o.Operand():
-                    case list():                return self._device_list
-                    case _:                     return super().__mod__(operand)
-            case list():                return self._device_list.copy()
-            case _:                     return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Device':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case DataSource():
-                match operand % o.Operand():
-                    case list():            self._device_list = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
-            case Device():
-                super().__lshift__(operand)
-                self._device_list = operand._device_list.copy()
-            case list():
-                self._device_list = operand.copy()
-            case _: super().__lshift__(operand)
-        return self
+        super().__init__( os.staff._device % list() if device_list is None else device_list )
 
 class DataMany(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
