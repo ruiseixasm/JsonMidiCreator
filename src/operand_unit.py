@@ -1139,6 +1139,18 @@ class MidiTrack(Midi):
             case od.Device():           return self._device.copy()
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other: o.Operand) -> bool:
+        import operand_generic as og
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._name      == other % od.DataSource( str() ) \
+                    and self._channel   == other % od.DataSource( Channel() ) \
+                    and self._device    == other % od.DataSource( od.Device() )
+            case _:
+                return super().__eq__(other)
+    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["name"]     = self.serialize(self._name)
