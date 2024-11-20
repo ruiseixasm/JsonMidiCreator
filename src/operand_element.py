@@ -465,10 +465,10 @@ class Rest(Element):
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
 
-class Note(Rest):
+class Note(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._pitch: og.Pitch  = og.Pitch()
+        self._pitch: og.Pitch       = og.Pitch()
         self._velocity: ou.Velocity = os.staff % ou.Velocity()
         self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
@@ -509,10 +509,10 @@ class Note(Rest):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pitch == other % od.DataSource( og.Pitch() ) \
-                    and self._velocity == other % od.DataSource( ou.Velocity() ) \
-                    and self._gate == other % od.DataSource( ra.Gate() ) \
-                    and self._tied == other % od.DataSource( ou.Tied() )
+                    and self._pitch     == other % od.DataSource( og.Pitch() ) \
+                    and self._velocity  == other % od.DataSource( ou.Velocity() ) \
+                    and self._gate      == other % od.DataSource( ra.Gate() ) \
+                    and self._tied      == other % od.DataSource( ou.Tied() )
             case _:
                 return super().__eq__(other)
     
@@ -633,7 +633,6 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure length
-        # self._pitch._key._scale  << "Major"
         self._self_scale: og.Scale  = og.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters
