@@ -13,6 +13,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+from functools import cache
 from typing import TypeVar, TYPE_CHECKING
 from fractions import Fraction
 
@@ -24,7 +25,22 @@ T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
 
 # GLOBAL FUNCTIONS
 
+@cache  # Important decorator to avoid repeated searches (class names are static, never change)
 def find_class_by_name(root_class, name: str):
+    """
+    Recursively searches for a class with a given name in the hierarchy 
+    starting from the root_class.
+
+    Args:
+        root_class: The starting class for the search.
+        name (str): The name of the class to search for.
+
+    Returns:
+        The class if found, otherwise None.
+    """
+    if not isinstance(root_class, type):
+        raise TypeError("root_class must be a class.")
+
     # Check if the current class matches the name (class NOT an object)
     if root_class.__name__ == name:
         return root_class
