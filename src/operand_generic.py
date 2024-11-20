@@ -39,11 +39,62 @@ class Track(Generic):
 
     def __init__(self, *parameters):
         super().__init__()
-        self._track_id: int = Track._next_track_id
+        self._track_id: int             = Track._next_track_id
         Track._next_track_id += 1
-        self._name: str         = None
+        self._name: str                 = "Unnamed"
+        self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         if len(parameters) > 0:
             self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     return self._name
+                    case ou.Channel():              return self._midi_track._channel
+                    case od.Device():               return self._midi_track._device
+                    case _:                         return super().__mod__(operand)
+            case str():                 return self._name
+            case ou.Channel():          return self._midi_track._channel.copy()
+            case od.Device():           return self._midi_track._device.copy()
+            case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["name"]         = self.serialize(self._name)
+        serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Track':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "name" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._name      = self.deserialize(serialization["parameters"]["name"])
+            self._channel   = self.deserialize(serialization["parameters"]["channel"])
+            self._device    = self.deserialize(serialization["parameters"]["device"])
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'Track':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._name = operand % o.Operand()
+                    case ou.MidiTrack():            self._midi_track = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case Track():
+                super().__lshift__(operand)
+                self._name          = operand._name
+                self._midi_track    << operand._midi_track
+            case str():             self._name = operand
+            case ou.MidiTrack():    self._midi_track << operand
+            case ou.Channel():      self._midi_track._channel << operand
+            case od.Device():       self._midi_track._device << operand
+            case _:                 super().__lshift__(operand)
+        return self
 
 class TimeSignature(Generic):
     def __init__(self, top: int = 4, bottom: int = 4):

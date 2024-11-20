@@ -45,7 +45,7 @@ class Staff(o.Operand):
                                                         << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
-        self._track: og.Track                       = og.Track("Default")
+        self._track: og.Track                       # Can't be set at this moment (set below at the end)
         if len(parameters) > 0:
             self << parameters
 
@@ -309,3 +309,4 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
+staff._track = og.Track("Default")

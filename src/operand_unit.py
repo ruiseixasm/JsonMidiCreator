@@ -461,6 +461,20 @@ class Key(Unit):
                     return float(self % int())
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other: o.Operand) -> bool:
+        import operand_generic as og
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._sharp     == other % od.DataSource( Sharp() ) \
+                    and self._flat      == other % od.DataSource( Flat() ) \
+                    and self._natural   == other % od.DataSource( Natural() ) \
+                    and self._degree    == other % od.DataSource( Degree() ) \
+                    and self._scale     == other % od.DataSource( og.Scale() )
+            case _:
+                return super().__eq__(other)
+    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["sharp"]    = self._sharp._unit
@@ -1156,8 +1170,8 @@ class MidiTrack(Midi):
             case MidiTrack():
                 super().__lshift__(operand)
                 self._name          = operand._name
-                self._channel       = operand._channel
-                self._device        = operand._device
+                self._channel       << operand._channel
+                self._device        << operand._device
             case str():             self._name = operand
             case Channel():         self._channel << operand
             case od.Device():       self._device << operand
