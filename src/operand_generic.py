@@ -42,11 +42,12 @@ class Track(Generic):
         import time
         super().__init__()
         self._name: str         = ""
-        seed_value: int         = int(time.time() * 1000) % 100
-        chaos_sinx: ch.Chaos    = ch.SinX()
-        for _ in range(5):  # randomly generated 5 chars name [a-z]
-            ascii_char: int = 97 + chaos_sinx * seed_value % int() % 26
+        seed_value: int         = int(time.time() * 1000000) % 100
+        chaos_sinx: ch.Chaos    = ch.SinX() * seed_value
+        for _ in range(4):  # randomly generated 4 chars name [a-z]
+            ascii_char: int = 97 + chaos_sinx * 1 % int() % 26
             self._name += chr(ascii_char)
+        print(self._name)
 
         self._track_id: int             = Track._next_track_id
         Track._next_track_id += 1
