@@ -23,6 +23,7 @@ import operand_data as od
 import operand_generic as og
 import operand_frame as of
 import operand_label as ol
+import operand_chaos as ch
 
 
 class Staff(o.Operand):

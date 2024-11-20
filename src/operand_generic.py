@@ -28,6 +28,7 @@ import operand_rational as ra
 import operand_data as od
 import operand_frame as of
 import operand_label as ol
+import operand_chaos as ch
 
 
 class Generic(o.Operand):
@@ -38,10 +39,17 @@ class Track(Generic):
     _next_track_id: int  = 0 # This is the unit ultimate value
 
     def __init__(self, *parameters):
+        import time
         super().__init__()
+        self._name: str         = ""
+        seed_value: int         = int(time.time() * 1000) % 100
+        chaos_sinx: ch.Chaos    = ch.SinX()
+        for _ in range(5):  # randomly generated 5 chars name [a-z]
+            ascii_char: int = 97 + chaos_sinx * seed_value % int() % 26
+            self._name += chr(ascii_char)
+
         self._track_id: int             = Track._next_track_id
         Track._next_track_id += 1
-        self._name: str                 = "Unnamed"
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         if len(parameters) > 0:
             self << parameters
