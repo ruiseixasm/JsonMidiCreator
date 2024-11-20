@@ -14,6 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from fractions import Fraction
+import time
 # Json Midi Creator Libraries
 import operand as o
 import operand_unit as ou
@@ -46,6 +47,7 @@ class Staff(o.Operand):
                                                         << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
+        self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 1000000) % 1000)
         self._track: og.Track                       # Can't be set at this moment (set below at the end)
         if len(parameters) > 0:
             self << parameters
@@ -106,6 +108,7 @@ class Staff(o.Operand):
                     case og.Controller():       return self._controller
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
+                    case ch.Chaos():            return self._chaos
                     case og.Track():            return self._track
                     # Calculated Values
                     case ra.NotesPerMeasure():
@@ -141,6 +144,7 @@ class Staff(o.Operand):
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
+            case ch.Chaos():            return self._chaos.copy()
             case og.Track():            return self._track  # DOES NO COPY ON PURPOSE !!
             # Calculated Values
             case ra.NotesPerMeasure():
@@ -172,6 +176,7 @@ class Staff(o.Operand):
             and self._controller        == other % od.DataSource( og.Controller() ) \
             and self._channel           == other % od.DataSource( ou.Channel() ) \
             and self._device            == other % od.DataSource( od.Device() ) \
+            and self._chaos             == other % od.DataSource( ch.Chaos() ) \
             and self._track             == other % od.DataSource( og.Track() )
     
     def getSerialization(self) -> dict:
@@ -189,6 +194,7 @@ class Staff(o.Operand):
         serialization["parameters"]["controller"]       = self._controller.getSerialization()
         serialization["parameters"]["channel"]          = self._channel % od.DataSource( int() )
         serialization["parameters"]["device"]           = self._device % od.DataSource( list() )
+        serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
         serialization["parameters"]["track"]            = self.serialize(self._track)
         return serialization
 
@@ -200,7 +206,8 @@ class Staff(o.Operand):
             "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"] and
             "scale" in serialization["parameters"] and "duration" in serialization["parameters"] and "key" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "device" in serialization["parameters"] and "track" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
+            "chaos" in serialization["parameters"] and "track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._measures          = ra.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
@@ -216,6 +223,7 @@ class Staff(o.Operand):
             self._controller        = og.Controller().loadSerialization(serialization["parameters"]["controller"])
             self._channel           = ou.Channel()          << od.DataSource( serialization["parameters"]["channel"] )
             self._device            = od.Device()           << od.DataSource( serialization["parameters"]["device"] )
+            self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
             self._track             = self.deserialize( serialization["parameters"]["track"] )
             self.set_tonic_key()
         return self
@@ -246,6 +254,7 @@ class Staff(o.Operand):
                     case og.Controller():       self._controller = operand % o.Operand()
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
+                    case ch.Chaos():            self._chaos = operand % o.Operand()
                     case og.Track():            self._track = operand % o.Operand()
             case Staff():
                 super().__lshift__(operand)
@@ -262,6 +271,7 @@ class Staff(o.Operand):
                 self._controller        << operand._controller
                 self._channel           << operand._channel
                 self._device            << operand._device
+                self._chaos             << operand._chaos
                 self._track             << operand._track
                 self.set_tonic_key()
             case od.Serialization():
@@ -287,6 +297,7 @@ class Staff(o.Operand):
                                         self._controller << operand
             case ou.Channel():          self._channel << operand
             case od.Device():           self._device << operand
+            case ch.Chaos():            self._chaos << operand
             case og.Track():            self._track << operand
             # Calculated Values
             case ra.StepsPerMeasure():

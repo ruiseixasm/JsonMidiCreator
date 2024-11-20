@@ -39,13 +39,11 @@ class Track(Generic):
     _next_track_id: int  = 0 # This is the unit ultimate value
 
     def __init__(self, *parameters):
-        import time
         super().__init__()
         self._name: str         = ""
-        seed_value: int         = int(time.time() * 1000000) % 100
-        chaos_sinx: ch.Chaos    = ch.SinX() * seed_value
-        for _ in range(4):  # randomly generated 4 chars name [a-z]
-            ascii_char: int = 97 + chaos_sinx * 1 % int() % 26
+        staff_chaos: ch.Chaos   = os.staff % od.DataSource( ch.Chaos() )
+        for _ in range(3):  # randomly generated 3 chars name [a-z]
+            ascii_char: int = 97 + staff_chaos * 1 % int() % 26
             self._name += chr(ascii_char)
         print(self._name)
 
