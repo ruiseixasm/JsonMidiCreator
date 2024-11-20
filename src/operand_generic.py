@@ -134,7 +134,7 @@ class Track(Generic):
                             if not operand % o.Operand() in staff_tracks:
                                 # Rename "old_key" to "new_key"
                                 staff_tracks[operand % o.Operand()] = staff_tracks.pop(self._name)
-                                self._name = operand % o.Operand()
+                                self._staff_source._name = operand % o.Operand()
                             else:
                                 print(f"Track named '{operand % o.Operand()}' already exists!")
                         else:
