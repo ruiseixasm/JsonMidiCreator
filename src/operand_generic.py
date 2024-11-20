@@ -98,7 +98,7 @@ class Track(Generic):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._staff_source == other._staff_source
+                    and self._staff_source is other._staff_source   # is instead of ==
             case _:
                 return super().__eq__(other)
     
