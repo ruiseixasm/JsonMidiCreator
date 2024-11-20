@@ -46,7 +46,8 @@ class Rational(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._rational: Fraction = Fraction(0).limit_denominator()
+        self._limit_denominator: int = 100000
+        self._rational: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         if len(parameters) > 0:
             self << parameters
 
@@ -92,7 +93,10 @@ class Rational(o.Operand):
             case Rational() | ou.Unit():
                 return self._rational == other % od.DataSource( Fraction() )
             case int() | float():
-                other = Fraction( other ).limit_denominator()
+                if self._limit_denominator > 0:
+                    other = Fraction( other ).limit_denominator(self._limit_denominator)
+                else:
+                    other = Fraction( other )
                 return self._rational == other
             case _:
                 if other.__class__ == o.Operand:
@@ -105,7 +109,10 @@ class Rational(o.Operand):
             case Rational() | ou.Unit():
                 return self._rational < other % od.DataSource( Fraction() )
             case int() | float():
-                other = Fraction( other ).limit_denominator()
+                if self._limit_denominator > 0:
+                    other = Fraction( other ).limit_denominator(self._limit_denominator)
+                else:
+                    other = Fraction( other )
                 return self._rational < other
         return False
     
@@ -115,7 +122,10 @@ class Rational(o.Operand):
             case Rational() | ou.Unit():
                 return self._rational > other % od.DataSource( Fraction() )
             case int() | float():
-                other = Fraction( other ).limit_denominator()
+                if self._limit_denominator > 0:
+                    other = Fraction( other ).limit_denominator(self._limit_denominator)
+                else:
+                    other = Fraction( other )
                 return self._rational > other
         return False
     
@@ -141,7 +151,10 @@ class Rational(o.Operand):
             "fraction" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._rational = Fraction(serialization["parameters"]["fraction"]).limit_denominator()
+            if self._limit_denominator > 0:
+                self._rational = Fraction(serialization["parameters"]["fraction"]).limit_denominator(self._limit_denominator)
+            else:
+                self._rational = Fraction(serialization["parameters"]["fraction"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Rational':
@@ -150,7 +163,11 @@ class Rational(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case Fraction():                self._rational = operand % o.Operand()
-                    case float() | int() | str():   self._rational = Fraction(operand % o.Operand()).limit_denominator()
+                    case float() | int() | str():
+                        if self._limit_denominator > 0:
+                            self._rational = Fraction(operand % o.Operand()).limit_denominator(self._limit_denominator)
+                        else:
+                            self._rational = Fraction(operand % o.Operand())
                     case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():
                 super().__lshift__(operand)
@@ -158,7 +175,7 @@ class Rational(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
-            case float() | int() | str():   self._rational = Fraction(operand).limit_denominator()
+            case float() | int() | str():   self << od.DataSource( operand )
             case ou.Integer():              self._rational = operand % Fraction()
             case tuple():
                 for single_operand in operand:
@@ -171,7 +188,8 @@ class Rational(o.Operand):
             case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
-            case float() | int():   return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
+            case float() | int():
+                return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
         return self.copy()
     
     def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -180,7 +198,8 @@ class Rational(o.Operand):
             case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
-            case float() | int():   return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
+            case float() | int():
+                return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
         return self.copy()
     
     def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -189,7 +208,8 @@ class Rational(o.Operand):
             case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
-            case float() | int():   return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
+            case float() | int():
+                return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
         return self.copy()
     
     def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -206,45 +226,49 @@ class Rational(o.Operand):
         return self.copy()
 
 class Float(Rational):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._limit_denominator = 0
+        if len(parameters) > 0:
+            self << parameters
+
+class Index(Float):
     pass
 
-class Index(Rational):
+class Split(Float):
     pass
 
-class Split(Rational):
+class Width(Float):
     pass
 
-class Width(Rational):
+class Height(Float):
     pass
 
-class Height(Rational):
+class X(Float):
     pass
 
-class X(Rational):
+class Y(Float):
     pass
 
-class Y(Rational):
+class Z(Float):
     pass
 
-class Z(Rational):
+class dX(Float):
     pass
 
-class dX(Rational):
+class dY(Float):
     pass
 
-class dY(Rational):
+class dZ(Float):
     pass
 
-class dZ(Rational):
+class X0(Float):
     pass
 
-class X0(Rational):
+class Xn(Float):
     pass
 
-class Xn(Rational):
-    pass
-
-class Lambda(Rational):
+class Lambda(Float):
     pass
 
 class Negative(Rational):

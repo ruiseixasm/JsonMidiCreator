@@ -40,16 +40,17 @@ class Track(Generic):
 
     def __init__(self, *parameters):
         super().__init__()
-        self._name: str         = ""
+        self._name: str         = "Staff"
         staff_chaos: ch.Chaos   = os.staff % od.DataSource( ch.Chaos() )
-        for _ in range(3):  # randomly generated 3 chars name [a-z]
-            ascii_char: int = 97 + staff_chaos * 1 % int() % 26
-            self._name += chr(ascii_char)
-        # if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
-        #     o.logging.info(f"Generated name is: {self._name}")
-
-        self._track_id: int             = Track._next_track_id
-        Track._next_track_id += 1
+        staff_tracks: dict      = os.staff % od.DataSource( dict() )
+        while self._name in staff_tracks:
+            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and self._name != "Staff":
+                o.logging.info(f"Track name {self._name} is already taken in a total of {len(staff_tracks)} tracks!")
+            self._name = ""
+            for _ in range(5):  # randomly generated 5 chars name [a-z]
+                ascii_char: int = 97 + staff_chaos * 1 % int() % 26
+                self._name += chr(ascii_char)
+        staff_tracks[self._name] = self    # adds self as Track to the staff
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         if len(parameters) > 0:
             self << parameters
@@ -99,14 +100,22 @@ class Track(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self._name = operand % o.Operand()
+                    case str():
+                        staff_tracks: dict      = os.staff % od.DataSource( dict() )
+                        if not operand % o.Operand() in staff_tracks:
+                            # Rename "old_key" to "new_key"
+                            staff_tracks[operand % o.Operand()] = staff_tracks.pop(self._name)
+                            self._name = operand % o.Operand()
+                        else:
+                            print(f"Track named {operand % o.Operand()} already existent!")
                     case ou.MidiTrack():            self._midi_track = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Track():
                 super().__lshift__(operand)
-                self._name          = operand._name
+                # DON'T DO THIS, TRACKS NAMES ARE AUTO GENERATED !!
+                # self._name          = operand._name
                 self._midi_track    << operand._midi_track
-            case str():             self._name = operand
+            case str():             self << od.DataSource( operand )
             case ou.MidiTrack():    self._midi_track << operand
             case ou.Channel():      self._midi_track._channel << operand
             case od.Device():       self._midi_track._device << operand

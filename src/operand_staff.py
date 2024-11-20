@@ -47,8 +47,9 @@ class Staff(o.Operand):
                                                         << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
-        self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 1000000) % 1000)
-        self._track: og.Track                       # Can't be set at this moment (set below at the end)
+        self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 10000) % 1000)
+        self._chaos << ra.Lambda( self._chaos % ra.Lambda() + self._chaos % float() )   # Lambda is the SinX chaotic blueprint !!
+        self._tracks: dict                          = {}    # where the multiple tracks will be saved
         if len(parameters) > 0:
             self << parameters
 
@@ -109,7 +110,7 @@ class Staff(o.Operand):
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
                     case ch.Chaos():            return self._chaos
-                    case og.Track():            return self._track
+                    case dict():                return self._tracks
                     # Calculated Values
                     case ra.NotesPerMeasure():
                         return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
@@ -145,7 +146,10 @@ class Staff(o.Operand):
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
             case ch.Chaos():            return self._chaos.copy()
-            case og.Track():            return self._track  # DOES NO COPY ON PURPOSE !!
+            case str():
+                if operand in self._tracks:
+                    return self._tracks[operand]    # Tracks are identified by name (str)
+                return None
             # Calculated Values
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
@@ -177,7 +181,7 @@ class Staff(o.Operand):
             and self._channel           == other % od.DataSource( ou.Channel() ) \
             and self._device            == other % od.DataSource( od.Device() ) \
             and self._chaos             == other % od.DataSource( ch.Chaos() ) \
-            and self._track             == other % od.DataSource( og.Track() )
+            and self._tracks            == other % od.DataSource( dict() )
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -195,7 +199,7 @@ class Staff(o.Operand):
         serialization["parameters"]["channel"]          = self._channel % od.DataSource( int() )
         serialization["parameters"]["device"]           = self._device % od.DataSource( list() )
         serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
-        serialization["parameters"]["track"]            = self.serialize(self._track)
+        serialization["parameters"]["tracks"]           = self.serialize(self._tracks)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -207,7 +211,7 @@ class Staff(o.Operand):
             "scale" in serialization["parameters"] and "duration" in serialization["parameters"] and "key" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
-            "chaos" in serialization["parameters"] and "track" in serialization["parameters"]):
+            "chaos" in serialization["parameters"] and "tracks" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._measures          = ra.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
@@ -224,7 +228,7 @@ class Staff(o.Operand):
             self._channel           = ou.Channel()          << od.DataSource( serialization["parameters"]["channel"] )
             self._device            = od.Device()           << od.DataSource( serialization["parameters"]["device"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
-            self._track             = self.deserialize( serialization["parameters"]["track"] )
+            self._tracks            = self.deserialize( serialization["parameters"]["tracks"] )
             self.set_tonic_key()
         return self
     
@@ -298,7 +302,7 @@ class Staff(o.Operand):
             case ou.Channel():          self._channel << operand
             case od.Device():           self._device << operand
             case ch.Chaos():            self._chaos << operand
-            case og.Track():            self._track << operand
+            case og.Track():            self._tracks[operand % str()] = operand
             # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = ra.Quantization( (self % ra.NotesPerMeasure()) / (operand % Fraction()) )
@@ -321,4 +325,4 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
-staff._track = og.Track("Default")
+og.Track("Staff")   # Adds itself to the staff automatically

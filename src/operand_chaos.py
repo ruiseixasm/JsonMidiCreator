@@ -433,7 +433,7 @@ class SinX(Chaos):
         super().__init__()
         self._xn                        << 2
         self._x0                        << self._xn
-        self._lambda: ra.Lambda         = ra.Lambda(8)
+        self._lambda: ra.Lambda         = ra.Lambda(77.238537) # Can't be an integer in order to be truly chaotic !!
         if len(parameters) > 0:
             self << parameters
 
