@@ -21,6 +21,21 @@ if TYPE_CHECKING:
 
 T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
 
+# GLOBAL FUNCTIONS
+
+def find_class_by_name(root_class, name: str):
+    # Check if the current class matches the name (class NOT an object)
+    if root_class.__name__ == name:
+        return root_class
+    
+    # Recursively search in all subclasses (classes NOT objects)
+    for subclass in root_class.__subclasses__():
+        result = find_class_by_name(subclass, name)
+        if result: return result
+    
+    # If no matching subclass is found, return None
+    return None
+
 
 class Operand:
     def __init__(self):
@@ -149,7 +164,7 @@ class Operand:
                 return serialization
             if "class" in serialization and "parameters" in serialization:
                 operand_name = serialization["class"]
-                operand_class = Operand.find_class_by_name(Operand, operand_name)    # Static heavy duty call
+                operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
                 if operand_class:
                     operand_instance: Operand = operand_class()
                     if operand_class == Operand:    # avoids infinite recursion
@@ -303,21 +318,7 @@ class Operand:
         self & operand  # Processes the tailed self operands or the Frame operand if any exists
         return self
 
-    # STATIC FUNCTIONS
-
-    @staticmethod
-    def find_class_by_name(root_class, name: str):
-        # Check if the current class matches the name (class NOT an object)
-        if root_class.__name__ == name:
-            return root_class
-        
-        # Recursively search in all subclasses (classes NOT objects)
-        for subclass in root_class.__subclasses__():
-            result = __class__.find_class_by_name(subclass, name)
-            if result: return result
-        
-        # If no matching subclass is found, return None
-        return None
+    # STATIC METHODS
 
     @staticmethod
     def serialize(data: any) -> any:
