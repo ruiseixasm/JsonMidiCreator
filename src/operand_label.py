@@ -26,7 +26,9 @@ import operand_frame as of
 
 
 class Label(o.Operand):
-    pass
+    # By default a Label has no copies as it caries no data
+    def copy(self: T, *parameters) -> T:
+        return self
 
 class Null(Label):
     pass
@@ -49,7 +51,7 @@ class LSB(MidiValue):
     """
     pass
 
-class Process(Label):
+class DataLabel(Label):
     def __init__(self, parameter: any = 0):
         super().__init__()
         self._parameter: any = parameter
@@ -61,13 +63,26 @@ class Process(Label):
                 match operand % o.Operand():
                     case _:                 return self._parameter               
                     # case _:                 return ol.Null()
-            case Process():         return self.copy()
+            case DataLabel():         return self.copy()
             case _:
                 if isinstance(self._parameter, o.Operand):
                     return self._parameter.copy()
                 return self._parameter
                 # return super().__mod__(operand)
 
+    def __eq__(self, operand: 'DataLabel') -> bool:
+        if isinstance(operand, DataLabel):
+            return operand._parameter == self._parameter
+        return False
+    
+    def copy(self: T, *parameters) -> T:
+        self_copy: T = type(self)()
+        self_copy._parameter = self._parameter
+        return self_copy
+
+class Process(DataLabel):
+    pass
+    
 class Save(Process):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
@@ -287,10 +302,8 @@ class Link(Process):
 if TYPE_CHECKING:
     from operand_container import Container
 
-class Getter(Label):
-    def __init__(self, parameter: int = 0):
-        super().__init__()
-        self._parameter: int = parameter
+class Getter(DataLabel):
+    pass
 
 class Len(Getter):
     def get(self, operand: o.Operand) -> o.Operand:

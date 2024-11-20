@@ -196,7 +196,7 @@ class Element(o.Operand):
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
-                # self._duration      << operand._duration  # resulting in a bug!!
+                self._duration      << operand._duration
                 self._length        << operand._length
                 self._channel       << operand._channel
                 self._device        << operand._device
