@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, TYPE_CHECKING, TypeVar
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
