@@ -13,9 +13,12 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+import logging
 from functools import cache
 from typing import TypeVar, TYPE_CHECKING
 from fractions import Fraction
+
+logging.basicConfig(level=logging.WARNING)
 
 if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
@@ -197,6 +200,8 @@ class Operand:
                     # if isinstance(operand_instance, ol.Label):
                     #     return operand_instance         # avoids infinite recursion
                     return operand_instance.loadSerialization(serialization)
+                else:
+                    logging.warning("Find class didn't found any class!")
             return None # Unable to recreate any Operand object from serialization !!
         elif isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "next_operand" in serialization["parameters"] and "initiated" in serialization["parameters"] and
@@ -223,6 +228,8 @@ class Operand:
 
     def copy(self: T, *parameters) -> T:
         self_copy: T = type(self)() << self
+        if not self_copy == self:
+            logging.error(f"Copied object {self.__class__.__name__} not identical!")
         for single_parameter in parameters: # Safe for Data class
             self_copy << single_parameter
         # !! DON'T DO THIS !!
