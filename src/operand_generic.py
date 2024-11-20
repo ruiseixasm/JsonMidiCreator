@@ -45,7 +45,8 @@ class Track(Generic):
         for _ in range(3):  # randomly generated 3 chars name [a-z]
             ascii_char: int = 97 + staff_chaos * 1 % int() % 26
             self._name += chr(ascii_char)
-        print(self._name)
+        if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
+            o.logging.info(f"Generated name is: {self._name}")
 
         self._track_id: int             = Track._next_track_id
         Track._next_track_id += 1
