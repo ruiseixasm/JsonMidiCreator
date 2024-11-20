@@ -81,48 +81,48 @@ class Element(o.Operand):
             case od.End():          return self.end()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: 'o.Operand') -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return  self._position  == other_operand % od.DataSource( ot.Position() ) \
-                    and self._duration  == other_operand % od.DataSource( ot.Duration() ) \
-                    and self._length    == other_operand % od.DataSource( ot.Length() ) \
-                    and self._channel   == other_operand % od.DataSource( ou.Channel() ) \
-                    and self._device    == other_operand % od.DataSource( od.Device() ) \
-                    and self._track     == other_operand % od.DataSource( ou.MidiTrack() )
+                return  self._position  == other % od.DataSource( ot.Position() ) \
+                    and self._duration  == other % od.DataSource( ot.Duration() ) \
+                    and self._length    == other % od.DataSource( ot.Length() ) \
+                    and self._channel   == other % od.DataSource( ou.Channel() ) \
+                    and self._device    == other % od.DataSource( od.Device() ) \
+                    and self._track     == other % od.DataSource( ou.MidiTrack() )
             case ra.TimeUnit():
-                return self._position == other_operand
+                return self._position == other
             case _:
-                if other_operand.__class__ == o.Operand:
+                if other.__class__ == o.Operand:
                     return True
-                return self % od.DataSource( other_operand ) == other_operand
+                return self % od.DataSource( other ) == other
 
-    def __lt__(self, other_operand: 'o.Operand') -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
                 return  False
             case ra.TimeUnit():
-                return self._position < other_operand
+                return self._position < other
             case _:
-                return self % od.DataSource( other_operand ) < other_operand
+                return self % od.DataSource( other ) < other
     
-    def __gt__(self, other_operand: 'o.Operand') -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
                 return  False
             case ra.TimeUnit():
-                return self._position > other_operand
+                return self._position > other
             case _:
-                return self % od.DataSource( other_operand ) > other_operand
+                return self % od.DataSource( other ) > other
     
-    def __le__(self, other_operand: 'o.Operand') -> bool:
-        return self == other_operand or self < other_operand
+    def __le__(self, other: 'o.Operand') -> bool:
+        return self == other or self < other
     
-    def __ge__(self, other_operand: 'o.Operand') -> bool:
-        return self == other_operand or self > other_operand
+    def __ge__(self, other: 'o.Operand') -> bool:
+        return self == other or self > other
 
     def start(self) -> ot.Position:
         return self._position.copy()
@@ -324,15 +324,15 @@ class Clock(Element):
             case ou.PPQN():     return self._pulses_per_quarternote.copy()
             case _:             return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._duration == other_operand % od.DataSource( ot.Duration() ) \
-                    and self._pulses_per_quarternote == other_operand % od.DataSource( ou.PPQN() )
+                return super().__eq__(other) \
+                    and self._duration == other % od.DataSource( ot.Duration() ) \
+                    and self._pulses_per_quarternote == other % od.DataSource( ou.PPQN() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -449,32 +449,32 @@ class Rest(Element):
             case ot.Duration():     return self._duration.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._duration == other_operand % od.DataSource( ot.Duration() )
+                return super().__eq__(other) \
+                    and self._duration == other % od.DataSource( ot.Duration() )
             case ra.NoteValue():
-                return self._duration == other_operand
+                return self._duration == other
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
-    def __lt__(self, other_operand: 'o.Operand') -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case ra.NoteValue():
-                return self._duration < other_operand
+                return self._duration < other
             case _:
-                return super().__lt__(other_operand)
+                return super().__lt__(other)
     
-    def __gt__(self, other_operand: 'o.Operand') -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case ra.NoteValue():
-                return self._duration > other_operand
+                return self._duration > other
             case _:
-                return super().__gt__(other_operand)
+                return super().__gt__(other)
 
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -580,17 +580,17 @@ class Note(Rest):
             case ou.Tied():         return self._tied.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._pitch == other_operand % od.DataSource( og.Pitch() ) \
-                    and self._velocity == other_operand % od.DataSource( ou.Velocity() ) \
-                    and self._gate == other_operand % od.DataSource( ra.Gate() ) \
-                    and self._tied == other_operand % od.DataSource( ou.Tied() )
+                return super().__eq__(other) \
+                    and self._pitch == other % od.DataSource( og.Pitch() ) \
+                    and self._velocity == other % od.DataSource( ou.Velocity() ) \
+                    and self._gate == other % od.DataSource( ra.Gate() ) \
+                    and self._tied == other % od.DataSource( ou.Tied() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -742,14 +742,14 @@ class KeyScale(Note):
                                     return self._self_scale % operand
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._self_scale == other_operand._self_scale
+                return super().__eq__(other) \
+                    and self._self_scale == other._self_scale
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
             
     def get_scale_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
@@ -853,20 +853,20 @@ class Chord(KeyScale):
             case ou.Sus4():         return self._sus4.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._size          == other_operand % od.DataSource( ou.Size() ) \
-                    and self._inversion     == other_operand % od.DataSource( ou.Inversion() ) \
-                    and self._dominant      == other_operand % od.DataSource( ou.Dominant() ) \
-                    and self._diminished    == other_operand % od.DataSource( ou.Diminished() ) \
-                    and self._augmented     == other_operand % od.DataSource( ou.Augmented() ) \
-                    and self._sus2          == other_operand % od.DataSource( ou.Sus2() ) \
-                    and self._sus4          == other_operand % od.DataSource( ou.Sus4() )
+                return super().__eq__(other) \
+                    and self._size          == other % od.DataSource( ou.Size() ) \
+                    and self._inversion     == other % od.DataSource( ou.Inversion() ) \
+                    and self._dominant      == other % od.DataSource( ou.Dominant() ) \
+                    and self._diminished    == other % od.DataSource( ou.Diminished() ) \
+                    and self._augmented     == other % od.DataSource( ou.Augmented() ) \
+                    and self._sus2          == other % od.DataSource( ou.Sus2() ) \
+                    and self._sus4          == other % od.DataSource( ou.Sus4() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def get_chord_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
@@ -1216,15 +1216,15 @@ class Tuplet(Rest):
             case list():            return self.deep_copy(self._elements)
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._swing     == other_operand % od.DataSource( ra.Swing() ) \
-                    and self._elements  == other_operand % od.DataSource( list() )
+                return super().__eq__(other) \
+                    and self._swing     == other % od.DataSource( ra.Swing() ) \
+                    and self._elements  == other % od.DataSource( list() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def get_tuplet_elements(self) -> list[Element]:
         tuplet_elements: list[Element] = []
@@ -1359,14 +1359,14 @@ class ControlChange(Element):
             case int() | float():       return self._controller % operand
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._controller == other_operand % od.DataSource( og.Controller() )
+                return super().__eq__(other) \
+                    and self._controller == other % od.DataSource( og.Controller() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -1472,14 +1472,14 @@ class PitchBend(Element):
             case int() | float():   return self._bend % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._bend == other_operand % od.DataSource( ou.Bend() )
+                return super().__eq__(other) \
+                    and self._bend == other % od.DataSource( ou.Bend() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -1584,14 +1584,14 @@ class Aftertouch(Element):
             case int() | float():   return self._pressure % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._pressure == other_operand % od.DataSource( ou.Pressure() )
+                return super().__eq__(other) \
+                    and self._pressure == other % od.DataSource( ou.Pressure() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -1696,14 +1696,14 @@ class PolyAftertouch(Aftertouch):
             case ou.Octave():   return self._pitch % ou.Octave()
             case _:             return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._pitch == other_operand % od.DataSource( og.Pitch() )
+                return super().__eq__(other) \
+                    and self._pitch == other % od.DataSource( og.Pitch() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
@@ -1784,14 +1784,14 @@ class ProgramChange(Element):
             case int() | float():   return self._program % od.DataSource( int() )
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operand: o.Operand) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
-        match other_operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case self.__class__():
-                return super().__eq__(other_operand) \
-                    and self._program == other_operand % od.DataSource( ou.Program() )
+                return super().__eq__(other) \
+                    and self._program == other % od.DataSource( ou.Program() )
             case _:
-                return super().__eq__(other_operand)
+                return super().__eq__(other)
     
     def getPlaylist(self, position: ot.Position = None) -> list:
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
