@@ -1089,7 +1089,7 @@ class Note3(Retrigger):
             case _:                 super().__lshift__(operand)
         return self
 
-class Tuplet(Rest):
+class Tuplet(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration *= 2 # Equivalent to twice single note duration
