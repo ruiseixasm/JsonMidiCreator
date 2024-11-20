@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
 
+
 # GLOBAL FUNCTIONS
 
 def find_class_by_name(root_class, name: str):
@@ -36,6 +37,7 @@ def find_class_by_name(root_class, name: str):
     # If no matching subclass is found, return None
     return None
 
+# GLOBAL CLASSES
 
 class Operand:
     def __init__(self):
@@ -319,6 +321,7 @@ class Operand:
         return self
 
     # STATIC METHODS
+    # @staticmethod decorator is needed in order to be possible to call it with self !!
 
     @staticmethod
     def serialize(data: any) -> any:
