@@ -159,6 +159,7 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position)
+        serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["length"]       = self.serialize(self._length)
         serialization["parameters"]["channel"]      = self.serialize(self._channel)
         serialization["parameters"]["device"]       = self.serialize(self._device)
@@ -169,11 +170,12 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "length" in serialization["parameters"] and
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "length" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"] and "track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position  = self.deserialize(serialization["parameters"]["position"])
+            self._duration  = self.deserialize(serialization["parameters"]["duration"])
             self._length    = self.deserialize(serialization["parameters"]["length"])
             self._channel   = self.deserialize(serialization["parameters"]["channel"])
             self._device    = self.deserialize(serialization["parameters"]["device"])
@@ -186,26 +188,33 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
+                    case ot.Duration():     self._duration = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
                     case ou.Channel():      self._channel = operand % o.Operand()
                     case od.Device():       self._device = operand % o.Operand()
-                    case ou.MidiTrack():        self._track = operand % o.Operand()
+                    case ou.MidiTrack():    self._track = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
+                # self._duration      << operand._duration  # resulting in a bug!!
                 self._length        << operand._length
                 self._channel       << operand._channel
                 self._device        << operand._device
                 self._track         << operand._track
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Length() | ra.NoteValue():
-                                    self._length << operand
+            case ot.Duration():
+                self._duration      << operand
+            case ot.Length():
+                self._length        << operand
+            case ra.NoteValue():
+                self._duration      << operand
+                self._length        << operand
             case ot.Position() | ra.TimeUnit():
                                     self._position << operand
             case ou.Channel():      self._channel << operand
             case od.Device():       self._device << operand
-            case ou.MidiTrack():        self._track << operand
+            case ou.MidiTrack():    self._track << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
             case tuple():
