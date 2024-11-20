@@ -100,13 +100,14 @@ class Frame(o.Operand):
     
     def __eq__(self, other_frame: 'Frame') -> bool:
         if type(self) == type(other_frame):
-            self_operand_list: list = []
-            for single_operand in self:
-                self_operand_list.append(single_operand)
-            other_operand_list: list = []
-            for single_operand in other_frame:
-                other_operand_list.append(single_operand)
-            return self_operand_list == other_operand_list  # PRONE TO INFINITE RECURSION !!
+            return self._multi_data == other_frame._multi_data
+            # self_operand_list: list = []
+            # for single_operand in self:
+            #     self_operand_list.append(single_operand)
+            # other_operand_list: list = []
+            # for single_operand in other_frame:
+            #     other_operand_list.append(single_operand)
+            # return self_operand_list == other_operand_list  # PRONE TO INFINITE RECURSION !!
         return False
     
     def getSerialization(self) -> dict:

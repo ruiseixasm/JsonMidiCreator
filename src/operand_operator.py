@@ -70,13 +70,13 @@ class Operator(o.Operand):
             case o.Operand():       return self._operand.copy()
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other_operator: 'Operator') -> bool:
-        other_operator = self & other_operator    # Processes the tailed self operands or the Frame operand if any exists
-        if other_operator.__class__ == o.Operand:
+    def __eq__(self, other: 'Operator') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        if type(self) == type(other_operator):
-            return  self._operator_list == other_operator % od.DataSource( list() ) \
-                and self._operand == other_operator % od.DataSource( o.Operand() )
+        if type(self) == type(other):
+            return  self._operator_list == other % od.DataSource( list() ) \
+                and self._operand == other % od.DataSource( o.Operand() )
         return False
     
     def getSerialization(self) -> dict:
@@ -194,15 +194,15 @@ class Oscillator(Operator):
             case ra.Offset():           return self._offset.copy()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_operator: 'Operator') -> bool:
-        other_operator = self & other_operator    # Processes the tailed self operands or the Frame operand if any exists
-        if other_operator.__class__ == o.Operand:
+    def __eq__(self, other: 'Operator') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        if super().__eq__(other_operator):
-            return  self._position == other_operator % od.DataSource( ot.Position() ) \
-                and self._length == other_operator % od.DataSource( ot.Length() ) \
-                and self._amplitude == other_operator % od.DataSource( ra.Amplitude() ) \
-                and self._offset == other_operator % od.DataSource( ra.Offset() )
+        if super().__eq__(other):
+            return  self._position == other % od.DataSource( ot.Position() ) \
+                and self._length == other % od.DataSource( ot.Length() ) \
+                and self._amplitude == other % od.DataSource( ra.Amplitude() ) \
+                and self._offset == other % od.DataSource( ra.Offset() )
         return False
     
     def getSerialization(self) -> dict:

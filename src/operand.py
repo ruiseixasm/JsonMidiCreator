@@ -126,25 +126,25 @@ class Operand:
             case self.__class__():  return self.copy()
             case _:                 return ol.Null()
 
-    def __eq__(self, operand: 'Operand') -> bool:
-        return self is operand
+    def __eq__(self, other: 'Operand') -> bool:
+        return False
     
-    def __ne__(self, operand: 'Operand') -> bool:
-        if self == operand:
+    def __ne__(self, other: 'Operand') -> bool:
+        if self == other:
             return False
         return True
     
-    def __lt__(self, operand: 'Operand') -> bool:
+    def __lt__(self, other: 'Operand') -> bool:
         return False
     
-    def __gt__(self, operand: 'Operand') -> bool:
+    def __gt__(self, other: 'Operand') -> bool:
         return False
     
-    def __le__(self, operand: 'Operand') -> bool:
-        return self.__eq__(operand) or self.__lt__(operand)
+    def __le__(self, other: 'Operand') -> bool:
+        return self.__eq__(other) or self.__lt__(other)
     
-    def __ge__(self, operand: 'Operand') -> bool:
-        return self.__eq__(operand) or self.__gt__(operand)
+    def __ge__(self, other: 'Operand') -> bool:
+        return self.__eq__(other) or self.__gt__(other)
     
     def start(self):
         import operand_label as ol
