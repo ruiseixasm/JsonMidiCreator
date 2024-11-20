@@ -33,6 +33,18 @@ import operand_label as ol
 class Generic(o.Operand):
     pass
 
+class Track(Generic):
+    # Class variable to keep track of the next track ID
+    _next_track_id: int  = 0 # This is the unit ultimate value
+
+    def __init__(self, *parameters):
+        super().__init__()
+        self._track_id: int = Track._next_track_id
+        Track._next_track_id += 1
+        self._name: str         = None
+        if len(parameters) > 0:
+            self << parameters
+
 class TimeSignature(Generic):
     def __init__(self, top: int = 4, bottom: int = 4):
         super().__init__()
