@@ -98,14 +98,14 @@ class Frame(o.Operand):
                         case _:                 return single_operand
         return super().__mod__(operand)
     
-    def __eq__(self, other_frame: 'Frame') -> bool:
-        if type(self) == type(other_frame):
-            return self._multi_data == other_frame._multi_data
+    def __eq__(self, other: 'Frame') -> bool:
+        if type(self) == type(other):
+            return self._multi_data == other._multi_data
             # self_operand_list: list = []
             # for single_operand in self:
             #     self_operand_list.append(single_operand)
             # other_operand_list: list = []
-            # for single_operand in other_frame:
+            # for single_operand in other:
             #     other_operand_list.append(single_operand)
             # return self_operand_list == other_operand_list  # PRONE TO INFINITE RECURSION !!
         return False

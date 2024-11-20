@@ -107,9 +107,9 @@ class Container(o.Operand):
     def len(self) -> int:
         return len(self._datasource_list)
 
-    def __eq__(self, other_container: 'Container') -> bool:
-        if type(self) == type(other_container):
-            return self._datasource_list == other_container % od.DataSource()
+    def __eq__(self, other: 'Container') -> bool:
+        if type(self) == type(other):
+            return self._datasource_list == other % od.DataSource()
             # When comparing lists containing objects in Python using the == operator,
             # Python will call the __eq__ method on the objects if it is defined,
             # rather than comparing their references directly.

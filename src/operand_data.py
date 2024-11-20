@@ -56,31 +56,31 @@ class Data(o.Operand):
             case Data():                    return self.copy()
             case _:                         return self.deep_copy(self._data)
             
-    def __eq__(self, other_data: o.Operand) -> bool:
-        other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(other_data, Data):
-            return self._data == other_data._data
-        if other_data.__class__ == o.Operand:
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Data):
+            return self._data == other._data
+        if other.__class__ == o.Operand:
             return True
         return False
     
-    def __lt__(self, other_data: o.Operand) -> bool:
-        other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(other_data, Data):
-            return self._data < other_data._data
+    def __lt__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Data):
+            return self._data < other._data
         return False
     
-    def __gt__(self, other_data: o.Operand) -> bool:
-        other_data = self & other_data    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(other_data, Data):
-            return self._data > other_data._data
+    def __gt__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Data):
+            return self._data > other._data
         return False
     
-    def __le__(self, other_data: o.Operand) -> bool:
-        return self == other_data or self < other_data
+    def __le__(self, other: o.Operand) -> bool:
+        return self == other or self < other
     
-    def __ge__(self, other_data: o.Operand) -> bool:
-        return self == other_data or self > other_data
+    def __ge__(self, other: o.Operand) -> bool:
+        return self == other or self > other
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -293,18 +293,18 @@ class Playlist(Data):
         """
         return self._data
 
-    def __eq__(self, other_operand: any) -> bool:
-        other_operand = self & other_operand    # Processes the tailed self operands or the Frame operand if any exists
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if self._data is None:
-            if other_operand is None:
+            if other is None:
                 return True
             return False
-        match other_operand:
+        match other:
             case list():
-                return self._data == other_operand
+                return self._data == other
             case o.Operand():
-                return self._data == other_operand.getPlaylist()
-        return super().__eq__(other_operand)
+                return self._data == other.getPlaylist()
+        return super().__eq__(other)
     
     def getPlaylist(self) -> list:
         return Playlist.copy_play_list(self._data)
