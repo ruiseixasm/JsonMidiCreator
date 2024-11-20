@@ -60,7 +60,6 @@ class Track(Generic):
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
-        import operand_generic as og
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():

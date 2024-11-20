@@ -140,7 +140,7 @@ class Staff(o.Operand):
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
-            case og.Track():            return self._track.copy()
+            case og.Track():            return self._track  # DOES NO COPY ON PURPOSE !!
             # Calculated Values
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()

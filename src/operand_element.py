@@ -40,6 +40,7 @@ class Element(o.Operand):
         self._duration: ot.Duration         = os.staff % ot.Duration()
         self._length: ot.Length             = ot.Length() << self._duration
         self._midi_track: ou.MidiTrack      = ou.MidiTrack()
+        self._track: og.Track               = os.staff % od.DataSource( og.Track() )
         if len(parameters) > 0:
             self << parameters
 
@@ -61,6 +62,7 @@ class Element(o.Operand):
                     case ot.Duration():     return self._duration
                     case ot.Length():       return self._length
                     case ou.MidiTrack():    return self._midi_track
+                    case og.Track():        return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -72,6 +74,7 @@ class Element(o.Operand):
             case ou.Channel():      return self._midi_track._channel.copy()
             case od.Device():       return self._midi_track._device.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
+            case og.Track():        return self._track  # DOES NO COPY ON PURPOSE !!
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.end()
@@ -85,6 +88,7 @@ class Element(o.Operand):
                     and self._duration      == other % od.DataSource( ot.Duration() ) \
                     and self._length        == other % od.DataSource( ot.Length() ) \
                     and self._midi_track    == other % od.DataSource( ou.MidiTrack() )
+                    # and self._track         == other % od.DataSource( og.Track() )
             case ra.NoteValue():
                 return self._duration == other
             case ra.TimeUnit():
@@ -162,6 +166,7 @@ class Element(o.Operand):
         serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["length"]       = self.serialize(self._length)
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
+        serialization["parameters"]["track"]        = self.serialize(self._track)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -169,13 +174,15 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "length" in serialization["parameters"] and
-            "midi_track" in serialization["parameters"]):
+            "midi_track" in serialization["parameters"] and "track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._length        = self.deserialize(serialization["parameters"]["length"])
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
+            # NEEDS SPECIAL SOLUTION / CAN'T DO COPY / IT ALREADY EXISTS !!
+            # self._track         = self.deserialize(serialization["parameters"]["midi_track"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Element':

@@ -412,6 +412,9 @@ class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__( os.staff._device % list() if device_list is None else device_list )
 
+class Tracks(Data): # Dictionary of tracks where the key it's their id
+    pass
+
 class DataMany(Data):
     def __init__(self, *parameters):    # Allows multiple parameters
         super().__init__(list(parameters))
