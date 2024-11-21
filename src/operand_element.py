@@ -288,6 +288,10 @@ class Element(o.Operand):
     def midi_16(midi_value: int | float = 0):
         return min(max(int(midi_value), 0), 15)
 
+class Loop(Element):
+    # Basically it's a short Sequence with a Position that can be used and placed as a loop
+    ...
+
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
