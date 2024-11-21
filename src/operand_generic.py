@@ -39,7 +39,7 @@ class Track(Generic):
     def generate_available_name(first_try: str, staff_tracks: dict[str, 'TrackData']) -> str:
         staff_chaos: ch.Chaos           = os.staff % od.DataSource( ch.Chaos() )
         available_name: str = first_try
-        while available_name in staff_tracks or available_name == "":
+        while available_name in staff_tracks or available_name == "":   # Empty strings ("") not allowed
             # if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Default":
             #     o.logging.info(f"Track name '{available_name}' is already taken in a total of {len(staff_tracks)} tracks!")
             available_name = ""
@@ -130,13 +130,15 @@ class Track(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case str():
-                        staff_tracks: dict      = os.staff % od.DataSource( dict() )
-                        if not operand % o.Operand() in staff_tracks:
+                        staff_tracks: dict[str, TrackData] = os.staff % od.DataSource( dict() )
+                        new_name: str = operand % o.Operand()
+                        if not new_name in staff_tracks:
                             # Rename "old_key" to "new_key"
-                            staff_tracks[operand % o.Operand()] = staff_tracks.pop(self._name)
-                            self._track_data._name = operand % o.Operand()
+                            new_name = self.generate_available_name(new_name, staff_tracks) # for an empty string ""
+                            staff_tracks[new_name] = staff_tracks.pop(self._name)
+                            self._track_data._name = new_name
                         else:
-                            print(f"Track named '{operand % o.Operand()}' already exists!")
+                            print(f"Track named '{new_name}' already exists!")
                     case ou.MidiTrack():            self._track_data._midi_track = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Track():
