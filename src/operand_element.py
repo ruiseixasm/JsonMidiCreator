@@ -1467,7 +1467,8 @@ class PitchBend(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._bend + operand
+                return self << self._bend + operand
+                # self_copy << self._bend + operand
             case _:             return super().__add__(operand)
         return self_copy
 
@@ -1578,7 +1579,8 @@ class Aftertouch(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._pressure + operand
+                return self << self._pressure + operand
+                # self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
         return self_copy
 
