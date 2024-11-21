@@ -239,7 +239,8 @@ class Element(o.Operand):
         match operand:
             case Element():         return oc.Sequence(self_copy, operand.copy())
             case oc.Sequence():     return oc.Sequence(self_copy, operand.copy() % list())
-            case o.Operand():       return self_copy << self % operand + operand
+            # For operands it shouldn't result in a new instantiations !!
+            case o.Operand():       return self << self % operand + operand
         return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Element':
