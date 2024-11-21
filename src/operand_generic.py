@@ -59,7 +59,7 @@ class Track(Generic):
                     case str():
                         entered_name = single_operand
                     case _:
-                        self << single_operand
+                        pass    # Does nothing
             self._track_data._name = self.generate_available_name(entered_name, staff_tracks)
             if entered_name == self._track_data._name or entered_name == "":
                 # This is a new Track
@@ -68,6 +68,12 @@ class Track(Generic):
             else:
                 # This is NOT a new Track, instead it's asking for the one with the respective name
                 self._track_data = staff_tracks[entered_name]
+            for single_operand in parameters:
+                match single_operand:
+                    case str():
+                        pass    # Does nothing
+                    case _:
+                        self << single_operand
         elif self._track_data._name in staff_tracks:
             # No args means the default Staff Track
             self._track_data = staff_tracks[self._track_data._name]
