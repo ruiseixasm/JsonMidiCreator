@@ -36,7 +36,7 @@ class Generic(o.Operand):
 
 class Track(Generic):
     @staticmethod
-    def generate_available_name(first_try: str, staff_tracks: dict) -> str:
+    def generate_available_name(first_try: str, staff_tracks: dict[str, 'TrackData']) -> str:
         staff_chaos: ch.Chaos           = os.staff % od.DataSource( ch.Chaos() )
         available_name: str = first_try
         while available_name in staff_tracks or available_name == "":
@@ -51,7 +51,7 @@ class Track(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._track_data: TrackData = TrackData()
-        staff_tracks: dict          = os.staff % od.DataSource( dict() )
+        staff_tracks: dict[str, TrackData]  = os.staff % od.DataSource( dict() )
         if len(parameters) > 0:
             entered_name: str = ""
             for single_operand in parameters:
@@ -114,8 +114,10 @@ class Track(Generic):
             super().loadSerialization(serialization)
             self._track_data = self.deserialize(serialization["parameters"]["track_data"])
 
-            staff_tracks: dict = os.staff % od.DataSource( dict() )
+            staff_tracks: dict[str, TrackData] = os.staff % od.DataSource( dict() )
             if self._track_data._name in staff_tracks:
+                # The last one sets the MidiTrack on TrackData
+                staff_tracks[self._track_data._name]._midi_track = self._track_data._midi_track
                 self._track_data = staff_tracks[self._track_data._name]
             else:
                 staff_tracks[self._track_data._name] = self._track_data
