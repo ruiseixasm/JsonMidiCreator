@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 from fractions import Fraction
 import time
+import sys
 # Json Midi Creator Libraries
 import operand as o
 import operand_unit as ou
@@ -75,6 +76,19 @@ class Staff(o.Operand):
                         white_keys += 1
                 num_accidentals += 1
 
+    def clean_tracks(self) -> dict:
+        tracks_to_remove: set = set()
+        for key, value in self._tracks.items():
+            track_data_ref_count: int = sys.getrefcount(value)                
+            # print(f"{key}: {track_data_ref_count}")
+            if track_data_ref_count < 4:    # sys + for + _tracks = 3
+                tracks_to_remove.add(key)
+        for track in tracks_to_remove:
+            self._tracks.pop(track)
+            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
+                o.logging.info(f"Track named '{track}' was removed for no long being used!")
+        return self._tracks
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Staff,
@@ -110,7 +124,7 @@ class Staff(o.Operand):
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
                     case ch.Chaos():            return self._chaos
-                    case dict():                return self._tracks
+                    case dict():                return self.clean_tracks()
                     # Calculated Values
                     case ra.NotesPerMeasure():
                         return self._time_signature % od.DataSource( ra.NotesPerMeasure() )

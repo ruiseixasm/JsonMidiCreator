@@ -18,7 +18,6 @@ from typing import Union
 from fractions import Fraction
 import enum
 import math
-import sys
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -38,9 +37,8 @@ class Generic(o.Operand):
 class Track(Generic):
 
     @staticmethod
-    def generate_available_name(self, first_try: str) -> str:
+    def generate_available_name(self, first_try: str, staff_tracks: dict) -> str:
         staff_chaos: ch.Chaos           = os.staff % od.DataSource( ch.Chaos() )
-        staff_tracks: dict              = os.staff % od.DataSource( dict() )
         available_name: str = first_try
         while available_name in staff_tracks or available_name == "":
             if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Staff":
@@ -63,21 +61,14 @@ class Track(Generic):
                         entered_name = single_operand
                     case _:
                         self << single_operand
-            self._track_data._name = self.generate_available_name(entered_name)
+            self._track_data._name = self.generate_available_name(entered_name, staff_tracks)
             if entered_name == self._track_data._name or entered_name == "":
                 # This is a new Track
                 staff_tracks[self._track_data._name] = self._track_data # adds self TrackData to the staff
                 print(f"Created a new Track named '{self._track_data._name}'")
             else:
-                # This is supposedly NOT a new Track, instead it's asking for the one with the respective name
-                track_data_ref_count: int = sys.getrefcount(self._track_data)                
-                # print(track_data_ref_count)
-                if track_data_ref_count > 1:
-                    self._track_data = staff_tracks[entered_name]
-                else:
-                    staff_tracks[entered_name] = self._track_data
-                    if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
-                        o.logging.info(f"TrackData named '{entered_name}' was overwritten!")
+                # This is NOT a new Track, instead it's asking for the one with the respective name
+                self._track_data = staff_tracks[entered_name]
         elif self._track_data._name in staff_tracks:
             # No args means the default Staff Track
             self._track_data = staff_tracks[self._track_data._name]
@@ -122,16 +113,9 @@ class Track(Generic):
             super().loadSerialization(serialization)
             self._track_data = self.deserialize(serialization["parameters"]["track_data"])
 
-            staff_tracks: dict  = os.staff % od.DataSource( dict() )
+            staff_tracks: dict = os.staff % od.DataSource( dict() )
             if self._track_data._name in staff_tracks:
-                track_data_ref_count: int = sys.getrefcount(self._track_data)
-                # print(track_data_ref_count)
-                if track_data_ref_count > 1:
-                    self._track_data = staff_tracks[self._track_data._name]
-                else:
-                    staff_tracks[self._track_data._name] = self._track_data
-                    if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
-                        o.logging.info(f"TrackData named '{self._track_data._name}' was overwritten!")
+                self._track_data = staff_tracks[self._track_data._name]
             else:
                 staff_tracks[self._track_data._name] = self._track_data
         return self
