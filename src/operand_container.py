@@ -549,6 +549,7 @@ class Sequence(Container):  # Just a container of Elements
                         end_position = operand._position
                     case Sequence():
                         end_position = operand.end()
+                # return operand + (self + end_position)
                 return (operand + self).stack()
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
@@ -572,7 +573,9 @@ class Sequence(Container):  # Just a container of Elements
                 return self_copy
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
-                    single_datasource._data << single_datasource._data + operand
+                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
+                        # single_datasource._data + operand
+                        single_datasource._data << single_datasource._data + operand
                 return self
         return super().__add__(operand)
 
