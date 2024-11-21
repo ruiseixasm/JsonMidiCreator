@@ -483,7 +483,7 @@ class Sequence(Container):  # Just a container of Elements
         sorted_elements: list[oe.Element] = [
                 single_data._data
                 for single_data in self._datasource_list
-                if isinstance(single_data._data, oe.Element)
+                if isinstance(single_data._data, oe.Stackable)
             ]
         sorted_elements = sorted(sorted_elements, key=lambda x: (id(x._track._track_data)))
         for single_element_i in range(len(sorted_elements)):
