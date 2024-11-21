@@ -40,7 +40,7 @@ class Track(Generic):
         staff_chaos: ch.Chaos           = os.staff % od.DataSource( ch.Chaos() )
         available_name: str = first_try
         while available_name in staff_tracks or available_name == "":
-            # if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Staff":
+            # if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Default":
             #     o.logging.info(f"Track name '{available_name}' is already taken in a total of {len(staff_tracks)} tracks!")
             available_name = ""
             for _ in range(5):  # randomly generated 5 chars name [a-z]
@@ -75,7 +75,7 @@ class Track(Generic):
         else:
             # This is the new Staff Track
             staff_tracks[self._track_data._name] = self._track_data   # adds self TrackData to the staff
-            print(f"Created the default Track named 'Staff'")
+            print(f"Created the default Track named 'Default'")
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -155,7 +155,7 @@ class Track(Generic):
 class TrackData(Generic):
     def __init__(self):
         super().__init__()
-        self._name: str                 = "Staff"
+        self._name: str                 = "Default"
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:

@@ -340,4 +340,4 @@ class Staff(o.Operand):
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
 # DON'T DO THIS !!
-# og.Track()   # No need, this "Staff" Track is created on demand!
+# og.Track()   # No need, this "Default" Track is created on demand!
