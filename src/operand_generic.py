@@ -156,37 +156,19 @@ class Track(Generic):
 
 class TrackData(Generic):
 
-    def __init__(self, *parameters):
+    def __init__(self):
         super().__init__()
         self._name: str                 = "Staff"
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
-        if len(parameters) > 0:
-            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case str():                     return self._name
-                    case ou.MidiTrack():            return self._midi_track
-                    case ou.Channel():              return self._midi_track._channel
-                    case od.Device():               return self._midi_track._device
-                    case _:                         return super().__mod__(operand)
-            case str():                     return self._name
-            case ou.MidiTrack():            return self._midi_track.copy()
-            case ou.Channel():              return self._midi_track._channel.copy()
-            case od.Device():               return self._midi_track._device.copy()
-            case _:                         return super().__mod__(operand)
+        # TrackData is expected to be interacted by Track class only in a direct fashion,
+        # so, it's not suppose to retrieve anything from other class objects with %
+        return ol.Null()
 
     def __eq__(self, other: o.Operand) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._name == other._name \
-                    and self._midi_track == other._midi_track
-            case _:
-                return super().__eq__(other)
+        # TrackData isn't supposed to be copied and are unique, so, distinct TrackData objects are by definition different
+        return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -196,7 +178,7 @@ class TrackData(Generic):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Track':
+    def loadSerialization(self, serialization: dict) -> 'TrackData':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "name" in serialization["parameters"] and "midi_track" in serialization["parameters"]):
 
@@ -205,27 +187,8 @@ class TrackData(Generic):
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Track':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case str():                     self._name = operand % o.Operand()
-                    case ou.MidiTrack():            self._midi_track = operand % o.Operand()
-                    case _:                         super().__lshift__(operand)
-            case Track():
-                super().__lshift__(operand)
-                self._name          = operand._name
-                self._midi_track    = operand._midi_track
-                self  = operand
-            case str():             self._name = operand
-            case ou.MidiTrack():    self._midi_track << operand
-            case ou.Channel():      self._midi_track._channel << operand
-            case od.Device():       self._midi_track._device << operand
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-            case _:                 super().__lshift__(operand)
+    def __lshift__(self, operand: o.Operand) -> 'TrackData':
+        # It's a read only class intended to be set by Track class only and in a direct fashion without <<
         return self
 
 class TimeSignature(Generic):
