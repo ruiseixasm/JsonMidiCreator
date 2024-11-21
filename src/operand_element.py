@@ -292,7 +292,10 @@ class Loop(Element):
     # Basically it's a short Sequence with a Position that can be used and placed as a loop
     ...
 
-class Clock(Element):
+class Stackable(Element):
+    pass
+
+class Clock(Stackable):
     def __init__(self, *parameters):
         super().__init__()
         self._duration      << os.staff % od.DataSource( ra.Measure() )
@@ -421,7 +424,7 @@ class Clock(Element):
             case _: super().__lshift__(operand)
         return self
 
-class Rest(Element):
+class Rest(Stackable):
     def __init__(self, *parameters):
         super().__init__()
         if len(parameters) > 0:
@@ -458,7 +461,7 @@ class Rest(Element):
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
 
-class Note(Element):
+class Note(Stackable):
     def __init__(self, *parameters):
         super().__init__()
         self._pitch: og.Pitch       = og.Pitch()
@@ -1082,7 +1085,7 @@ class Note3(Retrigger):
             case _:                 super().__lshift__(operand)
         return self
 
-class Tuplet(Element):
+class Tuplet(Stackable):
     def __init__(self, *parameters):
         super().__init__()
         self._duration *= 2 # Equivalent to twice single note duration
@@ -1245,7 +1248,10 @@ class Triplet(Tuplet):
             case _: super().__lshift__(operand)
         return self
 
-class ControlChange(Element):
+class Automation(Element):
+    pass
+
+class ControlChange(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._controller: og.Controller = os.staff % og.Controller()
@@ -1360,7 +1366,7 @@ class ControlChange(Element):
             case _:             return super().__sub__(operand)
         return self_copy
 
-class PitchBend(Element):
+class PitchBend(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._bend: ou.Bend = ou.Bend()
@@ -1471,7 +1477,7 @@ class PitchBend(Element):
             case _:             return super().__sub__(operand)
         return self_copy
 
-class Aftertouch(Element):
+class Aftertouch(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._track << os.staff % ou.Channel()
@@ -1672,7 +1678,7 @@ class PolyAftertouch(Aftertouch):
             case _:             super().__lshift__(operand)
         return self
 
-class ProgramChange(Element):
+class ProgramChange(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._program: ou.Program = ou.Program()
