@@ -64,7 +64,7 @@ class Container(o.Operand):
             self._datasource_iterator = 0  # Reset to 0 when limit is reached
             raise StopIteration
 
-    def __mod__(self, operand: list) -> list:
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, because a Container has
         only one type of Parameters it should be used in conjugation with list()
@@ -79,8 +79,6 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
-            # case od.Filter():   # Filter is now also a Process
-            #     return self.filter(operand % od.DataSource())
             case od.Getter():       return operand.get(self)
             case od.Process():      return self >> operand
             case list():
@@ -138,14 +136,6 @@ class Container(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        # datasource_serialization: list[od.DataSource] = []
-        # for single_datasource in self._datasource_list:
-        #     if isinstance(single_datasource._data, o.Operand):
-        #         datasource_serialization.append(single_datasource._data.getSerialization())
-        #     else:
-        #         datasource_serialization.append(single_datasource._data)
-        # serialization["parameters"]["datasource_list"] = datasource_serialization
-
         serialization["parameters"]["datasource_list"] = self.serialize(self._datasource_list)
         return serialization
 
@@ -157,12 +147,6 @@ class Container(o.Operand):
             "datasource_list" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-
-            # self._datasource_list: list[od.DataSource] = []
-            # operands_serialization = serialization["parameters"]["datasource_list"]
-            # for single_operand_serialization in operands_serialization:
-            #     self._datasource_list.append( od.DataSource( o.Operand().loadSerialization(single_operand_serialization) ) )
-
             self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
        
@@ -564,7 +548,6 @@ class Sequence(Container):  # Just a container of Elements
         import operand_element as oe
         match operand:
             case Container() | oe.Element():
-                # return super().__add__(operand)
                 self_copy: Sequence = self.__class__()
                 for single_datasource in self._datasource_list:
                     self_copy._datasource_list.append(single_datasource.copy())
@@ -575,11 +558,6 @@ class Sequence(Container):  # Just a container of Elements
                 else:   # It's an Element
                     self_copy._datasource_list.append(od.DataSource( operand.copy() ))
                 return self_copy
-            # case Container():
-            #     last_datasource: int = min(self.len(), operand.len())
-            #     for datasource_i in range(last_datasource):
-            #         self._datasource_list[datasource_i]._data += operand._datasource_list[datasource_i]._data
-            #     return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data + operand
@@ -591,11 +569,6 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case Container() | oe.Element():
                 return super().__sub__(operand)
-            # case Container():
-            #     last_datasource: int = min(self.len(), operand.len())
-            #     for datasource_i in range(last_datasource):
-            #         self._datasource_list[datasource_i]._data -= operand._datasource_list[datasource_i]._data
-            #     return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data - operand
