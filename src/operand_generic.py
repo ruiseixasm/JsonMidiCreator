@@ -55,11 +55,9 @@ class Track(Generic):
         if len(parameters) > 0:
             entered_name: str = ""
             for single_operand in parameters:
-                match single_operand:
-                    case str():
-                        entered_name = single_operand
-                    case _:
-                        pass    # Does nothing
+                if isinstance(single_operand, str):
+                    entered_name = single_operand
+                    break
             self._track_data._name = self.generate_available_name(entered_name, staff_tracks)
             if entered_name == self._track_data._name or entered_name == "":
                 # This is a new Track
@@ -69,11 +67,8 @@ class Track(Generic):
                 # This is NOT a new Track, instead it's asking for the one with the respective name
                 self._track_data = staff_tracks[entered_name]
             for single_operand in parameters:
-                match single_operand:
-                    case str():
-                        pass    # Does nothing
-                    case _:
-                        self << single_operand
+                if not isinstance(single_operand, str):
+                    self << single_operand  # all but strings
         elif self._track_data._name in staff_tracks:
             # No args means the default Staff Track
             self._track_data = staff_tracks[self._track_data._name]
@@ -124,6 +119,7 @@ class Track(Generic):
                 self._track_data = staff_tracks[self._track_data._name]
             else:
                 staff_tracks[self._track_data._name] = self._track_data
+                print(f"Created a new Track named '{self._track_data._name}'")
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Track':
