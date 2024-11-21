@@ -130,16 +130,13 @@ class Track(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case str():
-                        if operand % o.Operand() != "Staff":
-                            staff_tracks: dict      = os.staff % od.DataSource( dict() )
-                            if not operand % o.Operand() in staff_tracks:
-                                # Rename "old_key" to "new_key"
-                                staff_tracks[operand % o.Operand()] = staff_tracks.pop(self._name)
-                                self._track_data._name = operand % o.Operand()
-                            else:
-                                print(f"Track named '{operand % o.Operand()}' already exists!")
+                        staff_tracks: dict      = os.staff % od.DataSource( dict() )
+                        if not operand % o.Operand() in staff_tracks:
+                            # Rename "old_key" to "new_key"
+                            staff_tracks[operand % o.Operand()] = staff_tracks.pop(self._name)
+                            self._track_data._name = operand % o.Operand()
                         else:
-                            print(f"Track 'Staff' can't be renamed!")
+                            print(f"Track named '{operand % o.Operand()}' already exists!")
                     case ou.MidiTrack():            self._track_data._midi_track = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Track():
