@@ -375,7 +375,7 @@ class Sequence(Container):  # Just a container of Elements
                 if single_datasource._data % ot.Position() < start_position:
                     start_position = single_datasource._data % ot.Position()
             return start_position.copy()
-        return ol.Null()
+        return ot.Position(0)
 
     def end(self) -> ot.Position:
         if self.len() > 0:
@@ -384,7 +384,7 @@ class Sequence(Container):  # Just a container of Elements
                 if single_datasource._data % ot.Position() + single_datasource._data % ot.Length() > end_position:
                     end_position = single_datasource._data % ot.Position() + single_datasource._data % ot.Length()
             return end_position # already a copy (+)
-        return ol.Null()
+        return ot.Position(0)
     
     if TYPE_CHECKING:
         from operand_element import Element
@@ -528,7 +528,7 @@ class Sequence(Container):  # Just a container of Elements
                 last_note = actual_note
         return self
 
-    # operand is the pusher
+    # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
         self_copy: Sequence = self.copy()
@@ -540,6 +540,15 @@ class Sequence(Container):  # Just a container of Elements
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
             case oe.Element() | Sequence():
+                # calculate the termination, ends positions
+                end_position: ot.Position = ot.Position(0)
+                match operand:
+                    case oe.Stackable():
+                        end_position = operand._position + operand._length
+                    case oe.Element():
+                        end_position = operand._position
+                    case Sequence():
+                        end_position = operand.end()
                 return (operand + self).stack()
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
