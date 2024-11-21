@@ -605,7 +605,8 @@ class Note(Stackable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._pitch + operand
+                return self << self._pitch + operand
+                # return self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
         return self_copy
 
@@ -1354,7 +1355,8 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ra.Float():
-                self_copy << self._controller + operand
+                return self << self._controller + operand
+                # self_copy << self._controller + operand
             case _:             return super().__add__(operand)
         return self_copy
 
