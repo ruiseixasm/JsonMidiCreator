@@ -549,7 +549,7 @@ class Sequence(Container):  # Just a container of Elements
                         end_position = operand._position
                     case Sequence():
                         end_position = operand.end()
-                # return operand + (self + end_position)
+                # return operand + (self + end_position)    # FAILS TEST 3.5
                 return (operand + self).stack()
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
