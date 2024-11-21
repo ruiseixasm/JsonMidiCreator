@@ -479,16 +479,22 @@ class Sequence(Container):  # Just a container of Elements
 
     def stack(self) -> 'Sequence':
         import operand_element as oe
+        # Starts by sorting the self Elements list accordingly to their Tracks (all data is an Element)
+        sorted_elements: list[oe.Element] = [
+                single_data._data
+                for single_data in self._datasource_list
+                if isinstance(single_data._data, oe.Element)
+            ]
+        sorted_elements = sorted(sorted_elements, key=lambda x: (id(x._track._track_data)))
         last_position = ot.Position(0)  # everything starts on 0!
         last_length = None
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                if last_position is not None:
-                    last_position += last_length
-                    single_datasource._data << last_position
-                else:
-                    last_position = single_datasource._data._position
-                last_length = single_datasource._data._length
+        for single_datasource in sorted_elements:
+            if last_position is not None:
+                last_position += last_length
+                single_datasource << last_position
+            else:
+                last_position = single_datasource._position
+            last_length = single_datasource._length
         return self
     
     def tie(self, tied: bool = True) -> 'Sequence':
