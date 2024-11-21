@@ -574,8 +574,8 @@ class Sequence(Container):  # Just a container of Elements
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # single_datasource._data + operand
-                        single_datasource._data << single_datasource._data + operand
+                        single_datasource._data + operand
+                        # single_datasource._data << single_datasource._data + operand
                 return self
         return super().__add__(operand)
 
