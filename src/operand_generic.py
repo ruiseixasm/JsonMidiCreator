@@ -18,6 +18,7 @@ from typing import Union
 from fractions import Fraction
 import enum
 import math
+import sys
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
@@ -52,8 +53,8 @@ class Track(Generic):
 
     def __init__(self, *parameters):
         super().__init__()
-        self._track_data: TrackData   = TrackData()
-        staff_tracks: dict                  = os.staff % od.DataSource( dict() )
+        self._track_data: TrackData = TrackData()
+        staff_tracks: dict          = os.staff % od.DataSource( dict() )
         if len(parameters) > 0:
             entered_name: str = ""
             for single_operand in parameters:
@@ -68,8 +69,15 @@ class Track(Generic):
                 staff_tracks[self._track_data._name] = self._track_data # adds self TrackData to the staff
                 print(f"Created a new Track named '{self._track_data._name}'")
             else:
-                # This is NOT a new Track, instead it's asking for the one with the respective name
-                self._track_data = staff_tracks["Staff"]
+                # This is supposedly NOT a new Track, instead it's asking for the one with the respective name
+                track_data_ref_count: int = sys.getrefcount(self._track_data)                
+                # print(track_data_ref_count)
+                if track_data_ref_count > 1:
+                    self._track_data = staff_tracks[entered_name]
+                else:
+                    staff_tracks[entered_name] = self._track_data
+                    if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
+                        o.logging.info(f"TrackData named '{entered_name}' was overwritten!")
         elif self._track_data._name in staff_tracks:
             # No args means the default Staff Track
             self._track_data = staff_tracks[self._track_data._name]
@@ -82,12 +90,10 @@ class Track(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case TrackData():            return self._track_data
                     case str():                     return self._track_data._name
                     case ou.Channel():              return self._track_data._midi_track._channel
                     case od.Device():               return self._track_data._midi_track._device
                     case _:                         return super().__mod__(operand)
-            case TrackData():            return self._track_data.copy()
             case str():                     return self._track_data._name
             case ou.Channel():              return self._track_data._midi_track._channel.copy()
             case od.Device():               return self._track_data._midi_track._device.copy()
@@ -118,7 +124,14 @@ class Track(Generic):
 
             staff_tracks: dict  = os.staff % od.DataSource( dict() )
             if self._track_data._name in staff_tracks:
-                self._track_data = staff_tracks[self._track_data._name]
+                track_data_ref_count: int = sys.getrefcount(self._track_data)
+                # print(track_data_ref_count)
+                if track_data_ref_count > 1:
+                    self._track_data = staff_tracks[self._track_data._name]
+                else:
+                    staff_tracks[self._track_data._name] = self._track_data
+                    if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
+                        o.logging.info(f"TrackData named '{self._track_data._name}' was overwritten!")
             else:
                 staff_tracks[self._track_data._name] = self._track_data
         return self
@@ -155,7 +168,6 @@ class Track(Generic):
         return self
 
 class TrackData(Generic):
-
     def __init__(self):
         super().__init__()
         self._name: str                 = "Staff"
