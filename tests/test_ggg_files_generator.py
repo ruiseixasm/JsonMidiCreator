@@ -27,20 +27,20 @@ from JsonMidiCreator import *
 staff << Tempo(110) << Measure(6)
 
 # Set the default single Clock for the entire Staff Length
-single_clock = Clock() >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock(Track("Clock Track")) >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
-first_note = Note() << (Position() << Step(3*4 + 2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
+first_note = Note(Track("Piano")) << (Position() << Step(3*4 + 2)) << (Length() << NoteValue(1/2)) >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> first_note * 3 >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 
 first_note << "F" >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
 first_note << Load("json/testing/_Save_1.1_first_note.json") >> Save("json/testing/_Save_Play_p.3_first_note.json") >> Export("json/testing/_Export_Play_p.3_sequence.json")
 
-Note3() << (Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
+Note3(Track("Piano")) << (Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.1_first_note.json") >> Export("json/testing/_Export_Play_p.3.1_sequence.json") >> Save("json/testing/_Save_1.3_note_triad.json")
 
 # Base Note creation to be used in the Sequencer
-base_note = Note() << (Duration() << Dotted(1/64))
+base_note = Note(Track("Drums")) << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
 first_sequence = (base_note * 8 // Step(1) << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
