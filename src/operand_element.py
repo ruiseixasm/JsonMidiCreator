@@ -1780,7 +1780,8 @@ class ProgramChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._program + operand
+                return self << self._program + operand
+                # self_copy << self._program + operand
             case _:             return super().__add__(operand)
         return self_copy
 
