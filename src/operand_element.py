@@ -39,7 +39,6 @@ class Element(o.Operand):
         self._position: ot.Position         = ot.Position()
         self._duration: ot.Duration         = os.staff % ot.Duration()
         self._length: ot.Length             = ot.Length() << self._duration
-        self._midi_track: ou.MidiTrack      = ou.MidiTrack()
         self._track: og.Track               = og.Track()
         if len(parameters) > 0:
             self << parameters
@@ -61,7 +60,6 @@ class Element(o.Operand):
                     case ot.Position():     return self._position
                     case ot.Duration():     return self._duration
                     case ot.Length():       return self._length
-                    case ou.MidiTrack():    return self._midi_track
                     case og.Track():        return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
@@ -71,10 +69,9 @@ class Element(o.Operand):
             case ra.NoteValue():    return self._length % operand
             case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
-            case ou.Channel():      return self._midi_track._channel.copy()
-            case od.Device():       return self._midi_track._device.copy()
-            case ou.MidiTrack():    return self._midi_track.copy()
-            case og.Track():        return self._track  # DOES NO COPY ON PURPOSE !!
+            case og.Track():        return self._track.copy()
+            case ou.Channel():      return self._track % ou.Channel()
+            case od.Device():       return self._track % od.Device()
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.end()
@@ -87,8 +84,7 @@ class Element(o.Operand):
                 return  self._position      == other % od.DataSource( ot.Position() ) \
                     and self._duration      == other % od.DataSource( ot.Duration() ) \
                     and self._length        == other % od.DataSource( ot.Length() ) \
-                    and self._midi_track    == other % od.DataSource( ou.MidiTrack() )
-                    # and self._track         == other % od.DataSource( og.Track() )
+                    and self._track         == other % od.DataSource( og.Track() )
             case ra.NoteValue():
                 return self._duration == other
             case ra.TimeUnit():
@@ -149,8 +145,8 @@ class Element(o.Operand):
         return [
                 {
                     "event":        "Element",
-                    "track":        self._midi_track % int() - 1,    # out of range shouldn't be exported as a midi track
-                    "track_name":   self._midi_track % str(),
+                    "track":        self._track % od.DataSource( ou.MidiTrack() ) % int() - 1,  # out of range shouldn't be exported as a midi track
+                    "track_name":   self._track % od.DataSource( ou.MidiTrack() ) % str(),
                     "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
                     "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
@@ -165,7 +161,6 @@ class Element(o.Operand):
         serialization["parameters"]["position"]     = self.serialize(self._position)
         serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["length"]       = self.serialize(self._length)
-        serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
         serialization["parameters"]["track"]        = self.serialize(self._track)
         return serialization
 
@@ -174,13 +169,12 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "length" in serialization["parameters"] and
-            "midi_track" in serialization["parameters"] and "track" in serialization["parameters"]):
+            "track" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._length        = self.deserialize(serialization["parameters"]["length"])
-            self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
             self._track         = self.deserialize(serialization["parameters"]["track"])
 
         return self
@@ -193,13 +187,13 @@ class Element(o.Operand):
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Duration():     self._duration = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
-                    case ou.MidiTrack():    self._midi_track = operand % o.Operand()
+                    case og.Track():        self._track = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
                 self._duration      << operand._duration
                 self._length        << operand._length
-                self._midi_track    << operand._midi_track
+                self._track         << operand._track
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Duration():
@@ -211,9 +205,10 @@ class Element(o.Operand):
                 self._length        << operand
             case ot.Position() | ra.TimeUnit():
                                     self._position << operand
-            case ou.Channel():      self._midi_track._channel << operand
-            case od.Device():       self._midi_track._device << operand
-            case ou.MidiTrack():    self._midi_track << operand
+            case og.Track() | ou.Channel() | od.Device() | ou.MidiTrack():
+                                    self._track << operand
+            case str() | int():
+                                    self._track % od.DataSource( ou.MidiTrack() ) << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
             case tuple():
@@ -298,7 +293,7 @@ class Clock(Element):
         super().__init__()
         self._duration      << os.staff % od.DataSource( ra.Measure() )
         self._length        << self._duration
-        self._midi_track    << 0    # Clock is intended to be used only by JsonMidiPlayer
+        self._track % od.DataSource( ou.MidiTrack() ) << 0  # Clock is intended to be used only by JsonMidiPlayer
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters
@@ -319,11 +314,11 @@ class Clock(Element):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Duration():     return self._duration
-                    case ou.PPQN():     return self._pulses_per_quarternote
-                    case _:             return super().__mod__(operand)
-            case ot.Duration(): return self._duration.copy()
-            case ou.PPQN():     return self._pulses_per_quarternote.copy()
-            case _:             return super().__mod__(operand)
+                    case ou.PPQN():         return self._pulses_per_quarternote
+                    case _:                 return super().__mod__(operand)
+            case ot.Duration():     return self._duration.copy()
+            case ou.PPQN():         return self._pulses_per_quarternote.copy()
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
@@ -432,8 +427,8 @@ class Rest(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         duration: ot.Duration       = self._duration
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         off_time_ms = (self_position + duration).getTime_ms()
@@ -516,8 +511,8 @@ class Note(Element):
         duration: ot.Duration       = self._duration
         key_note_float: float       = self._pitch % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         off_time_ms = (self_position + duration * self._gate).getTime_ms()
@@ -1290,8 +1285,8 @@ class ControlChange(Element):
 
         number_int: int             = self % ou.Number() % od.DataSource( int() )
         value_int: int              = self % ou.Value() % od.DataSource( int() )
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1403,8 +1398,8 @@ class PitchBend(Element):
 
         msb_midi: int               = self._bend % ol.MSB()
         lsb_midi: int               = self._bend % ol.LSB()
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1475,7 +1470,7 @@ class PitchBend(Element):
 class Aftertouch(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._midi_track._channel = os.staff % ou.Channel()
+        self._track << os.staff % ou.Channel()
         self._pressure: ou.Pressure = ou.Pressure()
         if len(parameters) > 0:
             self << parameters
@@ -1514,8 +1509,8 @@ class Aftertouch(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         pressure_int: int           = self._pressure % od.DataSource( int() )
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1627,8 +1622,8 @@ class PolyAftertouch(Aftertouch):
 
         key_note_float: float       = self._pitch % od.DataSource( float() )
         pressure_int: int           = self._pressure % od.DataSource( int() )
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1714,8 +1709,8 @@ class ProgramChange(Element):
         self_position: ot.Position  = self._position + ot.Position() if position is None else position
 
         program_int: int            = self._program % od.DataSource( int() )
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self_position.getTime_ms()
         return [
@@ -1794,8 +1789,8 @@ class Panic(Element):
         self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(self_position))
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(self_position))
 
-        channel_int: int            = self._midi_track._channel % od.DataSource( int() )
-        device_list: list           = self._midi_track._device % od.DataSource( list() )
+        channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
+        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
         on_time_ms = self_position.getTime_ms()
         for key_note_midi in range(128):
             self_playlist.append(

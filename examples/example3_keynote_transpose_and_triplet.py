@@ -24,7 +24,7 @@ from JsonMidiCreator import *
 
 # Global Staff setting up
 staff << Tempo(120) << Measure(1)
-single_clock = Clock()
+single_clock = Clock(Track("Clock Track"))
 
 single_note = Note() << (Duration() << Measure(2)) >> Play()
 note_transposed = single_note + 5.0 >> Play()

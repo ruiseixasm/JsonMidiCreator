@@ -35,14 +35,13 @@ class Generic(o.Operand):
     pass
 
 class Track(Generic):
-
     @staticmethod
-    def generate_available_name(self, first_try: str, staff_tracks: dict) -> str:
+    def generate_available_name(first_try: str, staff_tracks: dict) -> str:
         staff_chaos: ch.Chaos           = os.staff % od.DataSource( ch.Chaos() )
         available_name: str = first_try
         while available_name in staff_tracks or available_name == "":
-            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Staff":
-                o.logging.info(f"Track name '{available_name}' is already taken in a total of {len(staff_tracks)} tracks!")
+            # if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Staff":
+            #     o.logging.info(f"Track name '{available_name}' is already taken in a total of {len(staff_tracks)} tracks!")
             available_name = ""
             for _ in range(5):  # randomly generated 5 chars name [a-z]
                 ascii_char: int = 97 + staff_chaos * 1 % int() % 26
@@ -82,22 +81,23 @@ class Track(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     return self._track_data._name
+                    case ou.MidiTrack():            return self._track_data._midi_track
                     case ou.Channel():              return self._track_data._midi_track._channel
                     case od.Device():               return self._track_data._midi_track._device
                     case _:                         return super().__mod__(operand)
             case str():                     return self._track_data._name
+            case ou.MidiTrack():            return self._track_data._midi_track.copy()
             case ou.Channel():              return self._track_data._midi_track._channel.copy()
             case od.Device():               return self._track_data._midi_track._device.copy()
             case _:                         return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
+    def __eq__(self, other: 'Track') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._track_data is other._track_data # 'is' instead of '==' to check by reference
-            case _:
-                return super().__eq__(other)
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) != type(other):
+            return False
+        return  self._track_data is other._track_data   # 'is' instead of '==' to check by reference
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

@@ -81,7 +81,7 @@ class Staff(o.Operand):
         for key, value in self._tracks.items():
             track_data_ref_count: int = sys.getrefcount(value)                
             # print(f"{key}: {track_data_ref_count}")
-            if track_data_ref_count < 4:    # sys + for + _tracks = 3
+            if track_data_ref_count < 4 and key != 'Staff': # sys + for + _tracks = 3
                 tracks_to_remove.add(key)
         for track in tracks_to_remove:
             self._tracks.pop(track)
@@ -339,4 +339,4 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
-og.Track()   # Adds the default Track as "Staff" to the staff automatically
+# og.Track()   # No need, this "Staff" Track is created on demand!
