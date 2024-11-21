@@ -50,7 +50,7 @@ class Staff(o.Operand):
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
         self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 10000) % 100)
         self._chaos << ra.Lambda( self._chaos % ra.Lambda() + int(time.time() * 10000) % 100 )   # Lambda is the SinX chaotic blueprint !!
-        self._tracks: dict                          = {}    # where the multiple tracks will be saved
+        self._tracks: dict[str, og.TrackData]       = {}    # where the multiple tracks will be saved
         if len(parameters) > 0:
             self << parameters
 
@@ -76,8 +76,8 @@ class Staff(o.Operand):
                         white_keys += 1
                 num_accidentals += 1
 
-    def clean_tracks(self) -> dict:
-        tracks_to_remove: set = set()
+    def clean_tracks(self) -> dict[str, og.TrackData]:
+        tracks_to_remove: set[str] = set()
         for key, value in self._tracks.items():
             track_data_ref_count: int = sys.getrefcount(value)                
             # print(f"{key}: {track_data_ref_count}")

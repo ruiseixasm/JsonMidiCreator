@@ -75,7 +75,7 @@ class Track(Generic):
         else:
             # This is the new Staff Track
             staff_tracks[self._track_data._name] = self._track_data   # adds self TrackData to the staff
-            print(f"Created the default Staff Track named 'Staff'")
+            print(f"Created the default Track named 'Staff'")
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
