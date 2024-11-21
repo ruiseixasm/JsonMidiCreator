@@ -31,7 +31,7 @@ single_clock = Clock(Track("Clock Track")) >> Save("json/_Save_1.1_jsonMidiCreat
 
 # Multiple individual Notes creation and sequentially played
 first_note = Note(Track("Piano")) << (Position() << Step(3*4 + 2)) << (Length() << NoteValue(1/2)) >> Save("json/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequence.json") >> Export("json/_Export_1.1_sequence.json")
+multi_notes = Rest(Track("Piano"), NoteValue(Step(3*4 + 2))) >> first_note * 3 >> Play(0) >> Save("json/_Save_1.2_sequence.json") >> Export("json/_Export_1.1_sequence.json")
 
 first_note << "F" >> Play()
 first_note << Load("json/_Save_1.1_first_note.json") >> Play()
@@ -47,9 +47,9 @@ first_sequence = (base_note * 8 // Step(1) << Channel(10)) >> Save("json/_Save_1
 second_sequence = first_sequence >> Copy()
 second_sequence /= Position(2)
 second_sequence /= Length(2)
-second_sequence = Rest(4) >> second_sequence
+second_sequence = Rest(Track("Drums"), 4) >> second_sequence
 second_sequence >> Save("json/_Save_1.5_second_sequence.json")
-first_sequence = Rest(2) >> first_sequence
+first_sequence = Rest(Track("Drums"), 2) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Sequence(first_sequence) + Sequence(second_sequence)

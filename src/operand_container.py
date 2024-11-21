@@ -488,8 +488,7 @@ class Sequence(Container):  # Just a container of Elements
         sorted_elements = sorted(sorted_elements, key=lambda x: (id(x._track._track_data)))
         for single_element_i in range(len(sorted_elements)):
             single_element: oe.Element = sorted_elements[single_element_i]
-            # if single_element_i > 0 and id(sorted_elements[single_element_i]._track._track_data) == id(sorted_elements[single_element_i - 1]._track._track_data):
-            if single_element_i > 0:
+            if single_element_i > 0 and id(sorted_elements[single_element_i]._track._track_data) == id(sorted_elements[single_element_i - 1]._track._track_data):
                 single_element._position = sorted_elements[single_element_i - 1]._position + sorted_elements[single_element_i - 1]._length  # Stacks on Element Length
             else:
                 single_element._position = ot.Position(0)   # everything starts at the beginning (0)!
