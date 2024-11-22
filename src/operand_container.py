@@ -728,14 +728,15 @@ class Song(Container):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Song':
-        import operand_staff as os
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"]):
+    # def loadSerialization(self, serialization: dict) -> 'Song':
+    #     import operand_staff as os
+    #     if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+    #         "staff" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            os.staff = self.deserialize(serialization["parameters"]["staff"])
-        return self
+    #         # staff has to be loaded first to be used by all other parameters!
+    #         os.staff = self.deserialize(serialization["parameters"]["staff"])
+    #         super().loadSerialization(serialization)
+    #     return self
 
     def __add__(self, operand: o.Operand) -> 'Song':
         import operand_element as oe
