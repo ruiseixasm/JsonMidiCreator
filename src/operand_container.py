@@ -720,7 +720,22 @@ class Song(Container):
                 midi_list.extend(single_sequence.getMidilist(track, position))
         return midi_list
 
+    def getSerialization(self) -> dict:
+        import operand_staff as os
+        serialization = super().getSerialization()
+        serialization["parameters"]["staff"] = self.serialize(os.staff)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Song':
+        import operand_staff as os
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "staff" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            os.staff = self.deserialize(serialization["parameters"]["staff"])
+        return self
 
     def __add__(self, operand: o.Operand) -> 'Song':
         import operand_element as oe

@@ -1314,7 +1314,7 @@ class ControlChange(Automation):
             super().loadSerialization(serialization)
             self._controller = og.Controller().loadSerialization(serialization["parameters"]["controller"])
         return self
-      
+
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
