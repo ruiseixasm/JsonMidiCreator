@@ -706,18 +706,18 @@ class Song(Container):
             if isinstance(single_operand, Sequence):
                 self._datasource_list.append(od.DataSource( single_operand.copy() ))
 
-    def getPlaylist(self, track: og.Track = None) -> list:
+    def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):
-                play_list.extend(single_sequence.getPlaylist(track))
+                play_list.extend(single_sequence.getPlaylist(track, position))
         return play_list
 
-    def getMidilist(self, track: og.Track = None) -> list:
+    def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
         midi_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):
-                midi_list.extend(single_sequence.getMidilist(track))
+                midi_list.extend(single_sequence.getMidilist(track, position))
         return midi_list
 
     # CHAINABLE OPERATIONS
