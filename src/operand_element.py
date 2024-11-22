@@ -251,7 +251,6 @@ class Element(o.Operand):
         return self
 
     def __mul__(self, operand: any) -> Union['Element', oc.Sequence]:
-        self_copy: Element = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
@@ -259,13 +258,13 @@ class Element(o.Operand):
             case oc.Sequence():
                 ...
             case o.Operand():
-                return self_copy << self % operand * operand    # implicit copy (*)
+                return self << self % operand * operand
             case int():
                 multi_elements = []
                 for _ in range(operand):
                     multi_elements.append(self.copy())
                 return oc.Sequence(multi_elements).stack()
-        return self_copy
+        return self
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
