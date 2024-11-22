@@ -227,7 +227,7 @@ class Element(o.Operand):
             case od.Serialization():
                 return operand % od.DataSource() >> self
             case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist(track))
+                return operand >> od.Playlist(self.getPlaylist())
             case _:
                 return super().__rrshift__(operand)
 
@@ -334,7 +334,8 @@ class Clock(Stackable):
     
     def getPlaylist(self, track: og.Track = None) -> list:
         track = og.Track() if not isinstance(track, og.Track) else track
-        device = self % od.Device()
+        # device = self % od.Device()
+        device: od.Device = track % od.DataSource( od.Device() )
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
         pulses_per_beat = pulses_per_note * (os.staff % ra.BeatNoteValue() % od.DataSource( Fraction() ))
         pulses_per_measure = pulses_per_beat * (os.staff % ra.BeatsPerMeasure() % od.DataSource( Fraction() ))
@@ -427,7 +428,7 @@ class Rest(Stackable):
         track = og.Track() if not isinstance(track, og.Track) else track
         duration: ot.Duration       = self._duration
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         off_time_ms = (self._position + duration).getTime_ms()
@@ -511,7 +512,7 @@ class Note(Stackable):
         key_note_float: float       = self._pitch % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         off_time_ms = (self._position + duration * self._gate).getTime_ms()
@@ -1295,7 +1296,7 @@ class ControlChange(Automation):
         number_int: int             = self % ou.Number() % od.DataSource( int() )
         value_int: int              = self % ou.Value() % od.DataSource( int() )
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         return [
@@ -1407,7 +1408,7 @@ class PitchBend(Automation):
         msb_midi: int               = self._bend % ol.MSB()
         lsb_midi: int               = self._bend % ol.LSB()
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         return [
@@ -1517,7 +1518,7 @@ class Aftertouch(Automation):
         track = og.Track() if not isinstance(track, og.Track) else track
         pressure_int: int           = self._pressure % od.DataSource( int() )
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         return [
@@ -1629,7 +1630,7 @@ class PolyAftertouch(Aftertouch):
         key_note_float: float       = self._pitch % od.DataSource( float() )
         pressure_int: int           = self._pressure % od.DataSource( int() )
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         return [
@@ -1715,7 +1716,7 @@ class ProgramChange(Automation):
         track = og.Track() if not isinstance(track, og.Track) else track
         program_int: int            = self._program % od.DataSource( int() )
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
 
         on_time_ms = self._position.getTime_ms()
         return [
@@ -1794,7 +1795,7 @@ class Panic(Element):
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(track))
 
         channel_int: int            = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( ou.Channel() ) % int()
-        device_list: list           = self._track % od.DataSource( ou.MidiTrack() ) % od.DataSource( od.Device() ) % list()
+        device_list: list           = track % od.DataSource( od.Device() ) % list()
         on_time_ms = self._position.getTime_ms()
         for key_note_midi in range(128):
             self_playlist.append(
