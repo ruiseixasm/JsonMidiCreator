@@ -234,14 +234,13 @@ class Element(o.Operand):
                 return super().__rrshift__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():         return oc.Sequence(self_copy, operand.copy())
-            case oc.Sequence():     return oc.Sequence(self_copy, operand.copy() % list())
+            case Element():         return oc.Sequence(self.copy(), operand.copy())
+            case oc.Sequence():     return oc.Sequence(self.copy(), operand.copy() % list())
             # For self Parameters it shouldn't result in new instantiations !!
             case o.Operand():       return self << self % operand + operand
-        return self_copy
+        return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         self_copy = self.copy()
