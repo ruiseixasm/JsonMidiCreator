@@ -365,9 +365,12 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Track():        return self._track
+                    case ou.Channel():      return self._track % od.DataSource( ou.Channel() )
+                    case od.Device():       return self._track % od.DataSource( od.Device() )
                     case _:                 return super().__mod__(operand)
-            case og.Track():
-                return self._track.copy()
+            case og.Track():        return self._track.copy()
+            case ou.Channel():      return self._track % ou.Channel()
+            case od.Device():       return self._track % od.Device()
             case ot.Length():
                 import operand_element as oe
                 total_length = ot.Length()
@@ -461,11 +464,19 @@ class Sequence(Container):  # Just a container of Elements
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case og.Track():        self._track = operand % o.Operand()
+                    case ou.Channel() | od.Device():
+                                            self._track << od.DataSource( operand % o.Operand() )
+                    case _:                 super().__lshift__(operand)
             case Sequence():
                 super().__lshift__(operand)
                 self._track = operand._track.copy()
             case og.Track():
                 self._track = operand.copy()
+            case ou.Channel() | od.Device():
+                self._track << operand
             case ot.Length() | ra.NoteValue() | float() | Fraction():
                 super().__lshift__(operand)
                 self.stack()
