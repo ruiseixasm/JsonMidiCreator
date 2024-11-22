@@ -344,6 +344,10 @@ class Container(o.Operand):
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
+        self._track: og.Track   = og.Track()
+        for single_operand in operands:
+            if isinstance(single_operand, og.Track):
+                self._track = single_operand.copy()
 
     def __mod__(self, operand: list) -> list:
         """
@@ -637,3 +641,6 @@ class Sequence(Container):  # Just a container of Elements
                     if isinstance(single_datasource._data, oe.Element):
                         single_datasource._data << length
         return self.stack()
+
+class Song(Container):
+    ...
