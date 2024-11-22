@@ -504,8 +504,8 @@ class Note(Stackable):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
-        off_time_ms = (self._position + duration * self._gate).getTime_ms()
+        on_time_ms = position.getTime_ms()
+        off_time_ms = (position + duration * self._gate).getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1280,7 +1280,7 @@ class ControlChange(Automation):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
+        on_time_ms = position.getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1392,7 +1392,7 @@ class PitchBend(Automation):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
+        on_time_ms = position.getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1501,7 +1501,7 @@ class Aftertouch(Automation):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
+        on_time_ms = position.getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1613,7 +1613,7 @@ class PolyAftertouch(Aftertouch):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
+        on_time_ms = position.getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1700,7 +1700,7 @@ class ProgramChange(Automation):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
+        on_time_ms = position.getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
