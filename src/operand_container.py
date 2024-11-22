@@ -669,67 +669,36 @@ class Sequence(Container):  # Just a container of Elements
 
 class Song(Container):
     def __init__(self, *operands):
-        super().__init__(*operands)
+        super().__init__()
+        for single_operand in operands:
+            if isinstance(single_operand, Sequence):
+                self._datasource_list.append(od.DataSource( single_operand.copy() ))
 
     def getPlaylist(self, track: og.Track = None) -> list:
-        track = self._track if not isinstance(track, og.Track) else track
-        play_list = []
-        for single_element in self.get_sequence_elements():
-            play_list.extend(single_element.getPlaylist(self._track))
+        play_list: list = []
+        for single_sequence in self:
+            if isinstance(single_sequence, Sequence):
+                play_list.extend(single_sequence.getPlaylist(track))
         return play_list
 
     def getMidilist(self, track: og.Track = None) -> list:
-        track = self._track if not isinstance(track, og.Track) else track
-        midi_list = []
-        for single_element in self.get_sequence_elements():
-            midi_list.extend(single_element.getMidilist(self._track))
+        midi_list: list = []
+        for single_sequence in self:
+            if isinstance(single_sequence, Sequence):
+                midi_list.extend(single_sequence.getMidilist(track))
         return midi_list
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-
-        serialization["parameters"]["track"] = self.serialize(self._track)
-        return serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
-        import operand_element as oe
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "track" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._track = self.deserialize(serialization["parameters"]["track"])
+    def __add__(self, sequence: Sequence) -> 'Song':
+        if isinstance(sequence, Sequence):
+            self._datasource_list.append(od.DataSource( sequence.copy() ))
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
-        match operand:
-            case Container():
-                self_copy: Sequence = self.__class__()
-                for single_datasource in self._datasource_list:
-                    self_copy._datasource_list.append(single_datasource.copy())
-                for single_datasource in operand._datasource_list:
-                    if isinstance(operand, Sequence) or isinstance(single_datasource._data, oe.Element):
-                        self_copy._datasource_list.append(single_datasource.copy())
-                return self_copy
-            case oe.Element():
-                self._datasource_list.append(od.DataSource( operand.copy() ))
-                return self
-            case o.Operand() | int() | float() | Fraction():
-                for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        single_datasource._data += operand
-                return self
-        return super().__add__(operand)
-
-    def __sub__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
-        match operand:
-            case Container() | oe.Element():
-                return super().__sub__(operand)
-            case o.Operand() | int() | float() | Fraction():
-                for single_datasource in self._datasource_list:
-                    single_datasource._data << single_datasource._data - operand
-                return self
-        return super().__sub__(operand)
+    def __sub__(self, sequence: Sequence) -> 'Song':
+        if isinstance(sequence, Sequence):
+            for single_sequence_i in len(self._datasource_list):
+                if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
+                    if self._datasource_list[single_sequence_i]._data == sequence:
+                        del self._datasource_list[single_sequence_i]
+        return self
