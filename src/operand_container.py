@@ -428,16 +428,18 @@ class Sequence(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, position: ot.Position = None) -> list:
+    def getPlaylist(self, track: og.Track = None) -> list:
+        track = self._track if not isinstance(track, og.Track) else track
         play_list = []
         for single_element in self.get_sequence_elements():
-            play_list.extend(single_element.getPlaylist(position))
+            play_list.extend(single_element.getPlaylist(self._track))
         return play_list
 
-    def getMidilist(self, position: ot.Position = None) -> list:
+    def getMidilist(self, track: og.Track = None) -> list:
+        track = self._track if not isinstance(track, og.Track) else track
         midi_list = []
         for single_element in self.get_sequence_elements():
-            midi_list.extend(single_element.getMidilist(position))
+            midi_list.extend(single_element.getMidilist(self._track))
         return midi_list
 
     def getSerialization(self) -> dict:
@@ -580,7 +582,7 @@ class Sequence(Container):  # Just a container of Elements
                 # return operand + (self + end_position)    # FAILS TEST 3.5
                 return (operand + self).stack()
             case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist())
+                return operand >> od.Playlist(self.getPlaylist(self._track))
             case tuple():
                 return super().__rrshift__(operand)
         return self_copy.stack()
