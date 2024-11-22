@@ -461,6 +461,9 @@ class Sequence(Container):  # Just a container of Elements
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
+            case Sequence():
+                super().__lshift__(operand)
+                self._track = operand._track
             case og.Track():
                 self._track = operand.copy()
             case ot.Length() | ra.NoteValue() | float() | Fraction():
