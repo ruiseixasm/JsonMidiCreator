@@ -454,7 +454,8 @@ class Sequence(Container):  # Just a container of Elements
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["track"] = self.serialize(self._track)
+        serialization["parameters"]["track"]    = self.serialize(self._track)
+        serialization["parameters"]["position"] = self.serialize(self._position)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -462,10 +463,11 @@ class Sequence(Container):  # Just a container of Elements
     def loadSerialization(self, serialization: dict):
         import operand_element as oe
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "track" in serialization["parameters"]):
+            "track" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._track = self.deserialize(serialization["parameters"]["track"])
+            self._track     = self.deserialize(serialization["parameters"]["track"])
+            self._position  = self.deserialize(serialization["parameters"]["position"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
