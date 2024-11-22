@@ -371,10 +371,12 @@ class Sequence(Container):  # Just a container of Elements
                     case og.Track():        return self._track
                     case ou.Channel():      return self._track % od.DataSource( ou.Channel() )
                     case od.Device():       return self._track % od.DataSource( od.Device() )
+                    case ot.Position():     return self._position
                     case _:                 return super().__mod__(operand)
             case og.Track():        return self._track.copy()
             case ou.Channel():      return self._track % ou.Channel()
             case od.Device():       return self._track % od.Device()
+            case ot.Position():     return self._position.copy()
             case ot.Length():
                 import operand_element as oe
                 total_length = ot.Length()

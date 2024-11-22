@@ -19,7 +19,7 @@ from typing import TypeVar, TYPE_CHECKING
 from fractions import Fraction
 
 # logging.basicConfig(level=logging.WARNING)
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
