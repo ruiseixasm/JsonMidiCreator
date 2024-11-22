@@ -560,17 +560,17 @@ class Sequence(Container):  # Just a container of Elements
     def __add__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
         match operand:
-            case Container() | oe.Element():
+            case Container():
                 self_copy: Sequence = self.__class__()
                 for single_datasource in self._datasource_list:
                     self_copy._datasource_list.append(single_datasource.copy())
-                if isinstance(operand, Container):
-                    for single_datasource in operand._datasource_list:
-                        if isinstance(operand, Sequence) or isinstance(single_datasource._data, oe.Element):
-                            self_copy._datasource_list.append(single_datasource.copy())
-                else:   # It's an Element
-                    self_copy._datasource_list.append(od.DataSource( operand.copy() ))
+                for single_datasource in operand._datasource_list:
+                    if isinstance(operand, Sequence) or isinstance(single_datasource._data, oe.Element):
+                        self_copy._datasource_list.append(single_datasource.copy())
                 return self_copy
+            case oe.Element():
+                self._datasource_list.append(od.DataSource( operand.copy() ))
+                return self
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element

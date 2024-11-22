@@ -260,10 +260,10 @@ class Element(o.Operand):
             case o.Operand():
                 return self << self % operand * operand
             case int():
-                multi_elements = []
+                new_sequence: oc.Sequence = oc.Sequence()
                 for _ in range(operand):
-                    multi_elements.append(self.copy())
-                return oc.Sequence(multi_elements).stack()
+                    new_sequence + self # copy already included in Element processing
+                return new_sequence.stack()
         return self
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
