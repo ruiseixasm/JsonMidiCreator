@@ -237,7 +237,7 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():         return oc.Sequence(self.copy(), operand.copy())
-            case oc.Sequence():     return oc.Sequence(self.copy(), operand.copy() % list())
+            case oc.Sequence():     return oc.Sequence(self.copy()) + operand
             # For self Parameters it shouldn't result in new instantiations !!
             case o.Operand():       return self << self % operand + operand
         return self
