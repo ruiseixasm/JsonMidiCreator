@@ -608,13 +608,12 @@ class Note(Stackable):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._pitch - operand
+                self << self._pitch - operand
             case _:             return super().__sub__(operand)
-        return self_copy
+        return self
     
 class Cluster(Note):
     # A tone cluster is a musical chord comprising at least three adjacent tones in a scale.
@@ -1357,13 +1356,12 @@ class ControlChange(Automation):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ra.Float():
-                self_copy << self._controller - operand
+                self << self._controller - operand
             case _:             return super().__sub__(operand)
-        return self_copy
+        return self
 
 class PitchBend(Automation):
     def __init__(self, *parameters):
@@ -1468,13 +1466,12 @@ class PitchBend(Automation):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._bend - operand
+                self << self._bend - operand
             case _:             return super().__sub__(operand)
-        return self_copy
+        return self
 
 class Aftertouch(Automation):
     def __init__(self, *parameters):
@@ -1579,13 +1576,12 @@ class Aftertouch(Automation):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._pressure - operand
+                self << self._pressure - operand
             case _:             return super().__sub__(operand)
-        return self_copy
+        return self
 
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
@@ -1779,13 +1775,12 @@ class ProgramChange(Automation):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
-                self_copy << self._program - operand
+                self << self._program - operand
             case _:             return super().__sub__(operand)
-        return self_copy
+        return self
 
 class Panic(Element):
     def getPlaylist(self, position: ot.Position = None) -> list:
