@@ -236,8 +236,8 @@ class Element(o.Operand):
     def __add__(self, operand: o.Operand) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():         return oc.Sequence(self.copy(), operand.copy())
-            case oc.Sequence():     return oc.Sequence(self.copy()) + operand
+            case Element():         return oc.Sequence(self, operand)   # copy already included in Sequence initiation
+            case oc.Sequence():     return oc.Sequence(self) + operand
             # For self Parameters it shouldn't result in new instantiations !!
             case o.Operand():       return self << self % operand + operand
         return self
@@ -267,7 +267,6 @@ class Element(o.Operand):
         return self
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
@@ -275,8 +274,8 @@ class Element(o.Operand):
             case oc.Sequence():
                 ...
             case o.Operand():
-                return self_copy << self % operand / operand
-        return self_copy
+                return self << self % operand / operand
+        return self
 
     @staticmethod
     def midi_128(midi_value: int | float = 0):
