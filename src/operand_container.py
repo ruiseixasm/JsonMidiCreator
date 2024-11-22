@@ -362,7 +362,12 @@ class Sequence(Container):  # Just a container of Elements
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
-            case od.DataSource():   return super().__mod__(operand)
+            case od.DataSource():
+                match operand % o.Operand():
+                    case og.Track():        return self._track
+                    case _:                 return super().__mod__(operand)
+            case og.Track():
+                return self._track.copy()
             case ot.Length():
                 import operand_element as oe
                 total_length = ot.Length()
