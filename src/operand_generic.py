@@ -53,22 +53,28 @@ class Track(Generic):
         self._track_data: TrackData = TrackData()
         staff_tracks: dict[str, TrackData]  = os.staff % od.DataSource( dict() )
         if len(parameters) > 0:
-            entered_name: str = ""
+            self._track_data._name = None
             for single_operand in parameters:
                 if isinstance(single_operand, str):
-                    entered_name = single_operand
-                    break
-            self._track_data._name = self.generate_available_name(entered_name, staff_tracks)
-            if entered_name == self._track_data._name or entered_name == "":
-                # This is a new Track
-                staff_tracks[self._track_data._name] = self._track_data # adds self TrackData to the staff
-                print(f"Created a new Track named '{self._track_data._name}'")
-            else:
-                # This is NOT a new Track, instead it's asking for the one with the respective name
-                self._track_data = staff_tracks[entered_name]
+                    self._track_data._name = single_operand
+            match self._track_data._name:
+                case None:
+                    default_track: Track = Track()  # Default track (no arguments)
+                    self._track_data = default_track._track_data
+                case "":    # new named Track needs to be created
+                    auto_generated_name = self.generate_available_name("", staff_tracks) # Generates new chaotic name
+                    self._track_data._name = auto_generated_name
+                    staff_tracks[auto_generated_name] = self._track_data        # adds self TrackData to the staff
+                    print(f"Created a new Track named '{self._track_data._name}'")
+                case _:
+                    if self._track_data._name in staff_tracks:
+                        self._track_data = staff_tracks[self._track_data._name]
+                    else:   # new named Track needs to be created
+                        staff_tracks[self._track_data._name] = self._track_data # adds self TrackData to the staff
+                        print(f"Created a new Track named '{self._track_data._name}'")
             for single_operand in parameters:
                 if not isinstance(single_operand, str):
-                    self << single_operand  # all but strings
+                    self << single_operand
         elif self._track_data._name in staff_tracks:
             # No args means the default Staff Track
             self._track_data = staff_tracks[self._track_data._name]
@@ -81,11 +87,13 @@ class Track(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case TrackData():               return self._track_data
                     case str():                     return self._track_data._name
                     case ou.MidiTrack():            return self._track_data._midi_track
                     case ou.Channel():              return self._track_data._midi_track._channel
                     case od.Device():               return self._track_data._midi_track._device
                     case _:                         return super().__mod__(operand)
+            case TrackData():               return self._track_data # Not supposed to be copied !
             case str():                     return self._track_data._name
             case ou.MidiTrack():            return self._track_data._midi_track.copy()
             case ou.Channel():              return self._track_data._midi_track._channel.copy()
@@ -132,19 +140,25 @@ class Track(Generic):
                     case str():
                         staff_tracks: dict[str, TrackData] = os.staff % od.DataSource( dict() )
                         new_name: str = operand % o.Operand()
-                        if not new_name in staff_tracks:
+                        if not new_name in staff_tracks and new_name != "":
                             # Rename "old_key" to "new_key"
-                            new_name = self.generate_available_name(new_name, staff_tracks) # for an empty string ""
-                            staff_tracks[new_name] = staff_tracks.pop(self._name)
+                            old_name = self._track_data._name
+                            staff_tracks[new_name] = staff_tracks.pop(old_name)
                             self._track_data._name = new_name
                         else:
-                            print(f"Track named '{new_name}' already exists!")
+                            if new_name == "":
+                                new_name = Track() % str()  # Makes sure the Default Track is generated
+                            self._track_data = staff_tracks[new_name]
+                    case TrackData():
+                        # A TrackData MUST to be created by a Track to be considered existent
+                        self._track_data._midi_track = (operand % o.Operand())._midi_track
                     case ou.MidiTrack():            self._track_data._midi_track = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Track():
                 super().__lshift__(operand)
                 self._track_data = operand._track_data
-            case str():             self._track_data << od.DataSource( operand )
+            case str():             self << od.DataSource( operand )
+            case TrackData():       self._track_data << od.DataSource( operand )
             case ou.MidiTrack():    self._track_data._midi_track << operand
             case ou.Channel():      self._track_data._midi_track._channel << operand
             case od.Device():       self._track_data._midi_track._device << operand
