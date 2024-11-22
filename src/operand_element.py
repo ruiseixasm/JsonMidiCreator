@@ -239,7 +239,7 @@ class Element(o.Operand):
         match operand:
             case Element():         return oc.Sequence(self_copy, operand.copy())
             case oc.Sequence():     return oc.Sequence(self_copy, operand.copy() % list())
-            # For operands it shouldn't result in a new instantiations !!
+            # For self Parameters it shouldn't result in new instantiations !!
             case o.Operand():       return self << self % operand + operand
         return self_copy
 
@@ -605,6 +605,7 @@ class Note(Stackable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._pitch + operand
                 # return self_copy << self._pitch + operand
             case _:             return super().__add__(operand)
@@ -1355,6 +1356,7 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ra.Float():
+                # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._controller + operand
                 # self_copy << self._controller + operand
             case _:             return super().__add__(operand)
@@ -1467,6 +1469,7 @@ class PitchBend(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._bend + operand
                 # self_copy << self._bend + operand
             case _:             return super().__add__(operand)
@@ -1579,6 +1582,7 @@ class Aftertouch(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._pressure + operand
                 # self_copy << self._pressure + operand
             case _:             return super().__add__(operand)
@@ -1780,6 +1784,7 @@ class ProgramChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+                # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._program + operand
                 # self_copy << self._program + operand
             case _:             return super().__add__(operand)
