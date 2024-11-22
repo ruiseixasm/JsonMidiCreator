@@ -463,7 +463,7 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case Sequence():
                 super().__lshift__(operand)
-                self._track = operand._track
+                self._track = operand._track.copy()
             case og.Track():
                 self._track = operand.copy()
             case ot.Length() | ra.NoteValue() | float() | Fraction():
