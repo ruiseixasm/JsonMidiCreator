@@ -143,11 +143,11 @@ class Element(o.Operand):
         return [
                 {
                     "event":        "Element",
-                    "track":        self._track % od.DataSource( ou.MidiTrack() ) % int() - 1,  # out of range shouldn't be exported as a midi track
-                    "track_name":   self._track % od.DataSource( ou.MidiTrack() ) % str(),
+                    "track":        track % od.DataSource( ou.MidiTrack() ) % int() - 1,  # out of range shouldn't be exported as a midi track
+                    "track_name":   track % od.DataSource( ou.MidiTrack() ) % str(),
                     "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
                     "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
-                    "channel":      Element.midi_16(self._channel % int() - 1),
+                    "channel":      Element.midi_16(track % od.DataSource( ou.Channel() ) % int() - 1),
                     "time":         self._position % od.DataSource( ra.Beat() ) % float(),   # beats
                     "duration":     self._duration % od.DataSource( ra.Beat() ) % float(),  # beats
                     "tempo":        os.staff._tempo % float()   # bpm
