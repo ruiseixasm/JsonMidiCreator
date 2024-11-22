@@ -39,7 +39,6 @@ class Element(o.Operand):
         self._position: ot.Position         = ot.Position()
         self._duration: ot.Duration         = os.staff % ot.Duration()
         self._length: ot.Length             = ot.Length() << self._duration
-        self._track: og.Track               = og.Track()
         if len(parameters) > 0:
             self << parameters
 
@@ -60,7 +59,6 @@ class Element(o.Operand):
                     case ot.Position():     return self._position
                     case ot.Duration():     return self._duration
                     case ot.Length():       return self._length
-                    case og.Track():        return self._track
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -69,9 +67,6 @@ class Element(o.Operand):
             case ra.NoteValue():    return self._length % operand
             case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
-            case og.Track():        return self._track.copy()
-            case ou.Channel():      return self._track % ou.Channel()
-            case od.Device():       return self._track % od.Device()
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.end()
@@ -83,8 +78,7 @@ class Element(o.Operand):
             case self.__class__():
                 return  self._position      == other % od.DataSource( ot.Position() ) \
                     and self._duration      == other % od.DataSource( ot.Duration() ) \
-                    and self._length        == other % od.DataSource( ot.Length() ) \
-                    and self._track         == other % od.DataSource( og.Track() )
+                    and self._length        == other % od.DataSource( ot.Length() )
             case ra.NoteValue():
                 return self._duration == other
             case ra.TimeUnit():
@@ -159,21 +153,18 @@ class Element(o.Operand):
         serialization["parameters"]["position"]     = self.serialize(self._position)
         serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["length"]       = self.serialize(self._length)
-        serialization["parameters"]["track"]        = self.serialize(self._track)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "length" in serialization["parameters"] and
-            "track" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._length        = self.deserialize(serialization["parameters"]["length"])
-            self._track         = self.deserialize(serialization["parameters"]["track"])
 
         return self
 
@@ -185,13 +176,11 @@ class Element(o.Operand):
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Duration():     self._duration = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
-                    case og.Track():        self._track = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
                 self._duration      << operand._duration
                 self._length        << operand._length
-                self._track         << operand._track
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Duration():
@@ -203,10 +192,6 @@ class Element(o.Operand):
                 self._length        << operand
             case ot.Position() | ra.TimeUnit():
                                     self._position << operand
-            case og.Track() | ou.Channel() | od.Device() | ou.MidiTrack():
-                                    self._track << operand
-            case str() | int():
-                                    self._track % od.DataSource( ou.MidiTrack() ) << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())
             case tuple():
@@ -295,7 +280,6 @@ class Clock(Stackable):
         super().__init__()
         self._duration      << os.staff % od.DataSource( ra.Measure() )
         self._length        << self._duration
-        self._track % od.DataSource( ou.MidiTrack() ) << 0  # Clock is intended to be used only by JsonMidiPlayer
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters
@@ -1479,7 +1463,6 @@ class PitchBend(Automation):
 class Aftertouch(Automation):
     def __init__(self, *parameters):
         super().__init__()
-        self._track << os.staff % ou.Channel()
         self._pressure: ou.Pressure = ou.Pressure()
         if len(parameters) > 0:
             self << parameters

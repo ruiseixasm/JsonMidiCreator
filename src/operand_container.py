@@ -510,16 +510,15 @@ class Sequence(Container):  # Just a container of Elements
     def stack(self) -> 'Sequence':
         import operand_element as oe
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
-        sorted_elements: list[oe.Stackable] = [
+        stackable_elements: list[oe.Stackable] = [
                 single_data._data
                 for single_data in self._datasource_list
                 if isinstance(single_data._data, oe.Stackable)
             ]
-        sorted_elements = sorted(sorted_elements, key=lambda x: (id(x._track._track_data)))
-        for single_element_i in range(len(sorted_elements)):
-            single_element: oe.Stackable = sorted_elements[single_element_i]
-            if single_element_i > 0 and id(sorted_elements[single_element_i]._track._track_data) == id(sorted_elements[single_element_i - 1]._track._track_data):
-                single_element._position = sorted_elements[single_element_i - 1]._position + sorted_elements[single_element_i - 1]._length  # Stacks on Element Length
+        for single_element_i in range(len(stackable_elements)):
+            single_element: oe.Stackable = stackable_elements[single_element_i]
+            if single_element_i > 0:
+                single_element._position = stackable_elements[single_element_i - 1]._position + stackable_elements[single_element_i - 1]._length  # Stacks on Element Length
             else:
                 single_element._position = ot.Position(0)   # everything starts at the beginning (0)!
         return self
