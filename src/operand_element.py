@@ -598,7 +598,7 @@ class Note(Stackable):
             case _: super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Element':
+    def __add__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -607,7 +607,7 @@ class Note(Stackable):
             case _:             return super().__add__(operand)
         return self
 
-    def __sub__(self, operand: o.Operand) -> 'Element':
+    def __sub__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -1346,7 +1346,7 @@ class ControlChange(Automation):
             case _: super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Element':
+    def __add__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ra.Float():
@@ -1355,7 +1355,7 @@ class ControlChange(Automation):
             case _:             return super().__add__(operand)
         return self
 
-    def __sub__(self, operand: o.Operand) -> 'Element':
+    def __sub__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Integer() | ra.Float():
@@ -1456,7 +1456,7 @@ class PitchBend(Automation):
             case _: super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Element':
+    def __add__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -1465,7 +1465,7 @@ class PitchBend(Automation):
             case _:             return super().__add__(operand)
         return self
 
-    def __sub__(self, operand: o.Operand) -> 'Element':
+    def __sub__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -1566,7 +1566,7 @@ class Aftertouch(Automation):
             case _: super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Element':
+    def __add__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -1575,7 +1575,7 @@ class Aftertouch(Automation):
             case _:             return super().__add__(operand)
         return self
 
-    def __sub__(self, operand: o.Operand) -> 'Element':
+    def __sub__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -1765,7 +1765,7 @@ class ProgramChange(Automation):
             case _: super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Element':
+    def __add__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
@@ -1774,7 +1774,7 @@ class ProgramChange(Automation):
             case _:             return super().__add__(operand)
         return self
 
-    def __sub__(self, operand: o.Operand) -> 'Element':
+    def __sub__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
