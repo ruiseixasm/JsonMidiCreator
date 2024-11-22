@@ -473,9 +473,7 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 super().__lshift__(operand)
                 self._track = operand._track.copy()
-            case og.Track():
-                self._track = operand.copy()
-            case ou.Channel() | od.Device():
+            case og.Track() | ou.Channel() | od.Device():
                 self._track << operand
             case ot.Length() | ra.NoteValue() | float() | Fraction():
                 super().__lshift__(operand)
@@ -486,6 +484,11 @@ class Sequence(Container):  # Just a container of Elements
             case _: super().__lshift__(operand)
         return self
 
+    def copy(self, *parameters) -> 'Sequence':
+        sequence_copy: Sequence = super().copy(*parameters)
+        sequence_copy._track << self._track
+        return sequence_copy
+    
     def reverse(self) -> 'Sequence':
         super().reverse()
         self.first() << self.last() % ot.Position()

@@ -161,9 +161,8 @@ class Track(Generic):
                 self._track_data = operand._track_data
             case str():             self << od.DataSource( operand )
             case TrackData():       self._track_data << od.DataSource( operand )
-            case ou.MidiTrack():    self._track_data._midi_track << operand
-            case ou.Channel():      self._track_data._midi_track._channel << operand
-            case od.Device():       self._track_data._midi_track._device << operand
+            case ou.MidiTrack() | ou.Channel() | od.Device():
+                self._track_data._midi_track << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
