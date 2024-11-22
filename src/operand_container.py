@@ -438,12 +438,16 @@ class Sequence(Container):  # Just a container of Elements
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
-        super().__lshift__(operand)
         match operand:
+            case og.Track():
+                self._track = operand.copy()
             case ot.Length() | ra.NoteValue() | float() | Fraction():
+                super().__lshift__(operand)
                 self.stack()
             case ot.Position() | ra.TimeUnit():
+                super().__lshift__(operand)
                 self.link() # Maybe completely unnecessary
+            case _: super().__lshift__(operand)
         return self
 
     def reverse(self) -> 'Sequence':
