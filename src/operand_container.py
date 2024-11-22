@@ -344,10 +344,14 @@ class Container(o.Operand):
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
-        self._track: og.Track   = og.Track()
+        self._track: og.Track       = og.Track()
+        self._position: ot.Position = ot.Position(0)
         for single_operand in operands:
-            if isinstance(single_operand, og.Track):
-                self._track = single_operand.copy()
+            match single_operand:
+                case og.Track():
+                    self._track = single_operand.copy()
+                case ot.Position():
+                    self._position = single_operand.copy()
 
     def __mod__(self, operand: list) -> list:
         """
@@ -431,18 +435,18 @@ class Sequence(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, track: og.Track = None) -> list:
+    def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
         track = self._track if not isinstance(track, og.Track) else track
         play_list = []
         for single_element in self.get_sequence_elements():
-            play_list.extend(single_element.getPlaylist(self._track))
+            play_list.extend(single_element.getPlaylist(track))
         return play_list
 
-    def getMidilist(self, track: og.Track = None) -> list:
+    def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
         track = self._track if not isinstance(track, og.Track) else track
         midi_list = []
         for single_element in self.get_sequence_elements():
-            midi_list.extend(single_element.getMidilist(self._track))
+            midi_list.extend(single_element.getMidilist(track))
         return midi_list
 
     def getSerialization(self) -> dict:
