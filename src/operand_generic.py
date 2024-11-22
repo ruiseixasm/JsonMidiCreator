@@ -43,7 +43,7 @@ class Track(Generic):
             # if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and available_name != "Default":
             #     o.logging.info(f"Track name '{available_name}' is already taken in a total of {len(staff_tracks)} tracks!")
             available_name = ""
-            for _ in range(5):  # randomly generated 5 chars name [a-z]
+            for _ in range(5):  # Chaotically generated 5 chars name [a-z]
                 ascii_char: int = 97 + staff_chaos * 1 % int() % 26
                 available_name += chr(ascii_char)
         return available_name
@@ -140,16 +140,17 @@ class Track(Generic):
                 match operand % o.Operand():
                     case str():
                         staff_tracks: dict[str, TrackData] = os.staff % od.DataSource( dict() )
+                        old_name = self._track_data._name
                         new_name: str = operand % o.Operand()
-                        if not new_name in staff_tracks and new_name != "":
-                            # Rename "old_key" to "new_key"
-                            old_name = self._track_data._name
+                        if not new_name in staff_tracks:
+                            if new_name == "":
+                                new_name = self.generate_available_name("", staff_tracks) # Generates new chaotic name
+                            # Rename "old_name" to "new_name"
                             staff_tracks[new_name] = staff_tracks.pop(old_name)
                             self._track_data._name = new_name
+                            print(f"Track '{old_name}' renamed as '{new_name}'")
                         else:
-                            if new_name == "":
-                                new_name = Track() % str()  # Makes sure the Default Track is generated
-                            self._track_data = staff_tracks[new_name]
+                            print(f"Track '{new_name}' already existent!")
                     case TrackData():
                         # A TrackData MUST to be created by a Track to be considered existent
                         self._track_data._midi_track = (operand % o.Operand())._midi_track
