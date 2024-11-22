@@ -438,14 +438,16 @@ class Sequence(Container):  # Just a container of Elements
         return sequence_elements
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track = self._track if not isinstance(track, og.Track) else track
+        track: og.Track = self._track if not isinstance(track, og.Track) else track
+        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         play_list = []
         for single_element in self.get_sequence_elements():
             play_list.extend(single_element.getPlaylist(track))
         return play_list
 
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track = self._track if not isinstance(track, og.Track) else track
+        track: og.Track = self._track if not isinstance(track, og.Track) else track
+        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         midi_list = []
         for single_element in self.get_sequence_elements():
             midi_list.extend(single_element.getMidilist(track))
