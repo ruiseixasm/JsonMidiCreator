@@ -606,6 +606,8 @@ class Sequence(Container):  # Just a container of Elements
     def __add__(self, operand: o.Operand) -> 'Sequence':
         import operand_element as oe
         match operand:
+            case Song():
+                return operand + self   # Order is irrelevant on Song
             case Container():
                 self_copy: Sequence = self.__class__()
                 for single_datasource in self._datasource_list:
