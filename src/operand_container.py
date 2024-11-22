@@ -475,12 +475,15 @@ class Sequence(Container):  # Just a container of Elements
                     case og.Track():        self._track = operand % o.Operand()
                     case ou.Channel() | od.Device():
                                             self._track << od.DataSource( operand % o.Operand() )
+                    case ot.Position():     self._position = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Sequence():
                 super().__lshift__(operand)
                 self._track = operand._track.copy()
             case og.Track() | ou.Channel() | od.Device():
                 self._track << operand
+            case ot.Position():
+                self._position << operand
             case ot.Length() | ra.NoteValue() | float() | Fraction():
                 super().__lshift__(operand)
                 self.stack()
