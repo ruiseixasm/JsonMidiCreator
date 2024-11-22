@@ -315,7 +315,7 @@ class Playlist(Data):
         import operand_container as oc
         import operand_element as oe
         match operand:
-            case oc.Sequence() | oe.Element() | Playlist():
+            case oc.Song() | oc.Sequence() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
             case list():
                 self._data = Playlist.copy_play_list(operand)
