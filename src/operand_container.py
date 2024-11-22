@@ -132,7 +132,7 @@ class Container(o.Operand):
             if len(self._datasource_list) > index:
                 return self._datasource_list[index]._data
         return ol.Null()
- 
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
@@ -149,7 +149,7 @@ class Container(o.Operand):
             super().loadSerialization(serialization)
             self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
-       
+
     def __lshift__(self, operand: o.Operand) -> 'Container':
         match operand:
             case od.DataSource():
@@ -440,7 +440,22 @@ class Sequence(Container):  # Just a container of Elements
             midi_list.extend(single_element.getMidilist(position))
         return midi_list
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+
+        serialization["parameters"]["track"] = self.serialize(self._track)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        import operand_element as oe
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "track" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._track = self.deserialize(serialization["parameters"]["track"])
+        return self
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
