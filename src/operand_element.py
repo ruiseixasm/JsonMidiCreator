@@ -440,8 +440,6 @@ class Rest(Stackable):
             ]
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist: list = super().getMidilist(track, position)
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
@@ -530,8 +528,6 @@ class Note(Stackable):
             ]
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist: list = super().getMidilist(track, position)
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
@@ -672,16 +668,12 @@ class KeyScale(Note):
         return scale_notes
     
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_playlist = []
         for single_note in self.get_scale_notes():
             self_playlist.extend(single_note.getPlaylist(track, position))
         return self_playlist
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist = []
         for single_note in self.get_scale_notes():
             self_midilist.extend(single_note.getMidilist(track, position))
@@ -830,16 +822,12 @@ class Chord(KeyScale):
         return chord_notes
     
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_playlist = []
         for single_note in self.get_chord_notes():
             self_playlist.extend(single_note.getPlaylist(track, position))    # extends the list with other list
         return self_playlist
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist = []
         for single_note in self.get_chord_notes():
             self_midilist.extend(single_note.getMidilist(track, position))    # extends the list with other list
@@ -995,16 +983,12 @@ class Retrigger(Note):
         return retrigger_notes
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_playlist: list = []
         for single_note in self.get_retrigger_notes():
             self_playlist.extend(single_note.getPlaylist(track, position))
         return self_playlist
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist = []
         for single_note in self.get_retrigger_notes():
             self_midilist.extend(single_note.getMidilist(track, position))    # extends the list with other list
@@ -1158,16 +1142,12 @@ class Tuplet(Stackable):
         return tuplet_elements
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_playlist = []
         for single_element in self.get_tuplet_elements():
             self_playlist.extend(single_element.getPlaylist(track, position))
         return self_playlist
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist = []
         for single_element in self.get_tuplet_elements():
             self_midilist.extend(single_element.getMidilist(track, position))    # extends the list with other list
@@ -1314,8 +1294,6 @@ class ControlChange(Automation):
             ]
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist: list = super().getMidilist(track, position)
         self_midilist[0]["event"]       = "ControllerEvent"
         self_midilist[0]["number"]      = Element.midi_128(self._controller._number % int())
@@ -1428,8 +1406,6 @@ class PitchBend(Automation):
             ]
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist: list = super().getMidilist(track, position)
         self_midilist[0]["event"]       = "PitchWheelEvent"
         self_midilist[0]["value"]       = self._bend % int()
@@ -1538,8 +1514,6 @@ class Aftertouch(Automation):
             ]
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist: list = super().getMidilist(track, position)
         self_midilist[0]["event"]       = "ChannelPressure"
         self_midilist[0]["pressure"]    = Element.midi_128(self._pressure % int())
@@ -1739,8 +1713,6 @@ class ProgramChange(Automation):
             ]
     
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_midilist: list = super().getMidilist(track, position)
         self_midilist[0]["event"]       = "ProgramChange"
         self_midilist[0]["program"]     = Element.midi_128(self._program % int())
@@ -1795,8 +1767,6 @@ class ProgramChange(Automation):
 
 class Panic(Element):
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = og.Track() if not isinstance(track, og.Track) else track
-        position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         self_playlist = []
         self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(track, position))
         self_playlist.extend(PitchBend(0).getPlaylist(track, position))
