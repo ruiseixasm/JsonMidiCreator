@@ -693,15 +693,24 @@ class Song(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __add__(self, sequence: Sequence) -> 'Song':
-        if isinstance(sequence, Sequence):
-            self._datasource_list.append(od.DataSource( sequence.copy() ))
+    def __add__(self, operand: o.Operand) -> 'Song':
+        import operand_element as oe
+        if isinstance(operand, Sequence):
+            self._datasource_list.append(od.DataSource( operand.copy() ))
+        elif isinstance(operand, oe.Element):
+            self._datasource_list.append(od.DataSource( Sequence(operand) ))
         return self
 
-    def __sub__(self, sequence: Sequence) -> 'Song':
-        if isinstance(sequence, Sequence):
+    def __sub__(self, operand: o.Operand) -> 'Song':
+        import operand_element as oe
+        if isinstance(operand, Sequence):
             for single_sequence_i in len(self._datasource_list):
                 if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
-                    if self._datasource_list[single_sequence_i]._data == sequence:
+                    if self._datasource_list[single_sequence_i]._data == operand:
+                        del self._datasource_list[single_sequence_i]
+        elif isinstance(operand, oe.Element):
+            for single_sequence_i in len(self._datasource_list):
+                if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
+                    if self._datasource_list[single_sequence_i]._data == Sequence(operand):
                         del self._datasource_list[single_sequence_i]
         return self
