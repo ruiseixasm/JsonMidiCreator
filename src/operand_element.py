@@ -331,7 +331,7 @@ class Clock(Stackable):
         clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measure() ) % od.DataSource( Fraction() )))
 
         single_measure_rational_ms = ra.Measure(1.0).getTime_rational()
-        clock_start_rational_ms = self._position.getTime_rational()
+        clock_start_rational_ms = position.getTime_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._duration.getTime_rational()
 
         self_playlist = [
@@ -420,8 +420,8 @@ class Rest(Stackable):
         channel_int: int            = track % od.DataSource( ou.Channel() ) % int()
         device_list: list           = track % od.DataSource( od.Device() ) % list()
 
-        on_time_ms = self._position.getTime_ms()
-        off_time_ms = (self._position + duration).getTime_ms()
+        on_time_ms = position.getTime_ms()
+        off_time_ms = (position + duration).getTime_ms()
         return [
                 {
                     "time_ms": on_time_ms,
