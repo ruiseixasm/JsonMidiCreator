@@ -409,7 +409,7 @@ class Sequence(Container):  # Just a container of Elements
                 else:
                     sequence_elements.append(single_datasource._data)
         if len(tied_notes) > 0:
-            tied_notes = sorted(tied_notes, key=lambda x: (x._track._unit, x._channel._unit))
+            tied_notes = sorted(tied_notes, key=lambda x: (id(x._track._track_data)))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
