@@ -72,6 +72,7 @@ class Track(Generic):
                     else:   # new named Track needs to be created
                         staff_tracks[self._track_data._name] = self._track_data # adds self TrackData to the staff
                         print(f"Created a new Track named '{self._track_data._name}'")
+            # Don't anticipate this step because it can only happen at this point
             for single_operand in parameters:
                 if not isinstance(single_operand, str):
                     self << single_operand
