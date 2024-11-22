@@ -220,7 +220,9 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():         return oc.Sequence(self, operand)   # copy already included in Sequence initiation
-            case oc.Sequence():     return oc.Sequence(self) + operand
+            case oc.Sequence():
+                sequence_track: og.Track = operand % od.DataSource( og.Track() )
+                return oc.Sequence(self) + operand << od.DataSource( sequence_track )
             # For self Parameters it shouldn't result in new instantiations !!
             case o.Operand():       return self << self % operand + operand
         return self
