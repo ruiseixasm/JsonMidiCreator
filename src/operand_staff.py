@@ -295,6 +295,10 @@ class Staff(o.Operand):
                 for key, value in operand._tracks.items():
                     if key in self._tracks:
                         self._tracks[key] << value
+                        if key == 'Default':
+                            print(f"Set the default Track named 'Default'")
+                        else:
+                            print(f"Set the Track named '{key}'")
                     else:
                         self._tracks[key] = value
                         if key == 'Default':
