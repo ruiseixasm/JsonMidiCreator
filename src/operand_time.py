@@ -149,7 +149,7 @@ class Time(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["time_unit"] = self._time_unit.getSerialization()
+        serialization["parameters"]["time_unit"] = self.serialize(self._time_unit)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -159,7 +159,7 @@ class Time(o.Operand):
             "time_unit" in serialization["parameters"] and "class" in serialization["parameters"]["time_unit"]):
 
             super().loadSerialization(serialization)
-            self._time_unit = o.Operand().loadSerialization(serialization["parameters"]["time_unit"])
+            self._time_unit = self.deserialize(serialization["parameters"]["time_unit"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Time':
