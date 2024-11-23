@@ -1295,7 +1295,7 @@ class ControlChange(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["controller"] = self._controller.getSerialization()
+        serialization["parameters"]["controller"] = self.serialize( self._controller )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1305,7 +1305,7 @@ class ControlChange(Automation):
             "controller" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._controller = og.Controller().loadSerialization(serialization["parameters"]["controller"])
+            self._controller = self.deserialize( serialization["parameters"]["controller"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
@@ -1406,7 +1406,7 @@ class PitchBend(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["bend"] = self._bend % od.DataSource( int() )
+        serialization["parameters"]["bend"] = self.serialize( self._bend )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1416,7 +1416,7 @@ class PitchBend(Automation):
             "bend" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._bend     = ou.Bend()    << od.DataSource( serialization["parameters"]["bend"] )
+            self._bend = self.deserialize( serialization["parameters"]["bend"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
@@ -1514,7 +1514,7 @@ class Aftertouch(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pressure"] = self._pressure % od.DataSource( int() )
+        serialization["parameters"]["pressure"] = self.serialize( self._pressure )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1524,7 +1524,7 @@ class Aftertouch(Automation):
             "pressure" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pressure  = ou.Pressure() << od.DataSource( serialization["parameters"]["pressure"] )
+            self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
@@ -1621,7 +1621,7 @@ class PolyAftertouch(Aftertouch):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pitch"] = self._pitch.getSerialization()
+        serialization["parameters"]["pitch"] = self.serialize( self._pitch )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1631,7 +1631,7 @@ class PolyAftertouch(Aftertouch):
             "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch = og.Pitch().loadSerialization(serialization["parameters"]["pitch"])
+            self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
@@ -1713,7 +1713,7 @@ class ProgramChange(Automation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["program"] = self._program % od.DataSource( int() )
+        serialization["parameters"]["program"] = self.serialize( self._program )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1723,7 +1723,7 @@ class ProgramChange(Automation):
             "program" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._program   = ou.Program()  << od.DataSource( serialization["parameters"]["program"] )
+            self._program = self.deserialize( serialization["parameters"]["program"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
