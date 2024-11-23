@@ -477,11 +477,11 @@ class Key(Unit):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["sharp"]    = self._sharp._unit
-        serialization["parameters"]["flat"]     = self._flat._unit
-        serialization["parameters"]["natural"]  = self._natural._unit
-        serialization["parameters"]["degree"]   = self._degree._unit
-        serialization["parameters"]["scale"]    = self._scale.getSerialization()
+        serialization["parameters"]["sharp"]    = self.serialize( self._sharp )
+        serialization["parameters"]["flat"]     = self.serialize( self._flat )
+        serialization["parameters"]["natural"]  = self.serialize( self._natural )
+        serialization["parameters"]["degree"]   = self.serialize( self._degree )
+        serialization["parameters"]["scale"]    = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -493,11 +493,11 @@ class Key(Unit):
             "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sharp     = Sharp()   << od.DataSource( serialization["parameters"]["sharp"] )
-            self._flat      = Flat()    << od.DataSource( serialization["parameters"]["flat"] )
-            self._natural   = Natural() << od.DataSource( serialization["parameters"]["natural"] )
-            self._degree    = Degree()  << od.DataSource( serialization["parameters"]["degree"] )
-            self._scale     = og.Scale().loadSerialization(serialization["parameters"]["scale"])
+            self._sharp     = self.deserialize( serialization["parameters"]["sharp"] )
+            self._flat      = self.deserialize( serialization["parameters"]["flat"] )
+            self._natural   = self.deserialize( serialization["parameters"]["natural"] )
+            self._degree    = self.deserialize( serialization["parameters"]["degree"] )
+            self._scale     = self.deserialize( serialization["parameters"]["scale"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
