@@ -733,8 +733,13 @@ class Song(Container):
     #     if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
     #         "staff" in serialization["parameters"]):
 
+    #         old_staff: os.Staff = os.staff
+    #         if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
+    #             old_staff = os.staff.copy()
     #         # staff has to be loaded first to be used by all other parameters!
     #         os.staff = self.deserialize(serialization["parameters"]["staff"])
+    #         if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
+    #             o.logging.error(f"Deserialized staff is not identical to the original one!")
     #         super().loadSerialization(serialization)
     #     return self
 
