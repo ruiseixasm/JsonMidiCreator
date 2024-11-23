@@ -158,8 +158,7 @@ class Track(Generic):
                     case _:                         super().__lshift__(operand)
             case Track():
                 super().__lshift__(operand)
-                self._track_data = operand._track_data  # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
-                # self._track_data << operand._track_data
+                self._track_data = operand._track_data  # It's correct because only the _track_data reference changes
             case str():             self << od.DataSource( operand )
             case TrackData():       self._track_data << od.DataSource( operand )
             case ou.MidiTrack() | ou.Channel() | od.Device():
@@ -211,9 +210,10 @@ class TrackData(Generic):
                     case ou.MidiTrack():            self._midi_track = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case TrackData():
-                super().__lshift__(operand)
-                self._name = operand._name
-                self._midi_track << operand._midi_track
+                # Makes sure the TrackData has the same name first
+                if self._name == operand._name:
+                    super().__lshift__(operand)
+                    self._midi_track << operand._midi_track
             case str():             self << od.DataSource( operand )
             case ou.MidiTrack() | ou.Channel() | od.Device():
                                     self._midi_track << operand
