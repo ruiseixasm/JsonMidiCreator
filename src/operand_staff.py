@@ -290,12 +290,13 @@ class Staff(o.Operand):
                 self._channel           << operand._channel
                 self._device            << operand._device
                 self._chaos             << operand._chaos
-                self._tracks            = operand._tracks   # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
-                # for key, value in operand._tracks.items():
-                #     if key in self._tracks:
-                #         self._tracks[key] << value
-                #     else:
-                #         self._tracks[key] = value._track_data
+                # self._tracks            = operand._tracks   # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
+                # Track are made of TrackData objects
+                for key, value in operand._tracks.items():
+                    if key in self._tracks:
+                        self._tracks[key] << value
+                    else:
+                        self._tracks[key] = value
                 self.set_tonic_key()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
