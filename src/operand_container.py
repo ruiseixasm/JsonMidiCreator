@@ -739,7 +739,7 @@ class Song(Container):
     #         # staff has to be loaded first to be used by all other parameters!
     #         os.staff = self.deserialize(serialization["parameters"]["staff"])
     #         if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
-    #             o.logging.error(f"Deserialized staff is not identical to the original one!")
+    #             o.logging.info(f"Deserialized staff is not identical to the original one!")
     #         super().loadSerialization(serialization)
     #     return self
 
