@@ -297,7 +297,10 @@ class Staff(o.Operand):
                         self._tracks[key] << value
                     else:
                         self._tracks[key] = value
-                        print(f"Created a new Track named '{key}'")
+                        if key == 'Default':
+                            print(f"Created the default Track named 'Default'")
+                        else:
+                            print(f"Created a new Track named '{key}'")
                 self.set_tonic_key()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
