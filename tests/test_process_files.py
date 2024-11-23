@@ -95,15 +95,18 @@ first_sequence = (base_note * 8 // Step(1) << Track("Drums") << Channel(10)) >> 
 second_sequence = first_sequence >> Copy()
 second_sequence /= Position(2)
 second_sequence /= Length(2)
-second_sequence = Rest(4) >> second_sequence
+some_rest = Rest(4/1)
+second_sequence = Rest(4/1) >> second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
-first_sequence = Rest(2) >> first_sequence
+first_sequence = Rest(2/1) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Song(first_sequence) + second_sequence
 all_elements += (Length() << Beat(2) >> first_note) + single_clock
 all_elements >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Export("json/testing/_Export_1.2_all_elements.json") \
     >> Save("json/testing/_Save_Play_p.4_first_note_compare.json") >> Export("json/testing/_Export_Play_p.4_sequence_compare.json")
+original_save >> Save("json/file1.json")
+result_save >> Save("json/file2.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 1.5",

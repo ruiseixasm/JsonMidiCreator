@@ -189,10 +189,10 @@ class Element(o.Operand):
                 self._duration      << operand
             case ot.Length():
                 self._length        << operand
-            case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ra.NoteValue() | float() | ra.Float() | Fraction():
                 self._duration      << operand
                 self._length        << operand
-            case ot.Position() | ra.TimeUnit():
+            case ot.Position() | ra.TimeUnit() | int() | ou.Integer():
                                     self._position << operand
             case od.Serialization():
                 self.loadSerialization(operand.getSerialization())

@@ -49,9 +49,10 @@ second_sequence = first_sequence >> Copy()
 # second_sequence >> Play()
 second_sequence /= Position(2)
 second_sequence /= Length(2)
-second_sequence = Rest(4) >> second_sequence
+some_rest = Rest(4/1)
+second_sequence = Rest(4/1) >> second_sequence
 second_sequence >> Save("json/_Save_1.5_second_sequence.json")
-first_sequence = Rest(2) >> first_sequence
+first_sequence = Rest(2/1) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Song(first_sequence) + second_sequence >> Save("json/_Save_1.6_all_elements.json") # HAS TO BECOME A SONG !!!
