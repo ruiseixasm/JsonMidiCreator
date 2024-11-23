@@ -242,6 +242,7 @@ class Staff(o.Operand):
             self._channel           = ou.Channel()          << od.DataSource( serialization["parameters"]["channel"] )
             self._device            = od.Device()           << od.DataSource( serialization["parameters"]["device"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
+            # This is ok because it's a temporary Staff that is loading the serialized file! (Only then it is << to the main staff)
             self._tracks            = self.deserialize( serialization["parameters"]["tracks"] )
             self.set_tonic_key()
         return self

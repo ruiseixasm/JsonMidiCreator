@@ -59,6 +59,9 @@ all_elements += (Length() << Beat(2) >> first_note) + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")
 
 
+staff >> Save("json/testing/_Save_Staff_ggg.json")
+
+
 ############### TEST2 #######################
 
 # Process Exported files
@@ -113,7 +116,8 @@ single_clock >> triplets_one >> triplets_two >> Save("json/testing/_Save_Play_p.
 staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
-controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | ControlChange("Pan") * (2*16 + 1) << Iterate()**Measure()**NoteValue()**Step()) >> Save("json/testing/_Save_4.2_control_change.json")
+controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Measure()**NoteValue()**Step()
+controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | controller) >> Save("json/testing/_Save_4.2_control_change.json")
     
 chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> Export("json/testing/_Export_Play_p.10.2_sequence.json") >> Export("json/testing/_Export_4.1_control_change.json")
 
