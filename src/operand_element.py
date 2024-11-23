@@ -996,8 +996,8 @@ class Retrigger(Note):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["division"] = self._division % od.DataSource( int() )
-        serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
+        serialization["parameters"]["division"] = self.serialize( self._division )
+        serialization["parameters"]["swing"]    = self.serialize( self._swing )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1007,8 +1007,8 @@ class Retrigger(Note):
             "division" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._division  = ou.Division() << od.DataSource( serialization["parameters"]["division"] )
-            self._swing     = ra.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
+            self._division  = self.deserialize( serialization["parameters"]["division"] )
+            self._swing     = self.deserialize( serialization["parameters"]["swing"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
