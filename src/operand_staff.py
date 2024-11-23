@@ -235,7 +235,7 @@ class Staff(o.Operand):
             self._key               = ou.Key()              << od.DataSource( serialization["parameters"]["key"] )
             self._scale             = og.Scale()            << od.DataSource( serialization["parameters"]["scale"] )
             self._quantization      = ra.Quantization()     << od.DataSource( serialization["parameters"]["quantization"] )
-            self._duration          = ot.Duration()         << od.DataSource( serialization["parameters"]["duration"] )
+            self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = ou.Octave()           << od.DataSource( serialization["parameters"]["octave"] )
             self._velocity          = ou.Velocity()         << od.DataSource( serialization["parameters"]["velocity"] )
             self._controller        = og.Controller().loadSerialization(serialization["parameters"]["controller"])
