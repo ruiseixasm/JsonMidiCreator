@@ -81,16 +81,7 @@ class Operator(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["operand"]         = self._operand.getSerialization()
-
-        # operators_serialization: list = []
-        # for single_operator in self._operator_list:
-        #     if isinstance(single_operator, Operator):
-        #         operators_serialization.append(single_operator.getSerialization())
-        #     elif isinstance(single_operator, (int, float, str, list, dict)):
-        #         operators_serialization.append(single_operator)
-        # serialization["parameters"]["operator_list"]   = operators_serialization
-
+        serialization["parameters"]["operand"]       = self.serialize( self._operand )
         serialization["parameters"]["operator_list"] = self.serialize(self._operator_list)
         return serialization
 
@@ -102,14 +93,7 @@ class Operator(o.Operand):
             and "operator_list" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._operand = o.Operand().loadSerialization(serialization["parameters"]["operand"])
-
-            # operator_list = []
-            # operators_serialization = serialization["parameters"]["operator_list"]
-            # for single_operator_serialization in operators_serialization:
-            #     operator_list.append( o.Operand().loadSerialization(single_operator_serialization) )
-            # self._operator_list = operator_list
-
+            self._operand = self.deserialize( serialization["parameters"]["operand"] )
             self._operator_list = self.deserialize(serialization["parameters"]["operator_list"])
         return self
   
@@ -207,10 +191,10 @@ class Oscillator(Operator):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["position"]     = self._position.getSerialization()
-        serialization["parameters"]["length"]       = self._length.getSerialization()
-        serialization["parameters"]["amplitude"]    = self._amplitude % od.DataSource( float() )
-        serialization["parameters"]["offset"]       = self._offset % od.DataSource( float() )
+        serialization["parameters"]["position"]     = self.serialize( self._position )
+        serialization["parameters"]["length"]       = self.serialize( self._length )
+        serialization["parameters"]["amplitude"]    = self.serialize( self._amplitude )
+        serialization["parameters"]["offset"]       = self.serialize( self._offset )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -221,10 +205,10 @@ class Oscillator(Operator):
             "amplitude" in serialization["parameters"] and "offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position  = ot.Position().loadSerialization(serialization["parameters"]["position"])
-            self._length    = ot.Length().loadSerialization(serialization["parameters"]["length"])
-            self._amplitude = ra.Amplitude()    << od.DataSource( serialization["parameters"]["amplitude"] )
-            self._offset    = ra.Offset()       << od.DataSource( serialization["parameters"]["offset"] )
+            self._position  = self.deserialize( serialization["parameters"]["position"] )
+            self._length    = self.deserialize(serialization["parameters"]["length"])
+            self._amplitude = self.deserialize( serialization["parameters"]["amplitude"] )
+            self._offset    = self.deserialize( serialization["parameters"]["offset"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Oscillator':
