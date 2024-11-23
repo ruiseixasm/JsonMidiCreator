@@ -1155,26 +1155,19 @@ class Tuplet(Stackable):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["swing"]    = self._swing % od.DataSource( float() )
-        elements = []
-        for single_element in self._elements:
-            elements.append(single_element.getSerialization())
-        serialization["parameters"]["elements"] = elements
+        serialization["parameters"]["swing"]    = self.serialize( self._swing )
+        serialization["parameters"]["elements"] = self.serialize( self._elements )
         return serialization
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Tuplet':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "swing" in serialization["parameters"] and "elements" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._swing     = ra.Swing()    << od.DataSource( serialization["parameters"]["swing"] )
-            elements = []
-            elements_serialization = serialization["parameters"]["elements"]
-            for single_serialization in elements_serialization:
-                elements.append( o.Operand().loadSerialization(single_serialization) )
-            self._elements = elements
+            self._swing     = self.deserialize( serialization["parameters"]["swing"] )
+            self._elements  = self.deserialize( serialization["parameters"]["elements"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Tuplet':

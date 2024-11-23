@@ -21,9 +21,6 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff % Duration() >> Print(0)
-staff % Measure() >> Print(0)
-
 ####### TEST1 ############
 
 # Global Staff setting up
@@ -63,8 +60,6 @@ all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("j
 
 
 staff >> Save("json/testing/_Save_Staff_ggg.json")
-staff % Duration() >> Print(0)
-staff % Measure() >> Print(0)
 
 
 ############### TEST2 #######################
