@@ -257,8 +257,8 @@ class TimeSignature(Generic):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["top"]    = self._top
-        serialization["parameters"]["bottom"] = self._bottom
+        serialization["parameters"]["top"]    = self.serialize( self._top )
+        serialization["parameters"]["bottom"] = self.serialize( self._bottom )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -268,8 +268,8 @@ class TimeSignature(Generic):
             "top" in serialization["parameters"] and "bottom" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._top           = serialization["parameters"]["top"]
-            self._bottom        = serialization["parameters"]["bottom"]
+            self._top           = self.deserialize( serialization["parameters"]["top"] )
+            self._bottom        = self.deserialize( serialization["parameters"]["bottom"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'TimeSignature':
@@ -380,9 +380,9 @@ class Pitch(Generic):
     def getSerialization(self) -> dict:
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         serialization = super().getSerialization()
-        serialization["parameters"]["key"]        = self._key.getSerialization()
-        serialization["parameters"]["octave"]     = self._octave.getSerialization()
-        serialization["parameters"]["key_offset"] = self._key_offset
+        serialization["parameters"]["key"]        = self.serialize( self._key )
+        serialization["parameters"]["octave"]     = self.serialize( self._octave )
+        serialization["parameters"]["key_offset"] = self.serialize( self._key_offset )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -392,9 +392,9 @@ class Pitch(Generic):
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._key           = ou.Key().loadSerialization(serialization["parameters"]["key"])
-            self._octave        = ou.Octave().loadSerialization(serialization["parameters"]["octave"])
-            self._key_offset    = serialization["parameters"]["key_offset"]
+            self._key           = self.deserialize( serialization["parameters"]["key"] )
+            self._octave        = self.deserialize( serialization["parameters"]["octave"] )
+            self._key_offset    = self.deserialize( serialization["parameters"]["key_offset"] )
             self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return self
 
@@ -558,8 +558,8 @@ class Controller(Generic):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["number"] = self._number.getSerialization()
-        serialization["parameters"]["value"]  = self._value.getSerialization()
+        serialization["parameters"]["number"] = self.serialize( self._number )
+        serialization["parameters"]["value"]  = self.serialize( self._value )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -569,8 +569,8 @@ class Controller(Generic):
             "number" in serialization["parameters"] and "value" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._number    = ou.Number().loadSerialization(serialization["parameters"]["number"])
-            self._value     = ou.Value().loadSerialization(serialization["parameters"]["value"])
+            self._number    = self.deserialize( serialization["parameters"]["number"] )
+            self._value     = self.deserialize( serialization["parameters"]["value"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Controller':
@@ -716,8 +716,8 @@ class Scale(Generic):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["scale_list"]   = self._scale_list
-        serialization["parameters"]["mode"]         = self._mode % od.DataSource( int() )
+        serialization["parameters"]["scale_list"]   = self.serialize( self._scale_list )
+        serialization["parameters"]["mode"]         = self.serialize( self._mode )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -727,8 +727,8 @@ class Scale(Generic):
             "scale_list" in serialization["parameters"] and "mode" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._scale_list    = serialization["parameters"]["scale_list"]
-            self._mode          = ou.Mode()     << od.DataSource( serialization["parameters"]["mode"] )
+            self._scale_list    = self.deserialize( serialization["parameters"]["scale_list"] )
+            self._mode          = self.deserialize( serialization["parameters"]["mode"] )
         return self
         
     def modulate(self, mode: int | str = "5th") -> 'Scale': # AKA as remode (remoding)
