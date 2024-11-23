@@ -290,7 +290,7 @@ class Staff(o.Operand):
                 self._channel           << operand._channel
                 self._device            << operand._device
                 self._chaos             << operand._chaos
-                self._tracks            = operand._tracks
+                self._tracks            = operand._tracks   # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
                 self.set_tonic_key()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
