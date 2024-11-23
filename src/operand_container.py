@@ -728,20 +728,20 @@ class Song(Container):
 
     # CHAINABLE OPERATIONS
 
-    # def loadSerialization(self, serialization: dict) -> 'Song':
-    #     import operand_staff as os
-    #     if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-    #         "staff" in serialization["parameters"]):
+    def loadSerialization(self, serialization: dict) -> 'Song':
+        import operand_staff as os
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "staff" in serialization["parameters"]):
 
-    #         old_staff: os.Staff = os.staff
-    #         if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
-    #             old_staff = os.staff.copy()
-    #         # staff has to be loaded first to be used by all other parameters!
-    #         os.staff = self.deserialize(serialization["parameters"]["staff"])
-    #         if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
-    #             o.logging.info(f"Deserialized staff is not identical to the original one!")
-    #         super().loadSerialization(serialization)
-    #     return self
+            old_staff: os.Staff = os.staff
+            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
+                old_staff = os.staff.copy()
+            super().loadSerialization(serialization)
+            # Can't be made equal (=), or else, all other references lose their staff!
+            os.staff << self.deserialize(serialization["parameters"]["staff"])
+            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
+                o.logging.info(f"Deserialized staff is not identical to the original one!")
+        return self
 
     def __add__(self, operand: o.Operand) -> 'Song':
         import operand_element as oe
