@@ -371,8 +371,8 @@ class Clock(Stackable):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["duration"]                 = self._duration.getSerialization()
-        serialization["parameters"]["pulses_per_quarternote"]   = self._pulses_per_quarternote % od.DataSource( int() )
+        serialization["parameters"]["duration"]                 = self.serialize( self._duration )
+        serialization["parameters"]["pulses_per_quarternote"]   = self.serialize( self._pulses_per_quarternote )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -382,8 +382,8 @@ class Clock(Stackable):
             "duration" in serialization["parameters"] and "pulses_per_quarternote" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration                  = ot.Duration().loadSerialization(serialization["parameters"]["duration"])
-            self._pulses_per_quarternote    = ou.PPQN() << od.DataSource( serialization["parameters"]["pulses_per_quarternote"] )
+            self._duration                  = self.deserialize( serialization["parameters"]["duration"] )
+            self._pulses_per_quarternote    = self.deserialize( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Clock':
@@ -537,10 +537,10 @@ class Note(Stackable):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["pitch"]    = self._pitch.getSerialization()
-        serialization["parameters"]["velocity"] = self._velocity % od.DataSource( int() )
-        serialization["parameters"]["gate"]     = self._gate % od.DataSource( float() )
-        serialization["parameters"]["tied"]     = self._tied % od.DataSource( int() )
+        serialization["parameters"]["pitch"]    = self.serialize( self._pitch )
+        serialization["parameters"]["velocity"] = self.serialize( self._velocity )
+        serialization["parameters"]["gate"]     = self.serialize( self._gate )
+        serialization["parameters"]["tied"]     = self.serialize( self._tied )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -551,10 +551,10 @@ class Note(Stackable):
             "tied" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._pitch  = og.Pitch().loadSerialization(serialization["parameters"]["pitch"])
-            self._velocity  = ou.Velocity() << od.DataSource( serialization["parameters"]["velocity"] )
-            self._gate      = ra.Gate()     << od.DataSource( serialization["parameters"]["gate"] )
-            self._tied      = ou.Tied()     << od.DataSource( serialization["parameters"]["tied"] )
+            self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
+            self._velocity  = self.deserialize( serialization["parameters"]["velocity"] )
+            self._gate      = self.deserialize( serialization["parameters"]["gate"] )
+            self._tied      = self.deserialize( serialization["parameters"]["tied"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
