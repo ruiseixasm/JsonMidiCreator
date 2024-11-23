@@ -22,6 +22,9 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 import time
 
+staff % Duration() >> Print(0)
+staff % Measure() >> Print(0)
+
 result_save         = Serialization()
 result_export       = Playlist()
 results_list        = []
@@ -116,6 +119,8 @@ results_list.append({
 
 
 staff >> Save("json/testing/_Save_Staff_process.json")
+staff % Duration() >> Print(0)
+staff % Measure() >> Print(0)
 
 
 ############### TEST2 #######################
