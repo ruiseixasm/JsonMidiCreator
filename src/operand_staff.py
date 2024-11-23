@@ -199,14 +199,14 @@ class Staff(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["measures"]         = self._measure % od.DataSource( str() )
-        serialization["parameters"]["tempo"]            = self._tempo % od.DataSource( str() )
+        serialization["parameters"]["measures"]         = self.serialize( self._measure )
+        serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["time_signature"]   = self._time_signature.getSerialization()
         serialization["parameters"]["key_signature"]    = self._key_signature.getSerialization()
         serialization["parameters"]["key"]              = self._key % od.DataSource( int() )
         serialization["parameters"]["scale"]            = self._scale % od.DataSource( list() )
         serialization["parameters"]["quantization"]     = self._quantization % od.DataSource( str() )
-        serialization["parameters"]["duration"]         = self._duration.getSerialization()
+        serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self._octave % od.DataSource( int() )
         serialization["parameters"]["velocity"]         = self._velocity % od.DataSource( int() )
         serialization["parameters"]["controller"]       = self._controller.getSerialization()
@@ -228,8 +228,8 @@ class Staff(o.Operand):
             "chaos" in serialization["parameters"] and "tracks" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._measures          = ra.Measure()          << od.DataSource( serialization["parameters"]["measures"] )
-            self._tempo             = ra.Tempo()            << od.DataSource( serialization["parameters"]["tempo"] )
+            self._measures          = self.deserialize( serialization["parameters"]["measures"] )
+            self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._time_signature    = og.TimeSignature().loadSerialization(serialization["parameters"]["time_signature"])
             self._key_signature     = ou.KeySignature().loadSerialization(serialization["parameters"]["key_signature"])
             self._key               = ou.Key()              << od.DataSource( serialization["parameters"]["key"] )
