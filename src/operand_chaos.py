@@ -71,8 +71,8 @@ class Chaos(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["xn"] = self._xn.getSerialization()
-        serialization["parameters"]["x0"] = self._x0.getSerialization()
+        serialization["parameters"]["xn"] = self.serialize( self._xn )
+        serialization["parameters"]["x0"] = self.serialize( self._x0 )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -82,8 +82,8 @@ class Chaos(o.Operand):
             "xn" in serialization["parameters"] and "x0" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._xn    = ra.Xn().loadSerialization(serialization["parameters"]["xn"])
-            self._x0    = ra.X0().loadSerialization(serialization["parameters"]["x0"])
+            self._xn    = self.deserialize( serialization["parameters"]["xn"] )
+            self._x0    = self.deserialize( serialization["parameters"]["x0"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Chaos':
@@ -172,8 +172,8 @@ class Modulus(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["amplitude"]    = self._amplitude % str()
-        serialization["parameters"]["step"]         = self._step % str()
+        serialization["parameters"]["amplitude"]    = self.serialize( self._amplitude )
+        serialization["parameters"]["step"]         = self.serialize( self._step )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -183,8 +183,8 @@ class Modulus(Chaos):
             "amplitude" in serialization["parameters"] and "step" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._amplitude         << serialization["parameters"]["amplitude"]
-            self._step              << serialization["parameters"]["step"]
+            self._amplitude         = self.deserialize( serialization["parameters"]["amplitude"] )
+            self._step              = self.deserialize( serialization["parameters"]["step"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
@@ -252,7 +252,7 @@ class Flipper(Modulus):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["split"]    = self._split % od.DataSource( float() )
+        serialization["parameters"]["split"] = self.serialize( self._split )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -262,7 +262,7 @@ class Flipper(Modulus):
             "split" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._split = ra.Split()    << od.DataSource( serialization["parameters"]["split"] )
+            self._split = self.deserialize( serialization["parameters"]["split"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
@@ -332,19 +332,15 @@ class Bouncer(Chaos):
         return  self._x == other._x and self._y == other._y
     
     def getSerialization(self) -> dict:
-        return {
-            "class": self.__class__.__name__,
-            "parameters": {
-                "width":        self._width % float(),
-                "height":       self._height % float(),
-                "dx":           self._dx % float(),
-                "dy":           self._dy % float(),
-                "x":            self._x % float(),
-                "y":            self._y % float(),
-                "set_x":        self._set_xy[0] % float(),
-                "set_y":        self._set_xy[1] % float()
-            }
-        }
+        serialization = super().getSerialization()
+        serialization["parameters"]["width"]        = self.serialize( self._width )
+        serialization["parameters"]["height"]       = self.serialize( self._height )
+        serialization["parameters"]["dx"]           = self.serialize( self._dx )
+        serialization["parameters"]["dy"]           = self.serialize( self._dy )
+        serialization["parameters"]["x"]            = self.serialize( self._x )
+        serialization["parameters"]["y"]            = self.serialize( self._y )
+        serialization["parameters"]["set_xy"]       = self.serialize( self._set_xy )
+        return serialization
 
     # CHAINABLE OPERATIONS
 
@@ -355,15 +351,13 @@ class Bouncer(Chaos):
             "set_x" in serialization["parameters"] and "set_y" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._width             << serialization["parameters"]["width"]
-            self._height            << serialization["parameters"]["height"]
-            self._dx                << serialization["parameters"]["dx"]
-            self._dy                << serialization["parameters"]["dy"]
-            self._x                 << serialization["parameters"]["x"]
-            self._y                 << serialization["parameters"]["y"]
-            set_x                   = ra.X(serialization["parameters"]["set_x"])
-            set_y                   = ra.Y(serialization["parameters"]["set_y"])
-            self._set_xy            = (set_x, set_y)
+            self._width             = self.deserialize( serialization["parameters"]["width"] )
+            self._height            = self.deserialize( serialization["parameters"]["height"] )
+            self._dx                = self.deserialize( serialization["parameters"]["dx"] )
+            self._dy                = self.deserialize( serialization["parameters"]["dy"] )
+            self._x                 = self.deserialize( serialization["parameters"]["x"] )
+            self._y                 = self.deserialize( serialization["parameters"]["y"] )
+            self._set_xy            = tuple(self.deserialize( serialization["parameters"]["set_xy"] ))
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Bouncer':
@@ -456,7 +450,7 @@ class SinX(Chaos):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["lambda"]   = self._lambda % str()
+        serialization["parameters"]["lambda"]   = self.serialize( self._lambda )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -466,7 +460,7 @@ class SinX(Chaos):
             "lambda" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._lambda            << serialization["parameters"]["lambda"]
+            self._lambda            = self.deserialize( serialization["parameters"]["lambda"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'SinX':
