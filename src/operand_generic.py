@@ -158,7 +158,9 @@ class Track(Generic):
                     case _:                         super().__lshift__(operand)
             case Track():
                 super().__lshift__(operand)
-                self._track_data = operand._track_data
+                self._track_data = operand._track_data  # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
+                # self._track_data._name = operand._track_data._name
+                # self._track_data._midi_track << operand._track_data._midi_track  # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
             case str():             self << od.DataSource( operand )
             case TrackData():       self._track_data << od.DataSource( operand )
             case ou.MidiTrack() | ou.Channel() | od.Device():
@@ -202,7 +204,21 @@ class TrackData(Generic):
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'TrackData':
-        # It's a read only class intended to be set by Track class only and in a direct fashion without <<
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():                     self._name = operand % o.Operand()
+                    case ou.MidiTrack():            self._midi_track = operand % o.Operand()
+                    case _:                         super().__lshift__(operand)
+            case TrackData():
+                super().__lshift__(operand)
+                self._name = operand._name
+                self._midi_track << operand._midi_track
+            case str():             self << od.DataSource( operand )
+            case ou.MidiTrack() | ou.Channel() | od.Device():
+                                    self._midi_track << operand
+            case _:                 super().__lshift__(operand)
         return self
 
 class TimeSignature(Generic):
