@@ -140,8 +140,8 @@ class Rational(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["fraction"]  = str(self._rational)
-        serialization["parameters"]["float"]     = float(self._rational)
+        serialization["parameters"]["fraction"]  = self.serialize( self._rational )
+        serialization["parameters"]["float"]     = float(self._rational)    # Just for info
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -151,10 +151,9 @@ class Rational(o.Operand):
             "fraction" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._rational = self.deserialize( serialization["parameters"]["fraction"] )
             if self._limit_denominator > 0:
-                self._rational = Fraction(serialization["parameters"]["fraction"]).limit_denominator(self._limit_denominator)
-            else:
-                self._rational = Fraction(serialization["parameters"]["fraction"])
+                self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Rational':
