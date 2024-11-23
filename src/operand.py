@@ -353,9 +353,9 @@ class Operand:
             case Operand():
                 return data.getSerialization()
             case dict():
-                serialized_dict = {}
+                serialized_dict: dict = {}
                 for key, value in data.items():
-                    # Recursively copy each value
+                    # Recursively copy each serialized value
                     serialized_dict[key] = __class__.serialize(value)
                 return serialized_dict
             case list():
@@ -377,7 +377,11 @@ class Operand:
             case dict():
                 if "class" in data and "parameters" in data:
                     return Operand().loadSerialization(data)
-                return data
+                deserialized_dict: dict = {}
+                for key, value in data.items(): # Makes sure it processes Operands in dict
+                    # Recursively copy each deserialized value
+                    deserialized_dict[key] = __class__.deserialize(value)
+                return deserialized_dict
             case Operand():
                 return data
             case list():
