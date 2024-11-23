@@ -681,7 +681,7 @@ class KeyScale(Note):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["self_scale"]   = self._self_scale.getSerialization()
+        serialization["parameters"]["self_scale"] = self.serialize( self._self_scale )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -691,7 +691,7 @@ class KeyScale(Note):
             "self_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._self_scale  = og.Scale().loadSerialization(serialization["parameters"]["self_scale"])
+            self._self_scale = self.deserialize( serialization["parameters"]["self_scale"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -835,13 +835,13 @@ class Chord(KeyScale):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["size"]         = self._size % od.DataSource( int() )
-        serialization["parameters"]["inversion"]    = self._inversion % od.DataSource( int() )
-        serialization["parameters"]["dominant"]     = self._dominant % od.DataSource( int() )
-        serialization["parameters"]["diminished"]   = self._diminished % od.DataSource( int() )
-        serialization["parameters"]["augmented"]    = self._augmented % od.DataSource( int() )
-        serialization["parameters"]["sus2"]         = self._sus2 % od.DataSource( int() )
-        serialization["parameters"]["sus4"]         = self._sus4 % od.DataSource( int() )
+        serialization["parameters"]["size"]         = self.serialize( self._size )
+        serialization["parameters"]["inversion"]    = self.serialize( self._inversion )
+        serialization["parameters"]["dominant"]     = self.serialize( self._dominant )
+        serialization["parameters"]["diminished"]   = self.serialize( self._diminished )
+        serialization["parameters"]["augmented"]    = self.serialize( self._augmented )
+        serialization["parameters"]["sus2"]         = self.serialize( self._sus2 )
+        serialization["parameters"]["sus4"]         = self.serialize( self._sus4 )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -853,13 +853,13 @@ class Chord(KeyScale):
             "augmented" in serialization["parameters"] and "sus2" in serialization["parameters"] and "sus4" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._size          = ou.Size()         << od.DataSource( serialization["parameters"]["size"] )
-            self._inversion     = ou.Inversion()    << od.DataSource( serialization["parameters"]["inversion"] )
-            self._dominant      = ou.Dominant()     << od.DataSource( serialization["parameters"]["dominant"] )
-            self._diminished    = ou.Diminished()   << od.DataSource( serialization["parameters"]["diminished"] )
-            self._augmented     = ou.Augmented()    << od.DataSource( serialization["parameters"]["augmented"] )
-            self._sus2          = ou.Sus2()         << od.DataSource( serialization["parameters"]["sus2"] )
-            self._sus4          = ou.Sus4()         << od.DataSource( serialization["parameters"]["sus4"] )
+            self._size          = self.deserialize( serialization["parameters"]["size"] )
+            self._inversion     = self.deserialize( serialization["parameters"]["inversion"] )
+            self._dominant      = self.deserialize( serialization["parameters"]["dominant"] )
+            self._diminished    = self.deserialize( serialization["parameters"]["diminished"] )
+            self._augmented     = self.deserialize( serialization["parameters"]["augmented"] )
+            self._sus2          = self.deserialize( serialization["parameters"]["sus2"] )
+            self._sus4          = self.deserialize( serialization["parameters"]["sus4"] )
         return self
       
     def __lshift__(self, operand: any) -> 'Chord':
