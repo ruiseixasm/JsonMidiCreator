@@ -382,7 +382,7 @@ class Operand:
                     # Recursively copy each deserialized value
                     deserialized_dict[key] = __class__.deserialize(value)
                 return deserialized_dict
-            case Operand():
+            case Operand(): # just a fail safe
                 return data
             case list():
                 data_list: list[any] = []
@@ -392,11 +392,6 @@ class Operand:
             case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
                 data_list: list = __class__.deserialize(list(data))
                 return tuple(data_list)
-            case str():
-                try:
-                    return Fraction(data)
-                except ValueError:
-                    return data
             case _:
                 return data
 

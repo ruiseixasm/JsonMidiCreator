@@ -141,7 +141,7 @@ class Unit(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["unit"] = self.serialize( self._unit )
+        serialization["parameters"]["unit"] = self._unit
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -151,7 +151,7 @@ class Unit(o.Operand):
             "unit" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._unit = self.deserialize( serialization["parameters"]["unit"] )
+            self._unit = serialization["parameters"]["unit"]
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Unit':
