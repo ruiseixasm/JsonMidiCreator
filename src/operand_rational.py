@@ -94,10 +94,8 @@ class Rational(o.Operand):
                 return self._rational == other % od.DataSource( Fraction() )
             case int() | float():
                 if self._limit_denominator > 0:
-                    other = Fraction( other ).limit_denominator(self._limit_denominator)
-                else:
-                    other = Fraction( other )
-                return self._rational == other
+                    return self._rational == Fraction( other ).limit_denominator(self._limit_denominator)
+                return self._rational == Fraction( other )
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -110,10 +108,8 @@ class Rational(o.Operand):
                 return self._rational < other % od.DataSource( Fraction() )
             case int() | float():
                 if self._limit_denominator > 0:
-                    other = Fraction( other ).limit_denominator(self._limit_denominator)
-                else:
-                    other = Fraction( other )
-                return self._rational < other
+                    return self._rational < Fraction( other ).limit_denominator(self._limit_denominator)
+                return self._rational < Fraction( other )
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -123,10 +119,8 @@ class Rational(o.Operand):
                 return self._rational > other % od.DataSource( Fraction() )
             case int() | float():
                 if self._limit_denominator > 0:
-                    other = Fraction( other ).limit_denominator(self._limit_denominator)
-                else:
-                    other = Fraction( other )
-                return self._rational > other
+                    return self._rational > Fraction( other ).limit_denominator(self._limit_denominator)
+                return self._rational > Fraction( other )
         return False
     
     def __le__(self, other: any) -> bool:
@@ -141,7 +135,7 @@ class Rational(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["fraction"] = str( self._rational )
-        serialization["parameters"]["float"]    = float(self._rational) # For info and id
+        serialization["parameters"]["float"]    = float(self._rational) # For extra info
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -161,13 +155,12 @@ class Rational(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case Fraction():                self._rational = operand % o.Operand()
+                    case Fraction():
+                        self._rational = operand % o.Operand()
                     case float() | int() | str():
-                        if self._limit_denominator > 0:
-                            self._rational = Fraction(operand % o.Operand()).limit_denominator(self._limit_denominator)
-                        else:
-                            self._rational = Fraction(operand % o.Operand())
-                    case Float() | ou.Integer():    self._rational = operand % o.Operand() % od.DataSource( Fraction() )
+                        self._rational = Fraction(operand % o.Operand())
+                    case Float() | ou.Integer():
+                        self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():
                 super().__lshift__(operand)
                 self._rational = operand._rational
@@ -179,6 +172,8 @@ class Rational(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+        if self._limit_denominator > 0:
+            self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
     def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
