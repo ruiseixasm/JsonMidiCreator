@@ -46,7 +46,7 @@ class Rational(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._limit_denominator: int = 100000
+        self._limit_denominator: int = 1000000  # default value of limit_denominator
         self._rational: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         if len(parameters) > 0:
             self << parameters
