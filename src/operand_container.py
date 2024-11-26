@@ -621,13 +621,15 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return self.__radd__(operand).stack()
             case Sequence():
-                operand_copy: Sequence = operand.copy()
-                last_position: ot.Position = operand_copy.sort().last() % od.DataSource( ot.Position() )
-                new_self_position: ot.Position = last_position % ra.Measure() + 1
-                self << of.Get(ot.Position())**of.Add(new_self_position) # WITHOUT OPERAND.COPY IT FAILS TEST 3.6
-                # return operand + (self + end_position)    # FAILS TEST 3.5
-                return (operand + self) # WITHOUT STACK IT FAILS TEST 3.5
-                # return (operand + self).stack()
+                if self._track == operand._track:
+                    operand_copy: Sequence = operand.copy()
+                    last_position: ot.Position = operand_copy.sort().last() % od.DataSource( ot.Position() )
+                    new_self_position: ot.Position = last_position % ra.Measure() + 1
+                    self << of.Get(ot.Position())**of.Add(new_self_position) # WITHOUT OPERAND.COPY IT FAILS TEST 3.6
+                    # return operand + (self + end_position)    # FAILS TEST 3.5
+                    return (operand + self) # WITHOUT STACK IT FAILS TEST 3.5
+                    # return (operand + self).stack()
+                return Song(operand, self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._track, self._position))
             case tuple():
