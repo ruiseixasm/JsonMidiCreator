@@ -720,8 +720,17 @@ class Song(Container):
     def __init__(self, *operands):
         super().__init__()
         for single_operand in operands:
-            if isinstance(single_operand, Sequence):
-                self._datasource_list.append(od.DataSource( single_operand.copy() ))
+            if isinstance(single_operand, (Sequence, oe.Element)):
+                if isinstance(single_operand, oe.Element):
+                    single_operand = Sequence(single_operand)
+                else:
+                    single_operand = single_operand.copy()
+                for single_sequence in self:
+                    if isinstance(single_sequence, Sequence):
+                        if single_sequence._track == single_operand._track:
+                            single_sequence << single_sequence.__add__(single_operand)
+                            continue
+                self._datasource_list.append(od.DataSource( single_operand ))
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
         play_list: list = []
@@ -758,6 +767,21 @@ class Song(Container):
             os.staff << self.deserialize(serialization["parameters"]["staff"])
             if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
                 o.logging.info(f"Deserialized staff is not identical to the original one!")
+        return self
+
+    # operand is the pusher >>
+    def __rrshift__(self, operand: o.Operand) -> 'Song':
+        if isinstance(operand, (Sequence, oe.Element)):
+            if isinstance(operand, oe.Element):
+                operand = Sequence(operand) # Sequence() already does the copy
+            else:
+                operand = operand.copy()
+            for single_sequence in self:
+                if isinstance(single_sequence, Sequence):
+                    if single_sequence._track == operand._track:
+                        single_sequence << single_sequence.__rrshift__(operand)
+                        return self
+            self._datasource_list.append(od.DataSource( operand ))
         return self
 
     def __radd__(self, operand: Sequence | oe.Element) -> 'Song':
