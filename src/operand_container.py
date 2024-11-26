@@ -378,13 +378,19 @@ class Sequence(Container):  # Just a container of Elements
             case od.Device():       return self._track % od.Device()
             case ot.Position():     return self._position.copy()
             case ot.Length():
-                import operand_element as oe
                 total_length = ot.Length()
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element):
                         total_length += single_datasource._data % od.DataSource( ot.Length() )
                 return total_length
             case _:                 return super().__mod__(operand)
+
+    def length(self) -> ot.Length:
+        total_length: ot.Length = ot.Length()
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                total_length += single_datasource._data % od.DataSource( ot.Length() )
+        return total_length
 
     def start(self) -> ot.Position:
         if self.len() > 0:
@@ -685,7 +691,6 @@ class Sequence(Container):  # Just a container of Elements
             length = ot.Length() << length
         match length:
             case ot.Length():
-                import operand_element as oe
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element):
                         single_datasource._data << length
