@@ -612,13 +612,6 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return self.__radd__(operand).stack()
             case Sequence():
-                # calculate the termination, ends positions
-                end_position: ot.Position = ot.Position(0)
-                match operand:
-                    case oe.Stackable():
-                        end_position = operand._position + operand._length
-                    case Sequence():
-                        end_position = operand.end()
                 operand_copy: Sequence = operand.copy()
                 last_position: ot.Position = operand_copy.sort().last() % od.DataSource( ot.Position() )
                 new_self_position: ot.Position = last_position % ra.Measure() + 1
