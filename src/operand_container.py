@@ -609,7 +609,9 @@ class Sequence(Container):  # Just a container of Elements
             case ot.Position() | ra.TimeUnit():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
-            case oe.Element() | Sequence():
+            case oe.Element():
+                return self.__radd__(operand).stack()
+            case Sequence():
                 # calculate the termination, ends positions
                 end_position: ot.Position = ot.Position(0)
                 match operand:
