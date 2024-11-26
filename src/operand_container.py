@@ -386,10 +386,23 @@ class Sequence(Container):  # Just a container of Elements
             case _:                 return super().__mod__(operand)
 
     def length(self) -> ot.Length:
-        total_length: ot.Length = ot.Length()
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                total_length += single_datasource._data % od.DataSource( ot.Length() )
+        total_length: ot.Length = ot.Length(0)
+        if self.len() > 0:
+            # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
+            elements: list[oe.Element] = [
+                    single_data._data
+                    for single_data in self._datasource_list
+                    if isinstance(single_data._data, oe.Element)
+                ]
+            position_min: ot.Position = elements[0]._position
+            position_max: ot.Position = elements[0]._position
+            for single_element in elements:
+                if single_element._position < position_min:
+                    position_min = single_element._position
+                elif single_element._position > position_max:
+                    position_max = single_element._position
+            total_length << position_max - position_min
+            total_length << total_length % ra.Measure() + 1
         return total_length
 
     def start(self) -> ot.Position:
