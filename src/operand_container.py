@@ -617,10 +617,11 @@ class Sequence(Container):  # Just a container of Elements
                 match operand:
                     case oe.Stackable():
                         end_position = operand._position + operand._length
-                    case oe.Element():
-                        end_position = operand._position
                     case Sequence():
                         end_position = operand.end()
+                operand_copy: Sequence = operand.copy()
+                last_position: ot.Position = operand_copy.sort().last() % od.DataSource( ot.Position() )
+                # self << of.All(self._position + (last_position % ra.Measure() + 1)) # FAILS TEST 3.6
                 # return operand + (self + end_position)    # FAILS TEST 3.5
                 return (operand + self).stack()
             case od.Playlist():
