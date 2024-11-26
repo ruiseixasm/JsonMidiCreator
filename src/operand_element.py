@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, TYPE_CHECKING, TypeVar
 from fractions import Fraction
 import json
 import enum
@@ -29,9 +29,11 @@ import operand_data as od
 import operand_label as ol
 import operand_frame as of
 import operand_generic as og
-import operand_container as oc
 import operand_frame as of
 
+
+if TYPE_CHECKING:
+    from operand_container import Sequence
 
 class Element(o.Operand):
     def __init__(self, *parameters):
@@ -203,6 +205,7 @@ class Element(o.Operand):
 
     # operand is the pusher
     def __rrshift__(self, operand: o.Operand) -> 'Element':
+        import operand_container as oc
         match operand:
             case ot.Position():
                 return self.copy() << operand
@@ -219,6 +222,7 @@ class Element(o.Operand):
                 return super().__rrshift__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Element':
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():         return oc.Sequence(self, operand)   # copy already included in Sequence initiation
@@ -230,6 +234,7 @@ class Element(o.Operand):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Element':
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():         return self
@@ -237,7 +242,8 @@ class Element(o.Operand):
             case o.Operand():       return self << self % operand - operand
         return self
 
-    def __mul__(self, operand: any) -> Union['Element', oc.Sequence]:
+    def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
@@ -254,6 +260,7 @@ class Element(o.Operand):
         return self
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():

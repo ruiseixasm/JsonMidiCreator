@@ -28,6 +28,7 @@ import operand_time as ot
 import operand_data as od
 import operand_label as ol
 import operand_generic as og
+import operand_element as oe
 import operand_frame as of
 import operand_chaos as ch
 
