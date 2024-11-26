@@ -760,6 +760,20 @@ class Song(Container):
                 o.logging.info(f"Deserialized staff is not identical to the original one!")
         return self
 
+    def __radd__(self, operand: Sequence | oe.Element) -> 'Song':
+        if isinstance(operand, (Sequence, oe.Element)):
+            if isinstance(operand, oe.Element):
+                operand = Sequence(operand)
+            else:
+                operand = operand.copy()
+            for single_sequence in self:
+                if isinstance(single_sequence, Sequence):
+                    if single_sequence._track == operand._track:
+                        single_sequence << single_sequence.__radd__(operand)
+                        return self
+            self._datasource_list.append(od.DataSource( operand ))
+        return self
+
     def __add__(self, operand: Sequence | oe.Element) -> 'Song':
         if isinstance(operand, (Sequence, oe.Element)):
             if isinstance(operand, oe.Element):
@@ -769,7 +783,7 @@ class Song(Container):
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
                     if single_sequence._track == operand._track:
-                        single_sequence << single_sequence + operand
+                        single_sequence << single_sequence.__add__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
         return self
