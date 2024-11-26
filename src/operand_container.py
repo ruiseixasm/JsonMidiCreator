@@ -612,6 +612,10 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case Song():
                 return operand + self   # Order is irrelevant on Song
+            case Sequence():
+                if self % og.Track() == operand % og.Track():
+                    return Sequence(self, operand)
+                return Song(self, operand)
             case Container():
                 self_copy: Sequence = self.__class__()
                 for single_datasource in self._datasource_list:
