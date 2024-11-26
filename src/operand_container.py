@@ -348,6 +348,9 @@ class Sequence(Container):  # Just a container of Elements
         self._position: ot.Position = ot.Position(0)
         for single_operand in operands:
             match single_operand:
+                case Sequence():
+                    self._track << single_operand._track
+                    self._position << single_operand._position
                 case og.Track():
                     self._track = single_operand.copy()
                 case ot.Position():
@@ -500,7 +503,12 @@ class Sequence(Container):  # Just a container of Elements
                     case _:                 super().__lshift__(operand)
             case Sequence():
                 super().__lshift__(operand)
-                self._track = operand._track.copy()
+                self._datasource_list = []
+                for single_element in operand:
+                    if isinstance(single_element, oe.Element):
+                        self._datasource_list.append(od.DataSource( single_element.copy() ))
+                self._track << operand._track
+                self._position << operand._position
             case og.Track() | ou.Channel() | od.Device():
                 self._track << operand
             case ot.Position():
@@ -517,6 +525,7 @@ class Sequence(Container):  # Just a container of Elements
     def copy(self, *parameters) -> 'Sequence':
         sequence_copy: Sequence = super().copy(*parameters)
         sequence_copy._track << self._track
+        sequence_copy._position << self._position
         return sequence_copy
     
     def reverse(self) -> 'Sequence':
@@ -751,11 +760,18 @@ class Song(Container):
                 o.logging.info(f"Deserialized staff is not identical to the original one!")
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Song':
-        if isinstance(operand, Sequence):
-            self._datasource_list.append(od.DataSource( operand.copy() ))
-        elif isinstance(operand, oe.Element):
-            self._datasource_list.append(od.DataSource( Sequence(operand) ))
+    def __add__(self, operand: Sequence | oe.Element) -> 'Song':
+        if isinstance(operand, (Sequence, oe.Element)):
+            if isinstance(operand, oe.Element):
+                operand = Sequence(operand)
+            else:
+                operand = operand.copy()
+            for single_sequence in self:
+                if isinstance(single_sequence, Sequence):
+                    if single_sequence._track == operand._track:
+                        single_sequence << single_sequence + operand
+                        return self
+            self._datasource_list.append(od.DataSource( operand ))
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Song':
