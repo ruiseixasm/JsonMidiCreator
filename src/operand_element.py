@@ -227,8 +227,9 @@ class Element(o.Operand):
         match operand:
             case Element():         return oc.Sequence(self, operand)   # copy already included in Sequence initiation
             case oc.Sequence():
-                sequence_track: og.Track = operand % od.DataSource( og.Track() )
-                return oc.Sequence(self) + operand << od.DataSource( sequence_track )
+                return operand.__radd__(self)
+                # sequence_track: og.Track = operand % od.DataSource( og.Track() )
+                # return oc.Sequence(self) + operand << od.DataSource( sequence_track )
             # For self Parameters it shouldn't result in new instantiations !!
             case o.Operand():       return self << self % operand + operand
         return self
