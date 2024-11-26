@@ -143,7 +143,6 @@ class Container(o.Operand):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        import operand_element as oe
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "datasource_list" in serialization["parameters"]):
 
@@ -409,7 +408,6 @@ class Sequence(Container):  # Just a container of Elements
         from operand_element import Element
 
     def get_sequence_elements(self) -> list['Element']:
-        import operand_element as oe
         sequence_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
@@ -464,7 +462,6 @@ class Sequence(Container):  # Just a container of Elements
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
-        import operand_element as oe
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "track" in serialization["parameters"] and "position" in serialization["parameters"]):
 
@@ -509,7 +506,6 @@ class Sequence(Container):  # Just a container of Elements
         return self.stack()
 
     def link(self, and_join: bool = False) -> 'Sequence':
-        import operand_element as oe
         self.sort()
         element_position: int = 0
         first_element_position: int = None
@@ -539,7 +535,6 @@ class Sequence(Container):  # Just a container of Elements
         return self << of.Get(ot.Length())**ot.Duration()
 
     def stack(self) -> 'Sequence':
-        import operand_element as oe
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Stackable] = [
                 single_data._data
@@ -555,14 +550,12 @@ class Sequence(Container):  # Just a container of Elements
         return self
     
     def tie(self, tied: bool = True) -> 'Sequence':
-        import operand_element as oe
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
                 single_datasource._data << ou.Tied(tied)
         return self
     
     def slur(self, gate: float = 1.05) -> 'Sequence':
-        import operand_element as oe
         last_element = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Note):
@@ -572,7 +565,6 @@ class Sequence(Container):  # Just a container of Elements
         return self
     
     def smooth(self) -> 'Sequence':
-        import operand_element as oe
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for single_datasource in self._datasource_list:
@@ -590,7 +582,6 @@ class Sequence(Container):  # Just a container of Elements
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
         self_copy: Sequence = self.copy()
         match operand:
             case ot.Length() | ra.NoteValue():
@@ -618,7 +609,6 @@ class Sequence(Container):  # Just a container of Elements
         return self_copy.stack()
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
         match operand:
             case Song():
                 return operand + self   # Order is irrelevant on Song
@@ -641,7 +631,6 @@ class Sequence(Container):  # Just a container of Elements
         return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
         match operand:
             case Container() | oe.Element():
                 return super().__sub__(operand)
@@ -653,7 +642,6 @@ class Sequence(Container):  # Just a container of Elements
 
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
         match operand:
             case Sequence() | oe.Element():
                 ...
@@ -673,7 +661,6 @@ class Sequence(Container):  # Just a container of Elements
         return self.__mul__(operand)
     
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
-        import operand_element as oe
         match operand:
             case Sequence() | oe.Element():
                 ...
@@ -745,7 +732,6 @@ class Song(Container):
         return self
 
     def __add__(self, operand: o.Operand) -> 'Song':
-        import operand_element as oe
         if isinstance(operand, Sequence):
             self._datasource_list.append(od.DataSource( operand.copy() ))
         elif isinstance(operand, oe.Element):
@@ -753,7 +739,6 @@ class Song(Container):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Song':
-        import operand_element as oe
         if isinstance(operand, Sequence):
             for single_sequence_i in len(self._datasource_list):
                 if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
