@@ -194,7 +194,7 @@ class Serialization(Data):
                 case DataSource():
                     if type(operand % o.Operand()) == o.Operand:    # Default DataSource content
                         return self._data
-                    return self._data % (operand % o.Operand())
+                    return self._data % operand # Already includes the DataSource wrapper
                 case dict():
                     if isinstance(self._data, o.Operand):
                         return self._data.getSerialization()

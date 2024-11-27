@@ -968,6 +968,7 @@ class Retrigger(Note):
             case ou.Division():     return self._division.copy()
             case int():             return self._division % int()
             case ra.Swing():        return self._swing.copy()
+            # Returns the SYMBOLIC value of each note
             case ra.NoteValue():
                 return self._duration / 2 % ra.NoteValue()
             case ot.Duration():
