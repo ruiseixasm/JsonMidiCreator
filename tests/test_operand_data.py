@@ -40,6 +40,7 @@ def test_data_mod():
         data_dict
     )
 
+
 def test_data_source_mod():
 
     # Perform the operation
@@ -53,6 +54,7 @@ def test_data_source_mod():
     assert position_copy == position_source
 
     assert id(position_copy) != id(position_source)
+
 
 def test_serialization_mod():
 
@@ -81,3 +83,12 @@ def test_serialization_mod():
     assert serialization_single_note_duration == ot.Duration(1/4)
 
 
+def test_playlist_mod():
+
+    # Perform the operation
+    retrigger = Retrigger("D") << Division(6)
+    play_list = Playlist() << retrigger
+    
+    # Depends on the order, different order results in False!
+    assert play_list == retrigger
+    
