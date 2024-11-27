@@ -102,4 +102,52 @@ def test_chord_mod():
 
     assert chord_string == "I"
 
+def test_retrigger_mod():
+
+    # Perform the operation
+    retrigger = Retrigger("G") << Division(32)
+    retrigger_int = retrigger % Division() % int()
+
+    assert retrigger_int == 32
+
+def test_modulation_mod():
+
+    # Perform the operation
+    controller = Controller("Modulation")
+    controller_int = controller % Number() % int()
+
+    assert controller_int == 1
+
+def test_pitchbend_mod():
+
+    # Perform the operation
+    pitch_bend = PitchBend(8190 / 2 + 1)
+    pitch_bend_int = pitch_bend % int()
+
+    assert pitch_bend_int == 4096
+
+def test_aftertouch_mod():
+
+    # Perform the operation
+    aftertouch = Aftertouch(2) << Pressure(128 / 2)
+    aftertouch_int = aftertouch % Pressure() % int()
+
+    assert aftertouch_int == 64
+
+def test_poly_aftertouch_mod():
+
+    # Perform the operation
+    poly_aftertouch = PolyAftertouch("E") << Pressure(128 / 2)
+    poly_aftertouch_int = poly_aftertouch % Channel() % int()
+
+    assert poly_aftertouch_int == 1
+
+def test_program_change_mod():
+
+    # Perform the operation
+    program_change = ProgramChange(12)
+    program_change_int = program_change % Program() % int()
+
+    assert program_change_int == 12
+
 
