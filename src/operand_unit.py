@@ -899,9 +899,16 @@ class Degree(Unit):
         if len(parameters) > 0:
             self << parameters
 
+    _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case str():         return __class__._degree[(self._unit - 1) % 7]
+            case _:             return super().__mod__(operand)
+
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Size':
+    def __lshift__(self, operand: any) -> 'Degree':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -925,7 +932,7 @@ class Degree(Unit):
             case "vi"  | "submediant":              self._unit = 6
             case "vii" | "leading tone":            self._unit = 7
 
-    def __add__(self, number: any) -> 'Unit':
+    def __add__(self, number: any) -> 'Degree':
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         self_unit_0 = self._unit - 1
@@ -940,7 +947,7 @@ class Degree(Unit):
                                         return self.__class__() << od.DataSource( self_unit_0 + number )
         return self.copy()
     
-    def __sub__(self, number: any) -> 'Unit':
+    def __sub__(self, number: any) -> 'Degree':
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         self_unit_0 = self._unit - 1

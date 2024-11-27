@@ -649,7 +649,7 @@ class KeyScale(Note):
                     case og.Scale():        return self._self_scale
                     case _:                 return super().__mod__(operand)
             case og.Scale():        return self._self_scale.copy()
-            case list() | str() | ou.Mode():
+            case list() | ou.Mode():
                                     return self._self_scale % operand
             case _:                 return super().__mod__(operand)
 
@@ -714,7 +714,7 @@ class KeyScale(Note):
             case KeyScale():
                 super().__lshift__(operand)
                 self._self_scale << operand._self_scale
-            case og.Scale() | list() | ou.Mode() | str():   # It's the element scale that is set
+            case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
                 self._self_scale << operand
             case _: super().__lshift__(operand)
         return self

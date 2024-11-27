@@ -80,18 +80,26 @@ def test_note_mod():
 def test_keyscale_mod():
 
     # Perform the operation
-    scale = KeyScale()
-    scale_string = scale % str()
+    key_scale = KeyScale()
+    key_scale_string = key_scale % Scale() % str()
 
-    assert scale_string == "Major"
+    assert key_scale_string == "Major"
 
-    scale << "minor"
-    scale_string = scale % str()
+    key_scale << Scale("minor")
+    key_scale_string = key_scale % Scale() % str()
 
-    assert scale_string == "minor"
+    assert key_scale_string == "minor"
 
-    scale_list = scale % list()
+    key_scale_list = key_scale % list()
 
-    assert scale_list == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+    assert key_scale_list == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
 
-test_keyscale_mod()
+def test_chord_mod():
+
+    # Perform the operation
+    chord = Chord("A") << Scale("minor") << Size("7th") << NoteValue(1/2)
+    chord_string = chord % Degree() % str()
+
+    assert chord_string == "I"
+
+

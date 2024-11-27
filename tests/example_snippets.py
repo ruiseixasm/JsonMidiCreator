@@ -70,10 +70,10 @@ from JsonMidiCreator import *
 # clock = Clock(4)
 # clock % Length() % Measure() % float() >> Print()
 
-scale = KeyScale()
-scale % str() >> Print()
-scale << "minor"
-scale % str() >> Print()
-scale % list() >> Print()
+# scale = KeyScale()
+# scale % str() >> Print()
+# scale << "minor"
+# scale % str() >> Print()
+# scale % list() >> Print()
 
 

@@ -316,14 +316,14 @@ class Pitch(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case Pitch():         return self
+                    case Pitch():           return self
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
                     case int():             return self % int()
                     case float():           return self % float()
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case Pitch():         return self.copy()
+            case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
             case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
