@@ -55,14 +55,25 @@ from JsonMidiCreator import *
 # (scale >> Copy() >> Modulate("6th")) % str() >> Print()
 
 
-# Perform the operation
-note = Note("F")
-note >> Print()
-note % Key() >> Print()
-note % Key() % str() >> Print()
+# # Perform the operation
+# note = Note("F")
+# note >> Print()
+# note % Key() >> Print()
+# note % Key() % str() >> Print()
 
-element = Element()
-element >> Print()
-element % Device() >> Print()
-element % Device() % list() >> Print()
+# element = Element()
+# element >> Print()
+# element % Device() >> Print()
+# element % Device() % list() >> Print()
+
+
+# clock = Clock(4)
+# clock % Length() % Measure() % float() >> Print()
+
+scale = KeyScale()
+scale % str() >> Print()
+scale << "minor"
+scale % str() >> Print()
+scale % list() >> Print()
+
 

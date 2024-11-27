@@ -714,7 +714,7 @@ class KeyScale(Note):
             case KeyScale():
                 super().__lshift__(operand)
                 self._self_scale << operand._self_scale
-            case og.Scale() | list() | ou.Mode():
+            case og.Scale() | list() | ou.Mode() | str():   # It's the element scale that is set
                 self._self_scale << operand
             case _: super().__lshift__(operand)
         return self

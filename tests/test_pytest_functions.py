@@ -25,8 +25,9 @@ from JsonMidiCreator import *
 # Run the tests with 'pytest tests\python_functions.py' on windows
 # Run the tests with 'pytest tests/python_functions.py' on linux
 
-import pytest
 from io import StringIO
+import pytest
+import sys
 
 def test_element_mod():
 
@@ -46,6 +47,21 @@ def test_element_mod():
     # Assert the captured output
     assert captured_output.getvalue().strip() in ["['VMPK', 'FLUID']", "['loopMIDI', 'Microsoft']"]
 
+def test_clock_mod():
+    # Redirect stdout to capture the print output
+    captured_output = StringIO()
+    sys.stdout = captured_output
+
+    # Perform the operation
+    clock = Clock(4)
+    clock % Length() % Measure() % float() >> Print()
+
+    # Restore stdout
+    sys.stdout = sys.__stdout__
+
+    # Assert the captured output
+    assert captured_output.getvalue().strip() == "4.0"
+
 def test_note_mod():
     # Redirect stdout to capture the print output
     captured_output = StringIO()
@@ -61,3 +77,21 @@ def test_note_mod():
     # Assert the captured output
     assert captured_output.getvalue().strip() == "F"
 
+def test_keyscale_mod():
+
+    # Perform the operation
+    scale = KeyScale()
+    scale_string = scale % str()
+
+    assert scale_string == "Major"
+
+    scale << "minor"
+    scale_string = scale % str()
+
+    assert scale_string == "minor"
+
+    scale_list = scale % list()
+
+    assert scale_list == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+
+test_keyscale_mod()
