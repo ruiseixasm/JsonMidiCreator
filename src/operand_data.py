@@ -54,6 +54,7 @@ class Data(o.Operand):
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
             case Data():                    return self.copy()
+            case dict():                    return self.getSerialization()
             case _:                         return self.deep_copy(self._data)
             
     def __eq__(self, other: o.Operand) -> bool:

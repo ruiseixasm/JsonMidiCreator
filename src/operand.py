@@ -116,7 +116,7 @@ class Operand:
                 position = operand % ot.Position()
                 if position: return self.getPlaylist(position)
                 return self.getPlaylist()
-            case od.Serialization():
+            case od.Serialization() | dict():
                 return self.getSerialization()
             case od.Len():
                 return self.len()

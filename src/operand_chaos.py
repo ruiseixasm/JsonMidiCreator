@@ -93,7 +93,7 @@ class Chaos(o.Operand):
                 match operand % o.Operand():
                     case ra.Xn():                   self._xn = operand % o.Operand()
                     case ra.X0():                   self._x0 = operand % o.Operand()
-            case od.Serialization():
+            case od.Serialization() | dict():
                 self.loadSerialization( operand.getSerialization() )
             case Chaos():
                         super().__lshift__(operand)
