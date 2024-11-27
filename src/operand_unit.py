@@ -466,12 +466,7 @@ class Key(Unit):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return super().__eq__(other) \
-                    and self._sharp     == other % od.DataSource( Sharp() ) \
-                    and self._flat      == other % od.DataSource( Flat() ) \
-                    and self._natural   == other % od.DataSource( Natural() ) \
-                    and self._degree    == other % od.DataSource( Degree() ) \
-                    and self._scale     == other % od.DataSource( og.Scale() )
+                return self % float() == other % float()    # This get's in consideration the just final key pressed
             case _:
                 return super().__eq__(other)
     
