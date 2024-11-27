@@ -28,7 +28,25 @@ from JsonMidiCreator import *
 import pytest
 from io import StringIO
 
-def test_note_interaction():
+def test_element_mod():
+
+    element = Element()
+    element_device = element % Device()
+
+    # Redirect stdout to capture the print output
+    captured_output = StringIO()
+    sys.stdout = captured_output
+
+    # Perform the operation
+    element_device % list() >> Print()
+
+    # Restore stdout
+    sys.stdout = sys.__stdout__
+
+    # Assert the captured output
+    assert captured_output.getvalue().strip() in ["['VMPK', 'FLUID']", "['loopMIDI', 'Microsoft']"]
+
+def test_note_mod():
     # Redirect stdout to capture the print output
     captured_output = StringIO()
     sys.stdout = captured_output

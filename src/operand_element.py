@@ -69,6 +69,8 @@ class Element(o.Operand):
             case ra.NoteValue():    return self._length % operand
             case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
+            case ou.Channel() | od.Device():
+                                    return og.Track() % operand
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.end()

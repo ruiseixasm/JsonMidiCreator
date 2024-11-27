@@ -61,4 +61,8 @@ note >> Print()
 note % Key() >> Print()
 note % Key() % str() >> Print()
 
+element = Element()
+element >> Print()
+element % Device() >> Print()
+element % Device() % list() >> Print()
 
