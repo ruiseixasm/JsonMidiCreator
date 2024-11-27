@@ -484,7 +484,7 @@ class Note(Stackable):
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.Pitch():        return self._pitch.copy()
-            case int() | str() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
+            case int() | str() | ou.Key() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
                                     return self._pitch % operand
             case ou.Velocity():     return self._velocity.copy()
             case ra.Gate():         return self._gate.copy()
