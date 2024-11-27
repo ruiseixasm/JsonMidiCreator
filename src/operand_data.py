@@ -192,13 +192,17 @@ class Serialization(Data):
         if isinstance(self._data, o.Operand):
             match operand:
                 case DataSource():
-                    return self._data
+                    if type(operand % o.Operand()) == o.Operand:    # Default DataSource content
+                        return self._data
+                    return self._data % (operand % o.Operand())
                 case dict():
                     if isinstance(self._data, o.Operand):
                         return self._data.getSerialization()
                     return dict()
-                case o.Operand():
-                    return self._data.copy()
+                case _:
+                    if type(operand) == o.Operand:    # Default DataSource content
+                        return self._data.copy()
+                    return self._data % operand
         return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand | dict) -> bool:

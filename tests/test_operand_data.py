@@ -39,3 +39,29 @@ def test_data_mod():
         {'next_operand': None, 'initiated': False, 'set': False, 'index': 0, 'unit': 8191},
         data_dict
     )
+
+def test_data_source_mod():
+
+    # Perform the operation
+    single_note = Note()
+    position_source = single_note % DataSource( Position() )
+
+    assert position_source == ot.Position()
+
+    position_copy = single_note % Position()
+
+    assert position_copy == position_source
+
+    assert id(position_copy) != id(position_source)
+
+def test_serialization_mod():
+
+    # Perform the operation
+    serialization = Serialization() << Retrigger("D")
+    serialization_duration = serialization % DataSource( Duration() )
+
+    assert serialization_duration == ot.Duration(1/4)
+    
+test_serialization_mod()
+
+
