@@ -57,6 +57,18 @@ def find_class_by_name(root_class, name: str):
     # If no matching subclass is found, return None
     return None
 
+def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
+    if isinstance(dict_to_find, dict) and isinstance(in_dict, dict):
+
+        if dict_to_find == in_dict:
+            return True
+        
+        for _, value in in_dict.items():
+            result = found_dict_in_dict(dict_to_find, value)
+            if result: return True
+        
+    return False
+
 # GLOBAL CLASSES
 
 class Operand:
