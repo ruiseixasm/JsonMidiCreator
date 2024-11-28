@@ -50,9 +50,9 @@ class Operator(o.Operand):
 
         Examples
         --------
-        >>> operator = Operator(Key())
+        >>> operator = Operator(Degree())
         >>> operator % Operand() >> Print(0)
-        {'class': 'Key', 'parameters': {'unit': 0}}
+        {'next_operand': None, 'initiated': False, 'set': False, 'index': 0, 'unit': 1}
         """
         match operand:
             case od.DataSource():

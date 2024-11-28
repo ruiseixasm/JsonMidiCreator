@@ -188,6 +188,7 @@ class Operand:
                 "set":          self._set,
                 "index":        self._index
             }
+            # Needs to create a new Serialization key, like "status"
         }
 
     # CHAINABLE OPERATIONS
