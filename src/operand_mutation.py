@@ -67,6 +67,7 @@ class Mutation(o.Operand):
             case ra.Index():        return ra.Index(self._index)
             case oc.Sequence():     return self._result._data.copy()
             case str():             return self._operator
+            case od.Result():       return self._result.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
@@ -178,7 +179,7 @@ class Mutation(o.Operand):
         super().reset(*parameters)
         self._sequence.reset()
         self._frame.reset()
-        self._performers._data.reset()
+        self._performers.reset()
         self._result << self._sequence
         return self
 

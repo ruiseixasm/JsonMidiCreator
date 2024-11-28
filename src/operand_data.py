@@ -428,7 +428,13 @@ class Parameters(DataMany):
     pass
 
 class Performers(DataMany):
-    pass
+    def reset(self, *parameters) -> 'Performers':
+        super().reset(*parameters)
+        if isinstance(self._data, (tuple, list)):
+            for single_operand in self._data:
+                if isinstance(single_operand, o.Operand):
+                    single_operand.reset()
+        return self
 
 class Sequences(DataMany):
     pass
