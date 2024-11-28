@@ -90,6 +90,8 @@ class Element(o.Operand):
             case _:
                 if other.__class__ == o.Operand:
                     return True
+                if type(other) == ol.Null:
+                    return False    # Makes sure ol.Null ends up processed as False
                 return self % od.DataSource( other ) == other
 
     def __lt__(self, other: 'o.Operand') -> bool:

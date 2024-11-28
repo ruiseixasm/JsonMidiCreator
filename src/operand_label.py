@@ -29,6 +29,12 @@ class Label(o.Operand):
     def copy(self: T, *parameters) -> T:
         return self
 
+    def __eq__(self, other: 'Label') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if type(self) == type(other) or type(other) == o.Operand:
+            return True
+        return False
+    
 class Null(Label):
     pass
     
