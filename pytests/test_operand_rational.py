@@ -42,4 +42,11 @@ def test_rational_mod():
     assert rational_1 * rational_2 == 12 * 10
     assert rational_1 / rational_2 == 12 / 10
 
-test_rational_mod()
+def test_dotted_mod():
+
+    dotted = Dotted(1/4)
+    assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
+    assert dotted % Dotted() % Fraction() == Fraction(1, 4)
+    assert dotted % Beat() % Fraction() == Fraction(3, 2)
+
+
