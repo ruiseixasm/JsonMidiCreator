@@ -90,12 +90,10 @@ class Rational(o.Operand):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Rational() | ou.Unit():
-                return self._rational == other % od.DataSource( Fraction() )
-            case int() | float():
-                if self._limit_denominator > 0:
-                    return self._rational == Fraction( other ).limit_denominator(self._limit_denominator)
-                return self._rational == Fraction( other )
+            case Rational():
+                return self._rational == other._rational
+            case int() | float() | ou.Unit():
+                return self % od.DataSource( other ) == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -104,23 +102,19 @@ class Rational(o.Operand):
     def __lt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Rational() | ou.Unit():
-                return self._rational < other % od.DataSource( Fraction() )
-            case int() | float():
-                if self._limit_denominator > 0:
-                    return self._rational < Fraction( other ).limit_denominator(self._limit_denominator)
-                return self._rational < Fraction( other )
+            case Rational():
+                return self._rational < other._rational
+            case int() | float() | ou.Unit():
+                return self % od.DataSource( other ) < other
         return False
     
     def __gt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Rational() | ou.Unit():
-                return self._rational > other % od.DataSource( Fraction() )
-            case int() | float():
-                if self._limit_denominator > 0:
-                    return self._rational > Fraction( other ).limit_denominator(self._limit_denominator)
-                return self._rational > Fraction( other )
+            case Rational():
+                return self._rational > other._rational
+            case int() | float() | ou.Unit():
+                return self % od.DataSource( other ) > other
         return False
     
     def __le__(self, other: any) -> bool:
