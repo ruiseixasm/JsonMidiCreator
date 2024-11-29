@@ -305,10 +305,10 @@ class Pitch(Generic):
 
         Examples
         --------
-        >>> key_note = Pitch()
-        >>> key_note % Key() >> Print(0)
+        >>> pitch = Pitch()
+        >>> pitch % Key() >> Print(0)
         {'class': 'Key', 'parameters': {'key': 0}}
-        >>> key_note % Key() % str() >> Print(0)
+        >>> pitch % Key() % str() >> Print(0)
         C
         """
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
@@ -326,7 +326,7 @@ class Pitch(Generic):
             case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Integer() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
+            case ou.Integer() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
                 return self._key % operand
             case int():
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)

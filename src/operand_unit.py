@@ -410,14 +410,15 @@ class Key(Unit):
                         if staff_key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
                     if staff_white_keys[(key_int + semitone_transpose) % 12]:
-                        return key_int + semitone_transpose + self._sharp._unit - self._flat._unit
-                    if accidentals_int < 0:
+                        key_int += semitone_transpose
+                    elif accidentals_int < 0:
                         self._sharp << False
                         self._flat << True
-                        return key_int + semitone_transpose + 1 + self._sharp._unit - self._flat._unit
-                    self._sharp << True
-                    self._flat << False
-                    return key_int + semitone_transpose - 1 + self._sharp._unit - self._flat._unit
+                        key_int += semitone_transpose + 1
+                    else:
+                        self._sharp << True
+                        self._flat << False
+                        key_int += semitone_transpose - 1
                 else:
                     if self._unit is None:
                         key_int = os.staff._tonic_key._unit
@@ -444,7 +445,10 @@ class Key(Unit):
                         semitone_transpose -= 1
                         if key_signature_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    return key_int + semitone_transpose + self._sharp._unit - self._flat._unit
+                    key_int += semitone_transpose
+                if self._natural:
+                    return key_int
+                return key_int + self._sharp._unit - self._flat._unit
             case float(): # WITH KEY SIGNATURE
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if not self._natural:
@@ -693,7 +697,7 @@ class Octave(Unit):
         An Integer representing the full midi keyboard octave varying from -1 to 9
     """
     def __init__(self, *parameters):
-        super().__init__(4)
+        super().__init__(1) # By default it's 1 to be used in basic operations like + and -
         if len(parameters) > 0:
             self << parameters
 

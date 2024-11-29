@@ -35,6 +35,15 @@ class Label(o.Operand):
             return True
         return False
     
+    def __bool__(self) -> bool:  # For Python 3
+        return False
+
+    def __nonzero__(self) -> bool:  # For Python 2
+        return self.__bool__()
+    
+    def __not__(self) -> bool:
+        return True
+    
 class Null(Label):
     pass
     
