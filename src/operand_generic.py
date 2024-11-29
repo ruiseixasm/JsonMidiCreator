@@ -700,9 +700,8 @@ class Scale(Generic):
     def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
         self_scale = self._scale_list.copy()
         if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
-            mode = self._mode if mode is None else mode
-            # transposition = self.transposition(max(1, mode % int()) - 1)
-            tones = max(1, mode % int()) - 1    # Modes start on 1, so, mode - 1 = tones
+            mode_int = self._mode._unit if mode is None else ou.Mode(mode) % int()
+            tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
             transposition = 0
             if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
                 while tones > 0:
