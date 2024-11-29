@@ -634,7 +634,7 @@ class Scale(Generic):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._scale_list: list[int] = []
+        self._scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
         self._mode: ou.Mode         = ou.Mode()
         if len(parameters) > 0:
             self << parameters

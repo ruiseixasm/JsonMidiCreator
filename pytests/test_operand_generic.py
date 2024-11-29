@@ -53,3 +53,9 @@ def test_pitch_mod():
     assert (pitch + 1.0) % Sharp()
     assert (pitch + 1.0 << Natural()) % float() == 60
 
+def test_scale_mod():
+
+    # Perform the operation
+    scale = Scale()
+    assert scale % str() == "Major"
+
