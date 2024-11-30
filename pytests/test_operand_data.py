@@ -38,8 +38,8 @@ def test_data_mod():
     assert o.found_dict_in_dict({'unit': 8191}, data_dict)
 
     data = Data(Key())
-    data_dict = data % {"parameters": "degree"}
-    assert data_dict["parameters"] == {"unit": 1}
+    data_degree_parameters = data % {"degree": "parameters"}
+    assert data_degree_parameters == {"unit": 1}
 
 test_data_mod()
 
