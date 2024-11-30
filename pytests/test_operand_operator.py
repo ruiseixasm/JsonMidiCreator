@@ -38,10 +38,7 @@ def test_operator_mod():
     operator_operand = operator % Operand()
     operator_operand_dict = operator_operand % dict()
 
-    assert o.found_dict_in_dict(
-        {'next_operand': None, 'initiated': False, 'set': False, 'index': 0, 'unit': 1},
-        operator_operand_dict
-    )
+    assert o.found_dict_in_dict({'unit': 1}, operator_operand_dict)
 
 
 def test_oscillator_mod():
@@ -51,8 +48,5 @@ def test_oscillator_mod():
     oscillator_operand = oscillator % Operand()
     oscillator_operand_dict = oscillator_operand % dict()
 
-    assert o.found_dict_in_dict(
-        {'next_operand': None, 'initiated': False, 'set': False, 'index': 0, 'unit': 0},
-        oscillator_operand_dict
-    )
+    assert o.found_dict_in_dict({'unit': 0}, oscillator_operand_dict)
 

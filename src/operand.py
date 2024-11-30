@@ -79,7 +79,7 @@ def get_dict_key_dict(dict_key: str, in_dict: dict) -> dict:
             key_dict = get_dict_key_dict(dict_key, value)
             if len(key_dict) > 0: return key_dict       
 
-    return dict()
+    return dict()   # an empty dictionary {}
 
 # GLOBAL CLASSES
 

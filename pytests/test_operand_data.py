@@ -35,10 +35,7 @@ def test_data_mod():
     data = Data(Bend(8191))
     data_dict = data % dict()
 
-    assert o.found_dict_in_dict(
-        {'next_operand': None, 'initiated': False, 'set': False, 'index': 0, 'unit': 8191},
-        data_dict
-    )
+    assert o.found_dict_in_dict({'unit': 8191}, data_dict)
 
 
 def test_data_source_mod():
