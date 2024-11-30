@@ -42,6 +42,20 @@ def test_unit_mod():
     assert integer_1 * integer_2 == 12 * 10
     assert integer_1 / integer_2 == int(12 / 10)
 
+def test_key_signature_mod():
+    tonic_keys_signatures: dict = {
+        "B": -7, "Gb": -6, "Db": -5, "Ab": -4, "Eb": -3, "Bb": -2, "F": -1,
+        "C": 0,
+        "G": +1, "D": +2, "A": +3, "E": +4, "B": +5, "F#": +6, "C#": +7
+    }
+    tonic_key = Key()
+    for key, signature in tonic_keys_signatures.items():
+        staff << KeySignature(signature)
+        assert tonic_key % str() == key
+
+    # avoids disruption of other tests
+    staff << KeySignature()
+    
 
 def test_key_mod():
 
