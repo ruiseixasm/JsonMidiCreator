@@ -57,12 +57,7 @@ class Data(o.Operand):
             case dict():
                 serialization: dict = self.getSerialization()
                 if len(operand) > 0:
-                    # Get the first key-value pair
-                    type_key, data_key = next(iter(operand.items()))
-                    if type_key in serialization:
-                        type_serialization = serialization[type_key]
-                        if isinstance(type_serialization, dict):
-                            return o.get_dict_key_dict(data_key, type_serialization)
+                    return o.get_pair_key_data(operand, serialization)
                 return serialization
             case Data():                    return self.copy()
             case _:                         return self.deep_copy(self._data)

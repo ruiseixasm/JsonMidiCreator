@@ -69,17 +69,29 @@ def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
         
     return False
 
-def get_dict_key_dict(dict_key: str, in_dict: dict) -> dict:
+def get_dict_key_data(dict_key: str, in_dict: dict) -> any:
     if isinstance(dict_key, str) and isinstance(in_dict, dict):
 
         if dict_key in in_dict:
             return in_dict[dict_key]
 
         for _, value in in_dict.items():
-            key_dict = get_dict_key_dict(dict_key, value)
-            if len(key_dict) > 0: return key_dict       
+            key_data = get_dict_key_data(dict_key, value)
+            if key_data: return key_data       
 
-    return dict()   # an empty dictionary {}
+    return None
+
+def get_pair_key_data(pair_key: dict, in_dict: dict) -> any:
+    if isinstance(pair_key, dict) and len(pair_key) > 0 and isinstance(in_dict, dict):
+        # Get the first key-value pair
+        first_key, second_key = next(iter(pair_key.items()))
+
+        first_key_data: dict = get_dict_key_data(first_key, in_dict)
+        if isinstance(first_key_data, dict):
+            return get_dict_key_data(second_key, first_key_data)
+        return first_key_data
+
+    return None
 
 # GLOBAL CLASSES
 
@@ -145,12 +157,7 @@ class Operand:
             case dict():
                 serialization: dict = self.getSerialization()
                 if len(operand) > 0:
-                    # Get the first key-value pair
-                    type_key, data_key = next(iter(operand.items()))
-                    if type_key in serialization:
-                        type_serialization = serialization[type_key]
-                        if isinstance(type_serialization, dict):
-                            return get_dict_key_dict(data_key, type_serialization)
+                    return get_pair_key_data(operand, serialization)
                 return serialization
             case od.Len():
                 return self.len()
