@@ -116,7 +116,7 @@ class Operand:
             case _:             self._next_operand = None
         return self
 
-    def __mod__(self, operand: 'Operand') -> 'Operand':
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, each Operand
         has different types of Parameters, as an example, the
@@ -140,8 +140,18 @@ class Operand:
                 position = operand % ot.Position()
                 if position: return self.getPlaylist(position)
                 return self.getPlaylist()
-            case od.Serialization() | dict():
+            case od.Serialization():
                 return self.getSerialization()
+            case dict():
+                serialization: dict = self.getSerialization()
+                if len(operand) > 0:
+                    # Get the first key-value pair
+                    type_key, data_key = next(iter(operand.items()))
+                    if type_key in serialization:
+                        type_serialization = serialization[type_key]
+                        if isinstance(type_serialization, dict):
+                            return o.get_dict_key_dict(data_key, type_serialization)
+                return serialization
             case od.Len():
                 return self.len()
             case od.Name():

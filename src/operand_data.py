@@ -53,8 +53,18 @@ class Data(o.Operand):
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
             case of.Frame():                return self % (operand % o.Operand())
+            case Serialization():           return self.getSerialization()
+            case dict():
+                serialization: dict = self.getSerialization()
+                if len(operand) > 0:
+                    # Get the first key-value pair
+                    type_key, data_key = next(iter(operand.items()))
+                    if type_key in serialization:
+                        type_serialization = serialization[type_key]
+                        if isinstance(type_serialization, dict):
+                            return o.get_dict_key_dict(data_key, type_serialization)
+                return serialization
             case Data():                    return self.copy()
-            case dict():                    return self.getSerialization()
             case _:                         return self.deep_copy(self._data)
             
     def __eq__(self, other: o.Operand) -> bool:

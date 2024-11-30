@@ -189,7 +189,7 @@ class Element(o.Operand):
                 self._position      << operand._position
                 self._duration      << operand._duration
                 self._length        << operand._length
-            case od.Serialization() | dict():
+            case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Duration():
                 self._duration      << operand
