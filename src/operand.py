@@ -150,7 +150,7 @@ class Operand:
                     if type_key in serialization:
                         type_serialization = serialization[type_key]
                         if isinstance(type_serialization, dict):
-                            return o.get_dict_key_dict(data_key, type_serialization)
+                            return get_dict_key_dict(data_key, type_serialization)
                 return serialization
             case od.Len():
                 return self.len()
