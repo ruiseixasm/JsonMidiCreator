@@ -69,6 +69,18 @@ def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
         
     return False
 
+def get_dict_key_dict(dict_key: str, in_dict: dict) -> dict:
+    if isinstance(dict_key, str) and isinstance(in_dict, dict):
+
+        if dict_key in in_dict:
+            return in_dict[dict_key]
+
+        for _, value in in_dict.items():
+            key_dict = get_dict_key_dict(dict_key, value)
+            if len(key_dict) > 0: return key_dict       
+
+    return dict()
+
 # GLOBAL CLASSES
 
 class Operand:
