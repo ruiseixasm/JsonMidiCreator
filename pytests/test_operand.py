@@ -51,6 +51,3 @@ def test_operand_copy():
         class_object: Operand = single_class()
         assert class_object == class_object.copy()
         
-        
-test_operand_copy()
-
