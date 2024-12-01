@@ -110,7 +110,7 @@ class Operator(o.Operand):
                 for single_operator in operand % od.DataSource( list() ):
                     operator_list.append(single_operator.copy())
                 self._operator_list = operator_list
-                self._operand       = (operand % od.DataSource( o.Operand() )).copy()
+                self._operand       = self.deep_copy(operand % od.DataSource( o.Operand() ))
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
