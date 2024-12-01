@@ -287,7 +287,97 @@ class Loop(Element):
     ...
 
 class Stackable(Element):
-    pass
+    def __init__(self, *parameters):
+        super().__init__()
+        self._duration: ot.Duration         = os.staff % ot.Duration()
+        if len(parameters) > 0:
+            self << parameters
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Note,
+        those Parameters are the ones of the Element, like Position and Length,
+        plus the Rest's Duration and Pitch, Velocity and Gate, the last one
+        with a value of 0.90 by default.
+
+        Examples
+        --------
+        >>> note = Note("F")
+        >>> note % Key() % str() >> Print()
+        F
+        """
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ot.Duration():     return self._duration
+                    case _:                 return super().__mod__(operand)
+            case ot.Duration():     return self._duration.copy()
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._duration      == other % od.DataSource( ot.Duration() )
+            case ra.NoteValue():
+                return self._duration == other
+            case _:
+                return super().__eq__(other)
+
+    def __lt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case ra.NoteValue():
+                return self._duration < other
+            case _:
+                return super().__lt__(other)
+    
+    def __gt__(self, other: 'o.Operand') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case ra.NoteValue():
+                return self._duration > other
+            case _:
+                return super().__gt__(other)
+
+    def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
+        self_midilist: list = super().getMidilist(track, position)
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
+        return self_midilist
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["duration"]     = self.serialize(self._duration)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Stackable':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "duration" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._duration      = self.deserialize(serialization["parameters"]["duration"])
+        return self
+      
+    def __lshift__(self, operand: o.Operand) -> 'Stackable':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ot.Duration():     self._duration = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case Stackable():
+                super().__lshift__(operand)
+                self._duration      << operand._duration
+            case ot.Duration():
+                self._duration      << operand
+            case ra.NoteValue() | float() | ra.Float() | Fraction():
+                self._duration      << operand
+                self._length        << operand
+            case _: super().__lshift__(operand)
+        return self
 
 class Clock(Stackable):
     def __init__(self, *parameters):
