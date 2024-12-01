@@ -31,21 +31,13 @@ import sys
 
 
 
-def test_sinx_mod():
+def test_null_mod():
 
     # Perform the operation
-    sin_x = SinX()
+    null = Null()
 
-    sin_x_1000 = sin_x * 1000 >> Copy()
-    sin_x_1001 = sin_x * 1 >> Copy()
-
-    assert sin_x_1000 != sin_x_1001
-    assert sin_x_1001 == sin_x
-    sin_x.reset()
-    assert sin_x_1001 != sin_x
-    sin_x * 1000
-    assert sin_x_1000 == sin_x
-    assert sin_x_1000 * 1 == sin_x_1001
-
-
+    assert null == False
+    assert null == None
+    assert id(null + null) == id(null)
+    assert not null
 
