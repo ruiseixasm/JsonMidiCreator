@@ -734,6 +734,25 @@ class Song(Container):
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
 
+    def __mod__(self, operand: list) -> list:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case og.Track():
+                        for sequence in self:
+                            if isinstance(sequence, Sequence):
+                                if sequence._track == operand % o.Operand():
+                                    return sequence
+                        return ol.Null()
+                    case _:                 return super().__mod__(operand)
+            case og.Track():
+                for sequence in self:
+                    if isinstance(sequence, Sequence):
+                        if sequence._track == operand:
+                            return sequence.copy()
+                return ol.Null()
+            case _:                 return super().__mod__(operand)
+
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
