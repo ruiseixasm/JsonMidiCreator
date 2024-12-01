@@ -356,7 +356,7 @@ class Sequence(Container):  # Just a container of Elements
                 case ot.Position():
                     self._position = single_operand.copy()
 
-    def __mod__(self, operand: list) -> list:
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, because a Container has
         only one type of Parameters it should be used in conjugation with list()
@@ -734,7 +734,7 @@ class Song(Container):
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
 
-    def __mod__(self, operand: list) -> list:
+    def __mod__(self, operand: any) -> any:
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
