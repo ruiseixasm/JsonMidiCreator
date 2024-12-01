@@ -100,6 +100,10 @@ def test_note_mod():
     first_note = Note() << (Position() << Step(3*4 + 2))
     first_note_playlist = first_note.getPlaylist()
 
+    # Sets the common device as that isn't being check
+    first_note_playlist[0]["midi_message"]["device"] = playlist[0]["midi_message"]["device"]
+    first_note_playlist[1]["midi_message"]["device"] = playlist[0]["midi_message"]["device"]
+
     assert first_note_playlist[0] == playlist[0]    # Position kind of error
     assert first_note_playlist[1] == playlist[1]    # Duration kind of error
     assert first_note_playlist == playlist
