@@ -62,7 +62,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # Note: It is not possible to change the number of operands of an operator. For example: If we can not overload a unary operator as a binary operator. The following code will throw a syntax error.
 
 
-# class Length:
+# class Duration:
     
 #     def __init__(self, measures: float = 1, beats: float = 0, note: float = 0, steps: float = 0):
 #         self._measures = measures
@@ -73,7 +73,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 #     # adding two lengths 
 #     def __add__(self, other):
-#         return Length(
+#         return Duration(
 #                 self._measures + other._measures,
 #                 self._beats + other._beats,
 #                 self._note + other._note,
@@ -81,13 +81,13 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #             )
     
 
-# class Duration(Length):
+# class Duration(Duration):
     
 #     def __init__(self, measures: float = 0, beats: float = 0, note: float = 1/4, steps: float = 0):
 #         super().__init__(measures, beats, note, steps)
     
 #     # adding two durations 
-#     def __add__(self, other: Length) -> 'Duration':
+#     def __add__(self, other: Duration) -> 'Duration':
 #         return self + other
     
 

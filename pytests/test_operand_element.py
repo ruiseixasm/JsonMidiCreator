@@ -54,7 +54,7 @@ def test_clock_mod():
 
     # Perform the operation
     clock = Clock(4)
-    clock % Length() % Measure() % float() >> Print()
+    clock % Duration() % Measure() % float() >> Print()
 
     # Restore stdout
     sys.stdout = sys.__stdout__
@@ -63,19 +63,51 @@ def test_clock_mod():
     assert captured_output.getvalue().strip() == "4.0"
 
 def test_note_mod():
-    # Redirect stdout to capture the print output
-    captured_output = StringIO()
-    sys.stdout = captured_output
 
     # Perform the operation
     note = Note("F")
-    note % Key() % str() >> Print()
+    assert note % Key() % str() == "F"
 
-    # Restore stdout
-    sys.stdout = sys.__stdout__
+    staff << Tempo(110)
 
-    # Assert the captured output
-    assert captured_output.getvalue().strip() == "F"
+    playlist: list = [    
+        {
+            "time_ms": 1909.091,
+            "midi_message": {
+                "status_byte": 144,
+                "data_byte_1": 60,
+                "data_byte_2": 100,
+                "device": [
+                    "loopMIDI",
+                    "Microsoft"
+                ]
+            }
+        },
+        {
+            "time_ms": 2454.545,
+            "midi_message": {
+                "status_byte": 128,
+                "data_byte_1": 60,
+                "data_byte_2": 0,
+                "device": [
+                    "loopMIDI",
+                    "Microsoft"
+                ]
+            }
+        }
+    ]
+
+    first_note = Note() << (Position() << Step(3*4 + 2))
+    first_note_playlist = first_note.getPlaylist()
+
+    assert first_note_playlist[0] == playlist[0]    # Position kind of error
+    assert first_note_playlist[1] == playlist[1]    # Duration kind of error
+    assert first_note_playlist == playlist
+
+    # Resets changed Tempo to the default value of 120 bpm
+    staff << Tempo(120)
+
+test_note_mod()
 
 def test_keyscale_mod():
 

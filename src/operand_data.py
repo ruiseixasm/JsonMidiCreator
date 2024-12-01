@@ -280,8 +280,8 @@ class Serialization(Data):
     def __truediv__(self, operand: o.Operand) -> 'o.Operand':
         return self._data / operand
 
-    def __floordiv__(self, length: ot.Length) -> 'o.Operand':
-        return self._data // length
+    def __floordiv__(self, operand: o.Operand) -> 'o.Operand':
+        return self._data // operand
 
 class Playlist(Data):
     def __init__(self, *parameters):
@@ -339,14 +339,14 @@ class Playlist(Data):
     def __rrshift__(self, operand: o.Operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Length)) and isinstance(self._data, list) and len(self._data) > 0:
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Duration)) and isinstance(self._data, list) and len(self._data) > 0:
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
                 if "time_ms" in midi_element and midi_element["time_ms"] > ending_position_ms:
                     ending_position_ms = midi_element["time_ms"]
             increase_position_ms = ending_position_ms
-            if not isinstance(operand, ot.Length):
+            if not isinstance(operand, ot.Duration):
                 starting_position_ms = self._data[0]["time_ms"]
                 for midi_element in self._data:
                     if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
@@ -362,7 +362,7 @@ class Playlist(Data):
 
     def __add__(self, operand: o.Operand) -> 'Playlist':
         match operand:
-            case ot.Length():
+            case ot.Duration():
                 playlist_copy = Playlist.copy_play_list(self._data)
                 increase_position_ms: float = operand.getTime_ms()
                 for midi_element in playlist_copy:

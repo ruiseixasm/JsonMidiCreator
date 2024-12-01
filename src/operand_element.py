@@ -39,14 +39,13 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
-        self._length: ot.Length             = ot.Length()
         if len(parameters) > 0:
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,
-        those Parameters can be Position, Length, midi Channel and midi Device
+        those Parameters can be Position, Duration, midi Channel and midi Device
 
         Examples
         --------
@@ -58,14 +57,11 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     return self._position
-                    case ot.Length():       return self._length
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
-            case ra.NoteValue():    return self._length % operand
             case ra.TimeUnit():     return self._position % operand
-            case ot.Length():       return self._length.copy()
             case ou.Channel() | od.Device():
                                     return og.Track() % operand
             case Element():         return self.copy()
@@ -77,8 +73,7 @@ class Element(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return  self._position      == other % od.DataSource( ot.Position() ) \
-                    and self._length        == other % od.DataSource( ot.Length() )
+                return  self._position      == other % od.DataSource( ot.Position() )
             case ra.TimeUnit():
                 return self._position == other
             case _:
@@ -118,7 +113,7 @@ class Element(o.Operand):
         return self._position.copy()
 
     def end(self) -> ot.Position:
-        return self._position + self._length
+        return self._position + self._duration
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
         track: og.Track = og.Track() if not isinstance(track, og.Track) else track
@@ -148,18 +143,16 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position)
-        serialization["parameters"]["length"]       = self.serialize(self._length)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "length" in serialization["parameters"]):
+            "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
-            self._length        = self.deserialize(serialization["parameters"]["length"])
 
         return self
 
@@ -169,15 +162,11 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
-                    case ot.Length():       self._length = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
-                self._length        << operand._length
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Length():
-                self._length        << operand
             case ot.Position() | ra.TimeUnit() | int() | ou.Integer():
                                     self._position << operand
             case tuple():
@@ -191,7 +180,7 @@ class Element(o.Operand):
         match operand:
             case ot.Position():
                 return self.copy() << operand
-            case ot.Length():
+            case ot.Duration():
                 self_copy = self.copy()
                 return self_copy << self_copy % ot.Position() + operand
             case Element() | oc.Sequence():
@@ -270,14 +259,13 @@ class Stackable(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration: ot.Duration         = os.staff % ot.Duration()
-        self._length                        << self._duration
         if len(parameters) > 0:
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         plus the Rest's Duration and Pitch, Velocity and Gate, the last one
         with a value of 0.90 by default.
 
@@ -356,7 +344,6 @@ class Stackable(Element):
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.Float() | Fraction():
                 self._duration      << operand
-                self._length        << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -364,7 +351,6 @@ class Clock(Stackable):
     def __init__(self, *parameters):
         super().__init__()
         self._duration      << os.staff % od.DataSource( ra.Measure() )
-        self._length        << self._duration
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters
@@ -372,14 +358,14 @@ class Clock(Stackable):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Clock,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         plus the Pulses Per Quarter Note, the last one as 24 by default.
 
         Examples
         --------
         >>> clock = Clock(4)
-        >>> clock % Length() >> Print(0)
-        {'class': 'Length', 'parameters': {'time_unit': {'class': 'Measure', 'parameters': {'value': 4.0}}}}
+        >>> clock % Duration() >> Print(0)
+        {'class': 'Duration', 'parameters': {'time_unit': {'class': 'Measure', 'parameters': {'value': 4.0}}}}
         """
         match operand:
             case od.DataSource():
@@ -480,11 +466,10 @@ class Clock(Stackable):
                 self._pulses_per_quarternote << operand._pulses_per_quarternote
             case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
                                     self._duration << operand
-                                    self._length << self._duration
             case ot.Duration():
                                     self._duration << operand
             case ou.PPQN():         self._pulses_per_quarternote << operand
-            case int() | float():   self._length = ot.Length(operand)
+            case int() | float():   self._duration << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -538,7 +523,7 @@ class Note(Stackable):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         plus the Rest's Duration and Pitch, Velocity and Gate, the last one
         with a value of 0.90 by default.
 
@@ -691,7 +676,7 @@ class Dyad(Cluster):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure length
+        self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure duration
         self._self_scale: og.Scale  = og.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters
@@ -699,7 +684,7 @@ class KeyScale(Note):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a KeyScale,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         together with the ones of a Note, like Duration and Pitch,
         plus the Scale and Mode, the last one as 1 by default.
 
@@ -806,7 +791,7 @@ class Chord(KeyScale):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Chord,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         plus the ones of a Note, and the Scale, Degree, Inversion and others.
 
         Examples
@@ -1023,7 +1008,7 @@ class Retrigger(Note):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Retrigger,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         plus the ones of a Note and the Division as 16 by default.
 
         Examples
@@ -1046,8 +1031,6 @@ class Retrigger(Note):
                 return self._duration / 2 % ra.NoteValue()
             case ot.Duration():
                 return self._duration / 2
-            case ot.Length():   # To guarantee compatibility
-                return self._length / 2
             case _:                 return super().__mod__(operand)
 
     def get_retrigger_notes(self) -> list[Note]:
@@ -1116,9 +1099,6 @@ class Retrigger(Note):
                 self._duration      << operand * 2  # Equivalent to two sized Notes
             case ra.NoteValue():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
-                self._length        << operand * 2  # To guarantee compatibility
-            case ot.Length():
-                self._length        << operand * 2  # To guarantee compatibility
             case _:                 super().__lshift__(operand)
         return self
 
@@ -1172,7 +1152,7 @@ class Tuplet(Stackable):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Tuplet,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         and the Division and a List of Elements.
 
         Examples
@@ -1194,8 +1174,6 @@ class Tuplet(Stackable):
                 return self._duration / 2 % ra.NoteValue()
             case ot.Duration():
                 return self._duration / 2
-            case ot.Length():
-                return self._length / 2  # To guarantee compatibility
             case list():            return self.deep_copy(self._elements)
             case _:                 return super().__mod__(operand)
 
@@ -1275,9 +1253,6 @@ class Tuplet(Stackable):
                 self._duration      << operand * 2  # Equivalent to two sized Notes
             case ra.NoteValue():
                 self._duration      << operand * 2  # Equivalent to two sized Notes
-                self._length        << operand * 2  # To guarantee compatibility
-            case ot.Length():
-                self._length        << operand * 2  # To guarantee compatibility
             case list():
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
@@ -1318,7 +1293,7 @@ class ControlChange(Automation):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a ControlChange,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         and the Controller Number and Value as Number and Value.
 
         Examples
@@ -1432,7 +1407,7 @@ class PitchBend(Automation):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a PitchBend,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         and the PitchBend bend with 0 as default.
 
         Examples
@@ -1542,7 +1517,7 @@ class Aftertouch(Automation):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Aftertouch,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         and the Aftertouch pressure with 0 as default.
 
         Examples
@@ -1651,7 +1626,7 @@ class PolyAftertouch(Aftertouch):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a PolyAftertouch,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         and the Key together with the PolyAftertouch pressure with value 0 as default.
 
         Examples
@@ -1741,7 +1716,7 @@ class ProgramChange(Automation):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a ProgramChange,
-        those Parameters are the ones of the Element, like Position and Length,
+        those Parameters are the ones of the Element, like Position and Duration,
         and the ProgramChange number with a value of 0 as default.
 
         Examples

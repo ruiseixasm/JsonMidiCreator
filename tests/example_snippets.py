@@ -68,7 +68,7 @@ from JsonMidiCreator import *
 
 
 # clock = Clock(4)
-# clock % Length() % Measure() % float() >> Print()
+# clock % Duration() % Measure() % float() >> Print()
 
 # scale = KeyScale()
 # scale % str() >> Print()

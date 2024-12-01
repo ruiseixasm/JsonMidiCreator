@@ -24,22 +24,23 @@ from JsonMidiCreator import *
 
 # Global Staff setting up
 staff << Tempo(120) << Measure(1)
-single_clock = Clock(Track("Clock Track"))
+single_clock = Clock() * 1 << Track("Clock Track")
 
 single_note = Note() << (Duration() << Measure(2)) >> Play()
 note_transposed = single_note + 5.0 >> Play()
 
-triplets_one = (Note3("E") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
-    >> Save("json/_Save_3.1_triple_note3.json") >> Play(True)
+triplets_one = (Note3("E") << Duration(1/16)) * 8
+triplets_one + single_clock >> Save("json/_Save_3.1_triple_note3.json") >> Play(True)
 
-triplets_two = (Note3("G") << Duration(1/16) << Length(1/16)) * 8 + single_clock \
-    >> Export("json/_Export_3.1_triple_note3.json") >> Play(True)
+triplets_two = (Note3("G") << Duration(1/16)) * 8
+triplets_two + single_clock >> Export("json/_Export_3.1_triple_note3.json") >> Play(True)
 
 staff << Measure(2)
-single_clock = Clock() << Length(0)
 
-# Length needs to be adjusted because Elements are Stacked based on Length and not on Duration!
-# A 1/16 triplet has a total length of a 1/8
+# Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
+# A 1/16 triplet has a total duration of a 1/8
 single_clock >> triplets_one >> triplets_two >> Play(True)
 
-(triplets_one >> triplets_two >> single_clock) + Equal(Beat(1))**Semitone(2) >> Play(True)
+# triplets remain a sequence. Frames don't operate on Songs!!
+triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
+triplets >> single_clock >> Play(True)

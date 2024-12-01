@@ -29,10 +29,10 @@ motif = N * 5 << eight >> LJ << Foreach(9, 6, 8, 9, 9)**Degree() >> Tie()
 # motif >> rest_play
 measure_2 = N * 3 << Equal(B1)**half >> S << Foreach(10, 9, 8)**Degree()
 measure_4 = N * 2 << half << Foreach(8, 7)**Degree()
-motif % Length() >> Print(0)
-measure_2 % Length() >> Print(0)
-measure_4 % Length() >> Print(0)
-(motif >> measure_2 >> motif >> measure_4 >> Rest(1/1) >> P >> MidiExport("Midi/short_motif.mid")) % Length() >> Print(0)
+motif % Duration() >> Print(0)
+measure_2 % Duration() >> Print(0)
+measure_4 % Duration() >> Print(0)
+(motif >> measure_2 >> motif >> measure_4 >> Rest(1/1) >> P >> MidiExport("Midi/short_motif.mid")) % Duration() >> Print(0)
 
 clarinet = \
     ProgramChange("Clarinet") + \
@@ -41,7 +41,7 @@ clarinet = \
     (N * 3 << Nth(1)**half << Foreach(9, 11, 10)**Degree()) + \
     motif \
     >> S >> Tie() << Channel(1) << MidiTrack(1, "Clarinet") << Velocity(60)
-clarinet % M1 % Length() >> Print(0)
+clarinet % M1 % Duration() >> Print(0)
 # clarinet >> rest_play >> MidiExport("Midi/clarinet.mid")
 trumpet = \
     ProgramChange("Trumpet") + \

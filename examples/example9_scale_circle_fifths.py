@@ -26,25 +26,25 @@ from JsonMidiCreator import *
 staff << Tempo(240) << Measure(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << Length(1)) * 8 
+play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << Duration(1)) * 8 
     + Iterate(Scale("Major") % Transposition(5 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 # play_list_1 >> Play()
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
-play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << Length(1)) * 8 
+play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << Duration(1)) * 8 
     + Iterate(Scale("Major") % Transposition(4 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 # play_list_2 >> Play()
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
-play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << Length(1)) * 8 
+play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << Duration(1)) * 8 
     + Iterate(Scale("minor") % Transposition(5 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 # play_list_3 >> Play()
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
-play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << Length(1)) * 8 
+play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << Duration(1)) * 8 
     + Iterate(Scale("minor") % Transposition(4 - 1))**Semitone() 
     << NoteValue(1) << Velocity(70) << Octave(4))
 # play_list_4 >> Play()

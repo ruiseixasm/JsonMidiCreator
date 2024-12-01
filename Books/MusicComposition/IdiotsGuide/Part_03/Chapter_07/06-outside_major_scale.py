@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 structural_tones: Sequence = Note("E", NoteValue(1)) * 4 + Foreach(0, 2, 2, 4)
 chromatic_tones = Note("F#", Position(Beat(3))) + Note("Ab", Position(Measure(1), Beat(3))) + Note("A#", Position(Measure(2), Beat(3)))
-structural_tones + chromatic_tones >> Link() << Get(Length())**Duration() >> Rest() >> Play()
+structural_tones + chromatic_tones >> Link() << Get(Duration())**Duration() >> Rest() >> Play()
 
 structural_tones = \
     Note("C", 5, Dotted(1/4)) + \

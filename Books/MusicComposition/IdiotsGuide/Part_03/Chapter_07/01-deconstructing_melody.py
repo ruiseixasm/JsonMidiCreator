@@ -41,10 +41,10 @@ embellishing += Note("D", 5, Measure(4), Beat(1), 1/8) * 4 - Increment()**0
 embellishing += Note("C", 5, Measure(5), Beat(1), 1/8) * 4 - Increment()**0
 embellishing += Note("B", Measure(6), Beat(1), 1/8) * 4 - Increment()**0
 full = outline + embellishing >> Link()
-full << Get(Length())**Duration()
+full << Get(Duration())**Duration()
 full >> Play()
 
-# ((full | Measure(0)) >> Print()) % Length() >> Print(0)
+# ((full | Measure(0)) >> Print()) % Duration() >> Print(0)
 
 staff << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
 outline: Sequence = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
@@ -59,4 +59,4 @@ embellishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stac
 embellishing += (Measure(1) >> embellishing) + (Measure(2) >> embellishing) + (Measure(3) >> embellishing)
 embellishing + Equal(Measure(1), Measure(3))**2 + Equal(Measure(2))**4
 
-(outline + embellishing >> Link() >> Play() | Measure(3)) % Length() >> Print(0)
+(outline + embellishing >> Link() >> Play() | Measure(3)) % Duration() >> Print(0)

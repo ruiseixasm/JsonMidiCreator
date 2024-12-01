@@ -380,16 +380,16 @@ class Sequence(Container):  # Just a container of Elements
             case ou.Channel():      return self._track % ou.Channel()
             case od.Device():       return self._track % od.Device()
             case ot.Position():     return self._position.copy()
-            case ot.Length():       return self.length()
-                # total_length = ot.Length()
+            case ot.Duration():       return self.duration()
+                # total_length = ot.Duration()
                 # for single_datasource in self._datasource_list:
                 #     if isinstance(single_datasource._data, oe.Element):
-                #         total_length += single_datasource._data % od.DataSource( ot.Length() )
+                #         total_length += single_datasource._data % od.DataSource( ot.Duration() )
                 # return total_length
             case _:                 return super().__mod__(operand)
 
-    def length(self) -> ot.Length:
-        total_length: ot.Length = ot.Length(0)
+    def duration(self) -> ot.Duration:
+        total_length: ot.Duration = ot.Duration(0)
         if self.len() > 0:
             # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
             elements: list[oe.Element] = [
@@ -405,7 +405,7 @@ class Sequence(Container):  # Just a container of Elements
                 elif single_element._position > position_max:
                     position_max = single_element._position
             total_length << position_max - position_min
-            # total_length << total_length % ra.Measure() + 1 # Rounded up Length to Measures
+            # total_length << total_length % ra.Measure() + 1 # Rounded up Duration to Measures
         return total_length
 
     def start(self) -> ot.Position:
@@ -419,10 +419,10 @@ class Sequence(Container):  # Just a container of Elements
 
     def end(self) -> ot.Position:
         if self.len() > 0:
-            end_position: ot.Position = self._datasource_list[0]._data % ot.Position() + self._datasource_list[0]._data % ot.Length()
+            end_position: ot.Position = self._datasource_list[0]._data % ot.Position() + self._datasource_list[0]._data % ot.Duration()
             for single_datasource in self._datasource_list:
-                if single_datasource._data % ot.Position() + single_datasource._data % ot.Length() > end_position:
-                    end_position = single_datasource._data % ot.Position() + single_datasource._data % ot.Length()
+                if single_datasource._data % ot.Position() + single_datasource._data % ot.Duration() > end_position:
+                    end_position = single_datasource._data % ot.Position() + single_datasource._data % ot.Duration()
             return end_position # already a copy (+)
         return ot.Position(0)
     
@@ -513,7 +513,7 @@ class Sequence(Container):  # Just a container of Elements
                 self._track << operand
             case ot.Position():
                 self._position << operand
-            case ot.Length() | ra.NoteValue() | float() | Fraction():
+            case ot.Duration() | ra.NoteValue() | float() | Fraction():
                 super().__lshift__(operand)
                 self.stack()
             case ot.Position() | ra.TimeUnit():
@@ -541,7 +541,7 @@ class Sequence(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 if last_element is not None:
-                    last_element << ot.Length(single_datasource._data._position - last_element._position)
+                    last_element << ot.Duration(single_datasource._data._position - last_element._position)
                 else:
                     first_element_position = element_position
                 last_element = single_datasource._data
@@ -550,17 +550,17 @@ class Sequence(Container):  # Just a container of Elements
         if first_element_position is not None:
             first_element: oe.Element = self._datasource_list[first_element_position]._data
             if first_element._position != ot.Position(0):
-                rest_length = ot.Length(first_element._position)
+                rest_length = ot.Duration(first_element._position)
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
-        # Adjust last_element length based on its Measure position
+        # Adjust last_element duration based on its Measure position
         if last_element is not None:
-            last_element << ot.Length(ot.Position(last_element % ra.Measure() + 1) - last_element._position)
+            last_element << ot.Duration(ot.Position(last_element % ra.Measure() + 1) - last_element._position)
         if and_join:
-            self << of.Get(ot.Length())**ot.Duration()
+            self << of.Get(ot.Duration())**ot.Duration()
         return self
 
     def join(self) -> 'Sequence':
-        return self << of.Get(ot.Length())**ot.Duration()
+        return self << of.Get(ot.Duration())**ot.Duration()
 
     def stack(self) -> 'Sequence':
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
@@ -572,7 +572,7 @@ class Sequence(Container):  # Just a container of Elements
         for single_element_i in range(len(stackable_elements)):
             single_element: oe.Stackable = stackable_elements[single_element_i]
             if single_element_i > 0:
-                single_element._position = stackable_elements[single_element_i - 1]._position + stackable_elements[single_element_i - 1]._length  # Stacks on Element Length
+                single_element._position = stackable_elements[single_element_i - 1]._position + stackable_elements[single_element_i - 1]._duration  # Stacks on Element Duration
             else:
                 single_element._position = ot.Position(0)   # everything starts at the beginning (0)!
         return self
@@ -612,7 +612,7 @@ class Sequence(Container):  # Just a container of Elements
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         self_copy: Sequence = self.copy()
         match operand:
-            case ot.Length() | ra.NoteValue():
+            case ot.Duration() | ra.NoteValue():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ot.Position() + operand
             case ot.Position() | ra.TimeUnit():
@@ -700,22 +700,22 @@ class Sequence(Container):  # Just a container of Elements
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data / operand
                 return self
-            case int(): # Splits the total Length by the integer
+            case int(): # Splits the total Duration by the integer
                 start_position = self.start()
-                sequence_length: ot.Length = self.end() - start_position
+                sequence_length: ot.Duration = self.end() - start_position
                 new_end_position: ot.Position = start_position + sequence_length / operand
                 trimmed_self = self | of.Less(new_end_position)**o.Operand()
                 return trimmed_self.copy()
         return super().__truediv__(operand)
     
-    def __floordiv__(self, length: ot.Length) -> 'Sequence':
-        if isinstance(length, ra.TimeUnit):
-            length = ot.Length() << length
-        match length:
-            case ot.Length():
+    def __floordiv__(self, duration: ot.Duration) -> 'Sequence':
+        if isinstance(duration, ra.TimeUnit):
+            duration = ot.Duration() << duration
+        match duration:
+            case ot.Duration():
                 for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element):
-                        single_datasource._data << length
+                    if isinstance(single_datasource._data, oe.Stackable):
+                        single_datasource._data << duration
         return self.stack()
 
 class Song(Container):

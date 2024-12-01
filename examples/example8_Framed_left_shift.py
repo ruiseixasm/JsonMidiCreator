@@ -25,5 +25,5 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Tempo(120) << Measure(7)
 
-(Chord() << Length(1/8)) * 13 + Iterate()**Key() << NoteValue(1/8) >> Play(True) << Even()**Velocity(50) >> Play(True)
+(Chord() << Duration(1/8)) * 13 + Iterate()**Key() << NoteValue(1/8) >> Play(True) << Even()**Velocity(50) >> Play(True)
 
