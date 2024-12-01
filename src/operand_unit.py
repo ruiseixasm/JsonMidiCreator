@@ -528,7 +528,7 @@ class Key(Unit):
                         self._degree << operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Key():
-                super().__lshift__(operand)
+                super().__lshift__(operand) # In case operand._unit is None it will be copied too!
                 self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
