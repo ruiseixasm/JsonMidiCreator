@@ -39,8 +39,7 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
-        self._duration: ot.Duration         = os.staff % ot.Duration()
-        self._length: ot.Length             = ot.Length() << self._duration
+        self._length: ot.Length             = ot.Length()
         if len(parameters) > 0:
             self << parameters
 
@@ -59,13 +58,11 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     return self._position
-                    case ot.Duration():     return self._duration
                     case ot.Length():       return self._length
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
-            case ot.Duration():     return self._duration.copy()
             case ra.NoteValue():    return self._length % operand
             case ra.TimeUnit():     return self._position % operand
             case ot.Length():       return self._length.copy()
@@ -81,10 +78,7 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  self._position      == other % od.DataSource( ot.Position() ) \
-                    and self._duration      == other % od.DataSource( ot.Duration() ) \
                     and self._length        == other % od.DataSource( ot.Length() )
-            case ra.NoteValue():
-                return self._duration == other
             case ra.TimeUnit():
                 return self._position == other
             case _:
@@ -99,8 +93,6 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  False
-            case ra.NoteValue():
-                return self._duration < other
             case ra.TimeUnit():
                 return self._position < other
             case _:
@@ -111,8 +103,6 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  False
-            case ra.NoteValue():
-                return self._duration > other
             case ra.TimeUnit():
                 return self._position > other
             case _:
@@ -151,7 +141,6 @@ class Element(o.Operand):
                     "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(track % od.DataSource( ou.Channel() ) % int() - 1),
                     "time":         position % od.DataSource( ra.Beat() ) % float(),   # beats
-                    "duration":     self._duration % od.DataSource( ra.Beat() ) % float(),  # beats
                     "tempo":        os.staff._tempo % float()   # bpm
                 }
             ]
@@ -159,7 +148,6 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position)
-        serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["length"]       = self.serialize(self._length)
         return serialization
 
@@ -167,11 +155,10 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "length" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
-            self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._length        = self.deserialize(serialization["parameters"]["length"])
 
         return self
@@ -182,21 +169,14 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
-                    case ot.Duration():     self._duration = operand % o.Operand()
                     case ot.Length():       self._length = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
-                self._duration      << operand._duration
                 self._length        << operand._length
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Duration():
-                self._duration      << operand
             case ot.Length():
-                self._length        << operand
-            case ra.NoteValue() | float() | ra.Float() | Fraction():
-                self._duration      << operand
                 self._length        << operand
             case ot.Position() | ra.TimeUnit() | int() | ou.Integer():
                                     self._position << operand
@@ -290,6 +270,7 @@ class Stackable(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration: ot.Duration         = os.staff % ot.Duration()
+        self._length                        << self._duration
         if len(parameters) > 0:
             self << parameters
 
