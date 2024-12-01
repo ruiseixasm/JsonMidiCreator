@@ -744,6 +744,8 @@ class Song(Container):
                                 if sequence._track == operand % o.Operand():
                                     return sequence
                         return ol.Null()
+                    case str():
+                        return self % od.DataSource( og.Track(operand % o.Operand()) )
                     case _:                 return super().__mod__(operand)
             case og.Track():
                 for sequence in self:
@@ -751,6 +753,8 @@ class Song(Container):
                         if sequence._track == operand:
                             return sequence.copy()
                 return ol.Null()
+            case str():
+                return self % og.Track(operand)
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:

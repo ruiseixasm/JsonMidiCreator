@@ -30,7 +30,7 @@ T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
 # GLOBAL FUNCTIONS
 
 @cache  # Important decorator to avoid repeated searches (class names are static, never change)
-def find_class_by_name(root_class, name: str):
+def find_class_by_name(root_class: type, name: str):
     """
     Recursively searches for a class with a given name in the hierarchy 
     starting from the root_class.
@@ -56,6 +56,19 @@ def find_class_by_name(root_class, name: str):
     
     # If no matching subclass is found, return None
     return None
+
+def list_all_operand_classes(root_class: type, all_classes: list = None) -> list:
+    if not all_classes:
+        all_classes: list = []
+    if not isinstance(root_class, type):
+        return all_classes
+    
+    all_classes.append(root_class)
+    # Recursively search in all subclasses (classes NOT objects)
+    for subclass in root_class.__subclasses__():
+        list_all_operand_classes(subclass, all_classes) # No need to catch the returned list because classes are already being appended    
+
+    return all_classes
 
 def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
     if isinstance(dict_to_find, dict) and isinstance(in_dict, dict):
@@ -169,7 +182,7 @@ class Operand:
             case _:                 return ol.Null()
 
     def __eq__(self, other: 'Operand') -> bool:
-        return False
+        return True # All subclasses are Operands. Useful for Framing
     
     def __ne__(self, other: 'Operand') -> bool:
         if self == other:

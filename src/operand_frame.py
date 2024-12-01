@@ -333,7 +333,7 @@ class Frequency(Left):
         return self._multi_data['operand'].__and__(subject)
 
 class Formula(Left):
-    def __init__(self, operation: Callable[[Tuple[Any, ...]], Any]):
+    def __init__(self, operation: Callable[[Tuple[Any, ...]], Any] = None):
         super().__init__(operation)
 
     def __and__(self, subject: o.Operand) -> o.Operand:

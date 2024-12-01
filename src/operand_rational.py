@@ -261,7 +261,7 @@ class Lambda(Float):
 
 class Negative(Rational):
     def __init__(self, value: float = None):
-        super().__init__(value * (-1))
+        super().__init__(0 if value is None else value * (-1))
 
 class Quantization(Rational):
     """

@@ -77,3 +77,6 @@ from JsonMidiCreator import *
 # scale % list() >> Print()
 
 
+all_classes: list = list_all_operand_classes(Operand)
+print(all_classes)
+

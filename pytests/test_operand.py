@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 # Run the tests with 'pytest tests/python_functions.py' on linux
 
 from io import StringIO
-import pytest
+# import pytest
 import sys
 
 
@@ -42,3 +42,15 @@ def test_operand_mod():
     assert not unknown_class
 
     assert instantiated_note.copy() == instantiated_note
+
+def test_operand_copy():
+
+    list_all_classes: list[type] = list_all_operand_classes(Operand)
+
+    for single_class in list_all_classes:
+        class_object: Operand = single_class()
+        assert class_object == class_object.copy()
+        
+        
+test_operand_copy()
+

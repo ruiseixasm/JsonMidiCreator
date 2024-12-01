@@ -181,8 +181,7 @@ class TrackData(Generic):
         return ol.Null()
 
     def __eq__(self, other: o.Operand) -> bool:
-        # TrackData isn't supposed to be copied and are unique, so, distinct TrackData objects are by definition different
-        return False
+        return other is self
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -220,6 +219,9 @@ class TrackData(Generic):
             case _:                 super().__lshift__(operand)
         return self
 
+    def copy(self, *parameters) -> 'TrackData':
+        return self # No copies of TrackData!
+    
 class TimeSignature(Generic):
     def __init__(self, top: int = 4, bottom: int = 4):
         super().__init__()

@@ -213,8 +213,8 @@ class Serialization(Data):
     def __eq__(self, other: o.Operand | dict) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if self._data is None:
-            if other is None:
-                return True
+            if isinstance(other, Data) and other._data is None:
+                return True # If both have Null data then they are equal
             return False
         match other:
             case dict():
@@ -396,7 +396,7 @@ class Import(Playlist):
             self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
 
 class SideEffects(Data):
-    def __init__(self, operand: o.Operand):
+    def __init__(self, operand: o.Operand = None):
         super().__init__()
         self._data = operand    # needs to keep the original reference (no copy)
 
@@ -501,7 +501,7 @@ class Sort(Process):
             return super().__rrshift__(operand)
 
 class Filter(Process):
-    def __init__(self, criteria: any):
+    def __init__(self, criteria: any = None):
         super().__init__(criteria)
         
     # CHAINABLE OPERATIONS

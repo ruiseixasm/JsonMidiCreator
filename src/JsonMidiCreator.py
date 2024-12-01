@@ -41,6 +41,7 @@ else:  # Assume Linux/Unix
     staff << Device(["VMPK", "FLUID"])           # FLUID Synth
 
 # Set group of constants
+
 # Keys
 K = Key()
 C = Key("C")
@@ -50,6 +51,7 @@ F = Key("F")
 G = Key("G")
 A = Key("A")
 B = Key("B")
+
 # Octaves
 O0 = Octave(0)
 O1 = Octave(1)
@@ -61,14 +63,17 @@ O6 = Octave(6)
 O7 = Octave(7)
 O8 = Octave(8)
 O9 = Octave(9)
+
 # Elements
 N = Note()
 R = Rest()
+
 # Actions
 L = Link()
 LT = LJ = Link(True)
 S = Stack()
 P = Play()
+
 # Note Values
 NV1 = whole = NoteValue(1/1)
 NV2 = half = NoteValue(1/2)
@@ -82,7 +87,9 @@ Dot4 = dotted_quarter = Dotted(1/4)
 Dot8 = dotted_eight = Dotted(1/8)
 Dot16 = dotted_sixteenth = Dotted(1/16)
 Dot32 = Dotted(1/32)
+
 # Staff Position
+
 # Measures
 M1 = Measure(0)
 M2 = Measure(1)
@@ -92,6 +99,7 @@ M5 = Measure(4)
 M6 = Measure(5)
 M7 = Measure(6)
 M8 = Measure(7)
+
 # Beats
 B1 = Beat(0)
 B2 = Beat(1)
@@ -101,6 +109,7 @@ B5 = Beat(4)
 B6 = Beat(5)
 B7 = Beat(6)
 B8 = Beat(7)
+
 # Steps
 S1 = Step(0)
 S2 = Step(1)
@@ -135,3 +144,5 @@ S30 = Step(29)
 S31 = Step(30)
 S32 = Step(31)
 
+# Classes
+DS = DataSource
