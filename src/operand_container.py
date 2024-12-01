@@ -784,6 +784,8 @@ class Song(Container):
                         single_sequence << single_sequence.__rrshift__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
+        elif isinstance(operand, of.Frame):
+            o.logging.warning(f"Frames don't work on Songs!")
         return self
 
     def __radd__(self, operand: Sequence | oe.Element) -> 'Song':
@@ -798,6 +800,8 @@ class Song(Container):
                         single_sequence << single_sequence.__radd__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
+        elif isinstance(operand, of.Frame):
+            o.logging.warning(f"Frames don't work on Songs!")
         return self
 
     def __add__(self, operand: Sequence | oe.Element) -> 'Song':
@@ -812,6 +816,8 @@ class Song(Container):
                         single_sequence << single_sequence.__add__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
+        elif isinstance(operand, of.Frame):
+            o.logging.warning(f"Frames don't work on Songs!")
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Song':
@@ -825,4 +831,6 @@ class Song(Container):
                 if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
                     if self._datasource_list[single_sequence_i]._data == Sequence(operand):
                         del self._datasource_list[single_sequence_i]
+        elif isinstance(operand, of.Frame):
+            o.logging.warning(f"Frames don't work on Songs!")
         return self
