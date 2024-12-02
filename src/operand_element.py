@@ -469,7 +469,6 @@ class Clock(Stackable):
             case ot.Duration():
                                     self._duration << operand
             case ou.PPQN():         self._pulses_per_quarternote << operand
-            case int() | float():   self._duration << operand
             case _: super().__lshift__(operand)
         return self
 
