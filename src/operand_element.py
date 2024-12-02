@@ -1191,9 +1191,9 @@ class Tuplet(Stackable):
         tuplet_elements: list[Element] = []
         element_position: ot.Position = self % ot.Position()
         self_iteration: int = 0
-        for element_i in range(len(self._elements)):
-            element_duration = self._elements[element_i] % od.DataSource( ot.Duration() )
-            tuplet_elements.append(self._elements[element_i].copy() << element_position)
+        for single_element in self._elements:
+            element_duration = single_element % od.DataSource( ot.Duration() )
+            tuplet_elements.append(single_element.copy() << element_position)
             swing_ratio = self._swing % od.DataSource( Fraction() )
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio

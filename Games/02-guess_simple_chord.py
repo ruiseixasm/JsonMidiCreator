@@ -32,8 +32,8 @@ elements = (
 )
 
 def print_menu():
-    for choice_i in range(len(choices)):
-        print(f"{choice_i + 1} - {choices[choice_i]}", end=" | ")
+    for index, value in enumerate(choices):
+        print(f"{index + 1} - {value}", end=" | ")
     print(f"r to repeat | q to quit")
 
 def press_enter():

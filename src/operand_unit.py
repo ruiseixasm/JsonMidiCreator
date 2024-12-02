@@ -673,9 +673,9 @@ class Key(Unit):
                            "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
     
     def key_to_int(self, key: str = "C"):
-        for key_i in range(len(Key._keys)):
-            if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                self._unit = key_i % 12
+        for index, value in enumerate(Key._keys):
+            if value.lower().find(key.strip().lower()) != -1:
+                self._unit = index % 12
                 return
 
 class Root(Key):

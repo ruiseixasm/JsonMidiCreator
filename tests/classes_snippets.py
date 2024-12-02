@@ -87,9 +87,9 @@ class Key:
 
     @staticmethod
     def key_to_int(key: str = "C") -> int:
-        for key_i in range(len(Key._keys)):
-            if Key._keys[key_i].lower().find(key.strip().lower()) != -1:
-                return key_i % 12
+        for index, value in enumerate(Key._keys):
+            if value.lower().find(key.strip().lower()) != -1:
+                return index % 12
         return 0
 
     def apply_accidental(self, note: int):

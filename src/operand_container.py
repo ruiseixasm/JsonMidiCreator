@@ -569,10 +569,10 @@ class Sequence(Container):  # Just a container of Elements
                 for single_data in self._datasource_list
                 if isinstance(single_data._data, oe.Stackable)
             ]
-        for single_element_i in range(len(stackable_elements)):
-            single_element: oe.Stackable = stackable_elements[single_element_i]
-            if single_element_i > 0:
-                single_element._position = stackable_elements[single_element_i - 1]._position + stackable_elements[single_element_i - 1]._duration  # Stacks on Element Duration
+        for index, value in enumerate(stackable_elements):
+            single_element: oe.Stackable = value
+            if index > 0:
+                single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
             else:
                 single_element._position = ot.Position(0)   # everything starts at the beginning (0)!
         return self

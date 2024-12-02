@@ -822,15 +822,16 @@ class Scale(Generic):
                 if scale >= 0 and scale < total_scales:
                     return scale
             case str():
-                for scale_i in range(len(__class__._names)):
-                    for scale_j in range(len(__class__._names[scale_i])):
-                        if scale.strip() == __class__._names[scale_i][scale_j]:
-                            return scale_i
+                scale_name = scale.strip()
+                for index, names in enumerate(__class__._names):
+                    for name in names:
+                        if name == scale_name:
+                            return index
             case list():
                 if len(scale) == 12:
-                    for scale_i in range(len(__class__._scales)):
-                        if __class__._scales[scale_i] == scale:
-                            return scale_i
+                    for index, scale_list in enumerate(__class__._scales):
+                        if scale_list == scale:
+                            return index
         return -1
 
     @staticmethod

@@ -292,15 +292,15 @@ class Until(Left):
                 self._count_down[picker] -= 1
             closest_picker: int = picker
             closest_place: int  = self._count_down[picker]
-            for single_picker in range(len(self._multi_data['operand'])):
-                if self._count_down[single_picker] < closest_place and self._multi_data['operand'][single_picker] >= 0:
-                    closest_picker = single_picker
-                    closest_place = self._count_down[single_picker]
+            for index, value in enumerate(self._multi_data['operand']):
+                if self._count_down[index] < closest_place and value >= 0:
+                    closest_picker = index
+                    closest_place = self._count_down[index]
             pick_subject = closest_picker
             self._count_down[pick_subject] += self._multi_data['operand'][pick_subject] # adds position debt
             # Trim base, move closer (avoids astronomical distances)
-            for single_picker in range(len(self._multi_data['operand'])):
-                self._count_down[single_picker] -= max(0, closest_place - 1)
+            for index, _ in enumerate(self._multi_data['operand']):
+                self._count_down[index] -= max(0, closest_place - 1)
         return super().__and__(pick_subject)
 
 class Frequency(Left):
