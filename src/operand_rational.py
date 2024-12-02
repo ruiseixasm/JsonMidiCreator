@@ -74,7 +74,7 @@ class Rational(o.Operand):
                     case int():             return int(self._rational)
                     case str():             return str(self._rational)
                     case ou.IntU():      return ou.IntU() << od.DataSource( self._rational )
-                    case Float():           return Float() << od.DataSource( self._rational )
+                    case FloatR():           return FloatR() << od.DataSource( self._rational )
                     case Rational():        return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -83,7 +83,7 @@ class Rational(o.Operand):
             case int():             return int(self._rational)
             case str():             return str(self._rational)
             case ou.IntU():      return ou.IntU() << self._rational
-            case Float():           return Float() << self._rational
+            case FloatR():           return FloatR() << self._rational
             case Rational():        return self.copy()
             case _:                 return super().__mod__(operand)
 
@@ -153,7 +153,7 @@ class Rational(o.Operand):
                         self._rational = operand % o.Operand()
                     case float() | int() | str():
                         self._rational = Fraction(operand % o.Operand())
-                    case Float() | ou.IntU():
+                    case FloatR() | ou.IntU():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():
                 super().__lshift__(operand)
@@ -213,50 +213,50 @@ class Rational(o.Operand):
                     return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
         return self.copy()
 
-class Float(Rational):
+class FloatR(Rational):
     def __init__(self, *parameters):
         super().__init__()
         self._limit_denominator = 0
         if len(parameters) > 0:
             self << parameters
 
-class Index(Float):
+class Index(FloatR):
     pass
 
-class Split(Float):
+class Split(FloatR):
     pass
 
-class Width(Float):
+class Width(FloatR):
     pass
 
-class Height(Float):
+class Height(FloatR):
     pass
 
-class X(Float):
+class X(FloatR):
     pass
 
-class Y(Float):
+class Y(FloatR):
     pass
 
-class Z(Float):
+class Z(FloatR):
     pass
 
-class dX(Float):
+class dX(FloatR):
     pass
 
-class dY(Float):
+class dY(FloatR):
     pass
 
-class dZ(Float):
+class dZ(FloatR):
     pass
 
-class X0(Float):
+class X0(FloatR):
     pass
 
-class Xn(Float):
+class Xn(FloatR):
     pass
 
-class Lambda(Float):
+class Lambda(FloatR):
     pass
 
 class Negative(Rational):
@@ -856,7 +856,7 @@ class Dotted(NoteValue):
             case float():           return float(self._rational * 2/3)
             case int():             return int(self._rational * 2/3)
             case Dotted():          return self.copy()
-            case Float():           return ou.Unit() << self._rational * 2/3
+            case FloatR():           return ou.Unit() << self._rational * 2/3
             case ou.IntU():      return ou.Unit() << self._rational * 2/3
             case NoteValue():       return NoteValue() << self._rational
             case _:                 return super().__mod__(operand)
@@ -877,7 +877,7 @@ class Dotted(NoteValue):
             # It's just a wrapper for NoteValue 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
-            case ou.IntU() | Float():
+            case ou.IntU() | FloatR():
                                     self._rational = operand % Fraction() * 3/2
             case NoteValue():       self._rational = operand % Fraction()
             case _: super().__lshift__(operand)

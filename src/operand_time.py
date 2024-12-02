@@ -63,7 +63,7 @@ class Time(o.Operand):
                 return ra.Measure() << self._time_unit % operand % int()
             case ra.Beat() | ra.Step():
                 return operand.__class__() << (ra.Measure() << self._time_unit % Fraction() - self._time_unit % int())
-            case ra.TimeUnit() | int() | float() | Fraction() | ou.IntU() | ra.Float():
+            case ra.TimeUnit() | int() | float() | Fraction() | ou.IntU() | ra.FloatR():
                 return self._time_unit % operand
             case _:                 return super().__mod__(operand)
 
@@ -189,7 +189,7 @@ class Time(o.Operand):
             case int() | ou.IntU():
                 # Meant to change just the Measure
                 self._time_unit << (self._time_unit % Fraction() - self._time_unit % int()) + operand
-            case Fraction() | float() | ra.Float():
+            case Fraction() | float() | ra.FloatR():
                 self._time_unit         << operand
             case tuple():
                 for single_operand in operand:
@@ -204,7 +204,7 @@ class Time(o.Operand):
                 self_copy << od.DataSource( self._time_unit + operand % od.DataSource( ra.TimeUnit() ) % od.DataSource( self._time_unit ) )
             case ra.TimeUnit():
                 self_copy << od.DataSource( self._time_unit + operand % od.DataSource( self._time_unit ) )
-            case int() | float() | ou.IntU() | ra.Float() | Fraction():
+            case int() | float() | ou.IntU() | ra.FloatR() | Fraction():
                 self_copy << od.DataSource( self._time_unit + operand )
         return self_copy
     
@@ -216,7 +216,7 @@ class Time(o.Operand):
                 self_copy << od.DataSource( self._time_unit - operand % od.DataSource( ra.TimeUnit() ) % od.DataSource( self._time_unit ) )
             case ra.TimeUnit():
                 self_copy << od.DataSource( self._time_unit - operand % od.DataSource( self._time_unit ) )
-            case int() | float() | ou.IntU() | ra.Float() | Fraction():
+            case int() | float() | ou.IntU() | ra.FloatR() | Fraction():
                 self_copy << od.DataSource( self._time_unit - operand )
         return self_copy
     
@@ -228,7 +228,7 @@ class Time(o.Operand):
                 self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( ra.TimeUnit() ) % od.DataSource( self._time_unit )) )
             case ra.TimeUnit():
                 self_copy << od.DataSource( self._time_unit * (operand % od.DataSource( self._time_unit )) )
-            case int() | float() | ou.IntU() | ra.Float() | Fraction():
+            case int() | float() | ou.IntU() | ra.FloatR() | Fraction():
                 self_copy << od.DataSource( self._time_unit * operand )
         return self_copy
     
@@ -245,7 +245,7 @@ class Time(o.Operand):
             case ra.TimeUnit():
                 if operand % od.DataSource( self._time_unit ) != 0:
                     self_copy << od.DataSource( self._time_unit / (operand % od.DataSource( self._time_unit )) )
-            case int() | float() | ou.IntU() | ra.Float() | Fraction():
+            case int() | float() | ou.IntU() | ra.FloatR() | Fraction():
                 if operand != 0:
                     self_copy << od.DataSource( self._time_unit / operand )
         return self_copy

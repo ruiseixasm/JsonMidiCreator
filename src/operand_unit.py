@@ -66,7 +66,7 @@ class Unit(o.Operand):
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
                     case IntU():         return IntU() << od.DataSource( self._unit )
-                    case ra.Float():        return ra.Float() << od.DataSource( self._unit )
+                    case ra.FloatR():        return ra.FloatR() << od.DataSource( self._unit )
                     case Unit():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -75,7 +75,7 @@ class Unit(o.Operand):
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case IntU():         return IntU() << self._unit
-            case ra.Float():        return ra.Float() << self._unit
+            case ra.FloatR():        return ra.FloatR() << self._unit
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
              
@@ -163,7 +163,7 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
-                    case IntU() | ra.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case IntU() | ra.FloatR():    self._unit = operand % o.Operand() % od.DataSource( int() )
             case Unit():
                 super().__lshift__(operand)
                 self._unit = operand._unit
@@ -173,7 +173,7 @@ class Unit(o.Operand):
                 self._unit = int(operand)
             case bool():
                 self._unit = 1 if operand else 0
-            case ra.Float():
+            case ra.FloatR():
                 self._unit = operand % int()
             case tuple():
                 for single_operand in operand:
@@ -510,7 +510,7 @@ class Key(Unit):
                         self._unit = operand % o.Operand()
                     case float() | Fraction():
                         self._unit = int(operand % o.Operand())
-                    case Semitone() | IntU() | ra.Float():
+                    case Semitone() | IntU() | ra.FloatR():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
                     case Sharp():
                         self._sharp << operand % o.Operand()
@@ -534,7 +534,7 @@ class Key(Unit):
                 self._natural._unit = operand._natural._unit
                 self._degree        << operand._degree
                 self._scale         << operand._scale
-            case int() | float() | Fraction() | Semitone() | IntU() | ra.Float():
+            case int() | float() | Fraction() | Semitone() | IntU() | ra.FloatR():
                                     if isinstance(operand, o.Operand):
                                         self._unit = operand % int()
                                     else:
@@ -581,7 +581,7 @@ class Key(Unit):
                 new_key << ( self % int() + self.move_semitones(operand._unit) )
             case float() | Fraction():
                 new_key << ( self % int() + operand )
-            case Key() | Semitone() | ra.Float():
+            case Key() | Semitone() | ra.FloatR():
                 new_key << ( self % int() + operand % int() )
             case Degree():
                 self_copy: Key = self.copy()
@@ -612,7 +612,7 @@ class Key(Unit):
                 new_key << ( self % int() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
                 new_key << ( self % int() - operand )
-            case Key() | Semitone() | ra.Float():
+            case Key() | Semitone() | ra.FloatR():
                 new_key << ( self % int() - operand % int() )
             case Degree():
                 self_copy: Key = self.copy()

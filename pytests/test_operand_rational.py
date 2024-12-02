@@ -34,8 +34,8 @@ import sys
 def test_rational_mod():
 
     # Perform the operation
-    rational_1 = Float(12)
-    rational_2 = Float(10)
+    rational_1 = FloatR(12)
+    rational_2 = FloatR(10)
 
     assert rational_1 + rational_2 == 12 + 10
     assert rational_1 - rational_2 == 12 - 10
