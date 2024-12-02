@@ -65,7 +65,7 @@ class Unit(o.Operand):
                     case Fraction():        return Fraction(self._unit).limit_denominator()
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
-                    case Integer():         return Integer() << od.DataSource( self._unit )
+                    case IntU():         return IntU() << od.DataSource( self._unit )
                     case ra.Float():        return ra.Float() << od.DataSource( self._unit )
                     case Unit():            return self
                     case _:                 return ol.Null()
@@ -74,7 +74,7 @@ class Unit(o.Operand):
             case bool():            return False if self._unit == 0 else True
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
-            case Integer():         return Integer() << self._unit
+            case IntU():         return IntU() << self._unit
             case ra.Float():        return ra.Float() << self._unit
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
@@ -163,7 +163,7 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
-                    case Integer() | ra.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case IntU() | ra.Float():    self._unit = operand % o.Operand() % od.DataSource( int() )
             case Unit():
                 super().__lshift__(operand)
                 self._unit = operand._unit
@@ -222,7 +222,7 @@ class Unit(o.Operand):
                                         return self.__class__() << od.DataSource( self._unit / number )
         return self.copy()
 
-class Integer(Unit):
+class IntU(Unit):
     pass
 
 class Next(Unit):
@@ -510,7 +510,7 @@ class Key(Unit):
                         self._unit = operand % o.Operand()
                     case float() | Fraction():
                         self._unit = int(operand % o.Operand())
-                    case Semitone() | Integer() | ra.Float():
+                    case Semitone() | IntU() | ra.Float():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
                     case Sharp():
                         self._sharp << operand % o.Operand()
@@ -534,7 +534,7 @@ class Key(Unit):
                 self._natural._unit = operand._natural._unit
                 self._degree        << operand._degree
                 self._scale         << operand._scale
-            case int() | float() | Fraction() | Semitone() | Integer() | ra.Float():
+            case int() | float() | Fraction() | Semitone() | IntU() | ra.Float():
                                     if isinstance(operand, o.Operand):
                                         self._unit = operand % int()
                                     else:
@@ -577,7 +577,7 @@ class Key(Unit):
         match operand:
             case int():
                 new_key << ( self % int() + self.move_semitones(operand) )
-            case Integer():
+            case IntU():
                 new_key << ( self % int() + self.move_semitones(operand._unit) )
             case float() | Fraction():
                 new_key << ( self % int() + operand )
@@ -608,7 +608,7 @@ class Key(Unit):
         match operand:
             case int():
                 new_key << ( self % int() + self.move_semitones(operand * -1) )
-            case Integer():
+            case IntU():
                 new_key << ( self % int() + self.move_semitones(operand._unit * -1) )
             case float() | Fraction():
                 new_key << ( self % int() - operand )

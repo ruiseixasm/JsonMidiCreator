@@ -328,7 +328,7 @@ class Pitch(Generic):
             case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.Integer() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
+            case ou.IntU() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
                 return self._key % operand
             case int():
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
@@ -414,7 +414,7 @@ class Pitch(Generic):
                 self._key_offset = operand._key_offset
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Octave() | int() | ou.Integer():
+            case ou.Octave() | int() | ou.IntU():
                 self._octave << operand
             case ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode():
                 self._key << operand
@@ -605,7 +605,7 @@ class Controller(Generic):
                 value += operand % ou.Value() % int()
             case ou.Value():
                 value += operand % int()
-            case int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case int() | float() | ou.IntU() | ra.Float() | Fraction():
                 value += operand
             case _:
                 return self.copy()
@@ -619,7 +619,7 @@ class Controller(Generic):
                 value -= operand % ou.Value() % int()
             case ou.Value():
                 value -= operand % int()
-            case int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case int() | float() | ou.IntU() | ra.Float() | Fraction():
                 value -= operand
             case _:
                 return self.copy()

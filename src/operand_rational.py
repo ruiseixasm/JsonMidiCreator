@@ -73,7 +73,7 @@ class Rational(o.Operand):
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
                     case str():             return str(self._rational)
-                    case ou.Integer():      return ou.Integer() << od.DataSource( self._rational )
+                    case ou.IntU():      return ou.IntU() << od.DataSource( self._rational )
                     case Float():           return Float() << od.DataSource( self._rational )
                     case Rational():        return self
                     case _:                 return ol.Null()
@@ -82,7 +82,7 @@ class Rational(o.Operand):
             case float():           return float(self._rational)
             case int():             return int(self._rational)
             case str():             return str(self._rational)
-            case ou.Integer():      return ou.Integer() << self._rational
+            case ou.IntU():      return ou.IntU() << self._rational
             case Float():           return Float() << self._rational
             case Rational():        return self.copy()
             case _:                 return super().__mod__(operand)
@@ -153,7 +153,7 @@ class Rational(o.Operand):
                         self._rational = operand % o.Operand()
                     case float() | int() | str():
                         self._rational = Fraction(operand % o.Operand())
-                    case Float() | ou.Integer():
+                    case Float() | ou.IntU():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():
                 super().__lshift__(operand)
@@ -162,7 +162,7 @@ class Rational(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
             case float() | int() | str():   self << od.DataSource( operand )
-            case ou.Integer():              self._rational = operand % Fraction()
+            case ou.IntU():              self._rational = operand % Fraction()
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -857,7 +857,7 @@ class Dotted(NoteValue):
             case int():             return int(self._rational * 2/3)
             case Dotted():          return self.copy()
             case Float():           return ou.Unit() << self._rational * 2/3
-            case ou.Integer():      return ou.Unit() << self._rational * 2/3
+            case ou.IntU():      return ou.Unit() << self._rational * 2/3
             case NoteValue():       return NoteValue() << self._rational
             case _:                 return super().__mod__(operand)
 
@@ -877,7 +877,7 @@ class Dotted(NoteValue):
             # It's just a wrapper for NoteValue 3/2
             case Fraction():        self._rational = operand * 3/2
             case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
-            case ou.Integer() | Float():
+            case ou.IntU() | Float():
                                     self._rational = operand % Fraction() * 3/2
             case NoteValue():       self._rational = operand % Fraction()
             case _: super().__lshift__(operand)

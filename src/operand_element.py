@@ -167,7 +167,7 @@ class Element(o.Operand):
                 self._position      << operand._position
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Position() | ra.TimeUnit() | int() | ou.Integer():
+            case ot.Position() | ra.TimeUnit() | int() | ou.IntU():
                                     self._position << operand
             case tuple():
                 for single_operand in operand:
@@ -464,7 +464,7 @@ class Clock(Stackable):
             case Clock():
                 super().__lshift__(operand)
                 self._pulses_per_quarternote << operand._pulses_per_quarternote
-            case ra.NoteValue() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ra.NoteValue() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                                     self._duration << operand
             case ot.Duration():
                                     self._duration << operand
@@ -650,7 +650,7 @@ class Note(Stackable):
     def __add__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._pitch + operand
             case _:             return super().__add__(operand)
@@ -659,7 +659,7 @@ class Note(Stackable):
     def __sub__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 self << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self
@@ -1382,7 +1382,7 @@ class ControlChange(Automation):
     def __add__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.Integer() | ra.Float():
+            case int() | float() | ou.IntU() | ra.Float():
                 # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._controller + operand
             case _:             return super().__add__(operand)
@@ -1391,7 +1391,7 @@ class ControlChange(Automation):
     def __sub__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.Integer() | ra.Float():
+            case int() | float() | ou.IntU() | ra.Float():
                 self << self._controller - operand
             case _:             return super().__sub__(operand)
         return self
@@ -1492,7 +1492,7 @@ class PitchBend(Automation):
     def __add__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ou.Bend() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._bend + operand
             case _:             return super().__add__(operand)
@@ -1501,7 +1501,7 @@ class PitchBend(Automation):
     def __sub__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Bend() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ou.Bend() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 self << self._bend - operand
             case _:             return super().__sub__(operand)
         return self
@@ -1601,7 +1601,7 @@ class Aftertouch(Automation):
     def __add__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ou.Pressure() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._pressure + operand
             case _:             return super().__add__(operand)
@@ -1610,7 +1610,7 @@ class Aftertouch(Automation):
     def __sub__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pressure() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ou.Pressure() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 self << self._pressure - operand
             case _:             return super().__sub__(operand)
         return self
@@ -1800,7 +1800,7 @@ class ProgramChange(Automation):
     def __add__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ou.Program() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._program + operand
             case _:             return super().__add__(operand)
@@ -1809,7 +1809,7 @@ class ProgramChange(Automation):
     def __sub__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Program() | int() | float() | ou.Integer() | ra.Float() | Fraction():
+            case ou.Program() | int() | float() | ou.IntU() | ra.Float() | Fraction():
                 self << self._program - operand
             case _:             return super().__sub__(operand)
         return self

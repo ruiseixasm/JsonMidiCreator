@@ -245,7 +245,7 @@ class Container(o.Operand):
                 self_copy = self.copy()
                 self_copy._datasource_list.append(od.DataSource( operand.copy() ))
                 return self_copy
-            case int() | ou.Integer(): # repeat n times the last argument if any
+            case int() | ou.IntU(): # repeat n times the last argument if any
                 self_copy: Container = self.copy()
                 if len(self._datasource_list) > 0:
                     last_datasource = self._datasource_list[len(self._datasource_list) - 1]
