@@ -50,4 +50,8 @@ def test_operand_copy():
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         assert class_object == class_object.copy()
+
+    root_classes_list: list[type] = get_root_classes_list(Operand)
+
+    assert root_classes_list == list_all_classes
         

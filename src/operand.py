@@ -57,6 +57,7 @@ def find_class_by_name(root_class: type, name: str):
     # If no matching subclass is found, return None
     return None
 
+
 def list_all_operand_classes(root_class: type, all_classes: list = None) -> list:
     if not all_classes:
         all_classes: list = []
@@ -70,6 +71,19 @@ def list_all_operand_classes(root_class: type, all_classes: list = None) -> list
 
     return all_classes
 
+
+def get_root_classes_list(root_class: type) -> list:
+    if not isinstance(root_class, type):
+        return []   # Empty list
+    
+    # Recursively fills up (extends) self subclasses list (classes NOT objects)
+    root_classes_list: list = [root_class]
+    for subclass in root_class.__subclasses__():
+        root_classes_list.extend( get_root_classes_list(subclass) )
+
+    return root_classes_list
+
+
 def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
     if isinstance(dict_to_find, dict) and isinstance(in_dict, dict):
 
@@ -81,6 +95,7 @@ def found_dict_in_dict(dict_to_find: dict, in_dict: dict) -> bool:
             if result: return True
         
     return False
+
 
 def get_dict_key_data(dict_key: str, in_dict: dict) -> any:
     if isinstance(dict_key, str) and isinstance(in_dict, dict):
@@ -94,6 +109,7 @@ def get_dict_key_data(dict_key: str, in_dict: dict) -> any:
 
     return None
 
+
 def get_pair_key_data(pair_key: dict, in_dict: dict) -> any:
     if isinstance(pair_key, dict) and len(pair_key) > 0 and isinstance(in_dict, dict):
         # Get the first key-value pair
@@ -105,6 +121,7 @@ def get_pair_key_data(pair_key: dict, in_dict: dict) -> any:
         return first_key_data
 
     return None
+
 
 # GLOBAL CLASSES
 
