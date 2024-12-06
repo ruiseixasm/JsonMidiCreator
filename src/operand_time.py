@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, TypeVar, TYPE_CHECKING
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
@@ -26,6 +26,8 @@ import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
+TypeTime = TypeVar('TypeTime', bound='Time')  # TypeTime represents any subclass of Operand
+
 
 class Time(o.Operand):
     def __init__(self, *parameters):
@@ -33,6 +35,9 @@ class Time(o.Operand):
         self._time_unit      = ra.Measure()
         if len(parameters) > 0:
             self << parameters
+
+    def time(self: TypeTime, number: int = None) -> TypeTime:
+        return self << od.DataSource( number )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

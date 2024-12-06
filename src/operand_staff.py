@@ -13,6 +13,8 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
+# Example using typing.Union (compatible with Python < 3.10)
+from typing import Union, TypeVar, TYPE_CHECKING
 from fractions import Fraction
 import time
 import sys
