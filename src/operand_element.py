@@ -533,8 +533,8 @@ class Note(Stackable):
         if len(parameters) > 0:
             self << parameters
 
-    def pitch(self: 'Note', pitch: str = None) -> 'Note':
-        self._pitch = og.Pitch(pitch)
+    def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
+        self._pitch = og.Pitch(key, octave)
         return self
 
     def velocity(self: 'Note', velocity: int = None) -> 'Note':
@@ -1715,8 +1715,8 @@ class PolyAftertouch(Aftertouch):
         if len(parameters) > 0:
             self << parameters
 
-    def pitch(self: 'PolyAftertouch', pitch: Optional[int] = None) -> 'PolyAftertouch':
-        self._pitch = og.Pitch(pitch)
+    def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'PolyAftertouch':
+        self._pitch = og.Pitch(key, octave)
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
