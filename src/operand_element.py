@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TYPE_CHECKING, TypeVar
+from typing import Union, TYPE_CHECKING, TypeVar, Optional, List
 from fractions import Fraction
 import json
 import enum
@@ -43,6 +43,10 @@ class Element(o.Operand):
         self._position: ot.Position         = ot.Position()
         if len(parameters) > 0:
             self << parameters
+
+    def position(self: TypeElement, position: float = None) -> TypeElement:
+        self._position = ot.Position(position)
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -264,6 +268,10 @@ class Stackable(Element):
         if len(parameters) > 0:
             self << parameters
 
+    def duration(self: 'Stackable', duration: float = None) -> 'Stackable':
+        self._duration = ot.Duration(duration)
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
@@ -356,6 +364,10 @@ class Clock(Stackable):
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters
+
+    def ppqn(self: 'Clock', ppqn: int = None) -> 'Clock':
+        self._pulses_per_quarternote = ou.PPQN(ppqn)
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -521,6 +533,22 @@ class Note(Stackable):
         if len(parameters) > 0:
             self << parameters
 
+    def pitch(self: 'Note', pitch: str = None) -> 'Note':
+        self._pitch = og.Pitch(pitch)
+        return self
+
+    def velocity(self: 'Note', velocity: int = None) -> 'Note':
+        self._velocity = og.Pitch(velocity)
+        return self
+
+    def gate(self: 'Note', gate: float = None) -> 'Note':
+        self._gate = og.Pitch(gate)
+        return self
+
+    def tied(self: 'Note', tied: bool = None) -> 'Note':
+        self._tied = og.Pitch(tied)
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
@@ -678,9 +706,13 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure duration
-        self._self_scale: og.Scale  = og.Scale("Major")    # Major scale as default
+        self._scale: og.Scale  = og.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters
+
+    def scale(self: 'KeyScale', scale: list[int] | str = None) -> 'KeyScale':
+        self._scale = og.Scale(scale)
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -703,11 +735,11 @@ class KeyScale(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.Scale():        return self._self_scale
+                    case og.Scale():        return self._scale
                     case _:                 return super().__mod__(operand)
-            case og.Scale():        return self._self_scale.copy()
+            case og.Scale():        return self._scale.copy()
             case list() | ou.Mode():
-                                    return self._self_scale % operand
+                                    return self._scale % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -715,16 +747,16 @@ class KeyScale(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._self_scale == other._self_scale
+                    and self._scale == other._scale
             case _:
                 return super().__eq__(other)
             
     def get_scale_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
         # Sets Scale to be used
-        if self._self_scale.hasScale():
-            for key_note_i in range(self._self_scale.keys()): # presses entire scale, 7 keys for diatonic scales
-                transposition: int = self._self_scale.transposition(key_note_i)
+        if self._scale.hasScale():
+            for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
+                transposition: int = self._scale.transposition(key_note_i)
                 scale_notes.append(Note(self) + float(transposition))
         else:   # Uses the staff keys straight away
             key_note_scale: og.Scale = self._pitch._key % og.Scale()
@@ -748,7 +780,7 @@ class KeyScale(Note):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["self_scale"] = self.serialize( self._self_scale )
+        serialization["parameters"]["self_scale"] = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -758,7 +790,7 @@ class KeyScale(Note):
             "self_scale" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
-            self._self_scale = self.deserialize( serialization["parameters"]["self_scale"] )
+            self._scale = self.deserialize( serialization["parameters"]["self_scale"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
@@ -766,13 +798,13 @@ class KeyScale(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.Scale():        self._self_scale = operand % o.Operand()
+                    case og.Scale():        self._scale = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case KeyScale():
                 super().__lshift__(operand)
-                self._self_scale << operand._self_scale
+                self._scale << operand._scale
             case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
-                self._self_scale << operand
+                self._scale << operand
             case _: super().__lshift__(operand)
         return self
 
@@ -788,6 +820,34 @@ class Chord(KeyScale):
         self._sus4: ou.Sus4             = ou.Sus4(0)
         if len(parameters) > 0:
             self << parameters
+
+    def size(self: 'Chord', size: int = None) -> 'Chord':
+        self._size = ou.Size(size)
+        return self
+
+    def inversion(self: 'Chord', inversion: int = None) -> 'Chord':
+        self._inversion = ou.Inversion(inversion)
+        return self
+
+    def dominant(self: 'Chord', dominant: int = None) -> 'Chord':
+        self._dominant = ou.Dominant(dominant)
+        return self
+
+    def diminished(self: 'Chord', diminished: int = None) -> 'Chord':
+        self._diminished = ou.Diminished(diminished)
+        return self
+
+    def augmented(self: 'Chord', augmented: int = None) -> 'Chord':
+        self._augmented = ou.Augmented(augmented)
+        return self
+
+    def sus2(self: 'Chord', sus2: int = None) -> 'Chord':
+        self._sus2 = ou.Sus2(sus2)
+        return self
+
+    def sus4(self: 'Chord', sus4: int = None) -> 'Chord':
+        self._sus4 = ou.Sus4(sus4)
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -838,11 +898,11 @@ class Chord(KeyScale):
     
     def get_chord_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
-        max_size = self._self_scale.keys()
+        max_size = self._scale.keys()
         if max_size % 2 == 0: max_size //= 2
         max_size = min(self._size % od.DataSource( int() ), max_size)
         # Sets Scale to be used
-        if self._self_scale.hasScale():
+        if self._scale.hasScale():
             # modulated_scale: og.Scale = self._scale.copy().modulate(self._mode)
             for note_i in range(max_size):
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
@@ -851,7 +911,7 @@ class Chord(KeyScale):
                         key_degree -= 1
                     if self._sus4:
                         key_degree += 1   # cancels out if both sus2 and sus4 are set to true
-                transposition: int = self._self_scale.transposition(key_degree - 1)
+                transposition: int = self._scale.transposition(key_degree - 1)
                 if key_degree == 7:   # Seventh
                     if self._dominant:
                         transposition -= 1
@@ -962,9 +1022,9 @@ class Chord(KeyScale):
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
-                    self._self_scale << "minor"
+                    self._scale << "minor"
                 else:
-                    self._self_scale << "Major"
+                    self._scale << "Major"
                 self.set_all(operand)
             case ou.Dominant():
                 if operand:
@@ -1000,11 +1060,19 @@ class Retrigger(Note):
     def __init__(self, *parameters):
         super().__init__()
         self._duration *= 2 # Equivalent to twice single note duration
+        self._gate      << 0.50
         self._division  = ou.Division(16)
-        self._gate      = ra.Gate(.50)
-        self._swing     = ra.Swing(.50)
+        self._swing     = ra.Swing(0.50)
         if len(parameters) > 0:
             self << parameters
+
+    def division(self: 'Retrigger', division: int = None) -> 'Retrigger':
+        self._division = ou.Division(division)
+        return self
+
+    def swing(self: 'Retrigger', swing: int = None) -> 'Retrigger':
+        self._swing = ra.Swing(swing)
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -1139,6 +1207,15 @@ class Tuplet(Stackable):
         self.set_elements_duration()
         if len(parameters) > 0:
             self << parameters
+
+    def swing(self: 'Tuplet', swing: int = None) -> 'Tuplet':
+        self._swing = ra.Swing(swing)
+        return self
+
+    def elements(self: 'Tuplet', elements: Optional[List['Element']] = None) -> 'Tuplet':
+        if isinstance(elements, list) and all(isinstance(element, Element) for element in elements):
+            self._elements = elements
+        return self
 
     def set_elements_duration(self):
         if len(self._elements) > 0:
@@ -1291,6 +1368,12 @@ class ControlChange(Automation):
         if len(parameters) > 0:
             self << parameters
 
+    def controller(self: 'ControlChange', number: Optional[int] = None, value: Optional[int] = None) -> 'ControlChange':
+        self._controller = og.Controller(
+                ou.Number(number), ou.Value(value)
+            )
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a ControlChange,
@@ -1405,6 +1488,10 @@ class PitchBend(Automation):
         if len(parameters) > 0:
             self << parameters
 
+    def bend(self: 'PitchBend', bend: Optional[int] = None) -> 'PitchBend':
+        self._bend = ou.Bend(bend)
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a PitchBend,
@@ -1515,6 +1602,10 @@ class Aftertouch(Automation):
         if len(parameters) > 0:
             self << parameters
 
+    def pressure(self: 'Aftertouch', pressure: Optional[int] = None) -> 'Aftertouch':
+        self._pressure = ou.Bend(pressure)
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Aftertouch,
@@ -1624,6 +1715,10 @@ class PolyAftertouch(Aftertouch):
         if len(parameters) > 0:
             self << parameters
 
+    def pitch(self: 'PolyAftertouch', pitch: Optional[int] = None) -> 'PolyAftertouch':
+        self._pitch = og.Pitch(pitch)
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a PolyAftertouch,
@@ -1713,6 +1808,10 @@ class ProgramChange(Automation):
         self._program: ou.Program = ou.Program()
         if len(parameters) > 0:
             self << parameters
+
+    def program(self: 'ProgramChange', program: Optional[int] = None) -> 'ProgramChange':
+        self._program = og.Pitch(program)
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
