@@ -47,10 +47,8 @@ class Unit(o.Operand):
         if len(parameters) > 0:
             self << parameters
 
-    def unit(self: TypeUnit, number: int) -> TypeUnit:
-        if isinstance(number, int):
-            self._unit = number
-        return self
+    def unit(self: TypeUnit, number: int = None) -> TypeUnit:
+        return self << od.DataSource( number )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -170,7 +168,8 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
-                    case IntU() | ra.FloatR():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case IntU() | ra.FloatR():      self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case None:                      self._unit = None
             case Unit():
                 super().__lshift__(operand)
                 self._unit = operand._unit
@@ -361,44 +360,20 @@ class Key(Unit):
             self << parameters
 
     def sharp(self: 'Key', unit: int = None) -> 'Key':
-        if isinstance(unit, int):
-            self._sharp = Sharp(unit)
-        elif unit is None:
-            self._sharp = Sharp()
-        return self
+        return self << od.DataSource( Sharp(unit) )
 
     def flat(self: 'Key', unit: int = None) -> 'Key':
-        if isinstance(unit, int):
-            self._flat = Flat(unit)
-        elif unit is None:
-            self._flat = Flat()
-        return self
+        return self << od.DataSource( Flat(unit) )
 
     def natural(self: 'Key', unit: int = None) -> 'Key':
-        if isinstance(unit, int):
-            self._natural = Natural(unit)
-        elif unit is None:
-            self._natural = Natural()
-        return self
+        return self << od.DataSource( Natural(unit) )
 
     def degree(self: 'Key', unit: int = None) -> 'Key':
-        if isinstance(unit, int):
-            self._degree = Degree(unit)
-        elif unit is None:
-            self._degree = Degree()
-        return self
+        return self << od.DataSource( Degree(unit) )
 
     def scale(self: 'Key', scale: list[int] | str = None) -> 'Key':
         import operand_generic as og
-        match scale:
-            case list():
-                if len(scale) == 12 and all(type(key) == int for key in scale):
-                    self._scale = og.Scale(scale)
-            case str():
-                self._scale = og.Scale(scale)
-            case None:
-                self._scale = og.Scale([])
-        return self
+        return self << od.DataSource( og.Scale(scale) )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         import operand_generic as og
