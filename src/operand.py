@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
 
-T = TypeVar('T', bound='Operand')  # T represents any subclass of Operand
+TypeOperand = TypeVar('TypeOperand', bound='Operand')  # TypeOperand represents any subclass of Operand
 
 
 # GLOBAL FUNCTIONS
@@ -301,8 +301,8 @@ class Operand:
                 self._next_operand = operand._next_operand.copy()
         return self
 
-    def copy(self: T, *parameters) -> T:
-        self_copy: T = type(self)() << self
+    def copy(self: TypeOperand, *parameters) -> TypeOperand:
+        self_copy: TypeOperand = type(self)() << self
         if logging.getLogger().getEffectiveLevel() <= logging.DEBUG and not self_copy == self:   # CONSUMES TOO MUCH RESOURCES !!
             logging.error(f"Copied object {self.__class__.__name__} not identical!")
         for single_parameter in parameters: # Safe for Data class
@@ -311,7 +311,7 @@ class Operand:
         # return type(self)() << self << parameters
         return self_copy
     
-    def reset(self: T, *parameters) -> T:
+    def reset(self: TypeOperand, *parameters) -> TypeOperand:
         # RESET THE SELF OPERANDS RECURSIVELY
         if self._next_operand is not None:
             self._next_operand.reset()
@@ -320,7 +320,7 @@ class Operand:
         self._index         = 0
         return self << parameters
     
-    def clear(self: T, *parameters) -> T:
+    def clear(self: TypeOperand, *parameters) -> TypeOperand:
         self._next_operand = None
         return self.reset() << self.__class__() << parameters
     
@@ -328,7 +328,7 @@ class Operand:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self, operand: T) -> T:
+    def __rshift__(self, operand: TypeOperand) -> TypeOperand:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
@@ -338,7 +338,7 @@ class Operand:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self, operand: T) -> T:
+    def __rrshift__(self, operand: TypeOperand) -> TypeOperand:
         match operand:
             case tuple():
                 rshift_operands = None

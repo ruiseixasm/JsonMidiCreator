@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union
+from typing import Union, TypeVar, TYPE_CHECKING
 from fractions import Fraction
 import json
 import re
@@ -26,6 +26,8 @@ import operand_data as od
 
 import operand_frame as of
 import operand_label as ol
+
+TypeUnit = TypeVar('TypeUnit', bound='Unit')  # TypeUnit represents any subclass of Operand
 
 
 # Units have never None values and are also const, with no setters
@@ -44,6 +46,11 @@ class Unit(o.Operand):
         self._unit: int = 0
         if len(parameters) > 0:
             self << parameters
+
+    def unit(self: TypeUnit, number: int) -> TypeUnit:
+        if isinstance(number, int):
+            self._unit = number
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -352,6 +359,46 @@ class Key(Unit):
         self._scale: og.Scale   = og.Scale([])
         if len(parameters) > 0:
             self << parameters
+
+    def sharp(self: 'Key', unit: int = None) -> 'Key':
+        if isinstance(unit, int):
+            self._sharp = Sharp(unit)
+        elif unit is None:
+            self._sharp = Sharp()
+        return self
+
+    def flat(self: 'Key', unit: int = None) -> 'Key':
+        if isinstance(unit, int):
+            self._flat = Flat(unit)
+        elif unit is None:
+            self._flat = Flat()
+        return self
+
+    def natural(self: 'Key', unit: int = None) -> 'Key':
+        if isinstance(unit, int):
+            self._natural = Natural(unit)
+        elif unit is None:
+            self._natural = Natural()
+        return self
+
+    def degree(self: 'Key', unit: int = None) -> 'Key':
+        if isinstance(unit, int):
+            self._degree = Degree(unit)
+        elif unit is None:
+            self._degree = Degree()
+        return self
+
+    def scale(self: 'Key', scale: list[int] | str = None) -> 'Key':
+        import operand_generic as og
+        match scale:
+            case list():
+                if len(scale) == 12 and all(type(key) == int for key in scale):
+                    self._scale = og.Scale(scale)
+            case str():
+                self._scale = og.Scale(scale)
+            case None:
+                self._scale = og.Scale([])
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         import operand_generic as og
