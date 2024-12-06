@@ -31,6 +31,8 @@ import operand_frame as of
 import operand_generic as og
 import operand_frame as of
 
+TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
+
 
 if TYPE_CHECKING:
     from operand_container import Sequence

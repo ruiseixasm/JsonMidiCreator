@@ -23,6 +23,8 @@ import creator as c
 import operand as o
 import operand_frame as of
 
+TypeLabel = TypeVar('TypeLabel', bound='Label')  # TypeLabel represents any subclass of Operand
+
 
 class Label(o.Operand):
     # By default a Label has no copies as it caries no data

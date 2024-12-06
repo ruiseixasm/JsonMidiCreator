@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TYPE_CHECKING, Callable
+from typing import Union, TYPE_CHECKING, TypeVar, Callable
 from fractions import Fraction
 import json
 import enum
@@ -34,6 +34,8 @@ import operand_element as oe
 import operand_frame as of
 import operand_container as oc
 import operand_chaos as ch
+
+TypeMutation = TypeVar('TypeMutation', bound='Mutation')  # TypeMutation represents any subclass of Operand
 
 
 class Mutation(o.Operand):

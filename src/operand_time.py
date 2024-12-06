@@ -36,8 +36,8 @@ class Time(o.Operand):
         if len(parameters) > 0:
             self << parameters
 
-    def time(self: TypeTime, number: int = None) -> TypeTime:
-        return self << od.DataSource( number )
+    def time(self: TypeTime, time: float = None) -> TypeTime:
+        return self << od.DataSource( time )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

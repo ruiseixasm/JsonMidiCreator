@@ -29,6 +29,8 @@ import operand_frame as of
 import operand_label as ol
 import operand_chaos as ch
 
+TypeStaff = TypeVar('TypeStaff', bound='Staff')  # TypeStaff represents any subclass of Operand
+
 
 class Staff(o.Operand):
     def __init__(self, *parameters):

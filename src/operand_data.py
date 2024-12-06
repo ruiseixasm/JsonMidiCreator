@@ -26,6 +26,8 @@ import operand_frame as of
 import operand_label as ol
 import operand_time as ot
 
+TypeData = TypeVar('TypeData', bound='Data')  # TypeData represents any subclass of Operand
+
 
 class Data(o.Operand):
 

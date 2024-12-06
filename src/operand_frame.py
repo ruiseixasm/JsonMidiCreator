@@ -28,6 +28,8 @@ import operand_time as ot
 import operand_frame as of
 import operand_label as ol
 
+TypeFrame = TypeVar('TypeFrame', bound='Frame')  # TypeFrame represents any subclass of Operand
+
 
 # Works as a traditional C list (chained)
 class Frame(o.Operand):

@@ -32,6 +32,8 @@ import operand_element as oe
 import operand_frame as of
 import operand_chaos as ch
 
+TypeContainer = TypeVar('TypeContainer', bound='Container')  # TypeContainer represents any subclass of Operand
+
 
 class Container(o.Operand):
     def __init__(self, *operands):

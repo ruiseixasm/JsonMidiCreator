@@ -31,6 +31,8 @@ import operand_label as ol
 import operand_generic as og
 import operand_frame as of
 
+TypeChaos = TypeVar('TypeChaos', bound='Chaos')  # TypeChaos represents any subclass of Operand
+
 
 class Chaos(o.Operand):
     def __init__(self, *parameters):
