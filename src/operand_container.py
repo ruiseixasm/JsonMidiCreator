@@ -346,6 +346,7 @@ class Container(o.Operand):
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
+        self._track_name: str       = "Track 1" # It will work as a Track ID
         self._track: og.Track       = og.Track()
         self._position: ot.Position = ot.Position(0)
         for single_operand in operands:

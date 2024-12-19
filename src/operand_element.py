@@ -41,6 +41,7 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
+        self._stackable_parameter: ou.StackableParameter     = ou.StackableParameter()
         if len(parameters) > 0:
             self << parameters
 
