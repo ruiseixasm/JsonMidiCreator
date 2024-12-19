@@ -567,13 +567,13 @@ class Sequence(Container):  # Just a container of Elements
 
     def stack(self) -> 'Sequence':
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
-        stackable_elements: list[oe.Stackable] = [
+        stackable_elements: list[oe.Element] = [
                 single_data._data
                 for single_data in self._datasource_list
-                if isinstance(single_data._data, oe.Stackable)
+                if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.StackableParameter() )
             ]
         for index, value in enumerate(stackable_elements):
-            single_element: oe.Stackable = value
+            single_element: oe.Element = value
             if index > 0:
                 single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
             else:
