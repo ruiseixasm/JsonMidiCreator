@@ -424,6 +424,10 @@ class Device(Data):
     def __init__(self, device_list: list[str] = None):
         super().__init__( os.staff._device % list() if device_list is None else device_list )
 
+class TrackName(Data):
+    def __init__(self, track_name: str = None):
+        super().__init__( "Track 1" if not isinstance(track_name, str) else track_name )
+
 class Tracks(Data): # Dictionary of tracks where the key it's their id
     pass
 
