@@ -570,7 +570,7 @@ class Sequence(Container):  # Just a container of Elements
         stackable_elements: list[oe.Element] = [
                 single_data._data
                 for single_data in self._datasource_list
-                if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.StackableParameter() )
+                if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() )
             ]
         for index, value in enumerate(stackable_elements):
             single_element: oe.Element = value

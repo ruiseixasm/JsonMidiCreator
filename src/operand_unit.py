@@ -771,7 +771,7 @@ class Boolean(Unit):
         if len(parameters) > 0:
             self << parameters
 
-class StackableParameter(Boolean):
+class Stackable(Boolean):
     pass
 
 class Tied(Boolean):
