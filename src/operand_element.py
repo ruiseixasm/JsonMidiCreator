@@ -296,13 +296,7 @@ class Loop(Element):
     # Basically it's a short Sequence with a Position that can be used and placed as a loop
     ...
 
-class Stackable(Element):
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
-
-class Clock(Stackable):
+class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration      << os.staff % od.DataSource( ra.Measure() )
@@ -431,7 +425,7 @@ class Clock(Stackable):
             case _: super().__lshift__(operand)
         return self
 
-class Rest(Stackable):
+class Rest(Element):
     def __init__(self, *parameters):
         super().__init__()
         if len(parameters) > 0:
@@ -468,7 +462,7 @@ class Rest(Stackable):
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
 
-class Note(Stackable):
+class Note(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._pitch: og.Pitch       = og.Pitch()
@@ -1143,7 +1137,7 @@ class Note3(Retrigger):
             case _:                 super().__lshift__(operand)
         return self
 
-class Tuplet(Stackable):
+class Tuplet(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration *= 2 # Equivalent to twice single note duration
