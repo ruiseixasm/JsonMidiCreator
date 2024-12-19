@@ -43,6 +43,8 @@ class Element(o.Operand):
         self._position: ot.Position         = ot.Position()
         self._duration: ot.Duration         = os.staff % ot.Duration()
         self._stackable: ou.Stackable       = ou.Stackable()
+        self._channel: ou.Channel           = ou.Channel()
+        self._device: od.Device             = od.Device()
         if len(parameters) > 0:
             self << parameters
 
@@ -56,6 +58,14 @@ class Element(o.Operand):
 
     def stackable(self: 'TypeElement', stackable: bool = None) -> 'TypeElement':
         self._stackable = ou.Stackable(stackable)
+        return self
+
+    def channel(self: TypeElement, channel: int = None) -> TypeElement:
+        self._channel = ou.Channel(channel)
+        return self
+
+    def device(self: 'TypeElement', device: list[str] = None) -> 'TypeElement':
+        self._device = od.Device(device)
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -75,6 +85,8 @@ class Element(o.Operand):
                     case ot.Position():     return self._position
                     case ot.Duration():     return self._duration
                     case ou.Stackable():    return self._stackable
+                    case ou.Channel():      return self._channel
+                    case od.Device():       return self._device
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -82,6 +94,8 @@ class Element(o.Operand):
             case ra.TimeUnit():     return self._position % operand
             case ot.Duration():     return self._duration.copy()
             case ou.Stackable():    return self._stackable.copy()
+            case ou.Channel():      return self._channel.copy()
+            case od.Device():       return self._device.copy()
             case ou.Channel() | od.Device():
                                     return og.Track() % operand
             case Element():         return self.copy()
@@ -95,7 +109,9 @@ class Element(o.Operand):
             case self.__class__():
                 return  self._position      == other % od.DataSource( ot.Position() ) \
                     and self._duration      == other % od.DataSource( ot.Duration() ) \
-                    and self._stackable     == other % od.DataSource( ou.Stackable() )
+                    and self._stackable     == other % od.DataSource( ou.Stackable() ) \
+                    and self._channel       == other % od.DataSource( ou.Channel() ) \
+                    and self._device        == other % od.DataSource( od.Device() )
             case ra.TimeUnit():
                 return self._position == other
             case ra.NoteValue():
@@ -174,18 +190,23 @@ class Element(o.Operand):
         serialization["parameters"]["position"]     = self.serialize(self._position)
         serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["stackable"]    = self.serialize(self._stackable)
+        serialization["parameters"]["channel"]      = self.serialize(self._channel)
+        serialization["parameters"]["device"]       = self.serialize(self._device)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "stackable" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "stackable" in serialization["parameters"] and
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._stackable     = self.deserialize(serialization["parameters"]["stackable"])
+            self._channel       = self.deserialize(serialization["parameters"]["channel"])
+            self._device        = self.deserialize(serialization["parameters"]["device"])
 
         return self
 
@@ -197,6 +218,8 @@ class Element(o.Operand):
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Duration():     self._duration = operand % o.Operand()
                     case ou.Stackable():    self._stackable = operand % o.Operand()
+                    case ou.Channel():      self._channel = operand % o.Operand()
+                    case od.Device():       self._device = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
@@ -210,6 +233,10 @@ class Element(o.Operand):
                 self._duration      << operand
             case ou.Stackable():
                 self._stackable     << operand
+            case ou.Channel():
+                self._channel       << operand
+            case od.Device():
+                self._device        << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
