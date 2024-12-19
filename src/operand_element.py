@@ -54,6 +54,10 @@ class Element(o.Operand):
         self._duration = ot.Duration(duration)
         return self
 
+    def stackable(self: 'TypeElement', stackable: bool = None) -> 'TypeElement':
+        self._stackable_parameter = ou.StackableParameter(stackable)
+        return self
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,
@@ -70,12 +74,14 @@ class Element(o.Operand):
                 match operand % o.Operand():
                     case ot.Position():     return self._position
                     case ot.Duration():     return self._duration
+                    case ou.StackableParameter():     return self._stackable_parameter
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
             case ra.TimeUnit():     return self._position % operand
             case ot.Duration():     return self._duration.copy()
+            case ou.StackableParameter():   return self._stackable_parameter.copy()
             case ou.Channel() | od.Device():
                                     return og.Track() % operand
             case Element():         return self.copy()
@@ -88,7 +94,8 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  self._position      == other % od.DataSource( ot.Position() ) \
-                    and self._duration      == other % od.DataSource( ot.Duration() )
+                    and self._duration      == other % od.DataSource( ot.Duration() ) \
+                    and self._stackable_parameter      == other % od.DataSource( ou.StackableParameter() )
             case ra.TimeUnit():
                 return self._position == other
             case ra.NoteValue():
@@ -166,17 +173,19 @@ class Element(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position)
         serialization["parameters"]["duration"]     = self.serialize(self._duration)
+        serialization["parameters"]["stackable"]    = self.serialize(self._stackable_parameter)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "stackable" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
+            self._stackable_parameter      = self.deserialize(serialization["parameters"]["stackable"])
 
         return self
 
@@ -187,6 +196,7 @@ class Element(o.Operand):
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Duration():     self._duration = operand % o.Operand()
+                    case ou.StackableParameter():   self._stackable_parameter = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
@@ -198,6 +208,8 @@ class Element(o.Operand):
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
                 self._duration      << operand
+            case ou.StackableParameter():
+                self._stackable_parameter   << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
