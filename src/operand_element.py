@@ -41,12 +41,17 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
+        self._duration: ot.Duration         = os.staff % ot.Duration()
         self._stackable_parameter: ou.StackableParameter     = ou.StackableParameter()
         if len(parameters) > 0:
             self << parameters
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
         self._position = ot.Position(position)
+        return self
+
+    def duration(self: 'TypeElement', duration: float = None) -> 'TypeElement':
+        self._duration = ot.Duration(duration)
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -64,11 +69,13 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     return self._position
+                    case ot.Duration():     return self._duration
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
             case ra.TimeUnit():     return self._position % operand
+            case ot.Duration():     return self._duration.copy()
             case ou.Channel() | od.Device():
                                     return og.Track() % operand
             case Element():         return self.copy()
@@ -80,9 +87,12 @@ class Element(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return  self._position      == other % od.DataSource( ot.Position() )
+                return  self._position      == other % od.DataSource( ot.Position() ) \
+                    and self._duration      == other % od.DataSource( ot.Duration() )
             case ra.TimeUnit():
                 return self._position == other
+            case ra.NoteValue():
+                return self._duration == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -97,6 +107,8 @@ class Element(o.Operand):
                 return  False
             case ra.TimeUnit():
                 return self._position < other
+            case ra.NoteValue():
+                return self._duration < other
             case _:
                 return self % od.DataSource( other ) < other
     
@@ -107,6 +119,8 @@ class Element(o.Operand):
                 return  False
             case ra.TimeUnit():
                 return self._position > other
+            case ra.NoteValue():
+                return self._duration > other
             case _:
                 return self % od.DataSource( other ) > other
     
@@ -127,7 +141,7 @@ class Element(o.Operand):
         position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         return [
                 {
-                    "time_ms": position.getTime_ms()
+                    "time_ms":  position.getTime_ms()
                 }
             ]
 
@@ -143,6 +157,7 @@ class Element(o.Operand):
                     "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(track % od.DataSource( ou.Channel() ) % int() - 1),
                     "time":         position % od.DataSource( ra.Beat() ) % float(),   # beats
+                    "duration":     self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float()),
                     "tempo":        os.staff._tempo % float()   # bpm
                 }
             ]
@@ -150,16 +165,18 @@ class Element(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position)
+        serialization["parameters"]["duration"]     = self.serialize(self._duration)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"]):
+            "position" in serialization["parameters"] and "duration" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
+            self._duration      = self.deserialize(serialization["parameters"]["duration"])
 
         return self
 
@@ -169,6 +186,7 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ot.Position():     self._position = operand % o.Operand()
+                    case ot.Duration():     self._duration = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
@@ -176,6 +194,10 @@ class Element(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ot.Position() | ra.TimeUnit() | int() | ou.IntU():
                                     self._position << operand
+            case ot.Duration():
+                self._duration      << operand
+            case ra.NoteValue() | float() | ra.FloatR() | Fraction():
+                self._duration      << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -265,98 +287,8 @@ class Loop(Element):
 class Stackable(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration: ot.Duration         = os.staff % ot.Duration()
         if len(parameters) > 0:
             self << parameters
-
-    def duration(self: 'Stackable', duration: float = None) -> 'Stackable':
-        self._duration = ot.Duration(duration)
-        return self
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Note,
-        those Parameters are the ones of the Element, like Position and Duration,
-        plus the Rest's Duration and Pitch, Velocity and Gate, the last one
-        with a value of 0.90 by default.
-
-        Examples
-        --------
-        >>> note = Note("F")
-        >>> note % Key() % str() >> Print()
-        F
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ot.Duration():     return self._duration
-                    case _:                 return super().__mod__(operand)
-            case ot.Duration():     return self._duration.copy()
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return super().__eq__(other) \
-                    and self._duration      == other % od.DataSource( ot.Duration() )
-            case ra.NoteValue():
-                return self._duration == other
-            case _:
-                return super().__eq__(other)
-
-    def __lt__(self, other: 'o.Operand') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case ra.NoteValue():
-                return self._duration < other
-            case _:
-                return super().__lt__(other)
-    
-    def __gt__(self, other: 'o.Operand') -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case ra.NoteValue():
-                return self._duration > other
-            case _:
-                return super().__gt__(other)
-
-    def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        self_midilist: list = super().getMidilist(track, position)
-        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
-        return self_midilist
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["duration"]     = self.serialize(self._duration)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Stackable':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._duration      = self.deserialize(serialization["parameters"]["duration"])
-        return self
-      
-    def __lshift__(self, operand: o.Operand) -> 'Stackable':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ot.Duration():     self._duration = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
-            case Stackable():
-                super().__lshift__(operand)
-                self._duration      << operand._duration
-            case ot.Duration():
-                self._duration      << operand
-            case ra.NoteValue() | float() | ra.FloatR() | Fraction():
-                self._duration      << operand
-            case _: super().__lshift__(operand)
-        return self
 
 class Clock(Stackable):
     def __init__(self, *parameters):
