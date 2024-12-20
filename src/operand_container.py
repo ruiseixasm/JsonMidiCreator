@@ -437,13 +437,12 @@ class Sequence(Container):  # Just a container of Elements
                 else:
                     sequence_elements.append(single_datasource._data)
         if len(tied_notes) > 0:
-            tied_notes = sorted(tied_notes, key=lambda x: (id(x._track._track_data)))
+            tied_notes = sorted(tied_notes, key=lambda x: (id(x._midi_track._unit)))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
                 next_note_position: ot.Position = first_tied_note._position + first_tied_note._duration # Duration is particularly tricky
                 if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
-                    and tied_notes[next_tied_note_i]._track == first_tied_note._track \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
                     and tied_notes[next_tied_note_i]._position == next_note_position:
                     first_tied_note += tied_notes[next_tied_note_i]._duration # Duration is particularly tricky
