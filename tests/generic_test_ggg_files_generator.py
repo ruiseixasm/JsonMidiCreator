@@ -27,11 +27,11 @@ from JsonMidiCreator import *
 staff << Tempo(110) << Measure(6)
 
 # Set the default single Clock for the entire Staff Duration
-single_clock = Clock() * 1 << Track("Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
+single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Step(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> (first_note + Rest()) * 3 << Track("Piano") >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
+multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> (first_note + Rest()) * 3 << MidiTrack(1, "Piano") >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 
 first_note << "F" >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
@@ -42,7 +42,7 @@ Note3() << (Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
-first_sequence = (base_note * 8 // Step(1) << Track("Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note * 8 // Step(1) << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
@@ -90,7 +90,7 @@ load_0 >> load_1 >> load_2 >> load_3 >> Save ("json/testing/_Save_2.2_sequence_n
 
 # Global Staff setting up
 staff << Tempo(120) << Measure(1)
-single_clock = Clock() * 1 << Track("Clock Track")
+single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
 
 single_note = Note() << (Duration() << Measure(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
