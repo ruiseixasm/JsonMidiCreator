@@ -347,14 +347,17 @@ class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
         self._track_name: od.TrackName = od.TrackName() # It will work as a Track ID
-        self._track: og.Track       = og.Track()
+        self._track: og.Track       = og.Track()                                                                # TO BE REMOVED !!!
         self._position: ot.Position = ot.Position(0)
         for single_operand in operands:
             match single_operand:
                 case Sequence():
-                    self._track << single_operand._track
-                    self._position << single_operand._position
-                case og.Track():
+                    self._track_name    << single_operand._track_name
+                    self._track << single_operand._track                                                                # TO BE REMOVED !!!
+                    self._position      << single_operand._position
+                case od.TrackName():
+                    self._track_name    << single_operand._track_name
+                case og.Track():                                                                                # TO BE REMOVED !!!
                     self._track = single_operand.copy()
                 case ot.Position():
                     self._position = single_operand.copy()
@@ -375,13 +378,13 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():
                 match operand % o.Operand():
                     case od.TrackName():    return self._track_name
-                    case og.Track():        return self._track
+                    case og.Track():        return self._track                                                                                # TO BE REMOVED !!!
                     case ou.Channel():      return self._track % od.DataSource( ou.Channel() )
                     case od.Device():       return self._track % od.DataSource( od.Device() )
                     case ot.Position():     return self._position
                     case _:                 return super().__mod__(operand)
             case od.TrackName():    return self._track_name.copy()
-            case og.Track():        return self._track.copy()
+            case og.Track():        return self._track.copy()                                                                                # TO BE REMOVED !!!
             case ou.Channel():      return self._track % ou.Channel()
             case od.Device():       return self._track % od.Device()
             case ot.Position():     return self._position.copy()
@@ -464,7 +467,7 @@ class Sequence(Container):  # Just a container of Elements
         return sequence_elements
 
     def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = self._track if not isinstance(track, og.Track) else track
+        track: og.Track = self._track if not isinstance(track, og.Track) else track                                                                                # TO BE REMOVED !!!
         position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         play_list = []
         for single_element in self.get_sequence_elements():
@@ -472,7 +475,7 @@ class Sequence(Container):  # Just a container of Elements
         return play_list
 
     def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = self._track if not isinstance(track, og.Track) else track
+        track: og.Track = self._track if not isinstance(track, og.Track) else track                                                                                # TO BE REMOVED !!!
         position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         midi_list = []
         for single_element in self.get_sequence_elements():
@@ -726,7 +729,7 @@ class Sequence(Container):  # Just a container of Elements
         match duration:
             case ot.Duration():
                 for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Stackable):
+                    if isinstance(single_datasource._data, oe.Element):
                         single_datasource._data << duration
         return self.stack()
 
@@ -750,7 +753,12 @@ class Song(Container):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.Track():
+                    case od.TrackName():
+                        for sequence in self:
+                            if isinstance(sequence, Sequence):
+                                if sequence._track_name == operand % o.Operand():
+                                    return sequence
+                    case og.Track():                                                                # TO BE REMOVED !!!
                         for sequence in self:
                             if isinstance(sequence, Sequence):
                                 if sequence._track == operand % o.Operand():
@@ -759,7 +767,12 @@ class Song(Container):
                     case str():
                         return self % od.DataSource( og.Track(operand % o.Operand()) )
                     case _:                 return super().__mod__(operand)
-            case og.Track():
+            case od.TrackName():
+                for sequence in self:
+                    if isinstance(sequence, Sequence):
+                        if sequence._track_name == operand:
+                            return sequence.copy()
+            case og.Track():                                                                # TO BE REMOVED !!!
                 for sequence in self:
                     if isinstance(sequence, Sequence):
                         if sequence._track == operand:
@@ -815,7 +828,8 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    if single_sequence._track == operand._track:
+                    # if single_sequence._track_name == operand._track_name:
+                    if single_sequence._track == operand._track:                                                                # TO BE REMOVED !!!
                         single_sequence << single_sequence.__rrshift__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
@@ -831,8 +845,9 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    if single_sequence._track == operand._track:
-                        single_sequence << single_sequence.__radd__(operand)
+                    # if single_sequence._track_name == operand._track_name:
+                    if single_sequence._track == operand._track:                                                                # TO BE REMOVED !!!
+                        single_sequence << single_sequence.__radd__(operand)    # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, of.Frame):
@@ -847,8 +862,9 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    if single_sequence._track == operand._track:
-                        single_sequence << single_sequence.__add__(operand)
+                    # if single_sequence._track_name == operand._track_name:
+                    if single_sequence._track == operand._track:                                                                # TO BE REMOVED !!!
+                        single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, of.Frame):
