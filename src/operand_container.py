@@ -346,7 +346,7 @@ class Container(o.Operand):
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
-        self._track_name: str       = "Track 1" # It will work as a Track ID
+        self._track_name: od.TrackName = od.TrackName() # It will work as a Track ID
         self._track: og.Track       = og.Track()
         self._position: ot.Position = ot.Position(0)
         for single_operand in operands:
@@ -374,11 +374,13 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case od.TrackName():    return self._track_name
                     case og.Track():        return self._track
                     case ou.Channel():      return self._track % od.DataSource( ou.Channel() )
                     case od.Device():       return self._track % od.DataSource( od.Device() )
                     case ot.Position():     return self._position
                     case _:                 return super().__mod__(operand)
+            case od.TrackName():    return self._track_name.copy()
             case og.Track():        return self._track.copy()
             case ou.Channel():      return self._track % ou.Channel()
             case od.Device():       return self._track % od.Device()
@@ -432,7 +434,7 @@ class Sequence(Container):  # Just a container of Elements
     if TYPE_CHECKING:
         from operand_element import Element
 
-    def get_sequence_elements(self) -> list['Element']:
+    def get_sequence_elements(self) -> list['Element']: # Helper method
         sequence_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
@@ -480,25 +482,28 @@ class Sequence(Container):  # Just a container of Elements
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["track"]    = self.serialize(self._track)
-        serialization["parameters"]["position"] = self.serialize(self._position)
+        serialization["parameters"]["track_name"]   = self.serialize(self._track_name)
+        serialization["parameters"]["track"]        = self.serialize(self._track)
+        serialization["parameters"]["position"]     = self.serialize(self._position)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "track" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "track_name" in serialization["parameters"] and "track" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._track     = self.deserialize(serialization["parameters"]["track"])
-            self._position  = self.deserialize(serialization["parameters"]["position"])
+            self._track_name    = self.deserialize(serialization["parameters"]["track_name"])
+            self._track         = self.deserialize(serialization["parameters"]["track"])
+            self._position      = self.deserialize(serialization["parameters"]["position"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case od.TrackName():    self._track_name = operand % o.Operand()
                     case og.Track():        self._track = operand % o.Operand()
                     case ou.Channel() | od.Device():
                                             self._track << od.DataSource( operand % o.Operand() )
@@ -510,8 +515,11 @@ class Sequence(Container):  # Just a container of Elements
                 for single_element in operand:
                     if isinstance(single_element, oe.Element):
                         self._datasource_list.append(od.DataSource( single_element.copy() ))
-                self._track << operand._track
-                self._position << operand._position
+                self._track_name    << operand._track_name
+                self._track         << operand._track
+                self._position      << operand._position
+            case od.TrackName():
+                self._track_name << operand
             case og.Track() | ou.Channel() | od.Device():
                 self._track << operand
             case ot.Position():
@@ -527,8 +535,9 @@ class Sequence(Container):  # Just a container of Elements
 
     def copy(self, *parameters) -> 'Sequence':
         sequence_copy: Sequence = super().copy(*parameters)
-        sequence_copy._track << self._track
-        sequence_copy._position << self._position
+        sequence_copy._track_name   << self._track_name
+        sequence_copy._track        << self._track
+        sequence_copy._position     << self._position
         return sequence_copy
     
     def reverse(self) -> 'Sequence':
