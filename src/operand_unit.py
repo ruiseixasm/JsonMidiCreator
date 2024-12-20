@@ -1141,6 +1141,9 @@ class Midi(Unit):
     pass
 
 class MidiTrack(Midi):
+
+    _auto_id: int = 1
+
     """
     A MidiTrack() is how arrangements are split in multiple compositions in Midi files.
     
@@ -1151,6 +1154,8 @@ class MidiTrack(Midi):
     """
     def __init__(self, *parameters):
         super().__init__(1)
+        # super().__init__(MidiTrack._auto_id)
+        MidiTrack._auto_id += 1
         self._name: str         = None
         self._channel: Channel  = Channel()
         self._device: od.Device = od.Device()
