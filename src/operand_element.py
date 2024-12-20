@@ -223,6 +223,10 @@ class Element(o.Operand):
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
+                self._duration      << operand._duration
+                self._stackable     << operand._stackable
+                self._channel       << operand._channel
+                self._device        << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ot.Position() | ra.TimeUnit() | int() | ou.IntU():
