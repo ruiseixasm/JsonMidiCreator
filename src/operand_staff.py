@@ -54,7 +54,6 @@ class Staff(o.Operand):
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
         self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 10000) % 100)
         self._chaos << ra.Lambda( self._chaos % ra.Lambda() + int(time.time() * 10000) % 100 )   # Lambda is the SinX chaotic blueprint !!
-        self._tracks: dict[str, og.TrackData]       = {}    # where the multiple tracks will be saved
         if len(parameters) > 0:
             self << parameters
 
@@ -79,19 +78,6 @@ class Staff(o.Operand):
                     if major_scale[self._tonic_key._unit]:
                         white_keys += 1
                 num_accidentals += 1
-
-    def clean_tracks(self) -> dict[str, og.TrackData]:
-        tracks_to_remove: set[str] = set()
-        for key, value in self._tracks.items():
-            track_data_ref_count: int = sys.getrefcount(value)                
-            # print(f"{key}: {track_data_ref_count}")
-            if track_data_ref_count < 4:    # sys + for + _tracks = 3
-                tracks_to_remove.add(key)
-        for track in tracks_to_remove:
-            self._tracks.pop(track)
-            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
-                o.logging.info(f"Track named '{track}' was removed for no long being used!")
-        return self._tracks
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -164,10 +150,6 @@ class Staff(o.Operand):
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
             case ch.Chaos():            return self._chaos.copy()
-            case str():
-                if operand in self._tracks:
-                    return self._tracks[operand]    # Tracks are identified by name (str)
-                return None
             # Calculated Values
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
@@ -198,8 +180,7 @@ class Staff(o.Operand):
             and self._controller        == other % od.DataSource( og.Controller() ) \
             and self._channel           == other % od.DataSource( ou.Channel() ) \
             and self._device            == other % od.DataSource( od.Device() ) \
-            and self._chaos             == other % od.DataSource( ch.Chaos() ) \
-            and self._tracks            == other % od.DataSource( dict() )
+            and self._chaos             == other % od.DataSource( ch.Chaos() )
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -217,7 +198,6 @@ class Staff(o.Operand):
         serialization["parameters"]["channel"]          = self.serialize( self._channel )
         serialization["parameters"]["device"]           = self.serialize( self._device )
         serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
-        serialization["parameters"]["tracks"]           = self.serialize( self._tracks )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -229,7 +209,7 @@ class Staff(o.Operand):
             "scale" in serialization["parameters"] and "duration" in serialization["parameters"] and "key" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
-            "chaos" in serialization["parameters"] and "tracks" in serialization["parameters"]):
+            "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._measures          = self.deserialize( serialization["parameters"]["measures"] )
@@ -246,8 +226,6 @@ class Staff(o.Operand):
             self._channel           = self.deserialize( serialization["parameters"]["channel"] )
             self._device            = self.deserialize( serialization["parameters"]["device"] )
             self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
-            # This is ok because it's a temporary Staff that is loading the serialized file! (Only then it is << to the main staff)
-            self._tracks            = self.deserialize( serialization["parameters"]["tracks"] )
             self.set_tonic_key()
         return self
     
@@ -278,7 +256,6 @@ class Staff(o.Operand):
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
                     case ch.Chaos():            self._chaos = operand % o.Operand()
-                    case dict():                self._tracks = operand % o.Operand()
             case Staff():
                 super().__lshift__(operand)
                 self._measure           << operand._measure
@@ -295,21 +272,6 @@ class Staff(o.Operand):
                 self._channel           << operand._channel
                 self._device            << operand._device
                 self._chaos             << operand._chaos
-                # self._tracks            = operand._tracks   # NEED TO IMPROVE THIS WITHOUT DIRECT AFFECTION !!
-                # Track are made of TrackData objects
-                for key, value in operand._tracks.items():
-                    if key in self._tracks:
-                        self._tracks[key] << value
-                        if key == 'Default':
-                            print(f"Set the default Track named 'Default'")
-                        else:
-                            print(f"Set the Track named '{key}'")
-                    else:
-                        self._tracks[key] = value
-                        if key == 'Default':
-                            print(f"Created the default Track named 'Default'")
-                        else:
-                            print(f"Created a new Track named '{key}'")
                 self.set_tonic_key()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -335,7 +297,6 @@ class Staff(o.Operand):
             case ou.Channel():          self._channel << operand
             case od.Device():           self._device << operand
             case ch.Chaos():            self._chaos << operand
-            case og.Track():            self._tracks[operand % str()] = operand
             # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = ra.Quantization( (self % ra.NotesPerMeasure()) / (operand % Fraction()) )
@@ -358,5 +319,3 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
-# DON'T DO THIS !!
-# og.Track()   # No need, this "Default" Track is created on demand!

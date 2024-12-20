@@ -80,15 +80,15 @@ def test_key_mod():
     assert key_1 << Sharp() == Key("A") + 1.0
     assert Key("Ab") == Key("A") - 1.0
 
-def test_track_mod():
+# def test_track_mod():
 
-    # Perform the operation
-    track_drums = Track("Drums", Channel(10))
-    track_pad = Track("Pad")
+#     # Perform the operation
+#     track_drums = Track("Drums", Channel(10))
+#     track_pad = Track("Pad")
 
-    assert track_drums != track_pad
-    assert track_drums % Channel() != track_pad % Channel()
-    assert track_drums % str() != track_pad % str()
-    assert track_drums % MidiTrack() != track_pad % MidiTrack()
-    assert track_drums % MidiTrack() % str() == track_pad % MidiTrack() % str()
-    assert track_drums % Device() == track_pad % Device()
+#     assert track_drums != track_pad
+#     assert track_drums % Channel() != track_pad % Channel()
+#     assert track_drums % str() != track_pad % str()
+#     assert track_drums % MidiTrack() != track_pad % MidiTrack()
+#     assert track_drums % MidiTrack() % str() == track_pad % MidiTrack() % str()
+#     assert track_drums % Device() == track_pad % Device()

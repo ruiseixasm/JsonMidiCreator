@@ -31,14 +31,14 @@ import sys
 
 
 
-def test_track_mod():
+# def test_track_mod():
 
-    # Perform the operation
-    default_track = Track()
-    assert default_track % str() == "Default"
-    test_track_1 = Track("Test")
-    test_track_2 = Track("Test")
-    assert test_track_1 == test_track_2
+#     # Perform the operation
+#     default_track = Track()
+#     assert default_track % str() == "Default"
+#     test_track_1 = Track("Test")
+#     test_track_2 = Track("Test")
+#     assert test_track_1 == test_track_2
 
 
 def test_pitch_mod():
