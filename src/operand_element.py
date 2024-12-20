@@ -227,12 +227,12 @@ class Element(o.Operand):
                 self._device        << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ot.Position() | ra.TimeUnit() | int() | ou.IntU():
-                                    self._position << operand
             case ot.Duration():
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
                 self._duration      << operand
+            case ot.Position() | ra.TimeUnit() | int() | ou.IntU():
+                                    self._position << operand
             case ou.Stackable():
                 self._stackable     << operand
             case ou.Channel():

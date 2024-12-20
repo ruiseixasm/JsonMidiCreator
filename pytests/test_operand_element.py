@@ -198,9 +198,9 @@ def test_program_change_mod():
 
 def test_milliseconds_duration():
 
-    duration = Duration(NoteValue(Step(3*4 + 2)))
-    assert duration == Beat(3.5)
-    rest = Rest(duration)
+    note_value = NoteValue(Step(3*4 + 2))
+    assert note_value == Beat(3.5)
+    rest = Rest(note_value)
     rest_playlist = rest.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     rest_start = rest_playlist[0]
