@@ -202,11 +202,25 @@ def test_milliseconds_duration():
     assert duration == Beat(3.5)
     rest = Rest(duration)
     rest_playlist = rest.getPlaylist()
-
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
     rest_start = rest_playlist[0]
     rest_stop = rest_playlist[1]
-
     assert rest_start["time_ms"] == 0.0
     assert rest_stop["time_ms"] == 1750.0
+
+    rest_copy = rest.copy()
+    rest_playlist = rest_copy.getPlaylist()
+    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
+    rest_start = rest_playlist[0]
+    rest_stop = rest_playlist[1]
+    assert rest_start["time_ms"] == 0.0
+    assert rest_stop["time_ms"] == 1750.0
+
+    rest_default = Rest()
+    rest_playlist = rest_default.getPlaylist()
+    # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
+    rest_start = rest_playlist[0]
+    rest_stop = rest_playlist[1]
+    assert rest_start["time_ms"] == 0.0
+    assert rest_stop["time_ms"] == 500.0
 

@@ -44,3 +44,31 @@ def test_sequence_mod():
 
     assert sequence_1 == sequence_2
     
+
+def test_milliseconds_duration():
+
+    duration = Duration(NoteValue(Step(3*4 + 2)))
+    assert duration == Beat(3.5)
+    rest_sequence = Rest(duration) * 1
+    sequence_playlist = rest_sequence.getPlaylist()
+    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
+    sequence_start = sequence_playlist[0]
+    sequence_stop = sequence_playlist[1]
+    assert sequence_start["time_ms"] == 0.0
+    assert sequence_stop["time_ms"] == 1750.0
+
+    rest_sequence_copy = rest_sequence.copy()
+    sequence_playlist = rest_sequence_copy.getPlaylist()
+    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
+    sequence_start = sequence_playlist[0]
+    sequence_stop = sequence_playlist[1]
+    assert sequence_start["time_ms"] == 0.0
+    assert sequence_stop["time_ms"] == 1750.0
+
+    rest_default_sequence = Rest() * 1
+    sequence_playlist = rest_default_sequence.getPlaylist()
+    # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
+    sequence_start = sequence_playlist[0]
+    sequence_stop = sequence_playlist[1]
+    assert sequence_start["time_ms"] == 0.0
+    assert sequence_stop["time_ms"] == 500.0
