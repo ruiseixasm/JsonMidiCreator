@@ -1181,7 +1181,7 @@ class MidiTrack(Midi):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["name"]     = self.serialize(self._name)
+        serialization["parameters"]["name"]     = self._name        # It's a string already
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -1191,7 +1191,7 @@ class MidiTrack(Midi):
             "name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._name      = self.deserialize(serialization["parameters"]["name"])
+            self._name      = serialization["parameters"]["name"]   # It's a string already
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'MidiTrack':
