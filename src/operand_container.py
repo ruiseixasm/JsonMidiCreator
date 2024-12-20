@@ -636,7 +636,7 @@ class Sequence(Container):  # Just a container of Elements
             case Song():
                 return operand + self   # Order is irrelevant on Song
             case Sequence():
-                if self % og.Track() == operand % og.Track():
+                if self._midi_track == operand._midi_track:
                     return Sequence(self, operand)
                 return Song(self, operand)
             case Container():
@@ -740,7 +740,7 @@ class Song(Container):
                                     return sequence
                         return ol.Null()
                     case str():
-                        return self % od.DataSource( og.Track(operand % o.Operand()) )
+                        return self % od.DataSource( ou.MidiTrack() ) % str()
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():
                 for sequence in self:
@@ -749,7 +749,7 @@ class Song(Container):
                             return sequence.copy()
                 return ol.Null()
             case str():
-                return self % og.Track(operand)
+                return self % ou.MidiTrack() % str()
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
@@ -798,7 +798,7 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    if single_sequence._midi_track._unit == operand._midi_track._unit:
+                    if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__rrshift__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
@@ -814,7 +814,7 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    if single_sequence._midi_track._unit == operand._midi_track._unit:
+                    if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__radd__(operand)    # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
@@ -830,7 +830,7 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    if single_sequence._midi_track._unit == operand._midi_track._unit:
+                    if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
