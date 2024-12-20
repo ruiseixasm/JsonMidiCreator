@@ -347,18 +347,14 @@ class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
         self._midi_track: ou.MidiTrack = ou.MidiTrack()
-        self._track: og.Track       = og.Track()                                                                # TO BE REMOVED !!!
         self._position: ot.Position = ot.Position(0)
         for single_operand in operands:
             match single_operand:
                 case Sequence():
                     self._midi_track    << single_operand._midi_track
-                    self._track << single_operand._track                                                                # TO BE REMOVED !!!
                     self._position      << single_operand._position
                 case ou.MidiTrack():
                     self._midi_track    << single_operand._midi_track
-                case og.Track():                                                                                # TO BE REMOVED !!!
-                    self._track = single_operand.copy()
                 case ot.Position():
                     self._position = single_operand.copy()
 
@@ -378,15 +374,9 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.MidiTrack():    return self._midi_track
-                    case og.Track():        return self._track                                                                                # TO BE REMOVED !!!
-                    case ou.Channel():      return self._track % od.DataSource( ou.Channel() )
-                    case od.Device():       return self._track % od.DataSource( od.Device() )
                     case ot.Position():     return self._position
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
-            case og.Track():        return self._track.copy()                                                                                # TO BE REMOVED !!!
-            case ou.Channel():      return self._track % ou.Channel()
-            case od.Device():       return self._track % od.Device()
             case ot.Position():     return self._position.copy()
             case ot.Duration():       return self.duration()
                 # total_length = ot.Duration()
@@ -466,27 +456,26 @@ class Sequence(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = self._track if not isinstance(track, og.Track) else track                                                                                # TO BE REMOVED !!!
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
+        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track                                                                                # TO BE REMOVED !!!
         position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         play_list = []
         for single_element in self.get_sequence_elements():
-            play_list.extend(single_element.getPlaylist(track, position))
+            play_list.extend(single_element.getPlaylist(midi_track, position))
         return play_list
 
-    def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
-        track: og.Track = self._track if not isinstance(track, og.Track) else track                                                                                # TO BE REMOVED !!!
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
+        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track                                                                                # TO BE REMOVED !!!
         position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         midi_list = []
         for single_element in self.get_sequence_elements():
-            midi_list.extend(single_element.getMidilist(track, position))
+            midi_list.extend(single_element.getMidilist(midi_track, position))
         return midi_list
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
-        serialization["parameters"]["track"]        = self.serialize(self._track)
         serialization["parameters"]["position"]     = self.serialize(self._position)
         return serialization
 
@@ -494,11 +483,10 @@ class Sequence(Container):  # Just a container of Elements
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "midi_track" in serialization["parameters"] and "track" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "midi_track" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
-            self._track         = self.deserialize(serialization["parameters"]["track"])
             self._position      = self.deserialize(serialization["parameters"]["position"])
         return self
 
@@ -507,9 +495,6 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.MidiTrack():    self._midi_track = operand % o.Operand()
-                    case og.Track():        self._track = operand % o.Operand()
-                    case ou.Channel() | od.Device():
-                                            self._track << od.DataSource( operand % o.Operand() )
                     case ot.Position():     self._position = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Sequence():
@@ -519,12 +504,9 @@ class Sequence(Container):  # Just a container of Elements
                     if isinstance(single_element, oe.Element):
                         self._datasource_list.append(od.DataSource( single_element.copy() ))
                 self._midi_track    << operand._midi_track
-                self._track         << operand._track
                 self._position      << operand._position
             case ou.MidiTrack():
                 self._midi_track << operand
-            case og.Track() | ou.Channel() | od.Device():
-                self._track << operand
             case ot.Position():
                 self._position << operand
             case ot.Duration() | ra.NoteValue() | float() | Fraction():
@@ -539,7 +521,6 @@ class Sequence(Container):  # Just a container of Elements
     def copy(self, *parameters) -> 'Sequence':
         sequence_copy: Sequence = super().copy(*parameters)
         sequence_copy._midi_track   << self._midi_track
-        sequence_copy._track        << self._track
         sequence_copy._position     << self._position
         return sequence_copy
     
@@ -636,7 +617,7 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return self.__radd__(operand).stack()
             case Sequence():
-                if self._track == operand._track:
+                if self._midi_track == operand._midi_track:
                     operand_copy: Sequence = operand.copy()
                     last_position: ot.Position = operand_copy.sort().last() % od.DataSource( ot.Position() )
                     new_self_position: ot.Position = last_position % ra.Measure() + 1
@@ -646,7 +627,7 @@ class Sequence(Container):  # Just a container of Elements
                     # return (operand + self).stack()
                 return Song(operand, self)
             case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist(self._track, self._position))
+                return operand >> od.Playlist(self.getPlaylist(self._midi_track, self._position))
             case tuple():
                 return super().__rrshift__(operand)
         return self_copy.stack()
@@ -744,7 +725,7 @@ class Song(Container):
                     single_operand = single_operand.copy()
                 for single_sequence in self:
                     if isinstance(single_sequence, Sequence):
-                        if single_sequence._track == single_operand._track:
+                        if single_sequence._midi_track == single_operand._midi_track:
                             single_sequence << single_sequence.__add__(single_operand)
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
@@ -759,12 +740,6 @@ class Song(Container):
                                 if sequence._midi_track == operand % o.Operand():
                                     return sequence
                         return ol.Null()
-                    case og.Track():                                                                # TO BE REMOVED !!!
-                        for sequence in self:
-                            if isinstance(sequence, Sequence):
-                                if sequence._track == operand % o.Operand():
-                                    return sequence
-                        return ol.Null()
                     case str():
                         return self % od.DataSource( og.Track(operand % o.Operand()) )
                     case _:                 return super().__mod__(operand)
@@ -773,29 +748,23 @@ class Song(Container):
                     if isinstance(sequence, Sequence):
                         if sequence._midi_track == operand:
                             return sequence.copy()
-                        return ol.Null()
-            case og.Track():                                                                # TO BE REMOVED !!!
-                for sequence in self:
-                    if isinstance(sequence, Sequence):
-                        if sequence._track == operand:
-                            return sequence.copy()
                 return ol.Null()
             case str():
                 return self % og.Track(operand)
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, track: og.Track = None, position: ot.Position = None) -> list:
+    def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):
-                play_list.extend(single_sequence.getPlaylist(track, position))
+                play_list.extend(single_sequence.getPlaylist(midi_track, position))
         return play_list
 
-    def getMidilist(self, track: og.Track = None, position: ot.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
         midi_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):
-                midi_list.extend(single_sequence.getMidilist(track, position))
+                midi_list.extend(single_sequence.getMidilist(midi_track, position))
         return midi_list
 
     def getSerialization(self) -> dict:
@@ -830,8 +799,7 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    # if single_sequence._midi_track == operand._midi_track:
-                    if single_sequence._track == operand._track:                                                                # TO BE REMOVED !!!
+                    if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__rrshift__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
@@ -847,8 +815,7 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    # if single_sequence._midi_track == operand._midi_track:
-                    if single_sequence._track == operand._track:                                                                # TO BE REMOVED !!!
+                    if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__radd__(operand)    # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
@@ -864,8 +831,7 @@ class Song(Container):
                 operand = operand.copy()
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
-                    # if single_sequence._midi_track == operand._midi_track:
-                    if single_sequence._track == operand._track:                                                                # TO BE REMOVED !!!
+                    if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
