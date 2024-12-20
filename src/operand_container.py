@@ -354,7 +354,7 @@ class Sequence(Container):  # Just a container of Elements
                     self._midi_track    << single_operand._midi_track
                     self._position      << single_operand._position
                 case ou.MidiTrack():
-                    self._midi_track    << single_operand._midi_track
+                    self._midi_track    << single_operand
                 case ot.Position():
                     self._position = single_operand.copy()
 
