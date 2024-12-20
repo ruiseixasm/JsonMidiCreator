@@ -29,6 +29,7 @@ from io import StringIO
 import pytest
 import sys
 
+
 def test_element_mod():
 
     element = Element()
@@ -47,6 +48,7 @@ def test_element_mod():
     # Assert the captured output
     assert captured_output.getvalue().strip() in ["['VMPK', 'FLUID']", "['loopMIDI', 'Microsoft']"]
 
+
 def test_clock_mod():
     # Redirect stdout to capture the print output
     captured_output = StringIO()
@@ -61,6 +63,7 @@ def test_clock_mod():
 
     # Assert the captured output
     assert captured_output.getvalue().strip() == "4.0"
+
 
 def test_note_mod():
 
@@ -111,7 +114,6 @@ def test_note_mod():
     # Resets changed Tempo to the default value of 120 bpm
     staff << Tempo(120)
 
-test_note_mod()
 
 def test_keyscale_mod():
 
@@ -130,6 +132,7 @@ def test_keyscale_mod():
 
     assert key_scale_list == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
 
+
 def test_chord_mod():
 
     # Perform the operation
@@ -137,6 +140,7 @@ def test_chord_mod():
     chord_string = chord % Degree() % str()
 
     assert chord_string == "I"
+
 
 def test_retrigger_mod():
 
@@ -146,6 +150,7 @@ def test_retrigger_mod():
 
     assert retrigger_int == 32
 
+
 def test_modulation_mod():
 
     # Perform the operation
@@ -153,6 +158,7 @@ def test_modulation_mod():
     controller_int = controller % Number() % int()
 
     assert controller_int == 1
+
 
 def test_pitchbend_mod():
 
@@ -162,6 +168,7 @@ def test_pitchbend_mod():
 
     assert pitch_bend_int == 4096
 
+
 def test_aftertouch_mod():
 
     # Perform the operation
@@ -169,6 +176,7 @@ def test_aftertouch_mod():
     aftertouch_int = aftertouch % Pressure() % int()
 
     assert aftertouch_int == 64
+
 
 def test_poly_aftertouch_mod():
 
@@ -178,6 +186,7 @@ def test_poly_aftertouch_mod():
 
     assert poly_aftertouch_int == 1
 
+
 def test_program_change_mod():
 
     # Perform the operation
@@ -186,4 +195,18 @@ def test_program_change_mod():
 
     assert program_change_int == 12
 
+
+def test_milliseconds_duration():
+
+    duration = Duration(NoteValue(Step(3*4 + 2)))
+    assert duration == Beat(3.5)
+    rest = Rest(duration)
+    rest_playlist = rest.getPlaylist()
+
+    # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
+    rest_start = rest_playlist[0]
+    rest_stop = rest_playlist[1]
+
+    assert rest_start["time_ms"] == 0.0
+    assert rest_stop["time_ms"] == 1750.0
 
