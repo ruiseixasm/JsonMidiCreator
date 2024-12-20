@@ -1156,9 +1156,7 @@ class MidiTrack(Midi):
         super().__init__(1)
         # super().__init__(MidiTrack._auto_id)
         MidiTrack._auto_id += 1
-        self._name: str         = None
-        self._channel: Channel  = Channel()
-        self._device: od.Device = od.Device()
+        self._name: str = "Track 1"
         if len(parameters) > 0:
             self << parameters
 
@@ -1167,12 +1165,8 @@ class MidiTrack(Midi):
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     return self._name
-                    case Channel():                 return self._channel
-                    case od.Device():               return self._device
                     case _:                         return super().__mod__(operand)
-            case str():                 return "MidiTrack " + str(self._unit) if not isinstance(self._name, str) else self._name
-            case Channel():             return self._channel.copy()
-            case od.Device():           return self._device.copy()
+            case str():                 return self._name
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1181,29 +1175,23 @@ class MidiTrack(Midi):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._name      == other % od.DataSource( str() ) \
-                    and self._channel   == other % od.DataSource( Channel() ) \
-                    and self._device    == other % od.DataSource( od.Device() )
+                    and self._name      == other % od.DataSource( str() )
             case _:
                 return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["name"]     = self.serialize(self._name)
-        serialization["parameters"]["channel"]  = self.serialize(self._channel)
-        serialization["parameters"]["device"]   = self.serialize(self._device)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'MidiTrack':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "name" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+            "name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._name      = self.deserialize(serialization["parameters"]["name"])
-            self._channel   = self.deserialize(serialization["parameters"]["channel"])
-            self._device    = self.deserialize(serialization["parameters"]["device"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'MidiTrack':
@@ -1212,17 +1200,11 @@ class MidiTrack(Midi):
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     self._name = operand % o.Operand()
-                    case Channel():                 self._channel = operand % o.Operand()
-                    case od.Device():               self._device = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case MidiTrack():
                 super().__lshift__(operand)
                 self._name          = operand._name
-                self._channel       << operand._channel
-                self._device        << operand._device
             case str():             self._name = operand
-            case Channel():         self._channel << operand
-            case od.Device():       self._device << operand
             case _:                 super().__lshift__(operand)
         return self
 
