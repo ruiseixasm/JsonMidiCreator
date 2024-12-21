@@ -436,7 +436,7 @@ class Sequence(Container):  # Just a container of Elements
                     tied_notes.append(single_datasource._data.copy())
                 else:
                     sequence_elements.append(single_datasource._data)
-        if len(tied_notes) > 0:
+        if len(tied_notes) > 0: # Extends the root Note to accommodate all following Notes durations
             tied_notes = sorted(tied_notes, key=lambda x: (id(x._midi_track._unit)))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
@@ -533,13 +533,13 @@ class Sequence(Container):  # Just a container of Elements
         element_position: int = 0
         first_element_position: int = None
         last_element: oe.Element = None
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
+        for single_data in self._datasource_list:
+            if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() ):
                 if last_element is not None:
-                    last_element << ot.Duration(single_datasource._data._position - last_element._position)
+                    last_element << ot.Duration(single_data._data._position - last_element._position)
                 else:
                     first_element_position = element_position
-                last_element = single_datasource._data
+                last_element = single_data._data
             element_position += 1
         # Add a Rest in the beginning if necessary
         if first_element_position is not None:
