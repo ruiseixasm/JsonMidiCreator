@@ -1176,8 +1176,10 @@ class MidiTrack(Midi):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._name      == other % od.DataSource( str() )
+            case str():
+                return self._name       == other % od.DataSource( str() )
             case _:
-                return super().__eq__(other)
+                return super().__eq__(other)    # Compares the _unit integer value
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

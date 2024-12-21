@@ -733,23 +733,19 @@ class Song(Container):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.MidiTrack():
+                    case ou.MidiTrack() | int() | str():
                         for sequence in self:
                             if isinstance(sequence, Sequence):
                                 if sequence._midi_track == operand % o.Operand():
                                     return sequence
                         return ol.Null()
-                    case str():
-                        return self % od.DataSource( ou.MidiTrack() ) % str()
                     case _:                 return super().__mod__(operand)
-            case ou.MidiTrack():
+            case ou.MidiTrack() | int() | str():
                 for sequence in self:
                     if isinstance(sequence, Sequence):
                         if sequence._midi_track == operand:
                             return sequence.copy()
                 return ol.Null()
-            case str():
-                return self % ou.MidiTrack() % str()
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
