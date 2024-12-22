@@ -110,10 +110,10 @@ class Element(o.Operand):
                     and self._stackable     == other % od.DataSource( ou.Stackable() ) \
                     and self._channel       == other % od.DataSource( ou.Channel() ) \
                     and self._device        == other % od.DataSource( od.Device() )
-            case ra.TimeUnit():
-                return self._position == other
             case ra.NoteValue():
                 return self._duration == other
+            case ra.TimeUnit():
+                return self._position == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -126,10 +126,10 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  False
-            case ra.TimeUnit():
-                return self._position < other
             case ra.NoteValue():
                 return self._duration < other
+            case ra.TimeUnit():
+                return self._position < other
             case _:
                 return self % od.DataSource( other ) < other
     
@@ -138,10 +138,10 @@ class Element(o.Operand):
         match other:
             case self.__class__():
                 return  False
-            case ra.TimeUnit():
-                return self._position > other
             case ra.NoteValue():
                 return self._duration > other
+            case ra.TimeUnit():
+                return self._position > other
             case _:
                 return self % od.DataSource( other ) > other
     
