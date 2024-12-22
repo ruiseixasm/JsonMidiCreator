@@ -55,7 +55,7 @@ def test_time_mod():
     assert note_value_float == 4.5
     note_value_float = time % od.DataSource( NoteValue() ) % float()
     assert note_value_float == 4.5 * 1.0
-    
+
 def test_add_beats():
 
     position = Position()
@@ -97,3 +97,46 @@ def test_add_note_value():
 
     position += NoteValue(-4 / 4)
     assert position == Position(0.5)
+
+
+def test_sub_beats():
+
+    position = Position(2)
+    measures = Measure(1.5)
+    position -= Beat(2)
+    assert position == measures
+
+    position <<= Measure(2)
+    assert position == Position(2.5)
+
+    position -= Beat(4)
+    assert position == Position(1.5)
+
+    position -= Beat(-4)
+    assert position == Position(2.5)
+
+def test_sub_steps():
+
+    position = Position(2)
+    measures = Measure(1.5)
+    position -= Step(2 * 4)
+    assert position == measures
+
+    position -= Step(4 * 4)
+    assert position == Position(0.5)
+
+    position -= Step(-4 * 4)
+    assert position == Position(1.5)
+
+def test_sub_note_value():
+
+    position = Position(2)
+    measures = Measure(1.5)
+    position -= NoteValue(2 / 4)
+    assert position == measures
+
+    position -= NoteValue(4 / 4)
+    assert position == Position(0.5)
+
+    position -= NoteValue(-4 / 4)
+    assert position == Position(1.5)
