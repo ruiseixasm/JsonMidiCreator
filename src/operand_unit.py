@@ -360,9 +360,9 @@ class Key(Unit):
         if len(parameters) > 0:
             self << parameters
 
-    # def staff(self: 'Key', staff: os.Staff = None) -> 'Key':
-    #     self._staff = staff
-    #     return self
+    def staff(self: 'Key', staff: 'os.Staff' = None) -> 'Key':
+        self._staff = staff
+        return self
 
     def sharp(self: 'Key', unit: int = None) -> 'Key':
         return self << od.DataSource( Sharp(unit) )
