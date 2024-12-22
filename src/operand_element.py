@@ -241,6 +241,8 @@ class Element(o.Operand):
                 self._device        << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case None:
+                self._staff         = None
             case os.Staff():
                 self._staff         << operand
             case ot.Duration():
