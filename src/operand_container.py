@@ -437,7 +437,6 @@ class Sequence(Container):  # Just a container of Elements
                 else:
                     sequence_elements.append(single_datasource._data)
         if len(tied_notes) > 0: # Extends the root Note to accommodate all following Notes durations
-            tied_notes = sorted(tied_notes, key=lambda x: (id(x._midi_track._unit)))
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
@@ -597,6 +596,11 @@ class Sequence(Container):  # Just a container of Elements
                         actual_note._pitch -= ou.Octave(1)
                 last_note = actual_note
         return self
+    
+    def split(self, position: ot.Position) -> tuple['Sequence', 'Sequence']:
+        self_left: Sequence     = self.filter(of.Less(position))
+        self_right: Sequence    = self.filter(of.GreaterEqual(position))
+        return self_left, self_right
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
