@@ -190,7 +190,7 @@ class Translocation(Mutation):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
-        self._parameters: od.Parameters = od.Parameters(ot.Position(), ra.NoteValue())
+        self._parameters: od.Parameters = od.Parameters(ot.Position())
         if len(parameters) > 0:
             self << parameters
 
@@ -256,7 +256,7 @@ class Translocation(Mutation):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
                 for single_parameter in self._parameters._data: # A tuple of parameters
                     source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
-                self._result % od.DataSource() >> od.Stack()    # It only changes the Duration, so it requires a Stack NOT a Link!
+                # self._result % od.DataSource() >> od.Stack()    # It only changes the Duration, so it requires a Stack NOT a Link!
                 if actual_iteration % muted_iterations == 0:
                     self.perform(number)
                 self._index += 1    # keeps track of each iteration
