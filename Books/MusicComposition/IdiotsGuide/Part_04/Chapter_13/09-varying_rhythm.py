@@ -29,11 +29,8 @@ K % str() >> Print()    # Returns the tonic key (I)
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-motif_mutation = Mutation(motif)
-motif_mutation = TranslocateRhythm(motif_mutation) * 60 * 4.01
-
-mutated_motif = motif_mutation % Sequence() >> Link()
+mutated_motif = TranslocateRhythm(motif) * 60 % Sequence() >> Stack()
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
-varying_rhythm = motif >> motif_mutation
+varying_rhythm = motif >> mutated_motif
 varying_rhythm >> rest_play

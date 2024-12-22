@@ -46,7 +46,7 @@ class Mutation(o.Operand):
         self._performers: od.Performers = od.Performers(
                 od.Stack(),
                 of.PushTo(od.Play()),
-                of.Subject(oe.Rest())**of.PushTo(od.Play()) # Finally plays a single Rest
+                of.Subject(oe.Rest())**of.PushTo(od.Play()) # Finally plays a single Rest (just to have an interval between)
             )
         self._operator: str             = "<<"
         self._result: od.Result         = od.Result(self._sequence)
@@ -254,7 +254,7 @@ class Translocation(Mutation):
             jumbled_result: oc.Sequence = source_result.copy()
             for actual_iteration in range(1, total_iterations + 1):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
-                for single_parameter in self._parameters._data:
+                for single_parameter in self._parameters._data: # A tuple of parameters
                     source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
                 self._result % od.DataSource() >> od.Link()
                 if actual_iteration % muted_iterations == 0:
@@ -271,7 +271,7 @@ class Translocation(Mutation):
 class TranslocateRhythm(Translocation):
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters        = od.Parameters(ot.Position())
+        self._parameters        = od.Parameters(ot.Duration())
         if len(parameters) > 0:
             self << parameters
 
@@ -279,7 +279,7 @@ class TranslocateRhythm(Translocation):
 
     def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
-        self._parameters        = od.Parameters(ot.Position())
+        self._parameters        = od.Parameters(ot.Duration())  # Can't change targeted parameter
         return self
 
 class TranslocatePitch(Translocation):
@@ -293,7 +293,7 @@ class TranslocatePitch(Translocation):
 
     def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
-        self._parameters        = od.Parameters(og.Pitch())
+        self._parameters        = od.Parameters(og.Pitch())     # Can't change targeted parameter
         return self
 
 class Crossover(Mutation):
