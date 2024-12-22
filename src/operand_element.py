@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
+        self._staff: os.Staff               = None  # By default it uses the global staff
         self._position: ot.Position         = ot.Position()
         self._duration: ot.Duration         = os.staff % ot.Duration()
         self._stackable: ou.Stackable       = ou.Stackable()
@@ -47,6 +48,10 @@ class Element(o.Operand):
         self._device: od.Device             = od.Device()
         if len(parameters) > 0:
             self << parameters
+
+    def staff(self: TypeElement, staff: os.Staff = None) -> TypeElement:
+        self._staff = staff
+        return self
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
         self._position = ot.Position(position)
@@ -82,6 +87,7 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case os.Staff():        return self._staff
                     case ot.Position():     return self._position
                     case ot.Duration():     return self._duration
                     case ou.Stackable():    return self._stackable
@@ -90,6 +96,7 @@ class Element(o.Operand):
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
+            case os.Staff():        return self._staff.copy()
             case ot.Position():     return self._position.copy()
             case ra.TimeUnit():     return self._position % operand
             case ot.Duration():     return self._duration.copy()
@@ -105,7 +112,8 @@ class Element(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return  self._position      == other % od.DataSource( ot.Position() ) \
+                return  self._staff         == other % od.DataSource( os.Staff() ) \
+                    and self._position      == other % od.DataSource( ot.Position() ) \
                     and self._duration      == other % od.DataSource( ot.Duration() ) \
                     and self._stackable     == other % od.DataSource( ou.Stackable() ) \
                     and self._channel       == other % od.DataSource( ou.Channel() ) \
@@ -185,6 +193,7 @@ class Element(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["position"]     = self.serialize(self._position)
         serialization["parameters"]["duration"]     = self.serialize(self._duration)
         serialization["parameters"]["stackable"]    = self.serialize(self._stackable)
@@ -196,10 +205,11 @@ class Element(o.Operand):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"] and "duration" in serialization["parameters"] and "stackable" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+            "staff" in serialization["parameters"] and "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "stackable" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._staff         = self.deserialize(serialization["parameters"]["staff"])
             self._position      = self.deserialize(serialization["parameters"]["position"])
             self._duration      = self.deserialize(serialization["parameters"]["duration"])
             self._stackable     = self.deserialize(serialization["parameters"]["stackable"])
@@ -213,6 +223,7 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
+                    case os.Staff():        self._staff = operand % o.Operand()
                     case ot.Position():     self._position = operand % o.Operand()
                     case ot.Duration():     self._duration = operand % o.Operand()
                     case ou.Stackable():    self._stackable = operand % o.Operand()
@@ -220,6 +231,9 @@ class Element(o.Operand):
                     case od.Device():       self._device = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
+                self._staff         = None
+                if isinstance(operand._staff, o.Operand):
+                    self._staff     = operand._staff.copy()
                 self._position      << operand._position
                 self._duration      << operand._duration
                 self._stackable     << operand._stackable
@@ -227,6 +241,8 @@ class Element(o.Operand):
                 self._device        << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case os.Staff():
+                self._staff         << operand
             case ot.Duration():
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
