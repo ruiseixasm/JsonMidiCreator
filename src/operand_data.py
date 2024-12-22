@@ -170,6 +170,11 @@ class DataSource(Data):
         else:
             super().__lshift__(operand)
         return self
+    
+class SetNone(DataSource):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__()
+        self._data = o.Operand() if operand is None else operand
 
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
