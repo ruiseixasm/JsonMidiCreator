@@ -32,13 +32,13 @@ notes_F5    = Note("F", 5) * 1 << Position(2, Beat(3))
 notes_G     = Note("G") * 1 << Position(3)
 notes_G5    = Note("G", 5) * 1 << Position(3, Beat(1))
 notes_E5    = Note("E", 5) * 1 << Position(3, Beat(2))
-notes = notes_B + notes_A + notes_C5 + notes_D5 + notes_E + notes_F5 + notes_G + notes_G5 + notes_E5 >> Link(True)
+notes = notes_B + notes_A + notes_C5 + notes_D5 + notes_E + notes_F5 + notes_G + notes_G5 + notes_E5 >> Link()
 
 notes >> Rest() >> Play()
 
 staff << ""
 K % str() >> Print()    # Prints the Tonic for the given Key Signature
-rising = Note() * 13 << Foreach(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link(True) >> Smooth()
+rising = Note() * 13 << Foreach(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link() >> Smooth()
 rising >> Rest() >> Play()
 
 staff << "b"

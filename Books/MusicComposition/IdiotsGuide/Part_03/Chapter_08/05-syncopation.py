@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 staff << KeySignature("b")
 
-smooth: Sequence = Note("F") * (3*4 + 1) >> Link(True)
+smooth: Sequence = Note("F") * (3*4 + 1) >> Link()
 smooth + Foreach(0, -1, 0, 1, 2, 3, 2, 1, 0, 1, 0, -2, -1)
 smooth >> Rest() >> Play()
 
@@ -31,9 +31,9 @@ syncopated: Sequence = smooth.copy() \
     - Equal(Measure(0))**Even()**Position(NoteValue(1/8)) \
     + Equal(Measure(1))**Position(NoteValue(1/8)) \
     + Equal(Measure(2))**GreaterEqual(Beat(2))**Position(NoteValue(1/8))
-(syncopated | Measure(0)) >> Link(True)
-(syncopated | Measure(1)) >> Link(True)
-(syncopated | Measure(2) | Greater(Beat(2))) >> Link(True)
+(syncopated | Measure(0)) >> Link()
+(syncopated | Measure(1)) >> Link()
+(syncopated | Measure(2) | Greater(Beat(2))) >> Link()
 syncopated >> Link()
 syncopated >> Rest() >> Play()
 

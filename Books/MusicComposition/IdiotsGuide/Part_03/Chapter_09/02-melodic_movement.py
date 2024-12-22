@@ -38,9 +38,9 @@ melodic_e: Sequence = Note(1/8, Position(1/2) - NoteValue(1/8)) * 5
 melodic_1: Sequence = (melodic_e.copy() << "E") + Iterate() + Nth(5)**1
 melodic_2: Sequence = (melodic_e.copy() - (melodic_e | Nth(1)) << "B" << Measure(1)) - Iterate()
 melodic_3: Sequence = melodic_1.copy() + 1 << Measure(2)
-whole_notes + melodic_1 + melodic_2 + melodic_3 >> Link(True) >> Rest() >> Play(True)
+whole_notes + melodic_1 + melodic_2 + melodic_3 >> Link() >> Rest() >> Play(True)
 
-outline: Sequence = Note(1/2) * 7 >> Link(True)
+outline: Sequence = Note(1/2) * 7 >> Link()
 outline << Foreach("F", "A", "G", "F", "E", "D", "E")
 outline >> Rest() >> Play()
 

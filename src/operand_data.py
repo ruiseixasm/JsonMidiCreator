@@ -562,14 +562,6 @@ class Stack(Process):
         else:
             return super().__rrshift__(operand)
 
-class Join(Process):
-    def __rrshift__(self, operand: o.Operand) -> 'Sequence':
-        import operand_container as oc
-        if isinstance(operand, oc.Sequence):
-            return operand.join()
-        else:
-            return super().__rrshift__(operand)
-
 class Tie(Process):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
@@ -653,15 +645,15 @@ class Print(Process):
         return operand
 
 class Link(Process):
-    def __init__(self, and_join: bool = False):
-        super().__init__( 0 if and_join is None else and_join )
+    def __init__(self):
+        super().__init__()
         
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
-            return operand.link(bool(self._data))
+            return operand.link()
         else:
             return super().__rrshift__(operand)
 

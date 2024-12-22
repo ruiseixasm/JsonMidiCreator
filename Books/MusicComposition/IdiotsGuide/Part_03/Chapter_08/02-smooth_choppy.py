@@ -30,9 +30,9 @@ print(dotted_note == note_value)
 smoothly: Sequence = Note("F", 1/8) * 3 << Nth(3)**NoteValue(Dotted(1/2))
 smoothly *= 3
 smoothly += Note("F")
-smoothly >> Stack() >> Link(True)
+smoothly >> Stack() >> Link()
 smoothly += Rest(1/8, Position(Measure(3) - Beat(1))) + Note("F", 1/8) >> Stack()
-smoothly << Equal(Step(NoteValue(1/8)))**Gate(1) >> Link(True)
+smoothly << Equal(Step(NoteValue(1/8)))**Gate(1) >> Link()
 smoothly + Type(Note())**Foreach("iii", "ii", "ii", "iii", -3, -3, "i", -2, -2, -3, "ii")**Degree()
 smoothly >> Rest() >> Play()
 

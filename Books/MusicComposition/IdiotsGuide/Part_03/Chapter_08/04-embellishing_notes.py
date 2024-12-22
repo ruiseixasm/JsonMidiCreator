@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 staff << KeySignature("bbb")
 
-slow_paced: Sequence = Note("E", 1/2) * 7 >> Link(True) << Foreach(6, 5, 1, 3, 6, 5, 2)**Degree()
+slow_paced: Sequence = Note("E", 1/2) * 7 >> Link() << Foreach(6, 5, 1, 3, 6, 5, 2)**Degree()
 slow_paced >> Rest() >> Play()
 
 embellishing: Sequence = \
@@ -35,7 +35,7 @@ embellishing: Sequence = \
     Note("E", Degree("viiº"), Position(Measure(2) + NoteValue(1/4))) + \
     Note("E", Degree("vi"), Position(Measure(2) + NoteValue(1/4 + 1/8))) + \
     Note("E", Degree("iii"), Position(Measure(3) - NoteValue(1/8)))
-slow_paced + embellishing >> Link(True) >> Rest() >> Play()
+slow_paced + embellishing >> Link() >> Rest() >> Play()
 
 variation: Sequence = Note("E") * 10
 variation << Foreach(
@@ -51,4 +51,4 @@ variation << Foreach(
     )**Position() << Foreach(
         7, 6, 6, 5, 2, 4, 3, 6, 5
     )**Degree()
-slow_paced + variation >> Link(True) >> Rest() >> Play()
+slow_paced + variation >> Link() >> Rest() >> Play()

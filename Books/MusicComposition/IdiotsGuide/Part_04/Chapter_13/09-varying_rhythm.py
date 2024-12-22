@@ -21,12 +21,19 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("#")
+rest_play = (R, P)
+staff << "#" << 120
+K % str() >> Print()    # Returns the tonic key (I)
 
-original: Sequence = Note("B") * 4 + Foreach(0, 3, 2, 0) << Foreach(1/4, 1/4, 1/2, 1/1) >> Stack()
-original >> Rest() >> Play()
+# Original Motif to work on its pitches
+motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-back_phrasing:Sequence = original.copy() + Equal(Measure(0))**Position(NoteValue(1/4)) >> Link()
-back_phrasing >> Rest() >> Play()
+motif_mutation = Mutation(motif)
+motif_mutation = TranslocateRhythm(motif_mutation) * 60 * 4.01
 
+mutated_motif = motif_mutation % Sequence() >> Link()
 
+# Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
+varying_rhythm = motif >> motif_mutation
+varying_rhythm >> rest_play

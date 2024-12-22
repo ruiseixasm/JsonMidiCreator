@@ -528,7 +528,7 @@ class Sequence(Container):  # Just a container of Elements
         self.first() << self.last() % ot.Position()
         return self.stack()
 
-    def link(self, and_join: bool = False) -> 'Sequence':
+    def link(self) -> 'Sequence':
         self.sort()
         element_position: int = 0
         first_element_position: int = None
@@ -550,12 +550,7 @@ class Sequence(Container):  # Just a container of Elements
         # Adjust last_element duration based on its Measure position
         if last_element is not None:
             last_element << ot.Duration(ot.Position(last_element % ra.Measure() + 1) - last_element._position)
-        if and_join:
-            self << of.Get(ot.Duration())**ot.Duration()
         return self
-
-    def join(self) -> 'Sequence':
-        return self << of.Get(ot.Duration())**ot.Duration()
 
     def stack(self) -> 'Sequence':
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)

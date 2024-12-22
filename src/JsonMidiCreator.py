@@ -70,7 +70,7 @@ R = Rest()
 
 # Actions
 L = Link()
-LT = LJ = Link(True)
+LT = LJ = Link()
 S = Stack()
 P = Play()
 

@@ -38,7 +38,7 @@ blues_scale = \
     Note("C", 1/4, Position(Measure(1) + NoteValue(1/2 + 1/4))) + \
     Note("C", 1/4, Position(Measure(2) + Dotted(1/2))) >> Link() << Scale("Blues")
 blues_scale + Foreach(5, 3, 1, 3)
-structural_tones + blues_scale >> Link(True) >> Rest() >> Play()
+structural_tones + blues_scale >> Link() >> Rest() >> Play()
 
 all_notes: Sequence = Note() * (3*3 + 1)
 all_notes << Nth(1, 4, 7)**NoteValue(1/2) << Nth(10)**NoteValue(1) >> Stack()
