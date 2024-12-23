@@ -43,7 +43,7 @@ else:  # Assume Linux/Unix
 # Set group of constants
 
 # Keys
-K = Key()
+K = Key # The class not the object
 C = Key("C")
 D = Key("D")
 E = Key("E")
