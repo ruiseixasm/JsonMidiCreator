@@ -347,6 +347,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
       
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        self._default       << False
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -358,7 +359,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 self._major._unit   = operand._major._unit
                 self._default._unit = operand._default._unit
                 self._tonic_key_int = operand._tonic_key_int
-                return self # Avoids setting as NOT default if default
             case int():     self._unit   = operand
             case Major():   self._major  << operand
             case str():
@@ -374,7 +374,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                             self._unit = -len(flats[0])
             case _: 
                 super().__lshift__(operand)
-        self._default       << False
         self._tonic_key_int = self.get_tonic_key()
         return self
 
