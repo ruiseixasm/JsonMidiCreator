@@ -446,7 +446,7 @@ class Key(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case KeySignature():        return self._key_signature
+                    case KeySignature():    return self._key_signature
                     case Sharp():           return self._sharp
                     case Flat():            return self._flat
                     case Natural():         return self._natural
@@ -458,7 +458,7 @@ class Key(Unit):
                         note_key += 12 * (self._flat._unit != 0)
                         return Key._keys[note_key]
                     case _:                 return super().__mod__(operand)
-            case KeySignature():        return self._key_signature.copy() if isinstance(self._key_signature, os.Staff) else None 
+            case KeySignature():    return self._key_signature.copy() 
             case Sharp():           return self._sharp.copy()
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
@@ -601,7 +601,7 @@ class Key(Unit):
                         self._unit = int(operand % o.Operand())
                     case Semitone() | IntU() | ra.FloatR():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
-                    case os.Staff():
+                    case KeySignature():
                         self._key_signature = operand % o.Operand()
                     case Sharp():
                         self._sharp << operand % o.Operand()
@@ -642,7 +642,7 @@ class Key(Unit):
                                     else:
                                         self._sharp << False
                                         self._flat << False
-            case os.Staff():
+            case KeySignature():
                 self._key_signature = operand.copy()
             case Sharp():
                 self._sharp << operand
