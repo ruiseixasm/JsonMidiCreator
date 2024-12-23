@@ -594,6 +594,7 @@ class Key(Unit):
                     case _:                         super().__lshift__(operand)
             case Key():
                 super().__lshift__(operand) # In case operand._unit is None it will be copied too!
+                self._key_signature << operand._key_signature
                 self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
