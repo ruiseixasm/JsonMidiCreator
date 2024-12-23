@@ -469,15 +469,18 @@ class Key(Unit):
                 if os.staff._scale.hasScale():
                     return os.staff._scale.copy()
                 return os.staff._key_signature % operand
+                # return self._key_signature % operand
             case Mode() | list():   return (self % og.Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
                 if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
+                # if Key._major_scale[note_key] == 0 and self._key_signature % int() < 0:
                     note_key += 12
                 return Key._keys[note_key]
             case int(): # WITHOUT KEY SIGNATURE
                 staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 accidentals_int: int = os.staff._key_signature._unit
+                # accidentals_int: int = self._key_signature % int()
                 key_int: int            = self._unit
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if self._unit is None:
@@ -512,20 +515,13 @@ class Key(Unit):
                 else:
                     if self._unit is None:
                         key_int = os.staff._tonic_key._unit
-                        # # Needs to remove KeySignature Sharps and Flats
-                        # if staff_white_keys[key_int % 12] == 0:  # if a black key
-                        #     if accidentals_int < 0:
-                        #         key_int += 1    # it will be flatten by the KeySignature
-                        #     else:
-                        #         key_int -= 1    # it will be sharpen by the KeySignature
+                        # key_int = self._key_signature % Key() % int()
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
                     elif self._degree._unit < 0:
                         degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
                     semitone_transpose: int = 0
-                    # key_signature: KeySignature = os.staff._key_signature
-                    # key_signature_scale     = key_signature % list()
                     key_signature_scale     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                     while degree_transpose > 0:
                         semitone_transpose += 1
@@ -549,6 +545,7 @@ class Key(Unit):
                         semitone_int: int            = self % int()
                         key_signature: KeySignature = os.staff._key_signature
                         accidentals_int = key_signature._unit
+                        # accidentals_int = self._key_signature % int()
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                         semitone_transpose = sharps_flats[semitone_int % 12]
                         return float(semitone_int + semitone_transpose)
@@ -566,26 +563,28 @@ class Key(Unit):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["sharp"]    = self.serialize( self._sharp )
-        serialization["parameters"]["flat"]     = self.serialize( self._flat )
-        serialization["parameters"]["natural"]  = self.serialize( self._natural )
-        serialization["parameters"]["degree"]   = self.serialize( self._degree )
-        serialization["parameters"]["scale"]    = self.serialize( self._scale )
+        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+        serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
+        serialization["parameters"]["flat"]             = self.serialize( self._flat )
+        serialization["parameters"]["natural"]          = self.serialize( self._natural )
+        serialization["parameters"]["degree"]           = self.serialize( self._degree )
+        serialization["parameters"]["scale"]            = self.serialize( self._scale )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Key':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and 
-            "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
+            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
+            "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sharp     = self.deserialize( serialization["parameters"]["sharp"] )
-            self._flat      = self.deserialize( serialization["parameters"]["flat"] )
-            self._natural   = self.deserialize( serialization["parameters"]["natural"] )
-            self._degree    = self.deserialize( serialization["parameters"]["degree"] )
-            self._scale     = self.deserialize( serialization["parameters"]["scale"] )
+            # self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
+            self._flat          = self.deserialize( serialization["parameters"]["flat"] )
+            self._natural       = self.deserialize( serialization["parameters"]["natural"] )
+            self._degree        = self.deserialize( serialization["parameters"]["degree"] )
+            self._scale         = self.deserialize( serialization["parameters"]["scale"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
