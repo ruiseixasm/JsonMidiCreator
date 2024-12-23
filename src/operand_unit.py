@@ -475,7 +475,7 @@ class Key(Unit):
                 key_int: int            = self._unit
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if self._unit is None:
-                        key_int = os.staff._key._unit
+                        key_int = self._key_signature._tonic_key_int
                     staff_key_scale     = os.staff._scale % list()  # Already modulated
                     if self._scale.hasScale():
                         staff_key_scale     = self._scale % list()  # Already modulated
