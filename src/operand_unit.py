@@ -575,11 +575,11 @@ class Key(Unit):
 
     def loadSerialization(self, serialization: dict) -> 'Key':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
+            "key_signature" in serialization["parameters"] and "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
             "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            # self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._flat          = self.deserialize( serialization["parameters"]["flat"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
