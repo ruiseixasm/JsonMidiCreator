@@ -303,10 +303,13 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case KeySignature():        return self
                     case list():                return self % list()
                     case Default():             return self._default
+                    case Major():               return self._major
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
             case Key():                 return Key(self._tonic_key_int)
+            case Major():               return self._major.copy()
+            case Minor():               return Minor(not (self._major % bool()))
             case og.Scale():            return og.Scale(self % list())
             case list():
                 key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
@@ -362,6 +365,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 return self # No more processing needed
             case int():     self._unit   = operand
             case Major():   self._major  << operand
+            case Minor():   self._major  << operand % int() == 0
             case str():
                 if len(operand) == 0:
                     self._unit = 0
@@ -854,6 +858,9 @@ class Tied(Boolean):
     pass
 
 class Major(Boolean):
+    pass
+
+class Minor(Boolean):
     pass
 
 class Natural(Boolean):     # Natural (n)
