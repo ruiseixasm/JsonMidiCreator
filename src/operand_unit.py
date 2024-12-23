@@ -468,19 +468,19 @@ class Key(Unit):
                     return self._scale.copy()
                 if os.staff._scale.hasScale():
                     return os.staff._scale.copy()
-                return os.staff._key_signature % operand
-                # return self._key_signature % operand
+                # return os.staff._key_signature % operand
+                return self._key_signature % operand
             case Mode() | list():   return (self % og.Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
-                if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
-                # if Key._major_scale[note_key] == 0 and self._key_signature % int() < 0:
+                # if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
+                if Key._major_scale[note_key] == 0 and self._key_signature % int() < 0:
                     note_key += 12
                 return Key._keys[note_key]
             case int(): # WITHOUT KEY SIGNATURE
                 staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-                accidentals_int: int = os.staff._key_signature._unit
-                # accidentals_int: int = self._key_signature % int()
+                # accidentals_int: int = os.staff._key_signature._unit
+                accidentals_int: int = self._key_signature % int()
                 key_int: int            = self._unit
                 if self._scale.hasScale() or os.staff._scale.hasScale():
                     if self._unit is None:
@@ -543,9 +543,9 @@ class Key(Unit):
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     if not self._natural:
                         semitone_int: int            = self % int()
-                        key_signature: KeySignature = os.staff._key_signature
-                        accidentals_int = key_signature._unit
-                        # accidentals_int = self._key_signature % int()
+                        # key_signature: KeySignature = os.staff._key_signature
+                        # accidentals_int = key_signature._unit
+                        accidentals_int = self._key_signature % int()
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                         semitone_transpose = sharps_flats[semitone_int % 12]
                         return float(semitone_int + semitone_transpose)
@@ -630,8 +630,8 @@ class Key(Unit):
                                     else:
                                         self._unit = int(operand)
                                     if Key._major_scale[self._unit % 12] == 0:
-                                        if os.staff._key_signature._unit < 0:
-                                        # if self._key_signature % int() < 0:
+                                        # if os.staff._key_signature._unit < 0:
+                                        if self._key_signature % int() < 0:
                                             self._unit += 1
                                             self._sharp << False
                                             self._flat << True
@@ -686,8 +686,8 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__add__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
-            if os.staff._key_signature._unit < 0:
-            # if self._key_signature % int() < 0:
+            # if os.staff._key_signature._unit < 0:
+            if self._key_signature % int() < 0:
                 new_key._unit += 1
                 new_key._flat << True
             else:
@@ -718,8 +718,8 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__sub__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
-            if os.staff._key_signature._unit < 0:
-            # if self._key_signature % int() < 0:
+            # if os.staff._key_signature._unit < 0:
+            if self._key_signature % int() < 0:
                 new_key._unit += 1
                 new_key._flat << True
             else:
