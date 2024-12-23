@@ -469,39 +469,44 @@ class Key(Unit):
                     degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
                 elif self._degree._unit < 0:
                     degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
+                semitone_transpose: int = 0
+
+
                 if self._scale.hasScale():
-                    semitone_transpose: int = 0
-                    staff_key_scale     = self._scale % list()  # Already modulated
+
+                    key_scale = self._scale % list()  # Already modulated
                     while degree_transpose > 0:
                         semitone_transpose += 1
-                        if staff_key_scale[(key_int + semitone_transpose) % 12]:
+                        if key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose -= 1
                     while degree_transpose < 0:
                         semitone_transpose -= 1
-                        if staff_key_scale[(key_int + semitone_transpose) % 12]:
+                        if key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    if staff_white_keys[(key_int + semitone_transpose) % 12]:
-                        key_int += semitone_transpose
-                    elif accidentals_int < 0:
-                        self._sharp << False
-                        self._flat << True
-                        key_int += semitone_transpose + 1
-                    else:
-                        self._sharp << True
-                        self._flat << False
-                        key_int += semitone_transpose - 1
+
+                    if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
+                        if accidentals_int < 0:
+                            self._sharp << False
+                            self._flat << True
+                            key_int += 1
+                        else:
+                            self._sharp << True
+                            self._flat << False
+                            key_int -= 1
+
                 else:
-                    semitone_transpose: int = 0
-                    key_signature_scale     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                    key_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+
                     while degree_transpose > 0:
                         semitone_transpose += 1
-                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                        if key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose -= 1
                     while degree_transpose < 0:
                         semitone_transpose -= 1
-                        if key_signature_scale[(key_int + semitone_transpose) % 12]:
+                        if key_scale[(key_int + semitone_transpose) % 12]:
                             degree_transpose += 1
-                    key_int += semitone_transpose
+
+                key_int += semitone_transpose
                 if self._natural:
                     return key_int
                 return key_int + self._sharp._unit - self._flat._unit
