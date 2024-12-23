@@ -347,9 +347,32 @@ class Tempo(Rational):
     first : float_like
         Beats per Minute
     """
-    def __init__(self, value: int = None):
+    def __init__(self, value: float = None):
         super().__init__(value)
+        self._default: ou.Default   = ou.Default()
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        import operand_rational as ra
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case Fraction():        return self._rational
+                    case float():           return float(self._rational)
+                    case int():             return int(self._rational)
+                    case FloatR():          return FloatR(self._rational)
+                    case ou.IntU():         return ou.IntU(self._rational)
+                    case Rational():        return self
+                    case _:                 return ol.Null()
+            case of.Frame():        return self % (operand % o.Operand())
+            case Fraction():        return self._rational
+            case float():           return float(self._rational)
+            case int():             return int(self._rational)
+            case FloatR():          return FloatR(self._rational)
+            case ou.IntU():         return ou.IntU(self._rational)
+            case Rational():        return self.copy()
+            case _:                 return super().__mod__(operand)
+             
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Rational':
