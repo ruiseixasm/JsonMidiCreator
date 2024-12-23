@@ -462,9 +462,9 @@ class Key(Unit):
                 staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 accidentals_int: int = self._key_signature % int()
                 key_int: int            = self._unit
+                if self._unit is None:
+                    key_int = self._key_signature._tonic_key_int
                 if self._scale.hasScale():
-                    if self._unit is None:
-                        key_int = self._key_signature._tonic_key_int
                     staff_key_scale     = self._scale % list()  # Already modulated
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
@@ -491,8 +491,6 @@ class Key(Unit):
                         self._flat << False
                         key_int += semitone_transpose - 1
                 else:
-                    if self._unit is None:
-                        key_int = self._key_signature % Key() % int()
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
@@ -518,6 +516,7 @@ class Key(Unit):
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     if not self._natural:
                         semitone_int: int            = self % int()
+
                         accidentals_int = self._key_signature % int()
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                         semitone_transpose = sharps_flats[semitone_int % 12]
