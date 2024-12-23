@@ -40,7 +40,7 @@ class Staff(o.Operand):
         self._tempo: ra.Tempo                       = ra.Tempo(120.0)
         self._time_signature: og.TimeSignature      = og.TimeSignature(4, 4)
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._key_signature: ou.KeySignature        = ou.KeySignature(0)
+        self._key_signature: ou.KeySignature        = ou.KeySignature(0)    # The 0 will make it as NOT default
         self._key: ou.Key                           = ou.Key("C")
         self._tonic_key: ou.Key                     = ou.Key("C")
         self._scale: og.Scale                       = og.Scale([])  # By default, it has no scale besides the one given by the Key Signature

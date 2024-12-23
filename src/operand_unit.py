@@ -249,6 +249,8 @@ class Semitone(Unit):
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
     def __init__(self, accidentals: int | str = 0):
         super().__init__()
+        self._default: Default      = Default()
+        self._major: Major          = Major()
         match accidentals:
             case str():
                 total_sharps = accidentals.count('#')
@@ -256,14 +258,43 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 num_accidentals = total_sharps - total_flats
                 # Number of accidentals should range between -7 and +7
                 if -7 <= num_accidentals <= 7:
-                    self._unit = num_accidentals
+                    self._unit          = num_accidentals
+                    self._default       << False
             case int() | float():
                 num_accidentals = int(accidentals)
                 # Number of accidentals should range between -7 and +7
                 if -7 <= num_accidentals <= 7:
-                    self._unit = num_accidentals
+                    self._unit          = num_accidentals
+                    self._default       << False
+        self._tonic_key_int: int    = self.get_tonic_key()
     
+    def get_tonic_key(self) -> int:
+        major_scale: tuple = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)   # Major scale
+        tonic_key_int: int = 0     # C (Major)
+        if not self._major:
+            tonic_key_int = 9 # A (minor)
+        num_accidentals: int = self._unit
+        while num_accidentals > 0:  # Turn right in the Circle of Fifths
+            white_keys: int = 4 # Jumps the tonic, so, 5 - 1
+            while white_keys > 0:
+                tonic_key_int += 1
+                tonic_key_int %= 12
+                if major_scale[tonic_key_int]:
+                    white_keys -= 1
+            num_accidentals -= 1
+        while num_accidentals < 0:  # Turn left in the Circle of Fifths
+            white_keys: int = -4 # Jumps the tonic, so, -5 + 1
+            while white_keys < 0:
+                tonic_key_int -= 1
+                tonic_key_int %= 12
+                if major_scale[tonic_key_int]:
+                    white_keys += 1
+            num_accidentals += 1
+        return tonic_key_int
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        if self._default:
+            return os.staff._key_signature % operand
         import operand_generic as og
         match operand:
             case od.DataSource():
@@ -291,7 +322,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             return True
         if type(self) != type(other_signature):
             return False
-        return  self._unit   == other_signature._unit
+        return  self % int()   == other_signature % int()
     
     # CHAINABLE OPERATIONS
 
@@ -301,7 +332,9 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case od.DataSource():
                 match operand % o.Operand():
                     case int():     self._unit   = operand % o.Operand()
+                    case Major():   self._major  = operand % o.Operand()
             case int():     self._unit   = operand
+            case Major():   self._major  << operand
             case str():
                 if len(operand) == 0:
                     self._unit = 0
@@ -315,6 +348,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                             self._unit = -len(flats[0])
             case _: 
                 super().__lshift__(operand)
+        self._default       << False
+        self._tonic_key_int = self.get_tonic_key()
         return self
 
     _key_signatures: list[list] = [
@@ -788,10 +823,16 @@ class Boolean(Unit):
         if len(parameters) > 0:
             self << parameters
 
+class Default(Boolean):
+    pass
+
 class Stackable(Boolean):
     pass
 
 class Tied(Boolean):
+    pass
+
+class Major(Boolean):
     pass
 
 class Natural(Boolean):     # Natural (n)
