@@ -494,21 +494,21 @@ class Key(Unit):
                         self._sharp << True
                         self._flat << False
                         key_int -= 1
+
                 if self._natural:
                     return key_int
                 return key_int + self._sharp._unit - self._flat._unit
+             
             case float(): # WITH KEY SIGNATURE
-                if self._scale.hasScale():
-                    return self % int()
-                else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
-                    if not self._natural:
-                        semitone_int: int            = self % int()
+                # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
+                if not (self._scale.hasScale() or self._natural):
+                    semitone_int: int            = self % int()
 
-                        accidentals_int = self._key_signature % int()
-                        sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                        semitone_transpose = sharps_flats[semitone_int % 12]
-                        return float(semitone_int + semitone_transpose)
-                    return float(self % int())
+                    accidentals_int = self._key_signature % int()
+                    sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+                    semitone_transpose = sharps_flats[semitone_int % 12]
+                    return float(semitone_int + semitone_transpose)
+                return float(self % int())
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
