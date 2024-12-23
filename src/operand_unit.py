@@ -505,6 +505,7 @@ class Key(Unit):
                     semitone_int: int            = self % int()
 
                     accidentals_int = self._key_signature % int()
+                    # Circle of Fifths
                     sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                     semitone_transpose = sharps_flats[semitone_int % 12]
                     return float(semitone_int + semitone_transpose)
