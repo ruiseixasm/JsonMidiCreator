@@ -265,6 +265,9 @@ class Negative(Rational):
     def __init__(self, value: float = None):
         super().__init__(0 if value is None else value * (-1))
 
+class RationalDefault(Rational):
+    pass
+
 class Quantization(Rational):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
