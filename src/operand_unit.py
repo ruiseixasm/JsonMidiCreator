@@ -690,7 +690,6 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__sub__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
-            # if os.staff._key_signature._unit < 0:
             if self._key_signature % int() < 0:
                 new_key._unit += 1
                 new_key._flat << True

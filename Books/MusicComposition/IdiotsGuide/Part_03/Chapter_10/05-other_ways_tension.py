@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 staff << "#"
-K % str() >> Print()
+Key() % str() >> Print()
 notes_B     = Note("B") * 3 << Foreach((0), (0, Beat(2)), (1, Beat(1)))**Position()
 notes_A     = Note("A") * 2 << Foreach(Position(0, Beat(1)), Position(1, Beat(2)))
 notes_C5    = Note("C", 5) * 2 << Foreach(Position(0, Beat(3)), Position(2))
@@ -37,29 +37,29 @@ notes = notes_B + notes_A + notes_C5 + notes_D5 + notes_E + notes_F5 + notes_G +
 notes >> Rest() >> Play()
 
 staff << ""
-K % str() >> Print()    # Prints the Tonic for the given Key Signature
+Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 rising = Note() * 13 << Foreach(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link() >> Smooth()
 rising >> Rest() >> Play()
 
 staff << "b"
-K % str() >> Print()    # Prints the Tonic for the given Key Signature
+Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 slower = N * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
 faster = N * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
 slower + faster >> L >> R >> P
 
 staff << ""
-K % str() >> Print()    # Prints the Tonic for the given Key Signature
+Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 syncopation = N * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
 syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
 syncopation >> R >> P
 
 staff << "#"
-K % str() >> Print()    # Prints the Tonic for the given Key Signature
+Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 volume = N * 7 << half << Increment(12)**Velocity(30) >> S >> LJ << Foreach(D, A, B, F, G, C, B)
 volume >> R >> P
 
 staff << ""
-K % str() >> Print()    # Prints the Tonic for the given Key Signature
+Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 sixteenth_group = N * 4 << sixteenth
 dotted_rhythm = N * 3 << Foreach(sixteenth, sixteenth, eight)
 duplet = N * 2 << eight

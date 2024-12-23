@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 rest_play = (R, P)
 staff << 140
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 phrase_1 = N * 7 >> LJ
 phrase_1 % Duration() >> Print(0)

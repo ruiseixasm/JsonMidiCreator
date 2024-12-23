@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 staff << 40
-K % str() >> Print()
+Key() % str() >> Print()
 
 chords_F = Chord(1/1) * 7
 chords_F << Foreach("Bdim", ("Dm", Inversion(2)), (F, Inversion(1)), "G7", "Em9", "CM11", ("Am13", O3, Inversion(1)))

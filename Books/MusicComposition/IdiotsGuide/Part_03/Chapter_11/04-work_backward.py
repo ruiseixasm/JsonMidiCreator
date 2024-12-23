@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 staff << "b"
-K % str() >> Print()
+Key() % str() >> Print()
 
 single_notes = N * 12 << Nth(1, 2, 5, 6, 7, 8, 9, 12)**Foreach(dotted_quarter, eight, dotted_quarter, eight, half, dotted_quarter, eight, whole) >> S
 single_notes << Foreach(A, B, A, G, A, B, A, B, D, C, B, A) >> Smooth()

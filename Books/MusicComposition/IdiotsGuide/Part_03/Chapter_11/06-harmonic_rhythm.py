@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 staff << "bb"
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 note_group = (N * 4 << 1/8 << "iii") - Iterate()
 # note_group >> R >> P

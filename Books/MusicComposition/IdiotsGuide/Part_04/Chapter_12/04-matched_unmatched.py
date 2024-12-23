@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 rest_play = (R, P)
 staff << "bb"
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 matched_phrases = \
     (N * 4 << Nth(1, 2)**Foreach(dotted_quarter, eight)         << Foreach(1, 3, 2, 1)**Degree()) + \

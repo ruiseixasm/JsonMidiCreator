@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 staff << "##"
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note(half) * 2 + N * 4 + Note(half) * 2 + Note(whole) >> S
 notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)

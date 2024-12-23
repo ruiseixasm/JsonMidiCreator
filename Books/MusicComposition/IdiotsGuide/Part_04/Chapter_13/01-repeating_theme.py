@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 rest_play = (R, P)
 staff << "bbb" << 120
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 motif = N * 5 << eight >> LJ << Foreach(9, 6, 8, 9, 9)**Degree() >> Tie()
 # motif >> rest_play

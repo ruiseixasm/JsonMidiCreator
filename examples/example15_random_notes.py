@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 rest_play = (R, P)
 staff << 120
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 some_notes = N * Foreach(Modulus(20))**Pick(3, 4, 5, 6, 7)
 some_notes << Foreach(Bouncer() * 10.15)**Get(int())**Pick(eight, quarter, dotted_eight, dotted_quarter) >> S

@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 rest_play = (R, P)
 staff << "#" << 120
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
 motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S

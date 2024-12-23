@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 staff << "b" << 140
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 phrase_1 = N * 6 << whole << Nth(1, 2, 3, 4)**Foreach(dotted_half, quarter, half, half) >> S >> Slur(0.95)
 phrase_1 << Foreach("iii", "ii", "iii", "IV", "iii", "I")**Degree() >> Tie()

@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 staff << "#"
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 slow_melody = N * 5 << 1/1 << Nth(2, 3)**half >> S
 slow_melody << Foreach((G, Gate(1)), G, A, B, G)
@@ -34,7 +34,7 @@ chords << Foreach("Em", G, C, "Am", "Em", "Bm", G) << O3
 chords + slow_melody >> L >> R >> P
 
 staff << "b"
-K % str() >> Print()    # Returns the tonic key (I)
+Key() % str() >> Print()    # Returns the tonic key (I)
 
 fast_melody = \
     (N * 9 << eight << Nth(1, 2)**sixteenth << Foreach(1, 2, 3, 3, 3, 2, 1, 2, 3)**Degree()) + \
