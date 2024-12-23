@@ -247,26 +247,13 @@ class Semitone(Unit):
     pass
 
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
-    def __init__(self, accidentals: int | str = None):
+    def __init__(self, *parameters):
         super().__init__()
         self._default: Default      = Default()
         self._major: Major          = Major()
-        match accidentals:
-            case str():
-                total_sharps = accidentals.count('#')
-                total_flats = accidentals.count('b')
-                num_accidentals = total_sharps - total_flats
-                # Number of accidentals should range between -7 and +7
-                if -7 <= num_accidentals <= 7:
-                    self._unit          = num_accidentals
-                    self._default       << False
-            case int() | float():
-                num_accidentals = int(accidentals)
-                # Number of accidentals should range between -7 and +7
-                if -7 <= num_accidentals <= 7:
-                    self._unit          = num_accidentals
-                    self._default       << False
-        self._tonic_key_int: int    = self.get_tonic_key()
+        self._tonic_key_int: int    = 0
+        if len(parameters) > 0:
+            self << parameters
     
     def get_tonic_key(self) -> int:
         major_scale: tuple = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)   # Major scale
