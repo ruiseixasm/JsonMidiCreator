@@ -412,7 +412,7 @@ class Key(Unit):
         import operand_generic as og
         super().__init__()
         self._unit                          = None  # uses tonic key by default
-        self._key_signature: KeySignature   = None
+        self._key_signature: KeySignature   = KeySignature()
         self._sharp: Sharp                  = Sharp(0)
         self._flat: Flat                    = Flat(0)
         self._natural: Natural              = Natural(0)
