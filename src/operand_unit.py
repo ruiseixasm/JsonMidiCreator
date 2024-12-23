@@ -514,8 +514,6 @@ class Key(Unit):
                 return key_int + self._sharp._unit - self._flat._unit
             case float(): # WITH KEY SIGNATURE
                 if self._scale.hasScale():
-                    if not self._natural:
-                        return self % int()
                     return self % int()
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     if not self._natural:
