@@ -40,9 +40,7 @@ class Staff(o.Operand):
         self._tempo: ra.Tempo                       = ra.Tempo(120.0)
         self._time_signature: og.TimeSignature      = og.TimeSignature(4, 4)
         # Key Signature is an alias of Sharps and Flats of a Scale
-        self._key_signature: ou.KeySignature        = ou.KeySignature(
-            ou.Major()
-        )
+        self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._quantization: ra.Quantization         = ra.Quantization(1/16)
         self._duration: ot.Duration                 = ot.Duration() << ra.NoteValue(1/4)
         self._octave: ou.Octave                     = ou.Octave(4)
@@ -259,8 +257,6 @@ class Staff(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        
-        self._key_signature << od.DataSource(ou.Default(False)) # Avoids recursive error (sets something)
         return self
 
 # Instantiate the Global Staff here.

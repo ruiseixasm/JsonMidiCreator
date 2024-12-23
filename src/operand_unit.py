@@ -249,7 +249,6 @@ class Semitone(Unit):
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
         super().__init__()
-        self._default: Default      = Default()
         self._major: Major          = Major()
         self._tonic_key_int: int    = 0
         if len(parameters) > 0:
@@ -280,8 +279,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         return tonic_key_int
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
-        # if self._default:
-        #     return os.staff._key_signature % operand
         import operand_generic as og
         match operand:
             case od.DataSource():
@@ -289,7 +286,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case KeySignature():        return self
                     case list():                return self % list()
-                    case Default():             return self._default
                     case Major():               return self._major
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
@@ -318,7 +314,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["default"]          = self.serialize( self._default )
         serialization["parameters"]["major"]            = self.serialize( self._major )
         serialization["parameters"]["tonic_key_int"]    = self.serialize( self._tonic_key_int )
         return serialization
@@ -327,27 +322,23 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "default" in serialization["parameters"] and "major" in serialization["parameters"] and "tonic_key_int" in serialization["parameters"]):
+            "major" in serialization["parameters"] and "tonic_key_int" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._default       = self.deserialize( serialization["parameters"]["default"] )
             self._major         = self.deserialize( serialization["parameters"]["major"] )
             self._tonic_key_int = self.deserialize( serialization["parameters"]["tonic_key_int"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        # self._default       << False
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case int():     self._unit      = operand % o.Operand()
                     case Major():   self._major     = operand % o.Operand()
-                    case Default(): self._default   = operand % o.Operand()
             case KeySignature():
                 super().__lshift__(operand) # In case operand._unit is None it will be copied too!
                 self._major._unit   = operand._major._unit
-                self._default._unit = operand._default._unit
                 self._tonic_key_int = operand._tonic_key_int
                 return self # No more processing needed
             case int():     self._unit   = operand
@@ -459,18 +450,15 @@ class Key(Unit):
                     return self._scale.copy()
                 if os.staff._scale.hasScale():
                     return os.staff._scale.copy()
-                # return os.staff._key_signature % operand
                 return self._key_signature % operand
             case Mode() | list():   return (self % og.Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
-                # if Key._major_scale[note_key] == 0 and os.staff._key_signature._unit < 0:
                 if Key._major_scale[note_key] == 0 and self._key_signature % int() < 0:
                     note_key += 12
                 return Key._keys[note_key]
             case int(): # WITHOUT KEY SIGNATURE
                 staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-                # accidentals_int: int = os.staff._key_signature._unit
                 accidentals_int: int = self._key_signature % int()
                 key_int: int            = self._unit
                 if self._scale.hasScale():
@@ -503,7 +491,6 @@ class Key(Unit):
                         key_int += semitone_transpose - 1
                 else:
                     if self._unit is None:
-                        # key_int = os.staff._tonic_key._unit
                         key_int = self._key_signature % Key() % int()
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
@@ -532,8 +519,6 @@ class Key(Unit):
                 else:   # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
                     if not self._natural:
                         semitone_int: int            = self % int()
-                        # key_signature: KeySignature = os.staff._key_signature
-                        # accidentals_int = key_signature._unit
                         accidentals_int = self._key_signature % int()
                         sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                         semitone_transpose = sharps_flats[semitone_int % 12]
@@ -619,7 +604,6 @@ class Key(Unit):
                                     else:
                                         self._unit = int(operand)
                                     if Key._major_scale[self._unit % 12] == 0:
-                                        # if os.staff._key_signature._unit < 0:
                                         if self._key_signature % int() < 0:
                                             self._unit += 1
                                             self._sharp << False
@@ -675,7 +659,6 @@ class Key(Unit):
                 return self_copy
             case _:     return super().__add__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
-            # if os.staff._key_signature._unit < 0:
             if self._key_signature % int() < 0:
                 new_key._unit += 1
                 new_key._flat << True
