@@ -67,7 +67,6 @@ def test_key_signature_mod():
     # # avoids disruption of other tests
     # staff << KeySignature()
 
-test_key_signature_mod()
 
 def test_key_mod():
 
