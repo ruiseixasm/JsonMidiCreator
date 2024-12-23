@@ -627,6 +627,9 @@ class Key(Unit):
         import operand_rational as ra
         operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
         new_key = self.__class__()  # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
+        # new_key = self.copy()  # IT HAS TO BE A CLEAN OBJECT TO HAVE NO DECORATIONS LIKE DEGREE!!
+        # if new_key._unit is None:
+        #     new_key._unit = self._key_signature._tonic_key_int
         match operand:
             case int():
                 new_key << ( self % int() + self.move_semitones(operand) )
@@ -636,6 +639,16 @@ class Key(Unit):
                 new_key << ( self % int() + operand )
             case Key() | Semitone() | ra.FloatR():
                 new_key << ( self % int() + operand % int() )
+             
+            # case int():
+            #     new_key << ( new_key._unit + self.move_semitones(operand) )
+            # case IntU():
+            #     new_key << ( new_key._unit + self.move_semitones(operand._unit) )
+            # case float() | Fraction():
+            #     new_key << ( new_key._unit + operand )
+            # case Key() | Semitone() | ra.FloatR():
+            #     new_key << ( new_key._unit + operand % int() )
+
             case Degree():
                 self_copy: Key = self.copy()
                 if self_copy._degree._unit > 0:
@@ -645,6 +658,7 @@ class Key(Unit):
                 self_copy._degree._unit += operand._unit
                 return self_copy
             case _:     return super().__add__(operand)
+
         if Key._major_scale[new_key._unit % 12] == 0:
             if self._key_signature % int() < 0:
                 new_key._unit += 1
