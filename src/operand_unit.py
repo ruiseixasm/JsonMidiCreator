@@ -412,7 +412,7 @@ class Key(Unit):
         import operand_generic as og
         super().__init__()
         self._unit              = None  # uses tonic key by default
-        self._staff: os.Staff   = None
+        self._key_signature: KeySignature   = None
         self._sharp: Sharp      = Sharp(0)
         self._flat: Flat        = Flat(0)
         self._natural: Natural  = Natural(0)
@@ -421,8 +421,8 @@ class Key(Unit):
         if len(parameters) > 0:
             self << parameters
 
-    def staff(self: 'Key', staff: 'os.Staff' = None) -> 'Key':
-        self._staff = staff
+    def key_signature(self: 'Key', key_signature: 'KeySignature' = None) -> 'Key':
+        self._key_signature = key_signature
         return self
 
     def sharp(self: 'Key', unit: int = None) -> 'Key':
@@ -446,7 +446,7 @@ class Key(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case os.Staff():        return self._staff
+                    case KeySignature():        return self._key_signature
                     case Sharp():           return self._sharp
                     case Flat():            return self._flat
                     case Natural():         return self._natural
@@ -458,7 +458,7 @@ class Key(Unit):
                         note_key += 12 * (self._flat._unit != 0)
                         return Key._keys[note_key]
                     case _:                 return super().__mod__(operand)
-            case os.Staff():        return self._staff.copy() if isinstance(self._staff, os.Staff) else None 
+            case KeySignature():        return self._key_signature.copy() if isinstance(self._key_signature, os.Staff) else None 
             case Sharp():           return self._sharp.copy()
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
@@ -593,12 +593,6 @@ class Key(Unit):
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.SetNone():
-                match operand % o.Operand():
-                    case int():
-                        self._unit = None
-                    case os.Staff():
-                        self._staff = None
             case od.DataSource():
                 match operand % o.Operand():
                     case int():
@@ -608,7 +602,7 @@ class Key(Unit):
                     case Semitone() | IntU() | ra.FloatR():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
                     case os.Staff():
-                        self._staff = operand % o.Operand()
+                        self._key_signature = operand % o.Operand()
                     case Sharp():
                         self._sharp << operand % o.Operand()
                     case Flat():
@@ -649,7 +643,7 @@ class Key(Unit):
                                         self._sharp << False
                                         self._flat << False
             case os.Staff():
-                self._staff = operand.copy()
+                self._key_signature = operand.copy()
             case Sharp():
                 self._sharp << operand
             case Flat():
