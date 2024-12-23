@@ -411,13 +411,13 @@ class Key(Unit):
     def __init__(self, *parameters):
         import operand_generic as og
         super().__init__()
-        self._unit              = None  # uses tonic key by default
+        self._unit                          = None  # uses tonic key by default
         self._key_signature: KeySignature   = None
-        self._sharp: Sharp      = Sharp(0)
-        self._flat: Flat        = Flat(0)
-        self._natural: Natural  = Natural(0)
-        self._degree: Degree    = Degree(1)
-        self._scale: og.Scale   = og.Scale([])
+        self._sharp: Sharp                  = Sharp(0)
+        self._flat: Flat                    = Flat(0)
+        self._natural: Natural              = Natural(0)
+        self._degree: Degree                = Degree(1)
+        self._scale: og.Scale               = og.Scale([])
         if len(parameters) > 0:
             self << parameters
 
@@ -631,6 +631,7 @@ class Key(Unit):
                                         self._unit = int(operand)
                                     if Key._major_scale[self._unit % 12] == 0:
                                         if os.staff._key_signature._unit < 0:
+                                        # if self._key_signature % int() < 0:
                                             self._unit += 1
                                             self._sharp << False
                                             self._flat << True
@@ -686,6 +687,7 @@ class Key(Unit):
             case _:     return super().__add__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
             if os.staff._key_signature._unit < 0:
+            # if self._key_signature % int() < 0:
                 new_key._unit += 1
                 new_key._flat << True
             else:
@@ -717,6 +719,7 @@ class Key(Unit):
             case _:     return super().__sub__(operand)
         if Key._major_scale[new_key._unit % 12] == 0:
             if os.staff._key_signature._unit < 0:
+            # if self._key_signature % int() < 0:
                 new_key._unit += 1
                 new_key._flat << True
             else:
