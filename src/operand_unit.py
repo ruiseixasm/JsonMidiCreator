@@ -473,12 +473,10 @@ class Key(Unit):
                 # accidentals_int: int = os.staff._key_signature._unit
                 accidentals_int: int = self._key_signature % int()
                 key_int: int            = self._unit
-                if self._scale.hasScale() or os.staff._scale.hasScale():
+                if self._scale.hasScale():
                     if self._unit is None:
                         key_int = self._key_signature._tonic_key_int
-                    staff_key_scale     = os.staff._scale % list()  # Already modulated
-                    if self._scale.hasScale():
-                        staff_key_scale     = self._scale % list()  # Already modulated
+                    staff_key_scale     = self._scale % list()  # Already modulated
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
@@ -527,7 +525,7 @@ class Key(Unit):
                     return key_int
                 return key_int + self._sharp._unit - self._flat._unit
             case float(): # WITH KEY SIGNATURE
-                if self._scale.hasScale() or os.staff._scale.hasScale():
+                if self._scale.hasScale():
                     if not self._natural:
                         return self % int()
                     return self % int()
@@ -722,8 +720,6 @@ class Key(Unit):
         scale = Key._major_scale    # Major scale for the default staff
         if self._scale.hasScale():
             scale = self._scale % list()
-        elif os.staff._scale.hasScale():
-            scale = os.staff._scale % list()
         move_semitones: int = 0
         while move_keys > 0:
             move_semitones += 1

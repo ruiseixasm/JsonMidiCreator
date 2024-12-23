@@ -43,7 +43,6 @@ class Staff(o.Operand):
         self._key_signature: ou.KeySignature        = ou.KeySignature(
             ou.Major()
         )
-        self._scale: og.Scale                       = og.Scale([])  # By default, it has no scale besides the one given by the Key Signature
         self._quantization: ra.Quantization         = ra.Quantization(1/16)
         self._duration: ot.Duration                 = ot.Duration() << ra.NoteValue(1/4)
         self._octave: ou.Octave                     = ou.Octave(4)
@@ -82,7 +81,6 @@ class Staff(o.Operand):
                     case ou.KeySignature():     return self._key_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
-                    case og.Scale():            return self._scale
                     case ra.Quantization():     return self._quantization
                     case ot.Duration():         return self._duration
                     case ou.Octave():           return self._octave
@@ -111,11 +109,6 @@ class Staff(o.Operand):
             case ou.KeySignature():     return self._key_signature.copy()
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
-            case og.Scale():
-                                    if self._scale.hasScale():
-                                        return self._scale.copy()
-                                    else:
-                                        return self._key_signature % og.Scale()
             case ra.Quantization():     return self._quantization.copy()
             case ot.Duration():         return self._duration.copy()
             case ou.Octave():           return self._octave.copy()
@@ -147,7 +140,6 @@ class Staff(o.Operand):
             and self._tempo             == other % od.DataSource( ra.Tempo() ) \
             and self._time_signature    == other % od.DataSource( og.TimeSignature() ) \
             and self._key_signature     == other % od.DataSource( ou.KeySignature() ) \
-            and self._scale             == other % od.DataSource( og.Scale() ) \
             and self._quantization      == other % od.DataSource( ra.Quantization() ) \
             and self._duration          == other % od.DataSource( ot.Duration() ) \
             and self._octave            == other % od.DataSource( ou.Octave() ) \
@@ -163,7 +155,6 @@ class Staff(o.Operand):
         serialization["parameters"]["tempo"]            = self.serialize( self._tempo )
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
-        serialization["parameters"]["scale"]            = self.serialize( self._scale )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
@@ -180,7 +171,7 @@ class Staff(o.Operand):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"] and
-            "scale" in serialization["parameters"] and "duration" in serialization["parameters"] and
+            "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
             "chaos" in serialization["parameters"]):
@@ -190,7 +181,6 @@ class Staff(o.Operand):
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._scale             = self.deserialize( serialization["parameters"]["scale"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
@@ -213,8 +203,6 @@ class Staff(o.Operand):
                         self._key_signature = operand % o.Operand()
                     case ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
-                    case og.Scale():
-                        self._scale = operand % o.Operand()
                     case ra.Quantization():     self._quantization = operand % o.Operand()    # Note Value
                     case ot.Duration():         self._duration = operand % o.Operand()
                     case ou.Octave():           self._octave = operand % o.Operand()
@@ -229,7 +217,6 @@ class Staff(o.Operand):
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
                 self._key_signature     << operand._key_signature
-                self._scale             << operand._scale
                 self._quantization      << operand._quantization
                 self._duration          << operand._duration
                 self._octave            << operand._octave
@@ -246,8 +233,6 @@ class Staff(o.Operand):
                                         self._time_signature << operand
             case ou.KeySignature():
                                         self._key_signature << operand
-            case og.Scale():
-                                        self._scale << operand
             case ra.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand
             case ou.Octave():           self._octave << operand
