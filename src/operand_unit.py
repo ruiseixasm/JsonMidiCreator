@@ -357,7 +357,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                             self._unit = -len(flats[0])
             case _: 
                 super().__lshift__(operand)
-        self._tonic_key_int = self.get_tonic_key()
+        if not isinstance(operand, tuple):
+            self._tonic_key_int = self.get_tonic_key()
         return self
 
     _key_signatures: list[list] = [

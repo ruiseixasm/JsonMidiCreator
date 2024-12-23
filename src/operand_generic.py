@@ -142,7 +142,7 @@ class Pitch(Generic):
             case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
-            case ou.IntU() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
+            case ou.KeySignature() | ou.IntU() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
                 return self._key % operand
             case int():
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
@@ -230,7 +230,7 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave() | int() | ou.IntU():
                 self._octave << operand
-            case ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode():
+            case ou.KeySignature() | ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode():
                 self._key << operand
             case tuple():
                 for single_operand in operand:
