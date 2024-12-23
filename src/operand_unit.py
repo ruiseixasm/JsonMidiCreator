@@ -70,8 +70,8 @@ class Unit(o.Operand):
                     case Fraction():        return Fraction(self._unit).limit_denominator()
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
-                    case IntU():         return IntU() << od.DataSource( self._unit )
-                    case ra.FloatR():        return ra.FloatR() << od.DataSource( self._unit )
+                    case IntU():            return IntU() << od.DataSource( self._unit )
+                    case ra.FloatR():       return ra.FloatR() << od.DataSource( self._unit )
                     case Unit():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -79,8 +79,8 @@ class Unit(o.Operand):
             case bool():            return False if self._unit == 0 else True
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
-            case IntU():         return IntU() << self._unit
-            case ra.FloatR():        return ra.FloatR() << self._unit
+            case IntU():            return IntU() << self._unit
+            case ra.FloatR():       return ra.FloatR() << self._unit
             case Unit():            return self.copy()
             case _:                 return super().__mod__(operand)
              
@@ -247,7 +247,7 @@ class Semitone(Unit):
     pass
 
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
-    def __init__(self, accidentals: int | str = 0):
+    def __init__(self, accidentals: int | str = None):
         super().__init__()
         self._default: Default      = Default()
         self._major: Major          = Major()
@@ -302,9 +302,11 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case KeySignature():        return self
                     case list():                return self % list()
+                    case Default():             return self._default
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
+            case Key():                 return Key(self._tonic_key_int)
             case og.Scale():            return og.Scale(self % list())
             case list():
                 key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
@@ -324,15 +326,33 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             return False
         return  self % int()   == other_signature % int()
     
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["default"]          = self.serialize( self._default )
+        serialization["parameters"]["major"]            = self.serialize( self._major )
+        serialization["parameters"]["tonic_key_int"]    = self.serialize( self._tonic_key_int )
+        return serialization
+
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> 'KeySignature':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "default" in serialization["parameters"] and "major" in serialization["parameters"] and "tonic_key_int" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._default       = self.deserialize( serialization["parameters"]["default"] )
+            self._major         = self.deserialize( serialization["parameters"]["major"] )
+            self._tonic_key_int = self.deserialize( serialization["parameters"]["tonic_key_int"] )
+        return self
+      
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case int():     self._unit   = operand % o.Operand()
-                    case Major():   self._major  = operand % o.Operand()
+                    case int():     self._unit      = operand % o.Operand()
+                    case Major():   self._major     = operand % o.Operand()
+                    case Default(): self._default   = operand % o.Operand()
             case int():     self._unit   = operand
             case Major():   self._major  << operand
             case str():
@@ -550,7 +570,6 @@ class Key(Unit):
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Key':
-        import operand_generic as og
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and 
             "degree" in serialization["parameters"] and "scale" in serialization["parameters"]):
