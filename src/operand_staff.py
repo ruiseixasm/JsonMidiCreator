@@ -315,6 +315,8 @@ class Staff(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+        
+        self._key_signature << od.DataSource(ou.Default(False)) # Avoids recursive error (sets something)
         return self
 
 # Instantiate the Global Staff here.

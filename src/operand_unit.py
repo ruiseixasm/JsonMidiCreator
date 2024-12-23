@@ -353,6 +353,12 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case int():     self._unit      = operand % o.Operand()
                     case Major():   self._major     = operand % o.Operand()
                     case Default(): self._default   = operand % o.Operand()
+            case KeySignature():
+                super().__lshift__(operand) # In case operand._unit is None it will be copied too!
+                self._major._unit   = operand._major._unit
+                self._default._unit = operand._default._unit
+                self._tonic_key_int = operand._tonic_key_int
+                return self # Avoids setting as NOT default if default
             case int():     self._unit   = operand
             case Major():   self._major  << operand
             case str():
