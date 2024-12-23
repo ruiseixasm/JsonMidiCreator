@@ -25,9 +25,9 @@ rest_play = (R, P)
 staff << 140
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-phrase_1 = N * 7 >> LJ
+phrase_1 = Note() * 7 >> LJ
 phrase_1 % Duration() >> Print(0)
-phrase_2 = N * 5 >> LJ
+phrase_2 = Note() * 5 >> LJ
 phrase_2 % Duration() >> Print(0)
 symmetrical = \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()   >> Slur()) + \
@@ -38,9 +38,9 @@ symmetrical >> S
 symmetrical % Duration() >> Print(0)
 symmetrical >> rest_play
 
-phrase_1 = N * 7 >> LJ  >> Slur()
-phrase_2 = N * 8        >> Slur()
-phrase_3 = N * 5 >> LJ  >> Slur()
+phrase_1 = Note() * 7 >> LJ  >> Slur()
+phrase_2 = Note() * 8        >> Slur()
+phrase_3 = Note() * 5 >> LJ  >> Slur()
 asymmetrical = \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()) + \
     (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7, 5, 6, 7)**Degree()) + \

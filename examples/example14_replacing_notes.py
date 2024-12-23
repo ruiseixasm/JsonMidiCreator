@@ -24,10 +24,10 @@ from JsonMidiCreator import *
 staff << 160
 
 replacing_notes = \
-    (N * 3 << Foreach(1/2, 1/4, 1/4)**Duration() << Foreach(1, 5, 7)**Degree() << Foreach(None, None, Flat())) + \
-    (N * 3 << Foreach(1/4, 1/2, 1/4)**Duration() << Foreach(8, 7, 5)**Degree() << Foreach(None, Flat(), None)) + \
-    (N * 3 << Foreach(1/2, 1/4, 1/4)**Duration() << Foreach(1, 5, 3)**Degree() << Foreach(None, None, Flat())) + \
-    (N * 4 << Foreach(1, -2, -4, -2)**Degree() << Foreach(None, Flat(), None, None)) \
+    (Note() * 3 << Foreach(1/2, 1/4, 1/4)**Duration() << Foreach(1, 5, 7)**Degree() << Foreach(None, None, Flat())) + \
+    (Note() * 3 << Foreach(1/4, 1/2, 1/4)**Duration() << Foreach(8, 7, 5)**Degree() << Foreach(None, Flat(), None)) + \
+    (Note() * 3 << Foreach(1/2, 1/4, 1/4)**Duration() << Foreach(1, 5, 3)**Degree() << Foreach(None, None, Flat())) + \
+    (Note() * 4 << Foreach(1, -2, -4, -2)**Degree() << Foreach(None, Flat(), None, None)) \
     >> S
 replacing_notes % Duration() >> Print(0)
 # replacing_notes >> R >> P

@@ -25,12 +25,12 @@ rest_play = (R, P)
 staff << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-some_notes = N * Foreach(Modulus(20))**Pick(3, 4, 5, 6, 7)
+some_notes = Note() * Foreach(Modulus(20))**Pick(3, 4, 5, 6, 7)
 some_notes << Foreach(Bouncer() * 10.15)**Get(int())**Pick(eight, quarter, dotted_eight, dotted_quarter) >> S
 some_notes + Foreach(Flipper())**Get(int())**Formula(lambda n: (n * 5 + 4) % 3)**Multiply(2)
 some_notes >> rest_play
 
-some_notes = N * Foreach(Modulus(20))**Pick(3, 4, 5, 6, 7)
+some_notes = Note() * Foreach(Modulus(20))**Pick(3, 4, 5, 6, 7)
 some_notes << Foreach(SinX() * 4.11)**Frequency(1, 4, 2, 1)**Pick(eight, quarter, dotted_eight, dotted_quarter) >> S
 some_notes << Foreach(SinX() * 100)**Until(5, 1, 5)**Pick(O3, O4, O5) << Foreach(SinX())**Pick(C, D, E, F, G, A, B)
 some_notes >> rest_play

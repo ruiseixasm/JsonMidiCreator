@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 staff << "bb"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-note_group = (N * 4 << 1/8 << "iii") - Iterate()
+note_group = (Note() * 4 << 1/8 << "iii") - Iterate()
 # note_group >> R >> P
 melody = N + N + note_group + N + N + Note(half) + N + N + note_group + Note(whole) >> S
 melody << Nth(1, 2, 7, 8, 9, 10, 11, 16)**Foreach("V", "I", "I", "ii", "iii", "IV", "I", "I")

@@ -43,26 +43,26 @@ rising >> Rest() >> Play()
 
 staff << "b"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-slower = N * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
-faster = N * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
+slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
+faster = Note() * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
 slower + faster >> L >> R >> P
 
 staff << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-syncopation = N * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
+syncopation = Note() * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
 syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
 syncopation >> R >> P
 
 staff << "#"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-volume = N * 7 << half << Increment(12)**Velocity(30) >> S >> LJ << Foreach(D, A, B, F, G, C, B)
+volume = Note() * 7 << half << Increment(12)**Velocity(30) >> S >> LJ << Foreach(D, A, B, F, G, C, B)
 volume >> R >> P
 
 staff << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-sixteenth_group = N * 4 << sixteenth
-dotted_rhythm = N * 3 << Foreach(sixteenth, sixteenth, eight)
-duplet = N * 2 << eight
+sixteenth_group = Note() * 4 << sixteenth
+dotted_rhythm = Note() * 3 << Foreach(sixteenth, sixteenth, eight)
+duplet = Note() * 2 << eight
 dotted_rhythm >> N >> dotted_rhythm >> N >> Print()
 melodic_line = \
     dotted_rhythm >> N >> dotted_rhythm >> N >> \

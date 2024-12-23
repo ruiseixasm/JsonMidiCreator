@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 staff << "#"
 Key() % str() >> Print()
 
-single_notes = N * 12 << Nth(3, 4, 7, 10, 11, 12)**Foreach(dotted_quarter, eight, half, dotted_quarter, eight, whole) >> S
+single_notes = Note() * 12 << Nth(3, 4, 7, 10, 11, 12)**Foreach(dotted_quarter, eight, half, dotted_quarter, eight, whole) >> S
 single_notes << Foreach(B, G, D, G, A, F, D, E, G, E, B, D) >> Smooth()
 single_notes >> R >> P
 chords = Chord() * 4 << 1/1

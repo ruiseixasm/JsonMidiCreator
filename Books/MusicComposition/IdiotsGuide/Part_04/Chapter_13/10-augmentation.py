@@ -26,7 +26,7 @@ staff << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 augmented_motif = motif.copy() << Get(Duration())**Multiply(2) >> Stack()

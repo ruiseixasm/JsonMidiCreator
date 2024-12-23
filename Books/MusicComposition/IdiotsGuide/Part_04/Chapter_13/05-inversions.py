@@ -25,7 +25,7 @@ rest_play = (R, P)
 staff << "#" << 90
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-motif = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
 # Flips three degrees from -3 to +3 up reversion by 3 Degrees up and 3 Degrees down

@@ -25,10 +25,10 @@ from JsonMidiCreator import *
 staff << "b" << 140
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-phrase_1 = N * 6 << whole << Nth(1, 2, 3, 4)**Foreach(dotted_half, quarter, half, half) >> S >> Slur(0.95)
+phrase_1 = Note() * 6 << whole << Nth(1, 2, 3, 4)**Foreach(dotted_half, quarter, half, half) >> S >> Slur(0.95)
 phrase_1 << Foreach("iii", "ii", "iii", "IV", "iii", "I")**Degree() >> Tie()
 phrase_2 = phrase_1 % Copy() << Foreach(-3, -2, 1, 2, 3, 3)**Degree()
 phrase_4 = phrase_1 % Copy() << Foreach(3, 4, 3, 4, 3, 3)**Degree()
 phrase_3 = phrase_1 % Equal(M1, M2) % Copy() \
-    + (N * 4 << half << Nth(1, 2)**Foreach(dotted_half, quarter) << Foreach(5, 6, 5, 4)**Degree()) >> S
+    + (Note() * 4 << half << Nth(1, 2)**Foreach(dotted_half, quarter) << Foreach(5, 6, 5, 4)**Degree()) >> S
 (phrase_1, phrase_2, phrase_3, phrase_4, R) >> P

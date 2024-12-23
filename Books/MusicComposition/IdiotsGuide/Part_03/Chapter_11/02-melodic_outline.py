@@ -28,7 +28,7 @@ chords = Chord(1/1) * 3 << Foreach(("C", Inversion(1)), ("Am", Inversion(2), O3)
 chords >> R >> P
 
 staff << 120
-original_melody = N * 14 << Foreach(
+original_melody = Note() * 14 << Foreach(
     quarter, quarter, dotted_quarter, eight,
     eight, eight, eight, eight, half,
     quarter, quarter, dotted_quarter, eight,
