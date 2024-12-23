@@ -29,7 +29,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 motif: Sequence = N * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-motif_key = motif.copy() << KeySignature("##")
+motif_key: Sequence = motif.copy() << KeySignature("##")
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
 motif_modulation = motif >> motif_key
