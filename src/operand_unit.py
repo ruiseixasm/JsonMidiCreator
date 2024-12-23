@@ -293,8 +293,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         return tonic_key_int
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
-        if self._default:
-            return os.staff._key_signature % operand
+        # if self._default:
+        #     return os.staff._key_signature % operand
         import operand_generic as og
         match operand:
             case od.DataSource():
@@ -347,7 +347,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
       
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self._default       << False
+        # self._default       << False
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -359,6 +359,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 self._major._unit   = operand._major._unit
                 self._default._unit = operand._default._unit
                 self._tonic_key_int = operand._tonic_key_int
+                return self # No more processing needed
             case int():     self._unit   = operand
             case Major():   self._major  << operand
             case str():
@@ -513,8 +514,8 @@ class Key(Unit):
                         key_int += semitone_transpose - 1
                 else:
                     if self._unit is None:
-                        key_int = os.staff._tonic_key._unit
-                        # key_int = self._key_signature % Key() % int()
+                        # key_int = os.staff._tonic_key._unit
+                        key_int = self._key_signature % Key() % int()
                     degree_transpose: int   = 0
                     if self._degree._unit > 0:
                         degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
@@ -642,7 +643,7 @@ class Key(Unit):
                                         self._sharp << False
                                         self._flat << False
             case KeySignature():
-                self._key_signature = operand.copy()
+                self._key_signature << operand
             case Sharp():
                 self._sharp << operand
             case Flat():

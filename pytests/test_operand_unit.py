@@ -61,12 +61,13 @@ def test_key_signature_mod():
     }
     tonic_key = Key()
     for key, signature in tonic_keys_signatures.items():
-        staff << KeySignature(signature)
+        tonic_key << KeySignature(signature)
         assert tonic_key % str() == key
 
-    # avoids disruption of other tests
-    staff << KeySignature()
-    
+    # # avoids disruption of other tests
+    # staff << KeySignature()
+
+test_key_signature_mod()
 
 def test_key_mod():
 
