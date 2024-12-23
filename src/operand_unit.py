@@ -257,9 +257,9 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     
     def get_tonic_key(self) -> int:
         major_scale: tuple = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)   # Major scale
-        tonic_key_int: int = 0     # C (Major)
+        tonic_key_int: int = 0  # C (Major)
         if not self._major:
-            tonic_key_int = 9 # A (minor)
+            tonic_key_int = 9   # A (minor)
         num_accidentals: int = self._unit
         while num_accidentals > 0:  # Turn right in the Circle of Fifths
             white_keys: int = 4 # Jumps the tonic, so, 5 - 1
@@ -352,7 +352,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 return self # No more processing needed
             case int():     self._unit   = operand
             case Major():   self._major  << operand
-            case Minor():   self._major  << operand % int() == 0
+            case Minor():   self._major  << (operand % int() == 0)
             case str():
                 if len(operand) == 0:
                     self._unit = 0

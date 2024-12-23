@@ -65,14 +65,13 @@ def test_key_signature_mod():
         assert tonic_key % str() == key
 
     minor_keys_signatures: dict = {
-        "B": -7, "Gb": -6, "Db": -5, "Ab": -4, "Eb": -3, "Bb": -2, "F": -1,
-        "C": 0,
-        "G": +1, "D": +2, "A": +3, "E": +4, "B": +5, "F#": +6, "C#": +7
+        "Ab": -7, "Eb": -6, "Bb": -5, "F": -4, "C": -3, "G": -2, "D": -1,
+        "A": 0,
+        "E": +1, "B": +2, "F#": +3, "C#": +4, "G#": +5, "D#": +6, "A#": +7
     }
     for key, signature in minor_keys_signatures.items():
-        tonic_key << KeySignature(signature)
+        tonic_key << KeySignature(signature, Minor())
         assert tonic_key % str() == key
-
 
 
 def test_key_mod():
