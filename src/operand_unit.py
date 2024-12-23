@@ -464,14 +464,14 @@ class Key(Unit):
                 key_int: int            = self._unit
                 if self._unit is None:
                     key_int = self._key_signature._tonic_key_int
+                degree_transpose: int   = 0
+                if self._degree._unit > 0:
+                    degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
+                elif self._degree._unit < 0:
+                    degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
                 if self._scale.hasScale():
-                    staff_key_scale     = self._scale % list()  # Already modulated
-                    degree_transpose: int   = 0
-                    if self._degree._unit > 0:
-                        degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
-                    elif self._degree._unit < 0:
-                        degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
                     semitone_transpose: int = 0
+                    staff_key_scale     = self._scale % list()  # Already modulated
                     while degree_transpose > 0:
                         semitone_transpose += 1
                         if staff_key_scale[(key_int + semitone_transpose) % 12]:
@@ -491,11 +491,6 @@ class Key(Unit):
                         self._flat << False
                         key_int += semitone_transpose - 1
                 else:
-                    degree_transpose: int   = 0
-                    if self._degree._unit > 0:
-                        degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
-                    elif self._degree._unit < 0:
-                        degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
                     semitone_transpose: int = 0
                     key_signature_scale     = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                     while degree_transpose > 0:
