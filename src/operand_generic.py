@@ -483,6 +483,14 @@ class Scale(Generic):
             case int():                 return __class__.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
+            case ou.Key():
+                if self.hasScale():
+                    key_int: int = int(operand % float())
+                    key_scale: list = [0] * 12
+                    for key_i in range(12):
+                        key_scale[key_i] = self._scale_list[(key_i + key_int) % 12]
+                    return key_scale
+                return []
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
