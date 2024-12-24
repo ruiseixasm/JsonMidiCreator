@@ -87,6 +87,20 @@ def test_add_sequence():
     assert three_notes == three_notes_2
     assert two_notes == three_notes_2   # Changes the original sequence!
 
+def test_sub_sequence():
+
+    single_note: Element = Note()
+    four_notes: Sequence = Note() * 4
+    notes_to_remove: Sequence = four_notes % Nth(1, 3)
+    remaining_notes: Sequence = four_notes % Nth(2, 4)
+
+    assert notes_to_remove.len() < four_notes.len()
+    assert notes_to_remove.len() == remaining_notes.len()
+
+    assert (four_notes - single_note).len() == four_notes.len() - 1
+    assert (four_notes - notes_to_remove).len() == four_notes.len() - 2
+    assert four_notes - notes_to_remove == remaining_notes
+
 def test_mul_sequence():
 
     two_notes: Sequence = Note() * 2

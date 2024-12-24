@@ -281,7 +281,7 @@ class Container(o.Operand):
                 # Exclude items based on equality (==) comparison
                 self_copy._datasource_list = [
                         self_datasource.copy() for self_datasource in self._datasource_list
-                        if all(self_datasource != operand_datasource for operand_datasource in operand)
+                        if all(self_datasource != operand_datasource for operand_datasource in operand._datasource_list)
                     ]
             case o.Operand():
                 self_copy._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data != operand]
@@ -664,7 +664,8 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__sub__(operand)
             case o.Operand() | int() | float() | Fraction():
                 for single_datasource in self._datasource_list:
-                    single_datasource._data << single_datasource._data - operand
+                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
+                        single_datasource._data -= operand
                 return self
         return super().__sub__(operand)
 
