@@ -78,11 +78,14 @@ def test_key_mod():
 
     # Perform the operation
     key_1 = Key("A")
-    key_2 = Key("D") << Degree("iii")
+    key_2 = Key(KeySignature(1)) << Degree("iii")  # Become Key B
 
     assert key_1 + 1    == Key("B")
     assert key_1 + 2.0  == Key("B")
-    assert key_2 % int() == Key("F") % int()
+    assert key_2 % int() == Key("B") % int()
+    # (key_2 + 2) % float() >> Print()
+    # (Key("D") + 12.0) % float() >> Print()
+    assert key_2 + 2 == Key("D") + 12.0
     assert key_1 << Sharp() == Key("A") + 1.0
     assert Key("Ab") == Key("A") - 1.0
 

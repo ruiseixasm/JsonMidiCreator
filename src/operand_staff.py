@@ -87,7 +87,6 @@ class Staff(o.Operand):
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
                     case ch.Chaos():            return self._chaos
-                    case dict():                return self.clean_tracks()
                     # Calculated Values
                     case ra.NotesPerMeasure():
                         return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
