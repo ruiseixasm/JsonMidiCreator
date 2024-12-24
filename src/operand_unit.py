@@ -293,6 +293,14 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case Key():                 return Key(self._tonic_key_int)
             case Major():               return self._major.copy()
             case Minor():               return Minor(not (self._major % bool()))
+            case Sharps():
+                if self._unit > 0:
+                    return Sharps(self._unit)
+                return Sharps(0)
+            case Flats():
+                if self._unit < 0:
+                    return Flats(self._unit * -1)
+                return Flats(0)
             case og.Scale():            return og.Scale(self % list())
             case list():
                 key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
@@ -344,6 +352,10 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case int():     self._unit   = operand
             case Major():   self._major  << operand
             case Minor():   self._major  << (operand % int() == 0)
+            case Sharps() | Flats():
+                self._unit = operand._unit
+                if isinstance(operand, Flats):
+                    self._unit *= -1
             case str():
                 if len(operand) == 0:
                     self._unit = 0

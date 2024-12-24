@@ -104,7 +104,7 @@ class Staff(o.Operand):
             case ra.Tempo():            return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case ou.KeySignature():     return self._key_signature.copy()
-            case ou.Major() | ou.Minor():
+            case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         return self._key_signature % operand
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
@@ -229,7 +229,7 @@ class Staff(o.Operand):
             case ra.Tempo():            self._tempo << operand
             case og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                         self._time_signature << operand
-            case ou.KeySignature() | ou.Major() | ou.Minor():
+            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         self._key_signature << operand
             case ra.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand
