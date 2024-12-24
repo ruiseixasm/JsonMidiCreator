@@ -91,11 +91,25 @@ def test_key_signature_mod():
         key_signature_list: list = key_signature % list()
         tonic_key: Key = key_signature % Key()
         scale_mode_list: list = c_major_scale % (tonic_key)
-        print(scale_mode)
-        print(tonic_key % str())
-        print(key_signature_list)
-        print(scale_mode_list)
+        # print(scale_mode)
+        # print(tonic_key % str())
+        # print(key_signature_list)
+        # print(scale_mode_list)
         assert key_signature_list == scale_mode_list
+
+    E_minor_key: Key = Key(KeySignature("#", Minor()))
+    assert E_minor_key % str() == "E"
+    E_minor_key << Sharps(2) << Degree(3)
+    assert E_minor_key % str() == "D"
+    B_minor_scale_list: list = ["B", "C#", "D", "E", "F#", "G", "A"]
+    # Sharp and Flat shall not be set by Degree
+    for key_degree in range(1, 8):
+        print(key_degree)
+        E_minor_key << Degree(key_degree)
+        # assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
+        E_minor_key % Sharp() >> Print(0)
+
+test_key_signature_mod()
 
 def test_key_mod():
 
