@@ -499,17 +499,22 @@ class Key(Unit):
                         degree_transpose += 1
 
                 key_int += semitone_transpose
-                if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
-                    if accidentals_int < 0:
-                        self._sharp << False
-                        self._flat << True
-                        key_int += 1
-                    else:
-                        self._sharp << True
-                        self._flat << False
-                        key_int -= 1
+                # if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
+                #     if accidentals_int < 0:
+                #         self._sharp << False
+                #         self._flat << True
+                #         key_int += 1
+                #     else:
+                #         self._sharp << True
+                #         self._flat << False
+                #         key_int -= 1
 
-                if self._natural:
+                if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
+                    if self._natural:
+                        if accidentals_int < 0:
+                            key_int += 1
+                        else:
+                            key_int -= 1
                     return key_int
                 return key_int + self._sharp._unit - self._flat._unit
              

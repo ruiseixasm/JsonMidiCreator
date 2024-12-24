@@ -106,7 +106,7 @@ def test_key_signature_mod():
     for key_degree in range(1, 8):
         print(key_degree)
         E_minor_key << Degree(key_degree)
-        # assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
+        assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
 
 test_key_signature_mod()
