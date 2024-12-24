@@ -74,12 +74,24 @@ def test_key_signature_mod():
         assert tonic_key % str() == key
 
     c_major_scale: Scale = Scale()
+
     for scale_mode in range(7):
-        print(scale_mode)
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
         tonic_key: Key = key_signature % Key()
         scale_mode_list: list = c_major_scale % (tonic_key)
+        # print(scale_mode)
+        # print(tonic_key % str())
+        # print(key_signature_list)
+        # print(scale_mode_list)
+        assert key_signature_list == scale_mode_list
+
+    for scale_mode in range(0, -7, -1):
+        key_signature: KeySignature = KeySignature(scale_mode)
+        key_signature_list: list = key_signature % list()
+        tonic_key: Key = key_signature % Key()
+        scale_mode_list: list = c_major_scale % (tonic_key)
+        print(scale_mode)
         print(tonic_key % str())
         print(key_signature_list)
         print(scale_mode_list)

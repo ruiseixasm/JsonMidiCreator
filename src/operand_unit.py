@@ -307,10 +307,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 if self._unit != 0:
                     key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
-                    range_iterator = range(11, -1, -1)
-                    if self._unit < 0:
-                        range_iterator = range(12)
-                    for key_i in range_iterator:
+                    for key_i in range(11, -1, -1):
                         if key_signature[key_i] != 0:
                             key_signature_scale[key_i] = 0
                             key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
