@@ -555,7 +555,8 @@ class Note(Element):
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.Pitch():        return self._pitch.copy()
-            case ou.KeySignature() | int() | str() | ou.Key() | ou.Octave() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
+            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                | int() | str() | ou.Key() | ou.Octave() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
                                     return self._pitch % operand
             case ou.Velocity():     return self._velocity.copy()
             case ra.Gate():         return self._gate.copy()
@@ -653,7 +654,9 @@ class Note(Element):
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
                 self._tied          << operand._tied
-            case ou.KeySignature() | og.Pitch() | ou.Key() | ou.Octave() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str():
+            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                | og.Pitch() | ou.Key() | ou.Octave() \
+                | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str():
                                     self._pitch << operand
             case ou.Velocity():     self._velocity << operand
             case ra.Gate():         self._gate << operand
