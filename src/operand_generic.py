@@ -488,7 +488,7 @@ class Scale(Generic):
                     key_int: int = int(operand % float())
                     key_scale: list = [0] * 12
                     for key_i in range(12):
-                        key_scale[key_i] = self._scale_list[(key_i + key_int) % 12]
+                        key_scale[(key_i + key_int) % 12] = self._scale_list[key_i]
                     return key_scale
                 return []
             case _:                     return super().__mod__(operand)
