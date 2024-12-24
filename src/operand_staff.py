@@ -104,6 +104,8 @@ class Staff(o.Operand):
             case ra.Tempo():            return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case ou.KeySignature():     return self._key_signature.copy()
+            case ou.Major() | ou.Minor():
+                                        return self._key_signature % operand
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case ra.Quantization():     return self._quantization.copy()
@@ -196,8 +198,7 @@ class Staff(o.Operand):
                     case ra.Measure():          self._measure = operand % o.Operand()
                     case ra.Tempo():            self._tempo = operand % o.Operand()
                     case og.TimeSignature():    self._time_signature = operand % o.Operand()
-                    case ou.KeySignature():
-                        self._key_signature = operand % o.Operand()
+                    case ou.KeySignature():     self._key_signature = operand % o.Operand()
                     case ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
                     case ra.Quantization():     self._quantization = operand % o.Operand()    # Note Value
@@ -228,7 +229,7 @@ class Staff(o.Operand):
             case ra.Tempo():            self._tempo << operand
             case og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                         self._time_signature << operand
-            case ou.KeySignature():
+            case ou.KeySignature() | ou.Major() | ou.Minor():
                                         self._key_signature << operand
             case ra.Quantization():     self._quantization << operand # Note Value
             case ot.Duration():         self._duration << operand
