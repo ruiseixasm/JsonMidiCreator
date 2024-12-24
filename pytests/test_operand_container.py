@@ -79,5 +79,11 @@ def test_add_elements():
     two_notes: Sequence = Note() * 2
     four_notes: Sequence = Note() * 4
 
-    # assert two_notes * 2 == four_notes
     assert two_notes + two_notes >> Stack() == four_notes
+
+def test_mul_elements():
+
+    two_notes: Sequence = Note() * 2
+    four_notes: Sequence = Note() * 4
+
+    assert two_notes * 2 >> Stack() == four_notes
