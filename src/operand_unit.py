@@ -307,7 +307,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 if self._unit != 0:
                     key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
-                    for key_i in range(11, -1, -1):
+                    for key_i in range(11, -1, -1): # range(12) results in a bug
                         if key_signature[key_i] != 0:
                             key_signature_scale[key_i] = 0
                             key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
@@ -465,8 +465,6 @@ class Key(Unit):
             case og.Scale():
                 if self._scale.hasScale():
                     return self._scale.copy()
-                if os.staff._scale.hasScale():
-                    return os.staff._scale.copy()
                 return self._key_signature % operand
             case Mode() | list():   return (self % og.Scale()) % operand
             case str():
