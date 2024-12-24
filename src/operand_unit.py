@@ -752,7 +752,7 @@ class Octave(Unit):
         if len(parameters) > 0:
             self << parameters
 
-class Sharp(Unit):  # Sharp (#)
+class Sharps(Unit):  # Sharps (###)
     def __init__(self, *parameters):
         super().__init__(1)
         if len(parameters) > 0:
@@ -760,7 +760,7 @@ class Sharp(Unit):  # Sharp (#)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Sharp':
+    def __lshift__(self, operand: any) -> 'Sharps':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -773,7 +773,10 @@ class Sharp(Unit):  # Sharp (#)
             case _: super().__lshift__(operand)
         return self
 
-class Flat(Unit):   # Flat (b)
+class Sharp(Sharps):  # Sharp (#)
+    pass
+
+class Flats(Unit):   # Flats (bbb)
     def __init__(self, *parameters):
         super().__init__(1)
         if len(parameters) > 0:
@@ -781,7 +784,7 @@ class Flat(Unit):   # Flat (b)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Flat':
+    def __lshift__(self, operand: any) -> 'Flats':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -793,6 +796,9 @@ class Flat(Unit):   # Flat (b)
                         self._unit = total_flats
             case _: super().__lshift__(operand)
         return self
+
+class Flat(Flats):   # Flat (b)
+    pass
 
 class Boolean(Unit):
     def __init__(self, *parameters):

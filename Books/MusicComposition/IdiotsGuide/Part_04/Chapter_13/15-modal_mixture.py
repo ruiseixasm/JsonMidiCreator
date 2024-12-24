@@ -27,7 +27,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
 motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
-motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
+motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
 
 motif_key: Sequence = motif.copy() << KeySignature("##")
 
