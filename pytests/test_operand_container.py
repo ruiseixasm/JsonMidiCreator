@@ -74,16 +74,23 @@ def test_milliseconds_duration():
     assert sequence_stop["time_ms"] == 500.0
 
 
-def test_add_elements():
+def test_add_sequence():
 
     two_notes: Sequence = Note() * 2
     four_notes: Sequence = Note() * 4
 
     assert two_notes + two_notes >> Stack() == four_notes
+    assert two_notes != four_notes
 
-def test_mul_elements():
+    three_notes: Sequence = Note() * 3
+    three_notes_2 = two_notes + Note() >> Stack()
+    assert three_notes == three_notes_2
+    assert two_notes == three_notes_2   # Changes the original sequence!
+
+def test_mul_sequence():
 
     two_notes: Sequence = Note() * 2
     four_notes: Sequence = Note() * 4
 
     assert two_notes * 2 >> Stack() == four_notes
+    assert two_notes != four_notes
