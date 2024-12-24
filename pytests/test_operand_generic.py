@@ -51,8 +51,7 @@ def test_pitch_mod():
     assert (pitch + 1) % float() == 60 + 2
     assert not pitch % Sharp()
     assert (pitch + 1.0) % Sharp()
-    # TO BE SOLVED
-    # assert (pitch + 1.0 << Natural()) % float() == 60
+    assert (pitch + 1.0 << Natural()) % float() == 60
 
 def test_scale_mod():
 
