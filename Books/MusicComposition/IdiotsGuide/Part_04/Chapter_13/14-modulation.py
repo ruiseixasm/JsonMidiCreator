@@ -34,3 +34,16 @@ motif_key: Sequence = motif.copy() << KeySignature("##")
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
 motif_modulation = motif >> motif_key + Octave()
 motif_modulation >> rest_play
+
+staff << "#" << 120 << Minor()  # Minor Keys
+Key() % str() >> Print()    # Returns the tonic key (I)
+
+# Original Motif to work on its pitches
+motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
+
+motif_key: Sequence = motif.copy() << Sharps(2)
+
+# Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
+motif_modulation = motif >> motif_key
+motif_modulation >> rest_play

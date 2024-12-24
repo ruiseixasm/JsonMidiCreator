@@ -614,12 +614,12 @@ class Key(Unit):
                                     else:
                                         self._sharp << False
                                         self._flat << False
-            case KeySignature():
-                self._key_signature << operand
             case Sharp():
                 self._sharp << operand
             case Flat():
                 self._flat << operand
+            case KeySignature() | Major() | Minor() | Sharps() | Flats():
+                self._key_signature << operand
             case Natural():
                 self._natural << operand
             case Degree():
