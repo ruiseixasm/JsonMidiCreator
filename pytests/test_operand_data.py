@@ -59,6 +59,13 @@ def test_data_source_mod():
     assert id(position_copy) != id(position_source)
 
 
+def test_data_equality():
+
+    data_source_1 = DataSource(Note("A"))
+    data_source_2 = DataSource() << Note("A")
+    assert data_source_1 == data_source_2
+
+
 def test_serialization_mod():
 
     # Perform the operation
