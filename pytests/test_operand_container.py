@@ -72,3 +72,12 @@ def test_milliseconds_duration():
     sequence_stop = sequence_playlist[1]
     assert sequence_start["time_ms"] == 0.0
     assert sequence_stop["time_ms"] == 500.0
+
+
+def test_add_elements():
+
+    two_notes: Sequence = Note() * 2
+    four_notes: Sequence = Note() * 4
+
+    # assert two_notes * 2 == four_notes
+    # assert two_notes + two_notes == four_notes
