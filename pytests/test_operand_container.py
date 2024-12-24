@@ -80,4 +80,4 @@ def test_add_elements():
     four_notes: Sequence = Note() * 4
 
     # assert two_notes * 2 == four_notes
-    # assert two_notes + two_notes == four_notes
+    assert two_notes + two_notes >> Stack() == four_notes
