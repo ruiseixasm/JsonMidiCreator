@@ -27,6 +27,6 @@ rest_play = (R, P)
 motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
 melody: Sequence = motif * 2 << Track("Melody")
-melody -= Nth(9, 11)
+melody -= melody % Nth(9, 11)
 melody >> Link()
 melody >> Play()
