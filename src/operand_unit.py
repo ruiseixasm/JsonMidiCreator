@@ -291,7 +291,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
             case float():               return float(self._tonic_key_int)
-            # case Key():                 return Key(self._tonic_key_int)
+            case Key():                 return Key(self)
             case Major():               return self._major.copy()
             case Minor():               return Minor(not (self._major % bool()))
             case Sharps():
@@ -304,12 +304,16 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 return Flats(0)
             case og.Scale():            return og.Scale(self % list())
             case list():
-                key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
-                key_signature_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-                for key_i in range(12):
-                    if key_signature[key_i] != 0:
-                        key_signature_scale[key_i] = 0
-                        key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
+                key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                if self._unit != 0:
+                    key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
+                    range_iterator = range(11, -1, -1)
+                    if self._unit < 0:
+                        range_iterator = range(12)
+                    for key_i in range_iterator:
+                        if key_signature[key_i] != 0:
+                            key_signature_scale[key_i] = 0
+                            key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
                 return key_signature_scale
             case _:                     return super().__mod__(operand)
 
