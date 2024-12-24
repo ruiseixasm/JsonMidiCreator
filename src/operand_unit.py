@@ -456,6 +456,8 @@ class Key(Unit):
             case KeySignature():    return self._key_signature.copy() 
             case Sharp():           return self._sharp.copy()
             case Flat():            return self._flat.copy()
+            case Major() | Minor() | Sharps() | Flats():
+                                    return self._key_signature % operand
             case Natural():         return self._natural.copy()
             case Degree():          return self._degree.copy()
             case og.Scale():
