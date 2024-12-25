@@ -857,9 +857,7 @@ class NoteValue(TimeUnit):
                     case NoteValue():       return self.getNoteValues()
                     case _:                 return super().__mod__(operand)
             case Measure():         return self.getMeasures()
-            case Beat():            return Beat() << self._rational / \
-                                                        ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
-                                                        / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
+            case Beat():            return self.getBeats()
             case Step():            return self.getSteps()
             case NoteValue():       return self.getNoteValues()
             case _:                 return super().__mod__(operand)
@@ -870,12 +868,12 @@ class NoteValue(TimeUnit):
         return Measure(beats / beats_per_measure)
 
     def getBeats(self) -> 'Beat':
-        notes: Fraction = self % Fraction()
+        notes: Fraction = self._rational
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return Beat(notes / notes_per_beat)
 
     def getSteps(self) -> 'Step':
-        notes: Fraction = self % Fraction()
+        notes: Fraction = self._rational
         notes_per_step: Fraction = self._quantization % Fraction()
         return Step(notes / notes_per_step)
 
