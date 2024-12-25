@@ -584,8 +584,7 @@ class Measure(TimeUnit):
             case Measure():         return self.getMeasures()
             case Beat():            return self.getBeats()
             case Step():            return self.getSteps()
-            case NoteValue():       return NoteValue() << self._rational * \
-                                                        (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+            case NoteValue():       return self.getNoteValues()
             case _:                 return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
@@ -676,9 +675,7 @@ class Beat(TimeUnit):
             case Measure():         return self.getMeasures()
             case Beat():            return self.getBeats()
             case Step():            return self.getSteps()
-            case NoteValue():       return NoteValue() << self._rational / \
-                                                        ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
-                                                        / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+            case NoteValue():       return self.getNoteValues()
             case _:                 return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
@@ -767,9 +764,7 @@ class Step(TimeUnit):
             case Measure():         return self.getMeasures()
             case Beat():            return self.getBeats()
             case Step():            return self.getSteps()
-            case NoteValue():       return NoteValue() << self._rational / \
-                                                        ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
-                                                        / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+            case NoteValue():       return self.getNoteValues()
             case _:                 return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
