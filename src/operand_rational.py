@@ -664,16 +664,13 @@ class Beat(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Measure():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
-            case Step():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
-                    / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
-            case NoteValue():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) \
-                    / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+                operand_total_beats: Fraction = operand.getBeats() % Fraction()
+                operand_beats_per_measure: Fraction = operand.copy(1).getBeats() % Fraction()
+                # # Compute the remainder
+                # remainder = a - (a // b) * b
+                self._rational = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
+            case Step() | NoteValue():
+                self._rational = operand.getBeats() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
