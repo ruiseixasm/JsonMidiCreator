@@ -677,8 +677,8 @@ class Beat(TimeUnit):
         return NoteValue(beats * notes_per_beat)
 
     def getBeat(self) -> 'Beat':
-        operand_total_beats: Fraction = self.getBeats() % Fraction()
-        operand_beats_per_measure: Fraction = self.copy(1).getBeats() % Fraction()
+        operand_total_beats: Fraction = self._rational
+        operand_beats_per_measure: Fraction = self.getMeasures().copy(1).getBeats() % Fraction()
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
@@ -686,7 +686,7 @@ class Beat(TimeUnit):
 
     def getStep(self) -> 'Step':
         operand_total_steps: Fraction = self.getSteps() % Fraction()
-        operand_steps_per_measure: Fraction = self.copy(1).getSteps() % Fraction()
+        operand_steps_per_measure: Fraction = self.getMeasures().copy(1).getSteps() % Fraction()
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
@@ -746,15 +746,15 @@ class Step(TimeUnit):
 
     def getBeat(self) -> 'Beat':
         operand_total_beats: Fraction = self.getBeats() % Fraction()
-        operand_beats_per_measure: Fraction = self.copy(1).getBeats() % Fraction()
+        operand_beats_per_measure: Fraction = self.getMeasures().copy(1).getBeats() % Fraction()
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
         return Beat(self_beat)
 
     def getStep(self) -> 'Step':
-        operand_total_steps: Fraction = self.getSteps() % Fraction()
-        operand_steps_per_measure: Fraction = self.copy(1).getSteps() % Fraction()
+        operand_total_steps: Fraction = self._rational
+        operand_steps_per_measure: Fraction = self.getMeasures().copy(1).getSteps() % Fraction()
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
@@ -813,7 +813,7 @@ class NoteValue(TimeUnit):
 
     def getBeat(self) -> 'Beat':
         operand_total_beats: Fraction = self.getBeats() % Fraction()
-        operand_beats_per_measure: Fraction = self.copy(1).getBeats() % Fraction()
+        operand_beats_per_measure: Fraction = self.getMeasures().copy(1).getBeats() % Fraction()
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
@@ -821,7 +821,7 @@ class NoteValue(TimeUnit):
 
     def getStep(self) -> 'Step':
         operand_total_steps: Fraction = self.getSteps() % Fraction()
-        operand_steps_per_measure: Fraction = self.copy(1).getSteps() % Fraction()
+        operand_steps_per_measure: Fraction = self.getMeasures().copy(1).getSteps() % Fraction()
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
