@@ -411,6 +411,20 @@ class TimeUnit(Rational):
         if len(parameters) > 0:
             self << parameters
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        import operand_generic as og
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Tempo():               return self._tempo
+                    case og.TimeSignature():    return self._time_signature
+                    case Quantization():        return self._quantization
+                    case _:                     return super().__mod__(operand)
+            case Tempo():               return self._tempo.copy()
+            case og.TimeSignature():    return self._time_signature.copy()
+            case Quantization():        return self._quantization.copy()
+            case _:                 return super().__mod__(operand)
+
     def getTime_rational(self) -> Fraction:
         return self._rational * 0
     
@@ -445,6 +459,22 @@ class TimeUnit(Rational):
         return f'{type(self).__name__}: {self % Fraction()}'
     
     # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'TimeUnit':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Tempo():               self._tempo             = operand % o.Operand()
+                    case og.TimeSignature():    self._time_signature    = operand % o.Operand()
+                    case Quantization():        self._quantization      = operand % o.Operand()
+                    case _:                     super().__lshift__(operand)
+            case Tempo():               self._tempo             << operand
+            case og.TimeSignature():    self._time_signature    << operand
+            case Quantization():        self._quantization      << operand
+            case _:                     super().__lshift__(operand)
+        return self
 
     def __add__(self, other: 'TimeUnit') -> 'TimeUnit':
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
