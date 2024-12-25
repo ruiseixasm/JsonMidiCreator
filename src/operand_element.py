@@ -194,7 +194,7 @@ class Element(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "stackable" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"]):

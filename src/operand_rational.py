@@ -458,7 +458,26 @@ class TimeUnit(Rational):
     def __str__(self):
         return f'{type(self).__name__}: {self % Fraction()}'
     
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["tempo"]            = self.serialize(self._tempo)
+        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
+        serialization["parameters"]["quantization"]     = self.serialize(self._quantization)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'TimeUnit':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
+            "quantization" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._tempo             = self.deserialize(serialization["parameters"]["tempo"])
+            self._time_signature    = self.deserialize(serialization["parameters"]["time_signature"])
+            self._quantization      = self.deserialize(serialization["parameters"]["quantization"])
+
+        return self
 
     def __lshift__(self, operand: o.Operand) -> 'TimeUnit':
         import operand_generic as og
