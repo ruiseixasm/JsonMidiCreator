@@ -326,7 +326,7 @@ class Loop(Element):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration      << os.staff % ra.Measure()
+        self._duration      << os.staff % od.DataSource( ra.Measure() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if len(parameters) > 0:
             self << parameters

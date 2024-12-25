@@ -399,7 +399,15 @@ class TimeUnit(Rational):
         Not intended to be set directly
     """
     def __init__(self, *parameters):
+        import operand_generic as og
         super().__init__()
+        self._tempo: Tempo                       = Tempo(120.0)
+        self._time_signature: og.TimeSignature   = og.TimeSignature(4, 4)
+        self._quantization: Quantization         = Quantization(1/16)
+        if 'staff' in globals():
+            self._tempo             << os.staff % od.DataSource( Tempo() )
+            self._time_signature    << os.staff % od.DataSource( og.TimeSignature() )
+            self._quantization      << os.staff % od.DataSource( Quantization() )
         if len(parameters) > 0:
             self << parameters
 
