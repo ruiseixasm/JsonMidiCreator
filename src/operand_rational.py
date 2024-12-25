@@ -417,8 +417,6 @@ class TimeUnit(Rational):
     def __eq__(self, other: any) -> bool:
         match other:
             case TimeUnit():
-                # self_class_time_unit = other % od.DataSource( self )
-                # return self._rational == self_class_time_unit % od.DataSource( Fraction() )
                 return self.getTime_rational() == other.getTime_rational()
             case _: return super().__eq__(other)
         return False
@@ -426,16 +424,14 @@ class TimeUnit(Rational):
     def __lt__(self, other: any) -> bool:
         match other:
             case TimeUnit():
-                self_class_time_unit = other % od.DataSource( self )
-                return self._rational < self_class_time_unit % od.DataSource( Fraction() )
+                return self.getTime_rational() < other.getTime_rational()
             case _: return super().__lt__(other)
         return False
     
     def __gt__(self, other: any) -> bool:
         match other:
             case TimeUnit():
-                self_class_time_unit = other % od.DataSource( self )
-                return self._rational > self_class_time_unit % od.DataSource( Fraction() )
+                return self.getTime_rational() > other.getTime_rational()
             case _: return super().__gt__(other)
         return False
 
