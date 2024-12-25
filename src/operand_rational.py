@@ -591,7 +591,7 @@ class Measure(TimeUnit):
         return self.copy()
 
     def getBeats(self) -> 'Beat':
-        measures: Fraction = self % Fraction()
+        measures: Fraction = self._rational
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
         return Beat(measures * beats_per_measure)
 
@@ -679,7 +679,7 @@ class Beat(TimeUnit):
             case _:                 return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
-        beats: Fraction = self % Fraction()
+        beats: Fraction = self._rational
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
         return Measure(beats / beats_per_measure)
 
@@ -692,7 +692,7 @@ class Beat(TimeUnit):
         return Step(notes / notes_per_step)
 
     def getNoteValues(self) -> 'NoteValue':
-        beats: Fraction = self % Fraction()
+        beats: Fraction = self._rational
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return NoteValue(beats * notes_per_beat)
 
@@ -781,7 +781,7 @@ class Step(TimeUnit):
         return self.copy()
 
     def getNoteValues(self) -> 'NoteValue':
-        steps: Fraction = self % Fraction()
+        steps: Fraction = self._rational
         notes_per_step: Fraction = self._quantization % Fraction()
         return NoteValue(steps * notes_per_step)
 
@@ -963,8 +963,8 @@ class Dotted(NoteValue):
             case float():           return float(self._rational * 2/3)
             case int():             return int(self._rational * 2/3)
             case Dotted():          return self.copy()
-            case FloatR():           return ou.Unit() << self._rational * 2/3
-            case ou.IntU():      return ou.Unit() << self._rational * 2/3
+            case FloatR():          return ou.Unit() << self._rational * 2/3
+            case ou.IntU():         return ou.Unit() << self._rational * 2/3
             case NoteValue():       return NoteValue() << self._rational
             case _:                 return super().__mod__(operand)
 
