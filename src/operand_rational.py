@@ -412,6 +412,17 @@ class TimeUnit(Rational):
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Measure,
+        those Parameters are the Measure length as a Fraction(), a float() an int()
+        or even other type of time units, like Beat and Step with the respective conversion.
+
+        Examples
+        --------
+        >>> measure = Measure(1)
+        >>> measure % Beat() % float() >> Print()
+        4.0
+        """
         import operand_generic as og
         match operand:
             case od.DataSource():
@@ -419,11 +430,19 @@ class TimeUnit(Rational):
                     case Tempo():               return self._tempo
                     case og.TimeSignature():    return self._time_signature
                     case Quantization():        return self._quantization
+                    case Measure():             return self.getMeasures()
+                    case Beat():                return self.getBeats()
+                    case Step():                return self.getSteps()
+                    case NoteValue():           return self.getNoteValues()
                     case _:                     return super().__mod__(operand)
             case Tempo():               return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case Quantization():        return self._quantization.copy()
-            case _:                 return super().__mod__(operand)
+            case Measure():             return self.getMeasures()
+            case Beat():                return self.getBeats()
+            case Step():                return self.getSteps()
+            case NoteValue():           return self.getNoteValues()
+            case _:                     return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
         return Measure(0)
@@ -561,32 +580,6 @@ class Measure(TimeUnit):
         if len(parameters) > 0:
             self << parameters
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Measure,
-        those Parameters are the Measure length as a Fraction(), a float() an int()
-        or even other type of time units, like Beat and Step with the respective conversion.
-
-        Examples
-        --------
-        >>> measure = Measure(1)
-        >>> measure % Beat() % float() >> Print()
-        4.0
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case Measure():         return self.getMeasures()
-                    case Beat():            return self.getBeats()
-                    case Step():            return self.getSteps()
-                    case NoteValue():       return self.getNoteValues()
-                    case _:                 return super().__mod__(operand)
-            case Measure():         return self.getMeasures()
-            case Beat():            return self.getBeats()
-            case Step():            return self.getSteps()
-            case NoteValue():       return self.getNoteValues()
-            case _:                 return super().__mod__(operand)
-
     def getMeasures(self) -> 'Measure':
         return self.copy()
 
@@ -637,32 +630,6 @@ class Beat(TimeUnit):
         super().__init__()
         if len(parameters) > 0:
             self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Beat,
-        those Parameters are the Beat length as a Fraction(), a float() an int()
-        or even other type of time units, like Measure and Step with the respective conversion.
-
-        Examples
-        --------
-        >>> beat = Beat(1)
-        >>> beat % NoteValue() % float() >> Print()
-        0.25
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case Measure():         return self.getMeasures()
-                    case Beat():            return self.getBeats()
-                    case Step():            return self.getSteps()
-                    case NoteValue():       return self.getNoteValues()
-                    case _:                 return super().__mod__(operand)
-            case Measure():         return self.getMeasures()
-            case Beat():            return self.getBeats()
-            case Step():            return self.getSteps()
-            case NoteValue():       return self.getNoteValues()
-            case _:                 return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
         beats: Fraction = self._rational
@@ -719,33 +686,6 @@ class Step(TimeUnit):
         if len(parameters) > 0:
             self << parameters
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a Step,
-        those Parameters are the Step length as a Fraction(), a float() an int()
-        or even other type of time units, like Measure and Step with the respective
-        conversion accordingly to the set Quantization.
-
-        Examples
-        --------
-        >>> step = Step(1)
-        >>> step % NoteValue() % Fraction() >> Print()
-        1/16
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case Measure():         return self.getMeasures()
-                    case Beat():            return self.getBeats()
-                    case Step():            return self.getSteps()
-                    case NoteValue():       return self.getNoteValues()
-                    case _:                 return super().__mod__(operand)
-            case Measure():         return self.getMeasures()
-            case Beat():            return self.getBeats()
-            case Step():            return self.getSteps()
-            case NoteValue():       return self.getNoteValues()
-            case _:                 return super().__mod__(operand)
-
     def getMeasures(self) -> 'Measure':
         beats: Fraction = self.getBeats() % Fraction()
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
@@ -799,33 +739,6 @@ class NoteValue(TimeUnit):
         super().__init__()
         if len(parameters) > 0:
             self << parameters
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        """
-        The % symbol is used to extract a Parameter, in the case of a NoteValue,
-        those Parameters are the NoteValue length as a Fraction(), a float() an int()
-        or even other type of time units, like Measure and Beat with the respective
-        conversion accordingly to the note value of set time signature.
-
-        Examples
-        --------
-        >>> note_value = NoteValue(1)
-        >>> note_value % Beat() % Fraction() >> Print()
-        4
-        """
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case Measure():         return self.getMeasures()
-                    case Beat():            return self.getBeats()
-                    case Step():            return self.getSteps()
-                    case NoteValue():       return self.getNoteValues()
-                    case _:                 return super().__mod__(operand)
-            case Measure():         return self.getMeasures()
-            case Beat():            return self.getBeats()
-            case Step():            return self.getSteps()
-            case NoteValue():       return self.getNoteValues()
-            case _:                 return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measure':
         beats: Fraction = self.getBeats() % Fraction()
