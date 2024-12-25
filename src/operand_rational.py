@@ -456,6 +456,12 @@ class TimeUnit(Rational):
     def getNoteValues(self) -> 'NoteValue':
         return NoteValue(0)
 
+    def getBeat(self) -> 'Beat':
+        return Beat(0)
+
+    def getStep(self) -> 'Step':
+        return Step(0)
+
     def getMillis_rational(self) -> Fraction:
         beats: Fraction = self.getBeats() % Fraction()
         beats_per_minute: Fraction = self._tempo % Fraction()
@@ -603,6 +609,12 @@ class Measure(TimeUnit):
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return NoteValue(beats * notes_per_beat)
 
+    def getBeat(self) -> 'Beat':
+        return Beat(0)
+
+    def getStep(self) -> 'Step':
+        return Step(0)
+
     # def getMillis_rational(self) -> Fraction:
     #     return self._rational * Beat(1).getMillis_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
 
@@ -653,6 +665,12 @@ class Beat(TimeUnit):
         beats: Fraction = self._rational
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return NoteValue(beats * notes_per_beat)
+
+    def getBeat(self) -> 'Beat':
+        return Beat(0)
+
+    def getStep(self) -> 'Step':
+        return Step(0)
 
     # def getMillis_rational(self) -> Fraction:
     #     # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
@@ -706,6 +724,12 @@ class Step(TimeUnit):
         notes_per_step: Fraction = self._quantization % Fraction()
         return NoteValue(steps * notes_per_step)
 
+    def getBeat(self) -> 'Beat':
+        return Beat(0)
+
+    def getStep(self) -> 'Step':
+        return Step(0)
+
     # def getMillis_rational(self) -> Fraction:
     #     return self._rational * NoteValue(1).getMillis_rational() / (os.staff % StepsPerNote() % Fraction())
 
@@ -756,6 +780,12 @@ class NoteValue(TimeUnit):
 
     def getNoteValues(self) -> 'NoteValue':
         return self.copy()
+
+    def getBeat(self) -> 'Beat':
+        return Beat(0)
+
+    def getStep(self) -> 'Step':
+        return Step(0)
 
     # def getMillis_rational(self) -> Fraction:
     #     return self._rational * Beat(1).getMillis_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
