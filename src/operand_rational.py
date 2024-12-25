@@ -714,17 +714,14 @@ class Step(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'Step':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measure():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
-            case Beat():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
-                    / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
-            case NoteValue():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) \
-                    / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
+            # case Measure():
+            #     operand_total_steps: Fraction = operand.getSteps() % Fraction()
+            #     operand_steps_per_measure: Fraction = operand.copy(1).getSteps() % Fraction()
+            #     # # Compute the remainder
+            #     # remainder = a - (a // b) * b
+            #     self._rational = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
+            case Measure() | Beat() | NoteValue():
+                self._rational = operand.getSteps() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
