@@ -41,7 +41,9 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ot.Position         = ot.Position()
-        self._duration: ot.Duration         = os.staff % ot.Duration()
+        self._duration: ot.Duration         = ot.Duration()
+        staff_duration: Fraction            = os.staff % od.DataSource( ot.Duration() ) % od.DataSource( Fraction() )
+        self._duration                      << od.DataSource( staff_duration )
         self._stackable: ou.Stackable       = ou.Stackable()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()

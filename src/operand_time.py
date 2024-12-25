@@ -55,20 +55,22 @@ class Time(o.Operand):
         >>> position % Step() % float() >> Print()
         8.0
         """
+        import operand_generic as og
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case ra.TimeUnit():     return self._time_unit % od.DataSource( operand % o.Operand() )
+                    case ra.TimeUnit() | int() | float() | Fraction() | ou.IntU() | ra.FloatR() | ra.Tempo() | og.TimeSignature() | ra.Quantization():
+                                            return self._time_unit % operand
                     case Time():            return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Time():            return self.copy()
             case ra.Measure():
-                return ra.Measure() << self._time_unit % operand % int()
+                return self._time_unit.getMeasure()
             case ra.Beat() | ra.Step():
                 return operand.__class__() << (ra.Measure() << self._time_unit % Fraction() - self._time_unit % int())
-            case ra.TimeUnit() | int() | float() | Fraction() | ou.IntU() | ra.FloatR():
+            case ra.TimeUnit() | int() | float() | Fraction() | ou.IntU() | ra.FloatR() | ra.Tempo() | og.TimeSignature() | ra.Quantization():
                 return self._time_unit % operand
             case _:                 return super().__mod__(operand)
 
@@ -173,7 +175,9 @@ class Time(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.TimeUnit():
-                        self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit )
+                        self._time_unit << operand % o.Operand() % od.DataSource( self._time_unit ) # NEEDS TO BE REVIEWED !!!!!!!!!!!!!!!!!!!!!!
+                    case ra.TimeUnit() | int() | float() | Fraction() | ou.IntU() | ra.FloatR() | ra.Tempo() | og.TimeSignature() | ra.Quantization():
+                        self._time_unit << operand
             case Time():
                 super().__lshift__(operand)
                 self._time_unit         << operand._time_unit
@@ -287,7 +291,7 @@ class Duration(Time):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Time':
+    def __lshift__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():       super().__lshift__(operand)
@@ -296,13 +300,13 @@ class Duration(Time):
             case _: super().__lshift__(operand)
         return self
 
-    def __mul__(self, operand: o.Operand) -> 'Time':
+    def __mul__(self, operand: o.Operand) -> 'Duration':
         match operand:
             case ra.Gate() | ra.Swing() | ou.Division():
                 return self.__class__() << od.DataSource( self._time_unit * (operand % od.DataSource( Fraction() )) )
             case _: return super().__mul__(operand)
     
-    def __truediv__(self, operand: o.Operand) -> 'Time':
+    def __truediv__(self, operand: o.Operand) -> 'Duration':
         match operand:
             case ra.Gate() | ra.Swing() | ou.Division():
                 return self.__class__() << od.DataSource( self._time_unit / (operand % od.DataSource( Fraction() )) )

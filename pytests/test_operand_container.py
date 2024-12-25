@@ -74,6 +74,7 @@ def test_milliseconds_duration():
     assert sequence_start["time_ms"] == 0.0
     assert sequence_stop["time_ms"] == 500.0
 
+test_milliseconds_duration()
 
 def test_add_sequence():
 

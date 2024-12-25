@@ -49,7 +49,7 @@ def test_dotted_mod():
     assert dotted % Dotted() % Fraction() == Fraction(1, 4)
     assert dotted % Beat() % Fraction() == Fraction(3, 2)
 
-def test_beats_and_steps_defaults():
+def test_beats_and_steps_default():
 
     measures = Measure(1.5)
     assert measures.getBeats() % DataSource( Fraction() ) == 6
@@ -74,4 +74,31 @@ def test_beats_and_steps_defaults():
     assert notes.getSteps() % DataSource( Fraction() ) == 16 + 16/2
     assert notes.getBeat() == Beat(2)
     assert notes.getStep() == Step(1/2 * 16)
+
+def test_beats_and_steps_specific():
+
+    measures = Measure(1.5) << TimeSignature(3, 8) << Quantization(1/32)
+    assert measures.getBeats() % DataSource( Fraction() ) == 3 + 3/2
+    print(measures.getSteps() % DataSource( Fraction() ))
+    # assert measures.getSteps() % DataSource( Fraction() ) == 32 + 32/2
+    # assert measures.getBeat() == Beat(3/2)
+    # assert measures.getStep() == Step(1/2 * 32)
+
+    # beats = Beat(6) << TimeSignature(3, 8) << Quantization(1/32)
+    # assert beats.getBeats() % DataSource( Fraction() ) == 6
+    # assert beats.getSteps() % DataSource( Fraction() ) == 16 + 16/2
+    # assert beats.getBeat() == Beat(2)
+    # assert beats.getStep() == Step(1/2 * 16)
+
+    # steps = Step(16 + 16/2) << TimeSignature(3, 8) << Quantization(1/32)
+    # assert steps.getBeats() % DataSource( Fraction() ) == 6
+    # assert steps.getSteps() % DataSource( Fraction() ) == 16 + 16/2
+    # assert steps.getBeat() == Beat(2)
+    # assert steps.getStep() == Step(1/2 * 16)
+
+    # notes = NoteValue(1.5) << TimeSignature(3, 8) << Quantization(1/32)
+    # assert notes.getBeats() % DataSource( Fraction() ) == 6
+    # assert notes.getSteps() % DataSource( Fraction() ) == 16 + 16/2
+    # assert notes.getBeat() == Beat(2)
+    # assert notes.getStep() == Step(1/2 * 16)
 

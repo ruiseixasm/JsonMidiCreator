@@ -456,6 +456,11 @@ class TimeUnit(Rational):
     def getNoteValues(self) -> 'NoteValue':
         return NoteValue(0)
 
+    def getMeasure(self) -> 'Measure':
+        measure: Measure = self.getMeasures()
+        measure << od.DataSource( int(measure._rational) )
+        return measure
+
     def getBeat(self) -> 'Beat':
         return Beat(0)
 
@@ -530,9 +535,9 @@ class TimeUnit(Rational):
                     case _:                     super().__lshift__(operand)
             case TimeUnit():
                 super().__lshift__(operand)
-                # self._tempo             << operand._tempo
-                # self._time_signature    << operand._time_signature
-                # self._quantization      << operand._quantization
+                self._tempo             << operand._tempo
+                self._time_signature    << operand._time_signature
+                self._quantization      << operand._quantization
             case Tempo():               self._tempo             << operand
             case og.TimeSignature():    self._time_signature    << operand
             case Quantization():        self._quantization      << operand
@@ -801,7 +806,7 @@ class NoteValue(TimeUnit):
     def getBeats(self) -> 'Beat':
         notes: Fraction = self._rational
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-        return Beat(notes / notes_per_beat)
+        return Beat(TimeUnit(self), notes / notes_per_beat)
 
     def getSteps(self) -> 'Step':
         notes: Fraction = self._rational

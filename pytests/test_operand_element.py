@@ -224,3 +224,38 @@ def test_milliseconds_duration():
     assert rest_start["time_ms"] == 0.0
     assert rest_stop["time_ms"] == 500.0
 
+    clock_measure = Clock(Duration(Measure(1)))
+    clock_playlist: list = clock_measure.getPlaylist()
+    total_messages = len(clock_playlist)
+    # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 120 * 60 * 1000
+    clock_start = clock_playlist[0]
+    clock_stop = clock_playlist[total_messages - 1]
+    assert clock_start["time_ms"] == 0.0
+    assert clock_stop["time_ms"] == round(1.0 * 4 / 120 * 60 * 1000, 3)
+
+    staff << Tempo(90)
+    clock_default = Clock()
+    position_tempo: Tempo = clock_default % DataSource( Position() ) % Tempo()
+    duration_tempo: Tempo = clock_default % DataSource( Duration() ) % Tempo()
+    position_tempo >> Print(0)
+    assert position_tempo == staff % Tempo()
+    assert duration_tempo == staff % Tempo()
+    clock_specific = Clock(Duration(Measure(1)))
+    clock_playlist = clock_specific.getPlaylist()
+    total_messages = len(clock_playlist)
+    # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
+    clock_start = clock_playlist[0]
+    clock_stop = clock_playlist[total_messages - 1]
+    assert clock_start["time_ms"] == 0.0
+    assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
+
+    clock_clock = clock_specific.copy()
+    clock_playlist = clock_clock.getPlaylist()
+    total_messages = len(clock_playlist)
+    # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
+    clock_start = clock_playlist[0]
+    clock_stop = clock_playlist[total_messages - 1]
+    assert clock_start["time_ms"] == 0.0
+    assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
+
+    staff << Tempo(120)
