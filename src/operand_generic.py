@@ -232,7 +232,7 @@ class Pitch(Generic):
             case ou.Octave() | int() | ou.IntU():
                 self._octave << operand
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode():
+                | ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
                 self._key << operand
             case tuple():
                 for single_operand in operand:

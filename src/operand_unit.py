@@ -169,7 +169,7 @@ class Unit(o.Operand):
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
                     case IntU() | ra.FloatR():      self._unit = operand % o.Operand() % od.DataSource( int() )
-                    case None:                      self._unit = None
+                    case None:                      self._unit = None   # Yes, it can be None
             case Unit():
                 super().__lshift__(operand)
                 self._unit = operand._unit
@@ -614,6 +614,8 @@ class Key(Unit):
                                     else:
                                         self._sharp << False
                                         self._flat << False
+            case None:
+                self._unit = None   # Yes, it can be None
             case Sharp():
                 self._sharp << operand
             case Flat():
