@@ -371,7 +371,7 @@ class Playlist(Data):
         match operand:
             case ot.Duration():
                 playlist_copy = Playlist.copy_play_list(self._data)
-                increase_position_ms: float = operand.getTime_ms()
+                increase_position_ms: float = operand.getMillis_float()
                 for midi_element in playlist_copy:
                     if "time_ms" in midi_element:
                         midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)

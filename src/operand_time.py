@@ -86,7 +86,7 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
                     == other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
             case Time():
-                return self.getTime_rational() == other.getTime_rational()
+                return self.getMillis_rational() == other.getMillis_rational()
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -106,7 +106,7 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
                     < other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
             case Time():
-                return self.getTime_rational() < other.getTime_rational()
+                return self.getMillis_rational() < other.getMillis_rational()
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -123,7 +123,7 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int()) \
                     > other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.StepsPerMeasure() ) % int())
             case Time():
-                return self.getTime_rational() > other.getTime_rational()
+                return self.getMillis_rational() > other.getMillis_rational()
         return False
     
     def __le__(self, other: any) -> bool:
@@ -135,20 +135,20 @@ class Time(o.Operand):
     def __str__(self):
         return f'{self._time_unit}'
     
-    def getTime_rational(self) -> Fraction:
-        return self._time_unit.getTime_rational()
+    def getMillis_rational(self) -> Fraction:
+        return self._time_unit.getMillis_rational()
         
-    def getTime_ms(self, rounded = True) -> float:
+    def getMillis_float(self, rounded = True) -> float:
         if rounded:
-            return round(float(self.getTime_rational()), 3)
-        return float(self.getTime_rational())
+            return round(float(self.getMillis_rational()), 3)
+        return float(self.getMillis_rational())
         
     def getPlaylist(self, position: 'Position' = None) -> list:
         self_position: Position  = self + Position() if position is None else position
         
         return [
                 {
-                    "time_ms": self_position.getTime_ms()
+                    "time_ms": self_position.getMillis_float()
                 }
             ]
 

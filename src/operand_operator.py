@@ -244,8 +244,8 @@ class Oscillator(Operator):
                     self | single_data
             case oe.Element() | ot.Position():
                 element_position: ot.Position = operand % ot.Position()
-                wave_time_rational = element_position.getTime_rational() - self._position.getTime_rational()
-                wavelength_rational = self._length.getTime_rational()
+                wave_time_rational = element_position.getMillis_rational() - self._position.getMillis_rational()
+                wavelength_rational = self._length.getMillis_rational()
                 wave_time_angle = wave_time_rational / wavelength_rational * 360 # degrees
                 # int * float results in a float
                 # Fraction * float results in a float

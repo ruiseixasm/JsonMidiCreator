@@ -162,7 +162,7 @@ class Element(o.Operand):
         position: ot.Position = self._position + (ot.Position(0) if not isinstance(position, ot.Position) else position)
         return [
                 {
-                    "time_ms":  position.getTime_ms()
+                    "time_ms":  position.getMillis_float()
                 }
             ]
 
@@ -377,9 +377,9 @@ class Clock(Element):
         pulses_per_measure = pulses_per_beat * (os.staff % ra.BeatsPerMeasure() % od.DataSource( Fraction() ))
         clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measure() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = ra.Measure(1.0).getTime_rational()
-        clock_start_rational_ms = position.getTime_rational()
-        clock_stop_rational_ms = clock_start_rational_ms + self._duration.getTime_rational()
+        single_measure_rational_ms = ra.Measure(1.0).getMillis_rational()
+        clock_start_rational_ms = position.getMillis_rational()
+        clock_stop_rational_ms = clock_start_rational_ms + self._duration.getMillis_rational()
 
         self_playlist = [
                 {
@@ -465,8 +465,8 @@ class Rest(Element):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
-        off_time_ms = (position + duration).getTime_ms()
+        on_time_ms = position.getMillis_float()
+        off_time_ms = (position + duration).getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -566,8 +566,8 @@ class Note(Element):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
-        off_time_ms = (position + duration * self._gate).getTime_ms()
+        on_time_ms = position.getMillis_float()
+        off_time_ms = (position + duration * self._gate).getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1385,7 +1385,7 @@ class ControlChange(Automation):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
+        on_time_ms = position.getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1501,7 +1501,7 @@ class PitchBend(Automation):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
+        on_time_ms = position.getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1614,7 +1614,7 @@ class Aftertouch(Automation):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
+        on_time_ms = position.getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1730,7 +1730,7 @@ class PolyAftertouch(Aftertouch):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
+        on_time_ms = position.getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1821,7 +1821,7 @@ class ProgramChange(Automation):
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getTime_ms()
+        on_time_ms = position.getMillis_float()
         return [
                 {
                     "time_ms": on_time_ms,
@@ -1897,7 +1897,7 @@ class Panic(Element):
 
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
-        on_time_ms = self._position.getTime_ms()
+        on_time_ms = self._position.getMillis_float()
         for key_note_midi in range(128):
             self_playlist.append(
                 {   # Needs the Note On first in order to the following Note Off not be considered redundant

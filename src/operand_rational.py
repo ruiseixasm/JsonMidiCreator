@@ -425,7 +425,20 @@ class TimeUnit(Rational):
             case Quantization():        return self._quantization.copy()
             case _:                 return super().__mod__(operand)
 
-    def getTime_rational(self) -> Fraction:
+    def getMillis_measure(self) -> 'Measure':
+        return Measure(0)
+
+    def getMillis_beat(self) -> 'Beat':
+        return Beat(0)
+
+    def getMillis_step(self) -> 'Step':
+        return Step(0)
+
+    def getMillis_note_value(self) -> 'NoteValue':
+        return NoteValue(0)
+
+    def getMillis_rational(self) -> Fraction:
+        beats_fraction: Fraction = self.getMillis_beat() % Fraction()
         return self._rational * 0
     
     def __eq__(self, other: any) -> bool:
@@ -433,7 +446,7 @@ class TimeUnit(Rational):
             case TimeUnit():
                 self_class_time_unit = other % od.DataSource( self )
                 return self._rational == self_class_time_unit % od.DataSource( Fraction() )
-                # return self.getTime_rational() == other.getTime_rational()
+                # return self.getMillis_rational() == other.getMillis_rational()
             case _: return super().__eq__(other)
         return False
     
@@ -442,7 +455,7 @@ class TimeUnit(Rational):
             case TimeUnit():
                 self_class_time_unit = other % od.DataSource( self )
                 return self._rational < self_class_time_unit % od.DataSource( Fraction() )
-                # return self.getTime_rational() < other.getTime_rational()
+                # return self.getMillis_rational() < other.getMillis_rational()
             case _: return super().__lt__(other)
         return False
     
@@ -451,7 +464,7 @@ class TimeUnit(Rational):
             case TimeUnit():
                 self_class_time_unit = other % od.DataSource( self )
                 return self._rational > self_class_time_unit % od.DataSource( Fraction() )
-                # return self.getTime_rational() > other.getTime_rational()
+                # return self.getMillis_rational() > other.getMillis_rational()
             case _: return super().__gt__(other)
         return False
 
@@ -585,8 +598,8 @@ class Measure(TimeUnit):
                                                         (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
             case _:                 return super().__mod__(operand)
 
-    def getTime_rational(self) -> Fraction:
-        return self._rational * Beat(1).getTime_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+    def getMillis_rational(self) -> Fraction:
+        return self._rational * Beat(1).getMillis_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
 
     # CHAINABLE OPERATIONS
 
@@ -674,7 +687,7 @@ class Beat(TimeUnit):
                                                         / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
             case _:                 return super().__mod__(operand)
 
-    def getTime_rational(self) -> Fraction:
+    def getMillis_rational(self) -> Fraction:
         # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
         return self._rational / (os.staff % od.DataSource( Tempo() ) % Fraction()) * 60 * 1000
 
@@ -768,8 +781,8 @@ class Step(TimeUnit):
                                                         / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
             case _:                 return super().__mod__(operand)
 
-    def getTime_rational(self) -> Fraction:
-        return self._rational * NoteValue(1).getTime_rational() / (os.staff % StepsPerNote() % Fraction())
+    def getMillis_rational(self) -> Fraction:
+        return self._rational * NoteValue(1).getMillis_rational() / (os.staff % StepsPerNote() % Fraction())
 
     # CHAINABLE OPERATIONS
 
@@ -861,8 +874,8 @@ class NoteValue(TimeUnit):
             case NoteValue():       return self.copy()
             case _:                 return super().__mod__(operand)
 
-    def getTime_rational(self) -> Fraction:
-        return self._rational * Beat(1).getTime_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
+    def getMillis_rational(self) -> Fraction:
+        return self._rational * Beat(1).getMillis_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
     
     # CHAINABLE OPERATIONS
 
