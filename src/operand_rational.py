@@ -765,17 +765,8 @@ class NoteValue(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measure():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) )
-            case Beat():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
-                    / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction()) )
-            case Step():
-                self._rational = operand % Fraction() * \
-                    ( (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction()) \
-                    / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction()) )
+            case Measure() | Beat() | Step():
+                self._rational = operand.getNoteValues() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
