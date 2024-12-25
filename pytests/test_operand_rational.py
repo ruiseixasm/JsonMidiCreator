@@ -49,4 +49,8 @@ def test_dotted_mod():
     assert dotted % Dotted() % Fraction() == Fraction(1, 4)
     assert dotted % Beat() % Fraction() == Fraction(3, 2)
 
+def test_beat_step():
 
+    measure = Measure(1.5)
+    assert measure.getBeat() == Beat(2)
+    assert measure.getStep() == Step(1/2 * 16)
