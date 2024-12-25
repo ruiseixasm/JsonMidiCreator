@@ -522,6 +522,11 @@ class TimeUnit(Rational):
                     case og.TimeSignature():    self._time_signature    = operand % o.Operand()
                     case Quantization():        self._quantization      = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
+            case TimeUnit():
+                super().__lshift__(operand)
+                # self._tempo             << operand._tempo
+                # self._time_signature    << operand._time_signature
+                # self._quantization      << operand._quantization
             case Tempo():               self._tempo             << operand
             case og.TimeSignature():    self._time_signature    << operand
             case Quantization():        self._quantization      << operand
@@ -607,13 +612,13 @@ class Measure(TimeUnit):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             # case Measure():
-            #     self._rational = operand % o.Operand() % Fraction()
+            #     self._rational = operand._rational
             case Beat():
-                self._rational = int(self._rational) + operand._rational / (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+                self._rational = int(self._rational) + operand._rational / (self.copy(1).getBeats() % Fraction())
             case Step():
-                self._rational = int(self._rational) + operand._rational / (os.staff % od.DataSource( StepsPerMeasure() ) % Fraction())
+                self._rational = int(self._rational) + operand._rational / (self.copy(1).getSteps() % Fraction())
             case NoteValue():
-                self._rational = operand._rational / (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
+                self._rational = operand.getMeasures() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
