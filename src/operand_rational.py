@@ -404,7 +404,7 @@ class TimeUnit(Rational):
         self._tempo: Tempo                       = Tempo(120.0)
         self._time_signature: og.TimeSignature   = og.TimeSignature(4, 4)
         self._quantization: Quantization         = Quantization(1/16)
-        if 'staff' in globals():
+        if hasattr(os, 'staff'):    # Don't do "if 'os.staff' in globals()"
             self._tempo             << os.staff % od.DataSource( Tempo() )
             self._time_signature    << os.staff % od.DataSource( og.TimeSignature() )
             self._quantization      << os.staff % od.DataSource( Quantization() )
@@ -438,9 +438,9 @@ class TimeUnit(Rational):
         return NoteValue(0)
 
     def getMillis_rational(self) -> Fraction:
-        beats_fraction: Fraction = self.getBeats() % Fraction()
-        tempo_fraction: Fraction = self._tempo % Fraction()
-        return beats_fraction / tempo_fraction * 60 * 1000
+        beats: Fraction = self.getBeats() % Fraction()
+        beats_per_minute: Fraction = self._tempo % Fraction()
+        return beats / beats_per_minute * 60 * 1000
     
     def __eq__(self, other: any) -> bool:
         match other:
@@ -599,8 +599,26 @@ class Measure(TimeUnit):
                                                         (os.staff % od.DataSource( NotesPerMeasure() ) % Fraction())
             case _:                 return super().__mod__(operand)
 
-    def getMillis_rational(self) -> Fraction:
-        return self._rational * Beat(1).getMillis_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
+    def getMeasures(self) -> 'Measure':
+        return self.copy()
+
+    def getBeats(self) -> 'Beat':
+        measures: Fraction = self % Fraction()
+        beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
+        return Beat(measures * beats_per_measure)
+
+    def getSteps(self) -> 'Step':
+        notes: Fraction = self.getNoteValues() % Fraction()
+        notes_per_step: Fraction = self._quantization % Fraction()
+        return Step(notes / notes_per_step)
+
+    def getNoteValues(self) -> 'NoteValue':
+        beats: Fraction = self.getBeats() % Fraction()
+        beat_note_value: Fraction = self._time_signature % BeatNoteValue() % Fraction()
+        return NoteValue(beats * beat_note_value)
+
+    # def getMillis_rational(self) -> Fraction:
+    #     return self._rational * Beat(1).getMillis_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
 
     # CHAINABLE OPERATIONS
 
