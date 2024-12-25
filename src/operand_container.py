@@ -84,6 +84,7 @@ class Container(o.Operand):
             case Container():       return self.copy()
             case od.Getter():       return operand.get(self)
             case od.Process():      return self >> operand
+            case ch.Chaos():        return self.copy().shuffle(operand)
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
