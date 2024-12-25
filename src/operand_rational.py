@@ -425,21 +425,22 @@ class TimeUnit(Rational):
             case Quantization():        return self._quantization.copy()
             case _:                 return super().__mod__(operand)
 
-    def getMillis_measure(self) -> 'Measure':
+    def getMeasures(self) -> 'Measure':
         return Measure(0)
 
-    def getMillis_beat(self) -> 'Beat':
+    def getBeats(self) -> 'Beat':
         return Beat(0)
 
-    def getMillis_step(self) -> 'Step':
+    def getSteps(self) -> 'Step':
         return Step(0)
 
-    def getMillis_note_value(self) -> 'NoteValue':
+    def getNoteValues(self) -> 'NoteValue':
         return NoteValue(0)
 
     def getMillis_rational(self) -> Fraction:
-        beats_fraction: Fraction = self.getMillis_beat() % Fraction()
-        return self._rational * 0
+        beats_fraction: Fraction = self.getBeats() % Fraction()
+        tempo_fraction: Fraction = self._tempo % Fraction()
+        return beats_fraction / tempo_fraction * 60 * 1000
     
     def __eq__(self, other: any) -> bool:
         match other:
