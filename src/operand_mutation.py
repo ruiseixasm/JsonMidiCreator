@@ -26,7 +26,6 @@ import operand as o
 
 import operand_unit as ou
 import operand_rational as ra
-import operand_time as ot
 import operand_data as od
 import operand_label as ol
 import operand_generic as og
@@ -190,7 +189,7 @@ class Translocation(Mutation):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
-        self._parameters: od.Parameters = od.Parameters(ot.Position())
+        self._parameters: od.Parameters = od.Parameters(ra.Position())
         if len(parameters) > 0:
             self << parameters
 
@@ -271,7 +270,7 @@ class Translocation(Mutation):
 class TranslocateRhythm(Translocation):
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters        = od.Parameters(ot.Duration())
+        self._parameters        = od.Parameters(ra.Duration())
         if len(parameters) > 0:
             self << parameters
 
@@ -279,7 +278,7 @@ class TranslocateRhythm(Translocation):
 
     def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
-        self._parameters        = od.Parameters(ot.Duration())  # Can't change targeted parameter
+        self._parameters        = od.Parameters(ra.Duration())  # Can't change targeted parameter
         return self
 
 class TranslocatePitch(Translocation):

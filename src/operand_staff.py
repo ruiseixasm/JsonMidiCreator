@@ -22,7 +22,6 @@ import sys
 import operand as o
 import operand_unit as ou
 import operand_rational as ra
-import operand_time as ot
 import operand_data as od
 import operand_generic as og
 import operand_frame as of
@@ -42,7 +41,7 @@ class Staff(o.Operand):
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._measures: ra.Measures                   = ra.Measures(8)
-        self._duration: ot.Duration                 = ot.Duration() << ra.NoteValue(1/4)
+        self._duration: ra.Duration                 = ra.Duration() << ra.NoteValue(1/4)
         self._octave: ou.Octave                     = ou.Octave(4)
         self._velocity: ou.Velocity                 = ou.Velocity(100)
         self._controller: og.Controller             = og.Controller("Pan") \
@@ -80,7 +79,7 @@ class Staff(o.Operand):
                     case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
                     case ra.Measures():          return self._measures
-                    case ot.Duration():         return self._duration
+                    case ra.Duration():         return self._duration
                     case ou.Octave():           return self._octave
                     case ou.Velocity():         return self._velocity
                     case og.Controller():       return self._controller
@@ -109,7 +108,7 @@ class Staff(o.Operand):
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case ra.Measures():          return self._measures.copy()
-            case ot.Duration():         return self._duration.copy()
+            case ra.Duration():         return self._duration.copy()
             case ou.Octave():           return self._octave.copy()
             case ou.Velocity():         return self._velocity.copy()
             case og.Controller():       return self._controller.copy()
@@ -140,7 +139,7 @@ class Staff(o.Operand):
             and self._quantization      == other % od.DataSource( ra.Quantization() ) \
             and self._key_signature     == other % od.DataSource( ou.KeySignature() ) \
             and self._measures           == other % od.DataSource( ra.Measures() ) \
-            and self._duration          == other % od.DataSource( ot.Duration() ) \
+            and self._duration          == other % od.DataSource( ra.Duration() ) \
             and self._octave            == other % od.DataSource( ou.Octave() ) \
             and self._velocity          == other % od.DataSource( ou.Velocity() ) \
             and self._controller        == other % od.DataSource( og.Controller() ) \
@@ -202,7 +201,7 @@ class Staff(o.Operand):
                     case ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
                     case ra.Measures():          self._measures = operand % o.Operand()
-                    case ot.Duration():         self._duration = operand % o.Operand()
+                    case ra.Duration():         self._duration = operand % o.Operand()
                     case ou.Octave():           self._octave = operand % o.Operand()
                     case ou.Velocity():         self._velocity = operand % o.Operand()
                     case og.Controller():       self._controller = operand % o.Operand()
@@ -232,7 +231,7 @@ class Staff(o.Operand):
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         self._key_signature << operand
             case ra.Measures():          self._measures << operand
-            case ot.Duration():         self._duration << operand
+            case ra.Duration():         self._duration << operand
             case ou.Octave():           self._octave << operand
             case ou.Velocity():         self._velocity << operand
             case og.Controller() | ou.Number() | ou.Value():

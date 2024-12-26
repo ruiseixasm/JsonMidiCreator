@@ -389,6 +389,268 @@ class Tempo(Rational):
             case _: super().__lshift__(operand)
         return self
 
+
+
+
+
+
+class Time(Rational):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._time_value    = TimeValue()
+        if parameters:
+            self << parameters
+
+    def time(self: 'Time', beats: float = None) -> 'Time':
+        return self << od.DataSource( beats )
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        """
+        The % symbol is used to extract a Parameter, in the case of a Time,
+        those Parameters are the respective time unit, like Measure and NoteValue,
+        where Position and Length have a Measure while a Duration has a NoteValue.
+
+        Examples
+        --------
+        >>> position = Position(4.5)
+        >>> position % Measure() % float() >> Print()
+        4.0
+        >>> position % Beat() % float() >> Print()
+        2.0
+        >>> position % Step() % float() >> Print()
+        8.0
+        """
+        import operand_generic as og
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case TimeValue() | int() | float() | Fraction() | ou.IntU() | FloatR() | Tempo() | og.TimeSignature() | Quantization():
+                                            return self._time_value % operand
+                    case Time():            return self
+                    case _:                 return ol.Null()
+            case of.Frame():        return self % (operand % o.Operand())
+            case Measures():
+                return Measures(self._time_value)
+            case Beats():
+                return Beats(self._time_value)
+            case Steps():
+                return Steps(self._time_value)
+            case NoteValue():
+                return NoteValue(self._time_value)
+            case ou.TimeUnit() | int() | float() | Fraction() | ou.IntU() | FloatR() | Tempo() | og.TimeSignature() | Quantization():
+                return self._time_value % operand
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case TimeValue() | ou.TimeUnit():
+                return self._time_value == other
+            case Time():
+                return self._time_value == other._time_value
+            case _:
+                if other.__class__ == o.Operand:
+                    return True
+        return False
+
+    def __lt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case TimeValue() | ou.TimeUnit():
+                return self._time_value < other
+            case Time():
+                return self._time_value < other._time_value
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case TimeValue() | ou.TimeUnit():
+                return self._time_value > other
+            case Time():
+                return self._time_value > other._time_value
+        return False
+    
+    def __str__(self):
+        return f'{self._time_value}'
+    
+    def getMillis_rational(self) -> Fraction:
+        return self._time_value.getMillis_rational()
+        
+    def getMillis_float(self, rounded = True) -> float:
+        if rounded:
+            return round(float(self.getMillis_rational()), 3)
+        return float(self.getMillis_rational())
+        
+    def getPlaylist(self, position: 'Position' = None) -> list:
+        self_position: Position  = self + Position() if position is None else position
+        
+        return [
+                {
+                    "time_ms": self_position.getMillis_float()
+                }
+            ]
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["time_value"] = self.serialize(self._time_value)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Time':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "time_value" in serialization["parameters"] and "class" in serialization["parameters"]["time_value"]):
+
+            super().loadSerialization(serialization)
+            self._time_value = self.deserialize(serialization["parameters"]["time_value"])
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'Time':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case TimeValue():
+                        self._time_value = operand % o.Operand()
+            case Time():
+                super().__lshift__(operand)
+                self._time_value         << operand._time_value
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case TimeValue() | ou.TimeUnit() | int() | ou.IntU() | Fraction() | float() | FloatR():
+                self._time_value << operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+    def __add__(self, operand: o.Operand) -> 'Time':
+        self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Time():
+                self_copy << od.DataSource( self._time_value + operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value ) )
+            case TimeValue():
+                self_copy << od.DataSource( self._time_value + operand % od.DataSource( self._time_value ) )
+            case int() | float() | ou.IntU() | FloatR() | Fraction():
+                self_copy << od.DataSource( self._time_value + operand )
+        return self_copy
+    
+    def __sub__(self, operand: o.Operand) -> 'Time':
+        self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Time():
+                self_copy << od.DataSource( self._time_value - operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value ) )
+            case TimeValue():
+                self_copy << od.DataSource( self._time_value - operand % od.DataSource( self._time_value ) )
+            case int() | float() | ou.IntU() | FloatR() | Fraction():
+                self_copy << od.DataSource( self._time_value - operand )
+        return self_copy
+    
+    def __mul__(self, operand: o.Operand) -> 'Time':
+        self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Time():
+                self_copy << od.DataSource( self._time_value * (operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value )) )
+            case TimeValue():
+                self_copy << od.DataSource( self._time_value * (operand % od.DataSource( self._time_value )) )
+            case int() | float() | ou.IntU() | FloatR() | Fraction():
+                self_copy << od.DataSource( self._time_value * operand )
+        return self_copy
+    
+    def __rmul__(self, operand: o.Operand) -> 'Time':
+        return self * operand
+    
+    def __truediv__(self, operand: o.Operand) -> 'Time':
+        self_copy = self.copy()
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Time():
+                if operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value ) != 0:
+                    self_copy << od.DataSource( self._time_value / (operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value )) )
+            case TimeValue():
+                if operand % od.DataSource( self._time_value ) != 0:
+                    self_copy << od.DataSource( self._time_value / (operand % od.DataSource( self._time_value )) )
+            case int() | float() | ou.IntU() | FloatR() | Fraction():
+                if operand != 0:
+                    self_copy << od.DataSource( self._time_value / operand )
+        return self_copy
+
+    def __rtruediv__(self, operand: o.Operand) -> 'Time':
+        return self / operand
+    
+    def start(self) -> 'TimeValue':
+        return self.copy()
+
+    def end(self) -> 'TimeValue':
+        return self.copy()
+
+    def minimum(self) -> 'TimeValue':
+        return self._time_value % int()
+
+    def maximum(self) -> 'TimeValue':
+        return self._time_value % int() + 1
+
+
+class Position(Time):
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Position':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int() | ou.IntU():
+                self._time_value << ou.Measure(operand)
+            case Fraction() | float() | FloatR():
+                self._time_value << Measures(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+class Length(Time):
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Length':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int() | ou.IntU():
+                self._time_value << ou.Measure(operand)
+            case Fraction() | float() | FloatR():
+                self._time_value << Measures(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+    
+class Duration(Time):
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Duration':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int() | ou.IntU() | Fraction() | float() | FloatR():
+                self._time_value << NoteValue(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class TimeValue(Rational):  # Works as Absolute Beats
     """
     TimeUnit() represents any Time Length variables, namely, Measure, Beat, NoteValue and Step.

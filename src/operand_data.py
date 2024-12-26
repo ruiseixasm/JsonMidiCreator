@@ -24,7 +24,6 @@ import operand_staff as os
 import operand_unit as ou
 import operand_frame as of
 import operand_label as ol
-import operand_time as ot
 
 TypeData = TypeVar('TypeData', bound='Data')  # TypeData represents any subclass of Operand
 
@@ -230,7 +229,10 @@ class Serialization(Data):
                 return self.getSerialization() == other.getSerialization()
         return super().__eq__(other)
     
-    def getPlaylist(self, position: ot.Position = None) -> list:
+    if TYPE_CHECKING:
+        from operand_rational import Position
+
+    def getPlaylist(self, position: 'Position' = None) -> list:
         match self._data:
             case o.Operand():
                 return self._data.getPlaylist(position)
@@ -238,7 +240,7 @@ class Serialization(Data):
                 return self._data
         return []
 
-    def getMidilist(self, position: ot.Position = None) -> list:
+    def getMidilist(self, position: 'Position' = None) -> list:
         match self._data:
             case o.Operand():
                 return self._data.getMidilist(position)
@@ -346,14 +348,14 @@ class Playlist(Data):
     def __rrshift__(self, operand: o.Operand) -> 'Playlist':
         import operand_container as oc
         import operand_element as oe
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ot.Position, ot.Duration)) and isinstance(self._data, list) and len(self._data) > 0:
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.Duration)) and isinstance(self._data, list) and len(self._data) > 0:
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
                 if "time_ms" in midi_element and midi_element["time_ms"] > ending_position_ms:
                     ending_position_ms = midi_element["time_ms"]
             increase_position_ms = ending_position_ms
-            if not isinstance(operand, ot.Duration):
+            if not isinstance(operand, ra.Duration):
                 starting_position_ms = self._data[0]["time_ms"]
                 for midi_element in self._data:
                     if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
@@ -369,7 +371,7 @@ class Playlist(Data):
 
     def __add__(self, operand: o.Operand) -> 'Playlist':
         match operand:
-            case ot.Duration():
+            case ra.Duration():
                 playlist_copy = Playlist.copy_play_list(self._data)
                 increase_position_ms: float = operand.getMillis_float()
                 for midi_element in playlist_copy:

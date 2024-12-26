@@ -178,12 +178,11 @@ class Operand:
         import operand_label as ol
         import operand_frame as of
         import operand_data as od
-        import operand_time as ot
         import operand_rational as ra
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case od.Playlist():
-                position = operand % ot.Position()
+                position = operand % ra.Position()
                 if position: return self.getPlaylist(position)
                 return self.getPlaylist()
             case od.Serialization():

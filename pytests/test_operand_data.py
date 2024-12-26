@@ -50,7 +50,7 @@ def test_data_source_mod():
     single_note = Note()
     position_source = single_note % DataSource( Position() )
 
-    assert position_source == ot.Position()
+    assert position_source == ra.Position()
 
     position_copy = single_note % Position()
 
@@ -73,7 +73,7 @@ def test_serialization_mod():
     serialization_total_duration = serialization % DataSource( Duration() )
 
     # Retrigger by default it's a Triplet with a real duration of 2* the default duration of 1/4 
-    assert serialization_total_duration == ot.Duration(1/4 * 2)
+    assert serialization_total_duration == ra.Duration(1/4 * 2)
     
     # A division of 6 means 6 notes in place of 2 (2 divisions/durations)
     retrigger = Retrigger("D") << Division(6)
@@ -85,12 +85,12 @@ def test_serialization_mod():
     serialization_total_duration = serialization % DataSource( Duration() )
 
     # Regardless, the net duration is always twice the default, meaning, 1/4 * 2
-    assert serialization_total_duration == ot.Duration(1/4 * 2)
+    assert serialization_total_duration == ra.Duration(1/4 * 2)
 
     serialization_single_note_duration = serialization % Duration()
 
     # Instead of 2 notes we have 6, BUT the SYMBOLIC value is the same, 1/4
-    assert serialization_single_note_duration == ot.Duration(1/4)
+    assert serialization_single_note_duration == ra.Duration(1/4)
 
 
 def test_playlist_mod():

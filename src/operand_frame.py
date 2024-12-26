@@ -24,7 +24,6 @@ import operand as o
 import operand_unit as ou
 import operand_rational as ra
 import operand_data as od
-import operand_time as ot
 import operand_frame as of
 import operand_label as ol
 
