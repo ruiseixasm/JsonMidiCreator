@@ -457,6 +457,7 @@ class Time(Rational):
             case ou.Step():             return ou.Step(Steps(self) % Fraction())
             case _:                     return super().__mod__(operand)
 
+
     def getMeasures(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'Measures':
         measures: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
@@ -548,6 +549,35 @@ class Time(Rational):
             case ou.Step():
                 return self.getNoteValue(Steps(time_value % Fraction()))
         return NoteValue(note_value)
+
+
+    def getMeasure(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'ou.Measure':
+        measure: int = 0
+        match time_value:
+            case TimeValue() | ou.TimeUnit():
+                measure = self.getMeasures(time_value) % int()
+        return ou.Measure(measure)
+
+    def getBeat(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'ou.Beat':
+        beat: int = 0
+        match time_value:
+            case TimeValue() | ou.TimeUnit():
+                beats_per_measure: int = self._time_signature % BeatsPerMeasure() % int()
+                beat = self.getBeats(time_value) % int() % beats_per_measure
+        return ou.Beat(beat)
+
+    def getStep(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'ou.Step':
+        step: int = 0
+        match time_value:
+            case TimeValue() | ou.TimeUnit():
+                beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
+                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
+                notes_per_step: Fraction = self._quantization % Fraction()
+                beats_per_step: Fraction = notes_per_step / notes_per_beat
+                steps_per_measure: int = int(beats_per_measure / beats_per_step)
+                step = self.getSteps(time_value) % int() % steps_per_measure
+        return ou.Step(step)
+
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
