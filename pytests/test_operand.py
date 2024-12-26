@@ -54,4 +54,18 @@ def test_operand_copy():
     root_classes_list: list[type] = get_root_classes_list(Operand)
 
     assert root_classes_list == list_all_classes
-        
+
+def test_operand_serialization():
+
+    list_all_classes: list[type] = list_all_operand_classes(Operand)
+
+    for single_class in list_all_classes:
+        single_instantiation = single_class()
+        if isinstance(single_instantiation, Operand) and not isinstance(single_instantiation, (Serialization, Playlist)):
+            print(single_class.__name__)
+            serialization: dict = single_instantiation.getSerialization()
+            loaded_instantiation: Operand = single_class()
+            loaded_instantiation.loadSerialization(serialization)
+            assert len(serialization) > 0
+            assert loaded_instantiation == single_instantiation
+
