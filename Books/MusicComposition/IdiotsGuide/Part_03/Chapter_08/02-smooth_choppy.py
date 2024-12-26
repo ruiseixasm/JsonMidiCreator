@@ -32,7 +32,7 @@ smoothly *= 3
 smoothly += Note("F")
 smoothly >> Stack() >> Link()
 smoothly += Rest(1/8, Position(Measures(3) - Beats(1))) + Note("F", 1/8) >> Stack()
-smoothly << Equal(Step(NoteValue(1/8)))**Gate(1) >> Link()
+smoothly << Equal(Steps(NoteValue(1/8)))**Gate(1) >> Link()
 smoothly + Type(Note())**Foreach("iii", "ii", "ii", "iii", -3, -3, "i", -2, -2, -3, "ii")**Degree()
 smoothly >> Rest() >> Play()
 

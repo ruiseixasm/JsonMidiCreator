@@ -55,25 +55,25 @@ def test_beats_and_steps_default():
     assert measures.getBeats() % DataSource( Fraction() ) == 6
     assert measures.getSteps() % DataSource( Fraction() ) == 16 + 16/2
     assert measures.getBeat() == Beats(2)
-    assert measures.getStep() == Step(1/2 * 16)
+    assert measures.getStep() == Steps(1/2 * 16)
 
     beats = Beats(6)
     assert beats.getBeats() % DataSource( Fraction() ) == 6
     assert beats.getSteps() % DataSource( Fraction() ) == 16 + 16/2
     assert beats.getBeat() == Beats(2)
-    assert beats.getStep() == Step(1/2 * 16)
+    assert beats.getStep() == Steps(1/2 * 16)
 
-    steps = Step(16 + 16/2)
+    steps = Steps(16 + 16/2)
     assert steps.getBeats() % DataSource( Fraction() ) == 6
     assert steps.getSteps() % DataSource( Fraction() ) == 16 + 16/2
     assert steps.getBeat() == Beats(2)
-    assert steps.getStep() == Step(1/2 * 16)
+    assert steps.getStep() == Steps(1/2 * 16)
 
     notes = NoteValue(1.5)
     assert notes.getBeats() % DataSource( Fraction() ) == 6
     assert notes.getSteps() % DataSource( Fraction() ) == 16 + 16/2
     assert notes.getBeat() == Beats(2)
-    assert notes.getStep() == Step(1/2 * 16)
+    assert notes.getStep() == Steps(1/2 * 16)
 
 def test_beats_and_steps_specific():
 

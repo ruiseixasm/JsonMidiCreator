@@ -34,10 +34,10 @@ import sys
 def test_frame_mod():
 
     # Perform the operation
-    single_step = Step()
+    single_step = Steps()
     assert single_step % float() == 0.0
     
-    frame = Increment(2)**Step()
+    frame = Increment(2)**Steps()
     single_step << frame << frame
     assert single_step % float() == 2.0
     single_step << frame << frame

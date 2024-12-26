@@ -42,7 +42,7 @@ class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._sequence: oc.Sequence     = oe.Note() * 4
-        self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Step(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Steps(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._performers: od.Performers = od.Performers(
                 od.Stack(),
                 of.PushTo(od.Play()),

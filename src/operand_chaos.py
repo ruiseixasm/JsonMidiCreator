@@ -148,7 +148,7 @@ class Modulus(Chaos):
     def __init__(self, *parameters):
         super().__init__()
         self._amplitude: ra.Amplitude   = ra.Amplitude(12)
-        self._step: ra.Step             = ra.Step(1)
+        self._step: ra.Steps             = ra.Steps(1)
         if len(parameters) > 0:
             self << parameters
 
@@ -157,10 +157,10 @@ class Modulus(Chaos):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Amplitude():        return self._amplitude
-                    case ra.Step():             return self._step
+                    case ra.Steps():             return self._step
                     case _:                     return super().__mod__(operand)
             case ra.Amplitude():        return self._amplitude.copy()
-            case ra.Step():             return self._step.copy()
+            case ra.Steps():             return self._step.copy()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Chaos') -> bool:
@@ -169,7 +169,7 @@ class Modulus(Chaos):
             return True
         if super().__eq__(other):
             return  self._amplitude == other % od.DataSource( ra.Amplitude() ) \
-                and self._step == other % od.DataSource( ra.Step() )
+                and self._step == other % od.DataSource( ra.Steps() )
         return False
     
     def getSerialization(self) -> dict:
@@ -195,14 +195,14 @@ class Modulus(Chaos):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Amplitude():            self._amplitude = operand % o.Operand()
-                    case ra.Step():                 self._step = operand % o.Operand()
+                    case ra.Steps():                 self._step = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Modulus():
                         super().__lshift__(operand)
                         self._amplitude     << operand._amplitude
                         self._step          << operand._step
             case ra.Amplitude():            self._amplitude << operand
-            case ra.Step():                 self._step << operand
+            case ra.Steps():                 self._step << operand
             case _: super().__lshift__(operand)
         self._xn << (self._xn % float()) % (self._amplitude % float())
         return self

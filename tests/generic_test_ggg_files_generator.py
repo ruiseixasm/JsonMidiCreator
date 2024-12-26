@@ -30,8 +30,8 @@ staff << Tempo(110) << Measures(6)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
-first_note = Note() << (Position() << Step(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(Step(3*4 + 2))) >> (first_note + Rest()) * 3 << MidiTrack(1, "Piano") >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
+first_note = Note() << (Position() << Steps(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
+multi_notes = Rest(NoteValue(Steps(3*4 + 2))) >> (first_note + Rest()) * 3 << MidiTrack(1, "Piano") >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 
 first_note << "F" >> Save("json/testing/_Save_Play_p.2_first_note.json") >> Export("json/testing/_Export_Play_p.2_sequence.json")
@@ -42,7 +42,7 @@ Note3() << (Duration() << NoteValue(1/16)) >> Save("json/testing/_Save_Play_p.3.
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (Duration() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
-first_sequence = (base_note * 8 // Step(1) << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note * 8 // Steps(1) << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
@@ -117,14 +117,14 @@ triplets >> single_clock >> Save("json/testing/_Save_Play_p.10.1_first_note.json
 staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
-controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Measures()**NoteValue()**Step()
+controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Measures()**NoteValue()**Steps()
 controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | controller) >> Save("json/testing/_Save_4.2_control_change.json")
     
 chord + controller >> Save("json/testing/_Save_Play_p.10.2_first_note.json") >> Export("json/testing/_Export_Play_p.10.2_sequence.json") >> Export("json/testing/_Export_4.1_control_change.json")
 
 
 oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
-pitch_bend = PitchBend() * (2*16 + 1) << Wrap(Position())**Wrap(NoteValue())**Iterate()**Step() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Step()
+pitch_bend = PitchBend() * (2*16 + 1) << Wrap(Position())**Wrap(NoteValue())**Iterate()**Steps() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Steps()
 
 chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> Export("json/testing/_Export_Play_p.10.3_sequence.json") \
     >> Save("json/testing/_Save_4.2_pitch_bend.json") >> Export("json/testing/_Export_4.2_pitch_bend.json")

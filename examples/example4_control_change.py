@@ -27,13 +27,13 @@ staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
 controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) \
-              | ControlChange("Pan") * (2*16 + 1) << Iterate()**Measures()**NoteValue()**Step()) \
+              | ControlChange("Pan") * (2*16 + 1) << Iterate()**Measures()**NoteValue()**Steps()) \
                 >> Save("json/_Save_4.2_control_change.json")
     
 chord + controller >> Print() >> Play(1) >> Export("json/_Export_4.1_control_change.json")
 
 
 oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
-pitch_bend = PitchBend() * (2*16 + 1) << Wrap(Position())**Wrap(NoteValue())**Iterate()**Step() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Step()
+pitch_bend = PitchBend() * (2*16 + 1) << Wrap(Position())**Wrap(NoteValue())**Iterate()**Steps() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Steps()
 
 chord + pitch_bend >> Play(1) >> Save("json/_Save_4.2_pitch_bend.json") >> Export("json/_Export_4.2_pitch_bend.json")

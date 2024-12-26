@@ -37,7 +37,7 @@ embellishing += Note("B", 1/8) * 4 + Foreach(0, 1, 0, 1)
 embellishing += Note("B", 1/8, Position(2)) * 4 - Foreach(0, 1, 0, 1)
 embellishing >> Link() >> Rest() >> Play()
 
-embellishing -= embellishing | Equal(Beats(1), Step(2))
+embellishing -= embellishing | Equal(Beats(1), Steps(2))
 embellishing += Note("A", 1/8, Position(0, Beats(1))) * 2 + Foreach(0, 2)
 embellishing += Note("A", 1/8, Position(2, Beats(1))) * 2 + Foreach(2, 0)
 embellishing >> Link() << Get(Duration())**Duration() >> Rest() >> Play()

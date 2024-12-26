@@ -39,15 +39,15 @@ slow_paced + embellishing >> Link() >> Rest() >> Play()
 
 variation: Sequence = Note("E") * 10
 variation << Foreach(
-        Measures(0, Step(2)),
-        Measures(0, Step(4)),
-        Measures(0, Step(10)),
-        Measures(0, Step(12)),
-        Measures(1, Step(4)),
-        Measures(1, Step(10)),
-        Measures(1, Step(12)),
-        Measures(2, Step(10)),
-        Measures(2, Step(12)),
+        Measures(0, Steps(2)),
+        Measures(0, Steps(4)),
+        Measures(0, Steps(10)),
+        Measures(0, Steps(12)),
+        Measures(1, Steps(4)),
+        Measures(1, Steps(10)),
+        Measures(1, Steps(12)),
+        Measures(2, Steps(10)),
+        Measures(2, Steps(12)),
     )**Position() << Foreach(
         7, 6, 6, 5, 2, 4, 3, 6, 5
     )**Degree()

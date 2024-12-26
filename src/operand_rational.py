@@ -424,7 +424,7 @@ class TimeValue(Rational):
                     case Quantization():        return self._quantization
                     case Measures():             return self.getMeasures()
                     case Beats():                return self.getBeats()
-                    case Step():                return self.getSteps()
+                    case Steps():                return self.getSteps()
                     case NoteValue():           return self.getNoteValues()
                     case _:                     return super().__mod__(operand)
             case Tempo():               return self._tempo.copy()
@@ -432,7 +432,7 @@ class TimeValue(Rational):
             case Quantization():        return self._quantization.copy()
             case Measures():             return self.getMeasures()
             case Beats():                return self.getBeats()
-            case Step():                return self.getSteps()
+            case Steps():                return self.getSteps()
             case NoteValue():           return self.getNoteValues()
             case _:                     return super().__mod__(operand)
 
@@ -442,8 +442,8 @@ class TimeValue(Rational):
     def getBeats(self) -> 'Beats':
         return Beats(0)
 
-    def getSteps(self) -> 'Step':
-        return Step(0)
+    def getSteps(self) -> 'Steps':
+        return Steps(0)
 
     def getNoteValues(self) -> 'NoteValue':
         return NoteValue(0)
@@ -456,8 +456,8 @@ class TimeValue(Rational):
     def getBeat(self) -> 'Beats':
         return Beats(0)
 
-    def getStep(self) -> 'Step':
-        return Step(0)
+    def getStep(self) -> 'Steps':
+        return Steps(0)
 
     def getMillis_rational(self) -> Fraction:
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
@@ -592,10 +592,10 @@ class Measures(TimeValue):
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
         return Beats(measures * beats_per_measure)
 
-    def getSteps(self) -> 'Step':
+    def getSteps(self) -> 'Steps':
         notes: Fraction = self.getNoteValues() % od.DataSource( Fraction() )
         notes_per_step: Fraction = self._quantization % Fraction()
-        return Step(notes / notes_per_step)
+        return Steps(notes / notes_per_step)
 
     def getNoteValues(self) -> 'NoteValue':
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
@@ -610,13 +610,13 @@ class Measures(TimeValue):
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
         return Beats(self_beat)
 
-    def getStep(self) -> 'Step':
+    def getStep(self) -> 'Steps':
         operand_total_steps: Fraction = self.getSteps() % od.DataSource( Fraction() )
         operand_steps_per_measure: Fraction = self.copy(1).getSteps() % od.DataSource( Fraction() )
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
-        return Step(self_step)
+        return Steps(self_step)
 
     # def getMillis_rational(self) -> Fraction:
     #     return self._rational * Beat(1).getMillis_rational() * (os.staff % od.DataSource( BeatsPerMeasure() ) % Fraction())
@@ -630,7 +630,7 @@ class Measures(TimeValue):
             #     self._rational = operand._rational
             case Beats():
                 self._rational = int(self._rational) + operand._rational / (self.copy(1).getBeats() % od.DataSource( Fraction() ))
-            case Step():
+            case Steps():
                 self._rational = int(self._rational) + operand._rational / (self.copy(1).getSteps() % od.DataSource( Fraction() ))
             case NoteValue():
                 self._rational = operand.getMeasures() % od.DataSource( Fraction() )
@@ -655,10 +655,10 @@ class Beats(TimeValue):
     def getBeats(self) -> 'Beats':
         return self.copy()
 
-    def getSteps(self) -> 'Step':
+    def getSteps(self) -> 'Steps':
         notes: Fraction = self.getNoteValues() % od.DataSource( Fraction() )
         notes_per_step: Fraction = self._quantization % Fraction()
-        return Step(notes / notes_per_step)
+        return Steps(notes / notes_per_step)
 
     def getNoteValues(self) -> 'NoteValue':
         beats: Fraction = self._rational
@@ -673,13 +673,13 @@ class Beats(TimeValue):
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
         return Beats(self_beat)
 
-    def getStep(self) -> 'Step':
+    def getStep(self) -> 'Steps':
         operand_total_steps: Fraction = self.getSteps() % od.DataSource( Fraction() )
         operand_steps_per_measure: Fraction = self.getMeasures().copy(1).getSteps() % od.DataSource( Fraction() )
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
-        return Step(self_step)
+        return Steps(self_step)
 
     # def getMillis_rational(self) -> Fraction:
     #     # Because the multiplication (*) is done with integers, 60 and 1000, the Fractions remain as Fraction
@@ -696,12 +696,12 @@ class Beats(TimeValue):
             #     # # Compute the remainder
             #     # remainder = a - (a // b) * b
             #     self._rational = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
-            case Measures() | Step() | NoteValue():
+            case Measures() | Steps() | NoteValue():
                 self._rational = operand.getBeats() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
-class Step(TimeValue):
+class Steps(TimeValue):
     """
     A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
     
@@ -721,7 +721,7 @@ class Step(TimeValue):
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return Beats(notes / notes_per_beat)
 
-    def getSteps(self) -> 'Step':
+    def getSteps(self) -> 'Steps':
         return self.copy()
 
     def getNoteValues(self) -> 'NoteValue':
@@ -737,20 +737,20 @@ class Step(TimeValue):
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
         return Beats(self_beat)
 
-    def getStep(self) -> 'Step':
+    def getStep(self) -> 'Steps':
         operand_total_steps: Fraction = self._rational
         operand_steps_per_measure: Fraction = self.getMeasures().copy(1).getSteps() % od.DataSource( Fraction() )
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
-        return Step(self_step)
+        return Steps(self_step)
 
     # def getMillis_rational(self) -> Fraction:
     #     return self._rational * NoteValue(1).getMillis_rational() / (os.staff % StepsPerNote() % Fraction())
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Step':
+    def __lshift__(self, operand: o.Operand) -> 'Steps':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             # case Measure():
@@ -784,10 +784,10 @@ class NoteValue(TimeValue):
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return Beats(TimeValue(self), notes / notes_per_beat)
 
-    def getSteps(self) -> 'Step':
+    def getSteps(self) -> 'Steps':
         notes: Fraction = self._rational
         notes_per_step: Fraction = self._quantization % Fraction()
-        return Step(notes / notes_per_step)
+        return Steps(notes / notes_per_step)
 
     def getNoteValues(self) -> 'NoteValue':
         return self.copy()
@@ -800,13 +800,13 @@ class NoteValue(TimeValue):
         self_beat: Fraction = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
         return Beats(self_beat)
 
-    def getStep(self) -> 'Step':
+    def getStep(self) -> 'Steps':
         operand_total_steps: Fraction = self.getSteps() % od.DataSource( Fraction() )
         operand_steps_per_measure: Fraction = self.getMeasures().copy(1).getSteps() % od.DataSource( Fraction() )
         # # Compute the remainder
         # remainder = a - (a // b) * b
         self_step: Fraction = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
-        return Step(self_step)
+        return Steps(self_step)
 
     # def getMillis_rational(self) -> Fraction:
     #     return self._rational * Beat(1).getMillis_rational() / (os.staff % od.DataSource( BeatNoteValue() ) % Fraction())
@@ -816,7 +816,7 @@ class NoteValue(TimeValue):
     def __lshift__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measures() | Beats() | Step():
+            case Measures() | Beats() | Steps():
                 self._rational = operand.getNoteValues() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self

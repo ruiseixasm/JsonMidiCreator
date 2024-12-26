@@ -46,9 +46,9 @@ def test_time_mod():
     beat_float = time % od.DataSource( Beats() ) % float()
     assert beat_float == 4.5 * 4.0
 
-    step_float = time % Step() % float()
+    step_float = time % Steps() % float()
     assert step_float == 8.0
-    step_float = time % od.DataSource( Step() ) % float()
+    step_float = time % od.DataSource( Steps() ) % float()
     assert step_float == 4.5 * 16.0
 
     note_value_float = time % NoteValue() % float()
@@ -76,13 +76,13 @@ def test_add_steps():
 
     position = Position()
     measures = Measures(0.5)
-    position += Step(2 * 4)
+    position += Steps(2 * 4)
     assert position == measures
 
-    position += Step(4 * 4)
+    position += Steps(4 * 4)
     assert position == Position(1.5)
 
-    position += Step(-4 * 4)
+    position += Steps(-4 * 4)
     assert position == Position(0.5)
 
 def test_add_note_value():
@@ -119,13 +119,13 @@ def test_sub_steps():
 
     position = Position(2)
     measures = Measures(1.5)
-    position -= Step(2 * 4)
+    position -= Steps(2 * 4)
     assert position == measures
 
-    position -= Step(4 * 4)
+    position -= Steps(4 * 4)
     assert position == Position(0.5)
 
-    position -= Step(-4 * 4)
+    position -= Steps(-4 * 4)
     assert position == Position(1.5)
 
 def test_sub_note_value():

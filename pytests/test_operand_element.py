@@ -100,7 +100,7 @@ def test_note_mod():
         }
     ]
 
-    first_note = Note() << (Position() << Step(3*4 + 2))
+    first_note = Note() << (Position() << Steps(3*4 + 2))
     first_note_playlist = first_note.getPlaylist()
 
     # Sets the common device as that isn't being check
@@ -198,7 +198,7 @@ def test_program_change_mod():
 
 def test_milliseconds_duration():
 
-    note_value = NoteValue(Step(3*4 + 2))
+    note_value = NoteValue(Steps(3*4 + 2))
     assert note_value == Beats(3.5)
     rest = Rest(note_value)
     rest_playlist = rest.getPlaylist()
