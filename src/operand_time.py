@@ -33,7 +33,7 @@ class Time(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._time_unit      = ra.Measure()
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def time(self: TypeTime, time: float = None) -> TypeTime:
