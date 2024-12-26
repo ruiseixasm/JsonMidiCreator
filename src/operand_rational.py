@@ -46,9 +46,11 @@ class Rational(o.Operand):
     first : float_like
         A fraction like 1/4 or 0.9 or 1.24
     """
+    
+    _limit_denominator: int = 1000000  # default value of limit_denominator
+
     def __init__(self, *parameters):
         super().__init__()
-        self._limit_denominator: int = 1000000  # default value of limit_denominator
         self._rational: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         if parameters:
             self << parameters
