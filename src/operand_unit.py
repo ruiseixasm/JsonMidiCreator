@@ -243,6 +243,18 @@ class Previous(Unit):
         if len(parameters) > 0:
             self << parameters
 
+class TimeUnit(Unit):
+    pass
+
+class Measure(TimeUnit):
+    pass
+
+class Beat(TimeUnit):
+    pass
+
+class Step(TimeUnit):
+    pass
+
 class Semitone(Unit):
     pass
 
