@@ -48,7 +48,7 @@ def test_operand_copy():
     list_all_classes: list[type] = list_all_operand_classes(Operand)
 
     for single_class in list_all_classes:
-        class_object: Operand = single_class()
+        class_object: Operand = single_class() << 3 << "minor" << "##" << [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
         assert class_object == class_object.copy()
 
     root_classes_list: list[type] = get_root_classes_list(Operand)
@@ -63,7 +63,7 @@ def test_operand_serialization():
         single_instantiation = single_class()
         if isinstance(single_instantiation, Operand) and not isinstance(single_instantiation, (Serialization, Playlist)):
             print(single_class.__name__)
-            single_instantiation << -1 << "minor" << "##" << [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
+            single_instantiation << 3 << "minor" << "##" << [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
             serialization: dict = single_instantiation.getSerialization()
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)

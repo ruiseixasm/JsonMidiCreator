@@ -109,7 +109,7 @@ class Operator(o.Operand):
                 super().__lshift__(operand)
                 operator_list = []
                 for single_operator in operand % od.DataSource( list() ):
-                    operator_list.append(single_operator.copy())
+                    operator_list.append(self.deep_copy(single_operator))
                 self._operator_list = operator_list
                 self._operand       = self.deep_copy(operand % od.DataSource( o.Operand() ))
             case od.Serialization():
@@ -117,10 +117,7 @@ class Operator(o.Operand):
             case list():
                 operator_list = []
                 for single_operator in operand:
-                    if isinstance(single_operator, o.Operand):
-                        operator_list.append(single_operator.copy())
-                    else:
-                        operator_list.append(single_operator)
+                    operator_list.append(self.deep_copy(single_operator))
                 self._operator_list = operator_list
             case o.Operand():       self._operand << operand
             case ol.Null() | None:  return self

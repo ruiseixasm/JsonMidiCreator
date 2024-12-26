@@ -384,7 +384,7 @@ class Playlist(Data):
     def copy_play_list(play_list: list[dict]) -> list[dict]:
         copy_play_list = []
         for single_dict in play_list:
-            copy_play_list.append(single_dict.copy())
+            copy_play_list.append(o.Operand.deep_copy(single_dict))
         return copy_play_list
 
 class Load(Serialization):
