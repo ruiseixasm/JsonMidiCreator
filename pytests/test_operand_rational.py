@@ -48,7 +48,7 @@ def test_dotted_mod():
     dotted = Dotted(1/4)
     assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
     assert dotted % Dotted() % Fraction() == Fraction(1, 4)
-    assert dotted % Beats() % Fraction() == Fraction(3, 2)
+    assert dotted % DataSource( Fraction() ) == Fraction(3, 8)
 
 
 def test_beats_and_steps_default():
@@ -80,12 +80,12 @@ def test_beats_and_steps_default():
 
 def test_beats_and_steps_specific():
 
-    measures = Measures(1.5) << TimeSignature(3, 8) << Quantization(1/32)
-    assert measures.getBeats() % DataSource( Fraction() ) == 3 + 3/2
-    print(measures.getSteps() % DataSource( Fraction() ))
-    # assert measures.getSteps() % DataSource( Fraction() ) == 32 + 32/2
-    # assert measures.getBeat() == Beat(3/2)
-    # assert measures.getStep() == Step(1/2 * 32)
+    position_measures = Position(1.5) << TimeSignature(3, 8) << Quantization(1/32)
+    assert position_measures % Beats() % DataSource( Fraction() ) == 3 + 3/2
+    print(position_measures % Steps() % DataSource( Fraction() ))
+    # assert position_measures.getSteps() % DataSource( Fraction() ) == 32 + 32/2
+    # assert position_measures.getBeat() == Beat(3/2)
+    # assert position_measures.getStep() == Step(1/2 * 32)
 
     # beats = Beat(6) << TimeSignature(3, 8) << Quantization(1/32)
     # assert beats.getBeats() % DataSource( Fraction() ) == 6
