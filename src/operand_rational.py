@@ -389,7 +389,7 @@ class Tempo(Rational):
             case _: super().__lshift__(operand)
         return self
 
-class TimeValue(Rational):
+class TimeValue(Rational):  # Works as Absolute Beats
     """
     TimeUnit() represents any Time Length variables, namely, Measure, Beat, NoteValue and Step.
     
@@ -446,16 +446,23 @@ class TimeValue(Rational):
             case _:                     return super().__mod__(operand)
 
     def getMeasures(self) -> 'Measures':
-        return Measures(0)
+        beats: Fraction = self._rational
+        beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
+        return Measures(beats / beats_per_measure)
 
     def getBeats(self) -> 'Beats':
-        return Beats(0)
+        beats: Fraction = self._rational
+        return Beats(beats)
 
     def getSteps(self) -> 'Steps':
-        return Steps(0)
+        notes: Fraction = self.getNoteValue() % od.DataSource( Fraction() )
+        notes_per_step: Fraction = self._quantization % Fraction()
+        return Steps(notes / notes_per_step)
 
     def getNoteValue(self) -> 'NoteValue':
-        return NoteValue(0)
+        beats: Fraction = self._rational
+        notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
+        return NoteValue(beats * notes_per_beat)
 
     def getMeasure(self) -> 'Measures':
         measure: Measures = self.getMeasures()
