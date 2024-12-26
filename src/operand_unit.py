@@ -595,7 +595,7 @@ class Key(Unit):
                 self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
                 self._natural._unit = operand._natural._unit
-                self._degree        << operand._degree
+                self._degree._unit  = operand._degree._unit
                 self._scale         << operand._scale
             case int() | float() | Fraction() | Semitone() | IntU() | ra.FloatR():
                                     if isinstance(operand, o.Operand):
