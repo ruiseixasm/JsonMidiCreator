@@ -438,23 +438,25 @@ class Time(Rational):
                     case Quantization():        return self._quantization
                     case _:                     return super().__mod__(operand)
             case Measures():
-                return Measures(self._time_value)
+                measures: Fraction = self.getMeasures(Beats(self._rational)) % Fraction()
+                return Measures(measures)
             case Beats():
-                return Beats(self._time_value)
+                return Beats(self._rational)
             case Steps():
-                return Steps(self._time_value)
+                steps: Fraction = self.getSteps(Beats(self._rational)) % Fraction()
+                return Steps(steps)
             case NoteValue():
-                return NoteValue(self._time_value)
-            case ou.TimeUnit() | int() | float() | Fraction() | ou.IntU() | FloatR() | Tempo() | og.TimeSignature() | Quantization():
-                return self._time_value % operand
-            
+                note_value: Fraction = self.getNoteValue(Beats(self._rational)) % Fraction()
+                return NoteValue(note_value)
+            case ou.Measure():
+                return ou.Measure(self.getMeasure(Beats(self._rational)))
+            case ou.Beat():
+                return ou.Beat(self.getBeat(Beats(self._rational)))
+            case ou.Step():
+                return ou.Step(self.getStep(Beats(self._rational)))
             case Tempo():               return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case Quantization():        return self._quantization.copy()
-            # Conversion to Time Units
-            case ou.Measure():          return ou.Measure(Measures(self) % Fraction())
-            case ou.Beat():             return ou.Beat(Beats(self) % Fraction())
-            case ou.Step():             return ou.Step(Steps(self) % Fraction())
             case _:                     return super().__mod__(operand)
 
 
@@ -582,10 +584,10 @@ class Time(Rational):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case TimeValue() | ou.TimeUnit():
-                return self._time_value == other
             case Time():
-                return self._time_value == other._time_value
+                return self._rational == other._rational
+            case TimeValue() | ou.TimeUnit():
+                return self._rational == self.getBeats(other) % Fraction()
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -594,19 +596,19 @@ class Time(Rational):
     def __lt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case TimeValue() | ou.TimeUnit():
-                return self._time_value < other
             case Time():
-                return self._time_value < other._time_value
+                return self._rational < other._rational
+            case TimeValue() | ou.TimeUnit():
+                return self._rational < self.getBeats(other) % Fraction()
         return False
     
     def __gt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case TimeValue() | ou.TimeUnit():
-                return self._time_value > other
             case Time():
-                return self._time_value > other._time_value
+                return self._rational > other._rational
+            case TimeValue() | ou.TimeUnit():
+                return self._rational > self.getBeats(other) % Fraction()
         return False
     
     def __str__(self):
@@ -696,26 +698,9 @@ class Time(Rational):
                 self_copy << od.DataSource( self._time_value - operand )
         return self_copy
     
-    def __mul__(self, operand: o.Operand) -> 'Time':
-        self_copy = self.copy()
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
-                self_copy << od.DataSource( self._time_value * operand )
-        return self_copy
-    
     def __rmul__(self, operand: o.Operand) -> 'Time':
         return self * operand
     
-    def __truediv__(self, operand: o.Operand) -> 'Time':
-        self_copy = self.copy()
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
-                if operand != 0:
-                    self_copy << od.DataSource( self._time_value / operand )
-        return self_copy
-
     def __rtruediv__(self, operand: o.Operand) -> 'Time':
         return self / operand
     
@@ -846,18 +831,7 @@ class Measures(TimeValue):
     first : float_like
         Proportional value to a Measure on the Staff
     """
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
-        measures: Fraction = self._rational / beats_per_measure
-        match operand:
-            case Fraction():        return measures
-            case float():           return float(measures)
-            case int():             return int(measures)
-            case str():             return str(measures)
-            case ou.IntU():         return ou.IntU(measures)
-            case FloatR():          return FloatR(measures)
-            case _:                 return super().__mod__(operand)
+    pass
 
 class Beats(TimeValue):
     """
@@ -868,18 +842,7 @@ class Beats(TimeValue):
     first : float_like
         Proportional value to a Beat on the Staff
     """
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        beats_per_beat: Fraction = Fraction(1).limit_denominator(self._limit_denominator)
-        beats: Fraction = self._rational / beats_per_beat
-        match operand:
-            case Fraction():        return beats
-            case float():           return float(beats)
-            case int():             return int(beats)
-            case str():             return str(beats)
-            case ou.IntU():         return ou.IntU(beats)
-            case FloatR():          return FloatR(beats)
-            case _:                 return super().__mod__(operand)
+    pass
 
 class Steps(TimeValue):
     """
@@ -890,20 +853,7 @@ class Steps(TimeValue):
     first : float_like
         Steps as 1, 2, 4, 8
     """
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-        notes_per_step: Fraction = self._quantization % Fraction()
-        beats_per_step: Fraction = notes_per_step / notes_per_beat
-        steps: Fraction = self._rational / beats_per_step
-        match operand:
-            case Fraction():        return steps
-            case float():           return float(steps)
-            case int():             return int(steps)
-            case str():             return str(steps)
-            case ou.IntU():         return ou.IntU(steps)
-            case FloatR():          return FloatR(steps)
-            case _:                 return super().__mod__(operand)
+    pass
 
 class NoteValue(TimeValue):
     """
@@ -914,18 +864,7 @@ class NoteValue(TimeValue):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-        notes: Fraction = self._rational * notes_per_beat
-        match operand:
-            case Fraction():        return notes
-            case float():           return float(notes)
-            case int():             return int(notes)
-            case str():             return str(notes)
-            case ou.IntU():         return ou.IntU(notes)
-            case FloatR():          return FloatR(notes)
-            case _:                 return super().__mod__(operand)
+    pass
 
 class Dotted(NoteValue):
     """
