@@ -40,9 +40,7 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ra.Position         = ra.Position()
-        self._duration: ra.Duration         = ra.Duration()
-        staff_duration: Fraction            = os.staff % od.DataSource( ra.Duration() ) % od.DataSource( Fraction() )
-        self._duration                      << od.DataSource( staff_duration )
+        self._duration: ra.Duration         = ra.Duration(os.staff._note_value)
         self._stackable: ou.Stackable       = ou.Stackable()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
@@ -327,7 +325,7 @@ class Loop(Element):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration      << os.staff % od.DataSource( ra.Measures() )
+        self._duration      << os.staff._measures
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if parameters:
             self << parameters
