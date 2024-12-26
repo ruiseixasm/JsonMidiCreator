@@ -762,15 +762,11 @@ class Octave(Unit):
         An Integer representing the full midi keyboard octave varying from -1 to 9
     """
     def __init__(self, *parameters):
-        super().__init__(1) # By default it's 1 to be used in basic operations like + and -
-        if len(parameters) > 0:
-            self << parameters
+        super().__init__(1, *parameters) # By default it's 1 to be used in basic operations like + and -
 
 class Sharps(Unit):  # Sharps (###)
     def __init__(self, *parameters):
-        super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+        super().__init__(1, *parameters)
 
     # CHAINABLE OPERATIONS
 
@@ -816,9 +812,7 @@ class Flat(Flats):   # Flat (b)
 
 class Boolean(Unit):
     def __init__(self, *parameters):
-        super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+        super().__init__(1, *parameters)
 
 class Default(Boolean):
     pass
