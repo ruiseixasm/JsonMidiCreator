@@ -47,7 +47,7 @@ class Element(o.Operand):
         self._stackable: ou.Stackable       = ou.Stackable()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
@@ -330,7 +330,7 @@ class Clock(Element):
         super().__init__()
         self._duration      << os.staff % od.DataSource( ra.Measure() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def ppqn(self: 'Clock', ppqn: int = None) -> 'Clock':
@@ -455,10 +455,6 @@ class Clock(Element):
         return self
 
 class Rest(Element):
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
@@ -495,10 +491,10 @@ class Note(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._pitch: og.Pitch       = og.Pitch()
-        self._velocity: ou.Velocity = os.staff % ou.Velocity()
+        self._velocity: ou.Velocity = os.staff._velocity.copy()
         self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':

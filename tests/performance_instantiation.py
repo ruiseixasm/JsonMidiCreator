@@ -34,4 +34,20 @@ def instantiate_classes(iterations: int = 100):
     sorted_results_dict = dict(sorted(results_dict.items(), key=lambda item: item[1], reverse=True))
     print(sorted_results_dict)
 
-instantiate_classes(100)
+def copy_classes(iterations: int = 100):
+    results_dict: dict = {}
+    list_all_classes: list[type] = list_all_operand_classes(Operand)
+    for single_class in list_all_classes:
+        class_instantiation: Operand = single_class()
+        start_time = time.time()
+        for _ in range(iterations):
+            class_instantiation.copy()
+        results_dict[single_class.__name__] = round((time.time() - start_time) * 1000)
+    sorted_results_dict = dict(sorted(results_dict.items(), key=lambda item: item[1], reverse=True))
+    print(sorted_results_dict)
+
+
+
+
+# instantiate_classes(100)
+copy_classes(100)
