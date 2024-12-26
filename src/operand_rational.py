@@ -673,6 +673,7 @@ class Time(Rational):
                 self._rational = self.getBeats(operand) % Fraction()
             case _:
                 super().__lshift__(operand)
+        return self
 
     def __add__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()

@@ -54,28 +54,28 @@ def test_dotted_mod():
 def test_beats_and_steps_default():
 
     position_measures = Position(1.5)
-    assert position_measures.getBeats() % DataSource( Fraction() ) == 6
-    assert position_measures.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert position_measures.getBeat() == Beats(2)
-    assert position_measures.getStep() == Steps(1/2 * 16)
+    assert position_measures % Beats() % DataSource( Fraction() ) == 6
+    assert position_measures % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert position_measures % Beat() == Beats(2)
+    assert position_measures % Step() == Steps(1/2 * 16)
 
     position_beats = Position(Beats(6))
-    assert position_beats.getBeats() % DataSource( Fraction() ) == 6
-    assert position_beats.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert position_beats.getBeat() == Beats(2)
-    assert position_beats.getStep() == Steps(1/2 * 16)
+    assert position_beats % Beats() % DataSource( Fraction() ) == 6
+    assert position_beats % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert position_beats % Beat() == Beats(2)
+    assert position_beats % Step() == Steps(1/2 * 16)
 
     position_steps = Position(Steps(16 + 16/2))
-    assert position_steps.getBeats() % DataSource( Fraction() ) == 6
-    assert position_steps.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert position_steps.getBeat() == Beats(2)
-    assert position_steps.getStep() == Steps(1/2 * 16)
+    assert position_steps % Beats() % DataSource( Fraction() ) == 6
+    assert position_steps % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert position_steps % Beat() == Beats(2)
+    assert position_steps % Step() == Steps(1/2 * 16)
 
     duration = Duration(1.5)
-    assert duration.getBeats() % DataSource( Fraction() ) == 6
-    assert duration.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert duration.getBeat() == Beats(2)
-    assert duration.getStep() == Steps(1/2 * 16)
+    assert duration % Beats() % DataSource( Fraction() ) == 6
+    assert duration % Steps() % DataSource( Fraction() ) == 16 + 16/2
+    assert duration % Beat() == Beats(2)
+    assert duration % Step() == Steps(1/2 * 16)
 
 
 def test_beats_and_steps_specific():
@@ -222,3 +222,4 @@ def test_sub_note_value():
     position -= NoteValue(-4 / 4)
     assert position == Position(1.5)
 
+# test_sub_note_value()
