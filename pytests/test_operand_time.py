@@ -56,6 +56,11 @@ def test_time_mod():
     note_value_float = time % od.DataSource( NoteValue() ) % float()
     assert note_value_float == 4.5 * 1.0
 
+
+test_time_mod()
+
+
+
 def test_add_beats():
 
     position = Position()
