@@ -40,5 +40,5 @@ end_point_3 = Note("A", 1/8, Gate(1)) * 5 + Iterate()**0
 measure_1 = Note("C", 5, 1/1)
 measure_2 = Note("C", 5, Gate(1)) * 4 + Foreach(0, 3, -2, 1) << Nth(4)**Gate(0.9)
 
-ProgramChange(75, Duration(Measure(1))) >> motif >> end_point_1 >> motif >> end_point_2 >> motif >> end_point_3 >> measure_1 \
->> motif + 4 >> end_point_1 + 4 >> measure_2 >> motif >> end_point_1 >> measure_1 - 4 << Equal(Measure(1 + 6))**Equal(Beat(3))**Key("G") >> ProgramChange(1, Beat(2)) >> Play()
+ProgramChange(75, Duration(Measures(1))) >> motif >> end_point_1 >> motif >> end_point_2 >> motif >> end_point_3 >> measure_1 \
+>> motif + 4 >> end_point_1 + 4 >> measure_2 >> motif >> end_point_1 >> measure_1 - 4 << Equal(Measures(1 + 6))**Equal(Beat(3))**Key("G") >> ProgramChange(1, Beat(2)) >> Play()

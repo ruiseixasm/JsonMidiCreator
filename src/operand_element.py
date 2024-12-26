@@ -93,7 +93,7 @@ class Element(o.Operand):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ot.Position():     return self._position.copy()
-            case ra.TimeUnit():     return self._position % operand
+            case ra.TimeValue():     return self._position % operand
             case ot.Duration():     return self._duration.copy()
             case ou.Stackable():    return self._stackable.copy()
             case ou.Channel():      return self._channel.copy()
@@ -114,7 +114,7 @@ class Element(o.Operand):
                     and self._device        == other % od.DataSource( od.Device() )
             case ra.NoteValue():
                 return self._duration == other
-            case ra.TimeUnit():
+            case ra.TimeValue():
                 return self._position == other
             case _:
                 if other.__class__ == o.Operand:
@@ -130,7 +130,7 @@ class Element(o.Operand):
                 return  False
             case ra.NoteValue():
                 return self._duration < other
-            case ra.TimeUnit():
+            case ra.TimeValue():
                 return self._position < other
             case _:
                 return self % od.DataSource( other ) < other
@@ -142,7 +142,7 @@ class Element(o.Operand):
                 return  False
             case ra.NoteValue():
                 return self._duration > other
-            case ra.TimeUnit():
+            case ra.TimeValue():
                 return self._position > other
             case _:
                 return self % od.DataSource( other ) > other
@@ -233,7 +233,7 @@ class Element(o.Operand):
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
                 self._duration      << operand
-            case ot.Position() | ra.TimeUnit() | int() | ou.IntU():
+            case ot.Position() | ra.TimeValue() | int() | ou.IntU():
                                     self._position << operand
             case ou.Stackable():
                 self._stackable     << operand
@@ -328,7 +328,7 @@ class Loop(Element):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration      << os.staff % od.DataSource( ra.Measure() )
+        self._duration      << os.staff % od.DataSource( ra.Measures() )
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
         if parameters:
             self << parameters
@@ -377,9 +377,9 @@ class Clock(Element):
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
         pulses_per_beat = pulses_per_note * (os.staff % ra.BeatNoteValue() % od.DataSource( Fraction() ))
         pulses_per_measure = pulses_per_beat * (os.staff % ra.BeatsPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measure() ) % od.DataSource( Fraction() )))
+        clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measures() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = ra.Measure(1.0).getMillis_rational()
+        single_measure_rational_ms = ra.Measures(1.0).getMillis_rational()
         clock_start_rational_ms = position.getMillis_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._duration.getMillis_rational()
 
@@ -397,7 +397,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(float(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._duration % od.DataSource( ra.Measure() ) % od.DataSource( Fraction() )) \
+                                     + single_measure_rational_ms * (self._duration % od.DataSource( ra.Measures() ) % od.DataSource( Fraction() )) \
                                      * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
@@ -672,7 +672,7 @@ class Dyad(Cluster):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self << ra.NoteValue(ra.Measure(1)) # By default a Scale and a Chord has one Measure duration
+        self << ra.NoteValue(ra.Measures(1)) # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale  = og.Scale("Major")    # Major scale as default
         if len(parameters) > 0:
             self << parameters

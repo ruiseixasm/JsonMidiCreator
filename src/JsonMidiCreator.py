@@ -91,14 +91,14 @@ Dot32 = Dotted(1/32)
 # Staff Position
 
 # Measures
-M1 = Measure(0)
-M2 = Measure(1)
-M3 = Measure(2)
-M4 = Measure(3)
-M5 = Measure(4)
-M6 = Measure(5)
-M7 = Measure(6)
-M8 = Measure(7)
+M1 = Measures(0)
+M2 = Measures(1)
+M3 = Measures(2)
+M4 = Measures(3)
+M5 = Measures(4)
+M6 = Measures(5)
+M7 = Measures(6)
+M8 = Measures(7)
 
 # Beats
 B1 = Beat(0)

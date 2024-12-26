@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measure(7)
+staff << Tempo(120) << Measures(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 sequence = Note("C", Duration(0), Duration(4), Velocity(85), Gate(1)) * 8 + Iterate()**0

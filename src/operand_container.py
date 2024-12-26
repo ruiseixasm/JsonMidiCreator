@@ -513,7 +513,7 @@ class Sequence(Container):  # Just a container of Elements
             case ot.Duration() | ra.NoteValue() | float() | Fraction():
                 super().__lshift__(operand)
                 self.stack()
-            case ot.Position() | ra.TimeUnit():
+            case ot.Position() | ra.TimeValue():
                 super().__lshift__(operand)
                 self.link() # Maybe completely unnecessary
             case _: super().__lshift__(operand)
@@ -551,7 +551,7 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:
-            last_element << ot.Duration(ot.Position(last_element % ra.Measure() + 1) - last_element._position)
+            last_element << ot.Duration(ot.Position(last_element % ra.Measures() + 1) - last_element._position)
         return self
 
     def stack(self) -> 'Sequence':
@@ -612,7 +612,7 @@ class Sequence(Container):  # Just a container of Elements
             case ot.Duration() | ra.NoteValue():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ot.Position() + operand
-            case ot.Position() | ra.TimeUnit():
+            case ot.Position() | ra.TimeValue():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
             case oe.Element():
@@ -621,7 +621,7 @@ class Sequence(Container):  # Just a container of Elements
                 if self._midi_track == operand._midi_track:
                     operand_copy: Sequence = operand.copy()
                     last_position: ot.Position = operand_copy.sort().last() % od.DataSource( ot.Position() )
-                    new_self_position: ot.Position = last_position % ra.Measure() + 1
+                    new_self_position: ot.Position = last_position % ra.Measures() + 1
                     self << of.Get(ot.Position())**of.Add(new_self_position) # WITHOUT OPERAND.COPY IT FAILS TEST 3.6
                     # return operand + (self + end_position)    # FAILS TEST 3.5
                     return (operand + self) # WITHOUT STACK IT FAILS TEST 3.5
@@ -707,7 +707,7 @@ class Sequence(Container):  # Just a container of Elements
         return super().__truediv__(operand)
     
     def __floordiv__(self, duration: ot.Duration) -> 'Sequence':
-        if isinstance(duration, ra.TimeUnit):
+        if isinstance(duration, ra.TimeValue):
             duration = ot.Duration() << duration
         match duration:
             case ot.Duration():

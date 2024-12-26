@@ -380,7 +380,7 @@ class Tempo(Rational):
             case _: super().__lshift__(operand)
         return self
 
-class TimeUnit(Rational):
+class TimeValue(Rational):
     """
     TimeUnit() represents any Time Length variables, namely, Measure, Beat, NoteValue and Step.
     
@@ -422,7 +422,7 @@ class TimeUnit(Rational):
                     case Tempo():               return self._tempo
                     case og.TimeSignature():    return self._time_signature
                     case Quantization():        return self._quantization
-                    case Measure():             return self.getMeasures()
+                    case Measures():             return self.getMeasures()
                     case Beat():                return self.getBeats()
                     case Step():                return self.getSteps()
                     case NoteValue():           return self.getNoteValues()
@@ -430,14 +430,14 @@ class TimeUnit(Rational):
             case Tempo():               return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case Quantization():        return self._quantization.copy()
-            case Measure():             return self.getMeasures()
+            case Measures():             return self.getMeasures()
             case Beat():                return self.getBeats()
             case Step():                return self.getSteps()
             case NoteValue():           return self.getNoteValues()
             case _:                     return super().__mod__(operand)
 
-    def getMeasures(self) -> 'Measure':
-        return Measure(0)
+    def getMeasures(self) -> 'Measures':
+        return Measures(0)
 
     def getBeats(self) -> 'Beat':
         return Beat(0)
@@ -448,8 +448,8 @@ class TimeUnit(Rational):
     def getNoteValues(self) -> 'NoteValue':
         return NoteValue(0)
 
-    def getMeasure(self) -> 'Measure':
-        measure: Measure = self.getMeasures()
+    def getMeasure(self) -> 'Measures':
+        measure: Measures = self.getMeasures()
         measure << od.DataSource( int(measure._rational) )
         return measure
 
@@ -466,7 +466,7 @@ class TimeUnit(Rational):
     
     def __eq__(self, other: any) -> bool:
         match other:
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 return self._rational == self_class_time_unit % od.DataSource( Fraction() )
                 # return self.getMillis_rational() == other.getMillis_rational()
@@ -475,7 +475,7 @@ class TimeUnit(Rational):
     
     def __lt__(self, other: any) -> bool:
         match other:
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 return self._rational < self_class_time_unit % od.DataSource( Fraction() )
                 # return self.getMillis_rational() < other.getMillis_rational()
@@ -484,7 +484,7 @@ class TimeUnit(Rational):
     
     def __gt__(self, other: any) -> bool:
         match other:
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 return self._rational > self_class_time_unit % od.DataSource( Fraction() )
                 # return self.getMillis_rational() > other.getMillis_rational()
@@ -503,7 +503,7 @@ class TimeUnit(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'TimeUnit':
+    def loadSerialization(self, serialization: dict) -> 'TimeValue':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "quantization" in serialization["parameters"]):
@@ -515,7 +515,7 @@ class TimeUnit(Rational):
 
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'TimeUnit':
+    def __lshift__(self, operand: o.Operand) -> 'TimeValue':
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -525,7 +525,7 @@ class TimeUnit(Rational):
                     case og.TimeSignature():    self._time_signature    = operand % o.Operand()
                     case Quantization():        self._quantization      = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
-            case TimeUnit():
+            case TimeValue():
                 super().__lshift__(operand)
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
@@ -536,45 +536,45 @@ class TimeUnit(Rational):
             case _:                     super().__lshift__(operand)
         return self
 
-    def __add__(self, other: 'TimeUnit') -> 'TimeUnit':
+    def __add__(self, other: 'TimeValue') -> 'TimeValue':
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational + self_class_time_unit % od.DataSource( Fraction() ) )
             case _: return super().__add__(other)
     
-    def __sub__(self, other: 'TimeUnit') -> 'TimeUnit':
+    def __sub__(self, other: 'TimeValue') -> 'TimeValue':
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational - self_class_time_unit % od.DataSource( Fraction() ) )
             case _: return super().__sub__(other)
     
-    def __mul__(self, other: 'TimeUnit') -> 'TimeUnit':
+    def __mul__(self, other: 'TimeValue') -> 'TimeValue':
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Gate() | Swing() | ou.Division():
                 return self.__class__() << od.DataSource( self._rational * (other % od.DataSource( Fraction() )) )
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 return self.__class__() << od.DataSource( self._rational * (self_class_time_unit % od.DataSource( Fraction() )) )
             case _: return super().__mul__(other)
     
-    def __truediv__(self, other: 'TimeUnit') -> 'TimeUnit':
+    def __truediv__(self, other: 'TimeValue') -> 'TimeValue':
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Gate() | Swing() | ou.Division():
                 if other % od.DataSource( Fraction() ) != 0:
                     return self.__class__() << od.DataSource( self._rational / (other % od.DataSource( Fraction() )) )
-            case TimeUnit():
+            case TimeValue():
                 self_class_time_unit = other % od.DataSource( self )
                 if self_class_time_unit % od.DataSource( Fraction() ) != 0:
                     return self.__class__() << od.DataSource( self._rational / (self_class_time_unit % od.DataSource( Fraction() )) )
             case _: return super().__truediv__(other)
 
-class Measure(TimeUnit):
+class Measures(TimeValue):
     """
     Measure() represents the Staff Time Length in Measures, also known as Bar.
     
@@ -584,7 +584,7 @@ class Measure(TimeUnit):
         Proportional value to a Measure on the Staff
     """
 
-    def getMeasures(self) -> 'Measure':
+    def getMeasures(self) -> 'Measures':
         return self.copy()
 
     def getBeats(self) -> 'Beat':
@@ -623,7 +623,7 @@ class Measure(TimeUnit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Measure':
+    def __lshift__(self, operand: o.Operand) -> 'Measures':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             # case Measure():
@@ -637,7 +637,7 @@ class Measure(TimeUnit):
             case _: super().__lshift__(operand)
         return self
 
-class Beat(TimeUnit):
+class Beat(TimeValue):
     """
     A Beat() represents the Staff Time Length in Beat on which the Tempo is based on (BPM).
     
@@ -647,10 +647,10 @@ class Beat(TimeUnit):
         Proportional value to a Beat on the Staff
     """
 
-    def getMeasures(self) -> 'Measure':
+    def getMeasures(self) -> 'Measures':
         beats: Fraction = self._rational
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
-        return Measure(beats / beats_per_measure)
+        return Measures(beats / beats_per_measure)
 
     def getBeats(self) -> 'Beat':
         return self.copy()
@@ -696,12 +696,12 @@ class Beat(TimeUnit):
             #     # # Compute the remainder
             #     # remainder = a - (a // b) * b
             #     self._rational = operand_total_beats - (operand_total_beats // operand_beats_per_measure) * operand_beats_per_measure
-            case Measure() | Step() | NoteValue():
+            case Measures() | Step() | NoteValue():
                 self._rational = operand.getBeats() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
-class Step(TimeUnit):
+class Step(TimeValue):
     """
     A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
     
@@ -711,10 +711,10 @@ class Step(TimeUnit):
         Steps as 1, 2, 4, 8
     """
 
-    def getMeasures(self) -> 'Measure':
+    def getMeasures(self) -> 'Measures':
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
-        return Measure(beats / beats_per_measure)
+        return Measures(beats / beats_per_measure)
 
     def getBeats(self) -> 'Beat':
         notes: Fraction = self.getNoteValues() % od.DataSource( Fraction() )
@@ -759,12 +759,12 @@ class Step(TimeUnit):
             #     # # Compute the remainder
             #     # remainder = a - (a // b) * b
             #     self._rational = operand_total_steps - (operand_total_steps // operand_steps_per_measure) * operand_steps_per_measure
-            case Measure() | Beat() | NoteValue():
+            case Measures() | Beat() | NoteValue():
                 self._rational = operand.getSteps() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self
 
-class NoteValue(TimeUnit):
+class NoteValue(TimeValue):
     """
     NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
     
@@ -774,15 +774,15 @@ class NoteValue(TimeUnit):
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
 
-    def getMeasures(self) -> 'Measure':
+    def getMeasures(self) -> 'Measures':
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
         beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
-        return Measure(beats / beats_per_measure)
+        return Measures(beats / beats_per_measure)
 
     def getBeats(self) -> 'Beat':
         notes: Fraction = self._rational
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-        return Beat(TimeUnit(self), notes / notes_per_beat)
+        return Beat(TimeValue(self), notes / notes_per_beat)
 
     def getSteps(self) -> 'Step':
         notes: Fraction = self._rational
@@ -816,7 +816,7 @@ class NoteValue(TimeUnit):
     def __lshift__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Measure() | Beat() | Step():
+            case Measures() | Beat() | Step():
                 self._rational = operand.getNoteValues() % od.DataSource( Fraction() )
             case _: super().__lshift__(operand)
         return self

@@ -51,7 +51,7 @@ def test_dotted_mod():
 
 def test_beats_and_steps_default():
 
-    measures = Measure(1.5)
+    measures = Measures(1.5)
     assert measures.getBeats() % DataSource( Fraction() ) == 6
     assert measures.getSteps() % DataSource( Fraction() ) == 16 + 16/2
     assert measures.getBeat() == Beat(2)
@@ -77,7 +77,7 @@ def test_beats_and_steps_default():
 
 def test_beats_and_steps_specific():
 
-    measures = Measure(1.5) << TimeSignature(3, 8) << Quantization(1/32)
+    measures = Measures(1.5) << TimeSignature(3, 8) << Quantization(1/32)
     assert measures.getBeats() % DataSource( Fraction() ) == 3 + 3/2
     print(measures.getSteps() % DataSource( Fraction() ))
     # assert measures.getSteps() % DataSource( Fraction() ) == 32 + 32/2

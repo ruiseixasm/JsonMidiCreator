@@ -26,7 +26,7 @@ staff << KeySignature("#")
 original: Sequence = Note("B") * 4 + Foreach(0, 3, 2, 0) << Foreach(1/4, 1/4, 1/2, 1/1) >> Stack()
 original >> Rest() >> Play()
 
-back_phrasing:Sequence = original.copy() + Equal(Measure(0))**Position(NoteValue(1/4)) >> Link()
+back_phrasing:Sequence = original.copy() + Equal(Measures(0))**Position(NoteValue(1/4)) >> Link()
 back_phrasing >> Rest() >> Play()
 
 

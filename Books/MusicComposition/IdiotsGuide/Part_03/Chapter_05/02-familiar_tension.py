@@ -28,7 +28,7 @@ familiar_bar4 = Note("B", NoteValue(1))
 familiar_bar1 >> familiar_bar2 >> familiar_bar3 >> familiar_bar4 >> Play()
 
 
-tension = Note("B", 5) * 12 << Nth(7)**NoteValue(1/2) >> Stack() << Equal(Measure(3))**NoteValue(1) >> Stack()
+tension = Note("B", 5) * 12 << Nth(7)**NoteValue(1/2) >> Stack() << Equal(Measures(3))**NoteValue(1) >> Stack()
 tension + Foreach(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
 tension >> Play()
 
@@ -36,9 +36,9 @@ tension >> Play()
 staff << KeySignature("#")
 center = Note("B", 5) * 11 << Foreach(1/2, None, None, 1/2, None, None, None, None, None, None, 1/1) >> Stack()
 
-(center | Measure(0)) + Foreach(0, -2, -1)
-(center | Measure(1)) + Foreach(0, 2, 1)
-(center | Measure(2)) + Foreach(0, -1, -2, -1)
+(center | Measures(0)) + Foreach(0, -2, -1)
+(center | Measures(1)) + Foreach(0, 2, 1)
+(center | Measures(2)) + Foreach(0, -1, -2, -1)
 center >> Play()
 
 
@@ -53,8 +53,8 @@ repeat_4 = Note("B", 5) - 2 << 1/1
 form_1 = Note("B", 5, Gate(1)) * 6 << Nth(1, 6)**NoteValue(1) << Nth(2, 3, 4, 5)**NoteValue(1/2) << Nth(6)**Gate(0.9) >> Stack()
 form_1 + Foreach(0, 3, 2, 1, 2)
 
-form_2 = (form_1 | Equal(Measure(0), Measure(3))) >> Copy()
-form_2 = form_2 + Note("B", 5, Measure(1), Gate(1)) * 5 >> Sort()
+form_2 = (form_1 | Equal(Measures(0), Measures(3))) >> Copy()
+form_2 = form_2 + Note("B", 5, Measures(1), Gate(1)) * 5 >> Sort()
 form_2 + Foreach(-1, 0, -1, -2, -1, 0, -1)
 form_2 << Nth(6)**NoteValue(1) >> Stack()
 

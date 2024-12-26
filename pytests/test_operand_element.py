@@ -56,7 +56,7 @@ def test_clock_mod():
 
     # Perform the operation
     clock = Clock(4)
-    clock % Duration() % Measure() % float() >> Print()
+    clock % Duration() % Measures() % float() >> Print()
 
     # Restore stdout
     sys.stdout = sys.__stdout__
@@ -224,7 +224,7 @@ def test_milliseconds_duration():
     assert rest_start["time_ms"] == 0.0
     assert rest_stop["time_ms"] == 500.0
 
-    clock_measure = Clock(Duration(Measure(1)))
+    clock_measure = Clock(Duration(Measures(1)))
     clock_playlist: list = clock_measure.getPlaylist()
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 120 * 60 * 1000
@@ -240,7 +240,7 @@ def test_milliseconds_duration():
     position_tempo >> Print(0)
     assert position_tempo == staff % Tempo()
     assert duration_tempo == staff % Tempo()
-    clock_specific = Clock(Duration(Measure(1)))
+    clock_specific = Clock(Duration(Measures(1)))
     clock_playlist = clock_specific.getPlaylist()
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
