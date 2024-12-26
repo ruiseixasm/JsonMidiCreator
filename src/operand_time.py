@@ -275,18 +275,16 @@ class Time(o.Operand):
         return self._time_unit % int() + 1
 
 class Position(Time):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
+    pass
 
 class Length(Time):
-    def __init__(self, *parameters):
-        super().__init__(parameters)
+    pass
     
 class Duration(Time):
     def __init__(self, *parameters):
         super().__init__()
         self._time_unit      = ra.NoteValue()
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     # CHAINABLE OPERATIONS

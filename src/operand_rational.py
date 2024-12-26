@@ -50,7 +50,7 @@ class Rational(o.Operand):
         super().__init__()
         self._limit_denominator: int = 1000000  # default value of limit_denominator
         self._rational: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -277,8 +277,7 @@ class Quantization(Rational):
     first : float_like
         By default it's configured without any verbose, set to 1 or True to enable verbose
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class BeatsPerMeasure(Rational):
     """
@@ -289,8 +288,7 @@ class BeatsPerMeasure(Rational):
     first : float_like
         Time signature Beats per Measure, 3 for 3/4 or 4 for 4/4 
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class BeatNoteValue(Rational):
     """
@@ -301,8 +299,7 @@ class BeatNoteValue(Rational):
     first : float_like
         Time signature Beat Note Value, 1/4 for 3/4 or 1/8 for 4/8 
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class NotesPerMeasure(Rational):
     """
@@ -313,8 +310,7 @@ class NotesPerMeasure(Rational):
     first : float_like
         Represents 1 Note for a time signature of 4/4 and 1/2 Note for a time signature of 4/8 
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class StepsPerMeasure(Rational):
     """
@@ -326,8 +322,7 @@ class StepsPerMeasure(Rational):
     first : float_like
         How many Steps in a Measure
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class StepsPerNote(Rational):
     """
@@ -338,8 +333,7 @@ class StepsPerNote(Rational):
     first : float_like
         The inverse of the Quantization value
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class Tempo(Rational):
     """
@@ -350,9 +344,6 @@ class Tempo(Rational):
     first : float_like
         Beats per Minute
     """
-    def __init__(self, value: float = None):
-        super().__init__(value)
-        self._default: ou.Default   = ou.Default()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         import operand_rational as ra
@@ -401,14 +392,15 @@ class TimeUnit(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
         super().__init__()
-        self._tempo: Tempo                       = Tempo(120.0)
-        self._time_signature: og.TimeSignature   = og.TimeSignature(4, 4)
-        self._quantization: Quantization         = Quantization(1/16)
-        if hasattr(os, 'staff'):    # Don't do "if 'os.staff' in globals()"
-            self._tempo             << os.staff % od.DataSource( Tempo() )
-            self._time_signature    << os.staff % od.DataSource( og.TimeSignature() )
-            self._quantization      << os.staff % od.DataSource( Quantization() )
-        if len(parameters) > 0:
+        if os.staff_available:
+            self._tempo: Tempo                       = os.staff._tempo.copy()
+            self._time_signature: og.TimeSignature   = os.staff._time_signature.copy()
+            self._quantization: Quantization         = os.staff._quantization.copy()
+        else:
+            self._tempo: Tempo                       = Tempo(120.0)
+            self._time_signature: og.TimeSignature   = og.TimeSignature(4, 4)
+            self._quantization: Quantization         = Quantization(1/16)
+        if parameters:
             self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -591,10 +583,6 @@ class Measure(TimeUnit):
     first : float_like
         Proportional value to a Measure on the Staff
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
 
     def getMeasures(self) -> 'Measure':
         return self.copy()
@@ -658,10 +646,6 @@ class Beat(TimeUnit):
     first : float_like
         Proportional value to a Beat on the Staff
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
 
     def getMeasures(self) -> 'Measure':
         beats: Fraction = self._rational
@@ -726,10 +710,6 @@ class Step(TimeUnit):
     first : float_like
         Steps as 1, 2, 4, 8
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
 
     def getMeasures(self) -> 'Measure':
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
@@ -793,10 +773,6 @@ class NoteValue(TimeUnit):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
 
     def getMeasures(self) -> 'Measure':
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
@@ -861,10 +837,6 @@ class Dotted(NoteValue):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

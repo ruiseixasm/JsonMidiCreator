@@ -44,7 +44,7 @@ class Unit(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._unit: int = 0
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def unit(self: TypeUnit, number: int = None) -> TypeUnit:
@@ -251,7 +251,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         super().__init__()
         self._major: Major          = Major()
         self._tonic_key_int: int    = 0
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
     
     def get_tonic_key(self) -> int:
@@ -409,13 +409,13 @@ class Key(Unit):
         import operand_generic as og
         super().__init__()
         self._unit                          = None  # uses tonic key by default
-        self._key_signature: KeySignature   = os.staff % KeySignature()
+        self._key_signature: KeySignature   = os.staff._key_signature.copy()
         self._sharp: Sharp                  = Sharp(0)
         self._flat: Flat                    = Flat(0)
         self._natural: Natural              = Natural(0)
         self._degree: Degree                = Degree(1)
         self._scale: og.Scale               = og.Scale([])
-        if len(parameters) > 0:
+        if parameters:
             self << parameters
 
     def key_signature(self: 'Key', key_signature: 'KeySignature' = None) -> 'Key':
