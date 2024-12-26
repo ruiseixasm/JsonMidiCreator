@@ -49,7 +49,7 @@ def test_milliseconds_duration():
 
     duration = Duration(NoteValue(Step(3*4 + 2)))
     # duration >> Print()
-    assert duration == Beat(3.5)
+    assert duration == Beats(3.5)
     rest_sequence = Rest(duration) * 1
     sequence_playlist = rest_sequence.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms

@@ -68,7 +68,7 @@ class Time(o.Operand):
             case Time():            return self.copy()
             case ra.Measures():
                 return self._time_unit.getMeasure()
-            case ra.Beat() | ra.Step():
+            case ra.Beats() | ra.Step():
                 return operand.__class__() << (ra.Measures() << self._time_unit % Fraction() - self._time_unit % int())
             case ra.TimeValue() | int() | float() | Fraction() | ou.IntU() | ra.FloatR() | ra.Tempo() | og.TimeSignature() | ra.Quantization():
                 return self._time_unit % operand
@@ -81,7 +81,7 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other ) % od.DataSource( Fraction() ) == other % od.DataSource( Fraction() )
             case ra.Measures():
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) == other % od.DataSource( int() )
-            case ra.Beat(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
+            case ra.Beats(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
                     == other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
             case ra.Step(): # LAST % REQUIRED FOR POSITION GREATER THAN MEASURE 0!
@@ -101,7 +101,7 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other ) % od.DataSource( Fraction() ) < other % od.DataSource( Fraction() )
             case ra.Measures():
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) < other % od.DataSource( int() )
-            case ra.Beat():
+            case ra.Beats():
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
                     < other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
             case ra.Step():
@@ -118,7 +118,7 @@ class Time(o.Operand):
                 return self._time_unit % od.DataSource( other ) % od.DataSource( Fraction() ) > other % od.DataSource( Fraction() )
             case ra.Measures():
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) > other % od.DataSource( int() )
-            case ra.Beat():
+            case ra.Beats():
                 return self._time_unit % od.DataSource( other ) % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int()) \
                     > other % od.DataSource( int() ) % (os.staff % od.DataSource( ra.BeatsPerMeasure() ) % int())
             case ra.Step():
@@ -190,7 +190,7 @@ class Time(o.Operand):
                         + (self._time_unit % Fraction() - self._time_unit % int())
                 else:
                     self._time_unit     << operand
-            case ra.Beat() | ra.Step():
+            case ra.Beats() | ra.Step():
                 self._time_unit << self._time_unit % int()  # Resets to zero Beats/Steps
                 self._time_unit += operand
             case ra.TimeValue():

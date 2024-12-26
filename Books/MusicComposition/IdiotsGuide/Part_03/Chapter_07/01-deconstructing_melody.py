@@ -27,19 +27,19 @@ outline += Note("B", Dotted(1/2)) * 3 - Increment()**0
 outline >> Stack()
 outline >> Play()
 
-flesh = Note(Measures(0), Beat(1)) * 2 + Note(Measures(1), Beat(1), 1/2) + Note(Measures(2), Beat(1)) * 2 + Note(Measures(3), Beat(1), 1/2)
-flesh += Note(Measures(4), Beat(2)) + Note(Measures(5), Beat(2)) + Note(Measures(6), Beat(2))
+flesh = Note(Measures(0), Beats(1)) * 2 + Note(Measures(1), Beats(1), 1/2) + Note(Measures(2), Beats(1)) * 2 + Note(Measures(3), Beats(1), 1/2)
+flesh += Note(Measures(4), Beats(2)) + Note(Measures(5), Beats(2)) + Note(Measures(6), Beats(2))
 flesh - 1 + Foreach(5, 7, 5, 8, 10, 5, 6, 5, 4)
 outline << Nth(1, 2, 3, 4)**Duration(1/4) << Nth(5, 6, 7)**Duration(1/2)
 outline + flesh >> Link() >> Play()
 
-embellishing = Note("G", Measures(0), Beat(1), 1/8) * 4 + Increment()**0
-embellishing += Note("G", Measures(1), Beat(1)) * 2
-embellishing += Note("C", 5, Measures(2), Beat(1), 1/8) * 4 + Increment()**0
-embellishing += Note("G", Measures(3), Beat(1)) * 2
-embellishing += Note("D", 5, Measures(4), Beat(1), 1/8) * 4 - Increment()**0
-embellishing += Note("C", 5, Measures(5), Beat(1), 1/8) * 4 - Increment()**0
-embellishing += Note("B", Measures(6), Beat(1), 1/8) * 4 - Increment()**0
+embellishing = Note("G", Measures(0), Beats(1), 1/8) * 4 + Increment()**0
+embellishing += Note("G", Measures(1), Beats(1)) * 2
+embellishing += Note("C", 5, Measures(2), Beats(1), 1/8) * 4 + Increment()**0
+embellishing += Note("G", Measures(3), Beats(1)) * 2
+embellishing += Note("D", 5, Measures(4), Beats(1), 1/8) * 4 - Increment()**0
+embellishing += Note("C", 5, Measures(5), Beats(1), 1/8) * 4 - Increment()**0
+embellishing += Note("B", Measures(6), Beats(1), 1/8) * 4 - Increment()**0
 full = outline + embellishing >> Link()
 full << Get(Duration())**Duration()
 full >> Play()
@@ -51,10 +51,10 @@ outline: Sequence = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
 outline *= 4
 outline + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4
 (outline - outline % Last() | outline % Last()) << Dotted(1/2)
-outline << Equal(Measures(2))**Equal(Beat(6))**Pitch("A", 4)
+outline << Equal(Measures(2))**Equal(Beats(6))**Pitch("A", 4)
 outline >> Play()
 
-outline -= outline | Beat(0)
+outline -= outline | Beats(0)
 embellishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stack()
 embellishing += (Measures(1) >> embellishing) + (Measures(2) >> embellishing) + (Measures(3) >> embellishing)
 embellishing + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4

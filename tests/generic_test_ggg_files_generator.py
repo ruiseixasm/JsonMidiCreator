@@ -55,7 +55,7 @@ first_sequence = Rest(2/1, Channel(10)) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
 all_elements = Song(first_sequence) + second_sequence
-all_elements += (Duration() << Beat(2) >> first_note) + single_clock
+all_elements += (Duration() << Beats(2) >> first_note) + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")
 
 
@@ -108,7 +108,7 @@ staff << Measures(2)
 single_clock >> triplets_one >> triplets_two >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
 
 # triplets remain a sequence. Frames don't operate on Songs!!
-triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
+triplets = (triplets_one >> triplets_two) + Equal(Beats(1))**Semitone(2)
 triplets >> single_clock >> Save("json/testing/_Save_Play_p.10.1_first_note.json") >> Export("json/testing/_Export_Play_p.10.1_sequence.json")
 
 ############### TEST4 #######################
@@ -158,7 +158,7 @@ staff << Tempo(120) << Measures(7)
     >> Save("json/testing/_Save_Play_p.15_first_note.json") >> Export("json/testing/_Export_Play_p.15_sequence.json")
 
 all_chords = (Chord(1/4) * 7 << Size("7th"))
-first_chords = all_chords | Beat(0)
+first_chords = all_chords | Beats(0)
 first_chords << Degree(5) << Mode(5)
 all_chords >> Save("json/testing/_Save_Play_p.15.2_first_note.json") >> Export("json/testing/_Export_Play_p.15.2_sequence.json")
 

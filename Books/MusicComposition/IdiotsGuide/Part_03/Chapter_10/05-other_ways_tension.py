@@ -23,15 +23,15 @@ from JsonMidiCreator import *
 
 staff << "#"
 Key() % str() >> Print()
-notes_B     = Note("B") * 3 << Foreach((0), (0, Beat(2)), (1, Beat(1)))**Position()
-notes_A     = Note("A") * 2 << Foreach(Position(0, Beat(1)), Position(1, Beat(2)))
-notes_C5    = Note("C", 5) * 2 << Foreach(Position(0, Beat(3)), Position(2))
-notes_D5    = Note("D", 5) * 3 << Foreach(Position(1), Position(1, Beat(3)), Position(2, Beat(2)))
-notes_E     = Note("E") * 1 << Position(2, Beat(1))
-notes_F5    = Note("F", 5) * 1 << Position(2, Beat(3))
+notes_B     = Note("B") * 3 << Foreach((0), (0, Beats(2)), (1, Beats(1)))**Position()
+notes_A     = Note("A") * 2 << Foreach(Position(0, Beats(1)), Position(1, Beats(2)))
+notes_C5    = Note("C", 5) * 2 << Foreach(Position(0, Beats(3)), Position(2))
+notes_D5    = Note("D", 5) * 3 << Foreach(Position(1), Position(1, Beats(3)), Position(2, Beats(2)))
+notes_E     = Note("E") * 1 << Position(2, Beats(1))
+notes_F5    = Note("F", 5) * 1 << Position(2, Beats(3))
 notes_G     = Note("G") * 1 << Position(3)
-notes_G5    = Note("G", 5) * 1 << Position(3, Beat(1))
-notes_E5    = Note("E", 5) * 1 << Position(3, Beat(2))
+notes_G5    = Note("G", 5) * 1 << Position(3, Beats(1))
+notes_E5    = Note("E", 5) * 1 << Position(3, Beats(2))
 notes = notes_B + notes_A + notes_C5 + notes_D5 + notes_E + notes_F5 + notes_G + notes_G5 + notes_E5 >> Link()
 
 notes >> Rest() >> Play()

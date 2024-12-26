@@ -29,7 +29,7 @@ staff << Measures(7)
 (Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() << Increment()**Even()**Mode() >> Print() >> Play(True)
 
 all_chords = (Chord(1/4) * 7 << Size("7th"))
-first_chords = all_chords | Beat(0)
+first_chords = all_chords | Beats(0)
 first_chords << Degree(5) << Mode(5)
 all_chords >> Print() >> Play(True)
 

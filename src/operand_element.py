@@ -179,8 +179,8 @@ class Element(o.Operand):
                     "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
                     "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
-                    "time":         position % od.DataSource( ra.Beat() ) % float(),   # beats
-                    "duration":     self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float()),
+                    "time":         position % od.DataSource( ra.Beats() ) % float(),   # beats
+                    "duration":     self._duration % od.DataSource( ra.Beats() ) % float() * (self._gate % float()),
                     "tempo":        os.staff._tempo % float()   # bpm
                 }
             ]
@@ -590,7 +590,7 @@ class Note(Element):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ot.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Note"
-        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beat() ) % float() * (self._gate % float())
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beats() ) % float() * (self._gate % float())
         self_midilist[0]["bend"]        = Element.midi_128(self._pitch % float())
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist

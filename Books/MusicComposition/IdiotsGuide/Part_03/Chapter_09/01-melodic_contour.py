@@ -67,5 +67,5 @@ stationary_m: Sequence = Note() * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> St
 stationary_1: Sequence = stationary_m >> Copy() << Foreach("A", "G", "A", "B")
 stationary_2: Sequence = stationary_1.copy() - (stationary_1 | Even()) >> Link() << Foreach("A", "G")
 stationary_3: Sequence = stationary_m >> Copy() << Foreach("A", "B", "A", "G")
-stationary_4: Sequence = (stationary_1 | Beat(0)) >> Copy() >> Link()
+stationary_4: Sequence = (stationary_1 | Beats(0)) >> Copy() >> Link()
 stationary: Sequence = (stationary_1, stationary_2, stationary_3, stationary_4, Rest()) >> Smooth() >> Play()

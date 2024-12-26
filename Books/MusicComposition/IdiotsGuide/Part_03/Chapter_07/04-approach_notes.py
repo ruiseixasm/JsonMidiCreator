@@ -26,19 +26,19 @@ staff << KeySignature("b")
 approach: Sequence = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
 approach -= approach % Last()
 approach << Equal(Measures(3))**NoteValue(1)
-approach - Equal(Measures(1))**2 - Equal(Measures(2), Measures(3))**Equal(Beat(0))**4
+approach - Equal(Measures(1))**2 - Equal(Measures(2), Measures(3))**Equal(Beats(0))**4
 approach >> Play()
 
-(approach | Measures(0) | Beat(3)) + 4
-(approach | Measures(1) | Beat(3)) + 4
-(approach | Measures(2) | Beat(3)) - 3
+(approach | Measures(0) | Beats(3)) + 4
+(approach | Measures(1) | Beats(3)) + 4
+(approach | Measures(2) | Beats(3)) - 3
 approach >> Play()
 
 four_steps: Sequence = Note("C", 1/16) * 4 - Increment()
-approach |= Beat(0)
+approach |= Beats(0)
 approach = approach \
-            + (four_steps.copy() + Octave(1) + 2 << Position(Measures(0), Beat(3)) >> Stack()) \
-            + (four_steps.copy() + Octave(1) << Position(Measures(1), Beat(3)) >> Stack()) \
-            + (four_steps.copy() + 2 << Position(Measures(2), Beat(3)) >> Stack() >> Reverse()) \
+            + (four_steps.copy() + Octave(1) + 2 << Position(Measures(0), Beats(3)) >> Stack()) \
+            + (four_steps.copy() + Octave(1) << Position(Measures(1), Beats(3)) >> Stack()) \
+            + (four_steps.copy() + 2 << Position(Measures(2), Beats(3)) >> Stack() >> Reverse()) \
         >> Link()
 approach >> Play(1)

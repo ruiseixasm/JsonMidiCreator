@@ -101,14 +101,14 @@ M7 = Measures(6)
 M8 = Measures(7)
 
 # Beats
-B1 = Beat(0)
-B2 = Beat(1)
-B3 = Beat(2)
-B4 = Beat(3)
-B5 = Beat(4)
-B6 = Beat(5)
-B7 = Beat(6)
-B8 = Beat(7)
+B1 = Beats(0)
+B2 = Beats(1)
+B3 = Beats(2)
+B4 = Beats(3)
+B5 = Beats(4)
+B6 = Beats(5)
+B7 = Beats(6)
+B8 = Beats(7)
 
 # Steps
 S1 = Step(0)

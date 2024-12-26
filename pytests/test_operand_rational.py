@@ -47,32 +47,32 @@ def test_dotted_mod():
     dotted = Dotted(1/4)
     assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
     assert dotted % Dotted() % Fraction() == Fraction(1, 4)
-    assert dotted % Beat() % Fraction() == Fraction(3, 2)
+    assert dotted % Beats() % Fraction() == Fraction(3, 2)
 
 def test_beats_and_steps_default():
 
     measures = Measures(1.5)
     assert measures.getBeats() % DataSource( Fraction() ) == 6
     assert measures.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert measures.getBeat() == Beat(2)
+    assert measures.getBeat() == Beats(2)
     assert measures.getStep() == Step(1/2 * 16)
 
-    beats = Beat(6)
+    beats = Beats(6)
     assert beats.getBeats() % DataSource( Fraction() ) == 6
     assert beats.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert beats.getBeat() == Beat(2)
+    assert beats.getBeat() == Beats(2)
     assert beats.getStep() == Step(1/2 * 16)
 
     steps = Step(16 + 16/2)
     assert steps.getBeats() % DataSource( Fraction() ) == 6
     assert steps.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert steps.getBeat() == Beat(2)
+    assert steps.getBeat() == Beats(2)
     assert steps.getStep() == Step(1/2 * 16)
 
     notes = NoteValue(1.5)
     assert notes.getBeats() % DataSource( Fraction() ) == 6
     assert notes.getSteps() % DataSource( Fraction() ) == 16 + 16/2
-    assert notes.getBeat() == Beat(2)
+    assert notes.getBeat() == Beats(2)
     assert notes.getStep() == Step(1/2 * 16)
 
 def test_beats_and_steps_specific():
