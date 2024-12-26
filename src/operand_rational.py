@@ -464,16 +464,19 @@ class TimeValue(Rational):  # Works as Absolute Beats
         notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
         return NoteValue(beats * notes_per_beat)
 
-    def getMeasure(self) -> 'Measures':
-        measure: Measures = self.getMeasures()
-        measure << od.DataSource( int(measure._rational) )
-        return measure
 
-    def getBeat(self) -> 'Beats':
-        return Beats(0)
+    def getMeasure(self) -> 'ou.Measure':
+        measures: Measures = self.getMeasures()
+        return ou.Measure(measures._rational)
 
-    def getStep(self) -> 'Steps':
-        return Steps(0)
+    def getBeat(self) -> 'ou.Beat':
+        beats: Beats = self.getBeats()
+        return ou.Beat(beats._rational)
+
+    def getStep(self) -> 'ou.Step':
+        steps: Steps = self.getSteps()
+        return ou.Measure(steps._rational)
+
 
     def getMillis_rational(self) -> Fraction:
         beats: Fraction = self.getBeats() % od.DataSource( Fraction() )
