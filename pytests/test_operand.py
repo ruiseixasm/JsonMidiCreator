@@ -63,6 +63,7 @@ def test_operand_serialization():
         single_instantiation = single_class()
         if isinstance(single_instantiation, Operand) and not isinstance(single_instantiation, (Serialization, Playlist)):
             print(single_class.__name__)
+            single_instantiation << -1 << "minor" << "##" << [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
             serialization: dict = single_instantiation.getSerialization()
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)

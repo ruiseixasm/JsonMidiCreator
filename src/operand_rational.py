@@ -75,8 +75,8 @@ class Rational(o.Operand):
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
                     case str():             return str(self._rational)
-                    case ou.IntU():      return ou.IntU() << od.DataSource( self._rational )
-                    case FloatR():           return FloatR() << od.DataSource( self._rational )
+                    case ou.IntU():         return ou.IntU() << od.DataSource( self._rational )
+                    case FloatR():          return FloatR() << od.DataSource( self._rational )
                     case Rational():        return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
@@ -84,8 +84,8 @@ class Rational(o.Operand):
             case float():           return float(self._rational)
             case int():             return int(self._rational)
             case str():             return str(self._rational)
-            case ou.IntU():      return ou.IntU() << self._rational
-            case FloatR():           return FloatR() << self._rational
+            case ou.IntU():         return ou.IntU() << self._rational
+            case FloatR():          return FloatR() << self._rational
             case Rational():        return self.copy()
             case _:                 return super().__mod__(operand)
 
@@ -153,8 +153,13 @@ class Rational(o.Operand):
                 match operand % o.Operand():
                     case Fraction():
                         self._rational = operand % o.Operand()
-                    case float() | int() | str():
+                    case float() | int():
                         self._rational = Fraction(operand % o.Operand())
+                    case str():
+                        try:
+                            self._rational = Fraction(operand % o.Operand())
+                        except ValueError as e:
+                            print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
                     case FloatR() | ou.IntU():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():
@@ -164,7 +169,7 @@ class Rational(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
             case float() | int() | str():   self << od.DataSource( operand )
-            case ou.IntU():              self._rational = operand % Fraction()
+            case ou.IntU():                 self._rational = operand % Fraction()
             case tuple():
                 for single_operand in operand:
                     self << single_operand

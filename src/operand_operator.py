@@ -117,7 +117,10 @@ class Operator(o.Operand):
             case list():
                 operator_list = []
                 for single_operator in operand:
-                    operator_list.append(single_operator.copy())
+                    if isinstance(single_operator, o.Operand):
+                        operator_list.append(single_operator.copy())
+                    else:
+                        operator_list.append(single_operator)
                 self._operator_list = operator_list
             case o.Operand():       self._operand << operand
             case ol.Null() | None:  return self
