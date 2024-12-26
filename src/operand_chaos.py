@@ -148,7 +148,7 @@ class Modulus(Chaos):
     def __init__(self, *parameters):
         super().__init__()
         self._amplitude: ra.Amplitude   = ra.Amplitude(12)
-        self._step: ra.Steps             = ra.Steps(1)
+        self._steps: ra.Steps             = ra.Steps(1)
         if len(parameters) > 0:
             self << parameters
 
@@ -157,10 +157,10 @@ class Modulus(Chaos):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Amplitude():        return self._amplitude
-                    case ra.Steps():             return self._step
+                    case ra.Steps():             return self._steps
                     case _:                     return super().__mod__(operand)
             case ra.Amplitude():        return self._amplitude.copy()
-            case ra.Steps():             return self._step.copy()
+            case ra.Steps():             return self._steps.copy()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Chaos') -> bool:
@@ -169,24 +169,24 @@ class Modulus(Chaos):
             return True
         if super().__eq__(other):
             return  self._amplitude == other % od.DataSource( ra.Amplitude() ) \
-                and self._step == other % od.DataSource( ra.Steps() )
+                and self._steps == other % od.DataSource( ra.Steps() )
         return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["amplitude"]    = self.serialize( self._amplitude )
-        serialization["parameters"]["step"]         = self.serialize( self._step )
+        serialization["parameters"]["steps"]         = self.serialize( self._steps )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Modulus':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "amplitude" in serialization["parameters"] and "step" in serialization["parameters"]):
+            "amplitude" in serialization["parameters"] and "steps" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._amplitude         = self.deserialize( serialization["parameters"]["amplitude"] )
-            self._step              = self.deserialize( serialization["parameters"]["step"] )
+            self._steps              = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
@@ -195,14 +195,14 @@ class Modulus(Chaos):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Amplitude():            self._amplitude = operand % o.Operand()
-                    case ra.Steps():                 self._step = operand % o.Operand()
+                    case ra.Steps():                 self._steps = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Modulus():
                         super().__lshift__(operand)
                         self._amplitude     << operand._amplitude
-                        self._step          << operand._step
+                        self._steps          << operand._steps
             case ra.Amplitude():            self._amplitude << operand
-            case ra.Steps():                 self._step << operand
+            case ra.Steps():                 self._steps << operand
             case _: super().__lshift__(operand)
         self._xn << (self._xn % float()) % (self._amplitude % float())
         return self
@@ -212,7 +212,7 @@ class Modulus(Chaos):
         if total_iterations > 0:
             self._initiated = True
             for actual_iteration in range(1, total_iterations + 1):
-                self._xn += self._step
+                self._xn += self._steps
                 self._xn << (self._xn % float()) % (self._amplitude % float())
                 if actual_iteration % muted_iterations == 0:
                     self.report(number)
