@@ -458,7 +458,7 @@ class Time(Rational):
             case _:                     return super().__mod__(operand)
 
 
-    def getMeasures(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'Measures':
+    def getMeasures(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Measures':
         measures: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
             case Measures():
@@ -480,7 +480,7 @@ class Time(Rational):
                 return self.getMeasures(Steps(time_value % Fraction()))
         return Measures(measures)
 
-    def getBeats(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'Beats':
+    def getBeats(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Beats':
         beats: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
             case Measures():
@@ -504,7 +504,7 @@ class Time(Rational):
                 return self.getBeats(Steps(time_value % Fraction()))
         return Beats(beats)
 
-    def getSteps(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'Steps':
+    def getSteps(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Steps':
         steps: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
             case Measures():
@@ -528,7 +528,7 @@ class Time(Rational):
                 return self.getSteps(Steps(time_value % Fraction()))
         return Steps(steps)
 
-    def getNoteValue(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'NoteValue':
+    def getNoteValue(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'NoteValue':
         note_value: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
             case Measures():
@@ -551,14 +551,14 @@ class Time(Rational):
         return NoteValue(note_value)
 
 
-    def getMeasure(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'ou.Measure':
+    def getMeasure(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Measure':
         measure: int = 0
         match time_value:
             case TimeValue() | ou.TimeUnit():
                 measure = self.getMeasures(time_value) % int()
         return ou.Measure(measure)
 
-    def getBeat(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'ou.Beat':
+    def getBeat(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Beat':
         beat: int = 0
         match time_value:
             case TimeValue() | ou.TimeUnit():
@@ -566,7 +566,7 @@ class Time(Rational):
                 beat = self.getBeats(time_value) % int() % beats_per_measure
         return ou.Beat(beat)
 
-    def getStep(self, time_value: 'TimeValue' | 'ou.TimeUnit') -> 'ou.Step':
+    def getStep(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Step':
         step: int = 0
         match time_value:
             case TimeValue() | ou.TimeUnit():
@@ -667,20 +667,10 @@ class Time(Rational):
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
                 self._quantization      << operand._quantization
-            case Measures():
-                beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
-                self._rational = operand._rational * beats_per_measure
-            case Beats():
-                beats_per_beat: Fraction = Fraction(1).limit_denominator(self._limit_denominator)
-                self._rational = operand._rational * beats_per_beat
-            case Steps():
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                notes_per_step: Fraction = self._quantization % Fraction()
-                beats_per_step: Fraction = notes_per_step / notes_per_beat
-                self._rational = operand._rational / beats_per_step
-            case NoteValue():
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                self._rational = operand._rational / notes_per_beat
+            case TimeValue() | ou.TimeUnit():
+                self._rational = self.getBeats(operand) % Fraction()
+            case _:
+                super().__lshift__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
@@ -688,10 +678,8 @@ class Time(Rational):
         match operand:
             case Time():
                 self_copy << self._rational + operand._rational
-            case TimeValue():
-                self_copy << self._rational + operand % Beats() % Fraction()
-            case ou.Measure():
-                self_copy << self._rational + operand % Beats() % Fraction()
+            case TimeValue() | ou.TimeUnit():
+                self_copy << self._rational + self.getBeats(operand) % Fraction()
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 self_copy << od.DataSource( self._time_value + operand )
         return self_copy
@@ -701,9 +689,9 @@ class Time(Rational):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Time():
-                self_copy << od.DataSource( self._time_value - operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value ) )
-            case TimeValue():
-                self_copy << od.DataSource( self._time_value - operand % od.DataSource( self._time_value ) )
+                self_copy << self._rational - operand._rational
+            case TimeValue() | ou.TimeUnit():
+                self_copy << self._rational - self.getBeats(operand) % Fraction()
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 self_copy << od.DataSource( self._time_value - operand )
         return self_copy
@@ -712,10 +700,6 @@ class Time(Rational):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():
-                self_copy << od.DataSource( self._time_value * (operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value )) )
-            case TimeValue():
-                self_copy << od.DataSource( self._time_value * (operand % od.DataSource( self._time_value )) )
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 self_copy << od.DataSource( self._time_value * operand )
         return self_copy
@@ -727,12 +711,6 @@ class Time(Rational):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():
-                if operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value ) != 0:
-                    self_copy << od.DataSource( self._time_value / (operand % od.DataSource( TimeValue() ) % od.DataSource( self._time_value )) )
-            case TimeValue():
-                if operand % od.DataSource( self._time_value ) != 0:
-                    self_copy << od.DataSource( self._time_value / (operand % od.DataSource( self._time_value )) )
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 if operand != 0:
                     self_copy << od.DataSource( self._time_value / operand )
