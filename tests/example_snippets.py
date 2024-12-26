@@ -77,6 +77,20 @@ from JsonMidiCreator import *
 # scale % list() >> Print()
 
 
-all_classes: list = list_all_operand_classes(Operand)
-print(all_classes)
+# all_classes: list = list_all_operand_classes(Operand)
+# print(all_classes)
 
+
+class ParentClass:
+    _limit_denominator: int = 100  # Static variable in the parent class
+
+class SubClass(ParentClass):
+    _limit_denominator: int = 50  # Override the static variable in the subclass
+
+# Instances
+parent_instance = ParentClass()
+subclass_instance = SubClass()
+
+# Accessing the variable
+print(parent_instance._limit_denominator)  # Output: 100 (from ParentClass)
+print(subclass_instance._limit_denominator)  # Output: 50 (from SubClass)

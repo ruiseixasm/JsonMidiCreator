@@ -51,7 +51,7 @@ class Rational(o.Operand):
 
     def __init__(self, *parameters):
         super().__init__()
-        self._rational: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
+        self._rational: Fraction = Fraction(0)
         if parameters:
             self << parameters
 
@@ -186,7 +186,7 @@ class Rational(o.Operand):
                 return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
             case float() | int():
-                return self.__class__() << od.DataSource( self._rational + Fraction(value).limit_denominator() )
+                return self.__class__() << od.DataSource( self._rational + Fraction(value) )
         return self.copy()
     
     def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -196,7 +196,7 @@ class Rational(o.Operand):
                 return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
             case float() | int():
-                return self.__class__() << od.DataSource( self._rational - Fraction(value).limit_denominator() )
+                return self.__class__() << od.DataSource( self._rational - Fraction(value) )
         return self.copy()
     
     def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -206,7 +206,7 @@ class Rational(o.Operand):
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
             case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
             case float() | int():
-                return self.__class__() << od.DataSource( self._rational * Fraction(value).limit_denominator() )
+                return self.__class__() << od.DataSource( self._rational * Fraction(value) )
         return self.copy()
     
     def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
@@ -218,14 +218,16 @@ class Rational(o.Operand):
             case Fraction():
                 if value != 0: return self.__class__() << od.DataSource( self._rational / value )
             case float() | int():
-                if Fraction(value).limit_denominator() != 0:
-                    return self.__class__() << od.DataSource( self._rational / Fraction(value).limit_denominator() )
+                if Fraction(value) != 0:
+                    return self.__class__() << od.DataSource( self._rational / Fraction(value) )
         return self.copy()
 
 class FloatR(Rational):
+
+    _limit_denominator: int = 0 # overrides default limit_denominator
+
     def __init__(self, *parameters):
         super().__init__()
-        self._limit_denominator = 0
         if len(parameters) > 0:
             self << parameters
 
@@ -887,7 +889,7 @@ class Dotted(NoteValue):
                 self.loadSerialization( operand.getSerialization() )
             # It's just a wrapper for NoteValue 3/2
             case Fraction():        self._rational = operand * 3/2
-            case float() | int():   self._rational = Fraction(operand).limit_denominator() * 3/2
+            case float() | int():   self._rational = Fraction(operand).limit_denominator(self._limit_denominator) * 3/2
             case ou.IntU() | FloatR():
                                     self._rational = operand % Fraction() * 3/2
             case NoteValue():       self._rational = operand % Fraction()
