@@ -156,17 +156,17 @@ class Time(o.Operand):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["time_unit"] = self.serialize(self._time_value)
+        serialization["parameters"]["time_value"] = self.serialize(self._time_value)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Time':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "time_unit" in serialization["parameters"] and "class" in serialization["parameters"]["time_unit"]):
+            "time_value" in serialization["parameters"] and "class" in serialization["parameters"]["time_value"]):
 
             super().loadSerialization(serialization)
-            self._time_value = self.deserialize(serialization["parameters"]["time_unit"])
+            self._time_value = self.deserialize(serialization["parameters"]["time_value"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Time':
