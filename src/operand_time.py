@@ -232,15 +232,42 @@ class Time(o.Operand):
         return self._time_value % int() + 1
 
 
-
 class Position(Time):
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Position':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int() | ou.IntU():
+                self._time_value << ou.Measure(operand)
+            case Fraction() | float() | ra.FloatR():
+                self._time_value << ra.Measures(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
 
 class Length(Time):
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Length':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int() | ou.IntU():
+                self._time_value << ou.Measure(operand)
+            case Fraction() | float() | ra.FloatR():
+                self._time_value << ra.Measures(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
     
 class Duration(Time):
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Duration':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case int() | ou.IntU() | Fraction() | float() | ra.FloatR():
+                self._time_value << ra.NoteValue(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 
