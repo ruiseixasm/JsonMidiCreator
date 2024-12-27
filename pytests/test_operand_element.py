@@ -224,9 +224,15 @@ def test_milliseconds_duration():
     assert rest_start["time_ms"] == 0.0
     assert rest_stop["time_ms"] == 500.0
 
+
+def test_clock_element():
+
     clock_measure = Clock(Duration(Measures(1)))
     clock_playlist: list = clock_measure.getPlaylist()
-    total_messages = len(clock_playlist)
+    expected_messages: int = 1 * 4 * 24
+    total_messages: int = len(clock_playlist)
+    print(f"{total_messages} / {expected_messages}")
+    assert total_messages == expected_messages
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 120 * 60 * 1000
     clock_start = clock_playlist[0]
     clock_stop = clock_playlist[total_messages - 1]
@@ -259,3 +265,5 @@ def test_milliseconds_duration():
     assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
 
     staff << Tempo(120)
+
+
