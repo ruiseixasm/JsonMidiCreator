@@ -372,9 +372,8 @@ class Clock(Element):
         
         device_list: list = self._device % od.DataSource( list() )
         pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
-        pulses_per_beat = pulses_per_note * (os.staff % ra.BeatNoteValue() % od.DataSource( Fraction() ))
-        pulses_per_measure = pulses_per_beat * (os.staff % ra.BeatsPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measures() ) % od.DataSource( Fraction() )))
+        pulses_per_measure = pulses_per_note * (self._duration % ra.NotesPerMeasure() % od.DataSource( Fraction() ))
+        clock_pulses = round(pulses_per_measure * (self._duration % ra.Measures() % od.DataSource( Fraction() )))
 
         single_measure_rational_ms = position.copy(1.0).getMillis_rational()
         clock_start_rational_ms = position.getMillis_rational()
@@ -394,7 +393,7 @@ class Clock(Element):
             self_playlist.append(
                 {
                     "time_ms": round(float(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._duration % od.DataSource( ra.Measures() ) % od.DataSource( Fraction() )) \
+                                     + single_measure_rational_ms * (self._duration % ra.Measures() % od.DataSource( Fraction() )) \
                                      * clock_pulse / clock_pulses), 3),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock

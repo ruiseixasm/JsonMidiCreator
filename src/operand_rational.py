@@ -452,6 +452,8 @@ class Time(Rational):
                 return ou.Step(self.getStep(Beats(self._rational)))
             case Tempo():               return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
+            case BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
+                                        return self._time_signature % operand
             case Quantization():        return self._quantization.copy()
             case _:                     return super().__mod__(operand)
 
