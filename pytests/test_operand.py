@@ -67,24 +67,28 @@ def test_operand_copy():
     exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (
-            Serialization, Playlist, Song, Sequence, Container, Panic, ProgramChange,
-            PolyAftertouch, Aftertouch, PitchBend, ControlChange, Automation, Triplet,
-            Tuplet, Note3, Retrigger, Chord, KeyScale, Dyad, Cluster, Note, Rest, Clock,
-            Loop, Element, Staff, Scale, Controller, Pitch, TimeSignature, Generic, SinX,
-            Bouncer, Flipper, Modulus, Chaos, Number, Value, Program, Bend, Pressure
-            )):
+        if not isinstance(class_object, (Serialization, Playlist)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
                 class_object << unit_class_object
-            print(single_class.__name__)
-            if not class_object == class_object.copy():
-                exclude_class_names += single_class.__name__ + ", "
+            # print(single_class.__name__)
+            # if not class_object == class_object.copy():
+            #     exclude_class_names += single_class.__name__ + ", "
             assert class_object == class_object.copy()
-    print(exclude_class_names)
+    # print(exclude_class_names)
 
-# test_operand_copy()
+    for single_class in list_all_classes:
+        class_object: Operand = single_class()
+        if isinstance(class_object, Generic) and not isinstance(class_object, (Serialization, Playlist)):
+            list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
+            for single_rational_class in list_unit_classes:
+                unit_class_object: Unit = single_rational_class() << basic_parameters
+                class_object << unit_class_object
+            print(single_class.__name__)
+            assert class_object == class_object.copy()
+
+test_operand_copy()
 
 
 def test_operand_serialization():

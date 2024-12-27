@@ -93,16 +93,22 @@ class TimeSignature(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.BeatsPerMeasure():  self._top       = operand % o.Operand() % od.DataSource( int() )
-                    case ra.BeatNoteValue():    self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
+                    case ra.BeatsPerMeasure():
+                        self._top       = operand % o.Operand() % od.DataSource( int() )
+                    case ra.BeatNoteValue():
+                        if operand % o.Operand() % od.DataSource( int() ) != 0:
+                            self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
             case TimeSignature():
                 super().__lshift__(operand)
                 self._top               = operand._top
                 self._bottom            = operand._bottom
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.BeatsPerMeasure():  self._top       = int(max(1, operand % o.Operand() % int()))
-            case ra.BeatNoteValue():    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % o.Operand() % int()))))))
+            case ra.BeatsPerMeasure():
+                self._top       = int(max(1, operand % int()))
+            case ra.BeatNoteValue():
+                if operand % int() != 0:
+                    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % int()))))))
         return self
 
 class Pitch(Generic):
