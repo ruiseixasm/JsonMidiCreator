@@ -719,13 +719,37 @@ class Time(Rational):
 
 
 class Position(Time):
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Position':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case float() | Fraction() | int() | ou.IntU():
+                self << Measures(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
 
 class Length(Time):
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Position':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case float() | Fraction() | int() | ou.IntU():
+                self << Measures(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
     
 class Duration(Time):
-    pass
+    # CHAINABLE OPERATIONS
+    def __lshift__(self, operand: o.Operand) -> 'Position':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case float() | Fraction() | int() | ou.IntU():
+                self << NoteValue(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
 
 
 
