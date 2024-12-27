@@ -118,7 +118,9 @@ class Operator(o.Operand):
                 for single_operator in operand:
                     operator_list.append(self.deep_copy(single_operator))
                 self._operator_list = operator_list
-            case o.Operand():       self._operand << operand
+            case o.Operand():
+                if isinstance(self._operand, o.Operand):
+                    self._operand << operand
             case ol.Null() | None:  return self
             case _:                 self._operand = operand
         return self
