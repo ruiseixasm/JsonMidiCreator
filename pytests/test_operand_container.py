@@ -119,3 +119,10 @@ def test_floordiv_sequence():
         assert single_note % Duration() % Steps() == Steps(1)
         
 
+def test_sequence_filter():
+
+    four_notes: Sequence = Note() * 4
+    assert four_notes.len() == 4
+    single_note: Sequence = four_notes | Beat(2)
+    assert single_note.len() == 1
+
