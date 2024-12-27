@@ -761,30 +761,7 @@ class Song(Container):
                 midi_list.extend(single_sequence.getMidilist(midi_track, position))
         return midi_list
 
-    def getSerialization(self) -> dict:
-        import operand_staff as os
-        serialization = super().getSerialization()
-        serialization["parameters"]["staff"] = self.serialize(os.staff)
-        return serialization
-
     # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Song':
-        import operand_staff as os
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"]):
-
-            old_staff: os.Staff = os.staff
-            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
-                old_staff = os.staff.copy()
-            super().loadSerialization(serialization)
-            # NEEDS TO BE BETTER SEEN AND ALSO THE STAFF CLASS NEEDS TO BE CHECKED TOO
-            # os.staff.loadSerialization(serialization["parameters"]["staff"])
-            # Can't be made equal (=), or else, all other references lose their staff!
-            # os.staff.loa(serialization["parameters"]["staff"])
-            if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
-                o.logging.info(f"Deserialized staff is not identical to the original one!")
-        return self
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Song':
