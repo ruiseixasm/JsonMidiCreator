@@ -127,7 +127,7 @@ def test_operand_serialization():
 
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if isinstance(class_object, Bouncer) and not isinstance(class_object, (Serialization, Playlist)):
+        if not isinstance(class_object, (Serialization, Playlist)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
@@ -139,4 +139,4 @@ def test_operand_serialization():
             loaded_instantiation.loadSerialization(serialization)
             assert loaded_instantiation == class_object
 
-test_operand_serialization()
+# test_operand_serialization()
