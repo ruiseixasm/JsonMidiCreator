@@ -665,8 +665,20 @@ class Time(Rational):
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
                 self._quantization      << operand._quantization
-            case TimeValue() | ou.TimeUnit():
+            case TimeValue():
                 self._rational = self.getBeats(operand) % Fraction()
+            case ou.Measure():
+                measure_beats: Fraction = self._rational - self.getBeats(self % ou.Measure()) % Fraction()
+                self._rational = self.getBeats(operand) % Fraction()
+                self._rational += measure_beats
+            case ou.Beat():
+                measure: Fraction = self % ou.Measure() % Fraction()
+                self._rational = operand % Fraction()
+                self._rational += self.getBeats(measure) % Fraction()
+            case ou.Step():
+                measure: Fraction = self % ou.Measure() % Fraction()
+                self._rational = self.getBeats(operand) % Fraction()
+                self._rational += self.getBeats(measure) % Fraction()
             case Tempo():               self._tempo             << operand
             case og.TimeSignature():    self._time_signature    << operand
             case Quantization():        self._quantization      << operand
