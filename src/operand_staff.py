@@ -258,7 +258,6 @@ class Staff(o.Operand):
                     self << single_operand
         return self
 
-staff_available: bool = False
+
 # Instantiate the Global Staff here.
 staff: Staff = Staff()
-staff_available = True  # Much faster than "if hasattr(os, 'staff')"
