@@ -361,7 +361,6 @@ class Clock(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._duration == other % od.DataSource( ra.Duration() ) \
                     and self._pulses_per_quarternote == other % od.DataSource( ou.PPQN() )
             case _:
                 return super().__eq__(other)
