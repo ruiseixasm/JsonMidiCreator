@@ -376,7 +376,7 @@ class Clock(Element):
         pulses_per_measure = pulses_per_beat * (os.staff % ra.BeatsPerMeasure() % od.DataSource( Fraction() ))
         clock_pulses = round(pulses_per_measure * (self._duration % od.DataSource( ra.Measures() ) % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = ra.Measures(1.0).getMillis_rational()
+        single_measure_rational_ms = position.copy(1.0).getMillis_rational()
         clock_start_rational_ms = position.getMillis_rational()
         clock_stop_rational_ms = clock_start_rational_ms + self._duration.getMillis_rational()
 
