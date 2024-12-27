@@ -47,7 +47,7 @@ def test_sequence_mod():
 
 def test_milliseconds_duration():
 
-    duration = Duration(NoteValue(Steps(3*4 + 2)))
+    duration = Duration(Steps(3*4 + 2))
     # duration >> Print()
     assert duration == Beats(3.5)
     rest_sequence = Rest(duration) * 1
