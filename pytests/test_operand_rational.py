@@ -231,3 +231,42 @@ def test_sub_note_value():
     assert position == Position(1.5)
 
 # test_sub_note_value()
+
+def test_div_time_values():
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= Measures(2)
+    assert position == measures
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= Beats(2)
+    assert position == measures
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= Steps(2)
+    assert position == measures
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= NoteValue(2)
+    assert position == measures
+
+def test_div_time():
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= Position(2)
+    assert position == measures
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= Length(2)
+    assert position == measures
+
+    position = Position(5)
+    measures = Measures(2.5)
+    position /= Duration(2)
+    assert position == measures
