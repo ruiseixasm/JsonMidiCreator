@@ -42,5 +42,5 @@ staff << Measures(2)
 single_clock >> triplets_one >> triplets_two >> Play(True)
 
 # triplets remain a sequence. Frames don't operate on Songs!!
-triplets = (triplets_one >> triplets_two) + Equal(Beats(1))**Semitone(2)
+triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
 triplets >> single_clock >> Play(True)

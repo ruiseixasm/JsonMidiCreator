@@ -249,7 +249,7 @@ original_export     = Import("json/testing/_Export_Play_p.10.1_sequence.json")
 start_time = time.time()
 
 # triplets remain a sequence. Frames don't operate on Songs!!
-triplets = (triplets_one >> triplets_two) + Equal(Beats(1))**Semitone(2)
+triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
 triplets >> single_clock >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -268,7 +268,7 @@ start_time = time.time()
 staff << Tempo(60)
 
 chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
-controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Measures()**NoteValue()**Steps()
+controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
 controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) | controller) >> Save("json/testing/_Save_4.2_control_change.json")
 
 chord + controller >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Export("json/testing/_Export_4.1_control_change.json") \
@@ -285,7 +285,7 @@ original_export     = Import("json/testing/_Export_Play_p.10.3_sequence.json")
 start_time = time.time()
 
 oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
-pitch_bend = PitchBend() * (2*16 + 1) << Wrap(Position())**Wrap(NoteValue())**Iterate()**Steps() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Steps()
+pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Steps()
 
 chord + pitch_bend >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_4.2_pitch_bend.json") >> Export("json/testing/_Export_4.2_pitch_bend.json")
@@ -385,7 +385,7 @@ original_save       = Load("json/testing/_Save_Play_p.15.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15.2_sequence.json")
 start_time = time.time()
 all_chords = (Chord(1/4) * 7 << Size("7th"))
-first_chords = all_chords | Beats(0)
+first_chords = all_chords | Beat(0)
 first_chords << Degree(5) << Mode(5)
 all_chords >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
