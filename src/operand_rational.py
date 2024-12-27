@@ -585,7 +585,7 @@ class Time(Rational):
             case Time():
                 return self._rational == other._rational
             case TimeValue() | ou.TimeUnit():
-                return self._rational == self.getBeats(other) % Fraction()
+                return self % other == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -597,7 +597,7 @@ class Time(Rational):
             case Time():
                 return self._rational < other._rational
             case TimeValue() | ou.TimeUnit():
-                return self._rational < self.getBeats(other) % Fraction()
+                return self % other < other
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -606,7 +606,7 @@ class Time(Rational):
             case Time():
                 return self._rational > other._rational
             case TimeValue() | ou.TimeUnit():
-                return self._rational > self.getBeats(other) % Fraction()
+                return self % other > other
         return False
     
     def __str__(self):

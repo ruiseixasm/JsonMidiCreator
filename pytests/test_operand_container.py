@@ -126,3 +126,9 @@ def test_sequence_filter():
     single_note: Sequence = four_notes | Beat(2)
     assert single_note.len() == 1
 
+    eight_notes: Sequence = Note() * 8
+    assert eight_notes.len() == 8
+    single_note: Sequence = eight_notes | Beat(2)
+    assert single_note.len() == 2
+
+test_sequence_filter()
