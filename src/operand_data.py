@@ -346,8 +346,9 @@ class Playlist(Data):
         return self
 
     def __rrshift__(self, operand: o.Operand) -> 'Playlist':
-        import operand_container as oc
+        import operand_rational as ra
         import operand_element as oe
+        import operand_container as oc
         if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.Duration)) and isinstance(self._data, list) and len(self._data) > 0:
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
@@ -370,6 +371,7 @@ class Playlist(Data):
             return super().__rrshift__(operand)
 
     def __add__(self, operand: o.Operand) -> 'Playlist':
+        import operand_rational as ra
         match operand:
             case ra.Duration():
                 playlist_copy = Playlist.copy_play_list(self._data)
