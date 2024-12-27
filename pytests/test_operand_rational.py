@@ -270,3 +270,43 @@ def test_div_time():
     measures = Measures(2.5)
     position /= Duration(2)     # Duration is in NoteValue
     assert position == measures
+
+
+def test_basic_conversions():
+
+    position = Position(10.5)
+    assert position % Measures() % Fraction() == 10.5
+    assert position % Measure() % Fraction() == 10
+    assert position % Beats() % Fraction() == 10.5 * 4
+    assert position % Beat() % Fraction() == 2      # Second beat in the Measure 10
+    assert position % Steps() % Fraction() == 10.5 * 4 * 4
+    assert position % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
+    assert position % NoteValue() % Fraction() == 10 * (1/1) + 2 * (1/4)
+
+# test_basic_conversions()
+
+
+def test_full_conversions():
+
+    position = Position()
+
+    for time_value in (Measures(10.5), Beats(10.5 * 4),
+                       Steps(10.5 * 4 * 4), NoteValue(10 * (1/1) + 2 * (1/4))):
+        assert position.getMeasures(time_value) == 10.5
+        assert position.getMeasure(time_value) == 10
+        assert position.getBeats(time_value) == 10.5 * 4
+        assert position.getBeat(time_value) == 2
+        assert position.getSteps(time_value) == 10.5 * 4 * 4
+        assert position.getStep(time_value) == 2 * 4
+        assert position.getNoteValue(time_value) == 10 * (1/1) + 2 * (1/4)
+
+    for time_unit in (Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
+        assert position.getMeasures(time_unit) == 10
+        assert position.getMeasure(time_unit) == 10
+        assert position.getBeats(time_unit) == 10 * 4
+        assert position.getBeat(time_unit) == 0
+        assert position.getSteps(time_unit) == 10 * 4 * 4
+        assert position.getStep(time_unit) == 0 * 4
+        assert position.getNoteValue(time_unit) == 10 * (1/1)
+
+# test_full_conversions()
