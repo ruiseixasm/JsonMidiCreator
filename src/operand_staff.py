@@ -77,8 +77,8 @@ class Staff(o.Operand):
                     case ou.KeySignature():     return self._key_signature
                     case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
-                    case ra.Measures():          return self._measures
-                    case ra.NoteValue():         return self._note_value
+                    case ra.Measures():         return self._measures
+                    case ra.NoteValue():        return self._note_value
                     case ou.Octave():           return self._octave
                     case ou.Velocity():         return self._velocity
                     case og.Controller():       return self._controller
