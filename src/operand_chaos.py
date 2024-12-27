@@ -349,7 +349,7 @@ class Bouncer(Chaos):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "width" in serialization["parameters"] and "height" in serialization["parameters"] and "dx" in serialization["parameters"] and
             "dy" in serialization["parameters"] and "x" in serialization["parameters"] and "y" in serialization["parameters"] and
-            "set_x" in serialization["parameters"] and "set_y" in serialization["parameters"]):
+            "set_xy" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._width             = self.deserialize( serialization["parameters"]["width"] )
