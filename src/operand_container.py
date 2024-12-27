@@ -778,8 +778,10 @@ class Song(Container):
             if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG:
                 old_staff = os.staff.copy()
             super().loadSerialization(serialization)
+            # NEEDS TO BE BETTER SEEN AND ALSO THE STAFF CLASS NEEDS TO BE CHECKED TOO
+            # os.staff.loadSerialization(serialization["parameters"]["staff"])
             # Can't be made equal (=), or else, all other references lose their staff!
-            os.staff << self.deserialize(serialization["parameters"]["staff"])
+            # os.staff.loa(serialization["parameters"]["staff"])
             if o.logging.getLogger().getEffectiveLevel() <= o.logging.DEBUG and not os.staff == old_staff:
                 o.logging.info(f"Deserialized staff is not identical to the original one!")
         return self

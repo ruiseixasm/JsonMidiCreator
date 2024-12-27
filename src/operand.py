@@ -18,7 +18,7 @@ from functools import cache
 from typing import TypeVar, TYPE_CHECKING
 from fractions import Fraction
 
-DEBUG = False
+DEBUG = True
 
 if DEBUG:
     logging.basicConfig(level=logging.DEBUG)
