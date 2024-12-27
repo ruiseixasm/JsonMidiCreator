@@ -55,7 +55,7 @@ def test_clock_mod():
     sys.stdout = captured_output
 
     # Perform the operation
-    clock = Clock(4)
+    clock = Clock(4.0)  # 4 for Position and 4.0 for Duration
     clock % Duration() % Measures() % float() >> Print()
 
     # Restore stdout
@@ -63,6 +63,8 @@ def test_clock_mod():
 
     # Assert the captured output
     assert captured_output.getvalue().strip() == "4.0"
+
+test_clock_mod()
 
 
 def test_note_mod():

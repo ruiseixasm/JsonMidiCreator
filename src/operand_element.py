@@ -233,7 +233,7 @@ class Element(o.Operand):
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
                 self._duration      << operand
             case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() | ou.IntU():
-                self._position << operand
+                self._position      << operand
             case ou.Stackable():
                 self._stackable     << operand
             case ou.Channel():
@@ -351,10 +351,8 @@ class Clock(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Duration():     return self._duration
                     case ou.PPQN():         return self._pulses_per_quarternote
                     case _:                 return super().__mod__(operand)
-            case ra.Duration():     return self._duration.copy()
             case ou.PPQN():         return self._pulses_per_quarternote.copy()
             case _:                 return super().__mod__(operand)
 
@@ -418,7 +416,6 @@ class Clock(Element):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["duration"]                 = self.serialize( self._duration )
         serialization["parameters"]["pulses_per_quarternote"]   = self.serialize( self._pulses_per_quarternote )
         return serialization
 
@@ -426,10 +423,9 @@ class Clock(Element):
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"] and "pulses_per_quarternote" in serialization["parameters"]):
+            "pulses_per_quarternote" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._duration                  = self.deserialize( serialization["parameters"]["duration"] )
             self._pulses_per_quarternote    = self.deserialize( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
@@ -438,16 +434,11 @@ class Clock(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Duration():     self._duration = operand % o.Operand()
                     case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Clock():
                 super().__lshift__(operand)
                 self._pulses_per_quarternote << operand._pulses_per_quarternote
-            case ra.NoteValue() | int() | float() | ou.IntU() | ra.FloatR() | Fraction():
-                                    self._duration << operand
-            case ra.Duration():
-                                    self._duration << operand
             case ou.PPQN():         self._pulses_per_quarternote << operand
             case _: super().__lshift__(operand)
         return self
