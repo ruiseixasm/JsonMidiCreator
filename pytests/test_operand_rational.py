@@ -192,7 +192,7 @@ def test_sub_beats():
     position -= Beats(2)
     assert position == measures
 
-    position << Measures(2)
+    position << Measure(2)
     assert position == Position(2.5)
 
     position -= Beats(4)
@@ -201,7 +201,7 @@ def test_sub_beats():
     position -= Beats(-4)
     assert position == Position(2.5)
 
-test_sub_beats()
+# test_sub_beats()
 
 
 def test_sub_steps():
