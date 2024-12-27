@@ -705,14 +705,11 @@ class Sequence(Container):  # Just a container of Elements
                 return trimmed_self.copy()
         return super().__truediv__(operand)
     
-    def __floordiv__(self, duration: ra.Duration) -> 'Sequence':
-        if isinstance(duration, ra.TimeValue):
-            duration = ra.Duration() << duration
-        match duration:
-            case ra.Duration():
-                for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element):
-                        single_datasource._data << duration
+    def __floordiv__(self, duration: any) -> 'Sequence':
+        duration: ra.Duration = ra.Duration(duration)
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                single_datasource._data << duration
         return self.stack()
 
 class Song(Container):

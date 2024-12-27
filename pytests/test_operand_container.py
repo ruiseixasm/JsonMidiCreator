@@ -109,3 +109,13 @@ def test_mul_sequence():
 
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
+
+def test_floordiv_sequence():
+
+    two_notes: Sequence = Note() * 2
+    two_notes // Steps(1)
+
+    for single_note in two_notes:
+        assert single_note % Duration() % Steps() == Steps(1)
+        
+
