@@ -89,9 +89,11 @@ class Element(o.Operand):
                     case Element():         return self
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
-            case ra.Position():     return self._position.copy()
-            case ra.TimeValue():     return self._position % operand
             case ra.Duration():     return self._duration.copy()
+            case ra.NoteValue():    return self._duration % operand
+            case ra.Position():     return self._position.copy()
+            case ra.TimeValue() | ou.TimeUnit():
+                                    return self._position % operand
             case ou.Stackable():    return self._stackable.copy()
             case ou.Channel():      return self._channel.copy()
             case od.Device():       return self._device.copy()
@@ -111,7 +113,7 @@ class Element(o.Operand):
                     and self._device        == other % od.DataSource( od.Device() )
             case ra.NoteValue():
                 return self._duration == other
-            case ra.TimeValue():
+            case ra.TimeValue() | ou.TimeUnit():
                 return self._position == other
             case _:
                 if other.__class__ == o.Operand:
@@ -127,7 +129,7 @@ class Element(o.Operand):
                 return  False
             case ra.NoteValue():
                 return self._duration < other
-            case ra.TimeValue():
+            case ra.TimeValue() | ou.TimeUnit():
                 return self._position < other
             case _:
                 return self % od.DataSource( other ) < other
@@ -139,7 +141,7 @@ class Element(o.Operand):
                 return  False
             case ra.NoteValue():
                 return self._duration > other
-            case ra.TimeValue():
+            case ra.TimeValue() | ou.TimeUnit():
                 return self._position > other
             case _:
                 return self % od.DataSource( other ) > other
@@ -230,8 +232,8 @@ class Element(o.Operand):
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
                 self._duration      << operand
-            case ra.Position() | ra.TimeValue() | int() | ou.IntU():
-                                    self._position << operand
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() | ou.IntU():
+                self._position << operand
             case ou.Stackable():
                 self._stackable     << operand
             case ou.Channel():
