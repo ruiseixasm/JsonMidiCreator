@@ -782,7 +782,7 @@ class Length(Time):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case float() | Fraction() | int() | ou.IntU():
-                self << Measures(operand)
+                self << Beats(operand)
             case _:
                 super().__lshift__(operand)
         return self
@@ -791,7 +791,7 @@ class Length(Time):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():
-                return self + Measures(operand)
+                return self + Beats(operand)
         return super().__add__(operand)
     
     def __sub__(self, operand: o.Operand) -> 'Time':
