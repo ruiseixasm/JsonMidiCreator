@@ -38,6 +38,7 @@
         "pitchwheel",
         "Polysynth",
         "PPQN",
+        "pytest",
         "quarternote",
         "Randomizer",
         "reharmonized",

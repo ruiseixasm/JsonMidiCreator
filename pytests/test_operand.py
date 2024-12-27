@@ -15,6 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import sys
 import os
+
 src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
@@ -26,7 +27,7 @@ from JsonMidiCreator import *
 # Run the tests with 'pytest tests/python_functions.py' on linux
 
 from io import StringIO
-# import pytest
+import pytest
 import sys
 from typing import Type
 
@@ -55,6 +56,17 @@ def test_classes_getters():
 
     assert root_classes_list == list_all_classes
 
+# The -m flag in pytest is used to select tests to run based on markers (m).
+# It allows you to filter tests by their custom markers, enabling you to
+# run only a subset of your test suite.
+
+# Do 'pytest --markers' to see markers
+# Exclude the heavy testing with:
+#     pytest -m "not heavy"
+# Execute only the heavy testing with:
+#     pytest -m heavy
+
+@pytest.mark.heavy
 def test_operand_copy():
 
     basic_parameters: tuple = (3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
@@ -91,6 +103,13 @@ def test_operand_copy():
 # test_operand_copy()
 
 
+# Do 'pytest --markers' to see markers
+# Exclude the heavy testing with:
+#     pytest -m "not heavy"
+# Execute only the heavy testing with:
+#     pytest -m heavy
+
+@pytest.mark.heavy
 def test_operand_serialization():
 
     basic_parameters: tuple = (3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
