@@ -114,24 +114,24 @@ def test_time_mod():
     # Perform the operation
     time = Position(4.5)
 
-    measure_float = time % Measures() % float()
+    measure_float = time % Measure() % float()
     assert measure_float == 4.0
-    measure_float = time % od.DataSource( Measures() ) % float()
+    measure_float = time % Measures() % float()
     assert measure_float == 4.5
 
-    beat_float = time % Beats() % float()
+    beat_float = time % Beat() % float()
     assert beat_float == 2.0
-    beat_float = time % od.DataSource( Beats() ) % float()
+    beat_float = time % Beats() % float()
     assert beat_float == 4.5 * 4.0
 
-    step_float = time % Steps() % float()
+    step_float = time % Step() % float()
     assert step_float == 8.0
-    step_float = time % od.DataSource( Steps() ) % float()
+    step_float = time % Steps() % float()
     assert step_float == 4.5 * 16.0
 
     note_value_float = time % NoteValue() % float()
     assert note_value_float == 4.5
-    note_value_float = time % od.DataSource( NoteValue() ) % float()
+    note_value_float = time % NoteValue() % float()
     assert note_value_float == 4.5 * 1.0
 
 

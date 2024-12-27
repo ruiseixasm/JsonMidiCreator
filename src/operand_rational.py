@@ -429,10 +429,6 @@ class Time(Rational):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
-                    case TimeValue() | int() | float() | Fraction() | ou.IntU() | FloatR() | Tempo() | og.TimeSignature() | Quantization():
-                                                return self._time_value % operand
-
                     case Tempo():               return self._tempo
                     case og.TimeSignature():    return self._time_signature
                     case Quantization():        return self._quantization
