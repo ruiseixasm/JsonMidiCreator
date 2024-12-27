@@ -155,6 +155,9 @@ def test_add_beats():
     position += Beats(-4)
     assert position == Position(1.5)
 
+# test_add_beats()
+
+
 def test_add_steps():
 
     position = Position()
