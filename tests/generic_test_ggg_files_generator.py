@@ -105,7 +105,7 @@ staff << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
-single_clock << Duration(Measures(2)) >> triplets_one >> triplets_two >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
+single_clock >> triplets_one >> triplets_two >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
 
 # triplets remain a sequence. Frames don't operate on Songs!!
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
