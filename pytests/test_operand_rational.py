@@ -81,7 +81,7 @@ def test_beats_and_steps_default():
 
 def test_beats_and_steps_specific():
 
-    position_measures = Position(1.5) << TimeSignature(3, 8) << Quantization(1/32)
+    position_measures = Position(TimeSignature(3, 8), Quantization(1/32), 1.5)
     print(position_measures % Beats() % DataSource( Fraction() ))
     assert position_measures % Beats() % DataSource( Fraction() ) == 3 + 3/2
     # assert position_measures.getSteps() % DataSource( Fraction() ) == 32 + 32/2
@@ -106,6 +106,7 @@ def test_beats_and_steps_specific():
     # assert notes.getBeat() == Beat(2)
     # assert notes.getStep() == Step(1/2 * 16)
 
+# test_beats_and_steps_specific()
 
 
 def test_time_mod():

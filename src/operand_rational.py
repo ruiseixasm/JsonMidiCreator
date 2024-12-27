@@ -671,6 +671,9 @@ class Time(Rational):
                 self._quantization      << operand._quantization
             case TimeValue() | ou.TimeUnit():
                 self._rational = self.getBeats(operand) % Fraction()
+            case Tempo():               self._tempo             << operand
+            case og.TimeSignature():    self._time_signature    << operand
+            case Quantization():        self._quantization      << operand
             case _:
                 super().__lshift__(operand)
         return self
