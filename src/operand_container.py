@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TypeVar, TYPE_CHECKING
+from typing import Union, TypeVar, TYPE_CHECKING, Type
 from fractions import Fraction
 import json
 import enum
@@ -37,7 +37,7 @@ TypeContainer = TypeVar('TypeContainer', bound='Container')  # TypeContainer rep
 class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
-        self._datasource_list: list[od.DataSource] = []
+        self._datasource_list: list[Type[od.DataSource]] = []
         self._datasource_iterator: int = 0
         for single_operand in operands:
             match single_operand:
@@ -54,6 +54,9 @@ class Container(o.Operand):
                 case _:
                     self._datasource_list.append(od.DataSource( single_operand ))
         
+    def __getitem__(self, index):
+        return self._datasource_list[index]._data
+
     def __iter__(self):
         return self
     
@@ -81,8 +84,8 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
-            case od.Getter():       return operand.get(self)
-            case od.Process():      return self >> operand
+            case od.Getter() | od.Process():
+                                    return self >> operand
             case ch.Chaos():        return self.copy().shuffle(operand)
             case list():
                 operands: list[o.Operand] = []
@@ -380,7 +383,7 @@ class Sequence(Container):  # Just a container of Elements
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Position():     return self._position.copy()
-            case ra.Duration():       return self.duration()
+            case ra.Duration():     return self.duration()
                 # total_length = ra.Duration()
                 # for single_datasource in self._datasource_list:
                 #     if isinstance(single_datasource._data, oe.Element):

@@ -673,21 +673,21 @@ class Getter(Data):
     pass
 
 class Len(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.len()
         return ol.Null()
 
 class First(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.first()
         return ol.Null()
 
 class Last(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.last()
@@ -705,33 +705,27 @@ class Middle(Getter):
     def __init__(self, nth: int = None):
         super().__init__( 1 if nth is None else nth )
 
-    def get(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.middle(self._data)
         return ol.Null()
 
 class Start(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.start()
         return ol.Null()
 
 class End(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
             return operand.end()
         return ol.Null()
 
 class Shuffle(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.shuffle()
-        return ol.Null()
-    
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):
@@ -740,12 +734,6 @@ class Shuffle(Getter):
             return super().__rrshift__(operand)
 
 class Reverse(Getter):
-    def get(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.reverse()
-        return ol.Null()
-    
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):

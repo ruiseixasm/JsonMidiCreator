@@ -131,4 +131,26 @@ def test_sequence_filter():
     single_note: Sequence = eight_notes | Beat(2)
     assert single_note.len() == 2
 
-test_sequence_filter()
+# test_sequence_filter()
+
+def test_sequence_map():
+
+    four_notes: Sequence = Note() * 4
+    four_notes + Beat(1)
+    assert four_notes[0] % Beat() == 1
+    assert four_notes[0] % Beats() == 1
+    assert four_notes[1] % Beat() == 2
+    assert four_notes[1] % Beats() == 2
+    assert four_notes[2] % Beat() == 3
+    assert four_notes[2] % Beats() == 3
+    assert four_notes[3] % Beat() == 0
+    assert four_notes[3] % Beats() == 4
+
+
+def test_sequence_selectors():
+
+    four_notes: Sequence = Note() * 4
+    four_notes + Beat(1)
+    assert four_notes % First() % Beats() == 1
+
+test_sequence_selectors()
