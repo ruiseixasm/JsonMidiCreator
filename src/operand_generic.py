@@ -235,11 +235,11 @@ class Pitch(Generic):
                 self._key_offset = operand._key_offset
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Octave() | int() | ou.IntU():
-                self._octave << operand
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | ou.Key() | float() | str() | ou.Semitone() | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
                 self._key << operand
+            case ou.Octave() | int() | ou.Unit():
+                self._octave << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
