@@ -77,18 +77,16 @@ class Rational(o.Operand):
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
                     case str():             return str(self._rational)
-                    case ou.IntU():         return ou.IntU() << od.DataSource( self._rational )
-                    case FloatR():          return FloatR() << od.DataSource( self._rational )
-                    case Rational():        return self
+                    case Rational():        return Rational() << od.DataSource( self._rational )
+                    case ou.Unit():         return ou.Unit() << od.DataSource( self._rational )
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
             case str():             return str(self._rational)
-            case ou.IntU():         return ou.IntU() << self._rational
-            case FloatR():          return FloatR() << self._rational
-            case Rational():        return self.copy()
+            case Rational():        return Rational() << self._rational
+            case ou.Unit():         return ou.Unit() << self._rational
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -171,9 +169,6 @@ class Rational(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
             case float() | int() | str():   self << od.DataSource( operand )
-            # case ou.IntU():                 self._rational = operand % Fraction()
-            # case Rational():
-            #     self._rational = operand._rational
             case ou.Unit():
                 self._rational = operand % Fraction()
             case tuple():
