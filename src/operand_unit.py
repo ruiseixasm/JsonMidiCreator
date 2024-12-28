@@ -580,8 +580,9 @@ class Key(Unit):
                         self._unit = operand % o.Operand()
                     case float() | Fraction():
                         self._unit = int(operand % o.Operand())
-                    case Semitone() | IntU() | ra.FloatR():
+                    case Semitone():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
+                        self << Degree(1)
                     case KeySignature():
                         self._key_signature = operand % o.Operand()
                     case Sharp():
