@@ -179,7 +179,7 @@ class Unit(o.Operand):
                 self._unit = int(operand)
             case bool():
                 self._unit = 1 if operand else 0
-            case ra.FloatR():
+            case ra.Rational():
                 self._unit = operand % int()
             case tuple():
                 for single_operand in operand:
