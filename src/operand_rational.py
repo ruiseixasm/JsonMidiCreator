@@ -162,7 +162,7 @@ class Rational(o.Operand):
                             self._rational = Fraction(operand % o.Operand())
                         except ValueError as e:
                             print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
-                    case FloatR() | ou.IntU():
+                    case Rational() | ou.Unit():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
             case Rational():
                 super().__lshift__(operand)
