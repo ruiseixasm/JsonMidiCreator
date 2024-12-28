@@ -168,7 +168,7 @@ class Unit(o.Operand):
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
-                    case IntU() | ra.FloatR():      self._unit = operand % o.Operand() % od.DataSource( int() )
+                    case Unit() | ra.Rational():    self._unit = operand % o.Operand() % od.DataSource( int() )
                     case None:                      self._unit = None   # Yes, it can be None
             case Unit():
                 super().__lshift__(operand)
