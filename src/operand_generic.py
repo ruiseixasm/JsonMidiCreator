@@ -425,9 +425,7 @@ class Controller(Generic):
         match operand:
             case Controller():
                 value += operand % ou.Value() % int()
-            case ou.Value():
-                value += operand % int()
-            case int() | float() | ou.Unit() | ra.Rational() | Fraction():
+            case int() | float() | ou.Value() | Fraction():
                 value += operand
             case _:
                 return self.copy()
@@ -439,9 +437,7 @@ class Controller(Generic):
         match operand:
             case Controller():
                 value -= operand % ou.Value() % int()
-            case ou.Value():
-                value -= operand % int()
-            case int() | float() | ou.Unit() | ra.Rational() | Fraction():
+            case int() | float() | ou.Value() | Fraction():
                 value -= operand
             case _:
                 return self.copy()
