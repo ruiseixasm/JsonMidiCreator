@@ -231,9 +231,9 @@ class Element(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
                 self._duration      << operand
-            case ra.NoteValue() | float() | ra.FloatR() | Fraction():
+            case ra.NoteValue() | float() | Fraction():
                 self._duration      << operand
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() | ou.IntU() | ra.Length():
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() | ra.Length():
                 self._position      << operand
             case ou.Stackable():
                 self._stackable     << operand

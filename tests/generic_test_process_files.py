@@ -75,7 +75,8 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.3.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.3.1_sequence.json")
 start_time = time.time()
-Note3(MidiTrack(1, "Piano")) << (Duration() << NoteValue(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json")
+Note3(MidiTrack(1, "Piano")) << (Duration() << NoteValue(1/16)) >> od.LeftShift(result_save) >> od.LeftShift(result_export) >> Save("json/testing/_Save_1.3_note_triad.json") \
+    >> Save("json/testing/_Save_Play_p.3.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.3.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 1.4",
