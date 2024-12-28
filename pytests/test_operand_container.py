@@ -152,5 +152,15 @@ def test_sequence_selectors():
     four_notes: Sequence = Note() * 4
     four_notes + Beat(1)
     assert four_notes % First() % Beats() == 1
+    assert four_notes % Middle(3) % Beats() == 3    # Middle uses nth, so, 3 means the 3rd element
+    assert four_notes % Last() % Beats() == 4
 
-test_sequence_selectors()
+    # Test for bad input
+    empty_sequence: Sequence = Sequence()
+    assert empty_sequence % First() == Null()
+    assert empty_sequence % Middle(3) == Null()
+    assert empty_sequence % Last() == Null()
+
+# test_sequence_selectors()
+
+

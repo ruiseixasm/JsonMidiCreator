@@ -135,10 +135,8 @@ class Container(o.Operand):
         return ol.Null()
 
     def middle(self, nth: int) -> o.Operand:
-        if nth > 0:
-            index = nth - 1
-            if len(self._datasource_list) > index:
-                return self._datasource_list[index]._data
+        if isinstance(nth, int) and nth > 0 and nth <= len(self._datasource_list):
+            return self._datasource_list[nth - 1]._data
         return ol.Null()
 
     def getSerialization(self) -> dict:
