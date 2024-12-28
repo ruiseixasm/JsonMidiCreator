@@ -370,9 +370,6 @@ class Tempo(Rational):
 
 
 
-
-
-
 class Time(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
@@ -732,7 +729,7 @@ class Length(Time):
     def __lshift__(self, operand: o.Operand) -> 'Length':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
+            case int() | float() | Fraction():
                 self << Measures(operand)
             case _:
                 super().__lshift__(operand)
@@ -741,14 +738,14 @@ class Length(Time):
     def __add__(self, operand: o.Operand) -> 'Length':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
+            case int() | float() | Fraction():
                 return self + Measures(operand)
         return super().__add__(operand)
     
     def __sub__(self, operand: o.Operand) -> 'Length':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
+            case int() | float() | Fraction():
                 return self - Measures(operand)
         return super().__sub__(operand)
     
@@ -760,7 +757,7 @@ class Position(Length):
     # def __lshift__(self, operand: o.Operand) -> 'Position':
     #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
     #     match operand:
-    #         case int() | float() | ou.IntU() | FloatR() | Fraction():
+    #         case int() | float() | Fraction():
     #             self << Beats(operand)
     #         case _:
     #             super().__lshift__(operand)
@@ -769,14 +766,14 @@ class Position(Length):
     # def __add__(self, operand: o.Operand) -> 'Position':
     #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
     #     match operand:
-    #         case int() | float() | ou.IntU() | FloatR() | Fraction():
+    #         case int() | float() | Fraction():
     #             return self + Beats(operand)
     #     return super().__add__(operand)
     
     # def __sub__(self, operand: o.Operand) -> 'Position':
     #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
     #     match operand:
-    #         case int() | float() | ou.IntU() | FloatR() | Fraction():
+    #         case int() | float() | Fraction():
     #             return self - Measures(operand)
     #     return super().__sub__(operand)
     
@@ -786,7 +783,7 @@ class Duration(Time):
     def __lshift__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
+            case int() | float() | Fraction():
                 self << NoteValue(operand)
             case _:
                 super().__lshift__(operand)
@@ -795,14 +792,14 @@ class Duration(Time):
     def __add__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
+            case int() | float() | Fraction():
                 return self + NoteValue(operand)
         return super().__add__(operand)
     
     def __sub__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case int() | float() | ou.IntU() | FloatR() | Fraction():
+            case int() | float() | Fraction():
                 return self - NoteValue(operand)
         return super().__sub__(operand)
     
