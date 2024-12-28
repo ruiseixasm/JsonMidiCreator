@@ -92,6 +92,7 @@ class Element(o.Operand):
             case ra.Duration():     return self._duration.copy()
             case ra.NoteValue():    return self._duration % operand
             case ra.Position():     return self._position.copy()
+            case ra.Length():       return ra.Length(self._position)
             case ra.TimeValue() | ou.TimeUnit():
                                     return self._position % operand
             case ou.Stackable():    return self._stackable.copy()
@@ -232,7 +233,7 @@ class Element(o.Operand):
                 self._duration      << operand
             case ra.NoteValue() | float() | ra.FloatR() | Fraction():
                 self._duration      << operand
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() | ou.IntU():
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() | ou.IntU() | ra.Length():
                 self._position      << operand
             case ou.Stackable():
                 self._stackable     << operand

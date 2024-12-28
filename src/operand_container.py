@@ -615,17 +615,22 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Position() | ra.TimeValue():
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
+            case ra.Length():
+                return self + operand
             case oe.Element():
                 return self.__radd__(operand).stack()
             case Sequence():
                 if self._midi_track == operand._midi_track:
-                    operand_copy: Sequence = operand.copy()
-                    last_position: ra.Position = operand_copy.sort().last() % od.DataSource( ra.Position() )
-                    new_self_position: ra.Position = last_position % ra.Measures() + 1
-                    self << of.Get(ra.Position())**of.Add(new_self_position) # WITHOUT OPERAND.COPY IT FAILS TEST 3.6
-                    # return operand + (self + end_position)    # FAILS TEST 3.5
-                    return (operand + self) # WITHOUT STACK IT FAILS TEST 3.5
-                    # return (operand + self).stack()
+
+                    left_sequence: Sequence = operand.copy()
+                    right_sequence: Sequence = self_copy
+
+                    left_end_position: ra.Position = left_sequence.end()
+                    right_start_position: ra.Position = right_sequence.start()
+                    position_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                    position_shift >> right_sequence
+                    
+                    return left_sequence + right_sequence
                 return Song(operand, self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._midi_track, self._position))

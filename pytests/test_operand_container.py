@@ -179,4 +179,7 @@ def test_position_shift():
     assert eight_notes % Middle(5) % Beats() == 4
 
     print(four_notes_2 % First() % Beats() % int())
-    assert four_notes_2 % First() % Beats() == 4
+    assert four_notes_2 % First() % Beats() == 0
+
+test_position_shift()
+
