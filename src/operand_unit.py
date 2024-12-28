@@ -654,8 +654,6 @@ class Key(Unit):
         match operand:
             case int():
                 self_copy << ( self % int() + self.move_semitones(operand) ) << Degree(1)
-            case IntU():
-                self_copy << ( self % int() + self.move_semitones(operand._unit) ) << Degree(1)
             case float() | Fraction():
                 self_copy << ( self % int() + operand ) << Degree(1)
             case Key() | Semitone() | ra.FloatR():
@@ -667,6 +665,10 @@ class Key(Unit):
                     self_copy._degree._unit += 1
                 self_copy._degree._unit += operand._unit
                 return self_copy
+            case Unit():
+                self_copy << ( self % int() + self.move_semitones(operand._unit) ) << Degree(1)
+            case ra.Rational():
+                self_copy << ( self % int() + float(operand._rational) ) << Degree(1)
             case _:     return super().__add__(operand)
 
         if Key._major_scale[self_copy._unit % 12] == 0:
@@ -685,8 +687,6 @@ class Key(Unit):
         match operand:
             case int():
                 self_copy << ( self % int() + self.move_semitones(operand * -1) ) << Degree(1)
-            case IntU():
-                self_copy << ( self % int() + self.move_semitones(operand._unit * -1) ) << Degree(1)
             case float() | Fraction():
                 self_copy << ( self % int() - operand ) << Degree(1)
             case Key() | Semitone() | ra.FloatR():
@@ -698,6 +698,10 @@ class Key(Unit):
                     self_copy._degree._unit += 1
                 self_copy._degree._unit -= operand._unit
                 return self_copy
+            case Unit():
+                self_copy << ( self % int() + self.move_semitones(operand._unit * -1) ) << Degree(1)
+            case ra.Rational():
+                self_copy << ( self % int() + float(operand._rational * -1) ) << Degree(1)
             case _:     return super().__sub__(operand)
         
         if Key._major_scale[self_copy._unit % 12] == 0:

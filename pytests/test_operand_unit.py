@@ -45,8 +45,8 @@ def test_unit_set():
 def test_unit_mod():
 
     # Perform the operation
-    integer_1 = IntU(12)
-    integer_2 = IntU(10)
+    integer_1 = Unit(12)
+    integer_2 = Unit(10)
 
     assert integer_1 + integer_2 == 12 + 10
     assert integer_1 - integer_2 == 12 - 10
