@@ -749,10 +749,10 @@ class Time(Rational):
     #     return self._time_value % int() + 1
 
 
-class Position(Time):
+class Length(Time):
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Position':
+    def __lshift__(self, operand: o.Operand) -> 'Length':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():
@@ -761,21 +761,21 @@ class Position(Time):
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Position':
+    def __add__(self, operand: o.Operand) -> 'Length':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 return self + Measures(operand)
         return super().__add__(operand)
     
-    def __sub__(self, operand: o.Operand) -> 'Position':
+    def __sub__(self, operand: o.Operand) -> 'Length':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 return self - Measures(operand)
         return super().__sub__(operand)
     
-class Length(Position):
+class Position(Length):
     pass
 
     # # CHAINABLE OPERATIONS
@@ -789,14 +789,14 @@ class Length(Position):
     #             super().__lshift__(operand)
     #     return self
     
-    # def __add__(self, operand: o.Operand) -> 'Time':
+    # def __add__(self, operand: o.Operand) -> 'Position':
     #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
     #     match operand:
     #         case int() | float() | ou.IntU() | FloatR() | Fraction():
     #             return self + Beats(operand)
     #     return super().__add__(operand)
     
-    # def __sub__(self, operand: o.Operand) -> 'Time':
+    # def __sub__(self, operand: o.Operand) -> 'Position':
     #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
     #     match operand:
     #         case int() | float() | ou.IntU() | FloatR() | Fraction():
@@ -806,7 +806,7 @@ class Length(Position):
 class Duration(Time):
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Position':
+    def __lshift__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():
@@ -815,14 +815,14 @@ class Duration(Time):
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Time':
+    def __add__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():
                 return self + NoteValue(operand)
         return super().__add__(operand)
     
-    def __sub__(self, operand: o.Operand) -> 'Time':
+    def __sub__(self, operand: o.Operand) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.IntU() | FloatR() | Fraction():

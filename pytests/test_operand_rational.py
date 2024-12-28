@@ -263,7 +263,8 @@ def test_div_time():
 
     position = Position(5)      # Position is in Measures
     measures = Measures(2.5)
-    position /= Length(2 * 4)   # Length is in Beats
+    position /= Length(2)   # Length is in Measures
+    # position /= Length(2 * 4)   # Length is in Beats
     assert position == measures
 
     position = Position(5)

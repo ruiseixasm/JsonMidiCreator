@@ -74,6 +74,7 @@ def test_operand_copy():
 
     for single_class in list_all_classes:
         class_object: Operand = single_class() << basic_parameters
+        print(single_class.__name__)
         assert class_object == class_object.copy()
 
     exclude_class_names: str = ""
@@ -84,7 +85,7 @@ def test_operand_copy():
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
                 class_object << unit_class_object
-            # print(single_class.__name__)
+            print(single_class.__name__)
             # if not class_object == class_object.copy():
             #     exclude_class_names += single_class.__name__ + ", "
             assert class_object == class_object.copy()
@@ -118,7 +119,7 @@ def test_operand_serialization():
     for single_class in list_all_classes:
         class_object = single_class()
         if not isinstance(class_object, (Serialization, Playlist)):
-            # print(single_class.__name__)
+            print(single_class.__name__)
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
             assert len(serialization) > 0
@@ -134,7 +135,7 @@ def test_operand_serialization():
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
                 class_object << unit_class_object
-            # print(single_class.__name__)
+            print(single_class.__name__)
             # if not class_object == class_object.copy():
             #     exclude_class_names += single_class.__name__ + ", "
             serialization: dict = class_object.getSerialization()
