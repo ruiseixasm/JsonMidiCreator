@@ -47,4 +47,4 @@ triplets_two % First() % Beats() % float() >> Print()
 debug_sequence = triplets_one >> triplets_two
 triplets_two % First() % Beats() % float() >> Print()
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
-# triplets >> single_clock >> Play(False)
+triplets >> single_clock >> Play(False)

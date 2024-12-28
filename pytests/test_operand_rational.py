@@ -311,3 +311,21 @@ def test_full_conversions():
         assert position.getNoteValue(time_unit) == 10 * (1/1)
 
 # test_full_conversions()
+
+
+def test_multi_testing():
+
+    position = Position(10.5)
+    print(position % Measures() % Fraction())
+    print(position % Measure() % int())
+    assert position % Measure() == 10
+    assert position % Measure() + 1 == 11
+    print(ra.Measures(position % ou.Measure() + 1) % float())
+    assert ra.Measures(11) == 11.0
+    assert ra.Measures(ou.Measure(11)) == 11.0
+    position << ra.Measures(position % ou.Measure() + 1) # Rounded up Duration to Measures
+    print(position % Measures() % Fraction())
+    assert position == Position(11)
+
+test_multi_testing()
+

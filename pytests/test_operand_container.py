@@ -166,7 +166,7 @@ def test_sequence_selectors():
 
 def test_position_shift():
 
-    four_notes_1: Sequence = Note() * 4
+    four_notes_1: Sequence = Note() * 4 << Duration(1/8)
     four_notes_2: Sequence = Note() * 4
 
     print(four_notes_2 % First() % Beats() % int())
@@ -181,5 +181,5 @@ def test_position_shift():
     print(four_notes_2 % First() % Beats() % int())
     assert four_notes_2 % First() % Beats() == 0
 
-test_position_shift()
+# test_position_shift()
 

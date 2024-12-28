@@ -628,6 +628,7 @@ class Sequence(Container):  # Just a container of Elements
                     left_end_position: ra.Position = left_sequence.end()
                     right_start_position: ra.Position = right_sequence.start()
                     position_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                    position_shift << ra.Measures(position_shift % ou.Measure() + 1) # Rounded up Duration to Measures
                     position_shift >> right_sequence
                     
                     return left_sequence + right_sequence

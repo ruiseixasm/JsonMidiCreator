@@ -171,7 +171,11 @@ class Rational(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
             case float() | int() | str():   self << od.DataSource( operand )
-            case ou.IntU():                 self._rational = operand % Fraction()
+            # case ou.IntU():                 self._rational = operand % Fraction()
+            # case Rational():
+            #     self._rational = operand._rational
+            case ou.Unit():
+                self._rational = operand % Fraction()
             case tuple():
                 for single_operand in operand:
                     self << single_operand
