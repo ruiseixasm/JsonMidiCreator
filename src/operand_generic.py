@@ -149,7 +149,7 @@ class Pitch(Generic):
             case ou.Octave():       return self._octave.copy()
             case ou.Key():          return self._key.copy()
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | ou.IntU() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
+                | ou.Unit() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
                 return self._key % operand
             case int():
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
@@ -427,7 +427,7 @@ class Controller(Generic):
                 value += operand % ou.Value() % int()
             case ou.Value():
                 value += operand % int()
-            case int() | float() | ou.IntU() | ra.FloatR() | Fraction():
+            case int() | float() | ou.Unit() | ra.FloatR() | Fraction():
                 value += operand
             case _:
                 return self.copy()
@@ -441,7 +441,7 @@ class Controller(Generic):
                 value -= operand % ou.Value() % int()
             case ou.Value():
                 value -= operand % int()
-            case int() | float() | ou.IntU() | ra.FloatR() | Fraction():
+            case int() | float() | ou.Unit() | ra.FloatR() | Fraction():
                 value -= operand
             case _:
                 return self.copy()
