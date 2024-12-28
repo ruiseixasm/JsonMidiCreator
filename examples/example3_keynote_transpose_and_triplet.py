@@ -39,12 +39,12 @@ staff << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
-triplets_two % First() % Beats() % float() >> Print()
+# triplets_two % First() % Beats() % float() >> Print()
 single_clock >> triplets_one >> triplets_two >> Play(False)
-triplets_two % First() % Beats() % float() >> Print()
+# triplets_two % First() % Beats() % float() >> Print()
 
 # triplets remain a sequence. Frames don't operate on Songs!!
 debug_sequence = triplets_one >> triplets_two
-triplets_two % First() % Beats() % float() >> Print()
+# triplets_two % First() % Beats() % float() >> Print()
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
 triplets >> single_clock >> Play(False)

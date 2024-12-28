@@ -327,5 +327,5 @@ def test_multi_testing():
     print(position % Measures() % Fraction())
     assert position == Position(11)
 
-test_multi_testing()
+# test_multi_testing()
 
