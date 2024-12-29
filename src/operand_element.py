@@ -164,7 +164,7 @@ class Element(o.Operand):
         position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
         return [
                 {
-                    "time_ms":  position.getMillis_float()
+                    "time_ms":  self.get_time_ms(position.getMillis_rational())
                 }
             ]
 
@@ -320,6 +320,11 @@ class Element(o.Operand):
     @staticmethod
     def midi_16(midi_value: int | float = 0):
         return min(max(int(midi_value), 0), 15)
+    
+    @staticmethod
+    def get_time_ms(rational: Fraction, precision: int = 3) -> float:
+        precision = min(max(int(precision), 0), 12)
+        return max(0.0, float(round(float(rational), precision)))
 
 class Loop(Element):
     # Basically it's a short Sequence with a Position that can be used and placed as a loop
@@ -454,6 +459,9 @@ class Rest(Element):
 
         on_time_ms = position.getMillis_float()
         off_time_ms = (position + duration).getMillis_float()
+        # on_time_ms: Fraction = position.getMillis_float()
+        # off_time_ms: Fraction = on_time_ms + duration.getMillis_float()
+        time_ms: float = self.get_time_ms(position.getMillis_rational())
         return [
                 {
                     "time_ms": on_time_ms,
