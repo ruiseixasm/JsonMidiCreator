@@ -1205,9 +1205,6 @@ class Midi(Unit):
     pass
 
 class MidiTrack(Midi):
-
-    _auto_id: int = 1
-
     """
     A MidiTrack() is how arrangements are split in multiple compositions in Midi files.
     
@@ -1218,8 +1215,6 @@ class MidiTrack(Midi):
     """
     def __init__(self, *parameters):
         super().__init__(1)
-        # super().__init__(MidiTrack._auto_id)
-        MidiTrack._auto_id += 1
         self._name: str = "Track 1"
         if len(parameters) > 0:
             self << parameters
@@ -1241,7 +1236,7 @@ class MidiTrack(Midi):
                 return super().__eq__(other) \
                     and self._name      == other % od.DataSource( str() )
             case str():
-                return self._name       == other % od.DataSource( str() )
+                return self._name       == other
             case _:
                 return super().__eq__(other)    # Compares the _unit integer value
     
