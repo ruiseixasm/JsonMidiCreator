@@ -602,14 +602,17 @@ class Sequence(Container):  # Just a container of Elements
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
-        self_copy: Sequence = self.copy()
         match operand:
             case ra.Duration() | ra.NoteValue():
+                self_copy: Sequence = self.copy()
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ra.Position() + operand
+                return self_copy
             case ra.Position() | ra.TimeValue():
+                self_copy: Sequence = self.copy()
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
+                return self_copy
             case ra.Length():
                 return self + operand
             case oe.Element():
@@ -618,7 +621,7 @@ class Sequence(Container):  # Just a container of Elements
                 if self._midi_track == operand._midi_track:
 
                     left_sequence: Sequence = operand.copy()
-                    right_sequence: Sequence = self_copy
+                    right_sequence: Sequence = self.copy()
 
                     left_end_position: ra.Position = left_sequence.end()
                     right_start_position: ra.Position = right_sequence.start()
@@ -632,7 +635,7 @@ class Sequence(Container):  # Just a container of Elements
                 return operand >> od.Playlist(self.getPlaylist(self._midi_track, self._position))
             case tuple():
                 return super().__rrshift__(operand)
-        return self_copy
+        return self.copy()
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
         match operand:
