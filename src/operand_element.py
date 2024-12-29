@@ -180,8 +180,8 @@ class Element(o.Operand):
                     "denominator":  int(1 / (position % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
                     "time":         position % od.DataSource( ra.Beats() ) % float(),   # beats
-                    "duration":     self._duration % od.DataSource( ra.Beats() ) % float(),
-                    "tempo":        position % od.DataSource( ra.Tempo() ) % float()   # bpm
+                    "duration":     position.getBeats(self._duration) % float(),        # beats
+                    "tempo":        position % od.DataSource( ra.Tempo() ) % float()    # bpm
                 }
             ]
 
