@@ -272,6 +272,10 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
 
 
 
+
+
+
+
 def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
     try:
         # Importing mido for MIDI file processing
