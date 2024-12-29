@@ -50,8 +50,8 @@ def test_dotted_mod():
     assert dotted % Fraction() == Fraction(1, 4) # 3/8 * 2/3 = 1/4
     print(dotted % Dotted() % Fraction())
     assert dotted % Dotted() % Fraction() == Fraction(1, 4) # 3/8 * 2/3 = 1/4
-    print(dotted % NoteValue() % Fraction())
-    assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
+    print(dotted % Duration() % Fraction())
+    assert dotted % Duration() % Fraction() == Fraction(3, 8)
     assert dotted % DataSource( Fraction() ) == Fraction(3, 8)
 
 # test_dotted_mod()
@@ -77,7 +77,7 @@ def test_beats_and_steps_default():
     assert position_steps % Beat() == Beats(2)
     assert position_steps % Step() == Steps(1/2 * 16)
 
-    duration = Duration(1.5)
+    duration = NoteValue(1.5)
     assert duration % Beats() % DataSource( Fraction() ) == 6
     assert duration % Steps() % DataSource( Fraction() ) == 16 + 16/2
     assert duration % Beat() == Beats(2)
@@ -135,9 +135,9 @@ def test_time_mod():
     step_float = time % Steps() % float()
     assert step_float == 4.5 * 16.0
 
-    note_value_float = time % NoteValue() % float()
+    note_value_float = time % Duration() % float()
     assert note_value_float == 4.5
-    note_value_float = time % NoteValue() % float()
+    note_value_float = time % Duration() % float()
     assert note_value_float == 4.5 * 1.0
 
 
@@ -181,13 +181,13 @@ def test_add_note_value():
 
     position = Position()
     measures = Measures(0.5)
-    position += NoteValue(2 / 4)
+    position += Duration(2 / 4)
     assert position == measures
 
-    position += NoteValue(4 / 4)
+    position += Duration(4 / 4)
     assert position == Position(1.5)
 
-    position += NoteValue(-4 / 4)
+    position += Duration(-4 / 4)
     assert position == Position(0.5)
 
 
@@ -227,13 +227,13 @@ def test_sub_note_value():
 
     position = Position(2)
     measures = Measures(1.5)
-    position -= NoteValue(2 / 4)
+    position -= Duration(2 / 4)
     assert position == measures
 
-    position -= NoteValue(4 / 4)
+    position -= Duration(4 / 4)
     assert position == Position(0.5)
 
-    position -= NoteValue(-4 / 4)
+    position -= Duration(-4 / 4)
     assert position == Position(1.5)
 
 # test_sub_note_value()
@@ -257,7 +257,7 @@ def test_div_time_values():
 
     position = Position(5)
     measures = Measures(2.5)
-    position /= NoteValue(2)
+    position /= Duration(2)
     assert position == measures
 
 def test_div_time():
@@ -275,7 +275,7 @@ def test_div_time():
 
     position = Position(5)
     measures = Measures(2.5)
-    position /= Duration(2)     # Duration is in NoteValue
+    position /= NoteValue(2)     # Duration is in NoteValue
     assert position == measures
 
 
@@ -288,7 +288,7 @@ def test_basic_conversions():
     assert position % Beat() % Fraction() == 2      # Second beat in the Measure 10
     assert position % Steps() % Fraction() == 10.5 * 4 * 4
     assert position % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
-    assert position % NoteValue() % Fraction() == 10 * (1/1) + 2 * (1/4)
+    assert position % Duration() % Fraction() == 10 * (1/1) + 2 * (1/4)
 
 # test_basic_conversions()
 
@@ -298,7 +298,7 @@ def test_full_conversions():
     position = Position()
 
     for time_value in (Measures(10.5), Beats(10.5 * 4),
-                       Steps(10.5 * 4 * 4), NoteValue(10 * (1/1) + 2 * (1/4))):
+                       Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
         assert position.getMeasures(time_value) == 10.5
         assert position.getMeasure(time_value) == 10
         assert position.getBeats(time_value) == 10.5 * 4

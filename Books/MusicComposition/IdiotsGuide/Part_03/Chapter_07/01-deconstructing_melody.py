@@ -30,7 +30,7 @@ outline >> Play()
 flesh = Note(Measures(0), Beats(1)) * 2 + Note(Measures(1), Beats(1), 1/2) + Note(Measures(2), Beats(1)) * 2 + Note(Measures(3), Beats(1), 1/2)
 flesh += Note(Measures(4), Beats(2)) + Note(Measures(5), Beats(2)) + Note(Measures(6), Beats(2))
 flesh - 1 + Foreach(5, 7, 5, 8, 10, 5, 6, 5, 4)
-outline << Nth(1, 2, 3, 4)**Duration(1/4) << Nth(5, 6, 7)**Duration(1/2)
+outline << Nth(1, 2, 3, 4)**NoteValue(1/4) << Nth(5, 6, 7)**NoteValue(1/2)
 outline + flesh >> Link() >> Play()
 
 embellishing = Note("G", Measures(0), Beats(1), 1/8) * 4 + Increment()**0
@@ -41,7 +41,7 @@ embellishing += Note("D", 5, Measures(4), Beats(1), 1/8) * 4 - Increment()**0
 embellishing += Note("C", 5, Measures(5), Beats(1), 1/8) * 4 - Increment()**0
 embellishing += Note("B", Measures(6), Beats(1), 1/8) * 4 - Increment()**0
 full = outline + embellishing >> Link()
-full << Get(Duration())**Duration()
+full << Get(NoteValue())**NoteValue()
 full >> Play()
 
 # ((full | Measure(0)) >> Print()) % Duration() >> Print(0)
@@ -59,4 +59,4 @@ embellishing = Note("B", Dotted(1/8)) + Note("F", 1/16) + Note("B", 1/8) >> Stac
 embellishing += (Measures(1) >> embellishing) + (Measures(2) >> embellishing) + (Measures(3) >> embellishing)
 embellishing + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4
 
-(outline + embellishing >> Link() >> Play() | Measures(3)) % Duration() >> Print(0)
+(outline + embellishing >> Link() >> Play() | Measures(3)) % NoteValue() >> Print(0)

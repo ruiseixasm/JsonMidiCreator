@@ -349,14 +349,14 @@ class Playlist(Data):
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.Duration)) and isinstance(self._data, list) and len(self._data) > 0:
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.NoteValue)) and isinstance(self._data, list) and len(self._data) > 0:
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
                 if "time_ms" in midi_element and midi_element["time_ms"] > ending_position_ms:
                     ending_position_ms = midi_element["time_ms"]
             increase_position_ms = ending_position_ms
-            if not isinstance(operand, ra.Duration):
+            if not isinstance(operand, ra.NoteValue):
                 starting_position_ms = self._data[0]["time_ms"]
                 for midi_element in self._data:
                     if "time_ms" in midi_element and midi_element["time_ms"] < starting_position_ms:
@@ -373,7 +373,7 @@ class Playlist(Data):
     def __add__(self, operand: o.Operand) -> 'Playlist':
         import operand_rational as ra
         match operand:
-            case ra.Duration():
+            case ra.NoteValue():
                 playlist_copy = Playlist.copy_play_list(self._data)
                 increase_position_ms: float = operand.getMillis_float()
                 for midi_element in playlist_copy:

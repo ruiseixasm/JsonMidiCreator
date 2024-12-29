@@ -28,13 +28,13 @@ slow_paced >> Rest() >> Play()
 
 embellishing: Sequence = \
     Note("E", Degree("IV"), Position(Measures(0) + Dotted(1/4))) + \
-    Note("E", Degree("ii"), Position(Measures(1) - NoteValue(1/8))) + \
-    Note("E", Degree("ii"), Position(Measures(1) + NoteValue(1/4))) + \
-    Note("E", Degree("IV"), Position(Measures(1) + NoteValue(1/4 + 1/8))) + \
-    Note("E", Degree("V"), Position(Measures(2) - NoteValue(1/8))) + \
-    Note("E", Degree("viiº"), Position(Measures(2) + NoteValue(1/4))) + \
-    Note("E", Degree("vi"), Position(Measures(2) + NoteValue(1/4 + 1/8))) + \
-    Note("E", Degree("iii"), Position(Measures(3) - NoteValue(1/8)))
+    Note("E", Degree("ii"), Position(Measures(1) - Duration(1/8))) + \
+    Note("E", Degree("ii"), Position(Measures(1) + Duration(1/4))) + \
+    Note("E", Degree("IV"), Position(Measures(1) + Duration(1/4 + 1/8))) + \
+    Note("E", Degree("V"), Position(Measures(2) - Duration(1/8))) + \
+    Note("E", Degree("viiº"), Position(Measures(2) + Duration(1/4))) + \
+    Note("E", Degree("vi"), Position(Measures(2) + Duration(1/4 + 1/8))) + \
+    Note("E", Degree("iii"), Position(Measures(3) - Duration(1/8)))
 slow_paced + embellishing >> Link() >> Rest() >> Play()
 
 variation: Sequence = Note("E") * 10

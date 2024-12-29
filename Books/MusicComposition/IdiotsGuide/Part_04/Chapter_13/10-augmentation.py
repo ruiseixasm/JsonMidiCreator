@@ -29,7 +29,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-augmented_motif = motif.copy() << Get(Duration())**Multiply(2) >> Stack()
+augmented_motif = motif.copy() << Get(NoteValue())**Multiply(2) >> Stack()
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
 varying_rhythm = motif >> augmented_motif

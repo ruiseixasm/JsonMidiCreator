@@ -415,9 +415,9 @@ class Time(Rational):
             case Steps():
                 steps: Fraction = self.getSteps(Beats(self._rational)) % Fraction()
                 return Steps(steps)
-            case NoteValue():
+            case Duration():
                 note_value: Fraction = self.getNoteValue(Beats(self._rational)) % Fraction()
-                return NoteValue(note_value)
+                return Duration(note_value)
             case ou.Measure():
                 return ou.Measure(self.getMeasure(Beats(self._rational)))
             case ou.Beat():
@@ -443,7 +443,7 @@ class Time(Rational):
             case Steps():
                 beats = self.getBeats(time_value)
                 measures = self.getMeasures(beats)
-            case NoteValue():
+            case Duration():
                 beats = self.getBeats(time_value)
                 measures = self.getMeasures(beats)
             case ou.Measure():
@@ -467,7 +467,7 @@ class Time(Rational):
                 notes_per_step: Fraction = self._quantization % Fraction()
                 beats_per_step: Fraction = notes_per_step / notes_per_beat
                 beats = time_value._rational * beats_per_step
-            case NoteValue():
+            case Duration():
                 notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
                 beats = time_value._rational / notes_per_beat
             case ou.Measure():
@@ -491,7 +491,7 @@ class Time(Rational):
                 steps = time_value._rational / beats_per_step
             case Steps():
                 steps = time_value._rational
-            case NoteValue():
+            case Duration():
                 beats = self.getBeats(time_value)
                 steps = self.getSteps(beats)
             case ou.Measure():
@@ -502,7 +502,7 @@ class Time(Rational):
                 return self.getSteps(Steps(time_value % Fraction()))
         return Steps(steps)
 
-    def getNoteValue(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'NoteValue':
+    def getNoteValue(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Duration':
         note_value: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
             case Measures():
@@ -514,7 +514,7 @@ class Time(Rational):
             case Steps():
                 beats = self.getBeats(time_value)
                 note_value = self.getNoteValue(beats)
-            case NoteValue():
+            case Duration():
                 note_value = time_value._rational
             case ou.Measure():
                 return self.getNoteValue(Measures(time_value % Fraction()))
@@ -522,7 +522,7 @@ class Time(Rational):
                 return self.getNoteValue(Beats(time_value % Fraction()))
             case ou.Step():
                 return self.getNoteValue(Steps(time_value % Fraction()))
-        return NoteValue(note_value)
+        return Duration(note_value)
 
 
     def getMeasure(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Measure':
@@ -685,8 +685,8 @@ class Time(Rational):
     def __mul__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Duration():
-                multiplier: Fraction = operand % NoteValue() % Fraction()
+            case NoteValue():
+                multiplier: Fraction = operand % Duration() % Fraction()
                 return super().__mul__(multiplier)
             case Time():
                 multiplier: Fraction = operand % Measures() % Fraction()
@@ -696,8 +696,8 @@ class Time(Rational):
     def __truediv__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Duration():
-                divider: Fraction = operand % NoteValue() % Fraction()
+            case NoteValue():
+                divider: Fraction = operand % Duration() % Fraction()
                 return super().__truediv__(divider)
             case Time():
                 divider: Fraction = operand % Measures() % Fraction()
@@ -752,30 +752,30 @@ class Length(Time):
 class Position(Length):
     pass
     
-class Duration(Time):
+class NoteValue(Time):
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Duration':
+    def __lshift__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | Fraction():
-                self << NoteValue(operand)
+                self << Duration(operand)
             case _:
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Duration':
+    def __add__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | Fraction():
-                return self + NoteValue(operand)
+                return self + Duration(operand)
         return super().__add__(operand)
     
-    def __sub__(self, operand: o.Operand) -> 'Duration':
+    def __sub__(self, operand: o.Operand) -> 'NoteValue':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | Fraction():
-                return self - NoteValue(operand)
+                return self - Duration(operand)
         return super().__sub__(operand)
     
 
@@ -826,7 +826,7 @@ class Steps(TimeValue):
     """
     pass
 
-class NoteValue(TimeValue):
+class Duration(TimeValue):
     """
     NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
     
@@ -837,7 +837,7 @@ class NoteValue(TimeValue):
     """
     pass
 
-class Dotted(NoteValue):
+class Dotted(Duration):
     """
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:
@@ -887,7 +887,7 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: o.Operand) -> 'Dotted':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource() | NoteValue() | od.Serialization():
+            case od.DataSource() | Duration() | od.Serialization():
                 super().__lshift__(operand)
             # It's just a wrapper for NoteValue 3/2
             case int() | float() | Fraction():

@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Tempo(60)
 
-chord = Chord() << NoteValue(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
+chord = Chord() << Duration(2) << Gate(1) >> Save("json/_Save_4.1_control_change.json")
 controller = (Oscillator(Value()) << Offset(64) << Amplitude(50) \
               | ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()) \
                 >> Save("json/_Save_4.2_control_change.json")

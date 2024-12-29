@@ -270,7 +270,7 @@ class Translocation(Mutation):
 class TranslocateRhythm(Translocation):
     def __init__(self, *parameters):
         super().__init__()
-        self._parameters        = od.Parameters(ra.Duration())
+        self._parameters        = od.Parameters(ra.NoteValue())
         if len(parameters) > 0:
             self << parameters
 
@@ -278,7 +278,7 @@ class TranslocateRhythm(Translocation):
 
     def __lshift__(self, operand: o.Operand) -> 'TranslocateRhythm':
         super().__lshift__(operand)
-        self._parameters        = od.Parameters(ra.Duration())  # Can't change targeted parameter
+        self._parameters        = od.Parameters(ra.NoteValue())  # Can't change targeted parameter
         return self
 
 class TranslocatePitch(Translocation):

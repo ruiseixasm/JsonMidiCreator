@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 single_notes = Note() * 5 << Foreach(
-    (NoteValue(1/2), Octave(5)),
+    (Duration(1/2), Octave(5)),
     "B",
     "A",
     (1/2, "B"),

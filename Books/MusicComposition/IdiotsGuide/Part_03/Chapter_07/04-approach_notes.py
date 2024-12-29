@@ -25,7 +25,7 @@ staff << KeySignature("b")
 
 approach: Sequence = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
 approach -= approach % Last()
-approach << Equal(Measures(3))**NoteValue(1)
+approach << Equal(Measures(3))**Duration(1)
 approach - Equal(Measures(1))**2 - Equal(Measures(2), Measures(3))**Equal(Beats(0))**4
 approach >> Play()
 

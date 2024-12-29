@@ -55,7 +55,7 @@ descending_m: Sequence = Note(1/8) * 5 >> Link()
 descending_1: Sequence = descending_m >> Copy() << Octave(5) << Foreach("D", "C", "B", "A", "B")
 descending_2: Sequence = descending_1.copy() - 1
 descending_3: Sequence = descending_2 >> Copy()
-(descending_3 | NoteValue(1/8)) >> Reverse()
+(descending_3 | Duration(1/8)) >> Reverse()
 descending_3 - Nth(4, 5)**Foreach(2, 1)
 descending_4: Sequence = Note("F") * 1 >> Link()
 descending: Sequence = (descending_1, descending_2, descending_3, descending_4, Rest()) >> Smooth() >> Play()

@@ -47,7 +47,7 @@ def test_sequence_mod():
 
 def test_milliseconds_duration():
 
-    duration = Duration(Steps(3*4 + 2))
+    duration = NoteValue(Steps(3*4 + 2))
     # duration >> Print()
     assert duration == Beats(3.5)
     rest_sequence = Rest(duration) * 1
@@ -116,7 +116,7 @@ def test_floordiv_sequence():
     two_notes // Steps(1)
 
     for single_note in two_notes:
-        assert single_note % Duration() % Steps() == Steps(1)
+        assert single_note % NoteValue() % Steps() == Steps(1)
         
 
 def test_sequence_filter():
@@ -166,7 +166,7 @@ def test_sequence_selectors():
 
 def test_position_shift():
 
-    four_notes_1: Sequence = Note() * 4 << Duration(1/8)
+    four_notes_1: Sequence = Note() * 4 << NoteValue(1/8)
     four_notes_2: Sequence = Note() * 4
 
     print(four_notes_2 % First() % Beats() % int())

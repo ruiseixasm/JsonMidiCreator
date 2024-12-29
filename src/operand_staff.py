@@ -41,7 +41,7 @@ class Staff(o.Operand):
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
         self._measures: ra.Measures                 = ra.Measures(8)
-        self._note_value: ra.NoteValue              = ra.NoteValue(1/4)
+        self._note_value: ra.Duration              = ra.Duration(1/4)
         self._octave: ou.Octave                     = ou.Octave(4)
         self._velocity: ou.Velocity                 = ou.Velocity(100)
         self._controller: og.Controller             = og.Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
@@ -78,7 +78,7 @@ class Staff(o.Operand):
                     case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
                     case ra.Measures():         return self._measures
-                    case ra.NoteValue():        return self._note_value
+                    case ra.Duration():        return self._note_value
                     case ou.Octave():           return self._octave
                     case ou.Velocity():         return self._velocity
                     case og.Controller():       return self._controller
@@ -108,7 +108,7 @@ class Staff(o.Operand):
             case ra.BeatNoteValue():    return self._time_signature % ra.BeatNoteValue()
             case ra.Measures():         return self._measures.copy()
             case ou.Measure():          return ou.Measure(self._measures % int())
-            case ra.NoteValue():        return self._note_value.copy()
+            case ra.Duration():        return self._note_value.copy()
             case ou.Octave():           return self._octave.copy()
             case ou.Velocity():         return self._velocity.copy()
             case og.Controller():       return self._controller.copy()
@@ -139,7 +139,7 @@ class Staff(o.Operand):
             and self._quantization      == other % od.DataSource( ra.Quantization() ) \
             and self._key_signature     == other % od.DataSource( ou.KeySignature() ) \
             and self._measures          == other % od.DataSource( ra.Measures() ) \
-            and self._note_value        == other % od.DataSource( ra.NoteValue() ) \
+            and self._note_value        == other % od.DataSource( ra.Duration() ) \
             and self._octave            == other % od.DataSource( ou.Octave() ) \
             and self._velocity          == other % od.DataSource( ou.Velocity() ) \
             and self._controller        == other % od.DataSource( og.Controller() ) \
@@ -200,7 +200,7 @@ class Staff(o.Operand):
                     case ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand % o.Operand() )
                     case ra.Measures():         self._measures = operand % o.Operand()
-                    case ra.NoteValue():        self._note_value = operand % o.Operand()
+                    case ra.Duration():        self._note_value = operand % o.Operand()
                     case ou.Octave():           self._octave = operand % o.Operand()
                     case ou.Velocity():         self._velocity = operand % o.Operand()
                     case og.Controller():       self._controller = operand % o.Operand()
@@ -231,7 +231,7 @@ class Staff(o.Operand):
                                         self._key_signature << operand
             case ra.Measures() | ou.Measure():         
                                         self._measures << operand
-            case ra.NoteValue():        self._note_value << operand
+            case ra.Duration():        self._note_value << operand
             case ou.Octave():           self._octave << operand
             case ou.Velocity():         self._velocity << operand
             case og.Controller() | ou.Number() | ou.Value():

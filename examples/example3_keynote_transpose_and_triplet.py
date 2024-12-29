@@ -26,13 +26,13 @@ from JsonMidiCreator import *
 staff << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
 
-single_note = Note() << (Duration() << Measures(2)) >> Play()
+single_note = Note() << (NoteValue() << Measures(2)) >> Play()
 note_transposed = single_note + 5.0 >> Play()
 
-triplets_one = (Note3("E") << Duration(1/16)) * 8
+triplets_one = (Note3("E") << NoteValue(1/16)) * 8
 triplets_one + single_clock >> Save("json/_Save_3.1_triple_note3.json") >> Play(False)
 
-triplets_two = (Note3("G") << Duration(1/16)) * 8
+triplets_two = (Note3("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/_Export_3.1_triple_note3.json") >> Play(False)
 
 staff << Measures(2)

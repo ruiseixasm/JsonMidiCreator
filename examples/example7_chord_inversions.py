@@ -25,8 +25,8 @@ from JsonMidiCreator import *
 # Global Staff setting up
 staff << Tempo(120)
 
-(Chord() << Duration(1)) * 3 + Iterate()**Inversion() << NoteValue(1) >> Play(True)
-((Chord() << Duration(1)) * 4 << Size("7th")) + Iterate()**Inversion() << NoteValue(1) << Gate(1) >> Export("json/_Export_7.1_chord_inversion.json") >> Play(True)
+(Chord() << NoteValue(1)) * 3 + Iterate()**Inversion() << Duration(1) >> Play(True)
+((Chord() << NoteValue(1)) * 4 << Size("7th")) + Iterate()**Inversion() << Duration(1) << Gate(1) >> Export("json/_Export_7.1_chord_inversion.json") >> Play(True)
 
 
-((Chord() << Duration(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << NoteValue(1) >> Play(True)
+((Chord() << NoteValue(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) >> Play(True)

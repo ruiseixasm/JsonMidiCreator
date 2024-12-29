@@ -26,16 +26,16 @@ staff << 140
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 phrase_1 = Note() * 7 >> LJ
-phrase_1 % Duration() >> Print(0)
+phrase_1 % NoteValue() >> Print(0)
 phrase_2 = Note() * 5 >> LJ
-phrase_2 % Duration() >> Print(0)
+phrase_2 % NoteValue() >> Print(0)
 symmetrical = \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()   >> Slur()) + \
     (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7)**Degree()         >> Slur()) + \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()  >> Slur()) >> S
 symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
 symmetrical >> S
-symmetrical % Duration() >> Print(0)
+symmetrical % NoteValue() >> Print(0)
 symmetrical >> rest_play
 
 phrase_1 = Note() * 7 >> LJ  >> Slur()
@@ -47,7 +47,7 @@ asymmetrical = \
     (phrase_3 % Copy()  << Foreach(8, 6, 7, 8, 9)**Degree()) + \
     (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()) + \
     (phrase_3 % Copy()  << Foreach(10, 11, 10, 9, 10)**Degree()) >> S
-asymmetrical % Duration() >> Print(0)
+asymmetrical % NoteValue() >> Print(0)
 asymmetrical >> rest_play
 
 first_track     = ControlChange(Number(0), Value(0)) + ControlChange(Number(32), Value(114)) + ProgramChange(5) + symmetrical << Channel(1) << MidiTrack(1, "Symmetrical")

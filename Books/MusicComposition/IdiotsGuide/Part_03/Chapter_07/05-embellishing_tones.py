@@ -28,7 +28,7 @@ embellishing: Sequence = Note("B") * 10 << Nth(3, 4, 5, 7, 8, 9, 10)**Foreach(1/
 embellishing - Nth(4, 5, 10)**Foreach(Degree(4), Degree(2), Degree(5))  # Interpretation is like the ii degree below
 embellishing >> Rest() >> Play()
 
-embellishing = Note("G") * 9 << Nth(3, 4, 5, 8, 9)**Foreach(1/2, 1/2, 1/2, 1/2, 1/1)**NoteValue() >> Stack()
+embellishing = Note("G") * 9 << Nth(3, 4, 5, 8, 9)**Foreach(1/2, 1/2, 1/2, 1/2, 1/1)**Duration() >> Stack()
 embellishing + Foreach(+3, +4, +3, -2, +2, +3, +2, +3, -3)**Degree()
 embellishing >> Rest() >> Play()
 
@@ -40,7 +40,7 @@ embellishing >> Link() >> Rest() >> Play()
 embellishing -= embellishing | Equal(Beats(1), Steps(2))
 embellishing += Note("A", 1/8, Position(0, Beats(1))) * 2 + Foreach(0, 2)
 embellishing += Note("A", 1/8, Position(2, Beats(1))) * 2 + Foreach(2, 0)
-embellishing >> Link() << Get(Duration())**Duration() >> Rest() >> Play()
+embellishing >> Link() << Get(NoteValue())**NoteValue() >> Rest() >> Play()
 
 embellishing -= embellishing | Equal(Measures(0), Measures(2))**Greater(Beats(0))
 embellishing += Note("E", 1/8, Position(0, Beats(3))) * 2 + Foreach(2, 0)

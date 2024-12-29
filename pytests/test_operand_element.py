@@ -56,7 +56,7 @@ def test_clock_mod():
 
     # Perform the operation
     clock = Clock(4.0)  # 4 for Position and 4.0 for Duration
-    clock % Duration() % Measures() % float() >> Print()
+    clock % NoteValue() % Measures() % float() >> Print()
 
     # Restore stdout
     sys.stdout = sys.__stdout__
@@ -138,7 +138,7 @@ def test_keyscale_mod():
 def test_chord_mod():
 
     # Perform the operation
-    chord = Chord("A") << Scale("minor") << Size("7th") << NoteValue(1/2)
+    chord = Chord("A") << Scale("minor") << Size("7th") << Duration(1/2)
     chord_string = chord % Degree() % str()
 
     assert chord_string == "I"
@@ -200,7 +200,7 @@ def test_program_change_mod():
 
 def test_milliseconds_duration():
 
-    duration_steps = Duration(Steps(3*4 + 2))
+    duration_steps = NoteValue(Steps(3*4 + 2))
     assert duration_steps == Beats(3.5)
     rest = Rest(duration_steps)
     rest_playlist = rest.getPlaylist()
@@ -229,7 +229,7 @@ def test_milliseconds_duration():
 
 def test_clock_element():
 
-    clock_measure = Clock(Duration(Measures(1)))
+    clock_measure = Clock(NoteValue(Measures(1)))
     clock_playlist: list = clock_measure.getPlaylist()
     expected_messages: int = 1 * 4 * 24 + 1
     total_messages: int = len(clock_playlist)
@@ -244,11 +244,11 @@ def test_clock_element():
     staff << Tempo(90)
     clock_default = Clock()
     position_tempo: Tempo = clock_default % DataSource( Position() ) % Tempo()
-    duration_tempo: Tempo = clock_default % DataSource( Duration() ) % Tempo()
+    duration_tempo: Tempo = clock_default % DataSource( NoteValue() ) % Tempo()
     position_tempo >> Print(0)
     assert position_tempo == staff % Tempo()
     assert duration_tempo == staff % Tempo()
-    clock_specific = Clock(Duration(Measures(1)))
+    clock_specific = Clock(NoteValue(Measures(1)))
     clock_playlist = clock_specific.getPlaylist()
     total_messages = len(clock_playlist)
     # 1.0 Measure = 1.0 * 4 Beats = 1.0 * 4 / 90 * 60 * 1000
@@ -272,21 +272,21 @@ def test_clock_element():
 def test_note3_element():
 
     triplet_note = Note3("C")
-    assert triplet_note % Duration() == NoteValue(1/4)
-    assert triplet_note % od.DataSource( Duration() ) == NoteValue(1/2)
+    assert triplet_note % NoteValue() == Duration(1/4)
+    assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/2)
     assert triplet_note % Position() == 0.0
-    triplet_note << Duration(1/8)
-    assert triplet_note % Duration() == NoteValue(1/8)
-    assert triplet_note % od.DataSource( Duration() ) == NoteValue(1/4)
+    triplet_note << NoteValue(1/8)
+    assert triplet_note % NoteValue() == Duration(1/8)
+    assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/4)
     assert triplet_note % Position() == 0.0
-    triplet_note << Duration(1/16)
-    assert triplet_note % Duration() == NoteValue(1/16)
-    assert triplet_note % od.DataSource( Duration() ) == NoteValue(1/8)
+    triplet_note << NoteValue(1/16)
+    assert triplet_note % NoteValue() == Duration(1/16)
+    assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/8)
     assert triplet_note % Position() == 0.0
 
-    assert (Note3(MidiTrack(1, "Piano")) << (Duration() << NoteValue(1/16))) % Duration() == NoteValue(1/16)
-    assert (Note3(MidiTrack(1, "Piano")) << (Duration() << NoteValue(1/16))) % od.DataSource( Duration() ) == NoteValue(1/8)
-    assert (Note3(MidiTrack(1, "Piano")) << (Duration() << NoteValue(1/16))) % Position() == 0.0
+    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % NoteValue() == Duration(1/16)
+    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.DataSource( NoteValue() ) == Duration(1/8)
+    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % Position() == 0.0
 
 # test_note3_element()
 
