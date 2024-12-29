@@ -465,9 +465,11 @@ class Time(Rational):
         return f'{self._time_value}'
     
 
-    def getMeasures(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Measures':
+    def getMeasures(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Measures':
         measures: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
+            case Time():
+                return self.getMeasures(Beats(time_value))
             case Measures():
                 measures = time_value._rational
             case Beats():
@@ -487,9 +489,11 @@ class Time(Rational):
                 return self.getMeasures(Steps(time_value % Fraction()))
         return Measures(measures)
 
-    def getBeats(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Beats':
+    def getBeats(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Beats':
         beats: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
+            case Time():
+                return self.getBeats(Beats(time_value))
             case Measures():
                 beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
                 beats = time_value._rational * beats_per_measure
@@ -511,9 +515,11 @@ class Time(Rational):
                 return self.getBeats(Steps(time_value % Fraction()))
         return Beats(beats)
 
-    def getSteps(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Steps':
+    def getSteps(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Steps':
         steps: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
+            case Time():
+                return self.getSteps(Beats(time_value))
             case Measures():
                 beats = self.getBeats(time_value)
                 steps = self.getSteps(beats)
@@ -535,9 +541,11 @@ class Time(Rational):
                 return self.getSteps(Steps(time_value % Fraction()))
         return Steps(steps)
 
-    def getDuration(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Duration':
+    def getDuration(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Duration':
         note_value: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
+            case Time():
+                return self.getDuration(Beats(time_value))
             case Measures():
                 beats = self.getBeats(time_value)
                 note_value = self.getDuration(beats)
@@ -558,24 +566,30 @@ class Time(Rational):
         return Duration(note_value)
 
 
-    def getMeasure(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Measure':
+    def getMeasure(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'ou.Measure':
         measure: int = 0
         match time_value:
+            case Time():
+                return self.getMeasure(Beats(time_value))
             case TimeValue() | ou.TimeUnit():
                 measure = self.getMeasures(time_value) % int()
         return ou.Measure(measure)
 
-    def getBeat(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Beat':
+    def getBeat(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'ou.Beat':
         beat: int = 0
         match time_value:
+            case Time():
+                return self.getBeat(Beats(time_value))
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: int = self._time_signature % BeatsPerMeasure() % int()
                 beat = self.getBeats(time_value) % int() % beats_per_measure
         return ou.Beat(beat)
 
-    def getStep(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'ou.Step':
+    def getStep(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'ou.Step':
         step: int = 0
         match time_value:
+            case Time():
+                return self.getStep(Beats(time_value))
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
                 notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
@@ -586,7 +600,7 @@ class Time(Rational):
         return ou.Step(step)
 
 
-    def getMillis_rational(self, time_value: Union['TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
+    def getMillis_rational(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
         beats: Fraction = self._rational
         beats_per_minute: Fraction = self._tempo._rational
         if time_value is not None:
