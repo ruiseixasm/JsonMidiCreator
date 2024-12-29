@@ -78,7 +78,7 @@ class Rational(o.Operand):
                     case int():             return int(self._rational)
                     case str():             return str(self._rational)
                     case Rational() | ou.Unit():
-                                            return operand.__class__() << self._rational
+                                            return operand.__class__() << od.DataSource( self._rational )
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
@@ -86,7 +86,7 @@ class Rational(o.Operand):
             case int():             return int(self._rational)
             case str():             return str(self._rational)
             case Rational() | ou.Unit():
-                                    return operand.__class__() << self._rational
+                                    return operand.__class__() << od.DataSource( self._rational )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
