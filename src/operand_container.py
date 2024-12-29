@@ -613,7 +613,7 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Length():
                 return self + operand
             case oe.Element():
-                return self.__radd__(operand).stack()
+                return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
@@ -632,7 +632,7 @@ class Sequence(Container):  # Just a container of Elements
                 return operand >> od.Playlist(self.getPlaylist(self._midi_track, self._position))
             case tuple():
                 return super().__rrshift__(operand)
-        return self_copy.stack()
+        return self_copy
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
         match operand:
