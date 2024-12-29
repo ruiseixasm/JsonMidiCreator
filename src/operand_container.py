@@ -382,11 +382,6 @@ class Sequence(Container):  # Just a container of Elements
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Position():     return self._position.copy()
             case ra.Duration():     return self.duration()
-                # total_length = ra.Duration()
-                # for single_datasource in self._datasource_list:
-                #     if isinstance(single_datasource._data, oe.Element):
-                #         total_length += single_datasource._data % od.DataSource( ra.Duration() )
-                # return total_length
             case _:                 return super().__mod__(operand)
 
     def duration(self) -> ra.Duration:

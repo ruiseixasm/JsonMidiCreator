@@ -751,31 +751,6 @@ class Length(Time):
     
 class Position(Length):
     pass
-
-    # # CHAINABLE OPERATIONS
-
-    # def __lshift__(self, operand: o.Operand) -> 'Position':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case int() | float() | Fraction():
-    #             self << Beats(operand)
-    #         case _:
-    #             super().__lshift__(operand)
-    #     return self
-    
-    # def __add__(self, operand: o.Operand) -> 'Position':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case int() | float() | Fraction():
-    #             return self + Beats(operand)
-    #     return super().__add__(operand)
-    
-    # def __sub__(self, operand: o.Operand) -> 'Position':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case int() | float() | Fraction():
-    #             return self - Measures(operand)
-    #     return super().__sub__(operand)
     
 class Duration(Time):
     # CHAINABLE OPERATIONS
@@ -803,12 +778,6 @@ class Duration(Time):
                 return self - NoteValue(operand)
         return super().__sub__(operand)
     
-
-
-
-
-
-
 
 
 
