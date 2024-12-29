@@ -221,7 +221,7 @@ class Rational(o.Operand):
                     return self.__class__() << od.DataSource( self._rational / Fraction(value) )
         return self.copy()
 
-class FloatR(Rational):
+class HiPrecision(Rational):
 
     _limit_denominator: int = 0 # overrides default limit_denominator
 
@@ -230,43 +230,43 @@ class FloatR(Rational):
         if len(parameters) > 0:
             self << parameters
 
-class Index(FloatR):
+class Index(HiPrecision):
     pass
 
-class Split(FloatR):
+class Split(HiPrecision):
     pass
 
-class Width(FloatR):
+class Width(HiPrecision):
     pass
 
-class Height(FloatR):
+class Height(HiPrecision):
     pass
 
-class X(FloatR):
+class X(HiPrecision):
     pass
 
-class Y(FloatR):
+class Y(HiPrecision):
     pass
 
-class Z(FloatR):
+class Z(HiPrecision):
     pass
 
-class dX(FloatR):
+class dX(HiPrecision):
     pass
 
-class dY(FloatR):
+class dY(HiPrecision):
     pass
 
-class dZ(FloatR):
+class dZ(HiPrecision):
     pass
 
-class X0(FloatR):
+class X0(HiPrecision):
     pass
 
-class Xn(FloatR):
+class Xn(HiPrecision):
     pass
 
-class Lambda(FloatR):
+class Lambda(HiPrecision):
     pass
 
 class Negative(Rational):
