@@ -45,10 +45,16 @@ def test_rational_mod():
 
 def test_dotted_mod():
 
-    dotted = Dotted(1/4)
+    dotted = Dotted(1/4)    # Multiply by 3/2 (1.5) (1/4 * 3/2 = 3/8)
+    print(dotted % Fraction())
+    assert dotted % Fraction() == Fraction(1, 4) # 3/8 * 2/3 = 1/4
+    print(dotted % Dotted() % Fraction())
+    assert dotted % Dotted() % Fraction() == Fraction(1, 4) # 3/8 * 2/3 = 1/4
+    print(dotted % NoteValue() % Fraction())
     assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
-    assert dotted % Dotted() % Fraction() == Fraction(1, 4)
     assert dotted % DataSource( Fraction() ) == Fraction(3, 8)
+
+test_dotted_mod()
 
 
 def test_beats_and_steps_default():

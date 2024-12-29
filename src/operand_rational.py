@@ -77,16 +77,16 @@ class Rational(o.Operand):
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
                     case str():             return str(self._rational)
-                    case Rational():        return Rational() << od.DataSource( self._rational )
-                    case ou.Unit():         return ou.Unit() << od.DataSource( self._rational )
+                    case Rational() | ou.Unit():
+                                            return operand.__class__() << self._rational
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
             case str():             return str(self._rational)
-            case Rational():        return Rational() << self._rational
-            case ou.Unit():         return ou.Unit() << self._rational
+            case Rational() | ou.Unit():
+                                    return operand.__class__() << self._rational
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -903,35 +903,35 @@ class Dotted(NoteValue):
         Fraction(3, 2)
         """
         match operand:
-            case Fraction():        return self._rational * 2/3
-            case float():           return float(self._rational * 2/3)
-            case int():             return int(self._rational * 2/3)
-            case Dotted():          return self.copy()
-            case FloatR():          return ou.Unit() << self._rational * 2/3
-            case ou.IntU():         return ou.Unit() << self._rational * 2/3
-            case NoteValue():       return NoteValue() << self._rational
-            case _:                 return super().__mod__(operand)
+            case Dotted():
+                return Dotted(od.DataSource( self._rational ))
+            case int() | float() | Fraction():
+                # Reverses the value by multiplying it by 3/2 because it's a Dotted Note
+                other_rational: Fraction = self._rational * 2/3
+                if isinstance(operand, int):
+                    return int(other_rational)
+                if isinstance(operand, float):
+                    return float(other_rational)
+                return Fraction(other_rational).limit_denominator(self._limit_denominator)
+            case _: return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Dotted':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case NoteValue():
-                        self._rational = operand % od.DataSource( Fraction() ) * 3/2
-                    case _: super().__lshift__(operand)
-            case Dotted():          super().__lshift__(operand)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
+            case Dotted():
+                self._rational = operand._rational
+            case od.DataSource() | NoteValue() | od.Serialization():
+                super().__lshift__(operand)
             # It's just a wrapper for NoteValue 3/2
-            case Fraction():        self._rational = operand * 3/2
-            case float() | int():   self._rational = Fraction(operand).limit_denominator(self._limit_denominator) * 3/2
-            case ou.IntU() | FloatR():
-                                    self._rational = operand % Fraction() * 3/2
-            case NoteValue():       self._rational = operand % Fraction()
-            case _: super().__lshift__(operand)
+            case int() | float() | Fraction():
+                super().__lshift__(operand) # Starts by setting the self._rational as NoteValue
+                # Then it's multiplied by 3/2 because it's a Dotted Note
+                self._rational *= 3/2
+            case _:
+                if not isinstance(operand, (Rational, ou.Unit)):
+                    super().__lshift__(operand)
         return self
 
 class Swing(Rational):
