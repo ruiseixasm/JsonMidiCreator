@@ -872,8 +872,6 @@ class Dotted(NoteValue):
         Fraction(3, 2)
         """
         match operand:
-            case Dotted():
-                return Dotted(od.DataSource( self._rational ))
             case int() | float() | Fraction():
                 # Reverses the value by multiplying it by 3/2 because it's a Dotted Note
                 other_rational: Fraction = self._rational * 2/3
@@ -889,8 +887,6 @@ class Dotted(NoteValue):
     def __lshift__(self, operand: o.Operand) -> 'Dotted':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Dotted():
-                self._rational = operand._rational
             case od.DataSource() | NoteValue() | od.Serialization():
                 super().__lshift__(operand)
             # It's just a wrapper for NoteValue 3/2
