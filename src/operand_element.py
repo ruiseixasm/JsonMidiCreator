@@ -176,12 +176,12 @@ class Element(o.Operand):
                     "event":        "Element",
                     "track":        midi_track % int() - 1,  # out of range shouldn't be exported as a midi track
                     "track_name":   midi_track % str(),
-                    "numerator":    os.staff % ra.BeatsPerMeasure() % int(),
-                    "denominator":  int(1 / (os.staff % ra.BeatNoteValue() % Fraction())),
+                    "numerator":    position % ra.BeatsPerMeasure() % int(),
+                    "denominator":  int(1 / (position % ra.BeatNoteValue() % Fraction())),
                     "channel":      Element.midi_16(self._channel % int() - 1),
                     "time":         position % od.DataSource( ra.Beats() ) % float(),   # beats
-                    "duration":     self._duration % od.DataSource( ra.Beats() ) % float() * (self._gate % float()),
-                    "tempo":        os.staff._tempo % float()   # bpm
+                    "duration":     self._duration % od.DataSource( ra.Beats() ) % float(),
+                    "tempo":        position % od.DataSource( ra.Tempo() ) % float()   # bpm
                 }
             ]
 
