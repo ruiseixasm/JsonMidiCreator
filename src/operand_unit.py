@@ -67,7 +67,7 @@ class Unit(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case Fraction():        return Fraction(self._unit).limit_denominator()
+                    case Fraction():        return Fraction(self._unit)
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
                     case Unit() | ra.Rational():
@@ -77,7 +77,7 @@ class Unit(o.Operand):
             case int():             return self._unit
             case bool():            return False if self._unit == 0 else True
             case float():           return float(self._unit)
-            case Fraction():        return Fraction(self._unit).limit_denominator()
+            case Fraction():        return Fraction(self._unit)
             case Unit() | ra.Rational():
                                     return operand.__class__() << od.DataSource( self._unit )
             case _:                 return super().__mod__(operand)
@@ -98,7 +98,7 @@ class Unit(o.Operand):
             case Unit():
                 return self._unit == other._unit
             case ra.Rational():
-                self_rational = Fraction( self._unit ).limit_denominator()
+                self_rational = Fraction( self._unit )
                 return self_rational == other % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit == other
@@ -114,7 +114,7 @@ class Unit(o.Operand):
             case Unit():
                 return self._unit < other._unit
             case ra.Rational():
-                self_rational = Fraction( self._unit ).limit_denominator()
+                self_rational = Fraction( self._unit )
                 return self_rational < other % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit < other
@@ -127,7 +127,7 @@ class Unit(o.Operand):
             case Unit():
                 return self._unit > other._unit
             case ra.Rational():
-                self_rational = Fraction( self._unit ).limit_denominator()
+                self_rational = Fraction( self._unit )
                 return self_rational > other % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self._unit > other
