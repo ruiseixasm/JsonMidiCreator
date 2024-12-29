@@ -416,7 +416,7 @@ class Time(Rational):
                 steps: Fraction = self.getSteps(Beats(self._rational)) % Fraction()
                 return Steps(steps)
             case Duration():
-                note_value: Fraction = self.getNoteValue(Beats(self._rational)) % Fraction()
+                note_value: Fraction = self.getDuration(Beats(self._rational)) % Fraction()
                 return Duration(note_value)
             case ou.Measure():
                 return ou.Measure(self.getMeasure(Beats(self._rational)))
@@ -502,26 +502,26 @@ class Time(Rational):
                 return self.getSteps(Steps(time_value % Fraction()))
         return Steps(steps)
 
-    def getNoteValue(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Duration':
+    def getDuration(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Duration':
         note_value: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
         match time_value:
             case Measures():
                 beats = self.getBeats(time_value)
-                note_value = self.getNoteValue(beats)
+                note_value = self.getDuration(beats)
             case Beats():
                 notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
                 note_value = time_value._rational * notes_per_beat
             case Steps():
                 beats = self.getBeats(time_value)
-                note_value = self.getNoteValue(beats)
+                note_value = self.getDuration(beats)
             case Duration():
                 note_value = time_value._rational
             case ou.Measure():
-                return self.getNoteValue(Measures(time_value % Fraction()))
+                return self.getDuration(Measures(time_value % Fraction()))
             case ou.Beat():
-                return self.getNoteValue(Beats(time_value % Fraction()))
+                return self.getDuration(Beats(time_value % Fraction()))
             case ou.Step():
-                return self.getNoteValue(Steps(time_value % Fraction()))
+                return self.getDuration(Steps(time_value % Fraction()))
         return Duration(note_value)
 
 

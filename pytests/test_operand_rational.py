@@ -305,7 +305,7 @@ def test_full_conversions():
         assert position.getBeat(time_value) == 2
         assert position.getSteps(time_value) == 10.5 * 4 * 4
         assert position.getStep(time_value) == 2 * 4
-        assert position.getNoteValue(time_value) == 10 * (1/1) + 2 * (1/4)
+        assert position.getDuration(time_value) == 10 * (1/1) + 2 * (1/4)
 
     for time_unit in (Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
         assert position.getMeasures(time_unit) == 10
@@ -314,7 +314,7 @@ def test_full_conversions():
         assert position.getBeat(time_unit) == 0
         assert position.getSteps(time_unit) == 10 * 4 * 4
         assert position.getStep(time_unit) == 0 * 4
-        assert position.getNoteValue(time_unit) == 10 * (1/1)
+        assert position.getDuration(time_unit) == 10 * (1/1)
 
 # test_full_conversions()
 
