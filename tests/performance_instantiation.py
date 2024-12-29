@@ -47,7 +47,7 @@ def copy_classes(iterations: int = 100):
     print(sorted_results_dict)
 
 
-
-
-# instantiate_classes(100)
+print('\nINSTANTIATION PERFORMANCE TEST\n')
+instantiate_classes(100)
+print('\nCOPY PERFORMANCE TEST\n')
 copy_classes(100)
