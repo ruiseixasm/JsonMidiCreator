@@ -71,7 +71,7 @@ class Unit(o.Operand):
                     case int():             return self._unit           # returns a int()
                     case float():           return float(self._unit)
                     case Unit() | ra.Rational():
-                                            return operand.__class__() << self._unit
+                                            return operand.__class__() << od.DataSource( self._unit )
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case int():             return self._unit
@@ -79,7 +79,7 @@ class Unit(o.Operand):
             case float():           return float(self._unit)
             case Fraction():        return Fraction(self._unit).limit_denominator()
             case Unit() | ra.Rational():
-                                    return operand.__class__() << self._unit
+                                    return operand.__class__() << od.DataSource( self._unit )
             case _:                 return super().__mod__(operand)
 
     def __bool__(self) -> bool:  # For Python 3
