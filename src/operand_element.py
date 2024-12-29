@@ -39,7 +39,6 @@ if TYPE_CHECKING:
 class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._tempo: ra.Tempo               = os.staff % ra.Tempo()
         self._position: ra.Position         = ra.Position()
         self._duration: ra.Duration         = ra.Duration(os.staff._note_value)
         self._stackable: ou.Stackable       = ou.Stackable()
