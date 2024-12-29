@@ -654,7 +654,7 @@ class Key(Unit):
                 self_copy << ( self % int() + self.move_semitones(operand) ) << Degree(1)
             case float() | Fraction():
                 self_copy << ( self % int() + operand ) << Degree(1)
-            case Key() | Semitone() | ra.FloatR():
+            case Key() | Semitone():
                 self_copy << ( self % int() + operand % int() ) << Degree(1)
             case Degree():
                 if self_copy._degree._unit > 0:
@@ -687,7 +687,7 @@ class Key(Unit):
                 self_copy << ( self % int() + self.move_semitones(operand * -1) ) << Degree(1)
             case float() | Fraction():
                 self_copy << ( self % int() - operand ) << Degree(1)
-            case Key() | Semitone() | ra.FloatR():
+            case Key() | Semitone():
                 self_copy << ( self % int() - operand % int() ) << Degree(1)
             case Degree():
                 if self_copy._degree._unit > 0:

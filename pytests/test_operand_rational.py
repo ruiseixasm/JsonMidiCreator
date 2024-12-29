@@ -54,7 +54,7 @@ def test_dotted_mod():
     assert dotted % NoteValue() % Fraction() == Fraction(3, 8)
     assert dotted % DataSource( Fraction() ) == Fraction(3, 8)
 
-test_dotted_mod()
+# test_dotted_mod()
 
 
 def test_beats_and_steps_default():
