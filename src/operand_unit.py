@@ -226,9 +226,6 @@ class Unit(o.Operand):
                                         return self.__class__() << od.DataSource( self._unit / number )
         return self.copy()
 
-class IntU(Unit):
-    pass
-
 class Next(Unit):
     def __init__(self, *parameters):
         super().__init__(1)
