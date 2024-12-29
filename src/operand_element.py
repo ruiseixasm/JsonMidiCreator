@@ -161,16 +161,21 @@ class Element(o.Operand):
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
+        sequence_position_ms: Fraction = Fraction(0)
+        if position is not None:
+            sequence_position_ms = position.getMillis_rational()
+        element_position_ms: Fraction = self._position.getMillis_rational()
+        self_position_ms: Fraction = sequence_position_ms + element_position_ms
         return [
                 {
-                    "time_ms":  self.get_time_ms(position.getMillis_rational())
+                    "time_ms":  self.get_time_ms(self_position_ms)
                 }
             ]
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
         position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
+        # NEEDS TO IMPLEMENT TEMPO RATIOS TO NORMALIZE BEATS
         return [
                 {
                     "event":        "Element",
@@ -373,20 +378,25 @@ class Clock(Element):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
-        
-        device_list: list = self._device % od.DataSource( list() )
-        pulses_per_note = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
-        pulses_per_measure = pulses_per_note * (self._duration % ra.NotesPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses = round(pulses_per_measure * (self._duration % ra.Measures() % od.DataSource( Fraction() )))
 
-        single_measure_rational_ms = position.copy(1.0).getMillis_rational()
-        clock_start_rational_ms = position.getMillis_rational()
-        clock_stop_rational_ms = clock_start_rational_ms + self._duration.getMillis_rational()
+        sequence_position_ms: Fraction = Fraction(0)
+        if position is not None:
+            sequence_position_ms = position.getMillis_rational()
+        element_position_ms: Fraction = self._position.getMillis_rational()
+        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+
+        device_list: list = self._device % od.DataSource( list() )
+        pulses_per_note: Fraction = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
+        pulses_per_measure: Fraction = pulses_per_note * (self._position % ra.NotesPerMeasure() % od.DataSource( Fraction() ))
+        clock_pulses: int = round(pulses_per_measure * (self._position.getMeasures(self._duration) % od.DataSource( Fraction() )))
+
+        single_measure_rational_ms: Fraction = self._position.copy(1.0).getMillis_rational()
+        clock_start_rational_ms: Fraction = self_position_ms
+        clock_stop_rational_ms: Fraction = clock_start_rational_ms + self._position.getMillis_rational(self._duration)
 
         self_playlist = [
                 {
-                    "time_ms": round(float(clock_start_rational_ms), 3),
+                    "time_ms": self.get_time_ms(clock_start_rational_ms),
                     "midi_message": {
                         "status_byte": 0xFA,    # Start Sequence
                         "device": device_list
@@ -397,9 +407,9 @@ class Clock(Element):
         for clock_pulse in range(1, clock_pulses):
             self_playlist.append(
                 {
-                    "time_ms": round(float(clock_start_rational_ms \
+                    "time_ms": self.get_time_ms(clock_start_rational_ms \
                                      + single_measure_rational_ms * (self._duration % ra.Measures() % od.DataSource( Fraction() )) \
-                                     * clock_pulse / clock_pulses), 3),
+                                     * clock_pulse / clock_pulses),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
                         "device": device_list
@@ -409,7 +419,7 @@ class Clock(Element):
 
         self_playlist.append(
             {
-                "time_ms": round(float(clock_stop_rational_ms), 3),
+                "time_ms": self.get_time_ms(clock_stop_rational_ms),
                 "midi_message": {
                     "status_byte": 0xFC,    # Stop Sequence
                     "device": device_list

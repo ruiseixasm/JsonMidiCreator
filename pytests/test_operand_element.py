@@ -268,6 +268,8 @@ def test_clock_element():
 
     staff << Tempo(120)
 
+# test_clock_element()
+
 
 def test_note3_element():
 
