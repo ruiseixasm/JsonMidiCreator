@@ -40,7 +40,7 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ra.Position         = ra.Position()
-        self._duration: ra.NoteValue         = ra.NoteValue(os.staff._duration)
+        self._duration: ra.NoteValue        = ra.NoteValue(os.staff._duration)
         self._stackable: ou.Stackable       = ou.Stackable()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()

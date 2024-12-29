@@ -431,6 +431,39 @@ class Time(Rational):
             case Quantization():        return self._quantization.copy()
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Time():
+                return self._rational == other._rational
+            case TimeValue() | ou.TimeUnit() | int() | float():
+                return self % other == other
+            case _:
+                if other.__class__ == o.Operand:
+                    return True
+        return False
+
+    def __lt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Time():
+                return self._rational < other._rational
+            case TimeValue() | ou.TimeUnit() | int() | float():
+                return self % other < other
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Time():
+                return self._rational > other._rational
+            case TimeValue() | ou.TimeUnit() | int() | float():
+                return self % other > other
+        return False
+    
+    def __str__(self):
+        return f'{self._time_value}'
+    
 
     def getMeasures(self, time_value: Union['TimeValue', 'ou.TimeUnit']) -> 'Measures':
         measures: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
@@ -553,42 +586,11 @@ class Time(Rational):
         return ou.Step(step)
 
 
-    def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case Time():
-                return self._rational == other._rational
-            case TimeValue() | ou.TimeUnit() | int() | float():
-                return self % other == other
-            case _:
-                if other.__class__ == o.Operand:
-                    return True
-        return False
-
-    def __lt__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case Time():
-                return self._rational < other._rational
-            case TimeValue() | ou.TimeUnit() | int() | float():
-                return self % other < other
-        return False
-    
-    def __gt__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case Time():
-                return self._rational > other._rational
-            case TimeValue() | ou.TimeUnit() | int() | float():
-                return self % other > other
-        return False
-    
-    def __str__(self):
-        return f'{self._time_value}'
-    
-    def getMillis_rational(self) -> Fraction:
+    def getMillis_rational(self, time_value: Union['TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
         beats: Fraction = self._rational
         beats_per_minute: Fraction = self._tempo._rational
+        if time_value is not None:
+            beats = self.getBeats(time_value) % od.DataSource( Fraction() )
         return beats / beats_per_minute * 60 * 1000
     
     def getMillis_float(self, rounded = True) -> float:
