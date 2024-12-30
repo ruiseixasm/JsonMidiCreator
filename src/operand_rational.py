@@ -842,7 +842,10 @@ class Duration(TimeValue):
     """
     pass
 
-class Quantization(Duration):
+class NoteValue(Duration):
+    pass
+
+class Quantization(NoteValue):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
     
@@ -853,10 +856,7 @@ class Quantization(Duration):
     """
     pass
 
-class NoteValue(Duration):
-    pass
-
-class Dotted(Duration):
+class Dotted(NoteValue):
     """
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:
