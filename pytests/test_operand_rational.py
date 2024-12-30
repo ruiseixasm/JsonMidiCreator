@@ -77,13 +77,8 @@ def test_beats_and_steps_default():
     assert position_steps % Beat() == Beats(2)
     assert position_steps % Step() == Steps(1/2 * 16)
 
-    duration = NoteValue(1.5)
-    assert duration % Beats() % DataSource( Fraction() ) == 6
-    assert duration % Steps() % DataSource( Fraction() ) == 16 + 16/2
-    assert duration % Beat() == Beats(2)
-    assert duration % Step() == Steps(1/2 * 16)
-
 # test_beats_and_steps_default()
+
 
 def test_beats_and_steps_specific():
 

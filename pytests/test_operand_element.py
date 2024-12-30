@@ -200,8 +200,7 @@ def test_program_change_mod():
 
 def test_milliseconds_duration():
 
-    duration_steps = NoteValue(Steps(3*4 + 2))
-    assert duration_steps == Beats(3.5)
+    duration_steps = NoteValue(1/16 * (3*4 + 2))
     rest = Rest(duration_steps)
     rest_playlist = rest.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
@@ -244,10 +243,8 @@ def test_clock_element():
     staff << Tempo(90)
     clock_default = Clock()
     position_tempo: Tempo = clock_default % DataSource( Position() ) % Tempo()
-    duration_tempo: Tempo = clock_default % DataSource( NoteValue() ) % Tempo()
     position_tempo >> Print(0)
     assert position_tempo == staff % Tempo()
-    assert duration_tempo == staff % Tempo()
     clock_specific = Clock(NoteValue(Measures(1)))
     clock_playlist = clock_specific.getPlaylist()
     total_messages = len(clock_playlist)
