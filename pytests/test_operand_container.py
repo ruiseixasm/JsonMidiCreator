@@ -44,6 +44,29 @@ def test_sequence_mod():
 
     assert sequence_1 == sequence_2
     
+def test_rrshift_sequence():
+
+    two_notes: Sequence = Note() * 2
+    assert two_notes.len() == 2
+    assert two_notes[0] == Position(0)
+    assert two_notes[1] == Position(1/4)
+
+
+    two_notes_original = two_notes.copy()
+    four_notes = two_notes >> two_notes # moves the second pair pf notes to the next measure (1)!
+    assert two_notes == two_notes_original
+    assert four_notes.len() == 4
+    four_notes[0] % Position() % Fraction() >> Print()
+    assert four_notes[0] == Position(0)
+    four_notes[1] % Position() % Fraction() >> Print()
+    assert four_notes[1] == Position(1/4)
+    four_notes[2] % Position() % Fraction() >> Print()
+    assert four_notes[2] == Position(1)
+    four_notes[3] % Position() % Fraction() >> Print()
+    assert four_notes[3] == Position(1 + 1/4)
+
+# test_rrshift_sequence()
+
 
 def test_milliseconds_duration():
 
@@ -108,6 +131,35 @@ def test_mul_sequence():
 
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
+
+    eight_notes_1 = two_notes * 4
+    assert eight_notes_1.len() == 8
+    first_note = eight_notes_1[0]
+    third_note = eight_notes_1[2]
+    fifth_note = eight_notes_1[4]
+    first_note % Measures() % Fraction() >> Print()
+    assert first_note % Measures() == 0.0   # in measures
+    third_note % Measures() % Fraction() >> Print()
+    assert third_note % Measures() == 1.0   # in measures
+    fifth_note % Measures() % Fraction() >> Print()
+    assert fifth_note % Measures() == 2.0   # in measures
+    
+    eight_notes_2 = four_notes * 2
+    assert eight_notes_2.len() == 8
+    first_note = eight_notes_2[0]
+    third_note = eight_notes_2[2]
+    fifth_note = eight_notes_2[4]
+    first_note % Measures() % Fraction() >> Print()
+    assert first_note % Measures() == 0.0   # in measures
+    third_note % Measures() % Fraction() >> Print()
+    assert third_note % Measures() == 0.5   # in measures
+    fifth_note % Measures() % Fraction() >> Print()
+    assert fifth_note % Measures() == 1.0   # in measures
+
+    assert eight_notes_1 != eight_notes_2
+    
+# test_mul_sequence()
+
 
 def test_element_stacking():
 

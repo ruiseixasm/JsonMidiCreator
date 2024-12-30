@@ -508,7 +508,7 @@ class Sequence(Container):  # Just a container of Elements
             case ra.NoteValue() | ra.Duration() | float() | Fraction():
                 super().__lshift__(operand)
                 self.stack()
-            case ra.Position() | ra.TimeValue():
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 super().__lshift__(operand)
                 self.link() # Maybe completely unnecessary
             case _: super().__lshift__(operand)
@@ -626,7 +626,8 @@ class Sequence(Container):  # Just a container of Elements
                     left_end_position: ra.Position = left_sequence.end()
                     right_start_position: ra.Position = right_sequence.start()
                     position_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                    position_shift << ra.Measures(position_shift % ou.Measure() + 1) # Rounded up Duration to Measures
+                    if position_shift % ra.Measures() - position_shift % ou.Measure() > 0.0:    # No clean cut
+                        position_shift << ra.Measures(position_shift % ou.Measure() + 1) # Rounded up Duration to next Measure
                     position_shift >> right_sequence
                     
                     return left_sequence + right_sequence
