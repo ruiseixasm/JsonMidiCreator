@@ -398,16 +398,15 @@ class Clock(Element):
 
         device_list: list = self._device % od.DataSource( list() )
         pulses_per_note: Fraction = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
-        pulses_per_measure: Fraction = pulses_per_note * (self._position % ra.NotesPerMeasure() % od.DataSource( Fraction() ))
-        clock_pulses: int = round(pulses_per_measure * (self._position.getMeasures(self._duration) % od.DataSource( Fraction() )))
+        pulses_per_beat: Fraction = pulses_per_note * (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() ))
+        total_clock_pulses: int = (pulses_per_beat * self._position.getBeats(self._duration)) % od.DataSource( int() )
 
-        single_measure_rational_ms: Fraction = self._position.copy(1.0).getMillis_rational()
-        clock_start_rational_ms: Fraction = self_position_ms
-        clock_stop_rational_ms: Fraction = clock_start_rational_ms + self._position.getMillis_rational(self._duration)
+        single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
 
+        # First quarter note pulse (total 1 in 24 pulses per quarter note)
         self_playlist = [
                 {
-                    "time_ms": self.get_time_ms(clock_start_rational_ms),
+                    "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xFA,    # Start Sequence
                         "device": device_list
@@ -415,12 +414,11 @@ class Clock(Element):
                 }
             ]
 
-        for clock_pulse in range(1, clock_pulses):
+        # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+        for clock_pulse in range(1, total_clock_pulses):
             self_playlist.append(
                 {
-                    "time_ms": self.get_time_ms(clock_start_rational_ms \
-                                     + single_measure_rational_ms * (self._duration % ra.Measures() % od.DataSource( Fraction() )) \
-                                     * clock_pulse / clock_pulses),
+                    "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                     "midi_message": {
                         "status_byte": 0xF8,    # Timing Clock
                         "device": device_list
@@ -428,9 +426,10 @@ class Clock(Element):
                 }
             )
 
+        # Last quarter note pulse (45 pulses where this last one sets the stop)
         self_playlist.append(
             {
-                "time_ms": self.get_time_ms(clock_stop_rational_ms),
+                "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                 "midi_message": {
                     "status_byte": 0xFC,    # Stop Sequence
                     "device": device_list

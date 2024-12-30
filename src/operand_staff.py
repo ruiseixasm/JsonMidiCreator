@@ -259,5 +259,9 @@ class Staff(o.Operand):
         return self
 
 
-# Instantiate the Global Staff here.
+# Instantiate the Global Staff and Position here.
 staff: Staff = Staff()
+position: ra.Position = ra.Position() \
+    << od.DataSource( staff % od.DataSource( og.TimeSignature() ) ) \
+    << od.DataSource( staff % od.DataSource( ra.Tempo() ) ) \
+    << od.DataSource( staff % od.DataSource( ra.Quantization() ) )
