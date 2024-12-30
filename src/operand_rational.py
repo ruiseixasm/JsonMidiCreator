@@ -396,23 +396,13 @@ class Time(Rational):
                     case og.TimeSignature():    return self._time_signature
                     case Quantization():        return self._quantization
                     case _:                     return super().__mod__(operand)
-            case Measures():
-                measures: Fraction = self.getMeasures(Beats(self._rational)) % Fraction()
-                return Measures(measures)
-            case Beats():
-                return Beats(self._rational)
-            case Steps():
-                steps: Fraction = self.getSteps(Beats(self._rational)) % Fraction()
-                return Steps(steps)
-            case Duration():
-                note_value: Fraction = self.getDuration(Beats(self._rational)) % Fraction()
-                return Duration(note_value)
-            case ou.Measure():
-                return ou.Measure(self.getMeasure(Beats(self._rational)))
-            case ou.Beat():
-                return ou.Beat(self.getBeat(Beats(self._rational)))
-            case ou.Step():
-                return ou.Step(self.getStep(Beats(self._rational)))
+            case Measures():            return self.getMeasures()
+            case Beats():               return self.getBeats()
+            case Steps():               return self.getSteps()
+            case Duration():            return self.getDuration()
+            case ou.Measure():          return self.getMeasure()
+            case ou.Beat():             return self.getBeat()
+            case ou.Step():             return self.getStep()
             case Tempo():               return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
             case BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
@@ -581,9 +571,11 @@ class Time(Rational):
         return Duration(note_value)
 
 
-    def getMeasure(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'ou.Measure':
+    def getMeasure(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         measure: int = 0
         match time_value:
+            case None:
+                return self.getMeasure(Beats(self._rational))
             case Time():
                 time_beats: Beats = self.getBeats(time_value)
                 return self.getMeasure(time_beats)
@@ -591,9 +583,11 @@ class Time(Rational):
                 measure = self.getMeasures(time_value) % int()
         return ou.Measure(measure)
 
-    def getBeat(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'ou.Beat':
+    def getBeat(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
         beat: int = 0
         match time_value:
+            case None:
+                return self.getBeat(Beats(self._rational))
             case Time():
                 time_beats: Beats = self.getBeats(time_value)
                 return self.getBeat(time_beats)
@@ -602,9 +596,11 @@ class Time(Rational):
                 beat = self.getBeats(time_value) % int() % beats_per_measure
         return ou.Beat(beat)
 
-    def getStep(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'ou.Step':
+    def getStep(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
         step: int = 0
         match time_value:
+            case None:
+                return self.getStep(Beats(self._rational))
             case Time():
                 time_beats: Beats = self.getBeats(time_value)
                 return self.getStep(time_beats)
