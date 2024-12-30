@@ -22,17 +22,16 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
+staff << KeySignature(1, Minor())   # Sets the default Key Note configuration
 
 # Original Motif to work on its pitches
 motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
-motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
-melody: Sequence = motif * 2 << Track("Melody")
-staff << KeySignature(1, Minor())   # Sets the default Key Note configuration
-melody \
-    + Note(Position(2 + 1/8), Degree(2)) \
-    + Note(Position(2 + 5/8), Degree(6)) \
-    + Note(Position(2 + 6/8), Degree(5)) \
-    + Note(Position(3 + 3/8), Degree(-2)) \
-    + Note(Position(3 + 4/8), Degree(1)) \
-        >> Link()
-melody >> Play()
+motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
+motif_mirror: Sequence = motif.copy() << Get(Degree())**Multiply(-1)
+motif_reverse: Sequence = motif_mirror.copy().reverse()
+motif_modulated: Sequence = motif_mirror.copy() << "D"
+motif_modulated >> Play()
+
+varying_variations: Sequence = motif >> motif_mirror >> motif_reverse >> motif_modulated << Track("Melody")
+
+# varying_variations >> Play()
