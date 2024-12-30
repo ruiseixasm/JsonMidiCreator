@@ -669,7 +669,8 @@ class Time(Rational):
                 self._rational = self.getBeats(operand) % Fraction()
                 self._rational += self.getBeats(measure) % Fraction()
             case Tempo():               self._tempo             << operand
-            case og.TimeSignature():    self._time_signature    << operand
+            case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
+                self._time_signature    << operand
             case Quantization():        self._quantization      << operand
             case _:
                 super().__lshift__(operand)
