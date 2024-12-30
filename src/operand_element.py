@@ -1338,7 +1338,7 @@ class Triplet(Tuplet):
 class Automation(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration      << ra.Steps(1)
+        self._duration      << self._position % od.DataSource( ra.Quantization() )  # Equivalent to one Step
 
 class ControlChange(Automation):
     def __init__(self, *parameters):
