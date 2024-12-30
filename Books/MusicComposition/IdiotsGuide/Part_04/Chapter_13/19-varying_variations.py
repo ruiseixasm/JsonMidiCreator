@@ -29,7 +29,7 @@ motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, e
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
 motif_mirror: Sequence = motif.copy() << Get(Degree())**Multiply(-1)
 motif_reverse: Sequence = motif_mirror.copy().reverse()
-motif_modulated: Sequence = motif_mirror.copy() << "D"
+motif_modulated: Sequence = motif_mirror.copy() + Octave() << "D"
 motif_modulated >> Play()
 
 varying_variations: Sequence = motif >> motif_mirror >> motif_reverse >> motif_modulated << Track("Melody")

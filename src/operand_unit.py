@@ -649,6 +649,7 @@ class Key(Unit):
                         self._sharp << False
                     self._flat  << new_flat
                 self._degree    << string
+                self.key_to_int(string)
                 self.stringToNumber(string)
             case _:                 super().__lshift__(operand)
         return self
