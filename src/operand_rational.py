@@ -703,22 +703,16 @@ class Time(Rational):
     def __mul__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case NoteValue():
-                multiplier: Fraction = operand % Duration() % Fraction()
-                return super().__mul__(multiplier)
             case Time():
-                multiplier: Fraction = operand % Measures() % Fraction()
+                multiplier: Fraction = operand.getMeasures() % od.DataSource( Fraction() )
                 return super().__mul__(multiplier)
         return super().__mul__(operand)
     
     def __truediv__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case NoteValue():
-                divider: Fraction = operand % Duration() % Fraction()
-                return super().__truediv__(divider)
             case Time():
-                divider: Fraction = operand % Measures() % Fraction()
+                divider: Fraction = operand.getMeasures() % od.DataSource( Fraction() )
                 return super().__truediv__(divider)
         return super().__truediv__(operand)
 
