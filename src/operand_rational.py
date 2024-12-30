@@ -424,7 +424,7 @@ class Time(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Time():
-                return self._rational == other._rational
+                return self == self.getBeats(other)
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
@@ -436,7 +436,7 @@ class Time(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Time():
-                return self._rational < other._rational
+                return self < self.getBeats(other)
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other < other
         return False
@@ -445,7 +445,7 @@ class Time(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Time():
-                return self._rational > other._rational
+                return self > self.getBeats(other)
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other > other
         return False
@@ -453,6 +453,7 @@ class Time(Rational):
     def __str__(self):
         return f'{self._time_value}'
     
+
     def getTime(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Time':
         beats: Fraction = Fraction(0)
         match time_value:
