@@ -452,16 +452,15 @@ class Sequence(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
-        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track                                                                                # TO BE REMOVED !!!
+    def getPlaylist(self, position: ra.Position = None) -> list:
         position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
         play_list = []
         for single_element in self.get_sequence_elements():
-            play_list.extend(single_element.getPlaylist(midi_track, position))
+            play_list.extend(single_element.getPlaylist(position))
         return play_list
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
-        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track                                                                                # TO BE REMOVED !!!
+        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
         position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
         midi_list = []
         for single_element in self.get_sequence_elements():
@@ -633,7 +632,7 @@ class Sequence(Container):  # Just a container of Elements
                     return left_sequence + right_sequence
                 return Song(operand, self)
             case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist(self._midi_track, self._position))
+                return operand >> od.Playlist(self.getPlaylist(self._position))
             case tuple():
                 return super().__rrshift__(operand)
         return self.copy()
@@ -754,11 +753,11 @@ class Song(Container):
                 return ol.Null()
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):
-                play_list.extend(single_sequence.getPlaylist(midi_track, position))
+                play_list.extend(single_sequence.getPlaylist(position))
         return play_list
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:

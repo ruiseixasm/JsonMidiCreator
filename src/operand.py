@@ -183,7 +183,8 @@ class Operand:
             case of.Frame():        return self % (operand % Operand())
             case od.Playlist():
                 position = operand % ra.Position()
-                if position: return self.getPlaylist(position)
+                if isinstance(position, ra.Position):
+                    return self.getPlaylist(position)
                 return self.getPlaylist()
             case od.Serialization():
                 return self.getSerialization()
