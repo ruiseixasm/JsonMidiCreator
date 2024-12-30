@@ -26,7 +26,6 @@ import operand_data as od
 import operand_generic as og
 import operand_frame as of
 import operand_label as ol
-import operand_chaos as ch
 
 TypeStaff = TypeVar('TypeStaff', bound='Staff')  # TypeStaff represents any subclass of Operand
 
@@ -47,8 +46,6 @@ class Staff(o.Operand):
         self._controller: og.Controller             = og.Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
-        self._chaos: ch.Chaos                       = ch.SinX() * (int(time.time() * 10000) % 100)
-        self._chaos << ra.Lambda( self._chaos % ra.Lambda() + int(time.time() * 10000) % 100 )   # Lambda is the SinX chaotic blueprint !!
         if len(parameters) > 0:
             self << parameters
 
@@ -84,7 +81,6 @@ class Staff(o.Operand):
                     case og.Controller():       return self._controller
                     case ou.Channel():          return self._channel
                     case od.Device():           return self._device
-                    case ch.Chaos():            return self._chaos
                     # Calculated Values
                     case ra.NotesPerMeasure():
                         return self._time_signature % od.DataSource( ra.NotesPerMeasure() )
@@ -116,7 +112,6 @@ class Staff(o.Operand):
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return self._channel.copy()
             case od.Device():           return self._device.copy()
-            case ch.Chaos():            return self._chaos.copy()
             # Calculated Values
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
@@ -144,8 +139,7 @@ class Staff(o.Operand):
             and self._velocity          == other % od.DataSource( ou.Velocity() ) \
             and self._controller        == other % od.DataSource( og.Controller() ) \
             and self._channel           == other % od.DataSource( ou.Channel() ) \
-            and self._device            == other % od.DataSource( od.Device() ) \
-            and self._chaos             == other % od.DataSource( ch.Chaos() )
+            and self._device            == other % od.DataSource( od.Device() )
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -160,7 +154,6 @@ class Staff(o.Operand):
         serialization["parameters"]["controller"]       = self.serialize( self._controller )
         serialization["parameters"]["channel"]          = self.serialize( self._channel )
         serialization["parameters"]["device"]           = self.serialize( self._device )
-        serialization["parameters"]["chaos"]            = self.serialize( self._chaos )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -170,8 +163,7 @@ class Staff(o.Operand):
             "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
-            "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
-            "chaos" in serialization["parameters"]):
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
@@ -185,7 +177,6 @@ class Staff(o.Operand):
             self._controller        = self.deserialize( serialization["parameters"]["controller"] )
             self._channel           = self.deserialize( serialization["parameters"]["channel"] )
             self._device            = self.deserialize( serialization["parameters"]["device"] )
-            self._chaos             = self.deserialize( serialization["parameters"]["chaos"] )
         return self
     
     def __lshift__(self, operand: o.Operand) -> 'Staff':
@@ -206,7 +197,6 @@ class Staff(o.Operand):
                     case og.Controller():       self._controller = operand % o.Operand()
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
-                    case ch.Chaos():            self._chaos = operand % o.Operand()
             case Staff():
                 super().__lshift__(operand)
                 self._tempo             << operand._tempo
@@ -220,7 +210,6 @@ class Staff(o.Operand):
                 self._controller        << operand._controller
                 self._channel           << operand._channel
                 self._device            << operand._device
-                self._chaos             << operand._chaos
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo << operand
@@ -238,7 +227,6 @@ class Staff(o.Operand):
                                         self._controller << operand
             case ou.Channel():          self._channel << operand
             case od.Device():           self._device << operand
-            case ch.Chaos():            self._chaos << operand
             # Calculated Values
             case ra.StepsPerMeasure():
                 self._quantization = ra.Quantization( (self % ra.NotesPerMeasure()) / (operand % Fraction()) )
@@ -261,7 +249,7 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff and Position here.
 staff: Staff = Staff()
-position: ra.Position = ra.Position() \
+time: ra.Time = ra.Time() \
     << od.DataSource( staff % od.DataSource( og.TimeSignature() ) ) \
     << od.DataSource( staff % od.DataSource( ra.Tempo() ) ) \
     << od.DataSource( staff % od.DataSource( ra.Quantization() ) )
