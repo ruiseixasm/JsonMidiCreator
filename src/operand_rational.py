@@ -669,21 +669,17 @@ class Time(Rational):
             case TimeValue():
                 self._rational = self.getBeats(operand) % Fraction()
             case ou.Measure():
-                measure_beats: Fraction = self._rational - self.getBeats(self % ou.Measure()) % Fraction()
-                self._rational = self.getBeats(operand) % Fraction()
-                self._rational += measure_beats
-            case ou.Beat():
-                measure: Fraction = self % ou.Measure() % Fraction()
-                self._rational = operand % Fraction()
-                self._rational += self.getBeats(measure) % Fraction()
-            case ou.Step():
-                measure: Fraction = self % ou.Measure() % Fraction()
-                self._rational = self.getBeats(operand) % Fraction()
-                self._rational += self.getBeats(measure) % Fraction()
-            case Tempo():               self._tempo             << operand
+                measure_beats: Fraction = self._rational - self.getBeats(self.getMeasure()) % Fraction()
+                self._rational = self.getBeats(operand) % Fraction() + measure_beats
+            case ou.Beat() | ou.Step():
+                self_measure: ou.Measure = self.getMeasure()
+                self._rational = (self.getBeats(self_measure) + self.getBeats(operand)) % od.DataSource( Fraction() )
+            case Tempo():
+                self._tempo             << operand
             case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                 self._time_signature    << operand
-            case Quantization():        self._quantization      << operand
+            case Quantization():
+                self._quantization      << operand
             case _:
                 super().__lshift__(operand)
         return self
