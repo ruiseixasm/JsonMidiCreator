@@ -453,6 +453,15 @@ class Time(Rational):
     def __str__(self):
         return f'{self._time_value}'
     
+    def getTime(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Time':
+        beats: Fraction = Fraction(0)
+        match time_value:
+            case None:
+                return Time(self)
+            case Time() | TimeValue() | ou.TimeUnit():
+                time_beats: Beats = self.getBeats(time_value)
+                return Time(time_beats)
+        return Time(beats)
 
     def getMeasures(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
         measures: Fraction = Fraction(0)
@@ -487,7 +496,7 @@ class Time(Rational):
             case None:
                 return Beats(self._rational)
             case Time():
-                # beats_a / tempo_a = beats_b / tempo_b => beats_b = beats_a * tempo_b / tempo_a
+                # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time_value._rational
                 tempo_a : Fraction = time_value._tempo._rational
                 tempo_b : Fraction = self._tempo._rational
