@@ -177,6 +177,9 @@ class Element(o.Operand):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
         position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
         # NEEDS TO IMPLEMENT TEMPO RATIOS TO NORMALIZE BEATS
+
+        
+
         return [
                 {
                     "event":        "Element",

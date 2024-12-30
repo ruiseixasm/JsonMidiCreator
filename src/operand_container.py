@@ -503,7 +503,7 @@ class Sequence(Container):  # Just a container of Elements
                 self._position      << operand._position
             case ou.MidiTrack():
                 self._midi_track << operand
-            case ra.Position():
+            case ra.Position(): # Use Frame objects to bypass this parameter into elements
                 self._position << operand
             case ra.NoteValue() | ra.Duration() | float() | Fraction():
                 super().__lshift__(operand)
