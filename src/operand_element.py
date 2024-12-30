@@ -161,11 +161,7 @@ class Element(o.Operand):
         return self._position + self._duration
 
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         return [
                 {
@@ -398,11 +394,7 @@ class Clock(Element):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         device_list: list = self._device % od.DataSource( list() )
         pulses_per_note: Fraction = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
@@ -480,15 +472,10 @@ class Clock(Element):
 class Rest(Element):
 
     def getPlaylist(self, position: ra.Position = None) -> list:
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
-
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
-        self_duration_ms: Fraction = self._position.getMillis_rational(self._duration)
 
         return [
                 {
@@ -581,12 +568,12 @@ class Note(Element):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
         key_note_float: float       = self._pitch % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
-
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         return [
                 {
@@ -1263,13 +1250,13 @@ class Tuplet(Element):
         return tuplet_elements
 
     def getPlaylist(self, position: ra.Position = None) -> list:
-        self_playlist = []
+        self_playlist: list = []
         for single_element in self.get_tuplet_elements():
             self_playlist.extend(single_element.getPlaylist(position))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
-        self_midilist = []
+        self_midilist: list = []
         for single_element in self.get_tuplet_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position))    # extends the list with other list
         return self_midilist
@@ -1390,11 +1377,7 @@ class ControlChange(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         number_int: int             = self % ou.Number() % od.DataSource( int() )
         value_int: int              = self % ou.Value() % od.DataSource( int() )
@@ -1509,11 +1492,7 @@ class PitchBend(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         msb_midi: int               = self._bend % ol.MSB()
         lsb_midi: int               = self._bend % ol.LSB()
@@ -1626,11 +1605,7 @@ class Aftertouch(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         pressure_int: int           = self._pressure % od.DataSource( int() )
         channel_int: int            = self._channel % od.DataSource( int() )
@@ -1744,11 +1719,7 @@ class PolyAftertouch(Aftertouch):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         key_note_float: float       = self._pitch % od.DataSource( float() )
         pressure_int: int           = self._pressure % od.DataSource( int() )
@@ -1839,11 +1810,7 @@ class ProgramChange(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         program_int: int            = self._program % od.DataSource( int() )
         channel_int: int            = self._channel % od.DataSource( int() )
