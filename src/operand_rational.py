@@ -441,7 +441,7 @@ class Time(Rational):
         return False
     
     def __str__(self):
-        return f'{self._time_value}'
+        return f'Time Steps = {self._rational}'
     
 
     def getTime(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Time':
@@ -743,10 +743,10 @@ class Time(Rational):
     #     return self.copy()
 
     # def minimum(self) -> 'TimeValue':
-    #     return self._time_value % int()
+    #     return self._rational % int()
 
     # def maximum(self) -> 'TimeValue':
-    #     return self._time_value % int() + 1
+    #     return self._rational % int() + 1
 
 
 class Length(Time):
