@@ -257,9 +257,8 @@ class Element(o.Operand):
         match operand:
             case ra.Position():
                 return self.copy() << operand
-            case ra.NoteValue():
-                self_copy = self.copy()
-                return self_copy << self_copy % ra.Position() + operand
+            case ra.Length():
+                return self.copy() << self % od.DataSource( ra.Position() ) + operand
             case Element() | oc.Sequence():
                 return operand + self >> od.Stack()
             case od.Serialization():
