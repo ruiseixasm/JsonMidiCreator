@@ -93,7 +93,7 @@ class Element(o.Operand):
             case ra.Position():     return self._position.copy()
             case ra.Length():       return ra.Length(self._position)
             case ra.TimeValue() | ou.TimeUnit() \
-                | ra.NotesPerMeasure() | ra.BeatNoteValue() | ra.Tempo() | ra.Quantization():
+                | og.TimeSignature() | ra.NotesPerMeasure() | ra.BeatNoteValue() | ra.Tempo() | ra.Quantization():
                                     return self._position % operand
             case ou.Stackable():    return self._stackable.copy()
             case ou.Channel():      return self._channel.copy()
@@ -237,7 +237,7 @@ class Element(o.Operand):
             case ra.Duration() | float() | Fraction():
                 self._duration      << operand
             case ra.Time() | ra.TimeValue() | ou.TimeUnit() | int() \
-                | ra.NotesPerMeasure() | ra.BeatNoteValue() | ra.Tempo() | ra.Quantization():
+                | og.TimeSignature() | ra.NotesPerMeasure() | ra.BeatNoteValue() | ra.Tempo() | ra.Quantization():
                 self._position      << operand
             case ou.Stackable():
                 self._stackable     << operand
