@@ -654,9 +654,6 @@ class Print(Process):
         return operand
 
 class Link(Process):
-    def __init__(self):
-        super().__init__()
-        
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:

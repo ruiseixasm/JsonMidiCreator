@@ -533,7 +533,7 @@ class Sequence(Container):  # Just a container of Elements
         for single_data in self._datasource_list:
             if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() ):
                 if last_element is not None:
-                    last_element << ra.NoteValue(single_data._data._position - last_element._position)
+                    last_element << (single_data._data._position - last_element._position).getDuration()
                 else:
                     first_element_position = element_position
                 last_element = single_data._data
@@ -546,7 +546,7 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:
-            last_element << ra.NoteValue(ra.Position(last_element % ra.Measures() + 1) - last_element._position)
+            last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
         return self
 
     def stack(self) -> 'Sequence':

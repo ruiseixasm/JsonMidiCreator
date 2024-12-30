@@ -454,9 +454,11 @@ class Time(Rational):
         return f'{self._time_value}'
     
 
-    def getMeasures(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Measures':
-        measures: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
+    def getMeasures(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
+        measures: Fraction = Fraction(0)
         match time_value:
+            case None:
+                return self.getMeasures(Beats(self._rational))
             case Time():
                 return self.getMeasures(Beats(time_value))
             case Measures():
@@ -478,9 +480,11 @@ class Time(Rational):
                 return self.getMeasures(Steps(time_value % Fraction()))
         return Measures(measures)
 
-    def getBeats(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Beats':
-        beats: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
+    def getBeats(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Beats':
+        beats: Fraction = Fraction(0)
         match time_value:
+            case None:
+                return Beats(self._rational)
             case Time():
                 return self.getBeats(Beats(time_value))
             case Measures():
@@ -504,9 +508,11 @@ class Time(Rational):
                 return self.getBeats(Steps(time_value % Fraction()))
         return Beats(beats)
 
-    def getSteps(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Steps':
-        steps: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
+    def getSteps(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Steps':
+        steps: Fraction = Fraction(0)
         match time_value:
+            case None:
+                return self.getSteps(Beats(self._rational))
             case Time():
                 return self.getSteps(Beats(time_value))
             case Measures():
@@ -530,9 +536,11 @@ class Time(Rational):
                 return self.getSteps(Steps(time_value % Fraction()))
         return Steps(steps)
 
-    def getDuration(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit']) -> 'Duration':
-        note_value: Fraction = Fraction(0).limit_denominator(self._limit_denominator)
+    def getDuration(self, time_value: Union['Time', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Duration':
+        note_value: Fraction = Fraction(0)
         match time_value:
+            case None:
+                return self.getDuration(Beats(self._rational))
             case Time():
                 return self.getDuration(Beats(time_value))
             case Measures():
