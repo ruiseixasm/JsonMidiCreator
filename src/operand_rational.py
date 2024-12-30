@@ -669,8 +669,8 @@ class Time(Rational):
             case TimeValue():
                 self._rational = self.getBeats(operand) % Fraction()
             case ou.Measure():
-                measure_beats: Fraction = self._rational - self.getBeats(self.getMeasure()) % Fraction()
-                self._rational = self.getBeats(operand) % Fraction() + measure_beats
+                measure_beats: Beats = self.getBeats() - self.getBeats(self.getMeasure())
+                self._rational = (self.getBeats(operand) + measure_beats) % od.DataSource( Fraction() )
             case ou.Beat() | ou.Step():
                 self_measure: ou.Measure = self.getMeasure()
                 self._rational = (self.getBeats(self_measure) + self.getBeats(operand)) % od.DataSource( Fraction() )
@@ -700,7 +700,7 @@ class Time(Rational):
                 self_copy._rational -= self.getBeats(operand) % od.DataSource( Fraction() )
         return self_copy
     
-    def __mul__(self, operand: o.Operand) -> 'Position':
+    def __mul__(self, operand: o.Operand) -> 'Time':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Time():
@@ -708,7 +708,7 @@ class Time(Rational):
                 return super().__mul__(multiplier)
         return super().__mul__(operand)
     
-    def __truediv__(self, operand: o.Operand) -> 'Position':
+    def __truediv__(self, operand: o.Operand) -> 'Time':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Time():
@@ -722,17 +722,7 @@ class Time(Rational):
     def __rtruediv__(self, operand: o.Operand) -> 'Time':
         return self / operand
     
-    # def start(self) -> 'TimeValue':
-    #     return self.copy()
-
-    # def end(self) -> 'TimeValue':
-    #     return self.copy()
-
-    # def minimum(self) -> 'TimeValue':
-    #     return self._rational % int()
-
-    # def maximum(self) -> 'TimeValue':
-    #     return self._rational % int() + 1
+    
 
 
 class Length(Time):
