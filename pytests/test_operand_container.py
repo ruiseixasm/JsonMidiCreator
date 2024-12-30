@@ -109,14 +109,31 @@ def test_mul_sequence():
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
 
+def test_element_stacking():
+
+    two_notes: Sequence = Note() * 2
+    assert two_notes % Last() % Beats() == Beats(1)
+
+    two_notes << 1/8    # Stacking is already included!
+    assert two_notes % Last() % Beats() == Beats(1/2)
+    two_notes >> Stack()
+    assert two_notes % Last() % Beats() == Beats(1/2)
+    
+# test_element_stacking()
+
+
 def test_floordiv_sequence():
 
     two_notes: Sequence = Note() * 2
     two_notes // Steps(1)
 
+    assert two_notes % Last() % Steps() == Steps(1)
+
     for single_note in two_notes:
-        assert single_note % NoteValue() % Steps() == Steps(1)
+        assert single_note % NoteValue() == 1/16    # Equivalent to one Step
         
+# test_floordiv_sequence()
+
 
 def test_sequence_filter():
 

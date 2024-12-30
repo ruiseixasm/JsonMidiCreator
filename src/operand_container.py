@@ -710,10 +710,11 @@ class Sequence(Container):  # Just a container of Elements
                 return trimmed_self.copy()
         return super().__truediv__(operand)
     
-    def __floordiv__(self, duration: any) -> 'Sequence':
-        duration: ra.NoteValue = ra.NoteValue(duration)
+    def __floordiv__(self, time_value: Union['ra.Time', 'ra.TimeValue', 'ou.TimeUnit']) -> 'Sequence':
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
+            if isinstance(single_datasource._data, oe.Element) and isinstance(time_value, (ra.Time, ra.TimeValue, ou.TimeUnit)):
+                element_position: ra.Position = single_datasource._data._position
+                duration: ra.Duration = element_position.getDuration(time_value)
                 single_datasource._data << duration
         return self.stack()
 
