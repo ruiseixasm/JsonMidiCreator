@@ -178,17 +178,18 @@ class Element(o.Operand):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
-        self_numerator: int = self._position % ra.BeatsPerMeasure() % int()
-        self_denominator: int = int(1 / (self._position % ra.BeatNoteValue() % Fraction()))
-        self_position: float = self._position % od.DataSource( float() )
-        self_duration: float = self._position.getBeats(self._duration) % od.DataSource( float() )
-        self_tempo: float = self._position._tempo % od.DataSource( float() )
         if isinstance(position, ra.Position):
             self_numerator: int = position % ra.BeatsPerMeasure() % int()
             self_denominator: int = int(1 / (position % ra.BeatNoteValue() % Fraction()))
-            self_position = position % od.DataSource( float() ) + position.getBeats(self._duration) % od.DataSource( float() )
-            self_duration = position.getBeats(self._duration) % od.DataSource( float() )
-            self_tempo = position._tempo % od.DataSource( float() )
+            self_position: float = (position.getBeats() + position.getBeats(self._position)) % od.DataSource( float() )
+            self_duration: float = position.getBeats(self._duration) % od.DataSource( float() )
+            self_tempo: float = position._tempo % od.DataSource( float() )
+        else:
+            self_numerator: int = self._position % ra.BeatsPerMeasure() % int()
+            self_denominator: int = int(1 / (self._position % ra.BeatNoteValue() % Fraction()))
+            self_position: float = self._position % od.DataSource( float() )
+            self_duration: float = self._position.getBeats(self._duration) % od.DataSource( float() )
+            self_tempo: float = self._position._tempo % od.DataSource( float() )
 
         return [
                 {
