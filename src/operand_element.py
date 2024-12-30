@@ -330,6 +330,15 @@ class Element(o.Operand):
                 return self << self % operand / operand
         return self
 
+    def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
+        sequence_position_ms: Fraction = Fraction(0)
+        if isinstance(position, ra.Position):
+            sequence_position_ms = position.getMillis_rational()
+        element_position_ms: Fraction = self._position.getMillis_rational()
+        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+        self_duration_ms: Fraction = self._position.getMillis_rational(self._duration)
+        return self_position_ms,self_duration_ms
+    
     @staticmethod
     def midi_128(midi_value: int | float = 0):
         return min(max(int(midi_value), 0), 127)
@@ -577,12 +586,7 @@ class Note(Element):
         key_note_float: float       = self._pitch % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
 
-        sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
-
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         return [
                 {
@@ -595,7 +599,7 @@ class Note(Element):
                     }
                 },
                 {
-                    "time_ms": self.get_time_ms(self_position_ms + self._position.getMillis_rational(self._duration * self._gate)),
+                    "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate._rational),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
@@ -604,7 +608,7 @@ class Note(Element):
                     }
                 }
             ]
-    
+
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Note"
