@@ -162,11 +162,13 @@ class Element(o.Operand):
 
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
+
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
+
         return [
                 {
                     "time_ms":  self.get_time_ms(self_position_ms)
@@ -175,22 +177,30 @@ class Element(o.Operand):
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
-        # NEEDS TO IMPLEMENT TEMPO RATIOS TO NORMALIZE BEATS
 
-        
+        self_numerator: int = self._position % ra.BeatsPerMeasure() % int()
+        self_denominator: int = int(1 / (self._position % ra.BeatNoteValue() % Fraction()))
+        self_position: float = self._position % od.DataSource( float() )
+        self_duration: float = self._position.getBeats(self._duration) % od.DataSource( float() )
+        self_tempo: float = self._position._tempo % od.DataSource( float() )
+        if isinstance(position, ra.Position):
+            self_numerator: int = position % ra.BeatsPerMeasure() % int()
+            self_denominator: int = int(1 / (position % ra.BeatNoteValue() % Fraction()))
+            self_position = position % od.DataSource( float() ) + position.getBeats(self._duration) % od.DataSource( float() )
+            self_duration = position.getBeats(self._duration) % od.DataSource( float() )
+            self_tempo = position._tempo % od.DataSource( float() )
 
         return [
                 {
                     "event":        "Element",
                     "track":        midi_track % int() - 1,  # out of range shouldn't be exported as a midi track
                     "track_name":   midi_track % str(),
-                    "numerator":    position % ra.BeatsPerMeasure() % int(),
-                    "denominator":  int(1 / (position % ra.BeatNoteValue() % Fraction())),
+                    "numerator":    self_numerator,
+                    "denominator":  self_denominator,
                     "channel":      Element.midi_16(self._channel % int() - 1),
-                    "time":         position % od.DataSource( ra.Beats() ) % float(),   # beats
-                    "duration":     position.getBeats(self._duration) % float(),        # beats
-                    "tempo":        position % od.DataSource( ra.Tempo() ) % float()    # bpm
+                    "time":         self_position,      # beats
+                    "duration":     self_duration,      # beats
+                    "tempo":        self_tempo          # bpm
                 }
             ]
 
@@ -383,7 +393,7 @@ class Clock(Element):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -467,7 +477,7 @@ class Rest(Element):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -569,7 +579,7 @@ class Note(Element):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -1384,7 +1394,7 @@ class ControlChange(Automation):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -1505,7 +1515,7 @@ class PitchBend(Automation):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -1624,7 +1634,7 @@ class Aftertouch(Automation):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -1744,7 +1754,7 @@ class PolyAftertouch(Aftertouch):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
         
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -1841,7 +1851,7 @@ class ProgramChange(Automation):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
         
         sequence_position_ms: Fraction = Fraction(0)
-        if position is not None:
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
