@@ -460,7 +460,8 @@ class Time(Rational):
             case None:
                 return self.getMeasures(Beats(self._rational))
             case Time():
-                return self.getMeasures(Beats(time_value))
+                time_beats: Beats = self.getBeats(time_value)
+                return self.getMeasures(time_beats)
             case Measures():
                 measures = time_value._rational
             case Beats():
@@ -486,7 +487,12 @@ class Time(Rational):
             case None:
                 return Beats(self._rational)
             case Time():
-                return self.getBeats(Beats(time_value))
+                # beats_a / tempo_a = beats_b / tempo_b => beats_b = beats_a * tempo_b / tempo_a
+                beats_a : Fraction = time_value._rational
+                tempo_a : Fraction = time_value._tempo._rational
+                tempo_b : Fraction = self._tempo._rational
+                beats_b : Fraction = beats_a * tempo_b / tempo_a
+                return Beats(beats_b)
             case Measures():
                 beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
                 beats = time_value._rational * beats_per_measure
@@ -514,7 +520,8 @@ class Time(Rational):
             case None:
                 return self.getSteps(Beats(self._rational))
             case Time():
-                return self.getSteps(Beats(time_value))
+                time_beats: Beats = self.getBeats(time_value)
+                return self.getSteps(time_beats)
             case Measures():
                 beats = self.getBeats(time_value)
                 steps = self.getSteps(beats)
@@ -542,7 +549,8 @@ class Time(Rational):
             case None:
                 return self.getDuration(Beats(self._rational))
             case Time():
-                return self.getDuration(Beats(time_value))
+                time_beats: Beats = self.getBeats(time_value)
+                return self.getDuration(time_beats)
             case Measures():
                 beats = self.getBeats(time_value)
                 note_value = self.getDuration(beats)
@@ -567,7 +575,8 @@ class Time(Rational):
         measure: int = 0
         match time_value:
             case Time():
-                return self.getMeasure(Beats(time_value))
+                time_beats: Beats = self.getBeats(time_value)
+                return self.getMeasure(time_beats)
             case TimeValue() | ou.TimeUnit():
                 measure = self.getMeasures(time_value) % int()
         return ou.Measure(measure)
@@ -576,7 +585,8 @@ class Time(Rational):
         beat: int = 0
         match time_value:
             case Time():
-                return self.getBeat(Beats(time_value))
+                time_beats: Beats = self.getBeats(time_value)
+                return self.getBeat(time_beats)
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: int = self._time_signature % BeatsPerMeasure() % int()
                 beat = self.getBeats(time_value) % int() % beats_per_measure
@@ -586,7 +596,8 @@ class Time(Rational):
         step: int = 0
         match time_value:
             case Time():
-                return self.getStep(Beats(time_value))
+                time_beats: Beats = self.getBeats(time_value)
+                return self.getStep(time_beats)
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
                 notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
@@ -604,17 +615,12 @@ class Time(Rational):
             beats = self.getBeats(time_value) % od.DataSource( Fraction() )
         return beats / beats_per_minute * 60 * 1000
     
-    def getMillis_float(self, rounded = True) -> float:
-        if rounded:
-            return round(float(self.getMillis_rational()), 3)
-        return float(self.getMillis_rational())
-        
     def getPlaylist(self, position: 'Position' = None) -> list:
         self_position: Position  = self + Position() if position is None else position
         
         return [
                 {
-                    "time_ms": self_position.getMillis_float()
+                    "time_ms": round(float(self_position.getMillis_rational()), 3)
                 }
             ]
 
