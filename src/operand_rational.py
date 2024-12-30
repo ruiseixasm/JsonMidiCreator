@@ -688,20 +688,16 @@ class Time(Rational):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():
-                self_copy._rational += operand._rational
-            case TimeValue() | ou.TimeUnit():
-                self_copy._rational += self.getBeats(operand) % Fraction()
+            case Time() | TimeValue() | ou.TimeUnit():
+                self_copy._rational += self.getBeats(operand) % od.DataSource( Fraction() )
         return self_copy
     
     def __sub__(self, operand: o.Operand) -> 'Time':
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Time():
-                self_copy._rational -= operand._rational
-            case TimeValue() | ou.TimeUnit():
-                self_copy._rational -= self.getBeats(operand) % Fraction()
+            case Time() | TimeValue() | ou.TimeUnit():
+                self_copy._rational -= self.getBeats(operand) % od.DataSource( Fraction() )
         return self_copy
     
     def __mul__(self, operand: o.Operand) -> 'Position':
