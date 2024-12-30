@@ -28,11 +28,11 @@ motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, e
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
 melody: Sequence = motif * 2 << Track("Melody")
 staff << KeySignature(1, Minor())   # Sets the default Key Note configuration
-melody \
-    + Note(Position(Measures(2 + 1/8)), Degree(2)) \
-    + Note(Position(Measures(2 + 5/8)), Degree(6)) \
-    + Note(Position(Measures(2 + 6/8)), Degree(5)) \
-    + Note(Position(Measures(3 + 3/8)), Degree(-2)) \
-    + Note(Position(Measures(3 + 4/8)), Degree(1)) \
-        >> Link()
+# melody \
+#     + Note(Position(2 + 1/8), Degree(2)) \
+#     + Note(Position(2 + 5/8), Degree(6)) \
+#     + Note(Position(2 + 6/8), Degree(5)) \
+#     + Note(Position(3 + 3/8), Degree(-2)) \
+#     + Note(Position(3 + 4/8), Degree(1)) \
+#         >> Link()
 melody >> Play()
