@@ -276,17 +276,6 @@ class Negative(Rational):
 class RationalDefault(Rational):
     pass
 
-class Quantization(Rational):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : float_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
-    pass
-
 class BeatsPerMeasure(Rational):
     """
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
@@ -850,6 +839,17 @@ class Duration(TimeValue):
     ----------
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
+    """
+    pass
+
+class Quantization(Duration):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : float_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
     """
     pass
 
