@@ -638,8 +638,16 @@ class Key(Unit):
                 self._scale << operand
             case str():
                 string: str = operand.strip()
-                self._sharp     << string
-                self._flat      << string
+                new_sharp: Sharp = self._sharp.copy(string)
+                new_flat: Flat = self._flat.copy(string)
+                if new_sharp != self._sharp:
+                    self._sharp << new_sharp
+                    if new_sharp:
+                        self._flat  << False
+                elif new_flat != self._flat:
+                    if new_flat:
+                        self._sharp << False
+                    self._flat  << new_flat
                 self._degree    << string
                 self.stringToNumber(string)
             case _:                 super().__lshift__(operand)
