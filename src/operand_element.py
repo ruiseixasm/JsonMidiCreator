@@ -1387,16 +1387,21 @@ class ControlChange(Automation):
     
     def getPlaylist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
+
+        sequence_position_ms: Fraction = Fraction(0)
+        if position is not None:
+            sequence_position_ms = position.getMillis_rational()
+        element_position_ms: Fraction = self._position.getMillis_rational()
+        self_position_ms: Fraction = sequence_position_ms + element_position_ms
+
         number_int: int             = self % ou.Number() % od.DataSource( int() )
         value_int: int              = self % ou.Value() % od.DataSource( int() )
         channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
-        on_time_ms = position.getMillis_float()
         return [
                 {
-                    "time_ms": on_time_ms,
+                    "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & Element.midi_16(channel_int - 1),
                         "data_byte_1": Element.midi_128(number_int),
