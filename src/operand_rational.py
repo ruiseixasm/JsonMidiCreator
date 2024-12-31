@@ -732,7 +732,6 @@ class Length(Position):
     def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         match time:
             case TimeValue() | ou.TimeUnit():
-                # return ou.Measure( self.getMeasures(time) % int() )
                 return ou.Measure( self.getMeasures(time) % int() + 1 )
             case _:
                 return super().getMeasure(time)
@@ -741,7 +740,6 @@ class Length(Position):
         match time:
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: Fraction = self._time_signature._top
-                # return ou.Beat( self.getBeats(time) % int() % beats_per_measure )
                 return ou.Beat( (self.getBeats(time) % int() + 1) % beats_per_measure )
             case _:
                 return super().getBeat(time)
@@ -754,7 +752,6 @@ class Length(Position):
                 notes_per_step: Fraction = self._quantization._rational
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
-                # return ou.Step( self.getSteps(time) % int() % steps_per_measure )
                 return ou.Step( (self.getSteps(time) % int() + 1) % steps_per_measure )
             case _:
                 return super().getBeat(time)
