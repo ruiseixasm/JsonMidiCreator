@@ -579,6 +579,7 @@ class Span(Rational):
                 return self.getMeasure(time_beats)
             case TimeValue() | ou.TimeUnit():
                 measure = self.getMeasures(time) % int()
+                # measure = self.getMeasures(time) % int() + 1
         return ou.Measure(measure)
 
     def getBeat(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
@@ -592,6 +593,7 @@ class Span(Rational):
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: Fraction = self._time_signature._top
                 beat = self.getBeats(time) % int() % beats_per_measure
+                # beat = (self.getBeats(time) % int() + 1) % beats_per_measure
         return ou.Beat(beat)
 
     def getStep(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
@@ -609,6 +611,7 @@ class Span(Rational):
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
                 step = self.getSteps(time) % int() % steps_per_measure
+                # step = (self.getSteps(time) % int() + 1) % steps_per_measure
         return ou.Step(step)
 
 
@@ -751,34 +754,49 @@ class Length(Span):
         return super().__sub__(operand)
     
 class Position(Length):
-    pass
     
-# class NoteValue(Time):
-#     # CHAINABLE OPERATIONS
+    def getMeasure(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+        measure: int = 0
+        match time:
+            case None:
+                return self.getMeasure(Beats(self._rational))
+            case Span():
+                time_beats: Beats = self.getBeats(time)
+                return self.getMeasure(time_beats)
+            case TimeValue() | ou.TimeUnit():
+                measure = self.getMeasures(time) % int()
+        return ou.Measure(measure)
 
-#     def __lshift__(self, operand: o.Operand) -> 'NoteValue':
-#         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-#         match operand:
-#             case int() | float() | Fraction():
-#                 self << Duration(operand)
-#             case _:
-#                 super().__lshift__(operand)
-#         return self
+    def getBeat(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+        beat: int = 0
+        match time:
+            case None:
+                return self.getBeat(Beats(self._rational))
+            case Span():
+                time_beats: Beats = self.getBeats(time)
+                return self.getBeat(time_beats)
+            case TimeValue() | ou.TimeUnit():
+                beats_per_measure: Fraction = self._time_signature._top
+                beat = self.getBeats(time) % int() % beats_per_measure
+        return ou.Beat(beat)
 
-#     def __add__(self, operand: o.Operand) -> 'NoteValue':
-#         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-#         match operand:
-#             case int() | float() | Fraction():
-#                 return self + Duration(operand)
-#         return super().__add__(operand)
-    
-#     def __sub__(self, operand: o.Operand) -> 'NoteValue':
-#         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-#         match operand:
-#             case int() | float() | Fraction():
-#                 return self - Duration(operand)
-#         return super().__sub__(operand)
-    
+    def getStep(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
+        step: int = 0
+        match time:
+            case None:
+                return self.getStep(Beats(self._rational))
+            case Span():
+                time_beats: Beats = self.getBeats(time)
+                return self.getStep(time_beats)
+            case TimeValue() | ou.TimeUnit():
+                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_note: Fraction = self._time_signature._bottom
+                notes_per_step: Fraction = self._quantization._rational
+                beats_per_step: Fraction = beats_per_note * notes_per_step
+                steps_per_measure: int = int(beats_per_measure / beats_per_step)
+                step = self.getSteps(time) % int() % steps_per_measure
+        return ou.Step(step)
+
 
 
 
