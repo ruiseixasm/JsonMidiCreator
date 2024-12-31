@@ -622,11 +622,12 @@ class Time(Rational):
         return beats / beats_per_minute * 60 * 1000
     
     def getPlaylist(self, position: 'Position' = None) -> list:
+        import operand_element as oe
         self_position: Position  = self + Position() if position is None else position
         
         return [
                 {
-                    "time_ms": round(float(self_position.getMillis_rational()), 3)
+                    "time_ms": oe.Element.get_time_ms(self_position.getMillis_rational())
                 }
             ]
 
