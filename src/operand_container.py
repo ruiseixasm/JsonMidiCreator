@@ -417,7 +417,7 @@ class Sequence(Container):  # Just a container of Elements
         last: ra.Position = root                        # It has to have at least one element to have a non zero length
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
-                single_position: ra.Position = single_datasource._data._position
+                single_position: ra.Position = self._position.getPosition( single_datasource._data._position )
                 if single_position > last:
                     last = single_position
         return ra.Length(last - root)
