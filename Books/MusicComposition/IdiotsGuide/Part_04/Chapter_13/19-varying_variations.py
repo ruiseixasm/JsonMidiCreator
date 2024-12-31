@@ -32,6 +32,16 @@ motif_reverse: Sequence = motif_mirror.copy().reverse()
 motif_modulated: Sequence = motif_mirror.copy() + Octave() << "D"
 # motif_modulated >> Play()
 
-varying_variations: Sequence = motif >> motif_mirror >> motif_reverse >> motif_modulated << Track("Melody")
+new_motif: Sequence = Note() * 6 << Foreach(half, sixteenth, dotted_eight, sixteenth, sixteenth, eight) >> Stack()
+new_motif % Length() >> Print() # Needs to be implemented
+new_motif << Foreach(1, -4, -5, -4, -3, 1)**Degree()
+# new_motif >> Play()
+new_motif_modulated_a: Sequence = new_motif.copy() << "A"
+new_motif_reverse: Sequence = new_motif_modulated_a.copy().reverse()
+new_motif_modulated_b: Sequence = new_motif.copy() << "B"
+
+varying_variations: Sequence = \
+    motif >> motif_mirror >> motif_reverse >> \
+    new_motif >> new_motif_modulated_a >> new_motif_reverse >> new_motif_modulated_b >> motif_modulated << Track("Melody")
 
 varying_variations >> Play()
