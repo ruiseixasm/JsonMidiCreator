@@ -590,7 +590,7 @@ class Span(Rational):
                 time_beats: Beats = self.getBeats(time)
                 return self.getBeat(time_beats)
             case TimeValue() | ou.TimeUnit():
-                beats_per_measure: int = self._time_signature % BeatsPerMeasure() % int()
+                beats_per_measure: Fraction = self._time_signature._top
                 beat = self.getBeats(time) % int() % beats_per_measure
         return ou.Beat(beat)
 
@@ -603,10 +603,10 @@ class Span(Rational):
                 time_beats: Beats = self.getBeats(time)
                 return self.getStep(time_beats)
             case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                notes_per_step: Fraction = self._quantization % Fraction()
-                beats_per_step: Fraction = notes_per_step / notes_per_beat
+                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_note: Fraction = self._time_signature._bottom
+                notes_per_step: Fraction = self._quantization._rational
+                beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
                 step = self.getSteps(time) % int() % steps_per_measure
         return ou.Step(step)
