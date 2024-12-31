@@ -393,12 +393,14 @@ class Sequence(Container):  # Just a container of Elements
         return total_elements
 
     def start(self) -> ra.Position:
-        if self.len() > 0:
-            start_position: ra.Position = self._datasource_list[0]._data % ra.Position()
-            for single_datasource in self._datasource_list:
-                if single_datasource._data % ra.Position() < start_position:
-                    start_position = single_datasource._data % ra.Position()
-            return start_position.copy()
+        start: ra.Position = None
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                single_position: ra.Position = single_datasource._data._position
+                if not start or single_position < start:
+                    start = single_position
+        if start:
+            return start.copy()
         return self._position.copy(0.0)
 
     def finish(self) -> ra.Position:
