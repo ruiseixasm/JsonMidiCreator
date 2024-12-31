@@ -92,7 +92,7 @@ class Element(o.Operand):
             case ra.Duration():     return self._duration % operand
             case ra.Position():     return self._position.copy()
             case ra.Length():       return ra.Length(self._position)
-            case ra.Time() | ra.TimeValue() | ou.TimeUnit() \
+            case ra.Span() | ra.TimeValue() | ou.TimeUnit() \
                 | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.NotesPerMeasure() \
                 | ra.Tempo() | ra.Quantization():
                                     return self._position % operand
@@ -245,7 +245,7 @@ class Element(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration() | float() | Fraction():
                 self._duration      << operand
-            case ra.Time() | ra.TimeValue() | ou.TimeUnit() | int() \
+            case ra.Span() | ra.TimeValue() | ou.TimeUnit() | int() \
                 | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.NotesPerMeasure() \
                 | ra.Tempo() | ra.Quantization():
                 self._position      << operand

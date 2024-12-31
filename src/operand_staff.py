@@ -247,7 +247,7 @@ class Staff(o.Operand):
 
 # Instantiate the Global Staff and Position here.
 staff: Staff = Staff()
-time: ra.Time = ra.Time() \
+span: ra.Span = ra.Span() \
     << od.DataSource( staff % od.DataSource( og.TimeSignature() ) ) \
     << od.DataSource( staff % od.DataSource( ra.Tempo() ) ) \
     << od.DataSource( staff % od.DataSource( ra.Quantization() ) )
