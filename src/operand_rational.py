@@ -357,8 +357,6 @@ class Tempo(Rational):
 
 
 
-
-
 class Span(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
@@ -369,7 +367,7 @@ class Span(Rational):
         if parameters:
             self << parameters
 
-    def time(self: 'Span', beats: float = None) -> 'Span':
+    def span(self: 'Span', beats: float = None) -> 'Span':
         return self << od.DataSource( beats )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
