@@ -251,3 +251,14 @@ def test_position_shift():
 
 # test_position_shift()
 
+
+def test_processing_sequences():
+
+    straight_sequence: Sequence = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
+    reversed_sequence: Sequence = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
+
+    assert straight_sequence != reversed_sequence
+    assert straight_sequence.reverse() == reversed_sequence
+
+# test_processing_sequences()
+
