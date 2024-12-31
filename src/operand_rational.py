@@ -355,6 +355,17 @@ class Tempo(Rational):
             case _: super().__lshift__(operand)
         return self
 
+class Quantization(Rational):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : float_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
+    pass
+
 
 
 class Position(Rational):
@@ -665,8 +676,6 @@ class Position(Rational):
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
                 self._quantization      << operand._quantization
-            case Quantization():    # Needs to be before than TimeValue because Quantization is a TimeValue !
-                self._quantization      << operand
             case TimeValue():
                 self._rational = self.getBeats(operand) % Fraction()
             case ou.Measure():
@@ -681,6 +690,8 @@ class Position(Rational):
                 self._tempo             << operand
             case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                 self._time_signature    << operand
+            case Quantization():
+                self._quantization      << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -814,17 +825,6 @@ class Duration(TimeValue):
     pass
 
 class NoteValue(Duration):
-    pass
-
-class Quantization(NoteValue):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : float_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
     pass
 
 class Dotted(NoteValue):
