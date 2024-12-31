@@ -729,83 +729,9 @@ class Position(Rational):
     
     def __rtruediv__(self, operand: o.Operand) -> 'Position':
         return self / operand
-    
-    
-
 
 class Length(Position):
     pass
-
-    # CHAINABLE OPERATIONS
-
-    # def __lshift__(self, operand: o.Operand) -> 'Length':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case int() | float() | Fraction():
-    #             self << Measures(operand)
-    #         case _:
-    #             super().__lshift__(operand)
-    #     return self
-
-    # def __add__(self, operand: o.Operand) -> 'Length':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case int() | float() | Fraction():
-    #             return self + Measures(operand)
-    #     return super().__add__(operand)
-    
-    # def __sub__(self, operand: o.Operand) -> 'Length':
-    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-    #     match operand:
-    #         case int() | float() | Fraction():
-    #             return self - Measures(operand)
-    #     return super().__sub__(operand)
-    
-# class Position(Length):
-    
-#     def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
-#         measure: int = 0
-#         match time:
-#             case None:
-#                 return self.getMeasure(Beats(self._rational))
-#             case Position():
-#                 time_beats: Beats = self.getBeats(time)
-#                 return self.getMeasure(time_beats)
-#             case TimeValue() | ou.TimeUnit():
-#                 measure = self.getMeasures(time) % int()
-#         return ou.Measure(measure)
-
-#     def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
-#         beat: int = 0
-#         match time:
-#             case None:
-#                 return self.getBeat(Beats(self._rational))
-#             case Position():
-#                 time_beats: Beats = self.getBeats(time)
-#                 return self.getBeat(time_beats)
-#             case TimeValue() | ou.TimeUnit():
-#                 beats_per_measure: Fraction = self._time_signature._top
-#                 beat = self.getBeats(time) % int() % beats_per_measure
-#         return ou.Beat(beat)
-
-#     def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
-#         step: int = 0
-#         match time:
-#             case None:
-#                 return self.getStep(Beats(self._rational))
-#             case Position():
-#                 time_beats: Beats = self.getBeats(time)
-#                 return self.getStep(time_beats)
-#             case TimeValue() | ou.TimeUnit():
-#                 beats_per_measure: Fraction = self._time_signature._top
-#                 beats_per_note: Fraction = self._time_signature._bottom
-#                 notes_per_step: Fraction = self._quantization._rational
-#                 beats_per_step: Fraction = beats_per_note * notes_per_step
-#                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
-#                 step = self.getSteps(time) % int() % steps_per_measure
-#         return ou.Step(step)
-
-
 
 
 
