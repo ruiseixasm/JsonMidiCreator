@@ -732,7 +732,7 @@ class Length(Position):
     def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         match time:
             case TimeValue() | ou.TimeUnit():
-                return ou.Measure( self.getMeasures(time) % int() )
+                # return ou.Measure( self.getMeasures(time) % int() )
                 return ou.Measure( self.getMeasures(time) % int() + 1 )
             case _:
                 return super().getMeasure(time)

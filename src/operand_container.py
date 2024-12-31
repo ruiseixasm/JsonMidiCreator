@@ -384,6 +384,13 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Duration():     return self.duration()
             case _:                 return super().__mod__(operand)
 
+    def len(self) -> int:
+        total_elements: int = 0
+        for single_item in self:
+            if isinstance(single_item, oe.Element):
+                total_elements += 1
+        return total_elements
+
     def length(self) -> ra.Length:
         start: ra.Position = self._position.copy(0)
         finish: ra.Position = self._position.copy(0)
@@ -419,16 +426,25 @@ class Sequence(Container):  # Just a container of Elements
                 if single_datasource._data % ra.Position() < start_position:
                     start_position = single_datasource._data % ra.Position()
             return start_position.copy()
-        return ra.Position(0)
+        return self._position.copy(0.0)
 
     def end(self) -> ra.Position:
         if self.len() > 0:
-            end_position: ra.Position = self._datasource_list[0]._data % ra.Position() + self._datasource_list[0]._data % ra.Duration()
+            end_position: ra.Position = self._datasource_list[0]._data % ra.Position()
             for single_datasource in self._datasource_list:
-                if single_datasource._data % ra.Position() + single_datasource._data % ra.Duration() > end_position:
-                    end_position = single_datasource._data % ra.Position() + single_datasource._data % ra.Duration()
-            return end_position # already a copy (+)
-        return ra.Position(0)
+                if single_datasource._data % ra.Position() > end_position:
+                    end_position = single_datasource._data % ra.Position()
+            return end_position.copy()
+        return self._position.copy(0.0)
+
+    # def end(self) -> ra.Position:
+    #     if self.len() > 0:
+    #         end_position: ra.Position = self._datasource_list[0]._data % ra.Position() + self._datasource_list[0]._data % ra.Duration()
+    #         for single_datasource in self._datasource_list:
+    #             if single_datasource._data % ra.Position() + single_datasource._data % ra.Duration() > end_position:
+    #                 end_position = single_datasource._data % ra.Position() + single_datasource._data % ra.Duration()
+    #         return end_position # already a copy (+)
+    #     return self._position.copy(0.0)
     
     if TYPE_CHECKING:
         from operand_element import Element
@@ -627,17 +643,19 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
-                    left_sequence: Sequence = operand.copy()
                     right_sequence: Sequence = self.copy()
+                    if operand.len() > 0:
+                        left_sequence: Sequence = operand.copy()
 
-                    left_end_position: ra.Position = left_sequence.end()
-                    right_start_position: ra.Position = right_sequence.start()
-                    position_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                    if position_shift % ra.Measures() - position_shift % ou.Measure() > 0.0:    # No clean cut
-                        position_shift << ra.Measures(position_shift % ou.Measure() + 1) # Rounded up Duration to next Measure
-                    position_shift >> right_sequence
-                    
-                    return left_sequence + right_sequence
+                        left_end_position: ra.Position = left_sequence.end()
+                        right_start_position: ra.Position = right_sequence.start()
+                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                        length_shift << ra.Measures(length_shift % ou.Measure()) # Rounded up Duration to next Measure
+                        # if length_shift % ra.Measures() - length_shift % ou.Measure() > 0.0:    # No clean cut
+                        #     length_shift << ra.Measures(length_shift % ou.Measure() + 1) # Rounded up Duration to next Measure
+                        length_shift >> right_sequence
+                        return left_sequence + right_sequence
+                    return right_sequence
                 return Song(operand, self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position))

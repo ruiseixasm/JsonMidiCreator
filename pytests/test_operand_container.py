@@ -53,7 +53,7 @@ def test_rrshift_sequence():
 
 
     two_notes_original = two_notes.copy()
-    four_notes = two_notes >> two_notes # moves the second pair pf notes to the next measure (1)!
+    four_notes = two_notes >> two_notes # moves the second pair of notes to the next measure (1)!
     assert two_notes == two_notes_original
     assert four_notes.len() == 4
     four_notes[0] % Position() % Fraction() >> Print()
