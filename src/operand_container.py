@@ -380,6 +380,7 @@ class Sequence(Container):  # Just a container of Elements
                     case ra.Position():     return self._position
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
+            case ra.Length():       return self.length()
             case ra.Position():     return self._position.copy()
             case ra.Duration():     return self.duration()
             case _:                 return super().__mod__(operand)
@@ -392,12 +393,7 @@ class Sequence(Container):  # Just a container of Elements
         return total_elements
 
     def length(self) -> ra.Length:
-        start: ra.Position = self._position.copy(0)
-        finish: ra.Position = self._position.copy(0)
-
-        if finish - start < 0:
-            return ra.Length(0)
-        return ra.Length(finish - start)
+        return ra.Length(self.finish() - self.start())
 
     def duration(self) -> ra.Duration:
         total_length: ra.Duration = ra.Duration(0)
@@ -428,12 +424,13 @@ class Sequence(Container):  # Just a container of Elements
             return start_position.copy()
         return self._position.copy(0.0)
 
-    def end(self) -> ra.Position:
+    def finish(self) -> ra.Position:
         if self.len() > 0:
-            end_position: ra.Position = self._datasource_list[0]._data % ra.Position()
+            end_position: ra.Position = self._datasource_list[0]._data % od.DataSource( ra.Position() )
             for single_datasource in self._datasource_list:
-                if single_datasource._data % ra.Position() > end_position:
-                    end_position = single_datasource._data % ra.Position()
+                single_position: ra.Position = single_datasource._data % od.DataSource( ra.Position() )
+                if single_position > end_position:
+                    end_position = single_position
             return end_position.copy()
         return self._position.copy(0.0)
 
@@ -638,7 +635,7 @@ class Sequence(Container):  # Just a container of Elements
                     if operand.len() > 0:
                         left_sequence: Sequence = operand.copy()
 
-                        left_end_position: ra.Position = left_sequence.end()
+                        left_end_position: ra.Position = left_sequence.finish()
                         right_start_position: ra.Position = right_sequence.start()
                         length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
                         length_shift << ra.Measures(length_shift % ou.Measure())    # Rounded up Duration to next Measure
@@ -719,7 +716,7 @@ class Sequence(Container):  # Just a container of Elements
                 return self
             case int(): # Splits the total Duration by the integer
                 start_position = self.start()
-                sequence_length: ra.Duration = self.end() - start_position
+                sequence_length: ra.Duration = self.finish() - start_position
                 new_end_position: ra.Position = start_position + sequence_length / operand
                 trimmed_self = self | of.Less(new_end_position)**o.Operand()
                 return trimmed_self.copy()

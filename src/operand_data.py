@@ -727,7 +727,7 @@ class End(Getter):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
-            return operand.end()
+            return operand.finish()
         return ol.Null()
 
 class Shuffle(Getter):

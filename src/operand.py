@@ -226,7 +226,7 @@ class Operand:
         import operand_label as ol
         return ol.Null()
 
-    def end(self):
+    def finish(self):
         import operand_label as ol
         return ol.Null()
     

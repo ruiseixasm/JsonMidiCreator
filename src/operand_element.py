@@ -101,7 +101,7 @@ class Element(o.Operand):
             case od.Device():       return self._device.copy()
             case Element():         return self.copy()
             case od.Start():        return self.start()
-            case od.End():          return self.end()
+            case od.End():          return self.finish()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: 'o.Operand') -> bool:
@@ -157,7 +157,7 @@ class Element(o.Operand):
     def start(self) -> ra.Position:
         return self._position.copy()
 
-    def end(self) -> ra.Position:
+    def finish(self) -> ra.Position:
         return self._position + self._duration
 
     def getPlaylist(self, position: ra.Position = None) -> list:

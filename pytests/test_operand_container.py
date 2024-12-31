@@ -252,13 +252,29 @@ def test_position_shift():
 # test_position_shift()
 
 
-def test_processing_sequences():
+def test_sequence_operations():
 
     straight_sequence: Sequence = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
     reversed_sequence: Sequence = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
 
+    straight_length: Length = straight_sequence % Length()
+    straight_length % Name() >> Print()
+    assert straight_length % Name() == "Length"
+    
+    straight_serialization: dict = straight_length.getSerialization()
+    straight_serialization % Data("float") >> Print()   # 1/8 + 1/4 + 1/4 * 3/2 = 0.75 NoteValue = 4 * 0.75 = 3.0 Beats
+    assert straight_serialization % Data("float") == 3.0
+
+    reversed_length: Length = reversed_sequence % Length()
+    reversed_length % Name() >> Print()
+    assert reversed_length % Name() == "Length"
+    
+    reversed_serialization: dict = reversed_length.getSerialization()
+    reversed_serialization % Data("float") >> Print()   # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 = 0.8125 NoteValue = 4 * 0.75 = 3.25 Beats
+    assert reversed_serialization % Data("float") == 3.25
+
     assert straight_sequence != reversed_sequence
     assert straight_sequence.reverse() == reversed_sequence
 
-# test_processing_sequences()
+# test_sequence_operations()
 
