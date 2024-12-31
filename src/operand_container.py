@@ -414,13 +414,13 @@ class Sequence(Container):  # Just a container of Elements
 
     def length(self) -> ra.Length:
         root: ra.Position = self._position.copy(0.0)    # Always starts at the beginning of the sequence Measure
-        leaf: ra.Position = root                        # It has to have at least one element to have a non zero length
+        last: ra.Position = root                        # It has to have at least one element to have a non zero length
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_position: ra.Position = single_datasource._data._position
-                if single_position > leaf:
-                    leaf = single_position
-        return ra.Length(leaf - root)
+                if single_position > last:
+                    last = single_position
+        return ra.Length(last - root)
 
     def duration(self) -> ra.Duration:
         total_length: ra.Duration = ra.Duration(0)
