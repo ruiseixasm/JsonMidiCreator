@@ -160,3 +160,18 @@ def test_operand_serialization():
             assert loaded_instantiation == class_object
 
 # test_operand_serialization()
+
+
+def test_dictionary_getter():
+
+    midi_track: MidiTrack = MidiTrack(3, "Drums")
+    serialization: dict = midi_track.getSerialization()
+
+    parameters: dict = get_dict_key_data("parameters", serialization)
+    print(parameters)
+    assert parameters == {'unit': 3, 'name': 'Drums'}
+    parameters = serialization % Data("parameters")
+    print(parameters)
+    assert parameters == {'unit': 3, 'name': 'Drums'}
+
+# test_dictionary_getter()

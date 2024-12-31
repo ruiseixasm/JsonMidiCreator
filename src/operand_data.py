@@ -63,6 +63,14 @@ class Data(o.Operand):
             case Data():                    return self.copy()
             case _:                         return self.deep_copy(self._data)
             
+    def __rmod__(self, operand: any) -> any:
+        match operand:
+            case dict():
+                if isinstance(self._data, str):
+                    return o.get_dict_key_data(self._data, operand)
+                return operand
+            case _:                         return ol.Null()
+            
     def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, Data):
