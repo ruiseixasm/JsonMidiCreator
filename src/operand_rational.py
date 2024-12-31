@@ -449,8 +449,8 @@ class Position(Rational):
                 return Position(self)
             case Position() | TimeValue() | ou.TimeUnit():
                 time_beats: Beats = self.getBeats(time)
-                return Position(time_beats)
-        return Position(beats)
+                return Position(self, time_beats)
+        return Position(self, beats)
 
     def getMeasures(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
         measures: Fraction = Fraction(0)
