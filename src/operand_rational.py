@@ -463,7 +463,7 @@ class Position(Rational):
             case Measures():
                 measures = time._rational
             case Beats():
-                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_measure: int = self._time_signature._top
                 measures = time._rational / beats_per_measure
             case Steps():
                 beats = self.getBeats(time)
@@ -492,17 +492,17 @@ class Position(Rational):
                 beats_b : Fraction = beats_a * tempo_b / tempo_a
                 return Beats(beats_b)
             case Measures():
-                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_measure: int = self._time_signature._top
                 beats = time._rational * beats_per_measure
             case Beats():
                 beats = time._rational
             case Steps():
-                beats_per_note: Fraction = self._time_signature._bottom
+                beats_per_note: int = self._time_signature._bottom
                 notes_per_step: Fraction = self._quantization._rational
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 beats = time._rational * beats_per_step
             case Duration():
-                beats_per_note: Fraction = self._time_signature._bottom
+                beats_per_note: int = self._time_signature._bottom
                 beats = time._rational * beats_per_note
             case ou.Measure():
                 return self.getBeats(Measures(time._unit))
@@ -524,7 +524,7 @@ class Position(Rational):
                 beats = self.getBeats(time)
                 steps = self.getSteps(beats)
             case Beats():
-                beats_per_note: Fraction = self._time_signature._bottom
+                beats_per_note: int = self._time_signature._bottom
                 notes_per_step: Fraction = self._quantization._rational
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps = time._rational / beats_per_step
@@ -553,7 +553,7 @@ class Position(Rational):
                 beats = self.getBeats(time)
                 note_value = self.getDuration(beats)
             case Beats():
-                beats_per_note: Fraction = self._time_signature._bottom
+                beats_per_note: int = self._time_signature._bottom
                 note_value = time._rational / beats_per_note
             case Steps():
                 beats = self.getBeats(time)
@@ -590,7 +590,7 @@ class Position(Rational):
                 time_beats: Beats = self.getBeats(time)
                 return self.getBeat(time_beats)
             case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_measure: int = self._time_signature._top
                 beat = self.getBeats(time) % int() % beats_per_measure
         return ou.Beat(beat)
 
@@ -603,8 +603,8 @@ class Position(Rational):
                 time_beats: Beats = self.getBeats(time)
                 return self.getStep(time_beats)
             case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature._top
-                beats_per_note: Fraction = self._time_signature._bottom
+                beats_per_measure: int = self._time_signature._top
+                beats_per_note: int = self._time_signature._bottom
                 notes_per_step: Fraction = self._quantization._rational
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
@@ -665,6 +665,8 @@ class Position(Rational):
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
                 self._quantization      << operand._quantization
+            case Quantization():    # Needs to be before than TimeValue because Quantization is a TimeValue !
+                self._quantization      << operand
             case TimeValue():
                 self._rational = self.getBeats(operand) % Fraction()
             case ou.Measure():
@@ -679,8 +681,6 @@ class Position(Rational):
                 self._tempo             << operand
             case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                 self._time_signature    << operand
-            case Quantization():
-                self._quantization      << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -739,7 +739,7 @@ class Length(Position):
     def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
         match time:
             case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_measure: int = self._time_signature._top
                 return ou.Beat( (self.getBeats(time) % int() + 1) % beats_per_measure )
             case _:
                 return super().getBeat(time)
@@ -747,8 +747,8 @@ class Length(Position):
     def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
         match time:
             case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature._top
-                beats_per_note: Fraction = self._time_signature._bottom
+                beats_per_measure: int = self._time_signature._top
+                beats_per_note: int = self._time_signature._bottom
                 notes_per_step: Fraction = self._quantization._rational
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
