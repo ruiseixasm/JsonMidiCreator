@@ -46,7 +46,7 @@ performers = od.Performers(
         Stack(),
         PushTo(Play()),
         Subject(Rest())**PushTo(Play()), # Plays a single Rest at the end,
-        Foreach()**Get(OLD_Position())**PushOut(Print())  # To see what's data is being changed
+        Foreach()**Get(Position())**PushOut(Print())  # To see what's data is being changed
     )
 crossing_over = Crossover(sequence, sequences, performers)
 

@@ -28,9 +28,9 @@ smooth + Foreach(0, -1, 0, 1, 2, 3, 2, 1, 0, 1, 0, -2, -1)
 smooth >> Rest() >> Play()
 
 syncopated: Sequence = smooth.copy() \
-    - Equal(Measures(0))**Even()**OLD_Position(Duration(1/8)) \
-    + Equal(Measures(1))**OLD_Position(Duration(1/8)) \
-    + Equal(Measures(2))**GreaterEqual(Beats(2))**OLD_Position(Duration(1/8))
+    - Equal(Measures(0))**Even()**Position(Duration(1/8)) \
+    + Equal(Measures(1))**Position(Duration(1/8)) \
+    + Equal(Measures(2))**GreaterEqual(Beats(2))**Position(Duration(1/8))
 (syncopated | Measures(0)) >> Link()
 (syncopated | Measures(1)) >> Link()
 (syncopated | Measures(2) | Greater(Beats(2))) >> Link()

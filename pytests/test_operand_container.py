@@ -48,22 +48,22 @@ def test_rrshift_sequence():
 
     two_notes: Sequence = Note() * 2
     assert two_notes.len() == 2
-    assert two_notes[0] == OLD_Position(0)
-    assert two_notes[1] == OLD_Position(1/4)
+    assert two_notes[0] == Position(0)
+    assert two_notes[1] == Position(1/4)
 
 
     two_notes_original = two_notes.copy()
     four_notes = two_notes >> two_notes # moves the second pair pf notes to the next measure (1)!
     assert two_notes == two_notes_original
     assert four_notes.len() == 4
-    four_notes[0] % OLD_Position() % Fraction() >> Print()
-    assert four_notes[0] == OLD_Position(0)
-    four_notes[1] % OLD_Position() % Fraction() >> Print()
-    assert four_notes[1] == OLD_Position(1/4)
-    four_notes[2] % OLD_Position() % Fraction() >> Print()
-    assert four_notes[2] == OLD_Position(1)
-    four_notes[3] % OLD_Position() % Fraction() >> Print()
-    assert four_notes[3] == OLD_Position(1 + 1/4)
+    four_notes[0] % Position() % Fraction() >> Print()
+    assert four_notes[0] == Position(0)
+    four_notes[1] % Position() % Fraction() >> Print()
+    assert four_notes[1] == Position(1/4)
+    four_notes[2] % Position() % Fraction() >> Print()
+    assert four_notes[2] == Position(1)
+    four_notes[3] % Position() % Fraction() >> Print()
+    assert four_notes[3] == Position(1 + 1/4)
 
 # test_rrshift_sequence()
 

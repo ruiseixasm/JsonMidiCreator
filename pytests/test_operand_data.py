@@ -48,11 +48,11 @@ def test_data_source_mod():
 
     # Perform the operation
     single_note = Note()
-    position_source = single_note % DataSource( OLD_Position() )
+    position_source = single_note % DataSource( Position() )
 
-    assert position_source == ra.OLD_Position()
+    assert position_source == ra.Position()
 
-    position_copy = single_note % OLD_Position()
+    position_copy = single_note % Position()
 
     assert position_copy == position_source
 

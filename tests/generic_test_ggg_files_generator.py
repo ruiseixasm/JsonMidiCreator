@@ -30,7 +30,7 @@ staff << Tempo(110) << Measures(6)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
 
 # Multiple individual Notes creation and sequentially played
-first_note = Note() << (OLD_Position() << Steps(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
+first_note = Note() << (Position() << Steps(3*4 + 2)) >> Save("json/testing/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) >> (first_note + Rest()) * 3 << MidiTrack(1, "Piano") >> Save("json/testing/_Save_Play_p.1_first_note.json") >> Export("json/testing/_Export_Play_p.1_sequence.json") \
     >> Save("json/testing/_Save_1.2_sequence.json") >> Export("json/testing/_Export_1.1_sequence.json")
 
@@ -46,7 +46,7 @@ first_sequence = (base_note * 8 // Steps(1) << MidiTrack(2, "Drums") << Channel(
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()
-second_sequence /= OLD_Position(2)
+second_sequence /= Position(2)
 second_sequence /= NoteValue(2)
 some_rest = Rest(4/1)
 second_sequence = Rest(4/1, Channel(10)) >> second_sequence

@@ -29,10 +29,10 @@ simple_phrase >> Rest() >> Play()
 dotted_quarter: Sequence = simple_phrase.copy() << Foreach(Dotted(1/4), 1/8, 1/2) >> Stack() >> Link()
 dotted_quarter >> Rest() >> Play()
 
-off_beat: Sequence = simple_phrase.copy() << Nth(2)**OLD_Position(Duration(1/8)) >> Link()
+off_beat: Sequence = simple_phrase.copy() << Nth(2)**Position(Duration(1/8)) >> Link()
 off_beat >> Rest() >> Play()
 
-speeding_up: Sequence = dotted_quarter.copy() - Nth(2, 3)**OLD_Position(1/4) >> Link()
+speeding_up: Sequence = dotted_quarter.copy() - Nth(2, 3)**Position(1/4) >> Link()
 speeding_up >> Rest() >> Play()
 
 staff << KeySignature("#")
@@ -42,7 +42,7 @@ original_phrase >> Rest() >> Play()
 
 variation_a: Sequence = original_phrase.copy() << Equal(Measures(0))**Duration(1/8)
 (variation_a | Measures(0)) >> Stack()
-variation_a + Note("C", 5, 1/2, Gate(1), OLD_Position(Beats(2))) >> Link()
+variation_a + Note("C", 5, 1/2, Gate(1), Position(Beats(2))) >> Link()
 
 variation_b: Sequence = original_phrase.copy() << Equal(Measures(0))**Foreach(1/8, 1/8, 1/2, 1/4)**Duration() >> Stack()
 variation_c: Sequence = original_phrase.copy() << Equal(Measures(0))**Foreach(1/4, 1/2, 1/8, 1/8)**Duration() >> Stack()

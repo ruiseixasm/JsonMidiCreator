@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._position: ra.OLD_Position         = ra.OLD_Position()
+        self._position: ra.Position         = ra.Position()
         self._duration: ra.Duration         = ra.Duration(os.staff._duration)
         self._stackable: ou.Stackable       = ou.Stackable()
         self._channel: ou.Channel           = ou.Channel()
@@ -48,7 +48,7 @@ class Element(o.Operand):
             self << parameters
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
-        self._position = ra.OLD_Position(position)
+        self._position = ra.Position(position)
         return self
 
     def duration(self: 'TypeElement', duration: float = None) -> 'TypeElement':
@@ -81,7 +81,7 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.OLD_Position():     return self._position
+                    case ra.Position():     return self._position
                     case ra.Duration():     return self._duration
                     case ou.Stackable():    return self._stackable
                     case ou.Channel():      return self._channel
@@ -90,9 +90,9 @@ class Element(o.Operand):
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case ra.Duration():     return self._duration % operand
-            case ra.OLD_Position():     return self._position.copy()
             case ra.Length():       return ra.Length(self._position)
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit() \
+            case ra.Position():     return self._position.copy()
+            case ra.TimeValue() | ou.TimeUnit() \
                 | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.NotesPerMeasure() \
                 | ra.Tempo() | ra.Quantization():
                                     return self._position % operand
@@ -108,7 +108,7 @@ class Element(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return  self._position      == other % od.DataSource( ra.OLD_Position() ) \
+                return  self._position      == other % od.DataSource( ra.Position() ) \
                     and self._duration      == other % od.DataSource( ra.Duration() ) \
                     and self._stackable     == other % od.DataSource( ou.Stackable() ) \
                     and self._channel       == other % od.DataSource( ou.Channel() ) \
@@ -154,13 +154,13 @@ class Element(o.Operand):
     def __ge__(self, other: 'o.Operand') -> bool:
         return self == other or self > other
 
-    def start(self) -> ra.OLD_Position:
+    def start(self) -> ra.Position:
         return self._position.copy()
 
-    def end(self) -> ra.OLD_Position:
+    def end(self) -> ra.Position:
         return self._position + self._duration
 
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         return [
@@ -169,10 +169,10 @@ class Element(o.Operand):
                 }
             ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
-        if isinstance(position, ra.OLD_Position):
+        if isinstance(position, ra.Position):
             self_numerator: int = position % ra.BeatsPerMeasure() % int()
             self_denominator: int = int(1 / (position % ra.BeatNoteValue() % Fraction()))
             self_position: float = (position.getBeats() + position.getBeats(self._position)) % od.DataSource( float() )
@@ -229,7 +229,7 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.OLD_Position():     self._position = operand % o.Operand()
+                    case ra.Position():     self._position = operand % o.Operand()
                     case ra.Duration():     self._duration = operand % o.Operand()
                     case ou.Stackable():    self._stackable = operand % o.Operand()
                     case ou.Channel():      self._channel = operand % o.Operand()
@@ -264,10 +264,10 @@ class Element(o.Operand):
     def __rrshift__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
         match operand:
-            case ra.OLD_Position():
-                return self.copy() << operand
             case ra.Length():
-                return self.copy() << self % od.DataSource( ra.OLD_Position() ) + operand
+                return self.copy() << self % od.DataSource( ra.Position() ) + operand
+            case ra.Position():
+                return self.copy() << operand
             case Element() | oc.Sequence():
                 return operand + self >> od.Stack()
             case od.Serialization():
@@ -326,9 +326,9 @@ class Element(o.Operand):
                 return self << self % operand / operand
         return self
 
-    def get_position_duration_ms(self, position: ra.OLD_Position = None) -> tuple:
+    def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
         sequence_position_ms: Fraction = Fraction(0)
-        if isinstance(position, ra.OLD_Position):
+        if isinstance(position, ra.Position):
             sequence_position_ms = position.getMillis_rational()
         element_position_ms: Fraction = self._position.getMillis_rational()
         self_position_ms: Fraction = sequence_position_ms + element_position_ms
@@ -393,7 +393,7 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         device_list: list = self._device % od.DataSource( list() )
@@ -470,7 +470,7 @@ class Clock(Element):
 
 class Rest(Element):
 
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         channel_int: int            = self._channel % od.DataSource( int() )
@@ -493,7 +493,7 @@ class Rest(Element):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
@@ -566,7 +566,7 @@ class Note(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         channel_int: int            = self._channel % od.DataSource( int() )
@@ -595,7 +595,7 @@ class Note(Element):
                 }
             ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beats() ) % float() * (self._gate % float())
@@ -741,13 +741,13 @@ class KeyScale(Note):
                 )
         return scale_notes
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_playlist = []
         for single_note in self.get_scale_notes():
             self_playlist.extend(single_note.getPlaylist(position))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist = []
         for single_note in self.get_scale_notes():
             self_midilist.extend(single_note.getMidilist(midi_track, position))
@@ -923,13 +923,13 @@ class Chord(KeyScale):
                             not_first_note = True # to result in another while loop
         return chord_notes
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_playlist = []
         for single_note in self.get_chord_notes():
             self_playlist.extend(single_note.getPlaylist(position))    # extends the list with other list
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist = []
         for single_note in self.get_chord_notes():
             self_midilist.extend(single_note.getMidilist(midi_track, position))    # extends the list with other list
@@ -1078,7 +1078,7 @@ class Retrigger(Note):
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.OLD_Position = self % ra.OLD_Position()
+        note_position: ra.Position = self % ra.Position()
         single_note_duration: ra.Duration = self._duration/(self._division % int()) # Already 2x single note duration
         for _ in range(self._division % od.DataSource( int() )):
             swing_ratio = self._swing % od.DataSource( Fraction() )
@@ -1089,13 +1089,13 @@ class Retrigger(Note):
             self_iteration += 1
         return retrigger_notes
 
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_playlist: list = []
         for single_note in self.get_retrigger_notes():
             self_playlist.extend(single_note.getPlaylist(position))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist = []
         for single_note in self.get_retrigger_notes():
             self_midilist.extend(single_note.getMidilist(midi_track, position))    # extends the list with other list
@@ -1236,7 +1236,7 @@ class Tuplet(Element):
     
     def get_tuplet_elements(self) -> list[Element]:
         tuplet_elements: list[Element] = []
-        element_position: ra.OLD_Position = self % ra.OLD_Position()
+        element_position: ra.Position = self % ra.Position()
         self_iteration: int = 0
         for single_element in self._elements:
             element_duration = single_element % od.DataSource( ra.Duration() )
@@ -1248,13 +1248,13 @@ class Tuplet(Element):
             self_iteration += 1
         return tuplet_elements
 
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_playlist: list = []
         for single_element in self.get_tuplet_elements():
             self_playlist.extend(single_element.getPlaylist(position))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = []
         for single_element in self.get_tuplet_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position))    # extends the list with other list
@@ -1375,7 +1375,7 @@ class ControlChange(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         number_int: int             = self % ou.Number() % od.DataSource( int() )
@@ -1395,7 +1395,7 @@ class ControlChange(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ControllerEvent"
         self_midilist[0]["number"]      = Element.midi_128(self._controller._number % int())
@@ -1490,7 +1490,7 @@ class PitchBend(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         msb_midi: int               = self._bend % ol.MSB()
@@ -1510,7 +1510,7 @@ class PitchBend(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "PitchWheelEvent"
         self_midilist[0]["value"]       = self._bend % int()
@@ -1603,7 +1603,7 @@ class Aftertouch(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         pressure_int: int           = self._pressure % od.DataSource( int() )
@@ -1621,7 +1621,7 @@ class Aftertouch(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ChannelPressure"
         self_midilist[0]["pressure"]    = Element.midi_128(self._pressure % int())
@@ -1717,7 +1717,7 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         key_note_float: float       = self._pitch % od.DataSource( float() )
@@ -1808,7 +1808,7 @@ class ProgramChange(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         program_int: int            = self._program % od.DataSource( int() )
@@ -1826,7 +1826,7 @@ class ProgramChange(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ProgramChange"
         self_midilist[0]["program"]     = Element.midi_128(self._program % int())
@@ -1880,7 +1880,7 @@ class ProgramChange(Automation):
         return self
 
 class Panic(Element):
-    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         self_playlist = []
         self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(position))
         self_playlist.extend(PitchBend(0).getPlaylist(position))

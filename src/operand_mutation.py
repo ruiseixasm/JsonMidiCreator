@@ -189,7 +189,7 @@ class Translocation(Mutation):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
-        self._parameters: od.Parameters = od.Parameters(ra.OLD_Position())
+        self._parameters: od.Parameters = od.Parameters(ra.Position())
         if len(parameters) > 0:
             self << parameters
 

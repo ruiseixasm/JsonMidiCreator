@@ -38,7 +38,7 @@ displacing_motif >> rest_play >> MidiExport("Midi/displacing_motif.mid")
 
 # Equivalent Staff notational format
 displacing_motif = motif \
-    >> ((R + motif % Copy() >> S) + Note(1/8, Degree(3), OLD_Position(M2, B1)) >> LJ >> Tie()) \
+    >> ((R + motif % Copy() >> S) + Note(1/8, Degree(3), Position(M2, B1)) >> LJ >> Tie()) \
     >> S  # up a half-step
 displacing_motif % NoteValue() >> Print(0)
 displacing_motif >> rest_play

@@ -622,9 +622,9 @@ class Position(Rational):
             beats = self.getBeats(time) % od.DataSource( Fraction() )
         return beats / beats_per_minute * 60 * 1000
     
-    def getPlaylist(self, position: 'OLD_Position' = None) -> list:
+    def getPlaylist(self, position: 'Position' = None) -> list:
         import operand_element as oe
-        self_position: OLD_Position  = self + OLD_Position() if position is None else position
+        self_position: Position  = self + Position() if position is None else position
         
         return [
                 {
@@ -676,6 +676,8 @@ class Position(Rational):
             case ou.Beat() | ou.Step():
                 self_measure: ou.Measure = self.getMeasure()
                 self._rational = (self.getBeats(self_measure) + self.getBeats(operand)) % od.DataSource( Fraction() )
+            case int() | float() | Fraction():
+                self << Measures(operand)
             case Tempo():
                 self._tempo             << operand
             case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
@@ -692,6 +694,8 @@ class Position(Rational):
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():
                 self_copy._rational += self.getBeats(operand) % od.DataSource( Fraction() )
+            case int() | float() | Fraction():
+                return self + Measures(operand)
         return self_copy
     
     def __sub__(self, operand: o.Operand) -> 'Position':
@@ -700,6 +704,8 @@ class Position(Rational):
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():
                 self_copy._rational -= self.getBeats(operand) % od.DataSource( Fraction() )
+            case int() | float() | Fraction():
+                return self - Measures(operand)
         return self_copy
     
     def __mul__(self, operand: o.Operand) -> 'Position':
@@ -728,74 +734,76 @@ class Position(Rational):
 
 
 class Length(Position):
+    pass
+
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Length':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int() | float() | Fraction():
-                self << Measures(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
+    # def __lshift__(self, operand: o.Operand) -> 'Length':
+    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     match operand:
+    #         case int() | float() | Fraction():
+    #             self << Measures(operand)
+    #         case _:
+    #             super().__lshift__(operand)
+    #     return self
 
-    def __add__(self, operand: o.Operand) -> 'Length':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int() | float() | Fraction():
-                return self + Measures(operand)
-        return super().__add__(operand)
+    # def __add__(self, operand: o.Operand) -> 'Length':
+    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     match operand:
+    #         case int() | float() | Fraction():
+    #             return self + Measures(operand)
+    #     return super().__add__(operand)
     
-    def __sub__(self, operand: o.Operand) -> 'Length':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int() | float() | Fraction():
-                return self - Measures(operand)
-        return super().__sub__(operand)
+    # def __sub__(self, operand: o.Operand) -> 'Length':
+    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     match operand:
+    #         case int() | float() | Fraction():
+    #             return self - Measures(operand)
+    #     return super().__sub__(operand)
     
-class OLD_Position(Length):
+# class Position(Length):
     
-    def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
-        measure: int = 0
-        match time:
-            case None:
-                return self.getMeasure(Beats(self._rational))
-            case Position():
-                time_beats: Beats = self.getBeats(time)
-                return self.getMeasure(time_beats)
-            case TimeValue() | ou.TimeUnit():
-                measure = self.getMeasures(time) % int()
-        return ou.Measure(measure)
+#     def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+#         measure: int = 0
+#         match time:
+#             case None:
+#                 return self.getMeasure(Beats(self._rational))
+#             case Position():
+#                 time_beats: Beats = self.getBeats(time)
+#                 return self.getMeasure(time_beats)
+#             case TimeValue() | ou.TimeUnit():
+#                 measure = self.getMeasures(time) % int()
+#         return ou.Measure(measure)
 
-    def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
-        beat: int = 0
-        match time:
-            case None:
-                return self.getBeat(Beats(self._rational))
-            case Position():
-                time_beats: Beats = self.getBeats(time)
-                return self.getBeat(time_beats)
-            case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature._top
-                beat = self.getBeats(time) % int() % beats_per_measure
-        return ou.Beat(beat)
+#     def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+#         beat: int = 0
+#         match time:
+#             case None:
+#                 return self.getBeat(Beats(self._rational))
+#             case Position():
+#                 time_beats: Beats = self.getBeats(time)
+#                 return self.getBeat(time_beats)
+#             case TimeValue() | ou.TimeUnit():
+#                 beats_per_measure: Fraction = self._time_signature._top
+#                 beat = self.getBeats(time) % int() % beats_per_measure
+#         return ou.Beat(beat)
 
-    def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
-        step: int = 0
-        match time:
-            case None:
-                return self.getStep(Beats(self._rational))
-            case Position():
-                time_beats: Beats = self.getBeats(time)
-                return self.getStep(time_beats)
-            case TimeValue() | ou.TimeUnit():
-                beats_per_measure: Fraction = self._time_signature._top
-                beats_per_note: Fraction = self._time_signature._bottom
-                notes_per_step: Fraction = self._quantization._rational
-                beats_per_step: Fraction = beats_per_note * notes_per_step
-                steps_per_measure: int = int(beats_per_measure / beats_per_step)
-                step = self.getSteps(time) % int() % steps_per_measure
-        return ou.Step(step)
+#     def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
+#         step: int = 0
+#         match time:
+#             case None:
+#                 return self.getStep(Beats(self._rational))
+#             case Position():
+#                 time_beats: Beats = self.getBeats(time)
+#                 return self.getStep(time_beats)
+#             case TimeValue() | ou.TimeUnit():
+#                 beats_per_measure: Fraction = self._time_signature._top
+#                 beats_per_note: Fraction = self._time_signature._bottom
+#                 notes_per_step: Fraction = self._quantization._rational
+#                 beats_per_step: Fraction = beats_per_note * notes_per_step
+#                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
+#                 step = self.getSteps(time) % int() % steps_per_measure
+#         return ou.Step(step)
 
 
 
