@@ -463,7 +463,7 @@ class Span(Rational):
             case Measures():
                 measures = time._rational
             case Beats():
-                beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
+                beats_per_measure: Fraction = self._time_signature._top
                 measures = time._rational / beats_per_measure
             case Steps():
                 beats = self.getBeats(time)
@@ -472,11 +472,11 @@ class Span(Rational):
                 beats = self.getBeats(time)
                 measures = self.getMeasures(beats)
             case ou.Measure():
-                return self.getMeasures(Measures(time % Fraction()))
+                return self.getMeasures(Measures(time._unit))
             case ou.Beat():
-                return self.getMeasures(Beats(time % Fraction()))
+                return self.getMeasures(Beats(time._unit))
             case ou.Step():
-                return self.getMeasures(Steps(time % Fraction()))
+                return self.getMeasures(Steps(time._unit))
         return Measures(measures)
 
     def getBeats(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Beats':
@@ -492,24 +492,24 @@ class Span(Rational):
                 beats_b : Fraction = beats_a * tempo_b / tempo_a
                 return Beats(beats_b)
             case Measures():
-                beats_per_measure: Fraction = self._time_signature % BeatsPerMeasure() % Fraction()
+                beats_per_measure: Fraction = self._time_signature._top
                 beats = time._rational * beats_per_measure
             case Beats():
                 beats = time._rational
             case Steps():
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                notes_per_step: Fraction = self._quantization % Fraction()
-                beats_per_step: Fraction = notes_per_step / notes_per_beat
+                beats_per_note: Fraction = self._time_signature._bottom
+                notes_per_step: Fraction = self._quantization._rational
+                beats_per_step: Fraction = beats_per_note * notes_per_step
                 beats = time._rational * beats_per_step
             case Duration():
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                beats = time._rational / notes_per_beat
+                beats_per_note: Fraction = self._time_signature._bottom
+                beats = time._rational * beats_per_note
             case ou.Measure():
-                return self.getBeats(Measures(time % Fraction()))
+                return self.getBeats(Measures(time._unit))
             case ou.Beat():
-                return self.getBeats(Beats(time % Fraction()))
+                return self.getBeats(Beats(time._unit))
             case ou.Step():
-                return self.getBeats(Steps(time % Fraction()))
+                return self.getBeats(Steps(time._unit))
         return Beats(beats)
 
     def getSteps(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Steps':
@@ -524,9 +524,9 @@ class Span(Rational):
                 beats = self.getBeats(time)
                 steps = self.getSteps(beats)
             case Beats():
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                notes_per_step: Fraction = self._quantization % Fraction()
-                beats_per_step: Fraction = notes_per_step / notes_per_beat
+                beats_per_note: Fraction = self._time_signature._bottom
+                notes_per_step: Fraction = self._quantization._rational
+                beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps = time._rational / beats_per_step
             case Steps():
                 steps = time._rational
@@ -534,11 +534,11 @@ class Span(Rational):
                 beats = self.getBeats(time)
                 steps = self.getSteps(beats)
             case ou.Measure():
-                return self.getSteps(Measures(time % Fraction()))
+                return self.getSteps(Measures(time._unit))
             case ou.Beat():
-                return self.getSteps(Beats(time % Fraction()))
+                return self.getSteps(Beats(time._unit))
             case ou.Step():
-                return self.getSteps(Steps(time % Fraction()))
+                return self.getSteps(Steps(time._unit))
         return Steps(steps)
 
     def getDuration(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Duration':
@@ -553,19 +553,19 @@ class Span(Rational):
                 beats = self.getBeats(time)
                 note_value = self.getDuration(beats)
             case Beats():
-                notes_per_beat: Fraction = self._time_signature % BeatNoteValue() % Fraction()
-                note_value = time._rational * notes_per_beat
+                beats_per_note: Fraction = self._time_signature._bottom
+                note_value = time._rational / beats_per_note
             case Steps():
                 beats = self.getBeats(time)
                 note_value = self.getDuration(beats)
             case Duration():
                 note_value = time._rational
             case ou.Measure():
-                return self.getDuration(Measures(time % Fraction()))
+                return self.getDuration(Measures(time._unit))
             case ou.Beat():
-                return self.getDuration(Beats(time % Fraction()))
+                return self.getDuration(Beats(time._unit))
             case ou.Step():
-                return self.getDuration(Steps(time % Fraction()))
+                return self.getDuration(Steps(time._unit))
         return Duration(note_value)
 
 
