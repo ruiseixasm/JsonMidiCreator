@@ -68,7 +68,7 @@ class Data(o.Operand):
             case dict():
                 if isinstance(self._data, str):
                     return o.get_dict_key_data(self._data, operand)
-                return operand
+                return {}
             case _:                         return ol.Null()
             
     def __eq__(self, other: o.Operand) -> bool:
