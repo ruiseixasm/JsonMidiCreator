@@ -731,7 +731,52 @@ class Position(Rational):
         return self / operand
 
 class Length(Position):
-    pass
+    
+    def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+        measure: int = 0
+        match time:
+            case None:
+                return self.getMeasure(Beats(self._rational))
+            case Position():
+                time_beats: Beats = self.getBeats(time)
+                return self.getMeasure(time_beats)
+            case TimeValue() | ou.TimeUnit():
+                measure = self.getMeasures(time) % int()
+                # measure = self.getMeasures(time) % int() + 1
+        return ou.Measure(measure)
+
+    def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+        beat: int = 0
+        match time:
+            case None:
+                return self.getBeat(Beats(self._rational))
+            case Position():
+                time_beats: Beats = self.getBeats(time)
+                return self.getBeat(time_beats)
+            case TimeValue() | ou.TimeUnit():
+                beats_per_measure: Fraction = self._time_signature._top
+                beat = self.getBeats(time) % int() % beats_per_measure
+                # beat = (self.getBeats(time) % int() + 1) % beats_per_measure
+        return ou.Beat(beat)
+
+    def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
+        step: int = 0
+        match time:
+            case None:
+                return self.getStep(Beats(self._rational))
+            case Position():
+                time_beats: Beats = self.getBeats(time)
+                return self.getStep(time_beats)
+            case TimeValue() | ou.TimeUnit():
+                beats_per_measure: Fraction = self._time_signature._top
+                beats_per_note: Fraction = self._time_signature._bottom
+                notes_per_step: Fraction = self._quantization._rational
+                beats_per_step: Fraction = beats_per_note * notes_per_step
+                steps_per_measure: int = int(beats_per_measure / beats_per_step)
+                step = self.getSteps(time) % int() % steps_per_measure
+                # step = (self.getSteps(time) % int() + 1) % steps_per_measure
+        return ou.Step(step)
+
 
 
 
