@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TypeVar, TYPE_CHECKING, Type
+from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any
 from fractions import Fraction
 import json
 import enum
@@ -360,6 +360,7 @@ class Sequence(Container):  # Just a container of Elements
                     self._midi_track    << single_operand
                 case ra.Position():
                     self._position = single_operand.copy()
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
     def __mod__(self, operand: any) -> any:
         """
@@ -514,10 +515,10 @@ class Sequence(Container):  # Just a container of Elements
                     case _:                 super().__lshift__(operand)
             case Sequence():
                 super().__lshift__(operand)
-                self._datasource_list = []
-                for single_element in operand:
-                    if isinstance(single_element, oe.Element):
-                        self._datasource_list.append(od.DataSource( single_element.copy() ))
+                self._datasource_list = self.deep_copy(operand._datasource_list)
+                # for single_element in operand:
+                #     if isinstance(single_element, oe.Element):
+                #         self._datasource_list.append(od.DataSource( single_element.copy() ))
                 self._midi_track    << operand._midi_track
                 self._position      << operand._position
             case ou.MidiTrack():
@@ -531,6 +532,8 @@ class Sequence(Container):  # Just a container of Elements
                 super().__lshift__(operand)
                 self.link() # Maybe completely unnecessary
             case _: super().__lshift__(operand)
+        
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
         return self
 
     def copy(self, *parameters) -> 'Sequence':
@@ -665,14 +668,14 @@ class Sequence(Container):  # Just a container of Elements
                 if self._midi_track == operand._midi_track:
                     return Sequence(self, operand)
                 return Song(self, operand)
-            case Container():
-                self_copy: Sequence = self.__class__()
-                for single_datasource in self._datasource_list:
-                    self_copy._datasource_list.append(single_datasource.copy())
-                for single_datasource in operand._datasource_list:
-                    if isinstance(operand, Sequence) or isinstance(single_datasource._data, oe.Element):
-                        self_copy._datasource_list.append(single_datasource.copy())
-                return self_copy
+            # case Container():
+            #     self_copy: Sequence = self.__class__()
+            #     for single_datasource in self._datasource_list:
+            #         self_copy._datasource_list.append(single_datasource.copy())
+            #     for single_datasource in operand._datasource_list:
+            #         if isinstance(operand, Sequence) or isinstance(single_datasource._data, oe.Element):
+            #             self_copy._datasource_list.append(single_datasource.copy())
+            #     return self_copy
             case oe.Element():
                 self._datasource_list.append(od.DataSource( operand.copy() ))
                 return self

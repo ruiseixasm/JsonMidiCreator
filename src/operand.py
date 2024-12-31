@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import logging
 from functools import cache
-from typing import TypeVar, TYPE_CHECKING
+from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any
 from fractions import Fraction
 
 DEBUG = False
@@ -125,6 +125,20 @@ def get_pair_key_data(pair_key: dict, in_dict: dict) -> any:
         return first_key_data
 
     return None
+
+
+def filter_list(items: List[Any], condition: Callable[[Any], bool]) -> List[Any]:
+    """
+    Removes all items from a list that don't satisfy a given condition.
+
+    Args:
+        items (list): The list to filter.
+        condition (Callable): A function that takes an element and returns True if it should be kept.
+
+    Returns:
+        list: A new list containing only items that satisfy the condition.
+    """
+    return [item for item in items if condition(item)]
 
 
 # GLOBAL CLASSES
