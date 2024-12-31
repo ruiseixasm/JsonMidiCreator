@@ -512,7 +512,9 @@ class Sequence(Container):  # Just a container of Elements
                 match operand % o.Operand():
                     case ou.MidiTrack():    self._midi_track = operand % o.Operand()
                     case ra.Position():     self._position = operand % o.Operand()
-                    case _:                 super().__lshift__(operand)
+                    case _:
+                        super().__lshift__(operand)
+                        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case Sequence():
                 super().__lshift__(operand)
                 self._datasource_list = self.deep_copy(operand._datasource_list)
@@ -531,9 +533,9 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 super().__lshift__(operand)
                 self.link() # Maybe completely unnecessary
-            case _: super().__lshift__(operand)
-        
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+            case _:
+                super().__lshift__(operand)
+                self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
         return self
 
     def copy(self, *parameters) -> 'Sequence':
