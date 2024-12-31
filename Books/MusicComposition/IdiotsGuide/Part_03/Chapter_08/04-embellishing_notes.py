@@ -27,14 +27,14 @@ slow_paced: Sequence = Note("E", 1/2) * 7 >> Link() << Foreach(6, 5, 1, 3, 6, 5,
 slow_paced >> Rest() >> Play()
 
 embellishing: Sequence = \
-    Note("E", Degree("IV"), Position(Measures(0) + Dotted(1/4))) + \
-    Note("E", Degree("ii"), Position(Measures(1) - Duration(1/8))) + \
-    Note("E", Degree("ii"), Position(Measures(1) + Duration(1/4))) + \
-    Note("E", Degree("IV"), Position(Measures(1) + Duration(1/4 + 1/8))) + \
-    Note("E", Degree("V"), Position(Measures(2) - Duration(1/8))) + \
-    Note("E", Degree("viiº"), Position(Measures(2) + Duration(1/4))) + \
-    Note("E", Degree("vi"), Position(Measures(2) + Duration(1/4 + 1/8))) + \
-    Note("E", Degree("iii"), Position(Measures(3) - Duration(1/8)))
+    Note("E", Degree("IV"), OLD_Position(Measures(0) + Dotted(1/4))) + \
+    Note("E", Degree("ii"), OLD_Position(Measures(1) - Duration(1/8))) + \
+    Note("E", Degree("ii"), OLD_Position(Measures(1) + Duration(1/4))) + \
+    Note("E", Degree("IV"), OLD_Position(Measures(1) + Duration(1/4 + 1/8))) + \
+    Note("E", Degree("V"), OLD_Position(Measures(2) - Duration(1/8))) + \
+    Note("E", Degree("viiº"), OLD_Position(Measures(2) + Duration(1/4))) + \
+    Note("E", Degree("vi"), OLD_Position(Measures(2) + Duration(1/4 + 1/8))) + \
+    Note("E", Degree("iii"), OLD_Position(Measures(3) - Duration(1/8)))
 slow_paced + embellishing >> Link() >> Rest() >> Play()
 
 variation: Sequence = Note("E") * 10
@@ -48,7 +48,7 @@ variation << Foreach(
         Measures(1, Steps(12)),
         Measures(2, Steps(10)),
         Measures(2, Steps(12)),
-    )**Position() << Foreach(
+    )**OLD_Position() << Foreach(
         7, 6, 6, 5, 2, 4, 3, 6, 5
     )**Degree()
 slow_paced + variation >> Link() >> Rest() >> Play()

@@ -357,7 +357,7 @@ class Tempo(Rational):
 
 
 
-class Span(Rational):
+class Position(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
         super().__init__()
@@ -367,7 +367,7 @@ class Span(Rational):
         if parameters:
             self << parameters
 
-    def span(self: 'Span', beats: float = None) -> 'Span':
+    def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -411,7 +411,7 @@ class Span(Rational):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Span():
+            case Position():
                 return self == self.getBeats(other)
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other == other
@@ -423,7 +423,7 @@ class Span(Rational):
     def __lt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Span():
+            case Position():
                 return self < self.getBeats(other)
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other < other
@@ -432,7 +432,7 @@ class Span(Rational):
     def __gt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Span():
+            case Position():
                 return self > self.getBeats(other)
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other > other
@@ -442,22 +442,22 @@ class Span(Rational):
         return f'Span Steps = {self._rational}'
     
 
-    def getSpan(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Span':
+    def getSpan(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Position':
         beats: Fraction = Fraction(0)
         match time:
             case None:
-                return Span(self)
-            case Span() | TimeValue() | ou.TimeUnit():
+                return Position(self)
+            case Position() | TimeValue() | ou.TimeUnit():
                 time_beats: Beats = self.getBeats(time)
-                return Span(time_beats)
-        return Span(beats)
+                return Position(time_beats)
+        return Position(beats)
 
-    def getMeasures(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
+    def getMeasures(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
         measures: Fraction = Fraction(0)
         match time:
             case None:
                 return self.getMeasures(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getMeasures(time_beats)
             case Measures():
@@ -479,12 +479,12 @@ class Span(Rational):
                 return self.getMeasures(Steps(time._unit))
         return Measures(measures)
 
-    def getBeats(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Beats':
+    def getBeats(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Beats':
         beats: Fraction = Fraction(0)
         match time:
             case None:
                 return Beats(self._rational)
-            case Span():
+            case Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
                 tempo_a : Fraction = time._tempo._rational
@@ -512,12 +512,12 @@ class Span(Rational):
                 return self.getBeats(Steps(time._unit))
         return Beats(beats)
 
-    def getSteps(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Steps':
+    def getSteps(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Steps':
         steps: Fraction = Fraction(0)
         match time:
             case None:
                 return self.getSteps(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getSteps(time_beats)
             case Measures():
@@ -541,12 +541,12 @@ class Span(Rational):
                 return self.getSteps(Steps(time._unit))
         return Steps(steps)
 
-    def getDuration(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Duration':
+    def getDuration(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Duration':
         note_value: Fraction = Fraction(0)
         match time:
             case None:
                 return self.getDuration(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getDuration(time_beats)
             case Measures():
@@ -569,12 +569,12 @@ class Span(Rational):
         return Duration(note_value)
 
 
-    def getMeasure(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+    def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         measure: int = 0
         match time:
             case None:
                 return self.getMeasure(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getMeasure(time_beats)
             case TimeValue() | ou.TimeUnit():
@@ -582,12 +582,12 @@ class Span(Rational):
                 # measure = self.getMeasures(time) % int() + 1
         return ou.Measure(measure)
 
-    def getBeat(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+    def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
         beat: int = 0
         match time:
             case None:
                 return self.getBeat(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getBeat(time_beats)
             case TimeValue() | ou.TimeUnit():
@@ -596,12 +596,12 @@ class Span(Rational):
                 # beat = (self.getBeats(time) % int() + 1) % beats_per_measure
         return ou.Beat(beat)
 
-    def getStep(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
+    def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
         step: int = 0
         match time:
             case None:
                 return self.getStep(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getStep(time_beats)
             case TimeValue() | ou.TimeUnit():
@@ -615,16 +615,16 @@ class Span(Rational):
         return ou.Step(step)
 
 
-    def getMillis_rational(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
+    def getMillis_rational(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
         beats: Fraction = self._rational
         beats_per_minute: Fraction = self._tempo._rational
         if time is not None:
             beats = self.getBeats(time) % od.DataSource( Fraction() )
         return beats / beats_per_minute * 60 * 1000
     
-    def getPlaylist(self, position: 'Position' = None) -> list:
+    def getPlaylist(self, position: 'OLD_Position' = None) -> list:
         import operand_element as oe
-        self_position: Position  = self + Position() if position is None else position
+        self_position: OLD_Position  = self + OLD_Position() if position is None else position
         
         return [
                 {
@@ -641,7 +641,7 @@ class Span(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Span':
+    def loadSerialization(self, serialization: dict) -> 'Position':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
             "quantization" in serialization["parameters"]):
@@ -653,7 +653,7 @@ class Span(Rational):
 
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Span':
+    def __lshift__(self, operand: o.Operand) -> 'Position':
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -663,7 +663,7 @@ class Span(Rational):
                     case og.TimeSignature():    self._time_signature    = operand % o.Operand()
                     case Quantization():        self._quantization      = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
-            case Span():
+            case Position():
                 super().__lshift__(operand)
                 self._tempo             << operand._tempo
                 self._time_signature    << operand._time_signature
@@ -686,48 +686,48 @@ class Span(Rational):
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Span':
+    def __add__(self, operand: o.Operand) -> 'Position':
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Span() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit():
                 self_copy._rational += self.getBeats(operand) % od.DataSource( Fraction() )
         return self_copy
     
-    def __sub__(self, operand: o.Operand) -> 'Span':
+    def __sub__(self, operand: o.Operand) -> 'Position':
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Span() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit():
                 self_copy._rational -= self.getBeats(operand) % od.DataSource( Fraction() )
         return self_copy
     
-    def __mul__(self, operand: o.Operand) -> 'Span':
+    def __mul__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Span():
+            case Position():
                 multiplier: Fraction = operand.getMeasures() % od.DataSource( Fraction() )
                 return super().__mul__(multiplier)
         return super().__mul__(operand)
     
-    def __truediv__(self, operand: o.Operand) -> 'Span':
+    def __truediv__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Span():
+            case Position():
                 divider: Fraction = operand.getMeasures() % od.DataSource( Fraction() )
                 return super().__truediv__(divider)
         return super().__truediv__(operand)
 
-    def __rmul__(self, operand: o.Operand) -> 'Span':
+    def __rmul__(self, operand: o.Operand) -> 'Position':
         return self * operand
     
-    def __rtruediv__(self, operand: o.Operand) -> 'Span':
+    def __rtruediv__(self, operand: o.Operand) -> 'Position':
         return self / operand
     
     
 
 
-class Length(Span):
+class Length(Position):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Length':
@@ -753,26 +753,26 @@ class Length(Span):
                 return self - Measures(operand)
         return super().__sub__(operand)
     
-class Position(Length):
+class OLD_Position(Length):
     
-    def getMeasure(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+    def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         measure: int = 0
         match time:
             case None:
                 return self.getMeasure(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getMeasure(time_beats)
             case TimeValue() | ou.TimeUnit():
                 measure = self.getMeasures(time) % int()
         return ou.Measure(measure)
 
-    def getBeat(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+    def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
         beat: int = 0
         match time:
             case None:
                 return self.getBeat(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getBeat(time_beats)
             case TimeValue() | ou.TimeUnit():
@@ -780,12 +780,12 @@ class Position(Length):
                 beat = self.getBeats(time) % int() % beats_per_measure
         return ou.Beat(beat)
 
-    def getStep(self, time: Union['Span', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
+    def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
         step: int = 0
         match time:
             case None:
                 return self.getStep(Beats(self._rational))
-            case Span():
+            case Position():
                 time_beats: Beats = self.getBeats(time)
                 return self.getStep(time_beats)
             case TimeValue() | ou.TimeUnit():

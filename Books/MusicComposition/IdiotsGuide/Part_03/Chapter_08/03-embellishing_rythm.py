@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 staff << KeySignature("##")
 
-long_notes: Sequence = Note("D", 1/1) * 4 + Note("D", 1/2, Position(Measures(1), Beats(2))) >> Link()
+long_notes: Sequence = Note("D", 1/1) * 4 + Note("D", 1/2, OLD_Position(Measures(1), Beats(2))) >> Link()
 long_notes << Foreach(6, 5, 1, 2, 6)**Degree() << Nth(3, 4)**Octave(5)
 long_notes_pl = Playlist(long_notes)
 long_notes_pl >> Rest() >> Play()
@@ -32,9 +32,9 @@ short_notes: Sequence = long_notes - (long_notes.copy() | Measures(2)) + (long_n
 short_notes >> Rest() >> Play()
 
 # repeated_notes: Sequence = short_notes.copy() << Equal(Measure(2))**Odd()**Dotted(1/4) << Equal(Measure(2))**Even()**NoteValue(1/8) >> Stack()
-position_1 = Position(2, Beats(1))
-position_2 = Position(2, Beats(2))
-position_1 += Position()**Duration() << 1/16
-position_2 -= Position()**Duration() << 1/16
-repeated_notes: Sequence = short_notes.copy() + Equal(Measures(2))**Even()**Position(Duration(1/16)) >> Link()
+position_1 = OLD_Position(2, Beats(1))
+position_2 = OLD_Position(2, Beats(2))
+position_1 += OLD_Position()**Duration() << 1/16
+position_2 -= OLD_Position()**Duration() << 1/16
+repeated_notes: Sequence = short_notes.copy() + Equal(Measures(2))**Even()**OLD_Position(Duration(1/16)) >> Link()
 repeated_notes >> Rest() >> Play(True)

@@ -37,8 +37,8 @@ approach >> Play()
 four_steps: Sequence = Note("C", 1/16) * 4 - Increment()
 approach |= Beats(0)
 approach = approach \
-            + (four_steps.copy() + Octave(1) + 2 << Position(Measures(0), Beats(3)) >> Stack()) \
-            + (four_steps.copy() + Octave(1) << Position(Measures(1), Beats(3)) >> Stack()) \
-            + (four_steps.copy() + 2 << Position(Measures(2), Beats(3)) >> Stack() >> Reverse()) \
+            + (four_steps.copy() + Octave(1) + 2 << OLD_Position(Measures(0), Beats(3)) >> Stack()) \
+            + (four_steps.copy() + Octave(1) << OLD_Position(Measures(1), Beats(3)) >> Stack()) \
+            + (four_steps.copy() + 2 << OLD_Position(Measures(2), Beats(3)) >> Stack() >> Reverse()) \
         >> Link()
 approach >> Play(1)

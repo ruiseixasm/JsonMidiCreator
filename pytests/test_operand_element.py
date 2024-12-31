@@ -102,7 +102,7 @@ def test_note_mod():
         }
     ]
 
-    first_note = Note() << (Position() << Steps(3*4 + 2))
+    first_note = Note() << (OLD_Position() << Steps(3*4 + 2))
     first_note_playlist = first_note.getPlaylist()
 
     # Sets the common device as that isn't being check
@@ -228,7 +228,7 @@ def test_milliseconds_duration():
 
 def test_clock_element():
 
-    clock_measure = Clock(span.getDuration(Measure(1)))
+    clock_measure = Clock(length.getDuration(Measure(1)))
     clock_playlist: list = clock_measure.getPlaylist()
     expected_messages: int = 1 * 4 * 24 + 1 # +1 for the Stop clock message
     total_messages: int = len(clock_playlist)
@@ -242,7 +242,7 @@ def test_clock_element():
 
     staff << Tempo(90)
     clock_default = Clock()
-    position_tempo: Tempo = clock_default % DataSource( Position() ) % Tempo()
+    position_tempo: Tempo = clock_default % DataSource( OLD_Position() ) % Tempo()
     position_tempo >> Print(0)
     assert position_tempo == staff % Tempo()
     clock_specific = Clock(NoteValue(Measures(1)))
@@ -273,19 +273,19 @@ def test_note3_element():
     triplet_note = Note3("C")
     assert triplet_note % NoteValue() == Duration(1/4)
     assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/2)
-    assert triplet_note % Position() == 0.0
+    assert triplet_note % OLD_Position() == 0.0
     triplet_note << NoteValue(1/8)
     assert triplet_note % NoteValue() == Duration(1/8)
     assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/4)
-    assert triplet_note % Position() == 0.0
+    assert triplet_note % OLD_Position() == 0.0
     triplet_note << NoteValue(1/16)
     assert triplet_note % NoteValue() == Duration(1/16)
     assert triplet_note % od.DataSource( NoteValue() ) == Duration(1/8)
-    assert triplet_note % Position() == 0.0
+    assert triplet_note % OLD_Position() == 0.0
 
     assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % NoteValue() == Duration(1/16)
     assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % od.DataSource( NoteValue() ) == Duration(1/8)
-    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % Position() == 0.0
+    assert (Note3(MidiTrack(1, "Piano")) << (NoteValue() << Duration(1/16))) % OLD_Position() == 0.0
 
 # test_note3_element()
 

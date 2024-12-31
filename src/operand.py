@@ -182,8 +182,8 @@ class Operand:
         match operand:
             case of.Frame():        return self % (operand % Operand())
             case od.Playlist():
-                position = operand % ra.Position()
-                if isinstance(position, ra.Position):
+                position = operand % ra.OLD_Position()
+                if isinstance(position, ra.OLD_Position):
                     return self.getPlaylist(position)
                 return self.getPlaylist()
             case od.Serialization():

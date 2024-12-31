@@ -150,7 +150,7 @@ class Oscillator(Operator):
     """
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
-        self._position: ra.Position     = ra.Position()
+        self._position: ra.OLD_Position     = ra.OLD_Position()
         self._length: ra.Length         = ra.Length() << ra.Measures(1)  # wavelength (360º)
         self._amplitude: ra.Amplitude   = ra.Amplitude(0)
         self._offset: ra.Offset         = ra.Offset(0)
@@ -169,12 +169,12 @@ class Oscillator(Operator):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Position():         return self._position
+                    case ra.OLD_Position():         return self._position
                     case ra.Length():           return self._length
                     case ra.Amplitude():        return self._amplitude
                     case ra.Offset():           return self._offset
                     case _:                     return super().__mod__(operand)
-            case ra.Position():         return self._position.copy()
+            case ra.OLD_Position():         return self._position.copy()
             case ra.Length():           return self._length.copy()
             case ra.Amplitude():        return self._amplitude.copy()
             case ra.Offset():           return self._offset.copy()
@@ -185,7 +185,7 @@ class Oscillator(Operator):
         if other.__class__ == o.Operand:
             return True
         if super().__eq__(other):
-            return  self._position == other % od.DataSource( ra.Position() ) \
+            return  self._position == other % od.DataSource( ra.OLD_Position() ) \
                 and self._length == other % od.DataSource( ra.Length() ) \
                 and self._amplitude == other % od.DataSource( ra.Amplitude() ) \
                 and self._offset == other % od.DataSource( ra.Offset() )
@@ -218,18 +218,18 @@ class Oscillator(Operator):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Position():     self._position = operand % o.Operand()
+                    case ra.OLD_Position():     self._position = operand % o.Operand()
                     case ra.Length():       self._length = operand % o.Operand()
                     case ra.Amplitude():    self._amplitude = operand % o.Operand()
                     case ra.Offset():       self._offset = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Oscillator():
                 super().__lshift__(operand)
-                self._position      = (operand % od.DataSource( ra.Position() )).copy()
+                self._position      = (operand % od.DataSource( ra.OLD_Position() )).copy()
                 self._length        = (operand % od.DataSource( ra.Length() )).copy()
                 self._amplitude     = (operand % od.DataSource( ra.Amplitude() )).copy()
                 self._offset        = (operand % od.DataSource( ra.Offset() )).copy()
-            case ra.Position():     self._position << operand
+            case ra.OLD_Position():     self._position << operand
             case ra.Length():       self._length << operand
             case ra.Amplitude():    self._amplitude << operand
             case ra.Offset():       self._offset << operand
@@ -242,8 +242,8 @@ class Oscillator(Operator):
             case oc.Sequence():
                 for single_data in operand:
                     self | single_data
-            case oe.Element() | ra.Position():
-                element_position: ra.Position = operand % ra.Position()
+            case oe.Element() | ra.OLD_Position():
+                element_position: ra.OLD_Position = operand % ra.OLD_Position()
                 wave_time_rational = element_position.getMillis_rational() - self._position.getMillis_rational()
                 wavelength_rational = self._length.getMillis_rational()
                 wave_time_angle = wave_time_rational / wavelength_rational * 360 # degrees

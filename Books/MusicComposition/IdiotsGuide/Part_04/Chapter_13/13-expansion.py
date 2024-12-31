@@ -29,7 +29,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-motif_left, motif_right = motif.copy().split(Position(M2))
+motif_left, motif_right = motif.copy().split(OLD_Position(M2))
 new_material: Sequence = Note() * 6 << Foreach(dotted_quarter, eight, dotted_quarter, eight, half, half) >> S
 new_material << Foreach(-3, -2, -3, -2, 1, 2)**Degree() << Tied()
 

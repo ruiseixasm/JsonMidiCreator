@@ -22,21 +22,21 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 structural_tones: Sequence = Note("E", Duration(1)) * 4 + Foreach(0, 2, 2, 4)
-chromatic_tones = Note("F#", Position(Beats(3))) + Note("Ab", Position(Measures(1), Beats(3))) + Note("A#", Position(Measures(2), Beats(3)))
+chromatic_tones = Note("F#", OLD_Position(Beats(3))) + Note("Ab", OLD_Position(Measures(1), Beats(3))) + Note("A#", OLD_Position(Measures(2), Beats(3)))
 structural_tones + chromatic_tones >> Link() << Get(NoteValue())**NoteValue() >> Rest() >> Play()
 
 structural_tones = \
     Note("C", 5, Dotted(1/4)) + \
-    Note("C", 5, Dotted(1/4), Position(Beats(2))) + \
-    Note("G", 1/2, Position(Measures(1))) + \
-    Note("F", Position(Measures(1), Beats(2))) + \
-    Note("F", Dotted(1/2), Position(Measures(2))) + \
-    Note("G", 1/1, Position(Measures(3))) >> Link()
+    Note("C", 5, Dotted(1/4), OLD_Position(Beats(2))) + \
+    Note("G", 1/2, OLD_Position(Measures(1))) + \
+    Note("F", OLD_Position(Measures(1), Beats(2))) + \
+    Note("F", Dotted(1/2), OLD_Position(Measures(2))) + \
+    Note("G", 1/1, OLD_Position(Measures(3))) >> Link()
 blues_scale = \
-    Note("C", 1/8, Position(Dotted(1/4))) + \
-    Note("C", 1/8, Position(Dotted(2 * 1/4) + Duration(1/8))) + \
-    Note("C", 1/4, Position(Measures(1) + Duration(1/2 + 1/4))) + \
-    Note("C", 1/4, Position(Measures(2) + Dotted(1/2))) >> Link() << Scale("Blues")
+    Note("C", 1/8, OLD_Position(Dotted(1/4))) + \
+    Note("C", 1/8, OLD_Position(Dotted(2 * 1/4) + Duration(1/8))) + \
+    Note("C", 1/4, OLD_Position(Measures(1) + Duration(1/2 + 1/4))) + \
+    Note("C", 1/4, OLD_Position(Measures(2) + Dotted(1/2))) >> Link() << Scale("Blues")
 blues_scale + Foreach(5, 3, 1, 3)
 structural_tones + blues_scale >> Link() >> Rest() >> Play()
 

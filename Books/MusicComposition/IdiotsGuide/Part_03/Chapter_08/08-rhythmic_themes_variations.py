@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 staff << TimeSignature(2, 4) << KeySignature(-3)   # Same as 'bbb'
 
-rhythmic_motif: Sequence = Note("G", 1/8, Position(Duration(1/8))) * 4 >> Link()
+rhythmic_motif: Sequence = Note("G", 1/8, OLD_Position(Duration(1/8))) * 4 >> Link()
 rhythmic_motif - Equal(Measures(1))**2
 rhythmic_motif >> Rest() >> Play()
 

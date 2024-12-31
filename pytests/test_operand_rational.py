@@ -59,19 +59,19 @@ def test_dotted_mod():
 
 def test_beats_and_steps_default():
 
-    position_measures = Position(1.5)
+    position_measures = OLD_Position(1.5)
     assert position_measures % Beats() % DataSource( Fraction() ) == 6
     assert position_measures % Steps() % DataSource( Fraction() ) == 16 + 16/2
     assert position_measures % Beat() == Beats(2)
     assert position_measures % Step() == Steps(1/2 * 16)
 
-    position_beats = Position(Beats(6))
+    position_beats = OLD_Position(Beats(6))
     assert position_beats % Beats() % DataSource( Fraction() ) == 6
     assert position_beats % Steps() % DataSource( Fraction() ) == 16 + 16/2
     assert position_beats % Beat() == Beats(2)
     assert position_beats % Step() == Steps(1/2 * 16)
 
-    position_steps = Position(Steps(16 + 16/2))
+    position_steps = OLD_Position(Steps(16 + 16/2))
     assert position_steps % Beats() % DataSource( Fraction() ) == 6
     assert position_steps % Steps() % DataSource( Fraction() ) == 16 + 16/2
     assert position_steps % Beat() == Beats(2)
@@ -82,7 +82,7 @@ def test_beats_and_steps_default():
 
 def test_beats_and_steps_specific():
 
-    position_measures = Position(TimeSignature(3, 8), Quantization(1/32), 1.5)
+    position_measures = OLD_Position(TimeSignature(3, 8), Quantization(1/32), 1.5)
     print(position_measures % Beats() % DataSource( Fraction() ))
     assert position_measures % Beats() % DataSource( Fraction() ) == 3 + 3/2
     # assert position_measures.getSteps() % DataSource( Fraction() ) == 32 + 32/2
@@ -113,7 +113,7 @@ def test_beats_and_steps_specific():
 def test_time_mod():
 
     # Perform the operation
-    time = Position(4.5)
+    time = OLD_Position(4.5)
 
     measure_float = time % Measure() % float()
     assert measure_float == 4.0
@@ -142,133 +142,133 @@ def test_time_mod():
 
 def test_add_beats():
 
-    position = Position()
+    position = OLD_Position()
     measures = Measures(0.5)
     position += Beats(2)
     assert position == measures
 
     position << Measure(1)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
     position += Beats(4)
-    assert position == Position(2.5)
+    assert position == OLD_Position(2.5)
 
     position += Beats(-4)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
 # test_add_beats()
 
 
 def test_add_steps():
 
-    position = Position()
+    position = OLD_Position()
     measures = Measures(0.5)
     position += Steps(2 * 4)
     assert position == measures
 
     position += Steps(4 * 4)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
     position += Steps(-4 * 4)
-    assert position == Position(0.5)
+    assert position == OLD_Position(0.5)
 
 def test_add_note_value():
 
-    position = Position()
+    position = OLD_Position()
     measures = Measures(0.5)
     position += Duration(2 / 4)
     assert position == measures
 
     position += Duration(4 / 4)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
     position += Duration(-4 / 4)
-    assert position == Position(0.5)
+    assert position == OLD_Position(0.5)
 
 
 def test_sub_beats():
 
-    position = Position(2)
+    position = OLD_Position(2)
     measures = Measures(1.5)
     position -= Beats(2)
     assert position == measures
 
     position << Measure(2)
-    assert position == Position(2.5)
+    assert position == OLD_Position(2.5)
 
     position -= Beats(4)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
     position -= Beats(-4)
-    assert position == Position(2.5)
+    assert position == OLD_Position(2.5)
 
 # test_sub_beats()
 
 
 def test_sub_steps():
 
-    position = Position(2)
+    position = OLD_Position(2)
     measures = Measures(1.5)
     position -= Steps(2 * 4)
     assert position == measures
 
     position -= Steps(4 * 4)
-    assert position == Position(0.5)
+    assert position == OLD_Position(0.5)
 
     position -= Steps(-4 * 4)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
 def test_sub_note_value():
 
-    position = Position(2)
+    position = OLD_Position(2)
     measures = Measures(1.5)
     position -= Duration(2 / 4)
     assert position == measures
 
     position -= Duration(4 / 4)
-    assert position == Position(0.5)
+    assert position == OLD_Position(0.5)
 
     position -= Duration(-4 / 4)
-    assert position == Position(1.5)
+    assert position == OLD_Position(1.5)
 
 # test_sub_note_value()
 
 def test_div_time_values():
 
-    position = Position(5)
+    position = OLD_Position(5)
     measures = Measures(2.5)
     position /= Measures(2)
     assert position == measures
 
-    position = Position(5)
+    position = OLD_Position(5)
     measures = Measures(2.5)
     position /= Beats(2)
     assert position == measures
 
-    position = Position(5)
+    position = OLD_Position(5)
     measures = Measures(2.5)
     position /= Steps(2)
     assert position == measures
 
-    position = Position(5)
+    position = OLD_Position(5)
     measures = Measures(2.5)
     position /= Duration(2)
     assert position == measures
 
 def test_div_time():
 
-    position = Position(5)
+    position = OLD_Position(5)
     measures = Measures(2.5)
-    position /= Position(2)
+    position /= OLD_Position(2)
     assert position == measures
 
-    position = Position(5)      # Position is in Measures
+    position = OLD_Position(5)      # Position is in Measures
     measures = Measures(2.5)
     position /= Length(2)   # Length is in Measures
     # position /= Length(2 * 4)   # Length is in Beats
     assert position == measures
 
-    position = Position(5)
+    position = OLD_Position(5)
     measures = Measures(2.5)
     position /= NoteValue(2)     # Duration is in NoteValue
     assert position == measures
@@ -276,7 +276,7 @@ def test_div_time():
 
 def test_basic_conversions():
 
-    position = Position(10.5)
+    position = OLD_Position(10.5)
     assert position % Measures() % Fraction() == 10.5
     assert position % Measure() % Fraction() == 10
     assert position % Beats() % Fraction() == 10.5 * 4
@@ -290,7 +290,7 @@ def test_basic_conversions():
 
 def test_full_conversions():
 
-    position = Position()
+    position = OLD_Position()
 
     for time_value in (Measures(10.5), Beats(10.5 * 4),
                        Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
@@ -316,7 +316,7 @@ def test_full_conversions():
 
 def test_multi_testing():
 
-    position = Position(10.5)
+    position = OLD_Position(10.5)
     print(position % Measures() % Fraction())
     print(position % Measure() % int())
     assert position % Measure() == 10
@@ -326,7 +326,7 @@ def test_multi_testing():
     assert ra.Measures(ou.Measure(11)) == 11.0
     position << ra.Measures(position % ou.Measure() + 1) # Rounded up Duration to Measures
     print(position % Measures() % Fraction())
-    assert position == Position(11)
+    assert position == OLD_Position(11)
 
 # test_multi_testing()
 

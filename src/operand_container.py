@@ -201,7 +201,7 @@ class Container(o.Operand):
         return super().clear(parameters)
     
     def sort(self, compare: o.Operand = None) -> 'Container':
-        compare = ra.Position() if compare is None else compare
+        compare = ra.OLD_Position() if compare is None else compare
         for operand_i in range(self.len() - 1):
             sorted_list = True
             for operand_j in range(self.len() - 1 - operand_i):
@@ -350,7 +350,7 @@ class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
         super().__init__(*operands)
         self._midi_track: ou.MidiTrack = ou.MidiTrack()
-        self._position: ra.Position = ra.Position(0)
+        self._position: ra.OLD_Position = ra.OLD_Position(0)
         for single_operand in operands:
             match single_operand:
                 case Sequence():
@@ -358,7 +358,7 @@ class Sequence(Container):  # Just a container of Elements
                     self._position      << single_operand._position
                 case ou.MidiTrack():
                     self._midi_track    << single_operand
-                case ra.Position():
+                case ra.OLD_Position():
                     self._position = single_operand.copy()
 
     def __mod__(self, operand: any) -> any:
@@ -377,16 +377,16 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():     return self._position
+                    case ra.OLD_Position():     return self._position
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
-            case ra.Position():     return self._position.copy()
+            case ra.OLD_Position():     return self._position.copy()
             case ra.Duration():     return self.duration()
             case _:                 return super().__mod__(operand)
 
     def length(self) -> ra.Length:
-        start: ra.Position = self._position.copy(0)
-        finish: ra.Position = self._position.copy(0)
+        start: ra.OLD_Position = self._position.copy(0)
+        finish: ra.OLD_Position = self._position.copy(0)
 
         if finish - start < 0:
             return ra.Length(0)
@@ -401,8 +401,8 @@ class Sequence(Container):  # Just a container of Elements
                     for single_data in self._datasource_list
                     if isinstance(single_data._data, oe.Element)
                 ]
-            position_min: ra.Position = elements[0]._position
-            position_max: ra.Position = elements[0]._position
+            position_min: ra.OLD_Position = elements[0]._position
+            position_max: ra.OLD_Position = elements[0]._position
             for single_element in elements:
                 if single_element._position < position_min:
                     position_min = single_element._position
@@ -412,23 +412,23 @@ class Sequence(Container):  # Just a container of Elements
             # total_length << total_length % ra.Measure() + 1 # Rounded up Duration to Measures
         return total_length
 
-    def start(self) -> ra.Position:
+    def start(self) -> ra.OLD_Position:
         if self.len() > 0:
-            start_position: ra.Position = self._datasource_list[0]._data % ra.Position()
+            start_position: ra.OLD_Position = self._datasource_list[0]._data % ra.OLD_Position()
             for single_datasource in self._datasource_list:
-                if single_datasource._data % ra.Position() < start_position:
-                    start_position = single_datasource._data % ra.Position()
+                if single_datasource._data % ra.OLD_Position() < start_position:
+                    start_position = single_datasource._data % ra.OLD_Position()
             return start_position.copy()
-        return ra.Position(0)
+        return ra.OLD_Position(0)
 
-    def end(self) -> ra.Position:
+    def end(self) -> ra.OLD_Position:
         if self.len() > 0:
-            end_position: ra.Position = self._datasource_list[0]._data % ra.Position() + self._datasource_list[0]._data % ra.Duration()
+            end_position: ra.OLD_Position = self._datasource_list[0]._data % ra.OLD_Position() + self._datasource_list[0]._data % ra.Duration()
             for single_datasource in self._datasource_list:
-                if single_datasource._data % ra.Position() + single_datasource._data % ra.Duration() > end_position:
-                    end_position = single_datasource._data % ra.Position() + single_datasource._data % ra.Duration()
+                if single_datasource._data % ra.OLD_Position() + single_datasource._data % ra.Duration() > end_position:
+                    end_position = single_datasource._data % ra.OLD_Position() + single_datasource._data % ra.Duration()
             return end_position # already a copy (+)
-        return ra.Position(0)
+        return ra.OLD_Position(0)
     
     if TYPE_CHECKING:
         from operand_element import Element
@@ -446,7 +446,7 @@ class Sequence(Container):  # Just a container of Elements
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ra.Position = first_tied_note._position + first_tied_note._duration # Duration is particularly tricky
+                next_note_position: ra.OLD_Position = first_tied_note._position + first_tied_note._duration # Duration is particularly tricky
                 if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
                     and tied_notes[next_tied_note_i]._position == next_note_position:
@@ -460,16 +460,16 @@ class Sequence(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
+    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
+        position: ra.OLD_Position = self._position + (ra.OLD_Position(0) if not isinstance(position, ra.OLD_Position) else position)
         play_list = []
         for single_element in self.get_sequence_elements():
             play_list.extend(single_element.getPlaylist(position))
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
+        position: ra.OLD_Position = self._position + (ra.OLD_Position(0) if not isinstance(position, ra.OLD_Position) else position)
         midi_list = []
         for single_element in self.get_sequence_elements():
             midi_list.extend(single_element.getMidilist(midi_track, position))
@@ -498,7 +498,7 @@ class Sequence(Container):  # Just a container of Elements
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.MidiTrack():    self._midi_track = operand % o.Operand()
-                    case ra.Position():     self._position = operand % o.Operand()
+                    case ra.OLD_Position():     self._position = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Sequence():
                 super().__lshift__(operand)
@@ -510,12 +510,12 @@ class Sequence(Container):  # Just a container of Elements
                 self._position      << operand._position
             case ou.MidiTrack():
                 self._midi_track << operand
-            case ra.Position(): # Use Frame objects to bypass this parameter into elements
+            case ra.OLD_Position(): # Use Frame objects to bypass this parameter into elements
                 self._position << operand
             case ra.Duration() | ra.Duration() | float() | Fraction():
                 super().__lshift__(operand)
                 self.stack()
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.OLD_Position() | ra.TimeValue() | ou.TimeUnit():
                 super().__lshift__(operand)
                 self.link() # Maybe completely unnecessary
             case _: super().__lshift__(operand)
@@ -529,7 +529,7 @@ class Sequence(Container):  # Just a container of Elements
     
     def reverse(self) -> 'Sequence':
         super().reverse()
-        self.first() << self.last() % ra.Position()
+        self.first() << self.last() % ra.OLD_Position()
         return self.stack()
 
     def link(self) -> 'Sequence':
@@ -548,12 +548,12 @@ class Sequence(Container):  # Just a container of Elements
         # Add a Rest in the beginning if necessary
         if first_element_position is not None:
             first_element: oe.Element = self._datasource_list[first_element_position]._data
-            if first_element._position != ra.Position(0):
+            if first_element._position != ra.OLD_Position(0):
                 rest_length = ra.Duration(first_element._position)
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:
-            last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
+            last_element << (ra.OLD_Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
         return self
 
     def stack(self) -> 'Sequence':
@@ -568,7 +568,7 @@ class Sequence(Container):  # Just a container of Elements
             if index > 0:
                 single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
             else:
-                single_element._position = ra.Position(0)   # everything starts at the beginning (0)!
+                single_element._position = ra.OLD_Position(0)   # everything starts at the beginning (0)!
         return self
     
     def tie(self, tied: bool = True) -> 'Sequence':
@@ -602,7 +602,7 @@ class Sequence(Container):  # Just a container of Elements
                 last_note = actual_note
         return self
     
-    def split(self, position: ra.Position) -> tuple['Sequence', 'Sequence']:
+    def split(self, position: ra.OLD_Position) -> tuple['Sequence', 'Sequence']:
         self_left: Sequence     = self.filter(of.Less(position))
         self_right: Sequence    = self.filter(of.GreaterEqual(position))
         return self_left, self_right
@@ -613,9 +613,9 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Duration() | ra.Duration():
                 self_copy: Sequence = self.copy()
                 if self_copy.len() > 0:
-                    self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ra.Position() + operand
+                    self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ra.OLD_Position() + operand
                 return self_copy
-            case ra.Position() | ra.TimeValue():
+            case ra.OLD_Position() | ra.TimeValue():
                 self_copy: Sequence = self.copy()
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << operand
@@ -630,8 +630,8 @@ class Sequence(Container):  # Just a container of Elements
                     left_sequence: Sequence = operand.copy()
                     right_sequence: Sequence = self.copy()
 
-                    left_end_position: ra.Position = left_sequence.end()
-                    right_start_position: ra.Position = right_sequence.start()
+                    left_end_position: ra.OLD_Position = left_sequence.end()
+                    right_start_position: ra.OLD_Position = right_sequence.start()
                     position_shift: ra.Length = ra.Length(left_end_position - right_start_position)
                     if position_shift % ra.Measures() - position_shift % ou.Measure() > 0.0:    # No clean cut
                         position_shift << ra.Measures(position_shift % ou.Measure() + 1) # Rounded up Duration to next Measure
@@ -713,15 +713,15 @@ class Sequence(Container):  # Just a container of Elements
             case int(): # Splits the total Duration by the integer
                 start_position = self.start()
                 sequence_length: ra.Duration = self.end() - start_position
-                new_end_position: ra.Position = start_position + sequence_length / operand
+                new_end_position: ra.OLD_Position = start_position + sequence_length / operand
                 trimmed_self = self | of.Less(new_end_position)**o.Operand()
                 return trimmed_self.copy()
         return super().__truediv__(operand)
     
-    def __floordiv__(self, time_value: Union['ra.Span', 'ra.TimeValue', 'ou.TimeUnit']) -> 'Sequence':
+    def __floordiv__(self, time_value: Union['ra.Position', 'ra.TimeValue', 'ou.TimeUnit']) -> 'Sequence':
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element) and isinstance(time_value, (ra.Span, ra.TimeValue, ou.TimeUnit)):
-                element_position: ra.Position = single_datasource._data._position
+            if isinstance(single_datasource._data, oe.Element) and isinstance(time_value, (ra.Position, ra.TimeValue, ou.TimeUnit)):
+                element_position: ra.OLD_Position = single_datasource._data._position
                 duration: ra.Duration = element_position.getDuration(time_value)
                 single_datasource._data << duration
         return self.stack()
@@ -761,14 +761,14 @@ class Song(Container):
                 return ol.Null()
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position: ra.OLD_Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):
                 play_list.extend(single_sequence.getPlaylist(position))
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.OLD_Position = None) -> list:
         midi_list: list = []
         for single_sequence in self:
             if isinstance(single_sequence, Sequence):

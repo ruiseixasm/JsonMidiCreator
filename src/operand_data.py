@@ -230,9 +230,9 @@ class Serialization(Data):
         return super().__eq__(other)
     
     if TYPE_CHECKING:
-        from operand_rational import Position
+        from operand_rational import OLD_Position
 
-    def getPlaylist(self, position: 'Position' = None) -> list:
+    def getPlaylist(self, position: 'OLD_Position' = None) -> list:
         match self._data:
             case o.Operand():
                 return self._data.getPlaylist(position)
@@ -240,7 +240,7 @@ class Serialization(Data):
                 return self._data
         return []
 
-    def getMidilist(self, position: 'Position' = None) -> list:
+    def getMidilist(self, position: 'OLD_Position' = None) -> list:
         match self._data:
             case o.Operand():
                 return self._data.getMidilist(position)
@@ -349,7 +349,7 @@ class Playlist(Data):
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.NoteValue)) and isinstance(self._data, list) and len(self._data) > 0:
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.OLD_Position, ra.NoteValue)) and isinstance(self._data, list) and len(self._data) > 0:
             operand_play_list = operand.getPlaylist()
             ending_position_ms = operand_play_list[0]["time_ms"]
             for midi_element in operand_play_list:
