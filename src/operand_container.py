@@ -66,7 +66,7 @@ class Container(o.Operand):
             self._datasource_iterator += 1
             return single_datasource._data  # It's the data that should be returned
         else:
-            self._datasource_iterator = 0  # Reset to 0 when limit is reached
+            self._datasource_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
 
     def __mod__(self, operand: any) -> any:
@@ -437,15 +437,6 @@ class Sequence(Container):  # Just a container of Elements
             return end_position.copy()
         return self._position.copy(0.0)
 
-    # def end(self) -> ra.Position:
-    #     if self.len() > 0:
-    #         end_position: ra.Position = self._datasource_list[0]._data % ra.Position() + self._datasource_list[0]._data % ra.Duration()
-    #         for single_datasource in self._datasource_list:
-    #             if single_datasource._data % ra.Position() + single_datasource._data % ra.Duration() > end_position:
-    #                 end_position = single_datasource._data % ra.Position() + single_datasource._data % ra.Duration()
-    #         return end_position # already a copy (+)
-    #     return self._position.copy(0.0)
-    
     if TYPE_CHECKING:
         from operand_element import Element
 
@@ -650,9 +641,7 @@ class Sequence(Container):  # Just a container of Elements
                         left_end_position: ra.Position = left_sequence.end()
                         right_start_position: ra.Position = right_sequence.start()
                         length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
-                        length_shift << ra.Measures(length_shift % ou.Measure()) # Rounded up Duration to next Measure
-                        # if length_shift % ra.Measures() - length_shift % ou.Measure() > 0.0:    # No clean cut
-                        #     length_shift << ra.Measures(length_shift % ou.Measure() + 1) # Rounded up Duration to next Measure
+                        length_shift << ra.Measures(length_shift % ou.Measure())    # Rounded up Duration to next Measure
                         length_shift >> right_sequence
                         return left_sequence + right_sequence
                     return right_sequence
