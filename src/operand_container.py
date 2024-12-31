@@ -402,17 +402,16 @@ class Sequence(Container):  # Just a container of Elements
         return self._position.copy(0.0)
 
     def finish(self) -> ra.Position:
-        if self.len() > 0:
-            end_position: ra.Position = self._datasource_list[0]._data % od.DataSource( ra.Position() )
-            for single_datasource in self._datasource_list:
-                single_position: ra.Position = single_datasource._data % od.DataSource( ra.Position() )
-                if single_position > end_position:
-                    end_position = single_position
-            return end_position.copy()
-        return self._position.copy(0.0)
+        finish: ra.Position = self._position.copy(0.0)
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                single_position: ra.Position = single_datasource._data._position
+                if single_position > finish:
+                    finish = single_position
+        return finish.copy()
 
     def length(self) -> ra.Length:
-        root: ra.Position = self._position.copy(0.0)  # Always starts at the beginning of the sequence Measure
+        root: ra.Position = self._position.copy(0.0)    # Always starts at the beginning of the sequence Measure
         leaf: ra.Position = self._position.copy(0.0)    # It has to have at least one element to have a non zero length
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
