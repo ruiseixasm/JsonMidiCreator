@@ -392,8 +392,34 @@ class Sequence(Container):  # Just a container of Elements
                 total_elements += 1
         return total_elements
 
+    def start(self) -> ra.Position:
+        if self.len() > 0:
+            start_position: ra.Position = self._datasource_list[0]._data % ra.Position()
+            for single_datasource in self._datasource_list:
+                if single_datasource._data % ra.Position() < start_position:
+                    start_position = single_datasource._data % ra.Position()
+            return start_position.copy()
+        return self._position.copy(0.0)
+
+    def finish(self) -> ra.Position:
+        if self.len() > 0:
+            end_position: ra.Position = self._datasource_list[0]._data % od.DataSource( ra.Position() )
+            for single_datasource in self._datasource_list:
+                single_position: ra.Position = single_datasource._data % od.DataSource( ra.Position() )
+                if single_position > end_position:
+                    end_position = single_position
+            return end_position.copy()
+        return self._position.copy(0.0)
+
     def length(self) -> ra.Length:
-        return ra.Length(self.finish() - self.start())
+        root: ra.Position = self._position.copy(0.0)  # Always starts at the beginning of the sequence Measure
+        leaf: ra.Position = self._position.copy(0.0)    # It has to have at least one element to have a non zero length
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                single_position: ra.Position = single_datasource._data._position
+                if single_position > leaf:
+                    leaf = single_position
+        return ra.Length(leaf - root)
 
     def duration(self) -> ra.Duration:
         total_length: ra.Duration = ra.Duration(0)
@@ -414,25 +440,6 @@ class Sequence(Container):  # Just a container of Elements
             total_length << position_max - position_min
             # total_length << total_length % ra.Measure() + 1 # Rounded up Duration to Measures
         return total_length
-
-    def start(self) -> ra.Position:
-        if self.len() > 0:
-            start_position: ra.Position = self._datasource_list[0]._data % ra.Position()
-            for single_datasource in self._datasource_list:
-                if single_datasource._data % ra.Position() < start_position:
-                    start_position = single_datasource._data % ra.Position()
-            return start_position.copy()
-        return self._position.copy(0.0)
-
-    def finish(self) -> ra.Position:
-        if self.len() > 0:
-            end_position: ra.Position = self._datasource_list[0]._data % od.DataSource( ra.Position() )
-            for single_datasource in self._datasource_list:
-                single_position: ra.Position = single_datasource._data % od.DataSource( ra.Position() )
-                if single_position > end_position:
-                    end_position = single_position
-            return end_position.copy()
-        return self._position.copy(0.0)
 
     if TYPE_CHECKING:
         from operand_element import Element
