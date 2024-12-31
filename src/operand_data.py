@@ -455,10 +455,10 @@ class Sequences(DataMany):
 class Result(Data):
     pass
 
-class Process(Data):
+class Operation(Data):
     pass
     
-class Save(Process):
+class Save(Operation):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
 
@@ -471,7 +471,7 @@ class Save(Process):
         else:
             return super().__rrshift__(operand)
 
-class Export(Process):
+class Export(Operation):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
         super().__init__(file_name)
 
@@ -484,7 +484,7 @@ class Export(Process):
         else:
             return super().__rrshift__(operand)
 
-class MidiExport(Process):
+class MidiExport(Operation):
     def __init__(self, file_name: str = "song.mid"):
         super().__init__(file_name)
 
@@ -497,7 +497,7 @@ class MidiExport(Process):
         else:
             return super().__rrshift__(operand)
 
-class Sort(Process):
+class Sort(Operation):
     def __init__(self, compare: o.Operand = None):
         super().__init__(compare)
 
@@ -508,7 +508,7 @@ class Sort(Process):
         else:
             return super().__rrshift__(operand)
 
-class Filter(Process):
+class Filter(Operation):
     def __init__(self, criteria: any = None):
         super().__init__(criteria)
         
@@ -521,7 +521,7 @@ class Filter(Process):
         else:
             return super().__rrshift__(operand)
 
-class Copy(Process):
+class Copy(Operation):
     """
     Copy() does an total duplication of the Operand including its parts.
     """
@@ -534,7 +534,7 @@ class Copy(Process):
         else:
             return super().__rrshift__(operand)
 
-class Reset(Process):
+class Reset(Operation):
     """
     Reset() does an total reset of the Operand including its non accessible parameters.
     """
@@ -547,7 +547,7 @@ class Reset(Process):
         else:
             return super().__rrshift__(operand)
 
-class Clear(Process):
+class Clear(Operation):
     """
     Clear() does an total clean up of all parameters including a reset.
     """
@@ -563,7 +563,7 @@ class Clear(Process):
 if TYPE_CHECKING:
     from operand_container import Sequence
 
-class Stack(Process):
+class Stack(Operation):
     def __rrshift__(self, operand: any) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
@@ -571,7 +571,7 @@ class Stack(Process):
         else:
             return super().__rrshift__(operand)
 
-class Tie(Process):
+class Tie(Operation):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
@@ -582,7 +582,7 @@ class Tie(Process):
         else:
             return super().__rrshift__(operand)
 
-class Slur(Process):
+class Slur(Operation):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
@@ -593,7 +593,7 @@ class Slur(Process):
         else:
             return super().__rrshift__(operand)
 
-class Smooth(Process):
+class Smooth(Operation):
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         import operand_container as oc
         if isinstance(operand, oc.Sequence):
@@ -601,7 +601,7 @@ class Smooth(Process):
         else:
             return super().__rrshift__(operand)
 
-class Play(Process):
+class Play(Operation):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
     
@@ -623,7 +623,7 @@ class Play(Process):
             case _:
                 return super().__rrshift__(operand)
 
-class Print(Process):
+class Print(Operation):
     """
     Print() allows to get on the console the configuration of the source Operand in a JSON layout.
     
@@ -653,7 +653,7 @@ class Print(Process):
             case _: print(operand)
         return operand
 
-class Link(Process):
+class Link(Operation):
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:

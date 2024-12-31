@@ -84,7 +84,7 @@ class Container(o.Operand):
         match operand:
             case od.DataSource():   return self._datasource_list
             case Container():       return self.copy()
-            case od.Getter() | od.Process():
+            case od.Getter() | od.Operation():
                                     return self >> operand
             case ch.Chaos():        return self.copy().shuffle(operand)
             case list():
