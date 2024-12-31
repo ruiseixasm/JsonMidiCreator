@@ -384,6 +384,14 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Duration():     return self.duration()
             case _:                 return super().__mod__(operand)
 
+    def length(self) -> ra.Length:
+        start: ra.Position = self._position.copy(0)
+        finish: ra.Position = self._position.copy(0)
+
+        if finish - start < 0:
+            return ra.Length(0)
+        return ra.Length(finish - start)
+
     def duration(self) -> ra.Duration:
         total_length: ra.Duration = ra.Duration(0)
         if self.len() > 0:
