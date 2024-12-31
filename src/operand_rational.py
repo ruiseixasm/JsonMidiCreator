@@ -579,7 +579,6 @@ class Position(Rational):
                 return self.getMeasure(time_beats)
             case TimeValue() | ou.TimeUnit():
                 measure = self.getMeasures(time) % int()
-                # measure = self.getMeasures(time) % int() + 1
         return ou.Measure(measure)
 
     def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
@@ -593,7 +592,6 @@ class Position(Rational):
             case TimeValue() | ou.TimeUnit():
                 beats_per_measure: Fraction = self._time_signature._top
                 beat = self.getBeats(time) % int() % beats_per_measure
-                # beat = (self.getBeats(time) % int() + 1) % beats_per_measure
         return ou.Beat(beat)
 
     def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
@@ -611,7 +609,6 @@ class Position(Rational):
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
                 step = self.getSteps(time) % int() % steps_per_measure
-                # step = (self.getSteps(time) % int() + 1) % steps_per_measure
         return ou.Step(step)
 
 
