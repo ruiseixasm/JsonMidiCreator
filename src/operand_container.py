@@ -54,7 +54,7 @@ class Container(o.Operand):
                 case _:
                     self._datasource_list.append(od.DataSource( single_operand ))
         
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> any:
         return self._datasource_list[index]._data
 
     def __iter__(self):
@@ -356,6 +356,9 @@ class Sequence(Container):  # Just a container of Elements
                 case ra.Position():
                     self._position = single_operand.copy()
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+
+    def __getitem__(self, index: int) -> oe.Element:
+        return self._datasource_list[index]._data
 
     def __mod__(self, operand: any) -> any:
         """
@@ -748,6 +751,15 @@ class Song(Container):
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, Sequence))
+
+    def __getitem__(self, key: str | int) -> oe.Element:
+        if isinstance(key, str):
+            for single_sequence in self:
+                if isinstance(single_sequence, Sequence):
+                    if single_sequence._midi_track._name == key:
+                        return single_sequence
+            return ol.Null()
+        return self._datasource_list[key]._data
 
     def __mod__(self, operand: any) -> any:
         match operand:
