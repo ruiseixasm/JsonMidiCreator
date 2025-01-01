@@ -526,8 +526,8 @@ results_list.append({
 })
 
 for test in results_list:
-    if test['save'] and test['export']:
+    if test['export']:
         print(f"{test['test']}: \t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
     else:
-        print(f"{test['test']}: \t\t\t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
+        print(f"{test['test']}: \t\t\t\t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
 

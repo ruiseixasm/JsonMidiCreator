@@ -290,3 +290,18 @@ def test_note3_element():
 # test_note3_element()
 
 
+def test_keyscale_element():
+
+    keyscale_major: KeyScale = KeyScale()
+
+    assert keyscale_major % str() == "C"
+    # Test all semitones from 0 to 11
+    expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]
+
+    for key_i in range(12):
+        keyscale_major % str() >> Print()
+        assert keyscale_major % str() == expected_keys[key_i]
+        keyscale_major + Semitone(1)
+
+test_keyscale_element()
+
