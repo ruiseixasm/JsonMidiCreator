@@ -308,7 +308,7 @@ staff << Tempo(120) << Measures(7)
 original_save       = Load("json/testing/_Save_Play_p.11_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.11_sequence.json")
 start_time = time.time()
-(Chord() * 7 << Size("7th")) << Iterate()**Add(1)**Degree() << Increment()**Mode() \
+(Chord() * 7 << Size("7th")) << Iterate()**Add(1)**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -320,7 +320,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13_sequence.json")
 start_time = time.time()
-(Chord("A") << Scale("minor") << Octave(3)) * 7 << Iterate()**Add()**Degree() << Increment()**Mode() \
+(Chord("A") << Scale("minor") << Octave(3)) * 7 << Iterate()**Add()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     << Inversion(1) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
@@ -363,7 +363,7 @@ staff << Tempo(120) << Measures(7)
 original_save       = Load("json/testing/_Save_Play_p.14_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.14_sequence.json")
 start_time = time.time()
-(Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() << Even()**Increment()**Mode(2) \
+(Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -375,7 +375,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.15_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.15_sequence.json")
 start_time = time.time()
-(Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() << Increment()**Even()**Mode() \
+(Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
