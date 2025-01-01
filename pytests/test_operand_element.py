@@ -289,6 +289,25 @@ def test_note3_element():
 
 # test_note3_element()
 
+def test_chord_element():
+
+    triad: Chord = Chord()
+    triad_notes: list[Note] = triad.get_chord_notes()
+    expected_keys: list[str] = ["C", "E", "G"]
+    for key in range(3):
+        triad_notes[key] % str() >> Print()
+        assert triad_notes[key] % str() == expected_keys[key]
+
+    print("------")
+    triad << Degree("ii")
+    triad_notes = triad.get_chord_notes()
+    expected_keys = ["D", "F", "A"]
+    for key in range(3):
+        triad_notes[key] % str() >> Print()
+        assert triad_notes[key] % str() == expected_keys[key]
+
+# test_chord_element()
+
 
 def test_keyscale_element():
 
