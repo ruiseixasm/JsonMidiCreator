@@ -550,6 +550,11 @@ class Key(Unit):
 
             super().loadSerialization(serialization)
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+
+            # TEMPORARY NECESSARY TO LOAD OLD FILES
+            if self._unit is None:
+                self._unit = self._key_signature.get_tonic_key()
+
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._flat          = self.deserialize( serialization["parameters"]["flat"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
