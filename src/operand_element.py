@@ -874,7 +874,8 @@ class Chord(KeyScale):
     def get_chord_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
         max_size = self._scale.keys()
-        if max_size % 2 == 0: max_size //= 2
+        if max_size % 2 == 0:
+            max_size //= 2
         max_size = min(self._size % od.DataSource( int() ), max_size)
         # Sets Scale to be used
         if self._scale.hasScale():

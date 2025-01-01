@@ -71,6 +71,12 @@ def test_sequence_mod():
         chords_sequence[degree] % str() >> Print()
         assert chords_sequence[degree] == keys[degree]
 
+    print("------")
+    keys_float: list = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
+    for degree in range(7):
+        chords_sequence[degree] % Pitch() % float() >> Print()
+        assert chords_sequence[degree] % Pitch() % float() == keys_float[degree]
+
 
 
 def test_rrshift_sequence():
