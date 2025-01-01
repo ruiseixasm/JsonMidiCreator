@@ -134,7 +134,7 @@ def test_key_mod():
     assert key_3 % str() == "C"
 
     # Test all semitones from 0 to 11
-    expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]
+    expected_keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
     for key_i in range(12):
         (key_3 + Semitone(key_i)) % str() >> Print()
         assert (key_3 + Semitone(key_i)) % str() == expected_keys[key_i]
@@ -144,6 +144,22 @@ def test_key_mod():
     for degree in range(7):
         (key_3 << Degree(degree + 1)) % str() >> Print()
         assert key_3 << Degree(degree + 1) == keys[degree]
+
+    key_4: Key = Key()
+    assert key_4 % str() == "C"
+
+    print("------")
+    # Test all semitones from 0 to 11
+    expected_keys_float: list[str] = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0]
+    for key_i in range(12):
+        (key_4 + Semitone(key_i)) % float() >> Print()
+        assert (key_4 + Semitone(key_i)) % float() == expected_keys_float[key_i]
+
+    print("------")
+    keys_float: list = [0.0, 2.0, 4.0, 5.0, 7.0, 9.0, 11.0]
+    for degree in range(7):
+        (key_4 << Degree(degree + 1)) % float() >> Print()
+        assert (key_4 << Degree(degree + 1)) % float() == keys_float[degree]
 
 # test_key_mod()
 
