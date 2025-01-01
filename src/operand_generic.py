@@ -95,7 +95,7 @@ class TimeSignature(Generic):
                 match operand % o.Operand():
                     case ra.BeatsPerMeasure():
                         self._top       = operand % o.Operand() % od.DataSource( int() )
-                    case ra.BeatNoteValue():
+                    case ra.BeatNoteValue():    # Math formatted for Midi file output
                         if operand % o.Operand() % od.DataSource( int() ) != 0:
                             self._bottom    = round(1 / (operand % o.Operand() % od.DataSource( int() )))
             case TimeSignature():
@@ -105,10 +105,10 @@ class TimeSignature(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.BeatsPerMeasure():
-                self._top       = int(max(1, operand % int()))
-            case ra.BeatNoteValue():
+                self._top               = int(max(1, operand % int()))
+            case ra.BeatNoteValue():    # Math formatted for Midi file output
                 if operand % int() != 0:
-                    self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (operand % int()))))))
+                    self._bottom        = int(math.pow(2, int(max(0, math.log2(1 / (operand % int()))))))
         return self
 
 class Pitch(Generic):
