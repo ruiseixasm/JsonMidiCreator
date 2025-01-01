@@ -41,7 +41,8 @@ class TimeSignature(Generic):
         super().__init__()
         self._top: int      = 4 if top is None else int(max(1,  top  ))
         # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
-        self._bottom: int   = 4 if bottom is None else int(math.pow(2, int(max(0, math.log2(  bottom  )))))
+        self._bottom: int   = 4 if \
+            not (isinstance(bottom, int) and bottom > 0) else int(math.pow(2, int(max(0, math.log2(  bottom  )))))
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -97,8 +98,9 @@ class TimeSignature(Generic):
                     case ra.BeatsPerMeasure():
                         self._top           = operand % o.Operand() % od.DataSource( int() )
                     case ra.BeatNoteValue():
-                        if operand % o.Operand() % od.DataSource( int() ) != 0:
-                            self._bottom    = operand % o.Operand() % od.DataSource( int() )
+                        if operand % o.Operand() % od.DataSource( int() ) > 0:
+                            # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
+                            self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (  operand % o.Operand() % od.DataSource( int() )  ))))))
             case TimeSignature():
                 super().__lshift__(operand)
                 self._top               = operand._top
@@ -108,7 +110,7 @@ class TimeSignature(Generic):
             case ra.BeatsPerMeasure():
                 self._top               = int(max(1, operand % int()))
             case ra.BeatNoteValue():
-                if operand % int() != 0:
+                if operand % int() > 0:
                     # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
                     self._bottom        = int(math.pow(2, int(max(0, math.log2(1 / (  operand % int()  ))))))
         return self

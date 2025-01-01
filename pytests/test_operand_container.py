@@ -278,3 +278,13 @@ def test_sequence_operations():
 
 # test_sequence_operations()
 
+
+def test_sequence_content():
+
+    sequence_elements: Sequence = Note() * 4
+    sequence_items: Sequence = Sequence(Note(), Channel(1), Velocity(100))
+
+    for item in sequence_elements:
+        assert isinstance(item, Element)
+
+
