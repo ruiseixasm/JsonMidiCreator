@@ -386,13 +386,6 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Duration():     return self.duration()
             case _:                 return super().__mod__(operand)
 
-    def len(self) -> int:
-        total_elements: int = 0
-        for single_item in self:
-            if isinstance(single_item, oe.Element):
-                total_elements += 1
-        return total_elements
-
     def start(self) -> ra.Position:
         start: ra.Position = None
         for single_datasource in self._datasource_list:
