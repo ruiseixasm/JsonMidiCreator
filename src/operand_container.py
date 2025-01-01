@@ -162,12 +162,7 @@ class Container(o.Operand):
                     case list():        self._datasource_list = operand % o.Operand()
             case Container():
                 super().__lshift__(operand)
-                last_datasource: int = min(self.len(), operand.len())
-                for datasource_i in range(last_datasource):
-                    if isinstance(self._datasource_list[datasource_i]._data, o.Operand):
-                        self._datasource_list[datasource_i]._data << operand._datasource_list[datasource_i]._data
-                    else:
-                        self._datasource_list[datasource_i]._data = operand._datasource_list[datasource_i]._data
+                self._datasource_list = self.deep_copy( operand._datasource_list )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -508,14 +503,15 @@ class Sequence(Container):  # Just a container of Elements
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
-            case Sequence():
+            case Container():
                 super().__lshift__(operand)
-                self._datasource_list = self.deep_copy(operand._datasource_list)
+                # self._datasource_list = self.deep_copy(operand._datasource_list)
                 # for single_element in operand:
                 #     if isinstance(single_element, oe.Element):
                 #         self._datasource_list.append(od.DataSource( single_element.copy() ))
                 self._midi_track    << operand._midi_track
                 self._position      << operand._position
+                self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case ou.MidiTrack():
                 self._midi_track << operand
             case ra.Position(): # Use Frame objects to bypass this parameter into elements
@@ -751,6 +747,7 @@ class Song(Container):
                             single_sequence << single_sequence.__add__(single_operand)
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, Sequence))
 
     def __mod__(self, operand: any) -> any:
         match operand:
@@ -786,6 +783,12 @@ class Song(Container):
         return midi_list
 
     # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Song':
+        super().__lshift__(operand)
+        self._datasource_list = o.filter_list(self._datasource_list,
+                                lambda data_source: isinstance(data_source._data, Sequence))
+        return self
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Song':
