@@ -752,7 +752,7 @@ class Song(Container):
                 self._datasource_list.append(od.DataSource( single_operand ))
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, Sequence))
 
-    def __getitem__(self, key: str | int) -> oe.Element:
+    def __getitem__(self, key: str | int) -> Sequence:
         if isinstance(key, str):
             for single_sequence in self:
                 if isinstance(single_sequence, Sequence):
