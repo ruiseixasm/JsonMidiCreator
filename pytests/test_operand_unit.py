@@ -115,10 +115,12 @@ def test_key_mod():
 
     # Perform the operation
     key_1 = Key("A")
-    key_2 = Key(KeySignature(1)) << Degree("iii")  # Become Key B
-
+    key_1.getSerialization() % Data("degree") >> Print()
+    (key_1 + 1).getSerialization() % Data("degree") >> Print()
     assert key_1 + 1    == Key("B")
     assert key_1 + 2.0  == Key("B")
+
+    key_2 = Key(KeySignature(1)) << Degree("iii")  # Become Key B
     assert key_2 % int() == Key("B") % int()
     # (key_2 + 2) % float() >> Print()
     # (Key("D") + 12.0) % float() >> Print()
