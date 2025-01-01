@@ -130,6 +130,24 @@ def test_key_mod():
     assert key_1 << Sharp() == Key("A") + 1.0
     assert Key("Ab") == Key("A") - 1.0
 
+    key_3: Key = Key()
+    assert key_3 % str() == "C"
+
+    # Test all semitones from 0 to 11
+    expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]
+    for key_i in range(12):
+        (key_3 + Semitone(key_i)) % str() >> Print()
+        assert (key_3 + Semitone(key_i)) % str() == expected_keys[key_i]
+
+    print("------")
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        (key_3 << Degree(degree + 1)) % str() >> Print()
+        assert key_3 << Degree(degree + 1) == keys[degree]
+
+test_key_mod()
+
+
 # def test_track_mod():
 
 #     # Perform the operation
