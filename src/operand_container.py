@@ -409,14 +409,13 @@ class Sequence(Container):  # Just a container of Elements
         return finish.copy()
 
     def length(self) -> ra.Length:
-        root: ra.Position = self._position.copy(0.0)    # Always starts at the beginning of the sequence Measure
-        last: ra.Position = root                        # It has to have at least one element to have a non zero length
+        length: ra.Length = ra.Length(self._position, 0.0)
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
-                single_position: ra.Position = self._position.getPosition( single_datasource._data._position )
-                if single_position > last:
-                    last = single_position
-        return ra.Length(last - root)
+                position_beats: ra.Beats = self._position.getBeats( single_datasource._data._position )
+                if position_beats > length:
+                    length << position_beats
+        return length
 
     def duration(self) -> ra.Duration:
         total_length: ra.Duration = ra.Duration(0)
@@ -666,6 +665,7 @@ class Sequence(Container):  # Just a container of Elements
                 if self._midi_track == operand._midi_track:
                     return Sequence(self, operand)
                 return Song(self, operand)
+                self._rational                  = operand._rational
             # case Container():
             #     self_copy: Sequence = self.__class__()
             #     for single_datasource in self._datasource_list:

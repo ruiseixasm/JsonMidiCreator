@@ -679,13 +679,13 @@ class Position(Rational):
                 self._time_signature._bottom    = operand._time_signature._bottom
                 self._quantization._rational    = operand._quantization._rational
             case TimeValue():
-                self._rational = self.getBeats(operand) % Fraction()
+                self._rational = self.getBeats(operand)._rational
             case ou.Measure():
                 measure_beats: Beats = self.getBeats() - self.getBeats(self.getMeasure())
-                self._rational = (self.getBeats(operand) + measure_beats) % od.DataSource( Fraction() )
+                self._rational = (self.getBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
                 self_measure: ou.Measure = self.getMeasure()
-                self._rational = (self.getBeats(self_measure) + self.getBeats(operand)) % od.DataSource( Fraction() )
+                self._rational = (self.getBeats(self_measure) + self.getBeats(operand))._rational
             case int() | float() | Fraction():
                 self << Measures(operand)
             case Tempo():
