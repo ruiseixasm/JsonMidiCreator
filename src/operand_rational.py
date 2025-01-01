@@ -673,9 +673,11 @@ class Position(Rational):
                     case _:                     super().__lshift__(operand)
             case Position():
                 super().__lshift__(operand)
-                self._tempo             << operand._tempo
-                self._time_signature    << operand._time_signature
-                self._quantization      << operand._quantization
+                # It's faster this way with direct access to the respective source variables
+                self._tempo._rational           = operand._tempo._rational
+                self._time_signature._top       = operand._time_signature._top
+                self._time_signature._bottom    = operand._time_signature._bottom
+                self._quantization._rational    = operand._quantization._rational
             case TimeValue():
                 self._rational = self.getBeats(operand) % Fraction()
             case ou.Measure():
