@@ -318,15 +318,29 @@ def test_chord_element():
     triad: Chord = Chord()
     assert Note(triad) % str() == "C"
     triad_notes: list[Note] = triad.get_chord_notes()
+    #                                +4   +3
     expected_keys: list[str] = ["C", "E", "G"]
     for key in range(3):
         triad_notes[key] % str() >> Print()
         assert triad_notes[key] % str() == expected_keys[key]
 
+    # WITH DEGREE
     print("------")
     triad << Degree("ii")
     assert Note(triad) % str() == "D"
     triad_notes = triad.get_chord_notes()
+    #                      +3   +4
+    expected_keys = ["D", "F", "A"]
+    for key in range(3):
+        triad_notes[key] % str() >> Print()
+        assert triad_notes[key] % str() == expected_keys[key]
+
+    # WITH ROOT NOTE
+    print("------")
+    triad << Degree("I") << "D"
+    assert Note(triad) % str() == "D"
+    triad_notes = triad.get_chord_notes()
+    #                      +4   +3
     expected_keys = ["D", "F#", "A"]
     for key in range(3):
         triad_notes[key] % str() >> Print()
