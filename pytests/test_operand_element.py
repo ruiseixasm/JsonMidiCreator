@@ -289,6 +289,14 @@ def test_note3_element():
 
 # test_note3_element()
 
+
+def test_note_element():
+
+    note = Note()
+    assert note % str() == "C"
+    assert (note + 0.0) % str() == "C"
+
+
 def test_chord_element():
 
     triad: Chord = Chord()
