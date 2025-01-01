@@ -523,14 +523,14 @@ class Scale(Generic):
     def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
         if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
-            modulated_scale = self.modulation(None)
+            modulated_scale: list[int] = self.modulation(None)
             while tones > 0:
                 transposition += 1
                 if modulated_scale[transposition % 12]:
                     tones -= 1
         return transposition
 
-    def modulation(self, mode: int | str = "5th") -> list: # AKA as remode (remoding)
+    def modulation(self, mode: int | str = "5th") -> list[int]: # AKA as remode (remoding)
         self_scale = self._scale_list.copy()
         if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
             mode_int = self._mode._unit if mode is None else ou.Mode(mode) % int()

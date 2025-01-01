@@ -113,7 +113,7 @@ def test_key_signature_mod():
 # test_key_signature_mod()
 
 
-def test_key_mod():
+def test_key_add():
 
     # Perform the operation
     key_1 = Key("A")
@@ -161,7 +161,20 @@ def test_key_mod():
         (key_4 << Degree(degree + 1)) % float() >> Print()
         assert (key_4 << Degree(degree + 1)) % float() == keys_float[degree]
 
-# test_key_mod()
+    print("------")
+    key_5: Key = Key()
+    (key_5 + 0.0) % str() >> Print()
+    assert key_5 + 0.0 == Key("C")
+    (key_5 + 1.0) % str() >> Print()
+    assert key_5 + 1.0 == Key("C#")
+    key_5 << Degree(2)
+    (key_5 + 0.0) % str() >> Print()
+    assert key_5 + 0.0 == Key("D")
+    (key_5 + 1.0) % str() >> Print()
+    assert key_5 + 1.0 == Key("D#")
+
+
+# test_key_add()
 
 
 # def test_track_mod():
