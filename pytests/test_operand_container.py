@@ -30,6 +30,21 @@ import pytest
 import sys
 
 
+def test_container_mod():
+
+    keys_container: Container = Container(Key(), Key(), Key(), Key(), Key(), Key(), Key())
+    assert keys_container.len() == 7
+    for single_item in keys_container:
+        assert single_item == "C"
+    
+    keys_container << Iterate()**Add(1)**Degree()
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        keys_container[degree] % str() >> Print()
+        assert keys_container[degree] == keys[degree]
+
+# test_container_mod()
+
 
 def test_sequence_mod():
 
@@ -44,6 +59,20 @@ def test_sequence_mod():
 
     assert sequence_1 == sequence_2
     
+
+    chords_sequence: Sequence = Sequence(Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord())
+    assert chords_sequence.len() == 7
+    for single_item in chords_sequence:
+        assert single_item == "C"
+    
+    chords_sequence << Iterate()**Add(1)**Degree()
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        chords_sequence[degree] % str() >> Print()
+        assert chords_sequence[degree] == keys[degree]
+
+
+
 def test_rrshift_sequence():
 
     two_notes: Sequence = Note() * 2
@@ -110,6 +139,7 @@ def test_add_sequence():
     assert three_notes == three_notes_2
     assert two_notes == three_notes_2   # Changes the original sequence!
 
+
 def test_sub_sequence():
 
     single_note: Element = Note()
@@ -123,6 +153,7 @@ def test_sub_sequence():
     assert (four_notes - single_note).len() == four_notes.len() - 1
     assert (four_notes - notes_to_remove).len() == four_notes.len() - 2
     assert four_notes - notes_to_remove == remaining_notes
+
 
 def test_mul_sequence():
 
