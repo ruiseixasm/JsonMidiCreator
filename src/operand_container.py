@@ -92,6 +92,10 @@ class Container(o.Operand):
                 for single_datasource in self._datasource_list:
                     operands.append(self.deep_copy(single_datasource._data))
                 return operands
+            case int():
+                if operand >= 0 and operand < self.len():
+                    return self[operand]
+                return ol.Null()
             case ou.Next():
                 self._index += operand % int() - 1
                 single_datasource_data: any = self._datasource_list[self._index % len(self._datasource_list)]._data
@@ -763,21 +767,13 @@ class Song(Container):
 
     def __mod__(self, operand: any) -> any:
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ou.MidiTrack() | int() | str():
-                        for sequence in self:
-                            if isinstance(sequence, Sequence):
-                                if sequence._midi_track == operand % o.Operand():
-                                    return sequence
-                        return ol.Null()
-                    case _:                 return super().__mod__(operand)
-            case ou.MidiTrack() | int() | str():
-                for sequence in self:
-                    if isinstance(sequence, Sequence):
-                        if sequence._midi_track == operand:
-                            return sequence.copy()
+            case ou.MidiTrack():
+                for single_sequence in self:
+                    if isinstance(single_sequence, Sequence):
+                        if single_sequence._midi_track == operand:
+                            return single_sequence
                 return ol.Null()
+            case str():             return self[operand]
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, position: ra.Position = None) -> list:
