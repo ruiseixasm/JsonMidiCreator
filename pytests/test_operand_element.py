@@ -296,6 +296,22 @@ def test_note_element():
     assert note % str() == "C"
     assert (note + 0.0) % str() == "C"
 
+    # Test all semitones from 0 to 11
+    expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]
+
+    for key_i in range(12):
+        note % str() >> Print()
+        assert note % str() == expected_keys[key_i]
+        note + Semitone(1)
+
+    print("------")
+    note << 0 # Tonic key again
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        note << Degree(degree + 1)
+        note % str() >> Print()
+        assert note == keys[degree]
+
 
 def test_chord_element():
 
@@ -318,28 +334,4 @@ def test_chord_element():
 
 # test_chord_element()
 
-
-def test_keyscale_element():
-
-    keyscale_major: KeyScale = KeyScale()
-
-    assert keyscale_major % str() == "C"
-    # Test all semitones from 0 to 11
-    expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]
-
-    for key_i in range(12):
-        keyscale_major % str() >> Print()
-        assert keyscale_major % str() == expected_keys[key_i]
-        keyscale_major + Semitone(1)
-
-    print("------")
-    keyscale_major << 0 # Tonic key again
-    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
-    for degree in range(7):
-        keyscale_major << Degree(degree + 1)
-        keyscale_major % str() >> Print()
-        assert keyscale_major == keys[degree]
-
-
-# test_keyscale_element()
 

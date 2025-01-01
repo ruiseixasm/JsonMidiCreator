@@ -676,9 +676,11 @@ class Key(Unit):
         match operand:
             case float() | Fraction() | ra.Rational() | Key() | Semitone():
                 if isinstance(operand, o.Operand):
-                    self_copy._unit = self_copy._unit + operand % int()
+                    self_copy._unit += operand % int()
                 else:
-                    self_copy._unit = self_copy._unit + int(operand)
+                    self_copy._unit += int(operand)
+                # needs to consider existing Flats and Sharps
+                self_copy._unit += (self._sharp - self._flat) % int()
                 self_copy.reset_sharps_and_flats()
             # case Key() | Semitone():
             #     self_copy << ( self % int() + operand % int() ) << Degree(1)
@@ -707,9 +709,11 @@ class Key(Unit):
         match operand:
             case float() | Fraction() | ra.Rational() | Key() | Semitone():
                 if isinstance(operand, o.Operand):
-                    self_copy._unit = self_copy._unit - operand % int()
+                    self_copy._unit -= operand % int()
                 else:
-                    self_copy._unit = self_copy._unit - int(operand)
+                    self_copy._unit -= int(operand)
+                # needs to consider existing Flats and Sharps
+                self_copy._unit += (self._sharp - self._flat) % int()
                 self_copy.reset_sharps_and_flats()
             # case Key() | Semitone():
             #     self_copy << ( self % int() - operand % int() ) << Degree(1)
