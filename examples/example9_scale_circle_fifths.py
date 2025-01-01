@@ -29,7 +29,7 @@ staff << Tempo(240) << Measures(7)
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
     + Iterate( Scale("Major") % Transposition(5 - 1) )**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
-play_list_1 >> Play()
+# play_list_1 >> Play()
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
 play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
@@ -49,5 +49,5 @@ play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) *
     << Duration(1) << Velocity(70) << Octave(4))
 # play_list_4 >> Play()
 
-# play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)
+play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)
 # play_list_2 >> Play()

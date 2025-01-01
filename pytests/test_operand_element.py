@@ -303,5 +303,5 @@ def test_keyscale_element():
         assert keyscale_major % str() == expected_keys[key_i]
         keyscale_major + Semitone(1)
 
-test_keyscale_element()
+# test_keyscale_element()
 

@@ -1001,7 +1001,7 @@ class Degree(Unit):
         Accepts a numeral (5) or the string (V) with 1 as the default
     """
     def __init__(self, *parameters):
-        super().__init__(1)             # Default Degree is I (tonic)
+        super().__init__(0)             # Default Degree is I (tonic) has unit = 0
         if len(parameters) > 0:
             self << parameters
 
