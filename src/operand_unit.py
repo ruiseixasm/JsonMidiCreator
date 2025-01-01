@@ -167,7 +167,6 @@ class Unit(o.Operand):
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
                     case Unit() | ra.Rational():    self._unit = operand % o.Operand() % od.DataSource( int() )
-                    case None:                      self._unit = None   # Yes, it can be None
             case Unit():
                 super().__lshift__(operand)
                 self._unit = operand._unit
@@ -189,8 +188,7 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case Unit() | ra.Rational():
-                if number % od.DataSource( int() ) is not None:
-                    return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) )
+                return self.__class__() << od.DataSource( self._unit + number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                 return self.__class__() << od.DataSource( self._unit + number )
         return self.copy()
@@ -200,8 +198,7 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case Unit() | ra.Rational():
-                if number % od.DataSource( int() ) is not None:
-                    return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) )
+                return self.__class__() << od.DataSource( self._unit - number % od.DataSource( int() ) )
             case int() | float() | Fraction():
                 return self.__class__() << od.DataSource( self._unit - number )
         return self.copy()
@@ -211,8 +208,7 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case Unit() | ra.Rational():
-                if number % od.DataSource( int() ) is not None:
-                    return self.__class__() << od.DataSource( self._unit * (number % od.DataSource( int() )) )
+                return self.__class__() << od.DataSource( self._unit * (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                 return self.__class__() << od.DataSource( self._unit * number )
         return self.copy()
@@ -222,9 +218,8 @@ class Unit(o.Operand):
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
             case Unit() | ra.Rational():
-                if number % od.DataSource( int() ) is not None:
-                    if number % od.DataSource( int() ) != 0:
-                        return self.__class__() << od.DataSource( self._unit / (number % od.DataSource( int() )) )
+                if number % od.DataSource( int() ) != 0:
+                    return self.__class__() << od.DataSource( self._unit / (number % od.DataSource( int() )) )
             case int() | float() | Fraction():
                 if number != 0:
                     return self.__class__() << od.DataSource( self._unit / number )
@@ -261,7 +256,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
         super().__init__()
         self._major: Major          = Major()
-        self._tonic_key_int: int    = 0
         if parameters:
             self << parameters
     
@@ -301,7 +295,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
-            case float():               return float(self._tonic_key_int)
+            case float():               return float(self.get_tonic_key())
             case Key():                 return Key(self)
             case Major():               return self._major.copy()
             case Minor():               return Minor(not (self._major % bool()))
@@ -336,18 +330,16 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["major"]            = self.serialize( self._major )
-        serialization["parameters"]["tonic_key_int"]    = self.serialize( self._tonic_key_int )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeySignature':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "major" in serialization["parameters"] and "tonic_key_int" in serialization["parameters"]):
+            "major" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._major         = self.deserialize( serialization["parameters"]["major"] )
-            self._tonic_key_int = self.deserialize( serialization["parameters"]["tonic_key_int"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
@@ -358,9 +350,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case int():     self._unit      = operand % o.Operand()
                     case Major():   self._major     = operand % o.Operand()
             case KeySignature():
-                super().__lshift__(operand) # In case operand._unit is None it will be copied too!
+                super().__lshift__(operand)
                 self._major._unit   = operand._major._unit
-                self._tonic_key_int = operand._tonic_key_int
                 return self # No more processing needed
             case int():     self._unit   = operand
             case Major():   self._major  << operand
@@ -382,8 +373,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                             self._unit = -len(flats[0])
             case _: 
                 super().__lshift__(operand)
-        if not isinstance(operand, tuple):
-            self._tonic_key_int = self.get_tonic_key()
         return self
 
     _key_signatures: list[list] = [
@@ -420,7 +409,7 @@ class Key(Unit):
         import operand_generic as og
         super().__init__()
         self._key_signature: KeySignature   = os.staff._key_signature.copy()
-        self._unit                          = None  # uses tonic key by default
+        self._unit                          = self._key_signature.get_tonic_key()
         self._sharp: Sharp                  = Sharp(0)
         self._flat: Flat                    = Flat(0)
         self._natural: Natural              = Natural(0)
@@ -487,8 +476,6 @@ class Key(Unit):
                 staff_white_keys = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 accidentals_int: int = self._key_signature % int()
                 key_int: int            = self._unit
-                if self._unit is None:
-                    key_int = self._key_signature._tonic_key_int
                 degree_transpose: int   = self._degree._unit
                 # if self._degree._unit > 0:
                 #     degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
@@ -602,7 +589,7 @@ class Key(Unit):
                         self._degree << operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case Key():
-                super().__lshift__(operand) # In case operand._unit is None it will be copied too!
+                super().__lshift__(operand)
                 self._key_signature << operand._key_signature
                 self._sharp._unit   = operand._sharp._unit
                 self._flat._unit    = operand._flat._unit
@@ -610,7 +597,10 @@ class Key(Unit):
                 self._degree._unit  = operand._degree._unit
                 self._scale         << operand._scale
             case int():
-                self._degree        << operand
+                if operand == 0:
+                    self._unit      = self._key_signature.get_tonic_key()
+                else:
+                    self._degree    << operand
             case float() | Fraction() | Semitone():
                                     if isinstance(operand, o.Operand):
                                         self._unit = operand % int()
@@ -628,18 +618,17 @@ class Key(Unit):
                                     else:
                                         self._sharp << False
                                         self._flat << False
-            case None:
-                self._unit = None   # Yes, it can be None
             case Sharp():
                 self._sharp << operand
             case Flat():
                 self._flat << operand
             case KeySignature() | Major() | Minor() | Sharps() | Flats():
                 self._key_signature << operand
+                self._unit = self._key_signature.get_tonic_key()   # resets tonic key
             case Natural():
                 self._natural << operand
             case Degree():
-                self._degree << operand
+                self._degree    << operand
             case og.Scale() | Mode():
                 self._scale << operand
             case str():
@@ -661,7 +650,7 @@ class Key(Unit):
         return self
 
     def set_sharps_and_flats(self) -> 'Key':
-        if self._unit is not None and Key._major_scale[self._unit % 12] == 0:
+        if Key._major_scale[self._unit % 12] == 0:
             if self._key_signature % int() < 0:
                 self._unit += 1
                 self._flat << True
@@ -676,8 +665,6 @@ class Key(Unit):
         self_copy: Key = self.copy()
         match operand:
             case float() | Fraction() | ra.Rational() | Key():
-                if self_copy._unit is None:
-                    self_copy._unit = self_copy._key_signature._tonic_key_int
                 match operand:
                     case float() | Fraction():
                         self_copy._unit += int(operand)
@@ -709,8 +696,6 @@ class Key(Unit):
         self_copy: Key = self.copy()
         match operand:
             case float() | Fraction() | ra.Rational():
-                if self_copy._unit is None:
-                    self_copy._unit = self_copy._key_signature._tonic_key_int
                 match operand:
                     case float() | Fraction():
                         self_copy._unit -= int(operand)

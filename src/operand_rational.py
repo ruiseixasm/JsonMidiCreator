@@ -182,8 +182,10 @@ class Rational(o.Operand):
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
-            case Fraction():        return self.__class__() << od.DataSource( self._rational + value )
+                if value % od.DataSource( Fraction() ) is not None:
+                    return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
+            case Fraction():
+                return self.__class__() << od.DataSource( self._rational + value )
             case float() | int():
                 return self.__class__() << od.DataSource( self._rational + Fraction(value) )
         return self.copy()
@@ -193,7 +195,8 @@ class Rational(o.Operand):
         match value:
             case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
-            case Fraction():        return self.__class__() << od.DataSource( self._rational - value )
+            case Fraction():
+                return self.__class__() << od.DataSource( self._rational - value )
             case float() | int():
                 return self.__class__() << od.DataSource( self._rational - Fraction(value) )
         return self.copy()
@@ -203,7 +206,8 @@ class Rational(o.Operand):
         match value:
             case Rational() | ou.Unit():
                 return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
-            case Fraction():        return self.__class__() << od.DataSource( self._rational * value )
+            case Fraction():
+                return self.__class__() << od.DataSource( self._rational * value )
             case float() | int():
                 return self.__class__() << od.DataSource( self._rational * Fraction(value) )
         return self.copy()

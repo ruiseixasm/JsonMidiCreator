@@ -54,15 +54,21 @@ def test_unit_mod():
     assert integer_1 / integer_2 == int(12 / 10)
 
 def test_key_signature_mod():
-    major_keys_signatures: dict = {
-        "B": -7, "Gb": -6, "Db": -5, "Ab": -4, "Eb": -3, "Bb": -2, "F": -1,
-        "C": 0,
-        "G": +1, "D": +2, "A": +3, "E": +4, "B": +5, "F#": +6, "C#": +7
-    }
+
+    major_keys_signatures: list[int] = [
+        "B", "Gb", "Db", "Ab", "Eb", "Bb", "F",
+        "C",
+        "G", "D", "A", "E", "B", "F#", "C#"
+    ]
+    # major_keys_signatures: dict = {
+    #     "B": -7, "Gb": -6, "Db": -5, "Ab": -4, "Eb": -3, "Bb": -2, "F": -1,
+    #     "C": 0,
+    #     "G": +1, "D": +2, "A": +3, "E": +4, "B": +5, "F#": +6, "C#": +7
+    # }
     tonic_key = Key()
-    for key, signature in major_keys_signatures.items():
-        tonic_key << KeySignature(signature)
-        assert tonic_key % str() == key
+    for signature in range(len(major_keys_signatures)):
+        tonic_key << KeySignature(signature - 7) << 0
+        assert tonic_key % str() == major_keys_signatures[signature]
 
     minor_keys_signatures: dict = {
         "Ab": -7, "Eb": -6, "Bb": -5, "F": -4, "C": -3, "G": -2, "D": -1,
@@ -110,6 +116,7 @@ def test_key_signature_mod():
         E_minor_key % Sharp() >> Print(0)
 
 test_key_signature_mod()
+
 
 def test_key_mod():
 
