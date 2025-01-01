@@ -485,11 +485,11 @@ class Key(Unit):
                 key_int: int            = self._unit
                 if self._unit is None:
                     key_int = self._key_signature._tonic_key_int
-                degree_transpose: int   = 0
-                if self._degree._unit > 0:
-                    degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
-                elif self._degree._unit < 0:
-                    degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
+                degree_transpose: int   = self._degree._unit
+                # if self._degree._unit > 0:
+                #     degree_transpose    = self._degree._unit - 1    # Positive degree of 1 means no increase in steps
+                # elif self._degree._unit < 0:
+                #     degree_transpose    = self._degree._unit + 1    # Negative degrees of -1 means no increase in steps
                 semitone_transpose: int = 0
 
                 key_scale = staff_white_keys  # Major scale
@@ -665,18 +665,19 @@ class Key(Unit):
                 self_copy << ( self % int() + operand ) << Degree(1)
             case Key() | Semitone():
                 self_copy << ( self % int() + operand % int() ) << Degree(1)
-            case Degree():
-                if self_copy._degree._unit > 0:
-                    self_copy._degree._unit -= 1
-                elif self_copy._degree._unit < 0:
-                    self_copy._degree._unit += 1
-                self_copy._degree._unit += operand._unit
-                return self_copy
+            # case Degree():
+            #     if self_copy._degree._unit > 0:
+            #         self_copy._degree._unit -= 1
+            #     elif self_copy._degree._unit < 0:
+            #         self_copy._degree._unit += 1
+            #     self_copy._degree._unit += operand._unit
+            #     return self_copy
             case Unit():
                 self_copy << ( self % int() + self.move_semitones(operand._unit) ) << Degree(1)
             case ra.Rational():
                 self_copy << ( self % int() + float(operand._rational) ) << Degree(1)
-            case _:     return super().__add__(operand)
+            case _:
+                return super().__add__(operand)
 
         if Key._major_scale[self_copy._unit % 12] == 0:
             if self._key_signature % int() < 0:
@@ -698,18 +699,19 @@ class Key(Unit):
                 self_copy << ( self % int() - operand ) << Degree(1)
             case Key() | Semitone():
                 self_copy << ( self % int() - operand % int() ) << Degree(1)
-            case Degree():
-                if self_copy._degree._unit > 0:
-                    self_copy._degree._unit -= 1
-                elif self_copy._degree._unit < 0:
-                    self_copy._degree._unit += 1
-                self_copy._degree._unit -= operand._unit
-                return self_copy
+            # case Degree():
+            #     if self_copy._degree._unit > 0:
+            #         self_copy._degree._unit -= 1
+            #     elif self_copy._degree._unit < 0:
+            #         self_copy._degree._unit += 1
+            #     self_copy._degree._unit -= operand._unit
+            #     return self_copy
             case Unit():
                 self_copy << ( self % int() + self.move_semitones(operand._unit * -1) ) << Degree(1)
             case ra.Rational():
                 self_copy << ( self % int() + float(operand._rational * -1) ) << Degree(1)
-            case _:     return super().__sub__(operand)
+            case _:
+                return super().__sub__(operand)
         
         if Key._major_scale[self_copy._unit % 12] == 0:
             if self._key_signature % int() < 0:
@@ -1000,8 +1002,20 @@ class Degree(Unit):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case str():         return __class__._degree[(self._unit - 1) % 7]
-            case _:             return super().__mod__(operand)
+            case int() | float() | Fraction():
+                self_unit: int = self._unit
+                if self_unit < 0:
+                    self_unit -= 1
+                else:
+                    self_unit += 1
+                match operand:
+                    case Fraction():    return Fraction(self_unit)
+                    case float():       return float(self_unit)
+                    case _:             return self_unit
+            case str():
+                return __class__._degree[self._unit % 7]
+            case _:
+                return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
 
@@ -1010,55 +1024,33 @@ class Degree(Unit):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case str():                     self.stringSetDegree(operand % o.Operand())
-                    case _:                         super().__lshift__(operand)
-            case str():                 self.stringSetDegree(operand)
-            case _:                 super().__lshift__(operand)
-        if self._unit == 0: # By default a zero Degree means a "I" (Tonic)
-            self._unit = 1  # It's possible to have negative degrees
+                    case str():
+                        self.stringSetDegree(operand % o.Operand())
+                    case _:
+                        super().__lshift__(operand)
+            case int() | float() | Fraction():
+                self._unit = int(operand)
+                if self._unit > 0:
+                    self._unit -= 1
+                elif self._unit < 0:
+                    self._unit += 1
+            case str():
+                self.stringSetDegree(operand)
+            case _:
+                super().__lshift__(operand)
         return self
 
-    def stringSetDegree(self, string: str):
+    def stringSetDegree(self, string: str) -> None:
         string = string.strip()
-        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º"
-            case "i"   | "tonic":                   self._unit = 1
-            case "ii"  | "supertonic":              self._unit = 2
-            case "iii" | "mediant":                 self._unit = 3
-            case "iv"  | "subdominant":             self._unit = 4
-            case "v"   | "dominant":                self._unit = 5
-            case "vi"  | "submediant":              self._unit = 6
-            case "vii" | "leading tone":            self._unit = 7
+        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
+            case "i"   | "tonic":                   self._unit = 0
+            case "ii"  | "supertonic":              self._unit = 1
+            case "iii" | "mediant":                 self._unit = 2
+            case "iv"  | "subdominant":             self._unit = 3
+            case "v"   | "dominant":                self._unit = 4
+            case "vi"  | "submediant":              self._unit = 5
+            case "vii" | "leading tone":            self._unit = 6
 
-    def __add__(self, number: any) -> 'Degree':
-        import operand_rational as ra
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        self_unit_0 = self._unit - 1
-        if self._unit < 0:
-            self_unit_0 = self._unit + 1
-        match number:
-            case Unit() | ra.Rational():
-                                                                                    # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self_unit_0 + number % od.DataSource( int() ) )
-            case int() | float() | Fraction():
-                                                                                    # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self_unit_0 + number )
-        return self.copy()
-    
-    def __sub__(self, number: any) -> 'Degree':
-        import operand_rational as ra
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        self_unit_0 = self._unit - 1
-        if self._unit < 0:
-            self_unit_0 = self._unit + 1
-        match number:
-            case Unit() | ra.Rational():
-                                                                                    # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self_unit_0 - number % od.DataSource( int() ) )
-            case int() | float() | Fraction():
-                                                                                    # Needs to discount the Degree 1 (Tonic)
-                                        return self.__class__() << od.DataSource( self_unit_0 - number )
-        return self.copy()
-    
 class Size(Unit):
     """
     Size() represents the size of the Chord, like "7th", "9th", etc.
