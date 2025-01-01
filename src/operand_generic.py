@@ -39,8 +39,9 @@ class Generic(o.Operand):
 class TimeSignature(Generic):
     def __init__(self, top: int = 4, bottom: int = 4):
         super().__init__()
-        self._top: int      = 4 if top is None else int(max(1, top))
-        self._bottom: int   = 4 if bottom is None else int(math.pow(2, int(max(0, math.log2(bottom)))))
+        self._top: int      = 4 if top is None else int(max(1,  top  ))
+        # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
+        self._bottom: int   = 4 if bottom is None else int(math.pow(2, int(max(0, math.log2(  bottom  )))))
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -95,7 +96,7 @@ class TimeSignature(Generic):
                 match operand % o.Operand():
                     case ra.BeatsPerMeasure():
                         self._top           = operand % o.Operand() % od.DataSource( int() )
-                    case ra.BeatNoteValue():    # Math formatted for Midi file output
+                    case ra.BeatNoteValue():
                         if operand % o.Operand() % od.DataSource( int() ) != 0:
                             self._bottom    = operand % o.Operand() % od.DataSource( int() )
             case TimeSignature():
@@ -106,11 +107,10 @@ class TimeSignature(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ra.BeatsPerMeasure():
                 self._top               = int(max(1, operand % int()))
-            case ra.BeatNoteValue():    # Math formatted for Midi file output
+            case ra.BeatNoteValue():
                 if operand % int() != 0:
-                    self._bottom        = int(math.pow(2, int(max(0, math.log2(1 / ( \
-                                                operand % int() \
-                                            ))))))
+                    # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
+                    self._bottom        = int(math.pow(2, int(max(0, math.log2(1 / (  operand % int()  ))))))
         return self
 
 class Pitch(Generic):
