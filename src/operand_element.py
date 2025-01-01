@@ -122,7 +122,7 @@ class Element(o.Operand):
                     return True
                 if type(other) == ol.Null:
                     return False    # Makes sure ol.Null ends up processed as False
-                return self % od.DataSource( other ) == other
+                return self % other == other
 
     def __lt__(self, other: 'o.Operand') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists

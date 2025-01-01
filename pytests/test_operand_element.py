@@ -303,5 +303,14 @@ def test_keyscale_element():
         assert keyscale_major % str() == expected_keys[key_i]
         keyscale_major + Semitone(1)
 
+    print("------")
+    keyscale_major << 0 # Tonic key again
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        keyscale_major << Degree(degree + 1)
+        keyscale_major % str() >> Print()
+        assert keyscale_major == keys[degree]
+
+
 # test_keyscale_element()
 
