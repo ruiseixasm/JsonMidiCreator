@@ -880,7 +880,7 @@ class Chord(KeyScale):
         # Sets Scale to be used
         if self._scale.hasScale():
             # modulated_scale: og.Scale = self._scale.copy().modulate(self._mode)
-            for note_i in range(max_size):
+            for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
                     if self._sus2:
@@ -895,11 +895,11 @@ class Chord(KeyScale):
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
                 chord_notes.append(
-                    Note(self) + float(transposition)   # Jumps by semitones
+                    Note(self) + float(transposition)   # Jumps by semitones (floats)
                 )
         else:   # Uses the staff keys straight away
             # modulated_scale: og.Scale = os.staff % og.Scale(self._mode) # already modulated
-            for note_i in range(max_size):
+            for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
                     if self._sus2:
@@ -907,7 +907,7 @@ class Chord(KeyScale):
                     if self._sus4:
                         key_step += 1   # cancels out if both sus2 and sus4 are set to true
                 chord_notes.append(
-                    Note(self) + key_step   # Jumps by steps
+                    Note(self) + key_step   # Jumps by steps (ints have become Degrees!!)
                 )
 
         # Where the inversions are done
