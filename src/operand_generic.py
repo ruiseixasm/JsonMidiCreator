@@ -213,11 +213,11 @@ class Pitch(Generic):
 
 
             case ou.KeySignature(): return self._key_signature.copy() 
-            case ou.Sharp():        return self._sharp.copy()
+            case ou.Sharp():        return self._key_key._sharp.copy()
             case ou.Flat():         return self._key_key._flat.copy()
+            case ou.Natural():      return self._key_key._natural.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                     return self._key_signature % operand
-            case ou.Natural():      return self._natural.copy()
             case ou.Degree():       return self._degree.copy()
             case Scale():
                 if self._scale.hasScale():
@@ -258,25 +258,29 @@ class Pitch(Generic):
                             key_int += 1
                         else:
                             key_int -= 1
-                    return key_int
-                elif self._natural:
-                    return key_int
-                return key_int + self._sharp._unit - self._key_key._flat._unit
+                elif not self._natural:
+                    key_int + self._key_key._sharp._unit - self._key_key._flat._unit
+
+                # IGNORES THE KEY SIGNATURE (CHROMATIC)
+                return 12 * (self._octave._unit + 1) + key_int + self._key_offset
              
             case float(): # WITH KEY SIGNATURE
                 # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
-                if not (self._scale.hasScale() or self._natural):
-                    semitone_int: int            = self % int()
 
+                pitch_int: int = self % int()
+
+                if not (self._scale.hasScale() or self._natural):
+                    
                     accidentals_int = self._key_signature % int()
                     # Circle of Fifths
                     sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                    semitone_transpose = sharps_flats[semitone_int % 12]
-                    return float(semitone_int + semitone_transpose)
-                return float(self % int())
-
-
-            case _:                 return super().__mod__(operand)
+                    semitone_transpose = sharps_flats[pitch_int % 12]
+                    return float(pitch_int + semitone_transpose)    # "pitch_float"
+                
+                return float(pitch_int)
+            
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
