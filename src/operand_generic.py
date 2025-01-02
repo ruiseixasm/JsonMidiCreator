@@ -179,7 +179,18 @@ class Pitch(Generic):
 
 
 
-                    case _:                 return ol.Null()
+                    case ou.KeySignature(): return self._key_signature
+                    case ou.Sharp():        return self._sharp
+                    case ou.Flat():         return self._flat
+                    case ou.Natural():      return self._natural
+                    case ou.Degree():       return self._degree
+                    case Scale():           return self._scale
+                    case float():           return self % float()
+                    case str():
+                        note_key = self % int() % 12
+                        note_key += 12 * (self._flat._unit != 0)
+                        return Key._keys[note_key]
+                    case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
@@ -351,7 +362,7 @@ class Pitch(Generic):
 
 
 
-                
+
         self_copy.octave_correction()
         return self_copy
     
