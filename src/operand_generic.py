@@ -409,6 +409,15 @@ class Pitch(Generic):
                 self._octave    << operand._octave
                 self._key       << operand._key
                 self._key_offset = operand._key_offset
+
+                self._key_signature << operand._key_signature
+                self._key_key._unit = operand._key_key._unit
+                self._sharp._unit   = operand._sharp._unit
+                self._flat._unit    = operand._flat._unit
+                self._natural._unit = operand._natural._unit
+                self._degree._unit  = operand._degree._unit
+                self._scale         << operand._scale
+
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():
