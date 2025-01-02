@@ -526,10 +526,20 @@ class Pitch(Generic):
                 self_copy._octave._unit += operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
+
+
+            case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
+                if isinstance(operand, o.Operand):
+                    self_copy._unit += operand % int()
+                else:
+                    self_copy._unit += int(operand)
+                # needs to consider existing Flats and Sharps
+                self_copy._unit += (self._sharp - self._flat) % int()
+                self_copy.reset_sharps_and_flats()
+            case ou.Degree() | int() | ou.Unit():
+                self_copy._degree += operand
             case _:
                 return super().__add__(operand)
-
-
 
 
         self_copy.octave_correction()
@@ -552,10 +562,20 @@ class Pitch(Generic):
                 self_copy._octave._unit -= operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self_copy._key -= operand
+
+
+            case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
+                if isinstance(operand, o.Operand):
+                    self_copy._unit -= operand % int()
+                else:
+                    self_copy._unit -= int(operand)
+                # needs to consider existing Flats and Sharps
+                self_copy._unit += (self._sharp - self._flat) % int()
+                self_copy.reset_sharps_and_flats()
+            case ou.Degree() | int() | ou.Unit():
+                self_copy._degree -= operand
             case _:
-                return super().__add__(operand)
-
-
+                return super().__sub__(operand)
 
 
 
