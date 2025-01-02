@@ -286,6 +286,12 @@ class Pitch(Generic):
                 return self % od.DataSource( ou.Octave() ) == other
             
 
+            case self.__class__():
+                return self % float() == other % float()    # This get's in consideration the just final key pressed
+            case str():
+                return self % str() == other
+            case _:
+                return super().__eq__(other)
 
 
         return False
