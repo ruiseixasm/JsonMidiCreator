@@ -490,7 +490,19 @@ class Pitch(Generic):
         if not isinstance(operand, tuple):
             self.octave_correction()
         return self
-    
+
+    def reset_sharps_and_flats(self) -> 'Pitch':
+        self._sharp << False
+        self._flat  << False
+        if self._major_scale[self._unit % 12] == 0: # Black key
+            if self._key_signature._unit < 0:           # flats
+                self._unit += 1
+                self._flat << True
+            else:                                       # sharps
+                self._unit -= 1
+                self._sharp << True
+        return self
+
     def octave_correction(self):
         gross_octave: int = (12 * (self._octave._unit + 1) + int(self._key % float()) + self._key_offset) // 12 - 1
         octave_offset: int = gross_octave - self._octave._unit
