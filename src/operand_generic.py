@@ -202,6 +202,12 @@ class Pitch(Generic):
             case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
 
+
+
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
             # TO BE COMMENTED OUT FOR FUTURE DELETION
             case ou.Key():          return self._key.copy()
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -439,6 +445,13 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():
                 self._octave << operand
+
+
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | ou.Key() | int() | ou.Unit() | float() | str() | ou.Semitone() \
                 | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
@@ -451,29 +464,30 @@ class Pitch(Generic):
                 else:
                     self._degree    << operand
             case float() | Fraction() | ou.Semitone():
-                                    if isinstance(operand, o.Operand):
-                                        self._key_key._unit = operand % od.DataSource( int() )
-                                    else:
-                                        self._key_key._unit = int(operand)
-                                    if self._major_scale[self._key_key._unit % 12] == 0:
-                                        if self._key_signature._unit < 0:
-                                            self._key_key._unit += 1
-                                            self._key_key._sharp << False
-                                            self._key_key._flat << True
-                                        else:
-                                            self._key_key._unit -= 1
-                                            self._key_key._sharp << True
-                                            self._key_key._flat << False
-                                    else:
-                                        self._key_key._sharp << False
-                                        self._key_key._flat << False
+                if isinstance(operand, o.Operand):
+                    self._key_key._unit = operand % od.DataSource( int() )
+                else:
+                    self._key_key._unit = int(operand)
+                if self._major_scale[self._key_key._unit % 12] == 0:
+                    if self._key_signature._unit < 0:
+                        self._key_key._unit += 1
+                        self._key_key._sharp << False
+                        self._key_key._flat << True
+                    else:
+                        self._key_key._unit -= 1
+                        self._key_key._sharp << True
+                        self._key_key._flat << False
+                else:
+                    self._key_key._sharp << False
+                    self._key_key._flat << False
+
+            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
+                self._key_signature << operand
+                self._key_key._unit = self._key_signature.get_tonic_key()   # resets tonic key
             case ou.Sharp():
                 self._key_key._sharp << operand
             case ou.Flat():
                 self._key_key._flat << operand
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
-                self._key_signature << operand
-                self._key_key._unit = self._key_signature.get_tonic_key()   # resets tonic key
             case ou.Natural():
                 self._key_key._natural   << operand
             case ou.Degree():
