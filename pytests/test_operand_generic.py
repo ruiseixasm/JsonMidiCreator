@@ -53,14 +53,14 @@ def test_key_offset():
     assert pitch.octave_key_offset(-15) == (-2, 9)
 
     pitch << "D"            # Pitch 62, Key 2
-    assert pitch.octave_key_offset(0) == (0, 2)
-    assert pitch.octave_key_offset(3) == (0, 5)
-    assert pitch.octave_key_offset(12) == (1, 2)
-    assert pitch.octave_key_offset(15) == (1, 5)
+    assert pitch.octave_key_offset(0) == (0, 0)
+    assert pitch.octave_key_offset(3) == (0, 3)
+    assert pitch.octave_key_offset(12) == (1, 0)
+    assert pitch.octave_key_offset(15) == (1, 3)
     
-    assert pitch.octave_key_offset(-3) == (-1, 11)
-    assert pitch.octave_key_offset(-12) == (-1, 2)
-    assert pitch.octave_key_offset(-15) == (-2, 11)
+    assert pitch.octave_key_offset(-3) == (-1, +9)
+    assert pitch.octave_key_offset(-12) == (-1, 0)
+    assert pitch.octave_key_offset(-15) == (-2, +9)
 
 
 def test_pitch_mod():

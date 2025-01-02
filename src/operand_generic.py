@@ -220,8 +220,18 @@ class Pitch(Generic):
         original_key_int: int = self._key_key._unit % 12
         final_key_int: int = original_key_int + key_offset
         octave_offset: int = final_key_int // 12
-        key_offset: int = final_key_int % 12
+        final_key: int = final_key_int % 12
+        key_offset = final_key - original_key_int
+
         return octave_offset, key_offset
+    
+    def apply_key_offset(self, key_offset: int) -> 'Pitch':
+        
+        octave_offset, key_offset = self.octave_key_offset(key_offset)
+        self._octave._unit += octave_offset
+        self._key_key._unit += key_offset
+
+        return self
     
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -613,14 +623,12 @@ class Pitch(Generic):
             #     self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
 
 
-            case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
-                if isinstance(operand, o.Operand):
-                    self_copy._key_key._unit += operand % int()
-                else:
-                    self_copy._key_key._unit += int(operand)
-                # # needs to consider existing Flats and Sharps
-                # self_copy._key_key._unit += (self._sharp - self._flat) % int()
-                # self_copy.reset_sharps_and_flats()
+            case float():
+                key_offset: int = int(operand)
+                return self_copy.apply_key_offset(key_offset)
+            case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
+                key_offset: int = operand % int()
+                return self_copy.apply_key_offset(key_offset)
             case ou.Degree() | int() | ou.Unit():
                 self_copy._degree += operand
             case _:
@@ -656,14 +664,12 @@ class Pitch(Generic):
             #     self_copy._key -= operand
 
 
-            case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
-                if isinstance(operand, o.Operand):
-                    self_copy._key_key._unit -= operand % int()
-                else:
-                    self_copy._key_key._unit -= int(operand)
-                # # needs to consider existing Flats and Sharps
-                # self_copy._key_key._unit += (self._sharp - self._flat) % int()
-                # self_copy.reset_sharps_and_flats()
+            case float():
+                key_offset: int = int(operand) * -1
+                return self_copy.apply_key_offset(key_offset)
+            case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
+                key_offset: int = operand % int() * -1
+                return self_copy.apply_key_offset(key_offset)
             case ou.Degree() | int() | ou.Unit():
                 self_copy._degree -= operand
             case _:
