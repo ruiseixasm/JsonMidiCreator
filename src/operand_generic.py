@@ -162,9 +162,16 @@ class Pitch(Generic):
     def get_key_int(self) -> int:
         staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
         accidentals_int: int    = self._key_signature._unit
-        key_int: int            = self._key_key._unit + self._sharp._unit - self._flat._unit
+        key_int: int            = self._key_key._unit % 12
         degree_transpose: int   = self._degree._unit
         semitone_transpose: int = 0
+
+        # strips existent accidentals
+        if staff_white_keys[key_int] == 0: # Black key
+            if self._key_key._unit % 24 < 12:   # sharps
+                key_int -= 1
+            else:                               # flats
+                key_int += 1
 
         key_scale = staff_white_keys  # Major scale
         if self._scale.hasScale():
@@ -188,7 +195,7 @@ class Pitch(Generic):
                 else:
                     key_int -= 1
         elif not self._natural:
-            key_int += self._sharp._unit - self._flat._unit
+            key_int += self._sharp._unit - self._flat._unit   # applies accidentals
 
         return key_int
 
@@ -207,6 +214,15 @@ class Pitch(Generic):
         
         return float(self.get_key_int())
 
+
+    def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
+        
+        original_key_int: int = self._key_key._unit % 12
+        final_key_int: int = original_key_int + key_offset
+        octave_offset: int = final_key_int // 12
+        key_offset: int = final_key_int % 12
+        return octave_offset, key_offset
+    
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

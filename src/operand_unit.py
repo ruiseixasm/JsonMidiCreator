@@ -461,7 +461,7 @@ class Key(Unit):
             case Natural():         return self._natural.copy()
 
             case str():
-                return Key._keys[self._unit % 12]
+                return Key._keys[self._unit % 24]
 
 
 
