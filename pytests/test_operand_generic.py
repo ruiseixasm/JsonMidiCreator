@@ -53,6 +53,9 @@ def test_pitch_mod():
     assert (pitch + 1.0) % Sharp()
     assert (pitch + 1.0 << Natural()) % float() == 60
 
+# test_pitch_mod()
+
+
 def test_scale_mod():
 
     # Perform the operation
@@ -149,6 +152,7 @@ def test_pitch_add():
     (Pitch("D") + 12.0) % float() >> Print()
     assert pitch_2 + 2 == Pitch("D") + 12.0
     assert pitch_1 << Sharp() == Pitch("A") + 1.0
+    assert pitch_1 << Natural() == Pitch("A")
     assert Pitch("Ab") == Pitch("A") - 1.0
 
     pitch_3: Pitch = Pitch()

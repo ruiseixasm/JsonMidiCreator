@@ -410,9 +410,9 @@ class Key(Unit):
         super().__init__()
         # self._key_signature: KeySignature   = os.staff._key_signature.copy()
         # self._unit                          = self._key_signature.get_tonic_key()
-        self._sharp: Sharp                  = Sharp(0)
-        self._flat: Flat                    = Flat(0)
-        self._natural: Natural              = Natural(0)
+        # self._sharp: Sharp                  = Sharp(0)
+        # self._flat: Flat                    = Flat(0)
+        # self._natural: Natural              = Natural(0)
         # self._degree: Degree                = Degree(1)
         # self._scale: og.Scale               = og.Scale([])
         if parameters:
@@ -444,9 +444,9 @@ class Key(Unit):
             case od.DataSource():
                 match operand % o.Operand():
                     # case KeySignature():    return self._key_signature
-                    case Sharp():           return self._sharp
-                    case Flat():            return self._flat
-                    case Natural():         return self._natural
+                    # case Sharp():           return self._sharp
+                    # case Flat():            return self._flat
+                    # case Natural():         return self._natural
                     # case Degree():          return self._degree
                     # case og.Scale():        return self._scale
                     case float():           return self % float()
@@ -459,6 +459,12 @@ class Key(Unit):
             case Sharp():           return self._sharp.copy()
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
+
+            case str():
+                return Key._keys[self._unit % 12]
+
+
+
             # case Major() | Minor() | Sharps() | Flats():
             #                         return self._key_signature % operand
             # case Degree():          return self._degree.copy()
@@ -522,42 +528,42 @@ class Key(Unit):
             #     return float(self % int())
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: o.Operand) -> bool:
-        import operand_generic as og
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return self % float() == other % float()    # This get's in consideration the just final key pressed
-            case str():
-                return self % str() == other
-            case _:
-                return super().__eq__(other)
+    # def __eq__(self, other: o.Operand) -> bool:
+    #     import operand_generic as og
+    #     other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+    #     match other:
+    #         case self.__class__():
+    #             return self % float() == other % float()    # This get's in consideration the just final key pressed
+    #         case str():
+    #             return self % str() == other
+    #         case _:
+    #             return super().__eq__(other)
     
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        # serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
-        serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
-        serialization["parameters"]["flat"]             = self.serialize( self._flat )
-        serialization["parameters"]["natural"]          = self.serialize( self._natural )
-        # serialization["parameters"]["degree"]           = self.serialize( self._degree )
-        # serialization["parameters"]["scale"]            = self.serialize( self._scale )
-        return serialization
+    # def getSerialization(self) -> dict:
+    #     serialization = super().getSerialization()
+    #     # serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+    #     serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
+    #     serialization["parameters"]["flat"]             = self.serialize( self._flat )
+    #     serialization["parameters"]["natural"]          = self.serialize( self._natural )
+    #     # serialization["parameters"]["degree"]           = self.serialize( self._degree )
+    #     # serialization["parameters"]["scale"]            = self.serialize( self._scale )
+    #     return serialization
 
-    # CHAINABLE OPERATIONS
+    # # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Key':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            # "key_signature" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
-            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"]):
+    # def loadSerialization(self, serialization: dict) -> 'Key':
+    #     if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+    #         # "key_signature" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
+    #         "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"]):
 
-            super().loadSerialization(serialization)
-            # self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
-            self._flat          = self.deserialize( serialization["parameters"]["flat"] )
-            self._natural       = self.deserialize( serialization["parameters"]["natural"] )
-            # self._degree        = self.deserialize( serialization["parameters"]["degree"] )
-            # self._scale         = self.deserialize( serialization["parameters"]["scale"] )
-        return self
+    #         super().loadSerialization(serialization)
+    #         # self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+    #         self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
+    #         self._flat          = self.deserialize( serialization["parameters"]["flat"] )
+    #         self._natural       = self.deserialize( serialization["parameters"]["natural"] )
+    #         # self._degree        = self.deserialize( serialization["parameters"]["degree"] )
+    #         # self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+    #     return self
       
     def __lshift__(self, operand: o.Operand) -> 'Key':
         import operand_rational as ra
@@ -590,12 +596,12 @@ class Key(Unit):
                         self.key_to_int(operand % o.Operand())
                         self._degree << operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Key():
-                super().__lshift__(operand)
+            # case Key():
+            #     super().__lshift__(operand)
                 # self._key_signature << operand._key_signature
-                self._sharp._unit   = operand._sharp._unit
-                self._flat._unit    = operand._flat._unit
-                self._natural._unit = operand._natural._unit
+                # self._sharp._unit   = operand._sharp._unit
+                # self._flat._unit    = operand._flat._unit
+                # self._natural._unit = operand._natural._unit
                 # self._degree._unit  = operand._degree._unit
                 # self._scale         << operand._scale
             # case int():
@@ -623,31 +629,32 @@ class Key(Unit):
             # case KeySignature() | Major() | Minor() | Sharps() | Flats():
             #     self._key_signature << operand
             #     self._unit = self._key_signature.get_tonic_key()   # resets tonic key
-            case Sharp():
-                self._sharp << operand
-            case Flat():
-                self._flat << operand
-            case Natural():
-                self._natural   << operand
+            # case Sharp():
+            #     self._sharp << operand
+            # case Flat():
+            #     self._flat << operand
+            # case Natural():
+            #     self._natural   << operand
             # case Degree():
             #     self._degree    << operand
             # case og.Scale() | Mode():
             #     self._scale     << operand
             case str():
-                string: str = operand.strip()
-                new_sharp: Sharp = self._sharp.copy(string)
-                new_flat: Flat = self._flat.copy(string)
-                if new_sharp != self._sharp:
-                    self._sharp << new_sharp
-                    if new_sharp:
-                        self._flat  << False
-                elif new_flat != self._flat:
-                    if new_flat:
-                        self._sharp << False
-                    self._flat  << new_flat
-                # self._degree    << string
-                self.key_to_int(string)
-                self.stringToNumber(string)
+                return self._keys[ self._unit % 12 ]
+                # string: str = operand.strip()
+                # new_sharp: Sharp = self._sharp.copy(string)
+                # new_flat: Flat = self._flat.copy(string)
+                # if new_sharp != self._sharp:
+                #     self._sharp << new_sharp
+                #     if new_sharp:
+                #         self._flat  << False
+                # elif new_flat != self._flat:
+                #     if new_flat:
+                #         self._sharp << False
+                #     self._flat  << new_flat
+                # # self._degree    << string
+                # self.key_to_int(string)
+                # self.stringToNumber(string)
             case _:
                 super().__lshift__(operand)
         return self
@@ -665,44 +672,52 @@ class Key(Unit):
         return self
     
     def __add__(self, operand: any) -> 'Key':
-        import operand_rational as ra
-        operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: Key = self.copy()
-        match operand:
-            case float() | Fraction() | ra.Rational() | Key() | Semitone():
-                if isinstance(operand, o.Operand):
-                    self_copy._unit += operand % int()
-                else:
-                    self_copy._unit += int(operand)
-                # needs to consider existing Flats and Sharps
-                self_copy._unit += (self._sharp - self._flat) % int()
-                self_copy.reset_sharps_and_flats()
-            case Degree() | int() | Unit():
-                self_copy._degree += operand
-            case _:
-                return super().__add__(operand)
+    
+        
+        return super().__add__(operand)
 
-        return self_copy
+        # import operand_rational as ra
+        # operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
+        # self_copy: Key = self.copy()
+        # match operand:
+        #     case float() | Fraction() | ra.Rational() | Key() | Semitone():
+        #         if isinstance(operand, o.Operand):
+        #             self_copy._unit += operand % int()
+        #         else:
+        #             self_copy._unit += int(operand)
+        #         # needs to consider existing Flats and Sharps
+        #         self_copy._unit += (self._sharp - self._flat) % int()
+        #         self_copy.reset_sharps_and_flats()
+        #     case Degree() | int() | Unit():
+        #         self_copy._degree += operand
+        #     case _:
+        #         return super().__add__(operand)
+
+        # return self_copy
 
     def __sub__(self, operand: any) -> 'Key':
-        import operand_rational as ra
-        operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
-        self_copy: Key = self.copy()
-        match operand:
-            case float() | Fraction() | ra.Rational() | Key() | Semitone():
-                if isinstance(operand, o.Operand):
-                    self_copy._unit -= operand % int()
-                else:
-                    self_copy._unit -= int(operand)
-                # needs to consider existing Flats and Sharps
-                self_copy._unit += (self._sharp - self._flat) % int()
-                self_copy.reset_sharps_and_flats()
-            case Degree() | int() | Unit():
-                self_copy._degree -= operand
-            case _:
-                return super().__sub__(operand)
+    
+        return super().__sub__(operand)
+
+
+        # import operand_rational as ra
+        # operand = self & operand        # Processes the tailed self operands or the Frame operand if any exists
+        # self_copy: Key = self.copy()
+        # match operand:
+        #     case float() | Fraction() | ra.Rational() | Key() | Semitone():
+        #         if isinstance(operand, o.Operand):
+        #             self_copy._unit -= operand % int()
+        #         else:
+        #             self_copy._unit -= int(operand)
+        #         # needs to consider existing Flats and Sharps
+        #         self_copy._unit += (self._sharp - self._flat) % int()
+        #         self_copy.reset_sharps_and_flats()
+        #     case Degree() | int() | Unit():
+        #         self_copy._degree -= operand
+        #     case _:
+        #         return super().__sub__(operand)
         
-        return self_copy
+        # return self_copy
     
     def move_semitones(self, move_keys: int) -> int:
         scale = Key._major_scale    # Major scale for the default staff
