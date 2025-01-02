@@ -378,6 +378,31 @@ class Pitch(Generic):
                     case ou.Key():          self._key       = operand % o.Operand()
 
 
+                    case int():
+                        self._unit = operand % o.Operand()
+                    case float() | Fraction():
+                        self._unit = int(operand % o.Operand())
+                    case ou.Semitone():
+                        self._unit = operand % o.Operand() % od.DataSource( int() )
+                        self << ou.Degree(1)    # TO BE REMOVED !
+                    case ou.KeySignature():
+                        self._key_signature = operand % o.Operand()
+                    case ou.Sharp():
+                        self._sharp << operand % o.Operand()
+                    case ou.Flat():
+                        self._flat << operand % o.Operand()
+                    case ou.Natural():
+                        self._natural << operand % o.Operand()
+                    case ou.Degree():
+                        self._degree << operand % o.Operand()
+                    case Scale():
+                        self._scale << operand % o.Operand()
+                    case str():
+                        self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
+                        self.key_to_int(operand % o.Operand())
+                        self._degree << operand % o.Operand()
+                    case _:
+                        super().__lshift__(operand)
 
             case Pitch():
                 super().__lshift__(operand)
