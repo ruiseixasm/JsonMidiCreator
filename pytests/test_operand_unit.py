@@ -37,10 +37,10 @@ def test_unit_set():
     unit_2.unit(7)
     assert unit_2 == unit_1
 
-    key_1 = Key(Sharp(), Degree(2), Scale("minor"))
-    key_2 = Key()
-    key_2.sharp().degree(2).scale("minor")
-    assert key_1 == key_2
+    # key_1 = Key(Sharp(), Degree(2), Scale("minor"))
+    # key_2 = Key()
+    # key_2.sharp().degree(2).scale("minor")
+    # assert key_1 == key_2
 
 def test_unit_mod():
 

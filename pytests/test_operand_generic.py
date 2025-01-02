@@ -63,3 +63,11 @@ def test_scale_mod():
 
     fifth_transposition: int = Scale("Major") % Transposition(5 - 1)
     assert fifth_transposition == 7 # Semitones
+
+
+def test_pitch_set():
+
+    pitch_1 = Pitch(Sharp(), Degree(2), Scale("minor"))
+    pitch_2 = Pitch()
+    pitch_2.sharp().degree(2).scale("minor")
+    assert pitch_1 == pitch_2
