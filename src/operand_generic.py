@@ -207,12 +207,6 @@ class Pitch(Generic):
                 return self % od.DataSource( ou.Octave() ) > operand
         return False
     
-    def __le__(self, operand: any) -> bool:
-        return self == operand or self < operand
-    
-    def __ge__(self, operand: any) -> bool:
-        return self == operand or self > operand
-    
     def getSerialization(self) -> dict:
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         serialization = super().getSerialization()
