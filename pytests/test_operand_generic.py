@@ -71,3 +71,130 @@ def test_pitch_set():
     pitch_2 = Pitch()
     pitch_2.sharp().degree(2).scale("minor")
     assert pitch_1 == pitch_2
+
+
+def test_pitch_key_signature():
+
+    major_keys_signatures: list[int] = [
+        "B", "Gb", "Db", "Ab", "Eb", "Bb", "F",
+        "C",
+        "G", "D", "A", "E", "B", "F#", "C#"
+    ]
+    tonic_key = Pitch()
+    for signature in range(len(major_keys_signatures)):
+        tonic_key << KeySignature(signature - 7)
+        assert tonic_key % str() == major_keys_signatures[signature]
+
+    minor_keys_signatures: list = [
+        "Ab", "Eb", "Bb", "F", "C", "G", "D",
+        "A",
+        "E", "B", "F#", "C#", "G#", "D#", "A#"
+    ]
+    for signature in range(len(minor_keys_signatures)):
+        tonic_key << KeySignature(signature - 7, Minor())
+        assert tonic_key % str() == minor_keys_signatures[signature]
+
+    c_major_scale: Scale = Scale()
+
+    for scale_mode in range(7):
+        key_signature: KeySignature = KeySignature(scale_mode)
+        key_signature_list: list = key_signature % list()
+        tonic_key: Key = key_signature % Key()
+        scale_mode_list: list = c_major_scale % tonic_key
+        # print(scale_mode)
+        # print(tonic_key % str())
+        # print(key_signature_list)
+        # print(scale_mode_list)
+        assert key_signature_list == scale_mode_list
+
+    for scale_mode in range(0, -7, -1):
+        key_signature: KeySignature = KeySignature(scale_mode)
+        key_signature_list: list = key_signature % list()
+        tonic_key: Key = key_signature % Key()
+        scale_mode_list: list = c_major_scale % tonic_key
+        # print(scale_mode)
+        # print(tonic_key % str())
+        # print(key_signature_list)
+        # print(scale_mode_list)
+        assert key_signature_list == scale_mode_list
+
+    E_minor_key: Pitch = Pitch(KeySignature("#", Minor()))
+    assert E_minor_key % str() == "E"
+    E_minor_key << Sharps(2) << Degree(3)
+    assert E_minor_key % str() == "D"
+    B_minor_scale_list: list = ["B", "C#", "D", "E", "F#", "G", "A"]
+    # Sharp and Flat shall not be set by Degree
+    for key_degree in range(1, 8):
+        print(key_degree)
+        E_minor_key << Degree(key_degree)
+        assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
+        E_minor_key % Sharp() >> Print(0)
+
+# test_pitch_key_signature()
+
+
+def test_pitch_add():
+
+    # Perform the operation
+    pitch_1 = Pitch("A")
+    pitch_1.getSerialization() % Data("degree") >> Print()
+    (pitch_1 + 1).getSerialization() % Data("degree") >> Print()
+    assert pitch_1 + 1    == Pitch("B")
+    assert pitch_1 + 2.0  == Pitch("B")
+
+    pitch_2 = Pitch(KeySignature(1)) << Degree("iii")  # Become Key B
+    pitch_2 % int() >> Print()
+    assert pitch_2 % int() == Pitch("B") % int()
+    (pitch_2 + 2) % float() >> Print()
+    (Pitch("D") + 12.0) % float() >> Print()
+    assert pitch_2 + 2 == Pitch("D") + 12.0
+    assert pitch_1 << Sharp() == Pitch("A") + 1.0
+    assert Pitch("Ab") == Pitch("A") - 1.0
+
+    pitch_3: Pitch = Pitch()
+    assert pitch_3 % str() == "C"
+
+    # Test all semitones from 0 to 11
+    expected_keys: list[str] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    for key_i in range(12):
+        (pitch_3 + Semitone(key_i)) % str() >> Print()
+        assert (pitch_3 + Semitone(key_i)) % str() == expected_keys[key_i]
+
+    print("------")
+    keys: list = ["C", "D", "E", "F", "G", "A", "B"]
+    for degree in range(7):
+        (pitch_3 << Degree(degree + 1)) % str() >> Print()
+        assert pitch_3 << Degree(degree + 1) == keys[degree]
+
+    pitch_4: Pitch = Pitch()
+    assert pitch_4 % str() == "C"
+
+    print("------")
+    # Test all semitones from 0 to 11
+    expected_pitches_float: list[str] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
+    for key_i in range(12):
+        (pitch_4 + Semitone(key_i)) % float() >> Print()
+        assert (pitch_4 + Semitone(key_i)) % float() == expected_pitches_float[key_i]
+
+    print("------")
+    white_pitches: list = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
+    for degree in range(7):
+        (pitch_4 << Degree(degree + 1)) % float() >> Print()
+        assert (pitch_4 << Degree(degree + 1)) % float() == white_pitches[degree]
+
+    print("------")
+    pitch_5: Pitch = Pitch()
+    (pitch_5 + 0.0) % str() >> Print()
+    assert pitch_5 + 0.0 == Key("C")
+    (pitch_5 + 1.0) % str() >> Print()
+    assert pitch_5 + 1.0 == Key("C#")
+    pitch_5 << Degree(2)
+    (pitch_5 + 0.0) % str() >> Print()
+    assert pitch_5 + 0.0 == Key("D")
+    (pitch_5 + 1.0) % str() >> Print()
+    assert pitch_5 + 1.0 == Key("D#")
+
+# test_pitch_add()
+
+
+
