@@ -121,9 +121,9 @@ class Pitch(Generic):
         
         self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
         self._key_key: ou.Key                   = ou.Key( self._key_signature.get_tonic_key() )
-        self._sharp: ou.Sharp                   = ou.Sharp(0)
-        self._flat: ou.Flat                     = ou.Flat(0)
-        self._natural: ou.Natural               = ou.Natural(0)
+        # self._sharp: ou.Sharp                   = ou.Sharp(0)
+        # self._flat: ou.Flat                     = ou.Flat(0)
+        # self._natural: ou.Natural               = ou.Natural(0)
         self._degree: ou.Degree                 = ou.Degree(1)
         self._scale: Scale                      = Scale([])
 
@@ -185,15 +185,15 @@ class Pitch(Generic):
 
 
                     case ou.KeySignature(): return self._key_signature
-                    case ou.Sharp():        return self._sharp
-                    case ou.Flat():         return self._flat
-                    case ou.Natural():      return self._natural
+                    case ou.Sharp():        return self._key_key._sharp
+                    case ou.Flat():         return self._key_key._flat
+                    case ou.Natural():      return self._key_key._natural
                     case ou.Degree():       return self._degree
                     case Scale():           return self._scale
                     case float():           return self % float()
                     case str():
                         note_key = self % int() % 12
-                        note_key += 12 * (self._flat._unit != 0)
+                        note_key += 12 * (self._key_key._flat._unit != 0)
                         return Key._keys[note_key]
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
@@ -214,7 +214,7 @@ class Pitch(Generic):
 
             case ou.KeySignature(): return self._key_signature.copy() 
             case ou.Sharp():        return self._sharp.copy()
-            case ou.Flat():         return self._flat.copy()
+            case ou.Flat():         return self._key_key._flat.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                     return self._key_signature % operand
             case ou.Natural():      return self._natural.copy()
@@ -261,7 +261,7 @@ class Pitch(Generic):
                     return key_int
                 elif self._natural:
                     return key_int
-                return key_int + self._sharp._unit - self._flat._unit
+                return key_int + self._sharp._unit - self._key_key._flat._unit
              
             case float(): # WITH KEY SIGNATURE
                 # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
@@ -338,9 +338,9 @@ class Pitch(Generic):
 
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["key_key"]          = self.serialize( self._key_key )
-        serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
-        serialization["parameters"]["flat"]             = self.serialize( self._flat )
-        serialization["parameters"]["natural"]          = self.serialize( self._natural )
+        # serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
+        # serialization["parameters"]["flat"]             = self.serialize( self._flat )
+        # serialization["parameters"]["natural"]          = self.serialize( self._natural )
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
 
@@ -354,17 +354,17 @@ class Pitch(Generic):
     def loadSerialization(self, serialization: dict) -> 'Pitch':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "key_signature" in serialization["parameters"] and "key_key" in serialization["parameters"] and
-            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
-            "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
+            # "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and
+            "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
 
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._key_key       = self.deserialize( serialization["parameters"]["key_key"] )
-            self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
-            self._flat          = self.deserialize( serialization["parameters"]["flat"] )
-            self._natural       = self.deserialize( serialization["parameters"]["natural"] )
+            # self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
+            # self._flat          = self.deserialize( serialization["parameters"]["flat"] )
+            # self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
 
@@ -393,11 +393,11 @@ class Pitch(Generic):
                     case ou.KeySignature():
                         self._key_signature = operand % o.Operand()
                     case ou.Sharp():
-                        self._sharp << operand % o.Operand()
+                        self._key_key._sharp << operand % o.Operand()
                     case ou.Flat():
-                        self._flat << operand % o.Operand()
+                        self._key_key._flat << operand % o.Operand()
                     case ou.Natural():
-                        self._natural << operand % o.Operand()
+                        self._key_key._natural << operand % o.Operand()
                     case ou.Degree():
                         self._degree << operand % o.Operand()
                     case Scale():
@@ -415,13 +415,13 @@ class Pitch(Generic):
                 self._key       << operand._key
                 self._key_offset = operand._key_offset
 
-                self._key_signature << operand._key_signature
-                self._key_key._unit = operand._key_key._unit
-                self._sharp._unit   = operand._sharp._unit
-                self._flat._unit    = operand._flat._unit
-                self._natural._unit = operand._natural._unit
-                self._degree._unit  = operand._degree._unit
-                self._scale         << operand._scale
+                self._key_signature             << operand._key_signature
+                self._key_key._unit             = operand._key_key._unit
+                self._key_key._sharp._unit      = operand._key_key._sharp._unit
+                self._key_key._flat._unit       = operand._key_key._flat._unit
+                self._key_key._natural._unit    = operand._key_key._natural._unit
+                self._degree._unit              = operand._degree._unit
+                self._scale                     << operand._scale
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -440,46 +440,46 @@ class Pitch(Generic):
                     self._degree    << operand
             case float() | Fraction() | ou.Semitone():
                                     if isinstance(operand, o.Operand):
-                                        self._unit = operand % od.DataSource( int() )
+                                        self._key_key._unit = operand % od.DataSource( int() )
                                     else:
-                                        self._unit = int(operand)
-                                    if self._major_scale[self._unit % 12] == 0:
+                                        self._key_key._unit = int(operand)
+                                    if self._major_scale[self._key_key._unit % 12] == 0:
                                         if self._key_signature._unit < 0:
-                                            self._unit += 1
-                                            self._sharp << False
-                                            self._flat << True
+                                            self._key_key._unit += 1
+                                            self._key_key._sharp << False
+                                            self._key_key._flat << True
                                         else:
-                                            self._unit -= 1
-                                            self._sharp << True
-                                            self._flat << False
+                                            self._key_key._unit -= 1
+                                            self._key_key._sharp << True
+                                            self._key_key._flat << False
                                     else:
-                                        self._sharp << False
-                                        self._flat << False
+                                        self._key_key._sharp << False
+                                        self._key_key._flat << False
             case ou.Sharp():
-                self._sharp << operand
+                self._key_key._sharp << operand
             case ou.Flat():
-                self._flat << operand
+                self._key_key._flat << operand
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 self._key_signature << operand
-                self._unit = self._key_signature.get_tonic_key()   # resets tonic key
+                self._key_key._unit = self._key_signature.get_tonic_key()   # resets tonic key
             case ou.Natural():
-                self._natural   << operand
+                self._key_key._natural   << operand
             case ou.Degree():
                 self._degree    << operand
             case Scale() | ou.Mode():
                 self._scale     << operand
             case str():
                 string: str = operand.strip()
-                new_sharp: Sharp = self._sharp.copy(string)
-                new_flat: Flat = self._flat.copy(string)
-                if new_sharp != self._sharp:
-                    self._sharp << new_sharp
+                new_sharp: Sharp = self._key_key._sharp.copy(string)
+                new_flat: Flat = self._key_key._flat.copy(string)
+                if new_sharp != self._key_key._sharp:
+                    self._key_key._sharp << new_sharp
                     if new_sharp:
-                        self._flat  << False
-                elif new_flat != self._flat:
+                        self._key_key._flat  << False
+                elif new_flat != self._key_key._flat:
                     if new_flat:
-                        self._sharp << False
-                    self._flat  << new_flat
+                        self._key_key._sharp << False
+                    self._key_key._flat  << new_flat
                 self._degree    << string
                 self.key_to_int(string)
                 self.stringToNumber(string)
@@ -497,15 +497,15 @@ class Pitch(Generic):
         return self
 
     def reset_sharps_and_flats(self) -> 'Pitch':
-        self._sharp << False
-        self._flat  << False
-        if self._major_scale[self._unit % 12] == 0: # Black key
+        self._key_key._sharp << False
+        self._key_key._flat  << False
+        if self._major_scale[self._key_key._unit % 12] == 0: # Black key
             if self._key_signature._unit < 0:           # flats
-                self._unit += 1
-                self._flat << True
+                self._key_key._unit += 1
+                self._key_key._flat << True
             else:                                       # sharps
-                self._unit -= 1
-                self._sharp << True
+                self._key_key._unit -= 1
+                self._key_key._sharp << True
         return self
 
     def octave_correction(self):
@@ -535,11 +535,11 @@ class Pitch(Generic):
 
             case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 if isinstance(operand, o.Operand):
-                    self_copy._unit += operand % int()
+                    self_copy._key_key._unit += operand % int()
                 else:
-                    self_copy._unit += int(operand)
+                    self_copy._key_key._unit += int(operand)
                 # needs to consider existing Flats and Sharps
-                self_copy._unit += (self._sharp - self._flat) % int()
+                self_copy._key_key._unit += (self._key_key._sharp - self._key_key._flat) % int()
                 self_copy.reset_sharps_and_flats()
             case ou.Degree() | int() | ou.Unit():
                 self_copy._degree += operand
@@ -571,11 +571,11 @@ class Pitch(Generic):
 
             case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 if isinstance(operand, o.Operand):
-                    self_copy._unit -= operand % int()
+                    self_copy._key_key._unit -= operand % int()
                 else:
-                    self_copy._unit -= int(operand)
+                    self_copy._key_key._unit -= int(operand)
                 # needs to consider existing Flats and Sharps
-                self_copy._unit += (self._sharp - self._flat) % int()
+                self_copy._key_key._unit += (self._key_key._sharp - self._key_key._flat) % int()
                 self_copy.reset_sharps_and_flats()
             case ou.Degree() | int() | ou.Unit():
                 self_copy._degree -= operand
