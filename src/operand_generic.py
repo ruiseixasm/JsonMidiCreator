@@ -358,7 +358,52 @@ class Pitch(Generic):
                 new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case _: return super().__div__(operand)
+
+
+    def move_semitones(self, move_keys: int) -> int:
+        scale = self._major_scale    # Major scale for the default staff
+        if self._scale.hasScale():
+            scale = self._scale % list()
+        move_semitones: int = 0
+        while move_keys > 0:
+            move_semitones += 1
+            if scale[(self % int() + move_semitones) % 12]:
+                move_keys -= 1
+        while move_keys < 0:
+            move_semitones -= 1
+            if scale[(self % int() + move_semitones) % 12]:
+                move_keys += 1
+        return move_semitones
     
+    _major_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff
+
+    _white_keys: dict = {
+            "c": 0,
+            "d": 2,
+            "e": 4,
+            "f": 5,
+            "g": 7,
+            "a": 9,
+            "b": 11
+         }
+    
+    def stringToNumber(self, string: str):
+        string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
+        for key, value in self._white_keys.items():
+            if string.find(key) != -1:
+                self._unit = value
+                return
+
+    _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
+                           "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
+                           "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
+    
+    def key_to_int(self, key: str = "C"):
+        for index, value in enumerate(self._keys):
+            if value.lower().find(key.strip().lower()) != -1:
+                self._unit = index % 12
+                return
+
 class Controller(Generic):
     def __init__(self, *parameters):
         super().__init__()
