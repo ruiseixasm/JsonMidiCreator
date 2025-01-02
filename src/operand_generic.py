@@ -207,6 +207,69 @@ class Pitch(Generic):
             
 
 
+            case ou.KeySignature(): return self._key_signature.copy() 
+            case ou.Sharp():        return self._sharp.copy()
+            case ou.Flat():         return self._flat.copy()
+            case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
+                                    return self._key_signature % operand
+            case ou.Natural():      return self._natural.copy()
+            case ou.Degree():       return self._degree.copy()
+            case Scale():
+                if self._scale.hasScale():
+                    return self._scale.copy()
+                return self._key_signature % operand
+            case ou.Mode() | list():
+                return (self % Scale()) % operand
+            case str():
+                note_key = int(self % float()) % 12
+                if Key._major_scale[note_key] == 0 and self._key_signature._unit < 0:
+                    note_key += 12  # In case of FLAT Key Signature
+                return Key._keys[note_key]
+            case int(): # WITHOUT KEY SIGNATURE
+                staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                accidentals_int: int    = self._key_signature._unit
+                key_int: int            = self._unit
+                degree_transpose: int   = self._degree._unit
+                semitone_transpose: int = 0
+
+                key_scale = staff_white_keys  # Major scale
+                if self._scale.hasScale():
+                    key_scale = self._scale % list()  # Already modulated
+
+                while degree_transpose > 0:
+                    semitone_transpose += 1
+                    if key_scale[(key_int + semitone_transpose) % 12]:
+                        degree_transpose -= 1
+                while degree_transpose < 0:
+                    semitone_transpose -= 1
+                    if key_scale[(key_int + semitone_transpose) % 12]:
+                        degree_transpose += 1
+
+                key_int += semitone_transpose
+
+                if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
+                    if self._natural:
+                        if accidentals_int < 0:
+                            key_int += 1
+                        else:
+                            key_int -= 1
+                    return key_int
+                elif self._natural:
+                    return key_int
+                return key_int + self._sharp._unit - self._flat._unit
+             
+            case float(): # WITH KEY SIGNATURE
+                # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
+                if not (self._scale.hasScale() or self._natural):
+                    semitone_int: int            = self % int()
+
+                    accidentals_int = self._key_signature % int()
+                    # Circle of Fifths
+                    sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+                    semitone_transpose = sharps_flats[semitone_int % 12]
+                    return float(semitone_int + semitone_transpose)
+                return float(self % int())
+
 
             case _:                 return super().__mod__(operand)
 
