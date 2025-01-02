@@ -216,6 +216,14 @@ class Pitch(Generic):
     def getSerialization(self) -> dict:
         self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         serialization = super().getSerialization()
+
+        serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+        serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
+        serialization["parameters"]["flat"]             = self.serialize( self._flat )
+        serialization["parameters"]["natural"]          = self.serialize( self._natural )
+        serialization["parameters"]["degree"]           = self.serialize( self._degree )
+        serialization["parameters"]["scale"]            = self.serialize( self._scale )
+
         serialization["parameters"]["key"]        = self.serialize( self._key )
         serialization["parameters"]["octave"]     = self.serialize( self._octave )
         serialization["parameters"]["key_offset"] = self.serialize( self._key_offset )
@@ -225,9 +233,19 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> 'Pitch':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "key_signature" in serialization["parameters"] and "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
+            "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+
+            self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
+            self._flat          = self.deserialize( serialization["parameters"]["flat"] )
+            self._natural       = self.deserialize( serialization["parameters"]["natural"] )
+            self._degree        = self.deserialize( serialization["parameters"]["degree"] )
+            self._scale         = self.deserialize( serialization["parameters"]["scale"] )
+
             self._key           = self.deserialize( serialization["parameters"]["key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._key_offset    = self.deserialize( serialization["parameters"]["key_offset"] )
