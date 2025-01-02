@@ -118,6 +118,15 @@ class TimeSignature(Generic):
 class Pitch(Generic):
     def __init__(self, *parameters):
         super().__init__()
+        
+        self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
+        self._unit                              = self._key_signature.get_tonic_key()
+        self._sharp: ou.Sharp                   = ou.Sharp(0)
+        self._flat: ou.Flat                     = ou.Flat(0)
+        self._natural: ou.Natural               = ou.Natural(0)
+        self._degree: ou.Degree                 = ou.Degree(1)
+        self._scale: Scale                      = Scale([])
+
         self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
         self._key: ou.Key           = ou.Key()      # By default it's the Tonic key
         self._key_offset: int       = 0
