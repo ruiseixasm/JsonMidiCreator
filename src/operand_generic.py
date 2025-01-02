@@ -120,7 +120,7 @@ class Pitch(Generic):
         super().__init__()
         
         self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
-        self._unit                              = self._key_signature.get_tonic_key()
+        self._key_key: ou.Key                   = ou.Key( self._key_signature.get_tonic_key() )
         self._sharp: ou.Sharp                   = ou.Sharp(0)
         self._flat: ou.Flat                     = ou.Flat(0)
         self._natural: ou.Natural               = ou.Natural(0)
@@ -212,6 +212,7 @@ class Pitch(Generic):
         serialization = super().getSerialization()
 
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+        serialization["parameters"]["key_key"]          = self.serialize( self._key_key )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["flat"]             = self.serialize( self._flat )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
@@ -227,13 +228,15 @@ class Pitch(Generic):
 
     def loadSerialization(self, serialization: dict) -> 'Pitch':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "key_signature" in serialization["parameters"] and "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
+            "key_signature" in serialization["parameters"] and "key_key" in serialization["parameters"] and
+            "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and
             "natural" in serialization["parameters"] and "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
 
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._key_key       = self.deserialize( serialization["parameters"]["key_key"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._flat          = self.deserialize( serialization["parameters"]["flat"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
@@ -391,17 +394,17 @@ class Pitch(Generic):
         string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
         for key, value in self._white_keys.items():
             if string.find(key) != -1:
-                self._unit = value
+                self._key_key._unit = value
                 return
 
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
                            "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
-    
+
     def key_to_int(self, key: str = "C"):
         for index, value in enumerate(self._keys):
             if value.lower().find(key.strip().lower()) != -1:
-                self._unit = index % 12
+                self._key_key._unit = index % 12
                 return
 
 class Controller(Generic):
