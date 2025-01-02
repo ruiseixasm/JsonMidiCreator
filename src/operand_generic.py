@@ -128,7 +128,7 @@ class Pitch(Generic):
         self._scale: Scale                      = Scale([])
 
         self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
-        self._key: ou.Key           = ou.Key()      # By default it's the Tonic key
+        # self._key: ou.Key           = ou.Key()      # By default it's the Tonic key
         self._key_offset: int       = 0
         if len(parameters) > 0:
             self << parameters
@@ -156,6 +156,57 @@ class Pitch(Generic):
     def scale(self, scale: list[int] | str = None) -> 'Pitch':
         return self << Scale(scale)
         return self << od.DataSource( Scale(scale) )
+
+
+    # IGNORES THE KEY SIGNATURE (CHROMATIC)
+    def get_key_int(self) -> int:
+        staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+        accidentals_int: int    = self._key_signature._unit
+        key_int: int            = self._key_key._unit
+        degree_transpose: int   = self._degree._unit
+        semitone_transpose: int = 0
+
+        key_scale = staff_white_keys  # Major scale
+        if self._scale.hasScale():
+            key_scale = self._scale % list()  # Already modulated
+
+        while degree_transpose > 0:
+            semitone_transpose += 1
+            if key_scale[(key_int + semitone_transpose) % 12]:
+                degree_transpose -= 1
+        while degree_transpose < 0:
+            semitone_transpose -= 1
+            if key_scale[(key_int + semitone_transpose) % 12]:
+                degree_transpose += 1
+
+        key_int += semitone_transpose
+
+        if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
+            if self._key_key._natural:
+                if accidentals_int < 0:
+                    key_int += 1
+                else:
+                    key_int -= 1
+        elif not self._key_key._natural:
+            key_int += self._key_key._sharp._unit - self._key_key._flat._unit
+
+        return key_int
+
+
+    # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
+    def get_key_float(self) -> float:
+        if not (self._scale.hasScale() or self._key_key._natural):
+            semitone_int: int = self.get_key_int()
+
+            accidentals_int = self._key_signature % int()
+            # Circle of Fifths
+            sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+            semitone_transpose = sharps_flats[semitone_int % 12]
+
+            return float(semitone_int + semitone_transpose)
+        
+        return float(self.get_key_int())
+
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -209,16 +260,16 @@ class Pitch(Generic):
             # TO BE COMMENTED OUT FOR FUTURE DELETION
             # TO BE COMMENTED OUT FOR FUTURE DELETION
             # TO BE COMMENTED OUT FOR FUTURE DELETION
-            case ou.Key():          return self._key.copy()
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | ou.Unit() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
-                return self._key % operand
-            case int():
-                # IGNORES THE KEY SIGNATURE (CHROMATIC)
-                return 12 * (self._octave._unit + 1) + self._key % int() + self._key_offset
-            case float():
-                # RESPECTS THE KEY SIGNATURE
-                return 12 * (self._octave._unit + 1) + self._key % float() + self._key_offset
+            # case ou.Key():          return self._key.copy()
+            # case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+            #     | ou.Unit() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
+            #     return self._key % operand
+            # case int():
+            #     # IGNORES THE KEY SIGNATURE (CHROMATIC)
+            #     return 12 * (self._octave._unit + 1) + self._key % int() + self._key_offset
+            # case float():
+            #     # RESPECTS THE KEY SIGNATURE
+            #     return 12 * (self._octave._unit + 1) + self._key % float() + self._key_offset
             
 
 
@@ -241,57 +292,18 @@ class Pitch(Generic):
                 return (self % Scale()) % operand
             case str():
                 note_key = int(self % float()) % 12
-                if Key._major_scale[note_key] == 0 and self._key_signature._unit < 0:
+                if self._major_scale[note_key] == 0 and self._key_signature._unit < 0:
                     note_key += 12  # In case of FLAT Key Signature
-                return Key._keys[note_key]
+                return self._keys[note_key]
             case int(): # WITHOUT KEY SIGNATURE
-                staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-                accidentals_int: int    = self._key_signature._unit
-                key_int: int            = self._unit
-                degree_transpose: int   = self._degree._unit
-                semitone_transpose: int = 0
-
-                key_scale = staff_white_keys  # Major scale
-                if self._scale.hasScale():
-                    key_scale = self._scale % list()  # Already modulated
-
-                while degree_transpose > 0:
-                    semitone_transpose += 1
-                    if key_scale[(key_int + semitone_transpose) % 12]:
-                        degree_transpose -= 1
-                while degree_transpose < 0:
-                    semitone_transpose -= 1
-                    if key_scale[(key_int + semitone_transpose) % 12]:
-                        degree_transpose += 1
-
-                key_int += semitone_transpose
-
-                if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:
-                    if self._natural:
-                        if accidentals_int < 0:
-                            key_int += 1
-                        else:
-                            key_int -= 1
-                elif not self._natural:
-                    key_int + self._key_key._sharp._unit - self._key_key._flat._unit
-
+                
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
-                return 12 * (self._octave._unit + 1) + key_int + self._key_offset
+                return 12 * (self._octave._unit + 1) + self.get_key_int() + self._key_offset
              
             case float(): # WITH KEY SIGNATURE
-                # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
 
-                pitch_int: int = self % int()
-
-                if not (self._scale.hasScale() or self._natural):
-                    
-                    accidentals_int = self._key_signature % int()
-                    # Circle of Fifths
-                    sharps_flats = KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                    semitone_transpose = sharps_flats[pitch_int % 12]
-                    return float(pitch_int + semitone_transpose)    # "pitch_float"
-                
-                return float(pitch_int)
+                # RESPECTS THE KEY SIGNATURE
+                return 12 * (self._octave._unit + 1) + self.get_key_float() + self._key_offset
             
             case _:
                 return super().__mod__(operand)
@@ -303,15 +315,16 @@ class Pitch(Generic):
         match other:
             case Pitch():
                 return self % float() == other % float()
-            case str() | ou.Key():
-                return self._key    == other
-            case int() | ou.Octave():
+            # case str() | ou.Key():
+            #     return self._key    == other
+            case ou.Octave():
                 return self % od.DataSource( ou.Octave() ) == other
             
 
             # case self.__class__():
             #     return self % float() == other % float()    # This get's in consideration the just final key pressed
-            case str() | ou.Key():
+
+            case int() | float() | str() | ou.Key():
                 return self._key_key == other
             case _:
                 return super().__eq__(other)
@@ -324,12 +337,16 @@ class Pitch(Generic):
         match other:
             case Pitch():
                 return self % float() < other % float()
-            case str() | ou.Key():
-                return self._key    < other
-            case int() | ou.Octave():
+            # case str() | ou.Key():
+            #     return self._key    < other
+            case ou.Octave():
                 return self % od.DataSource( ou.Octave() ) < other
 
 
+            case int() | float() | str() | ou.Key():
+                return self._key_key == other
+            case _:
+                return super().__lt__(other)
 
 
         return False
@@ -339,11 +356,16 @@ class Pitch(Generic):
         match other:
             case Pitch():
                 return self % float() > other % float()
-            case str() | ou.Key():
-                return self._key    > other
-            case int() | ou.Octave():
+            # case str() | ou.Key():
+            #     return self._key    > other
+            case ou.Octave():
                 return self % od.DataSource( ou.Octave() ) > other
             
+
+            case int() | float() | str() | ou.Key():
+                return self._key_key == other
+            case _:
+                return super().__gt__(other)
 
 
 
@@ -362,7 +384,7 @@ class Pitch(Generic):
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
 
-        serialization["parameters"]["key"]        = self.serialize( self._key )
+        # serialization["parameters"]["key"]        = self.serialize( self._key )
         serialization["parameters"]["octave"]     = self.serialize( self._octave )
         serialization["parameters"]["key_offset"] = self.serialize( self._key_offset )
         return serialization
@@ -374,7 +396,7 @@ class Pitch(Generic):
             "key_signature" in serialization["parameters"] and "key_key" in serialization["parameters"] and
             # "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and
             "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
-            "octave" in serialization["parameters"] and "key" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
+            "octave" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
 
@@ -386,7 +408,7 @@ class Pitch(Generic):
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
 
-            self._key           = self.deserialize( serialization["parameters"]["key"] )
+            # self._key           = self.deserialize( serialization["parameters"]["key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._key_offset    = self.deserialize( serialization["parameters"]["key_offset"] )
             self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
@@ -430,7 +452,7 @@ class Pitch(Generic):
             case Pitch():
                 super().__lshift__(operand)
                 self._octave    << operand._octave
-                self._key       << operand._key
+                # self._key       << operand._key
                 self._key_offset = operand._key_offset
 
                 self._key_signature             << operand._key_signature
@@ -452,10 +474,10 @@ class Pitch(Generic):
             # TO BE COMMENTED OUT FOR FUTURE DELETION
             # TO BE COMMENTED OUT FOR FUTURE DELETION
             # TO BE COMMENTED OUT FOR FUTURE DELETION
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | ou.Key() | int() | ou.Unit() | float() | str() | ou.Semitone() \
-                | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
-                self._key << operand
+            # case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+            #     | ou.Key() | int() | ou.Unit() | float() | str() | ou.Semitone() \
+            #     | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
+            #     self._key << operand
 
 
             case int():
@@ -535,7 +557,7 @@ class Pitch(Generic):
         return self
 
     def octave_correction(self):
-        gross_octave: int = (12 * (self._octave._unit + 1) + int(self._key % float()) + self._key_offset) // 12 - 1
+        gross_octave: int = (12 * (self._octave._unit + 1) + self.get_key_int() + self._key_offset) // 12 - 1
         octave_offset: int = gross_octave - self._octave._unit
         self._key_offset -= 12 * octave_offset
         self._octave._unit += octave_offset
@@ -555,8 +577,15 @@ class Pitch(Generic):
                 return new_keynote
             case ou.Octave():
                 self_copy._octave._unit += operand._unit
-            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
-                self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
+
+
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
+            #     self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
 
 
             case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
@@ -591,8 +620,15 @@ class Pitch(Generic):
                 return new_keynote
             case ou.Octave():
                 self_copy._octave._unit -= operand._unit
-            case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
-                self_copy._key -= operand
+
+
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
+            # case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
+            #     self_copy._key -= operand
 
 
             case float() | Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
