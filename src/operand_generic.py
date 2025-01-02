@@ -185,20 +185,24 @@ class Pitch(Generic):
 
 
                     case ou.KeySignature(): return self._key_signature
+                    case ou.Key():          return self._key_key
                     case ou.Sharp():        return self._key_key._sharp
                     case ou.Flat():         return self._key_key._flat
                     case ou.Natural():      return self._key_key._natural
                     case ou.Degree():       return self._degree
                     case Scale():           return self._scale
+                    case int():             return self % int()
                     case float():           return self % float()
                     case str():
                         note_key = self % int() % 12
-                        note_key += 12 * (self._key_key._flat._unit != 0)
+                        note_key += 12 * (self._key_key._flat._unit != 0)   # second line of the list
                         return Key._keys[note_key]
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case Pitch():           return self.copy()
             case ou.Octave():       return self._octave.copy()
+
+            # TO BE COMMENTED OUT FOR FUTURE DELETION
             case ou.Key():          return self._key.copy()
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | ou.Unit() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | list() | str():
@@ -212,7 +216,11 @@ class Pitch(Generic):
             
 
 
-            case ou.KeySignature(): return self._key_signature.copy() 
+            case ou.KeySignature():
+                return self._key_signature.copy()
+            case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
+                return self._key_signature % operand
+            case ou.Key():          return self._key_key.copy()
             case ou.Sharp():        return self._key_key._sharp.copy()
             case ou.Flat():         return self._key_key._flat.copy()
             case ou.Natural():      return self._key_key._natural.copy()
@@ -295,10 +303,10 @@ class Pitch(Generic):
                 return self % od.DataSource( ou.Octave() ) == other
             
 
-            case self.__class__():
-                return self % float() == other % float()    # This get's in consideration the just final key pressed
-            case str():
-                return self % str() == other
+            # case self.__class__():
+            #     return self % float() == other % float()    # This get's in consideration the just final key pressed
+            case str() | ou.Key():
+                return self._key_key == other
             case _:
                 return super().__eq__(other)
 
