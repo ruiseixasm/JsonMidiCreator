@@ -426,12 +426,66 @@ class Pitch(Generic):
                 | ou.Key() | int() | ou.Unit() | float() | str() | ou.Semitone() \
                 | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
                 self._key << operand
+
+
+            case int():
+                if operand == 0:
+                    self._unit      = self._key_signature.get_tonic_key()
+                else:
+                    self._degree    << operand
+            case float() | Fraction() | ou.Semitone():
+                                    if isinstance(operand, o.Operand):
+                                        self._unit = operand % od.DataSource( int() )
+                                    else:
+                                        self._unit = int(operand)
+                                    if self._major_scale[self._unit % 12] == 0:
+                                        if self._key_signature._unit < 0:
+                                            self._unit += 1
+                                            self._sharp << False
+                                            self._flat << True
+                                        else:
+                                            self._unit -= 1
+                                            self._sharp << True
+                                            self._flat << False
+                                    else:
+                                        self._sharp << False
+                                        self._flat << False
+            case ou.Sharp():
+                self._sharp << operand
+            case ou.Flat():
+                self._flat << operand
+            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
+                self._key_signature << operand
+                self._unit = self._key_signature.get_tonic_key()   # resets tonic key
+            case ou.Natural():
+                self._natural   << operand
+            case ou.Degree():
+                self._degree    << operand
+            case Scale() | ou.Mode():
+                self._scale     << operand
+            case str():
+                string: str = operand.strip()
+                new_sharp: Sharp = self._sharp.copy(string)
+                new_flat: Flat = self._flat.copy(string)
+                if new_sharp != self._sharp:
+                    self._sharp << new_sharp
+                    if new_sharp:
+                        self._flat  << False
+                elif new_flat != self._flat:
+                    if new_flat:
+                        self._sharp << False
+                    self._flat  << new_flat
+                self._degree    << string
+                self.key_to_int(string)
+                self.stringToNumber(string)
+
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
 
-
-
+            case _:
+                super().__lshift__(operand)
 
         if not isinstance(operand, tuple):
             self.octave_correction()
