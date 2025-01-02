@@ -175,6 +175,10 @@ class Pitch(Generic):
                     case ou.Key():          return self._key
                     case int():             return self % int()
                     case float():           return self % float()
+
+
+
+
                     case _:                 return ol.Null()
             case of.Frame():        return self % (operand % o.Operand())
             case Pitch():           return self.copy()
@@ -189,6 +193,10 @@ class Pitch(Generic):
             case float():
                 # RESPECTS THE KEY SIGNATURE
                 return 12 * (self._octave._unit + 1) + self._key % float() + self._key_offset
+            
+
+
+
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, operand: any) -> bool:
@@ -202,6 +210,10 @@ class Pitch(Generic):
                 return self._key    == operand
             case int() | ou.Octave():
                 return self % od.DataSource( ou.Octave() ) == operand
+            
+
+
+
         return False
     
     def __lt__(self, operand: any) -> bool:
@@ -213,6 +225,10 @@ class Pitch(Generic):
                 return self._key    < operand
             case int() | ou.Octave():
                 return self % od.DataSource( ou.Octave() ) < operand
+
+
+
+
         return False
     
     def __gt__(self, operand: any) -> bool:
@@ -224,6 +240,11 @@ class Pitch(Generic):
                 return self._key    > operand
             case int() | ou.Octave():
                 return self % od.DataSource( ou.Octave() ) > operand
+            
+
+
+
+
         return False
     
     def getSerialization(self) -> dict:
@@ -275,6 +296,9 @@ class Pitch(Generic):
                 match operand % o.Operand():
                     case ou.Octave():       self._octave    = operand % o.Operand()
                     case ou.Key():          self._key       = operand % o.Operand()
+
+
+
             case Pitch():
                 super().__lshift__(operand)
                 self._octave    << operand._octave
@@ -291,6 +315,10 @@ class Pitch(Generic):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+
+
+
+
         if not isinstance(operand, tuple):
             self.octave_correction()
         return self
@@ -318,7 +346,12 @@ class Pitch(Generic):
                 self_copy._octave._unit += operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self_copy._key += operand   # This results in a key with degree 1 and unit = key % int()
-            case _: return super().__add__(operand)
+            case _:
+                return super().__add__(operand)
+
+
+
+                
         self_copy.octave_correction()
         return self_copy
     
@@ -339,7 +372,13 @@ class Pitch(Generic):
                 self_copy._octave._unit -= operand._unit
             case ou.Key() | int() | float() | Fraction() | ou.Unit() | ra.Rational():
                 self_copy._key -= operand
-            case _: return super().__add__(operand)
+            case _:
+                return super().__add__(operand)
+
+
+
+
+
         self_copy.octave_correction()
         return self_copy
 
@@ -360,7 +399,12 @@ class Pitch(Generic):
                 new_keynote._key << multiplied_int % 12
                 new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
-            case _: return super().__mul__(operand)
+
+
+
+
+            case _:
+                return super().__mul__(operand)
     
     def __div__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -379,7 +423,12 @@ class Pitch(Generic):
                 new_keynote._key << multiplied_int % 12
                 new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
-            case _: return super().__div__(operand)
+            
+
+
+
+            case _:
+                return super().__div__(operand)
 
 
     def move_semitones(self, move_keys: int) -> int:
