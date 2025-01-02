@@ -273,47 +273,47 @@ class Pitch(Generic):
 
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, operand: any) -> bool:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        if operand.__class__ == o.Operand:
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        match operand:
+        match other:
             case Pitch():
-                return self % float() == operand % float()
+                return self % float() == other % float()
             case str() | ou.Key():
-                return self._key    == operand
+                return self._key    == other
             case int() | ou.Octave():
-                return self % od.DataSource( ou.Octave() ) == operand
+                return self % od.DataSource( ou.Octave() ) == other
             
 
 
 
         return False
     
-    def __lt__(self, operand: any) -> bool:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
+    def __lt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Pitch():
-                return self % float() < operand % float()
+                return self % float() < other % float()
             case str() | ou.Key():
-                return self._key    < operand
+                return self._key    < other
             case int() | ou.Octave():
-                return self % od.DataSource( ou.Octave() ) < operand
+                return self % od.DataSource( ou.Octave() ) < other
 
 
 
 
         return False
     
-    def __gt__(self, operand: any) -> bool:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
+    def __gt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
             case Pitch():
-                return self % float() > operand % float()
+                return self % float() > other % float()
             case str() | ou.Key():
-                return self._key    > operand
+                return self._key    > other
             case int() | ou.Octave():
-                return self % od.DataSource( ou.Octave() ) > operand
+                return self % od.DataSource( ou.Octave() ) > other
             
 
 
