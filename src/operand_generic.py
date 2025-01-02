@@ -133,6 +133,25 @@ class Pitch(Generic):
         if len(parameters) > 0:
             self << parameters
 
+    def key_signature(self, key_signature: 'ou.KeySignature' = None) -> 'Pitch':
+        self._key_signature = key_signature
+        return self
+
+    def sharp(self, unit: int = None) -> 'Pitch':
+        return self << od.DataSource( ou.Sharp(unit) )
+
+    def flat(self, unit: int = None) -> 'Pitch':
+        return self << od.DataSource( ou.Flat(unit) )
+
+    def natural(self, unit: int = None) -> 'Pitch':
+        return self << od.DataSource( ou.Natural(unit) )
+
+    def degree(self, unit: int = None) -> 'Pitch':
+        return self << od.DataSource( ou.Degree(unit) )
+
+    def scale(self, scale: list[int] | str = None) -> 'Pitch':
+        return self << od.DataSource( Scale(scale) )
+
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
