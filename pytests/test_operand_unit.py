@@ -42,6 +42,7 @@ def test_unit_set():
     # key_2.sharp().degree(2).scale("minor")
     # assert key_1 == key_2
 
+
 def test_unit_mod():
 
     # Perform the operation
@@ -52,6 +53,42 @@ def test_unit_mod():
     assert integer_1 - integer_2 == 12 - 10
     assert integer_1 * integer_2 == 12 * 10
     assert integer_1 / integer_2 == int(12 / 10)
+
+
+def test_tonic_key_signature():
+
+    signature: int = -2     # Two flats bb
+    key_signature_single: KeySignature = KeySignature(signature)
+
+    print(f"Major Signature: {signature}, returned {key_signature_single % int()}")
+    assert key_signature_single % int() == 10   # Bb is 10
+
+    print("------")
+    major_tonic_keys_int: list[int] = [
+        11, 6, 1, 8, 3, 10, 5,
+        0,
+        7, 2, 9, 4, 11, 6, 1
+    ]
+    for signature in range(len(major_tonic_keys_int)): # Major
+        key_signature: KeySignature = KeySignature(signature - 7)
+        print(f"Major Signature: {signature - 7}, returned {key_signature % int()}")
+        assert key_signature % int() == major_tonic_keys_int[signature]
+
+    print("------")
+    minor_tonic_keys_int: list[int] = [
+        8, 3, 10, 5, 0, 7, 2,
+        9,
+        4, 11, 6, 1, 8, 3, 10
+    ]
+    for signature in range(len(minor_tonic_keys_int)): # minor
+        key_signature: KeySignature = KeySignature(signature - 7, Minor())
+        print(f"minor Signature: {signature - 7}, returned {key_signature % int()}")
+        assert key_signature % int() == minor_tonic_keys_int[signature]
+
+# test_tonic_key_signature()
+
+
+
 
 # def test_key_signature_mod():
 

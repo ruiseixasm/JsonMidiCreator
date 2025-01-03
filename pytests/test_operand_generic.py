@@ -99,9 +99,10 @@ def test_pitch_set():
     assert pitch_1 == pitch_2
 
 
+
 def test_pitch_key_signature():
 
-    major_keys_signatures: list[int] = [
+    major_keys_signatures: list[str] = [
         "B", "Gb", "Db", "Ab", "Eb", "Bb", "F",
         "C",
         "G", "D", "A", "E", "B", "F#", "C#"
@@ -112,7 +113,7 @@ def test_pitch_key_signature():
         pitch_key << KeySignature(signature - 7)
         assert pitch_key % str() == major_keys_signatures[signature]
 
-    minor_keys_signatures: list = [
+    minor_keys_signatures: list[str] = [
         "Ab", "Eb", "Bb", "F", "C", "G", "D",
         "A",
         "E", "B", "F#", "C#", "G#", "D#", "A#"
@@ -158,7 +159,7 @@ def test_pitch_key_signature():
         assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
 
-test_pitch_key_signature()
+# test_pitch_key_signature()
 
 
 def test_pitch_add():
