@@ -315,7 +315,7 @@ def test_note_element():
     print("------")
     note << 0 << 1 # Tonic key again and resets the degree to 1
     note << Octave(4)    # Makes sure it's C4 again
-    print(f"Key: {(note + 2) % str()}, tone: {(note + 2) % float()}, degree: {(note + 2) % Degree() % int()}")
+    print(f"Key: {(note + 2) % str()}, tone: {(note + 2) % Pitch() % float()}, degree: {(note + 2) % Degree() % int()}")
     assert note + 2 == Note("E")    # C - D - E
 
 # test_note_element()

@@ -102,6 +102,8 @@ class Element(o.Operand):
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.finish()
+            case int():             return self._position % operand
+            case float():           return self._duration % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: 'o.Operand') -> bool:
@@ -552,6 +554,7 @@ class Note(Element):
             case ou.Velocity():     return self._velocity.copy()
             case ra.Gate():         return self._gate.copy()
             case ou.Tied():         return self._tied.copy()
+            case int():             return self._pitch._degree % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
