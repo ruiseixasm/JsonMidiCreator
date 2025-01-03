@@ -541,16 +541,16 @@ class Key(Unit):
             #     return float(self % int())
             case _:                 return super().__mod__(operand)
 
-    # def __eq__(self, other: o.Operand) -> bool:
-    #     import operand_generic as og
-    #     other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-    #     match other:
-    #         case self.__class__():
-    #             return self % float() == other % float()    # This get's in consideration the just final key pressed
-    #         case str():
-    #             return self % str() == other
-    #         case _:
-    #             return super().__eq__(other)
+    def __eq__(self, other: o.Operand) -> bool:
+        import operand_generic as og
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return self % int() == other % int()    # This get's in consideration the just final key pressed
+            case str():
+                return self % str() == other
+            case _:
+                return super().__eq__(other)
     
     # def getSerialization(self) -> dict:
     #     serialization = super().getSerialization()
