@@ -165,7 +165,12 @@ def test_pitch_key_signature():
 def test_pitch_add():
 
     # Perform the operation
-    pitch_1 = Pitch("A")
+    pitch_b: Pitch = Pitch("F")
+    assert pitch_b == Key("F")
+    pitch_b += Key(2)
+    assert pitch_b == Key("G")
+
+    pitch_1: Pitch = Pitch("A")
     pitch_1.getSerialization() % Data("degree") >> Print()
     (pitch_1 + 1).getSerialization() % Data("degree") >> Print()
     assert pitch_1 + 1    == Pitch("B")
