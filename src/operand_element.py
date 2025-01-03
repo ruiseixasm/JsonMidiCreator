@@ -283,50 +283,52 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():         return oc.Sequence(self, operand)   # copy already included in Sequence initiation
+            case Element():
+                return oc.Sequence(self, operand)   # copy already included in Sequence initiation
             case oc.Sequence():
                 return operand.__radd__(self)
-            # For self Parameters it shouldn't result in new instantiations !!
-            case o.Operand():       return self << self % operand + operand
-        return self
+            case o.Operand():
+                return self.copy() << self % operand + operand
+        return self.copy()
 
     def __sub__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():         return self
-            case oc.Sequence():     return self
-            case o.Operand():       return self << self % operand - operand
-        return self
+            case Element():         pass
+            case oc.Sequence():     pass
+            case o.Operand():
+                return self.copy() << self % operand - operand
+        return self.copy()
 
     def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                ...
+                pass
             case oc.Sequence():
-                ...
+                pass
             case o.Operand():
-                return self << self % operand * operand
+                return self.copy() << self % operand * operand
             case int():
                 new_sequence: oc.Sequence = oc.Sequence()
                 for _ in range(operand):
                     new_sequence + self # copy already included in Element processing
                 return new_sequence.stack()
-        return self
+        return self.copy()
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                ...
+                pass
             case oc.Sequence():
-                ...
+                pass
             case o.Operand():
-                return self << self % operand / operand
-        return self
+                return self.copy() << self % operand / operand
+        return self.copy()
 
     def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
         sequence_position_ms: Fraction = Fraction(0)
@@ -659,7 +661,7 @@ class Note(Element):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self._pitch + operand )
+                return self.copy() << od.DataSource( self._pitch + operand )    # Specific parameter
             case _:
                 return super().__add__(operand)
 
@@ -667,7 +669,7 @@ class Note(Element):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self._pitch - operand )
+                return self.copy() << od.DataSource( self._pitch - operand )    # Specific parameter
             case _:
                 return super().__sub__(operand)
     
@@ -1439,18 +1441,17 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Value():
-                # For self Parameters it shouldn't result in new instantiations !!
-                return self << self._controller + operand
-            case _:             return super().__add__(operand)
-        return self
+                return self.copy() << od.DataSource( self._controller + operand )   # Specific parameter
+            case _:
+                return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Value():
-                self << self._controller - operand
-            case _:             return super().__sub__(operand)
-        return self
+                return self.copy() << od.DataSource( self._controller - operand )   # Specific parameter
+            case _:
+                return super().__sub__(operand)
 
 class PitchBend(Automation):
     def __init__(self, *parameters):
@@ -1552,18 +1553,17 @@ class PitchBend(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Bend() | Fraction():
-                # For self Parameters it shouldn't result in new instantiations !!
-                return self << self._bend + operand
-            case _:             return super().__add__(operand)
-        return self
+                return self.copy() << od.DataSource( self._bend + operand )   # Specific parameter
+            case _:
+                return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | ou.Bend() | Fraction():
-                self << self._bend - operand
-            case _:             return super().__sub__(operand)
-        return self
+                return self.copy() << od.DataSource( self._bend - operand )   # Specific parameter
+            case _:
+                return super().__sub__(operand)
 
 class Aftertouch(Automation):
     def __init__(self, *parameters):
@@ -1664,18 +1664,17 @@ class Aftertouch(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Pressure() | Fraction():
-                # For self Parameters it shouldn't result in new instantiations !!
-                return self << self._pressure + operand
-            case _:             return super().__add__(operand)
-        return self
+                return self.copy() << od.DataSource( self._pressure + operand )   # Specific parameter
+            case _:
+                return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | ou.Pressure() | Fraction():
-                self << self._pressure - operand
-            case _:             return super().__sub__(operand)
-        return self
+                return self.copy() << od.DataSource( self._pressure - operand )   # Specific parameter
+            case _:
+                return super().__sub__(operand)
 
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
@@ -1869,18 +1868,17 @@ class ProgramChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Program() | Fraction():
-                # For self Parameters it shouldn't result in new instantiations !!
-                return self << self._program + operand
-            case _:             return super().__add__(operand)
-        return self
+                return self.copy() << od.DataSource( self._program + operand )   # Specific parameter
+            case _:
+                return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | ou.Program() | Fraction():
-                self << self._program - operand
-            case _:             return super().__sub__(operand)
-        return self
+                return self.copy() << od.DataSource( self._program - operand )   # Specific parameter
+            case _:
+                return super().__sub__(operand)
 
 class Panic(Element):
     def getPlaylist(self, position: ra.Position = None) -> list:
