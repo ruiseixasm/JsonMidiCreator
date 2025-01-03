@@ -471,10 +471,10 @@ class Key(Unit):
                 return self._unit % 12
 
             case float():
-                return float(self._unit % 24)
+                return float(self._unit % 48)
 
             case str():
-                return Key._keys[self._unit % 24]
+                return Key._keys[self._unit % 48]
 
 
 
@@ -605,7 +605,7 @@ class Key(Unit):
                     case og.Scale():
                         self._scale << operand % o.Operand()
                     case str():
-                        self._unit = self.getStringToNumber(operand % o.Operand()) % 24
+                        self._unit = self.getStringToNumber(operand % o.Operand()) % 48
                     case _:                         super().__lshift__(operand)
             # case Key():
             #     super().__lshift__(operand)
@@ -654,10 +654,10 @@ class Key(Unit):
             case int():
                 self._unit = operand % 12
             case float():
-                self._unit = int(operand) % 24
+                self._unit = int(operand) % 48
 
             case str():
-                self._unit = self.getStringToNumber(operand) % 24
+                self._unit = self.getStringToNumber(operand) % 48
                 
 
                 # string: str = operand.strip()
