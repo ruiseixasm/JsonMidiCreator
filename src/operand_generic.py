@@ -127,9 +127,9 @@ class Pitch(Generic):
         self._degree: ou.Degree                 = ou.Degree(1)
         self._scale: Scale                      = Scale([])
 
-        self._octave: ou.Octave     = ou.Octave(4)  # By default it's the 4th Octave!
+        self._octave: ou.Octave                 = ou.Octave(4)  # By default it's the 4th Octave!
         # self._key: ou.Key           = ou.Key()      # By default it's the Tonic key
-        self._key_offset: int       = 0
+        # self._key_offset: int       = 0
         if len(parameters) > 0:
             self << parameters
 
@@ -435,7 +435,7 @@ class Pitch(Generic):
 
         # serialization["parameters"]["key"]        = self.serialize( self._key )
         serialization["parameters"]["octave"]     = self.serialize( self._octave )
-        serialization["parameters"]["key_offset"] = self.serialize( self._key_offset )
+        # serialization["parameters"]["key_offset"] = self.serialize( self._key_offset )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -445,7 +445,7 @@ class Pitch(Generic):
             "key_signature" in serialization["parameters"] and "key_key" in serialization["parameters"] and
             "sharp" in serialization["parameters"] and "flat" in serialization["parameters"] and "natural" in serialization["parameters"] and
             "degree" in serialization["parameters"] and "scale" in serialization["parameters"] and
-            "octave" in serialization["parameters"] and "key_offset" in serialization["parameters"]):
+            "octave" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
 
@@ -459,7 +459,7 @@ class Pitch(Generic):
 
             # self._key           = self.deserialize( serialization["parameters"]["key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
-            self._key_offset    = self.deserialize( serialization["parameters"]["key_offset"] )
+            # self._key_offset    = self.deserialize( serialization["parameters"]["key_offset"] )
             # self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return self
 
@@ -502,7 +502,7 @@ class Pitch(Generic):
                 super().__lshift__(operand)
                 self._octave    << operand._octave
                 # self._key       << operand._key
-                self._key_offset = operand._key_offset
+                # self._key_offset = operand._key_offset
 
                 self._key_signature         << operand._key_signature
                 self._key_key._unit         = operand._key_key._unit
@@ -532,7 +532,7 @@ class Pitch(Generic):
 
             case int():
                 if operand == 0:
-                    self._unit      = self._key_signature.get_tonic_key()
+                    self._key_key = self._key_signature % ou.Key()
                 else:
                     self._degree    << operand
             case float() | Fraction() | ou.Semitone():
@@ -780,10 +780,10 @@ class Pitch(Generic):
                 self._key_key._unit = value
                 return
 
-    _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
-                           "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
-                           "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",
-                           "C",  "C#", "D", "D#", "Fb", "F",  "F#", "G", "G#", "A", "A#", "Cb"]
+    _keys: list[str]            = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
+                                   "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",      # Black Flats
+                                   "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",      # All Sharps
+                                   "C",  "Db", "D", "Eb", "Fb", "F",  "Gb", "G", "Ab", "A", "Bb", "Cb"]     # All Flats
 
     def key_to_int(self, key: str = "C"):
         for index, value in enumerate(self._keys):

@@ -32,7 +32,7 @@ import sys
 
 def test_container_mod():
 
-    keys_container: Container = Container(Key(), Key(), Key(), Key(), Key(), Key(), Key())
+    keys_container: Container = Container(Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch())
     assert keys_container.len() == 7
     for single_item in keys_container:
         assert single_item == "C"

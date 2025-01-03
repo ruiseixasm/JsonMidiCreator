@@ -559,10 +559,10 @@ class Note(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pitch     == other % od.DataSource( og.Pitch() ) \
-                    and self._velocity  == other % od.DataSource( ou.Velocity() ) \
-                    and self._gate      == other % od.DataSource( ra.Gate() ) \
-                    and self._tied      == other % od.DataSource( ou.Tied() )
+                    and self._pitch     == other._pitch \
+                    and self._velocity  == other._velocity \
+                    and self._gate      == other._gate \
+                    and self._tied      == other._tied
             case _:
                 return super().__eq__(other)
     

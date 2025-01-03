@@ -45,13 +45,15 @@ def test_frame_mod():
 
 def test_foreach_mod():
 
-    frame = Foreach(1, 2, 3, 4, 5)
-    notes = Note() * 7
+    frame = Foreach(1, 2, 3, 4, 5)  # ints represent Degrees
+    notes = Note() * 7  # default degree 1 relative to the note C
 
     notes + frame
     sequence = Sequence() \
         + (N << D) + (N << E) + (N << F) + (N << G) + (N << A) + (N << D) + (N << E) \
         >> Stack()
+        # +     1          2          3          4          5          1          2
     
     assert notes == sequence
 
+# test_foreach_mod()
