@@ -477,7 +477,8 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.20_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.20_sequence.json")
 start_time = time.time()
-chord_play >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+chord_play >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+    >> Save("json/testing/_Save_Play_p.20_first_note_compare.json") >> Export("json/testing/_Export_Play_p.20_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 8.2",
