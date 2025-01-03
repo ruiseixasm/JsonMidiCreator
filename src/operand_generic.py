@@ -211,9 +211,6 @@ class Pitch(Generic):
         if self._key_key % float() < 24 and not (self._scale.hasScale() or self._natural):
             semitone_int: int = self.get_key_int()
 
-            if self._major_scale[semitone_int % 12] == 0:  # Black key
-                semitone_int = semitone_int - self._sharp._unit + self._flat._unit
-
             accidentals_int = self._key_signature._unit
             # Circle of Fifths
             sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]

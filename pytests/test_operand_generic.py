@@ -159,7 +159,7 @@ def test_pitch_key_signature():
         assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
 
-test_pitch_key_signature()
+# test_pitch_key_signature()
 
 
 def test_pitch_add():
@@ -179,6 +179,7 @@ def test_pitch_add():
     (pitch_2 + 2) % float() >> Print()          # 74.0
     (Pitch("D") + 12.0) % float() >> Print()    # 74.0
     assert pitch_2 + 2 == Pitch("D") + 12.0 # Next octave
+
     assert pitch_1 << Sharp() == Pitch("A") + 1.0
     assert pitch_1 << Natural() == Pitch("A")
     assert Pitch("Ab") == Pitch("A") - 1.0
