@@ -120,7 +120,7 @@ class Pitch(Generic):
         super().__init__()
         
         self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
-        self._key_key: ou.Key                   = ou.Key( self._key_signature.get_tonic_key() )
+        self._key: ou.Key                       = ou.Key( self._key_signature.get_tonic_key() )
         self._sharp: ou.Sharp                   = ou.Sharp(False)
         self._flat: ou.Flat                     = ou.Flat(False)
         self._natural: ou.Natural               = ou.Natural(False)
@@ -161,13 +161,13 @@ class Pitch(Generic):
         accidentals_int: int    = self._key_signature._unit
         sharp: ou.Sharp         = ou.Sharp(False)
         flat: ou.Flat           = ou.Flat(False)
-        key_int: int            = self._key_key._unit % 12
+        key_int: int            = self._key._unit % 12
         degree_transpose: int   = self._degree._unit
         semitone_transpose: int = 0
 
         # strips existent accidentals
         if staff_white_keys[key_int] == 0: # Black key
-            if self._key_key._unit % 24 < 12:   # sharps
+            if self._key._unit % 24 < 12:   # sharps
                 sharp << True
                 key_int -= 1
             else:                               # flats
@@ -205,7 +205,7 @@ class Pitch(Generic):
     def get_key_float(self) -> float:
 
         # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
-        if self._key_key % float() < 24 and not (self._scale.hasScale() or self._natural):
+        if self._key % float() < 24 and not (self._scale.hasScale() or self._natural):
             semitone_int: int = self.get_key_int()
 
             accidentals_int = self._key_signature._unit
@@ -220,7 +220,7 @@ class Pitch(Generic):
 
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
         
-        original_key_int: int = self._key_key._unit % 12
+        original_key_int: int = self._key._unit % 12
         final_key_int: int = original_key_int + key_offset
         octave_offset: int = final_key_int // 12
         final_key: int = final_key_int % 12
@@ -232,7 +232,7 @@ class Pitch(Generic):
         
         octave_offset, key_offset = self.octave_key_offset(key_offset)
         self._octave._unit += octave_offset
-        self._key_key._unit += key_offset
+        self._key._unit += key_offset
 
         return self
     
@@ -260,7 +260,6 @@ class Pitch(Generic):
                     case int():             return self % int()
                     case float():           return self % float()
                     case ou.KeySignature(): return self._key_signature
-                    case ou.Key():          return self._key_key
                     case ou.Sharp():        return self._sharp
                     case ou.Flat():         return self._flat
                     case ou.Natural():      return self._natural
@@ -351,7 +350,7 @@ class Pitch(Generic):
             case ou.Octave():
                 return self % od.DataSource( ou.Octave() ) < other
             case int() | float() | str() | ou.Key():
-                return self._key_key < other
+                return self._key < other
             case _:
                 return super().__lt__(other)
         return False
@@ -364,7 +363,7 @@ class Pitch(Generic):
             case ou.Octave():
                 return self % od.DataSource( ou.Octave() ) > other
             case int() | float() | str() | ou.Key():
-                return self._key_key > other
+                return self._key > other
             case _:
                 return super().__gt__(other)
         return False
@@ -374,7 +373,7 @@ class Pitch(Generic):
         serialization = super().getSerialization()
 
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
-        serialization["parameters"]["key_key"]          = self.serialize( self._key_key )
+        serialization["parameters"]["key_key"]          = self.serialize( self._key )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["flat"]             = self.serialize( self._flat )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
@@ -394,7 +393,7 @@ class Pitch(Generic):
             super().loadSerialization(serialization)
 
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
-            self._key_key       = self.deserialize( serialization["parameters"]["key_key"] )
+            self._key           = self.deserialize( serialization["parameters"]["key_key"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._flat          = self.deserialize( serialization["parameters"]["flat"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
@@ -441,7 +440,7 @@ class Pitch(Generic):
                 super().__lshift__(operand)
                 self._octave                << operand._octave
                 self._key_signature         << operand._key_signature
-                self._key_key._unit         = operand._key_key._unit
+                self._key._unit             = operand._key._unit
                 self._sharp._unit           = operand._sharp._unit
                 self._flat._unit            = operand._flat._unit
                 self._natural._unit         = operand._natural._unit
@@ -454,20 +453,20 @@ class Pitch(Generic):
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset
             case None:
-                self._key_key = self._key_signature % ou.Key()
+                self._key = self._key_signature % ou.Key()
             case int():
                 if operand == 0:
-                    self._key_key = self._key_signature % ou.Key()
+                    self._key = self._key_signature % ou.Key()
                 else:
                     self._degree  << operand
             case ou.Key():
-                self._key_key << operand
+                self._key << operand
             case float() | Fraction() | ou.Semitone():
                 if isinstance(operand, o.Operand):
-                    self._key_key._unit = operand % od.DataSource( int() )
+                    self._key._unit = operand % od.DataSource( int() )
                 else:
-                    self._key_key._unit = int(operand)
-                if self._major_scale[self._key_key._unit % 12] == 0:
+                    self._key._unit = int(operand)
+                if self._major_scale[self._key._unit % 12] == 0:
                     if self._key_signature._unit < 0:
                         self._sharp << False
                         self._flat << True
@@ -485,7 +484,7 @@ class Pitch(Generic):
                 self._natural   << operand
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 self._key_signature << operand
-                self._key_key = self._key_signature % ou.Key()
+                self._key = self._key_signature % ou.Key()
             case ou.Degree():
                 self._degree    << operand
             case Scale() | ou.Mode():
@@ -642,7 +641,7 @@ class Pitch(Generic):
         string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
         for key, value in self._white_keys.items():
             if string.find(key) != -1:
-                self._key_key._unit = value
+                self._key._unit = value
                 return
 
     _keys: list[str]            = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
@@ -653,7 +652,7 @@ class Pitch(Generic):
     def key_to_int(self, key: str = "C"):
         for index, value in enumerate(self._keys):
             if value.lower().find(key.strip().lower()) != -1:
-                self._key_key._unit = index % 12
+                self._key._unit = index % 12
                 return
 
 class Controller(Generic):
