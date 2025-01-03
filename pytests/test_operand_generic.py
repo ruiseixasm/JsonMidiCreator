@@ -106,11 +106,11 @@ def test_pitch_key_signature():
         "C",
         "G", "D", "A", "E", "B", "F#", "C#"
     ]
-    tonic_key = Pitch()
+    pitch_key = Pitch()
     for signature in range(len(major_keys_signatures)): # Major
         print(f"Major Signature: {signature - 7}")
-        tonic_key << KeySignature(signature - 7)
-        assert tonic_key % str() == major_keys_signatures[signature]
+        pitch_key << KeySignature(signature - 7)
+        assert pitch_key % str() == major_keys_signatures[signature]
 
     minor_keys_signatures: list = [
         "Ab", "Eb", "Bb", "F", "C", "G", "D",
@@ -119,18 +119,18 @@ def test_pitch_key_signature():
     ]
     for signature in range(len(minor_keys_signatures)): # Minor
         print(f"minor Signature: {signature - 7}")
-        tonic_key << KeySignature(signature - 7, Minor())
-        assert tonic_key % str() == minor_keys_signatures[signature]
+        pitch_key << KeySignature(signature - 7, Minor())
+        assert pitch_key % str() == minor_keys_signatures[signature]
 
     c_major_scale: Scale = Scale()
 
     for scale_mode in range(7):         # For Sharps
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
-        tonic_key: Key = key_signature % Key()
-        scale_mode_list: list = c_major_scale % tonic_key
+        pitch_key: Key = key_signature % Key()
+        scale_mode_list: list = c_major_scale % pitch_key
         print(scale_mode)
-        print(tonic_key % str())
+        print(pitch_key % str())
         print(key_signature_list)
         print(scale_mode_list)
         assert key_signature_list == scale_mode_list
@@ -138,10 +138,10 @@ def test_pitch_key_signature():
     for scale_mode in range(0, -7, -1): # For Flats
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
-        tonic_key: Key = key_signature % Key()
-        scale_mode_list: list = c_major_scale % tonic_key
+        pitch_key: Key = key_signature % Key()
+        scale_mode_list: list = c_major_scale % pitch_key
         print(scale_mode)
-        print(tonic_key % str())
+        print(pitch_key % str())
         print(key_signature_list)
         print(scale_mode_list)
         assert key_signature_list == scale_mode_list
@@ -158,7 +158,7 @@ def test_pitch_key_signature():
         assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
 
-# test_pitch_key_signature()
+test_pitch_key_signature()
 
 
 def test_pitch_add():

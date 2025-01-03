@@ -324,9 +324,9 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         other_signature = self & other_signature    # Processes the tailed self operands or the Frame operand if any exists
         if other_signature.__class__ == o.Operand:
             return True
-        if type(self) != type(other_signature):
-            return False
-        return  self % int()   == other_signature % int()
+        if isinstance(other_signature, KeySignature):
+            return self._unit == other_signature._unit and self._major == other_signature._major
+        return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
