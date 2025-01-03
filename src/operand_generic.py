@@ -564,12 +564,7 @@ class Pitch(Generic):
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
 
                 self._key_signature << operand
-                self._key_key._unit = self._key_signature.get_tonic_key()
-                if self._key_signature._unit < 0:
-                    self._key_key._unit += 12   # 2nd line for sharps
-                # Special case of bellow -5 or above +5 turns in the circle of fifths
-                if self._key_signature._unit < -5 or self._key_signature._unit > 5:
-                    self._key_key._unit += 24   # 3rd and 4th lines respectively
+                self._key_key = self._key_signature % ou.Key()
 
             case ou.Degree():
                 self._degree    << operand
