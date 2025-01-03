@@ -464,7 +464,7 @@ class Key(Unit):
                 return self._unit % 12
 
             case float():
-                return float(self._unit)
+                return float(self._unit % 24)
 
             case str():
                 return Key._keys[self._unit % 24]
