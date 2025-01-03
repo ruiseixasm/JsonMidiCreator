@@ -206,7 +206,9 @@ class Pitch(Generic):
 
     # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
     def get_key_float(self) -> float:
-        if not (self._scale.hasScale() or self._natural):
+
+        # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
+        if self._key_key % float() < 24 and not (self._scale.hasScale() or self._natural):
             semitone_int: int = self.get_key_int()
 
             if self._major_scale[semitone_int % 12] == 0:  # Black key
@@ -560,12 +562,20 @@ class Pitch(Generic):
                 self._natural   << operand
                 
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
+
                 self._key_signature << operand
-                self << float(self._key_signature.get_tonic_key())   # resets tonic key
+                self._key_key._unit = self._key_signature.get_tonic_key()
+                if self._key_signature._unit < 0:
+                    self._key_key._unit += 12   # 2nd line for sharps
+                # Special case of bellow -5 or above +5 turns in the circle of fifths
+                if self._key_signature._unit < -5 or self._key_signature._unit > 5:
+                    self._key_key._unit += 24   # 3rd and 4th lines respectively
+
             case ou.Degree():
                 self._degree    << operand
             case Scale() | ou.Mode():
                 self._scale     << operand
+
             case str():
                 string: str = operand.strip()
                 new_sharp: Sharp = self._sharp.copy(string)
