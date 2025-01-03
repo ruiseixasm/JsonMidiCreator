@@ -249,6 +249,9 @@ class Beat(TimeUnit):
 class Step(TimeUnit):
     pass
 
+class Tone(Unit):
+    pass
+
 class Semitone(Unit):
     pass
 
