@@ -188,7 +188,7 @@ staff << Tempo(120)
 # Global Staff setting up
 staff << Tempo(120) << Measures(7)
 
-(Chord() << NoteValue(1/8)) * 13 + Iterate()**Tone() << Duration(1/8) \
+(Chord() << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
         >> Save("json/testing/_Save_Play_p.20_first_note.json") >> Export("json/testing/_Export_Play_p.20_sequence.json")
 
