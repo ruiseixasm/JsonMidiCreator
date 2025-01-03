@@ -251,7 +251,7 @@ class Pitch(Generic):
         >>> pitch % Key() % str() >> Print(0)
         C
         """
-        self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
+        # self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
@@ -281,7 +281,9 @@ class Pitch(Generic):
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case Pitch():           return self.copy()
-            case ou.Octave():       return self._octave.copy()
+            case ou.Octave():
+                final_pitch: int = int(self % float())
+                return ou.Octave( final_pitch // 12 - 1 )
 
 
 
@@ -511,7 +513,8 @@ class Pitch(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():
-                self._octave << operand
+                octave_offset: ou.Octave = operand - self % ou.Octave()
+                self._octave += octave_offset
 
 
             # TO BE COMMENTED OUT FOR FUTURE DELETION
