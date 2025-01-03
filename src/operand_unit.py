@@ -259,7 +259,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         if parameters:
             self << parameters
     
-    def get_tonic_key(self):
+    def get_tonic_key(self) -> int:
         circle_fifths_position: int = self._unit
         zero_key_int: int = 0  # C (Major)
         if not self._major:
