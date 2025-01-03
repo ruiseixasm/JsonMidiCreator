@@ -64,7 +64,7 @@ def test_clock_mod():
     # Assert the captured output
     assert captured_output.getvalue().strip() == "4.0"
 
-test_clock_mod()
+# test_clock_mod()
 
 
 def test_note_mod():
@@ -315,7 +315,10 @@ def test_note_element():
     print("------")
     note << 0 << 1 # Tonic key again and resets the degree to 1
     note << Octave(4)    # Makes sure it's C4 again
-    print(f"Key: {(note + 2) % str()}, tone: {(note + 2) % Pitch() % float()}, degree: {(note + 2) % Degree() % int()}")
+    note_copy_2 = note.copy()
+    note_copy_2 + 2 # BASIC OPERATIONS CHANGE THE CONTENT !!
+    print(f"Key: {(note_copy_2) % str()}, \
+            tone: {(note_copy_2) % Pitch() % float()}, degree: {(note_copy_2) % Degree() % int()}")
     assert note + 2 == Note("E")    # C - D - E
 
 # test_note_element()

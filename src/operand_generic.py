@@ -529,6 +529,8 @@ class Pitch(Generic):
             #     | ou.Sharp() | ou.Flat() | ou.Natural() | ou.Degree() | Scale() | ou.Mode() | None:
             #     self._key << operand
 
+            case None:
+                self._key_key = self._key_signature % ou.Key()
 
             case int():
                 if operand == 0:
