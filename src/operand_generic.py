@@ -209,7 +209,10 @@ class Pitch(Generic):
         if not (self._scale.hasScale() or self._natural):
             semitone_int: int = self.get_key_int()
 
-            accidentals_int = self._key_signature % int()
+            if self._major_scale[semitone_int % 12] == 0:  # Black key
+                semitone_int = semitone_int - self._sharp._unit + self._flat._unit
+
+            accidentals_int = self._key_signature._unit
             # Circle of Fifths
             sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
             semitone_transpose = sharps_flats[semitone_int % 12]
@@ -540,11 +543,9 @@ class Pitch(Generic):
                     self._key_key._unit = int(operand)
                 if self._major_scale[self._key_key._unit % 12] == 0:
                     if self._key_signature._unit < 0:
-                        self._key_key._unit += 1
                         self._sharp << False
                         self._flat << True
                     else:
-                        self._key_key._unit -= 1
                         self._sharp << True
                         self._flat << False
                 else:
@@ -560,7 +561,7 @@ class Pitch(Generic):
                 
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 self._key_signature << operand
-                self._key_key._unit = self._key_signature.get_tonic_key()   # resets tonic key
+                self << float(self._key_signature.get_tonic_key())   # resets tonic key
             case ou.Degree():
                 self._degree    << operand
             case Scale() | ou.Mode():
