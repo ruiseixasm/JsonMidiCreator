@@ -292,9 +292,12 @@ def test_note3_element():
 
 def test_note_element():
 
-    note = Note()
+    note: Note = Note()
     assert note % str() == "C"
     assert (note + 0.0) % str() == "C"
+
+    note_e: Note = Note(E)
+    assert note_e % str() == "E"
 
     # Test all semitones from 0 to 11
     expected_keys: list[str] = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B"]

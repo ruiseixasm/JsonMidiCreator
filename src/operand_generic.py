@@ -536,7 +536,11 @@ class Pitch(Generic):
                 if operand == 0:
                     self._key_key = self._key_signature % ou.Key()
                 else:
-                    self._degree    << operand
+                    self._degree  << operand
+
+            case ou.Key():
+                self._key_key << operand
+
             case float() | Fraction() | ou.Semitone():
                 if isinstance(operand, o.Operand):
                     self._key_key._unit = operand % od.DataSource( int() )
