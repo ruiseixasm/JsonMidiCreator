@@ -652,7 +652,7 @@ class Note(Element):
             case ou.Velocity():     self._velocity << operand
             case ra.Gate():         self._gate << operand
             case ou.Tied():         self._tied << operand
-            case _: super().__lshift__(operand)
+            case _:                 super().__lshift__(operand)
         return self
 
     def __add__(self, operand: o.Operand) -> 'Note':
