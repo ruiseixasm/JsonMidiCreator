@@ -476,7 +476,16 @@ class Key(Unit):
             case str():
                 return Key._keys[self._unit % 48]
 
-
+            case Sharp():
+                self_unit: int = self._unit % 48
+                if self_unit < 12 or (self_unit >= 24 and self_unit < 48): 
+                    return Sharp(self._accidentals[self_unit])
+                return Sharp(0)
+            case Flat():
+                self_unit: int = self._unit % 48
+                if self_unit >= 32 or (self_unit >= 12 and self_unit < 24): 
+                    return Flat(self._accidentals[self_unit])
+                return Flat(0)
 
             # case Major() | Minor() | Sharps() | Flats():
             #                         return self._key_signature % operand
@@ -592,18 +601,20 @@ class Key(Unit):
                     case Semitone():
                         self._unit = operand % o.Operand() % od.DataSource( int() )
                         self << Degree(1)
-                    case KeySignature():
-                        self._key_signature = operand % o.Operand()
-                    case Sharp():
-                        self._sharp << operand % o.Operand()
-                    case Flat():
-                        self._flat << operand % o.Operand()
-                    case Natural():
-                        self._natural << operand % o.Operand()
-                    case Degree():
-                        self._degree << operand % o.Operand()
-                    case og.Scale():
-                        self._scale << operand % o.Operand()
+
+                    # case KeySignature():
+                    #     self._key_signature = operand % o.Operand()
+                    # case Sharp():
+                    #     self._sharp << operand % o.Operand()
+                    # case Flat():
+                    #     self._flat << operand % o.Operand()
+                    # case Natural():
+                    #     self._natural << operand % o.Operand()
+                    # case Degree():
+                    #     self._degree << operand % o.Operand()
+                    # case og.Scale():
+                    #     self._scale << operand % o.Operand()
+
                     case str():
                         self._unit = self.getStringToNumber(operand % o.Operand()) % 48
                     case _:                         super().__lshift__(operand)
@@ -678,18 +689,6 @@ class Key(Unit):
                 super().__lshift__(operand)
         return self
 
-    def reset_sharps_and_flats(self) -> 'Key':
-        self._sharp << False
-        self._flat  << False
-        if Key._major_scale[self._unit % 12] == 0:  # Black key
-            if self._key_signature._unit < 0:           # flats
-                self._unit += 1
-                self._flat << True
-            else:                                       # sharps
-                self._unit -= 1
-                self._sharp << True
-        return self
-    
     def __add__(self, operand: any) -> 'Key':
     
         
@@ -765,10 +764,16 @@ class Key(Unit):
             "b": 11
          }
     
-    _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
-                           "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
-                           "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",
-                           "C",  "C#", "D", "D#", "Fb", "F",  "F#", "G", "G#", "A", "A#", "Cb"]
+    _keys: list[str]            = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
+                                   "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",      # Black Flats
+                                   "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",      # All Sharps
+                                   "C",  "Db", "D", "Eb", "Fb", "F",  "Gb", "G", "Ab", "A", "Bb", "Cb"]     # All Flats
+    
+
+    _accidentals: list[int]     = [ 0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Sharps
+                                    0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Flats
+                                    1,    1,    0,   1,    0,    1,    1,    0,   1,    0,   1,    0,       # All Sharps
+                                    0,    1,    0,   1,    1,    0,    1,    0,   1,    0,   1,    1]       # All Flats
     
     def getStringToNumber(self, key: str = "C") -> int:
         key_to_find: str = key.strip().lower()
