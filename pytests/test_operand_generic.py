@@ -109,8 +109,8 @@ def test_pitch_key_signature():
     ]
     pitch_key = Pitch()
     for signature in range(len(major_keys_signatures)): # Major
-        print(f"Major Signature: {signature - 7}")
         pitch_key << KeySignature(signature - 7)
+        print(f"Major Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % str() == major_keys_signatures[signature]
 
     minor_keys_signatures: list[str] = [
@@ -119,8 +119,8 @@ def test_pitch_key_signature():
         "E", "B", "F#", "C#", "G#", "D#", "A#"
     ]
     for signature in range(len(minor_keys_signatures)): # Minor
-        print(f"minor Signature: {signature - 7}")
         pitch_key << KeySignature(signature - 7, Minor())
+        print(f"minor Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % str() == minor_keys_signatures[signature]
 
     c_major_scale: Scale = Scale()
@@ -159,7 +159,7 @@ def test_pitch_key_signature():
         assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
 
-# test_pitch_key_signature()
+test_pitch_key_signature()
 
 
 def test_pitch_add():
