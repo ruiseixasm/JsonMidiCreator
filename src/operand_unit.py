@@ -460,6 +460,12 @@ class Key(Unit):
             case Flat():            return self._flat.copy()
             case Natural():         return self._natural.copy()
 
+            case int():
+                return self._unit % 12
+
+            case float():
+                return float(self._unit)
+
             case str():
                 return Key._keys[self._unit % 24]
 
@@ -833,6 +839,15 @@ class Flat(Flats):   # Flat (b)
 class Boolean(Unit):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
+
+    # def __or__(self, operand: any) -> 'Boolean':
+    #     operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+    #     match operand:
+    #         case bool():
+    #             return self._unit != 0 or operand
+    #         case Boolean():
+    #             return self._unit != 0 or operand._unit != 0
+    #     return False
 
 class Default(Boolean):
     pass

@@ -162,6 +162,8 @@ class Pitch(Generic):
     def get_key_int(self) -> int:
         staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
         accidentals_int: int    = self._key_signature._unit
+        sharp: ou.Sharp         = ou.Sharp(False)
+        flat: ou.Flat           = ou.Flat(False)
         key_int: int            = self._key_key._unit % 12
         degree_transpose: int   = self._degree._unit
         semitone_transpose: int = 0
@@ -169,8 +171,10 @@ class Pitch(Generic):
         # strips existent accidentals
         if staff_white_keys[key_int] == 0: # Black key
             if self._key_key._unit % 24 < 12:   # sharps
+                sharp << True
                 key_int -= 1
             else:                               # flats
+                flat << True
                 key_int += 1
 
         key_scale = staff_white_keys  # Major scale
@@ -195,7 +199,7 @@ class Pitch(Generic):
                 else:
                     key_int -= 1
         elif not self._natural:
-            key_int += self._sharp._unit - self._flat._unit   # applies accidentals
+            key_int += (1 if self._sharp or sharp else 0) - (1 if self._flat or flat else 0)   # applies accidentals
 
         return key_int
 
@@ -300,10 +304,17 @@ class Pitch(Generic):
 
 
             case ou.Sharp():
-                
-                return self._sharp.copy()
+                final_pitch: int = int(self % float())
+                if self._major_scale[final_pitch % 12] == 0:    # Black key
+                    if self._key_signature._unit >= 0:
+                        return ou.Sharp(True)
+                return ou.Sharp(False)
             case ou.Flat():
-                return self._flat.copy()
+                final_pitch: int = int(self % float())
+                if self._major_scale[final_pitch % 12] == 0:    # Black key
+                    if self._key_signature._unit < 0:
+                        return ou.Flat(True)
+                return ou.Flat(False)
             case ou.Natural():
                 return self._natural.copy()
             
@@ -332,12 +343,12 @@ class Pitch(Generic):
             case int(): # WITHOUT KEY SIGNATURE
                 
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
-                return 12 * (self._octave._unit + 1) + self.get_key_int() + self._key_offset
+                return 12 * (self._octave._unit + 1) + self.get_key_int()
              
             case float(): # WITH KEY SIGNATURE
 
                 # RESPECTS THE KEY SIGNATURE
-                return 12 * (self._octave._unit + 1) + self.get_key_float() + self._key_offset
+                return 12 * (self._octave._unit + 1) + self.get_key_float()
             
             case _:
                 return super().__mod__(operand)
@@ -625,17 +636,17 @@ class Pitch(Generic):
 
             case float():
                 key_offset: int = int(operand)
-                return self_copy.apply_key_offset(key_offset)
+                self_copy.apply_key_offset(key_offset)
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
-                return self_copy.apply_key_offset(key_offset)
+                self_copy.apply_key_offset(key_offset)
             case ou.Degree() | int() | ou.Unit():
                 self_copy._degree += operand
             case _:
                 return super().__add__(operand)
 
 
-        self_copy.octave_correction()
+        # self_copy.octave_correction()
         return self_copy
     
     def __sub__(self, operand) -> 'Pitch':
@@ -666,10 +677,10 @@ class Pitch(Generic):
 
             case float():
                 key_offset: int = int(operand) * -1
-                return self_copy.apply_key_offset(key_offset)
+                self_copy.apply_key_offset(key_offset)
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
-                return self_copy.apply_key_offset(key_offset)
+                self_copy.apply_key_offset(key_offset)
             case ou.Degree() | int() | ou.Unit():
                 self_copy._degree -= operand
             case _:
@@ -677,7 +688,7 @@ class Pitch(Generic):
 
 
 
-        self_copy.octave_correction()
+        # self_copy.octave_correction()
         return self_copy
 
     def __mul__(self, operand) -> 'Pitch':
