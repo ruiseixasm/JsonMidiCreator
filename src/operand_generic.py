@@ -779,7 +779,8 @@ class Pitch(Generic):
 
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
-                           "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
+                           "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",
+                           "C",  "C#", "D", "D#", "Fb", "F",  "F#", "G", "G#", "A", "A#", "Cb"]
 
     def key_to_int(self, key: str = "C"):
         for index, value in enumerate(self._keys):

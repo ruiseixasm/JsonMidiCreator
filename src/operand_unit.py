@@ -598,9 +598,7 @@ class Key(Unit):
                     case og.Scale():
                         self._scale << operand % o.Operand()
                     case str():
-                        self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
-                        self.key_to_int(operand % o.Operand())
-                        self._degree << operand % o.Operand()
+                        self._unit = self.getStringToNumber(operand % o.Operand()) % 24
                     case _:                         super().__lshift__(operand)
             # case Key():
             #     super().__lshift__(operand)
@@ -646,7 +644,9 @@ class Key(Unit):
             # case og.Scale() | Mode():
             #     self._scale     << operand
             case str():
-                return self._keys[ self._unit % 12 ]
+                self._unit = self.getStringToNumber(operand) % 24
+                
+
                 # string: str = operand.strip()
                 # new_sharp: Sharp = self._sharp.copy(string)
                 # new_flat: Flat = self._flat.copy(string)
@@ -752,22 +752,17 @@ class Key(Unit):
             "b": 11
          }
     
-    def stringToNumber(self, string: str):
-        string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
-        for key, value in Key._white_keys.items():
-            if string.find(key) != -1:
-                self._unit = value
-                return
-
     _keys: list[str]    = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",
                            "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",
-                           "B#", "C#", "D", "D#", "Fb", "E#", "F#", "G", "G#", "A", "A#", "Cb"]
+                           "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",
+                           "C",  "C#", "D", "D#", "Fb", "F",  "F#", "G", "G#", "A", "A#", "Cb"]
     
-    def key_to_int(self, key: str = "C"):
+    def getStringToNumber(self, key: str = "C") -> int:
+        key_to_find: str = key.strip().lower()
         for index, value in enumerate(Key._keys):
-            if value.lower().find(key.strip().lower()) != -1:
-                self._unit = index % 12
-                return
+            if value.lower().find(key_to_find) != -1:
+                return index
+        return 0
 
 class Root(Key):
     pass
