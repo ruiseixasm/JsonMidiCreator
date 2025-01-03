@@ -531,6 +531,9 @@ class Pitch(Generic):
             case float():
                 key_offset: int = int(operand)
                 self_copy.apply_key_offset(key_offset)
+            case ou.Tone():
+                key_offset: int = self.move_semitones(operand % int())
+                self_copy.apply_key_offset(key_offset)
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
                 self_copy.apply_key_offset(key_offset)
@@ -558,6 +561,9 @@ class Pitch(Generic):
                 self_copy._octave._unit -= operand._unit
             case float():
                 key_offset: int = int(operand) * -1
+                self_copy.apply_key_offset(key_offset)
+            case ou.Tone():
+                key_offset: int = self.move_semitones(operand % int()) * -1
                 self_copy.apply_key_offset(key_offset)
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
@@ -610,19 +616,19 @@ class Pitch(Generic):
                 return super().__div__(operand)
 
 
-    def move_semitones(self, move_keys: int) -> int:
+    def move_semitones(self, move_tones: int) -> int:
         scale = self._major_scale    # Major scale for the default staff
         if self._scale.hasScale():
             scale = self._scale % list()
         move_semitones: int = 0
-        while move_keys > 0:
+        while move_tones > 0:
             move_semitones += 1
             if scale[(self % int() + move_semitones) % 12]:
-                move_keys -= 1
-        while move_keys < 0:
+                move_tones -= 1
+        while move_tones < 0:
             move_semitones -= 1
             if scale[(self % int() + move_semitones) % 12]:
-                move_keys += 1
+                move_tones += 1
         return move_semitones
     
     _major_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff

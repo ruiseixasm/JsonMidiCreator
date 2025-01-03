@@ -646,7 +646,7 @@ class Note(Element):
                 self._gate          << operand._gate
                 self._tied          << operand._tied
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | og.Pitch() | ou.Key() | ou.Octave() \
+                | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
                 | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
                                     self._pitch << operand
             case ou.Velocity():     self._velocity << operand
@@ -658,7 +658,7 @@ class Note(Element):
     def __add__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
                 # For self Parameters it shouldn't result in new instantiations !!
                 return self << self._pitch + operand
             case _:             return super().__add__(operand)
@@ -667,7 +667,7 @@ class Note(Element):
     def __sub__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case og.Pitch() | ou.Key() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
                 self << self._pitch - operand
             case _:             return super().__sub__(operand)
         return self
