@@ -633,11 +633,11 @@ class Note(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case og.Pitch():        self._pitch = operand % o.Operand()
-                    case ou.Degree():       self._degree = operand % o.Operand()
-                    case ou.Velocity():     self._velocity = operand % o.Operand()
-                    case ra.Gate():         self._gate = operand % o.Operand()
-                    case ou.Tied():         self._tied = operand % o.Operand()
+                    case og.Pitch():        self._pitch     = operand % o.Operand()
+                    case ou.Degree():       self._degree    = operand % o.Operand()
+                    case ou.Velocity():     self._velocity  = operand % o.Operand()
+                    case ra.Gate():         self._gate      = operand % o.Operand()
+                    case ou.Tied():         self._tied      = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case Note():
                 super().__lshift__(operand)
@@ -659,18 +659,17 @@ class Note(Element):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                # For self Parameters it shouldn't result in new instantiations !!
-                return self << self._pitch + operand
-            case _:             return super().__add__(operand)
-        return self
+                return self.copy() << od.DataSource( self._pitch + operand )
+            case _:
+                return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                self << self._pitch - operand
-            case _:             return super().__sub__(operand)
-        return self
+                return self.copy() << od.DataSource( self._pitch - operand )
+            case _:
+                return super().__sub__(operand)
     
 class Cluster(Note):
     # A tone cluster is a musical chord comprising at least three adjacent tones in a scale.

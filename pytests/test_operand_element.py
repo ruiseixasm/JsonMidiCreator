@@ -305,7 +305,7 @@ def test_note_element():
     for key_i in range(12):
         note % str() >> Print()
         assert note % str() == expected_keys[key_i]
-        note + Semitone(1)
+        note += Semitone(1)
 
     print("------")
     note << 0 # Tonic key again
@@ -319,7 +319,7 @@ def test_note_element():
     note << 0 << 1 # Tonic key again and resets the degree to 1
     note << Octave(4)    # Makes sure it's C4 again
     note_copy_2 = note.copy()
-    note_copy_2 + 2 # BASIC OPERATIONS CHANGE THE CONTENT !!
+    note_copy_2 += 2
     print(f"Key: {(note_copy_2) % str()}, \
             tone: {(note_copy_2) % Pitch() % float()}, degree: {(note_copy_2) % Degree() % int()}")
     assert note + 2 == Note("E")    # C - D - E
