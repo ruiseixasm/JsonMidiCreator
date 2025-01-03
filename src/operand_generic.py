@@ -420,7 +420,7 @@ class Pitch(Generic):
         return False
     
     def getSerialization(self) -> dict:
-        self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
+        # self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         serialization = super().getSerialization()
 
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
@@ -458,7 +458,7 @@ class Pitch(Generic):
             # self._key           = self.deserialize( serialization["parameters"]["key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._key_offset    = self.deserialize( serialization["parameters"]["key_offset"] )
-            self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
+            # self.octave_correction()    # Needed due to possible changes in staff KeySignature without immediate propagation (notice)
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Pitch':
@@ -589,8 +589,8 @@ class Pitch(Generic):
             case _:
                 super().__lshift__(operand)
 
-        if not isinstance(operand, tuple):
-            self.octave_correction()
+        # if not isinstance(operand, tuple):
+        #     self.octave_correction()
         return self
 
     def reset_sharps_and_flats(self) -> 'Pitch':
@@ -605,11 +605,11 @@ class Pitch(Generic):
                 self._sharp << True
         return self
 
-    def octave_correction(self):
-        gross_octave: int = (12 * (self._octave._unit + 1) + self.get_key_int() + self._key_offset) // 12 - 1
-        octave_offset: int = gross_octave - self._octave._unit
-        self._key_offset -= 12 * octave_offset
-        self._octave._unit += octave_offset
+    # def octave_correction(self):
+    #     gross_octave: int = (12 * (self._octave._unit + 1) + self.get_key_int() + self._key_offset) // 12 - 1
+    #     octave_offset: int = gross_octave - self._octave._unit
+    #     self._key_offset -= 12 * octave_offset
+    #     self._octave._unit += octave_offset
 
     def __add__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

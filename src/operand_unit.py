@@ -295,8 +295,9 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case _:                     return ol.Null()
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
-            case float():               return float(self.get_tonic_key())
-            case Key():                 return Key(self)
+            case int():                 return self.get_tonic_key()
+            case float():               return float(self.get_tonic_key() + (12 if self._unit < 0 else 0))
+            case Key():                 return Key(self % float())
             case Major():               return self._major.copy()
             case Minor():               return Minor(not (self._major % bool()))
             case Sharps():
@@ -352,7 +353,6 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case KeySignature():
                 super().__lshift__(operand)
                 self._major._unit   = operand._major._unit
-                return self # No more processing needed
             case int():     self._unit   = operand
             case Major():   self._major  << operand
             case Minor():   self._major  << (operand % int() == 0)
@@ -643,6 +643,12 @@ class Key(Unit):
             #     self._degree    << operand
             # case og.Scale() | Mode():
             #     self._scale     << operand
+
+            case int():
+                self._unit = operand % 12
+            case float():
+                self._unit = int(operand) % 24
+
             case str():
                 self._unit = self.getStringToNumber(operand) % 24
                 
