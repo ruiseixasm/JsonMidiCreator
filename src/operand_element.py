@@ -293,28 +293,22 @@ class Element(o.Operand):
     def __sub__(self, operand: any) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case _:
-                return self.copy() << self % operand - operand
+        return self.copy() << self % operand - operand
 
     def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
+        if isinstance(operand, int):    # Allows Frame skipping !
+            new_sequence: oc.Sequence = oc.Sequence()
+            for _ in range(operand):
+                new_sequence += self # copy of element already included in Element processing
+            return new_sequence.stack()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case int():
-                new_sequence: oc.Sequence = oc.Sequence()
-                for _ in range(operand):
-                    new_sequence += self # copy of element already included in Element processing
-                return new_sequence.stack()
-            case _:
-                return self.copy() << self % operand * operand
+        return self.copy() << self % operand * operand
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case _:
-                return self.copy() << self % operand / operand
+        return self.copy() << self % operand / operand
 
     def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
         sequence_position_ms: Fraction = Fraction(0)
