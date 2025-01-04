@@ -258,7 +258,7 @@ def test_sequence_filter():
 def test_sequence_map():
 
     four_notes: Sequence = Note() * 4
-    four_notes += Beat(1)
+    four_notes += All()**Beat(1)
     assert four_notes[0] % Beat() == 1
     assert four_notes[0] % Beats() == 1
     assert four_notes[1] % Beat() == 2
@@ -272,7 +272,7 @@ def test_sequence_map():
 def test_sequence_selectors():
 
     four_notes: Sequence = Note() * 4
-    four_notes += Beat(1)
+    four_notes += All()**Beat(1)
     assert four_notes % First() % Beats() == 1
     assert four_notes % Middle(3) % Beats() == 3    # Middle uses nth, so, 3 means the 3rd element
     assert four_notes % Last() % Beats() == 4
