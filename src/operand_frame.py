@@ -357,7 +357,7 @@ class Foreach(Left):
     def __and__(self, subject: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaos as ch
-        if len(self._multi_data['operand']) > 0:
+        if len(self._multi_data['operand']) > 0:    # In case it its own parameters to iterate trough
             subject = self._multi_data['operand'][self._index]
             if isinstance(subject, (oc.Container, ch.Chaos)):
                 subject %= ou.Next()    # Iterates to next subject
