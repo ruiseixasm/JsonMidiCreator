@@ -32,5 +32,5 @@ chords: Sequence = Chord() * 6 << Foreach(half, half, whole, half, half, whole) 
 chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << Track("Harmony")
 chords - Octave()
 
-song: Section = melody + chords
+song: Song = melody + chords
 song >> Play()

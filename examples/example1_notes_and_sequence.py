@@ -61,7 +61,7 @@ first_sequence = Rest(2/1, Channel(10)) >> first_sequence
 # second_sequence >> Play()
 
 # Creations, aggregation of both Sequences in a Sequence element and respective Play
-all_elements = Section(first_sequence) + second_sequence >> Save("json/_Save_1.6_all_elements.json") # HAS TO BECOME A SONG !!!
+all_elements = Song(first_sequence) + second_sequence >> Save("json/_Save_1.6_all_elements.json") # HAS TO BECOME A SONG !!!
 all_elements += (Length( Beats(2) ) >> first_note) + single_clock
 all_elements >> Play() >> Export("json/_Export_1.2_all_elements.json")  # IT'S GONNA BE A SONG SAVE !!
 # all_elements >> Print() >> Play(1) >> Export("json/_Export_1.2_all_elements.json")

@@ -42,5 +42,5 @@ melody >> Export("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/export
 chords: Sequence = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6) >> Stack() << Track("chords") << Octave(3)
 # chords * 4 >> Play()
 
-lead_sheet: Section = melody + chords
+lead_sheet: Song = melody + chords
 lead_sheet * 4 >> Play()
