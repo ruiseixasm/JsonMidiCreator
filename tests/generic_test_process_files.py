@@ -90,7 +90,7 @@ start_time = time.time()
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (NoteValue() << Dotted(1/64))
 # Creation and configuration of a Sequence of notes
-first_sequence = (base_note * 8 // Steps(1) << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
+first_sequence = (base_note * 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
 second_sequence = first_sequence >> Copy()

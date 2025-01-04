@@ -228,19 +228,6 @@ def test_element_stacking():
 # test_element_stacking()
 
 
-def test_floordiv_sequence():
-
-    two_notes: Sequence = Note() * 2
-    two_notes //= Steps(1)
-
-    assert two_notes % Last() % Steps() == Steps(1)
-
-    for single_note in two_notes:
-        assert single_note % NoteValue() == 1/16    # Equivalent to one Step
-        
-# test_floordiv_sequence()
-
-
 def test_sequence_filter():
 
     four_notes: Sequence = Note() * 4
@@ -254,6 +241,7 @@ def test_sequence_filter():
     assert single_note.len() == 2
 
 # test_sequence_filter()
+
 
 def test_sequence_map():
 

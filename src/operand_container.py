@@ -731,15 +731,6 @@ class Sequence(Container):  # Just a container of Elements
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         single_datasource._data /= operand
                 return self_copy
-    
-    def __floordiv__(self, time_value: Union['ra.Position', 'ra.TimeValue', 'ou.TimeUnit']) -> 'Sequence':
-        self_copy: Sequence = self.copy()
-        for single_datasource in self_copy._datasource_list:
-            if isinstance(single_datasource._data, oe.Element) and isinstance(time_value, (ra.Position, ra.TimeValue, ou.TimeUnit)):
-                element_position: ra.Position = single_datasource._data._position
-                duration: ra.Duration = element_position.getDuration(time_value)
-                single_datasource._data << duration
-        return self_copy.stack()
 
 class Song(Container):
     def __init__(self, *operands):

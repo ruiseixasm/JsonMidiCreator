@@ -56,6 +56,18 @@ def test_classes_getters():
 
     assert root_classes_list == list_all_classes
 
+
+def test_floordiv_sequence():
+
+    note: Note = Note()
+    source_position: Position = note // Position()
+
+    assert id(source_position) == id(note._position)
+        
+# test_floordiv_sequence()
+
+
+
 # The -m flag in pytest is used to select tests to run based on markers (m).
 # It allows you to filter tests by their custom markers, enabling you to
 # run only a subset of your test suite.
