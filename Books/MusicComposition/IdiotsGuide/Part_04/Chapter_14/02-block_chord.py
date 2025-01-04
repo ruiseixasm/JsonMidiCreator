@@ -25,22 +25,6 @@ rest_play = (R, P)
 staff << KeySignature(-1)   # Sets the default Key Note configuration
 
 
-four_eights: Sequence = Note(eight) * 4 + 3 # Increases 3 degrees from I to IV, from F to Bb
-four_eights -= Iterate()    # Decreases degrees from IV to I
-# four_eights >> Play()
+melody_playlist: Playlist = Import("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_jmp.json")
+melody_playlist >> Play()
 
-first_half_1: Sequence = Note() + 2 * Note(eight) >> Stack() << Foreach(3, 2, 3)
-# first_half_1 >> Play()
-
-first_half_2: Sequence = first_half_1 * 1 << Nth(1)**2
-# first_half_2 >> Play()
-
-melody: Sequence = first_half_1 >> four_eights >> first_half_2 >> Note(1/2, 2) * 1 >> first_half_2 - 1 >> four_eights - 1 >> Note(1/1) << Track("melody")
-melody >> Export("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_jmp.json") # Export as a JsonMidiPlayer file
-# melody * 4 >> Play()
-
-chords: Sequence = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6) >> Stack() << Track("chords") << Octave(3)
-# chords * 4 >> Play()
-
-lead_sheet: Song = melody + chords
-lead_sheet * 4 >> Play()
