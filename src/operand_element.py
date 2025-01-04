@@ -301,18 +301,13 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():
-                pass
-            case oc.Sequence():
-                pass
-            case o.Operand():
-                return self.copy() << self % operand * operand
             case int():
                 new_sequence: oc.Sequence = oc.Sequence()
                 for _ in range(operand):
                     new_sequence += self # copy of element already included in Element processing
                 return new_sequence.stack()
-        return self.copy()
+            case _:
+                return self.copy() << self % operand * operand
 
     def __truediv__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
