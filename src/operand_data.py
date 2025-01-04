@@ -306,8 +306,8 @@ class Serialization(Data):
 class Playlist(Data):
     def __init__(self, *parameters):
         super().__init__([])
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

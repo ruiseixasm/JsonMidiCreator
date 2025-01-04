@@ -38,8 +38,8 @@ class Chaos(o.Operand):
         super().__init__()
         self._xn: ra.Xn                 = ra.Xn()
         self._x0: ra.X0                 = ra.X0(self._xn)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -148,8 +148,8 @@ class Modulus(Chaos):
         super().__init__()
         self._amplitude: ra.Amplitude   = ra.Amplitude(12)
         self._steps: ra.Steps             = ra.Steps(1)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -223,8 +223,8 @@ class Flipper(Modulus):
         super().__init__()
         self._amplitude                 << 2
         self._split: ra.Split           = ra.Split(1)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -290,8 +290,8 @@ class Bouncer(Chaos):
         self._x: ra.X                   = ra.X(self._width / 2 % Fraction())
         self._y: ra.Y                   = ra.Y(self._height / 2 % Fraction())
         self._set_xy: tuple             = (self._x.copy(), self._y.copy())
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -429,8 +429,8 @@ class SinX(Chaos):
         self._xn                        << 2
         self._x0                        << self._xn
         self._lambda: ra.Lambda         = ra.Lambda(77.238537) # Can't be an integer in order to be truly chaotic !!
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:

@@ -44,8 +44,8 @@ class Element(o.Operand):
         self._stackable: ou.Stackable       = ou.Stackable()
         self._channel: ou.Channel           = ou.Channel()
         self._device: od.Device             = od.Device()
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
         self._position = ra.Position(position)
@@ -341,8 +341,8 @@ class Clock(Element):
         super().__init__()
         self._duration      << os.staff._measures
         self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def ppqn(self: 'Clock', ppqn: int = None) -> 'Clock':
         self._pulses_per_quarternote = ou.PPQN(ppqn)
@@ -489,8 +489,8 @@ class Note(Element):
         self._velocity: ou.Velocity = os.staff._velocity.copy()
         self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
         self._pitch = og.Pitch(key, octave)
@@ -666,8 +666,8 @@ class KeyScale(Note):
         super().__init__()
         self << self._position.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale  = og.Scale("Major")    # Major scale as default
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def scale(self: 'KeyScale', scale: list[int] | str = None) -> 'KeyScale':
         self._scale = og.Scale(scale)
@@ -777,8 +777,8 @@ class Chord(KeyScale):
         self._augmented: ou.Augmented   = ou.Augmented(0)
         self._sus2: ou.Sus2             = ou.Sus2(0)
         self._sus4: ou.Sus4             = ou.Sus4(0)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def size(self: 'Chord', size: int = None) -> 'Chord':
         self._size = ou.Size(size)
@@ -1023,8 +1023,8 @@ class Retrigger(Note):
         self._gate      << 0.50
         self._division  = ou.Division(16)
         self._swing     = ra.Swing(0.50)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def division(self: 'Retrigger', division: int = None) -> 'Retrigger':
         self._division = ou.Division(division)
@@ -1141,8 +1141,8 @@ class Note3(Retrigger):
     def __init__(self, *parameters):
         super().__init__()
         self._division  << ou.Division(3)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     # CHAINABLE OPERATIONS
 
@@ -1161,8 +1161,8 @@ class Tuplet(Element):
         self._swing     = ra.Swing(.50)
         self._elements: list[Element] = [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
         self.set_elements_duration()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def swing(self: 'Tuplet', swing: int = None) -> 'Tuplet':
         self._swing = ra.Swing(swing)
@@ -1293,11 +1293,6 @@ class Tuplet(Element):
         return self
 
 class Triplet(Tuplet):
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
-
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand | list[Element]) -> 'Triplet':
@@ -1319,8 +1314,8 @@ class ControlChange(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._controller: og.Controller = os.staff % og.Controller()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def controller(self: 'ControlChange', number: Optional[int] = None, value: Optional[int] = None) -> 'ControlChange':
         self._controller = og.Controller(
@@ -1437,8 +1432,8 @@ class PitchBend(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._bend: ou.Bend = ou.Bend()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def bend(self: 'PitchBend', bend: Optional[int] = None) -> 'PitchBend':
         self._bend = ou.Bend(bend)
@@ -1549,8 +1544,8 @@ class Aftertouch(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._pressure: ou.Pressure = ou.Pressure()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def pressure(self: 'Aftertouch', pressure: Optional[int] = None) -> 'Aftertouch':
         self._pressure = ou.Bend(pressure)
@@ -1660,8 +1655,8 @@ class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
         super().__init__()
         self._pitch: og.Pitch  = og.Pitch()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'PolyAftertouch':
         self._pitch = og.Pitch(key, octave)
@@ -1753,8 +1748,8 @@ class ProgramChange(Automation):
     def __init__(self, *parameters):
         super().__init__()
         self._program: ou.Program = ou.Program()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def program(self: 'ProgramChange', program: Optional[int] = None) -> 'ProgramChange':
         self._program = og.Pitch(program)

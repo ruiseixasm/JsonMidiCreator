@@ -127,8 +127,8 @@ class Pitch(Generic):
         self._degree: ou.Degree                 = ou.Degree(1)
         self._scale: Scale                      = Scale([])
         self._octave: ou.Octave                 = ou.Octave(4)  # By default it's the 4th Octave!
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def key_signature(self, sharps_flats: int = 0, major: bool = True) -> 'Pitch':
         return self << ou.KeySignature(sharps_flats, ou.Major(major))
@@ -665,12 +665,9 @@ class Controller(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._number: ou.Number  = ou.Number()
-        self._value: ou.Value    = ou.Value()
-        if len(parameters) > 0:
-            self << parameters
         self._value: ou.Value    = ou.Value( ou.Number.getDefault(self._number % od.DataSource( int() )) )
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -784,8 +781,8 @@ class Scale(Generic):
         super().__init__()
         self._scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
         self._mode: ou.Mode         = ou.Mode()
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

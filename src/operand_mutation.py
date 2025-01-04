@@ -49,8 +49,8 @@ class Mutation(o.Operand):
             )
         self._operator: str             = "<<"
         self._result: od.Result         = od.Result(self._sequence)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -190,8 +190,8 @@ class Translocation(Mutation):
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(ra.Position())
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -271,8 +271,8 @@ class TranslocateRhythm(Translocation):
     def __init__(self, *parameters):
         super().__init__()
         self._parameters        = od.Parameters(ra.NoteValue())
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     # CHAINABLE OPERATIONS
 
@@ -285,8 +285,8 @@ class TranslocatePitch(Translocation):
     def __init__(self, *parameters):
         super().__init__()
         self._parameters        = od.Parameters(og.Pitch())
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     # CHAINABLE OPERATIONS
 
@@ -302,8 +302,8 @@ class Crossover(Mutation):
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(oe.Note())
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:

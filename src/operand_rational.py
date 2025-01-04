@@ -52,8 +52,8 @@ class Rational(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._rational: Fraction = Fraction(0)
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -229,11 +229,6 @@ class HiPrecision(Rational):
 
     _limit_denominator: int = 0 # overrides default limit_denominator
 
-    def __init__(self, *parameters):
-        super().__init__()
-        if len(parameters) > 0:
-            self << parameters
-
 class Index(HiPrecision):
     pass
 
@@ -379,8 +374,8 @@ class Position(Rational):
         self._tempo: Tempo                       = os.staff._tempo.copy()
         self._time_signature: og.TimeSignature   = os.staff._time_signature.copy()
         self._quantization: Quantization         = os.staff._quantization.copy()
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )

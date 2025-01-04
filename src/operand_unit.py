@@ -44,8 +44,8 @@ class Unit(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._unit: int = 0
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def unit(self: TypeUnit, number: int = None) -> TypeUnit:
         return self << od.DataSource( number )
@@ -228,14 +228,14 @@ class Unit(o.Operand):
 class Next(Unit):
     def __init__(self, *parameters):
         super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
 class Previous(Unit):
     def __init__(self, *parameters):
         super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
 class TimeUnit(Unit):
     pass
@@ -259,8 +259,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
         super().__init__()
         self._major: Major          = Major()
-        if parameters:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
     
     def get_tonic_key(self) -> int:
         circle_fifths_position: int = self._unit
@@ -400,18 +400,6 @@ class Key(Unit):
     first : integer_like or string_like
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
-    def __init__(self, *parameters):
-        import operand_generic as og
-        super().__init__()
-        # self._key_signature: KeySignature   = os.staff._key_signature.copy()
-        # self._unit                          = self._key_signature.get_tonic_key()
-        # self._sharp: Sharp                  = Sharp(0)
-        # self._flat: Flat                    = Flat(0)
-        # self._natural: Natural              = Natural(0)
-        # self._degree: Degree                = Degree(1)
-        # self._scale: og.Scale               = og.Scale([])
-        if parameters:
-            self << parameters
 
     def key_signature(self: 'Key', key_signature: 'KeySignature' = None) -> 'Key':
         self._key_signature = key_signature
@@ -583,8 +571,8 @@ class Sharp(Sharps):  # Sharp (#)
 class Flats(Unit):   # Flats (bbb)
     def __init__(self, *parameters):
         super().__init__(1)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     # CHAINABLE OPERATIONS
 
@@ -719,8 +707,8 @@ class Mode(Unit):
     """
     def __init__(self, *parameters):
         super().__init__(1)         # By default the mode is 1 (1st)
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -775,8 +763,8 @@ class Degree(Unit):
     """
     def __init__(self, *parameters):
         super().__init__(0)             # Default Degree is I (tonic) has unit = 0
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
@@ -842,8 +830,8 @@ class Size(Unit):
     """
     def __init__(self, *parameters):
         super().__init__(3)         # Default Size is 3
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
             
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -997,8 +985,8 @@ class MidiTrack(Midi):
     def __init__(self, *parameters):
         super().__init__(1)
         self._name: str = "Track 1"
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:

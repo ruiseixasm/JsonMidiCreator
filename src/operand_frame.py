@@ -36,8 +36,8 @@ class Frame(o.Operand):
         super().__init__()
         self._next_operand: any = o.Operand()
         self._multi_data: dict  = {}
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
         
     # It has to include self, contrary to the Operand __next__ that excludes the self!!
     def __iter__(self):

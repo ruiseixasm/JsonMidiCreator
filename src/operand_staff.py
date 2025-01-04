@@ -44,8 +44,8 @@ class Staff(o.Operand):
         self._controller: og.Controller             = og.Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
         self._channel: ou.Channel                   = ou.Channel(1)
         self._device: od.Device                     = od.Device(["Microsoft", "FLUID", "Apple"])
-        if len(parameters) > 0:
-            self << parameters
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
