@@ -681,12 +681,11 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 self._datasource_list.append(od.DataSource( operand.copy() ))
                 return self
-            case o.Operand() | int() | float() | Fraction():
+            case _:
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         single_datasource._data += operand
                 return self
-        return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
         match operand:
