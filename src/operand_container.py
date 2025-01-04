@@ -260,6 +260,9 @@ class Container(o.Operand):
             # case ol.Null():
             #     return ol.Null()
             case _:
+                if isinstance(operand, od.DataSource):
+                    self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
+                    return self
                 self_copy = self.copy()
                 self_copy._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
                 return self_copy
