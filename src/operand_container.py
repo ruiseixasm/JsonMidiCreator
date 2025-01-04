@@ -691,14 +691,22 @@ class Sequence(Container):  # Just a container of Elements
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case Container() | oe.Element():
+            case Song():
+                return operand - self   # Order is irrelevant on Song
+            case Container():
                 return super().__sub__(operand)
-            case o.Operand() | int() | float() | Fraction():
-                for single_datasource in self._datasource_list:
+            case oe.Element():
+                return super().__sub__(operand)
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                self_copy: Sequence = self.copy()
+                self_copy._position -= operand
+                return self_copy
+            case _:
+                self_copy: Sequence = self.copy()
+                for single_datasource in self_copy._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         single_datasource._data -= operand
-                return self
-        return super().__sub__(operand)
+                return self_copy
 
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Sequence':
