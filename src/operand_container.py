@@ -298,9 +298,9 @@ class Container(o.Operand):
         self_copy: Container = self.copy()
         match operand:
             case Container():
-                ...
+                pass
             case o.Operand():
-                ...
+                pass
             case int(): # repeat n times the last argument if any
                 many_operands = self.__class__()    # with an empty list
                 while operand > 0:
@@ -314,9 +314,9 @@ class Container(o.Operand):
         self_copy: Container = self.copy()
         match operand:
             case Container():
-                ...
+                pass
             case o.Operand():
-                ...
+                pass
             case int(): # remove n last arguments if any
                 if operand > 0:
                     elements_to_be_removed = round(1 - self_copy.len() / operand)
@@ -686,7 +686,7 @@ class Sequence(Container):  # Just a container of Elements
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         match operand:
             case Sequence() | oe.Element():
-                ...
+                pass
             case o.Operand():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data * operand
@@ -705,7 +705,7 @@ class Sequence(Container):  # Just a container of Elements
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
         match operand:
             case Sequence() | oe.Element():
-                ...
+                pass
             case o.Operand():
                 for single_datasource in self._datasource_list:
                     single_datasource._data << single_datasource._data / operand
