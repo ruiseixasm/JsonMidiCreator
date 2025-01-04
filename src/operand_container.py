@@ -645,11 +645,6 @@ class Sequence(Container):  # Just a container of Elements
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position += operand
                 return self
-            # case ra.Position() | ra.TimeValue():
-            #     self_copy: Sequence = self.copy()
-            #     if self_copy.len() > 0:
-            #         self_copy._datasource_list[0]._data << operand
-            #     return self_copy
             case oe.Element():
                 return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
             case Sequence():
