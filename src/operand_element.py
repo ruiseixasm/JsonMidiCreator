@@ -279,7 +279,7 @@ class Element(o.Operand):
             case _:
                 return super().__rrshift__(operand)
 
-    def __add__(self, operand: o.Operand) -> 'Element':
+    def __add__(self, operand: any) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -287,19 +287,15 @@ class Element(o.Operand):
                 return oc.Sequence(self, operand)   # copy already included in Sequence initiation
             case oc.Sequence():
                 return operand.__radd__(self)
-            case o.Operand():
+            case _:
                 return self.copy() << self % operand + operand
-        return self.copy()
 
-    def __sub__(self, operand: o.Operand) -> 'Element':
+    def __sub__(self, operand: any) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():         pass
-            case oc.Sequence():     pass
-            case o.Operand():
+            case _:
                 return self.copy() << self % operand - operand
-        return self.copy()
 
     def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
