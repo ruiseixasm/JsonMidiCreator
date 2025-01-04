@@ -42,4 +42,4 @@ chords: Sequence = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6
 # chords * 4 >> Play()
 
 lead_sheet: Song = melody + chords
-lead_sheet >> Play()
+lead_sheet * 4 >> Play()
