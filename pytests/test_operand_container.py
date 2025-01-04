@@ -141,9 +141,9 @@ def test_add_sequence():
     assert two_notes != four_notes
 
     three_notes: Sequence = Note() * 3
-    three_notes_2 = two_notes + Note() >> Stack()
+    three_notes_2 = two_notes + Note() >> Stack()   # two_notes is NOT changed and thus remains of size 2
     assert three_notes == three_notes_2
-    assert two_notes == three_notes_2   # Changes the original sequence!
+    assert two_notes != three_notes_2               # two_notes remains unchanged, size 2!
 
 
 def test_sub_sequence():
@@ -328,7 +328,7 @@ def test_sequence_content():
     for item in sequence_items:
         assert isinstance(item, Element)
 
-    sequence_items + Channel() + Velocity() + Clock()
+    sequence_items = sequence_items + Channel() + Velocity() + Clock()  # Only Elements are added, in this case Clock
     assert sequence_items.len() == 3
     for item in sequence_items:
         assert isinstance(item, Element)
