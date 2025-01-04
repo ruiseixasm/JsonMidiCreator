@@ -297,8 +297,6 @@ class Container(o.Operand):
                     while operand > 0 and len(self_copy._datasource_list) > 0:
                         self_copy._datasource_list.pop()
                         operand -= 1
-            case ol.Null():
-                return ol.Null()
         return self_copy
 
     # multiply with a scalar 
@@ -315,8 +313,6 @@ class Container(o.Operand):
                     many_operands += self
                     operand -= 1
                 return many_operands
-            case ol.Null():
-                return ol.Null()
         return self_copy
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
@@ -332,8 +328,6 @@ class Container(o.Operand):
                     while elements_to_be_removed > 0:
                         self_copy._datasource_list.pop()
                         elements_to_be_removed -= 1
-            case ol.Null():
-                return ol.Null()
         return self_copy
 
     def __pow__(self, operand: 'o.Operand') -> 'Container':
