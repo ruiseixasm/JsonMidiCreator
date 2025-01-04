@@ -301,7 +301,6 @@ class Container(o.Operand):
 
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Container':
-        self_copy: Container = self.copy()
         match operand:
             case Container():
                 pass
@@ -313,7 +312,7 @@ class Container(o.Operand):
                     many_operands += self
                     operand -= 1
                 return many_operands
-        return self_copy
+        return self.copy()
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
         self_copy: Container = self.copy()
