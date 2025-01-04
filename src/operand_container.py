@@ -729,19 +729,14 @@ class Sequence(Container):  # Just a container of Elements
     
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case Sequence() | oe.Element():
-                pass
-            case o.Operand():
-                for single_datasource in self._datasource_list:
-                    single_datasource._data << single_datasource._data / operand
-                return self
-            case int(): # Splits the total Duration by the integer
-                start_position = self.start()
-                sequence_length: ra.Duration = self.finish() - start_position
-                new_end_position: ra.Position = start_position + sequence_length / operand
-                trimmed_self = self | of.Less(new_end_position)**o.Operand()
-                return trimmed_self.copy()
-        return super().__truediv__(operand)
+            case int():
+                return super().__truediv__(operand)
+            case _:
+                self_copy: Sequence = self.copy()
+                for single_datasource in self_copy._datasource_list:
+                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
+                        single_datasource._data /= operand
+                return self_copy
     
     def __floordiv__(self, time_value: Union['ra.Position', 'ra.TimeValue', 'ou.TimeUnit']) -> 'Sequence':
         for single_datasource in self._datasource_list:
