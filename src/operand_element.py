@@ -313,13 +313,8 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Element():
-                pass
-            case oc.Sequence():
-                pass
-            case o.Operand():
+            case _:
                 return self.copy() << self % operand / operand
-        return self.copy()
 
     def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
         sequence_position_ms: Fraction = Fraction(0)
