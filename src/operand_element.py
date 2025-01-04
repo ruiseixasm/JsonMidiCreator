@@ -314,7 +314,7 @@ class Element(o.Operand):
             case int():
                 new_sequence: oc.Sequence = oc.Sequence()
                 for _ in range(operand):
-                    new_sequence + self # copy already included in Element processing
+                    new_sequence += self # copy of element already included in Element processing
                 return new_sequence.stack()
         return self.copy()
 
