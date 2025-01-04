@@ -337,12 +337,6 @@ class Container(o.Operand):
                             ))
                         nth_item -= 1
                     return many_operands
-            # case int(): # remove n last arguments if any
-            #     if operand > 0:
-            #         elements_to_be_removed = round(1 - self_copy.len() / operand)
-            #         while elements_to_be_removed > 0:
-            #             self_copy._datasource_list.pop()
-            #             elements_to_be_removed -= 1
         return self.copy()
 
     def __pow__(self, operand: 'o.Operand') -> 'Container':
