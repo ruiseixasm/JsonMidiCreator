@@ -300,9 +300,6 @@ class Serialization(Data):
     def __truediv__(self, operand: o.Operand) -> 'o.Operand':
         return self._data / operand
 
-    def __floordiv__(self, operand: o.Operand) -> 'o.Operand':
-        return self._data // operand
-
 class Playlist(Data):
     def __init__(self, *parameters):
         super().__init__([])
