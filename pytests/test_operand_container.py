@@ -231,7 +231,7 @@ def test_element_stacking():
 def test_floordiv_sequence():
 
     two_notes: Sequence = Note() * 2
-    two_notes // Steps(1)
+    two_notes //= Steps(1)
 
     assert two_notes % Last() % Steps() == Steps(1)
 
