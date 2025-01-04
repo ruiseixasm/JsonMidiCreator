@@ -655,7 +655,7 @@ class Sequence(Container):  # Just a container of Elements
                         right_sequence += of.All()**length_shift    # Offsets the content
                         return left_sequence + right_sequence
                     return right_sequence
-                return Song(operand, self)
+                return Section(operand, self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position))
             case tuple():
@@ -664,12 +664,12 @@ class Sequence(Container):  # Just a container of Elements
 
     def __add__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case Song():
+            case Section():
                 return operand + self   # Order is irrelevant on Song
             case Sequence():
                 if self._midi_track == operand._midi_track:
                     return Sequence(self, operand)
-                return Song(self, operand)
+                return Section(self, operand)
             case oe.Element():
                 return super().__add__(operand)
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
@@ -685,7 +685,7 @@ class Sequence(Container):  # Just a container of Elements
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case Song():
+            case Section():
                 return operand - self   # Order is irrelevant on Song
             case Container():
                 return super().__sub__(operand)
@@ -741,7 +741,7 @@ class Sequence(Container):  # Just a container of Elements
                 single_datasource._data << duration
         return self_copy.stack()
 
-class Song(Container):
+class Section(Container):
     def __init__(self, *operands):
         super().__init__()
         for single_operand in operands:
@@ -794,14 +794,14 @@ class Song(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Song':
+    def __lshift__(self, operand: o.Operand) -> 'Section':
         super().__lshift__(operand)
         self._datasource_list = o.filter_list(self._datasource_list,
                                 lambda data_source: isinstance(data_source._data, Sequence))
         return self
 
     # operand is the pusher >>
-    def __rrshift__(self, operand: o.Operand) -> 'Song':
+    def __rrshift__(self, operand: o.Operand) -> 'Section':
         if isinstance(operand, (Sequence, oe.Element)):
             if isinstance(operand, oe.Element):
                 operand = Sequence(operand) # Sequence() already does the copy
@@ -817,7 +817,7 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __radd__(self, operand: Sequence | oe.Element) -> 'Song':
+    def __radd__(self, operand: Sequence | oe.Element) -> 'Section':
         if isinstance(operand, (Sequence, oe.Element)):
             if isinstance(operand, oe.Element):
                 operand = Sequence(operand)
@@ -833,7 +833,7 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __add__(self, operand: Sequence | oe.Element) -> 'Song':
+    def __add__(self, operand: Sequence | oe.Element) -> 'Section':
         if isinstance(operand, (Sequence, oe.Element)):
             if isinstance(operand, oe.Element):
                 operand = Sequence(operand)
@@ -849,7 +849,7 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __sub__(self, operand: o.Operand) -> 'Song':
+    def __sub__(self, operand: o.Operand) -> 'Section':
         if isinstance(operand, Sequence):
             for single_sequence_i in len(self._datasource_list):
                 if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
@@ -864,12 +864,12 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __mul__(self, operand: o.Operand) -> 'Song':
+    def __mul__(self, operand: o.Operand) -> 'Section':
         self_copy: Sequence = self.copy()
         for single_datasource in self_copy._datasource_list:
             if isinstance(single_datasource._data, Sequence): # Makes sure it's an Element
                 single_datasource._data *= operand
         return self_copy
     
-    def __rmul__(self, operand: any) -> 'Song':
+    def __rmul__(self, operand: any) -> 'Section':
         return self.__mul__(operand)
