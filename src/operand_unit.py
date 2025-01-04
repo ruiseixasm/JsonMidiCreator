@@ -161,15 +161,15 @@ class Unit(o.Operand):
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Unit():
+                super().__lshift__(operand)
+                self._unit = operand._unit
             case od.DataSource():
                 match operand % o.Operand():
                     case int():                     self._unit = operand % o.Operand()
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
                     case Unit() | ra.Rational():    self._unit = operand % o.Operand() % od.DataSource( int() )
-            case Unit():
-                super().__lshift__(operand)
-                self._unit = operand._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():

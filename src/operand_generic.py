@@ -93,6 +93,10 @@ class TimeSignature(Generic):
     def __lshift__(self, operand: o.Operand) -> 'TimeSignature':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case TimeSignature():
+                super().__lshift__(operand)
+                self._top               = operand._top
+                self._bottom            = operand._bottom
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.BeatsPerMeasure():
@@ -101,10 +105,6 @@ class TimeSignature(Generic):
                         if operand % o.Operand() % od.DataSource( int() ) > 0:
                             # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
                             self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (  operand % o.Operand() % od.DataSource( int() )  ))))))
-            case TimeSignature():
-                super().__lshift__(operand)
-                self._top               = operand._top
-                self._bottom            = operand._bottom
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.BeatsPerMeasure():
@@ -405,6 +405,16 @@ class Pitch(Generic):
     def __lshift__(self, operand: o.Operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Pitch():
+                super().__lshift__(operand)
+                self._octave                << operand._octave
+                self._key_signature         << operand._key_signature
+                self._key._unit             = operand._key._unit
+                self._sharp._unit           = operand._sharp._unit
+                self._flat._unit            = operand._flat._unit
+                self._natural._unit         = operand._natural._unit
+                self._degree._unit          = operand._degree._unit
+                self._scale                 << operand._scale
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Octave():
@@ -436,16 +446,6 @@ class Pitch(Generic):
                     case _:
                         super().__lshift__(operand)
 
-            case Pitch():
-                super().__lshift__(operand)
-                self._octave                << operand._octave
-                self._key_signature         << operand._key_signature
-                self._key._unit             = operand._key._unit
-                self._sharp._unit           = operand._sharp._unit
-                self._flat._unit            = operand._flat._unit
-                self._natural._unit         = operand._natural._unit
-                self._degree._unit          = operand._degree._unit
-                self._scale                 << operand._scale
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )

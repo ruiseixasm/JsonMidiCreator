@@ -33,6 +33,8 @@ def instantiate_classes(iterations: int = 100):
         results_dict[single_class.__name__] = round((time.time() - start_time) * 1000)
     sorted_results_dict = dict(sorted(results_dict.items(), key=lambda item: item[1], reverse=True))
     print(sorted_results_dict)
+    total_time = sum(sorted_results_dict.values())
+    print(f'Total time: {total_time} ms')
 
 def copy_classes(iterations: int = 100):
     results_dict: dict = {}
@@ -45,6 +47,8 @@ def copy_classes(iterations: int = 100):
         results_dict[single_class.__name__] = round((time.time() - start_time) * 1000)
     sorted_results_dict = dict(sorted(results_dict.items(), key=lambda item: item[1], reverse=True))
     print(sorted_results_dict)
+    total_time = sum(sorted_results_dict.values())
+    print(f'Total time: {total_time} ms')
 
 
 print('\nINSTANTIATION PERFORMANCE TEST\n')

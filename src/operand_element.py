@@ -229,13 +229,6 @@ class Element(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ra.Position():     self._position = operand % o.Operand()
-                    case ra.Duration():     self._duration = operand % o.Operand()
-                    case ou.Stackable():    self._stackable = operand % o.Operand()
-                    case ou.Channel():      self._channel = operand % o.Operand()
-                    case od.Device():       self._device = operand % o.Operand()
             case Element():
                 super().__lshift__(operand)
                 self._position      << operand._position
@@ -243,6 +236,13 @@ class Element(o.Operand):
                 self._stackable     << operand._stackable
                 self._channel       << operand._channel
                 self._device        << operand._device
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ra.Position():     self._position = operand % o.Operand()
+                    case ra.Duration():     self._duration = operand % o.Operand()
+                    case ou.Stackable():    self._stackable = operand % o.Operand()
+                    case ou.Channel():      self._channel = operand % o.Operand()
+                    case od.Device():       self._device = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration() | float() | Fraction():
@@ -441,13 +441,13 @@ class Clock(Element):
     def __lshift__(self, operand: o.Operand) -> 'Clock':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Clock():
+                super().__lshift__(operand)
+                self._pulses_per_quarternote << operand._pulses_per_quarternote
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
-            case Clock():
-                super().__lshift__(operand)
-                self._pulses_per_quarternote << operand._pulses_per_quarternote
             case ou.PPQN():         self._pulses_per_quarternote << operand
             case _: super().__lshift__(operand)
         return self
@@ -613,6 +613,12 @@ class Note(Element):
     def __lshift__(self, operand: o.Operand) -> 'Note':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Note():
+                super().__lshift__(operand)
+                self._pitch         << operand._pitch
+                self._velocity      << operand._velocity
+                self._gate          << operand._gate
+                self._tied          << operand._tied
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Pitch():        self._pitch     = operand % o.Operand()
@@ -621,12 +627,6 @@ class Note(Element):
                     case ra.Gate():         self._gate      = operand % o.Operand()
                     case ou.Tied():         self._tied      = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
-            case Note():
-                super().__lshift__(operand)
-                self._pitch         << operand._pitch
-                self._velocity      << operand._velocity
-                self._gate          << operand._gate
-                self._tied          << operand._tied
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
                 | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
@@ -755,13 +755,13 @@ class KeyScale(Note):
     def __lshift__(self, operand: o.Operand) -> 'KeyScale':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case KeyScale():
+                super().__lshift__(operand)
+                self._scale << operand._scale
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Scale():        self._scale = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
-            case KeyScale():
-                super().__lshift__(operand)
-                self._scale << operand._scale
             case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
                 self._scale << operand
             case _: super().__lshift__(operand)
@@ -952,6 +952,15 @@ class Chord(KeyScale):
     def __lshift__(self, operand: any) -> 'Chord':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Chord():
+                super().__lshift__(operand)
+                self._size          << operand._size
+                self._inversion     << operand._inversion
+                self._dominant      << operand._dominant
+                self._diminished    << operand._diminished
+                self._augmented     << operand._augmented
+                self._sus2          << operand._sus2
+                self._sus4          << operand._sus4
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Size():                 self._size = operand % o.Operand()
@@ -962,15 +971,6 @@ class Chord(KeyScale):
                     case ou.Sus2():                 self._sus2 = operand % o.Operand()
                     case ou.Sus4():                 self._sus4 = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Chord():
-                super().__lshift__(operand)
-                self._size          << operand._size
-                self._inversion     << operand._inversion
-                self._dominant      << operand._dominant
-                self._diminished    << operand._diminished
-                self._augmented     << operand._augmented
-                self._sus2          << operand._sus2
-                self._sus4          << operand._sus4
             case ou.Size():                 self._size << operand
             case ou.Inversion():            self._inversion << operand
             case str():

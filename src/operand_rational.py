@@ -149,6 +149,9 @@ class Rational(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Rational':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Rational():
+                super().__lshift__(operand)
+                self._rational = operand._rational
             case od.DataSource():
                 match operand % o.Operand():
                     case Fraction():
@@ -162,9 +165,6 @@ class Rational(o.Operand):
                             print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
                     case Rational() | ou.Unit():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
-            case Rational():
-                super().__lshift__(operand)
-                self._rational = operand._rational
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case Fraction():                self._rational = operand
@@ -672,12 +672,6 @@ class Position(Rational):
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case Tempo():               self._tempo             = operand % o.Operand()
-                    case og.TimeSignature():    self._time_signature    = operand % o.Operand()
-                    case Quantization():        self._quantization      = operand % o.Operand()
-                    case _:                     super().__lshift__(operand)
             case Position():
                 super().__lshift__(operand)
                 # It's faster this way with direct access to the respective source variables
@@ -685,6 +679,12 @@ class Position(Rational):
                 self._time_signature._top       = operand._time_signature._top
                 self._time_signature._bottom    = operand._time_signature._bottom
                 self._quantization._rational    = operand._quantization._rational
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Tempo():               self._tempo             = operand % o.Operand()
+                    case og.TimeSignature():    self._time_signature    = operand % o.Operand()
+                    case Quantization():        self._quantization      = operand % o.Operand()
+                    case _:                     super().__lshift__(operand)
             case TimeValue():
                 self._rational = self.getBeats(operand)._rational
             case ou.Measure():
