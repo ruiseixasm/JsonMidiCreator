@@ -245,22 +245,24 @@ class Container(o.Operand):
                 for single_datasource in operand._datasource_list:
                     self_copy._datasource_list.append(single_datasource.copy())
                 return self_copy
-            case o.Operand():
-                self_copy = self.copy()
-                self_copy._datasource_list.append(od.DataSource( operand.copy() ))
-                return self_copy
-            case int() | ou.Unit(): # repeat n times the last argument if any
-                self_copy: Container = self.copy()
-                if len(self._datasource_list) > 0:
-                    last_datasource = self._datasource_list[len(self._datasource_list) - 1]
-                    while operand > 0:
-                        self_copy._datasource_list.append(last_datasource.copy())
-                        operand -= 1
-                return self_copy
-            case ol.Null():
-                return ol.Null()
+            # case o.Operand():
+            #     self_copy = self.copy()
+            #     self_copy._datasource_list.append(od.DataSource( operand.copy() ))
+            #     return self_copy
+            # case int() | ou.Unit(): # repeat n times the last argument if any
+            #     self_copy: Container = self.copy()
+            #     if len(self._datasource_list) > 0:
+            #         last_datasource = self._datasource_list[len(self._datasource_list) - 1]
+            #         while operand > 0:
+            #             self_copy._datasource_list.append(last_datasource.copy())
+            #             operand -= 1
+            #     return self_copy
+            # case ol.Null():
+            #     return ol.Null()
             case _:
-                return self.copy()
+                self_copy = self.copy()
+                self_copy._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
+                return self_copy
     
     def __radd__(self, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
