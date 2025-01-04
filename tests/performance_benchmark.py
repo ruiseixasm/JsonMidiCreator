@@ -48,6 +48,6 @@ def copy_classes(iterations: int = 100):
 
 
 print('\nINSTANTIATION PERFORMANCE TEST\n')
-instantiate_classes(100)
+instantiate_classes(1000)
 print('\nCOPY PERFORMANCE TEST\n')
-copy_classes(100)
+copy_classes(1000)
