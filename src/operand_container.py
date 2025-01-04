@@ -711,19 +711,18 @@ class Sequence(Container):  # Just a container of Elements
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case Sequence() | oe.Element():
-                pass
-            case o.Operand():
-                for single_datasource in self._datasource_list:
-                    single_datasource._data << single_datasource._data * operand
-                return self
-            case int():
+            case int(): # Implicit copy
                 many_operands = self.__class__()    # empty list
                 while operand > 0:
                     many_operands >>= self.copy()
                     operand -= 1
                 return many_operands
-        return super().__mul__(operand)
+            case _:
+                self_copy: Sequence = self.copy()
+                for single_datasource in self_copy._datasource_list:
+                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
+                        single_datasource._data *= operand
+                return self_copy
     
     def __rmul__(self, operand: any) -> 'Sequence':
         return self.__mul__(operand)
