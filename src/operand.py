@@ -411,7 +411,10 @@ class Operand:
         return self.__truediv__(other)
     
     def __floordiv__(self, operand: any) -> any:
-        return self.copy()
+        import operand_data as od
+        return self.__mod__(
+            od.DataSource( operand )
+        )
 
     def __and__(self, operand: any) -> any:
         import operand_frame as of
