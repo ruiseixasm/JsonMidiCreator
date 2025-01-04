@@ -52,6 +52,11 @@ def test_sequence_mod():
     sequence_1 = Sequence(Note("A"), Note("B"))
     sequence_2 = Note("A") + Note("B")
 
+    sequence_1 % Position() % Fraction() >> Print() # 0
+    assert sequence_1 == Position(0.0)
+    assert sequence_1 % Position() == Position(0.0)
+    assert sequence_1 % Position() % Fraction() == 0
+
     assert sequence_1 == sequence_2
 
     sequence_1 >> Stack()
@@ -83,21 +88,33 @@ def test_rrshift_sequence():
 
     two_notes: Sequence = Note() * 2
     assert two_notes.len() == 2
-    assert two_notes[0] == Position(0)
-    assert two_notes[1] == Position(1/4)
+    # Checks each note position
+    two_notes % Position() % Fraction() >> Print()      # 0
+    assert two_notes == Position(0)
 
+    print("------")
+    measure_length: Length = Length(1)
+    moved_two_notes: Sequence = measure_length >> two_notes.copy()
+    moved_two_notes % Position() % Fraction() >> Print()    # 1
+    assert moved_two_notes == Position(1)
+    moved_two_notes[0] % Position() % Fraction() >> Print() # 0
+    assert moved_two_notes[0] == Position(0)
 
+    print("------")
     two_notes_original = two_notes.copy()
-    four_notes = two_notes >> two_notes # moves the second pair of notes to the next measure (1)!
-    assert two_notes == two_notes_original
+    four_notes = two_notes >> two_notes     # moves the second pair of notes to the next measure (1)!
+    assert two_notes == two_notes_original  # Original two_notes is not changed!
     assert four_notes.len() == 4
-    four_notes[0] % Position() % Fraction() >> Print()
+    # Last two notes change position, but the sequence position remains the same, Element Stacking!
+    four_notes % Position() % Fraction() >> Print()     # 0
+    assert four_notes == Position(0)
+    four_notes[0] % Position() % Fraction() >> Print()  # 0
     assert four_notes[0] == Position(0)
-    four_notes[1] % Position() % Fraction() >> Print()
+    four_notes[1] % Position() % Fraction() >> Print()  # 1/4
     assert four_notes[1] == Position(1/4)
-    four_notes[2] % Position() % Fraction() >> Print()
+    four_notes[2] % Position() % Fraction() >> Print()  # 1
     assert four_notes[2] == Position(1)
-    four_notes[3] % Position() % Fraction() >> Print()
+    four_notes[3] % Position() % Fraction() >> Print()  # 5/4
     assert four_notes[3] == Position(1 + 1/4)
 
 # test_rrshift_sequence()

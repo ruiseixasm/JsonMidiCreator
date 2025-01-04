@@ -60,6 +60,8 @@ def test_dotted_mod():
 def test_position_default():
 
     position_measures = Position(1.5)
+    position_measures % Fraction() >> Print()   # 3/2
+    assert position_measures % Fraction() == 3/2
     assert position_measures % Beats() % DataSource( Fraction() ) == 6
     assert position_measures % Steps() % DataSource( Fraction() ) == 16 + 16/2
     assert position_measures % Beat() == Beats(2)

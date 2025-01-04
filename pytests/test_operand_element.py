@@ -290,7 +290,22 @@ def test_note3_element():
 # test_note3_element()
 
 
-def test_note_element():
+def test_note_position():
+
+    note: Note = Note()
+    assert note % Position() == 0.0
+
+    note << Position(1.0)
+    assert note % Position() == 1.0
+
+    measure_length: Length = Length(1)
+    note += measure_length
+    assert note % Position() == 2.0
+
+# test_note_position()
+
+
+def test_note_pitch():
 
     note: Note = Note()
     assert note % str() == "C"
@@ -324,7 +339,7 @@ def test_note_element():
             tone: {(note_copy_2) % Pitch() % float()}, degree: {(note_copy_2) % Degree() % int()}")
     assert note + 2 == Note("E")    # C - D - E
 
-# test_note_element()
+# test_note_pitch()
 
 
 

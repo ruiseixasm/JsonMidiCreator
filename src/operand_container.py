@@ -118,6 +118,8 @@ class Container(o.Operand):
     def __eq__(self, other: 'Container') -> bool:
         if isinstance(other, Container):
             return self._datasource_list == other._datasource_list
+        if not isinstance(other, ol.Null):
+            return self % other == other
         # if type(self) == type(other):
         #     return self._datasource_list == other % od.DataSource()
             # When comparing lists containing objects in Python using the == operator,
@@ -640,13 +642,14 @@ class Sequence(Container):  # Just a container of Elements
                 if self_copy.len() > 0:
                     self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ra.Position() + operand
                 return self_copy
-            case ra.Length():
-                return self + operand
-            case ra.Position() | ra.TimeValue():
-                self_copy: Sequence = self.copy()
-                if self_copy.len() > 0:
-                    self_copy._datasource_list[0]._data << operand
-                return self_copy
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                self._position += operand
+                return self
+            # case ra.Position() | ra.TimeValue():
+            #     self_copy: Sequence = self.copy()
+            #     if self_copy.len() > 0:
+            #         self_copy._datasource_list[0]._data << operand
+            #     return self_copy
             case oe.Element():
                 return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
             case Sequence():
@@ -660,7 +663,7 @@ class Sequence(Container):  # Just a container of Elements
                         right_start_position: ra.Position = right_sequence.start()
                         length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
                         length_shift << ra.Measures(length_shift % ou.Measure())    # Rounded up Duration to next Measure
-                        length_shift >> right_sequence
+                        right_sequence += of.All()**length_shift    # Offsets the content
                         return left_sequence + right_sequence
                     return right_sequence
                 return Song(operand, self)
@@ -681,10 +684,11 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return super().__add__(operand)
             case _:
-                for single_datasource in self._datasource_list:
+                self_copy: Sequence = self.copy()
+                for single_datasource in self_copy._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         single_datasource._data += operand
-                return self
+                return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
         match operand:

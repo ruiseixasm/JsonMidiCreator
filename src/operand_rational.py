@@ -421,6 +421,9 @@ class Position(Rational):
             case BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                                         return self._time_signature % operand
             case Quantization():        return self._quantization.copy()
+            case int():                 return self % ou.Measure(operand) % int()
+            case float():               return self % Measures(operand) % float()
+            case Fraction():            return self % Measures(operand) % Fraction()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
