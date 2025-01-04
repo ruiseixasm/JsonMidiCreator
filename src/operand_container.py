@@ -266,18 +266,20 @@ class Container(o.Operand):
     
     def __radd__(self, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
-        match operand:
-            case o.Operand():
-                self_copy._datasource_list.insert(0, od.DataSource( operand.copy() ))
-            case int(): # repeat n times the first argument if any
-                if len(self._datasource_list) > 0:
-                    first_datasource = self._datasource_list[0]
-                    while operand > 0:
-                        self_copy._datasource_list.insert(0, first_datasource.copy())
-                        operand -= 1
-            case ol.Null():
-                return ol.Null()
+        self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
+        # match operand:
+        #     case o.Operand():
+        #         self_copy._datasource_list.insert(0, od.DataSource( operand.copy() ))
+        #     case int(): # repeat n times the first argument if any
+        #         if len(self._datasource_list) > 0:
+        #             first_datasource = self._datasource_list[0]
+        #             while operand > 0:
+        #                 self_copy._datasource_list.insert(0, first_datasource.copy())
+        #                 operand -= 1
+        #     case ol.Null():
+        #         return ol.Null()
+        # return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Container':
         self_copy: Container = self.copy()
