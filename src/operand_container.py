@@ -257,8 +257,10 @@ class Container(o.Operand):
                         self_copy._datasource_list.append(last_datasource.copy())
                         operand -= 1
                 return self_copy
-            case ol.Null(): return ol.Null()
-            case _: return self.copy()
+            case ol.Null():
+                return ol.Null()
+            case _:
+                return self.copy()
     
     def __radd__(self, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
@@ -271,7 +273,8 @@ class Container(o.Operand):
                     while operand > 0:
                         self_copy._datasource_list.insert(0, first_datasource.copy())
                         operand -= 1
-            case ol.Null(): return ol.Null()
+            case ol.Null():
+                return ol.Null()
         return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Container':
@@ -290,7 +293,8 @@ class Container(o.Operand):
                     while operand > 0 and len(self_copy._datasource_list) > 0:
                         self_copy._datasource_list.pop()
                         operand -= 1
-            case ol.Null(): return ol.Null()
+            case ol.Null():
+                return ol.Null()
         return self_copy
 
     # multiply with a scalar 
@@ -307,7 +311,8 @@ class Container(o.Operand):
                     many_operands += self
                     operand -= 1
                 return many_operands
-            case ol.Null(): return ol.Null()
+            case ol.Null():
+                return ol.Null()
         return self_copy
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
@@ -323,7 +328,8 @@ class Container(o.Operand):
                     while elements_to_be_removed > 0:
                         self_copy._datasource_list.pop()
                         elements_to_be_removed -= 1
-            case ol.Null(): return ol.Null()
+            case ol.Null():
+                return ol.Null()
         return self_copy
 
     def __pow__(self, operand: 'o.Operand') -> 'Container':
