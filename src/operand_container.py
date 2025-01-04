@@ -306,7 +306,7 @@ class Container(o.Operand):
                 pass
             case o.Operand():
                 pass
-            case int(): # repeat n times the last argument if any
+            case int(): # repeat n times the self content if any
                 many_operands = self.__class__()    # with an empty list
                 while operand > 0:
                     many_operands += self
@@ -315,19 +315,30 @@ class Container(o.Operand):
         return self.copy()
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
-        self_copy: Container = self.copy()
+        # self_copy: Container = self.copy()
         match operand:
             case Container():
                 pass
             case o.Operand():
                 pass
-            case int(): # remove n last arguments if any
+            case int(): # split n times the self content if any
                 if operand > 0:
-                    elements_to_be_removed = round(1 - self_copy.len() / operand)
-                    while elements_to_be_removed > 0:
-                        self_copy._datasource_list.pop()
-                        elements_to_be_removed -= 1
-        return self_copy
+                    many_operands = self.__class__()    # with an empty list
+                    cut_len: int = self.len() // operand
+                    nth_item: int = cut_len
+                    while nth_item > 0:
+                        many_operands._datasource_list.append(od.DataSource(
+                                self.deep_copy( self._datasource_list[cut_len - nth_item]._data )
+                            ))
+                        nth_item -= 1
+                    return many_operands
+            # case int(): # remove n last arguments if any
+            #     if operand > 0:
+            #         elements_to_be_removed = round(1 - self_copy.len() / operand)
+            #         while elements_to_be_removed > 0:
+            #             self_copy._datasource_list.pop()
+            #             elements_to_be_removed -= 1
+        return self.copy()
 
     def __pow__(self, operand: 'o.Operand') -> 'Container':
         for single_datasource in self._datasource_list:
