@@ -562,6 +562,13 @@ class Sequence(Container):  # Just a container of Elements
         sequence_copy._position     << self._position
         return sequence_copy
     
+    def filter(self, criteria: any) -> 'Sequence':
+        filtered_sequence: Container = self.__class__()
+        filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+        filtered_sequence._midi_track   << self._midi_track
+        filtered_sequence._position     << self._position
+        return filtered_sequence
+
     def reverse(self) -> 'Sequence':
         super().reverse()
         self.first() << self.last() % ra.Position()
