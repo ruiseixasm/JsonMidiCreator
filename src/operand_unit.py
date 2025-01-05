@@ -1002,8 +1002,7 @@ class MidiTrack(Midi):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return super().__eq__(other) \
-                    and self._name      == other % od.DataSource( str() )
+                return self._name       == other % od.DataSource( str() )    # Only compares name, not number !
             case str():
                 return self._name       == other
             case _:
