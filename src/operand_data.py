@@ -351,10 +351,20 @@ class Playlist(Data):
         import operand_container as oc
         import operand_element as oe
         match operand:
+            case DataSource():
+                match operand % o.Operand():
+                    case ou.MidiTrack():
+                        self._midi_track = operand % o.Operand()
+                    case list():
+                        self._data = operand
+                    case _:
+                        super().__lshift__(operand)
             case oc.Song() | oc.Sequence() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
+            case ou.MidiTrack():
+                self._midi_track    << operand
             case list():
-                self._data = Playlist.copy_play_list(operand)
+                self._data = self.deep_copy(operand)
             case tuple():
                 for single_operand in operand:
                     self << single_operand
