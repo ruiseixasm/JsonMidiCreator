@@ -770,8 +770,8 @@ class KeyScale(Note):
 class Chord(KeyScale):
     def __init__(self, *parameters):
         super().__init__()
-        self._size: ou.Size             = ou.Size()
-        self._inversion: ou.Inversion   = ou.Inversion()
+        self._size: ou.Size             = ou.Size(3)
+        self._inversion: ou.Inversion   = ou.Inversion(0)
         self._dominant: ou.Dominant     = ou.Dominant(0)
         self._diminished: ou.Diminished = ou.Diminished(0)
         self._augmented: ou.Augmented   = ou.Augmented(0)

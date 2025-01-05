@@ -955,8 +955,8 @@ class Inversion(ScaleOperation):
     first : integer_like
         Inversion sets the degree of chords inversion starting by 0 meaning no inversion
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
 
 class PPQN(Unit):
     """
@@ -967,8 +967,8 @@ class PPQN(Unit):
     first : integer_like
         The typical and the default value is 24, but it can be set multiples of 24
     """
-    def __init__(self, unit: int = None):
-        super().__init__( 24 if unit is None else unit )
+    def __init__(self, *parameters):
+        super().__init__(24, *parameters)
 
 class Midi(Unit):
     pass
