@@ -251,10 +251,10 @@ class Serialization(Data):
                 return self._data
         return []
 
-    def getMidilist(self, position: 'Position' = None) -> list:
+    def getMidilist(self, midi_track = None, position = None) -> list:
         match self._data:
             case o.Operand():
-                return self._data.getMidilist(position)
+                return self._data.getMidilist(midi_track, position)
             case list():
                 return self._data
         return []

@@ -261,7 +261,7 @@ class Operand:
     def getPlaylist(self, position = None) -> list:
         return []
 
-    def getMidilist(self):
+    def getMidilist(self, midi_track = None, position = None) -> list:
         return []
 
     def getSerialization(self) -> dict:
