@@ -882,10 +882,10 @@ class Division(Unit):
     def __init__(self, unit: int = None):
         super().__init__(3 if unit is None else unit)
 
-class Operation(Unit):
+class ScaleOperation(Unit):
     pass
 
-class Transposition(Operation):
+class Transposition(ScaleOperation):
     """
     A Transposition() is used to do a modal Transposition along a given Scale.
     
@@ -897,7 +897,7 @@ class Transposition(Operation):
     def __init__(self, tones: int = 5):
         super().__init__(tones)
 
-class Modulation(Operation):    # Modal Modulation
+class Modulation(ScaleOperation):    # Modal Modulation
     """
     A Modulation() is used to return a modulated Scale from a given Scale or Scale.
     
@@ -910,7 +910,7 @@ class Modulation(Operation):    # Modal Modulation
         unit = Mode(mode) % od.DataSource( int() )
         super().__init__(unit)
 
-class Modulate(Operation):    # Modal Modulation
+class Modulate(ScaleOperation):    # Modal Modulation
     """
     Modulate() is used to modulate the self Scale or Scale.
     
@@ -933,7 +933,7 @@ class Modulate(Operation):    # Modal Modulation
         else:
             return super().__rrshift__(operand)
 
-class Progression(Operation):
+class Progression(ScaleOperation):
     """
     A Progression() is used to do a Progression along a given Scale.
     
@@ -946,7 +946,7 @@ class Progression(Operation):
     def __init__(self, unit: int = None):
         super().__init__(unit)
 
-class Inversion(Operation):
+class Inversion(ScaleOperation):
     """
     Inversion() sets the degree of inversion of a given chord.
     

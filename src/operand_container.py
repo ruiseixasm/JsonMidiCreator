@@ -868,12 +868,13 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __mul__(self, operand: o.Operand) -> 'Song':
-        self_copy: Sequence = self.copy()
-        for single_datasource in self_copy._datasource_list:
-            if isinstance(single_datasource._data, Sequence): # Makes sure it's an Element
-                single_datasource._data *= operand
-        return self_copy
+    # # Multiply of song shall mean the number of loops
+    # def __mul__(self, operand: o.Operand) -> 'Song':
+    #     self_copy: Sequence = self.copy()
+    #     for single_datasource in self_copy._datasource_list:
+    #         if isinstance(single_datasource._data, Sequence): # Makes sure it's an Element
+    #             single_datasource._data *= operand
+    #     return self_copy
     
-    def __rmul__(self, operand: any) -> 'Song':
-        return self.__mul__(operand)
+    # def __rmul__(self, operand: any) -> 'Song':
+    #     return self.__mul__(operand)

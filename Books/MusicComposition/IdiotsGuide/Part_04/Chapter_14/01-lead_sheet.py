@@ -36,11 +36,11 @@ first_half_2: Sequence = first_half_1 * 1 << Nth(1)**2
 # first_half_2 >> Play()
 
 melody: Sequence = first_half_1 >> four_eights >> first_half_2 >> Note(1/2, 2) * 1 >> first_half_2 - 1 >> four_eights - 1 >> Note(1/1) << Track("melody")
-melody >> Export("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_jmp.json") # Export as a JsonMidiPlayer file
+melody * 4 >> Export("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_melody_jmp.json") # Export as a JsonMidiPlayer file
 # melody * 4 >> Play()
 
 chords: Sequence = Chord(1) + Chord(2) + Chord(6, 1/2) + Chord(3, 1/2) + Chord(6) >> Stack() << Track("chords") << Octave(3)
 # chords * 4 >> Play()
 
 lead_sheet: Song = melody + chords
-lead_sheet * 4 >> Play()
+lead_sheet >> Play()
