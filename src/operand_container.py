@@ -766,7 +766,7 @@ class Song(Container):
     def __getitem__(self, key: str | int) -> Sequence:
         if isinstance(key, str):
             for single_sequence in self:
-                if isinstance(single_sequence, Sequence):
+                if isinstance(single_sequence, Sequence):   # Playlists aren't selectable by name !
                     if single_sequence._midi_track._name == key:
                         return single_sequence
             return ol.Null()
@@ -786,14 +786,14 @@ class Song(Container):
     def getPlaylist(self, position: ra.Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
-            if isinstance(single_sequence, Sequence):
+            if isinstance(single_sequence, (Sequence, od.Playlist)):
                 play_list.extend(single_sequence.getPlaylist(position))
         return play_list
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_list: list = []
         for single_sequence in self:
-            if isinstance(single_sequence, Sequence):
+            if isinstance(single_sequence, Sequence):   # Can't get Midilist from Playlist !
                 midi_list.extend(single_sequence.getMidilist(midi_track, position))
         return midi_list
 
@@ -840,7 +840,7 @@ class Song(Container):
     def __add__(self, operand: Sequence | oe.Element) -> 'Song':
         if isinstance(operand, (Sequence, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Sequence(operand)
+                operand = Sequence(operand) # Makes sure it becomes a Sequence
             else:
                 operand = operand.copy()
             for single_sequence in self:
@@ -848,6 +848,8 @@ class Song(Container):
                     if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
                         return self
+            self._datasource_list.append(od.DataSource( operand ))
+        elif isinstance(operand, od.Playlist):  # Adds Playlist right away!
             self._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, of.Frame):
             o.logging.warning(f"Frames don't work on Songs!")

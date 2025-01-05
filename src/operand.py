@@ -357,7 +357,7 @@ class Operand:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self, operand: TypeOperand) -> TypeOperand:
+    def __rshift__(self: TypeOperand, operand) -> TypeOperand:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
@@ -367,7 +367,7 @@ class Operand:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self: TypeOperand, operand: TypeOperand) -> TypeOperand:
+    def __rrshift__(self: TypeOperand, operand: any) -> TypeOperand:
         match operand:
             case tuple():
                 rshift_operands = None
@@ -380,9 +380,9 @@ class Operand:
                 return rshift_operands >> self
         return operand
 
-    def __irshift__(self: TypeOperand, other: any) -> TypeOperand:
+    def __irshift__(self: TypeOperand, operand: any) -> TypeOperand:
         # Simply delegate to the __rshift__ method
-        return self.__rshift__(other)
+        return self.__rshift__(operand)
     
     def __add__(self: TypeOperand, operand: any) -> TypeOperand:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -391,8 +391,8 @@ class Operand:
     def __radd__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__add__(operand)
 
-    def __iadd__(self: TypeOperand, other) -> TypeOperand:
-        return self.__add__(other)
+    def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
+        return self.__add__(operand)
     
     def __sub__(self: TypeOperand, operand: any) -> TypeOperand:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

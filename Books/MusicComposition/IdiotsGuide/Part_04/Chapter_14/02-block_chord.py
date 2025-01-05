@@ -39,5 +39,5 @@ bass_line *= 4
 block_chord: Sequence = chords + bass_line << Channel(2) << Track("Block Chord")
 # block_chord >> Play()
 
-composition: Song = block_chord + melody_playlist
+composition: Song = Song(block_chord) + melody_playlist
 composition >> Play()
