@@ -112,6 +112,15 @@ def test_position_specific():
 # test_position_specific()
 
 
+def test_length_unit():
+
+    length: Length = Length()
+    assert length % Measure() == 0
+    assert (length + Step(1)) == 1  # Measure
+
+# test_length_unit()  
+
+
 def test_time_mod():
 
     # Perform the operation

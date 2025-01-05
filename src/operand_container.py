@@ -241,9 +241,10 @@ class Container(o.Operand):
         return self
 
     def reverse(self) -> 'Container':
-        for operand_i in range(self.len() // 2):
-            tail_operand = self._datasource_list[self.len() - 1 - operand_i]._data
-            self._datasource_list[self.len() - 1 - operand_i]._data = self._datasource_list[operand_i]._data
+        self_len: int = self.len()
+        for operand_i in range(self_len // 2):
+            tail_operand = self._datasource_list[self_len - 1 - operand_i]._data
+            self._datasource_list[self_len - 1 - operand_i]._data = self._datasource_list[operand_i]._data
             self._datasource_list[operand_i]._data = tail_operand
         return self
 
@@ -419,30 +420,25 @@ class Sequence(Container):  # Just a container of Elements
         start: ra.Position = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
-                single_position: ra.Position = single_datasource._data._position
-                if not start or single_position < start:
-                    start = single_position
+                element_position: ra.Position = single_datasource._data._position
+                if not start or element_position < start:   # Implicit conversion
+                    start = self._position.getPosition( element_position )
         if start:
-            return start.copy()
+            return start
         return self._position.copy(0.0)
 
     def finish(self) -> ra.Position:
         finish: ra.Position = self._position.copy(0.0)
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
-                single_position: ra.Position = single_datasource._data._position
-                if single_position > finish:
-                    finish = single_position
-        return finish.copy()
+                single_element: oe.Element = single_datasource._data
+                element_finish: ra.Position = single_element._position + single_element._duration
+                if element_finish > finish:    # Implicit conversion
+                    finish = finish.getPosition(element_finish) # Explicit conversion
+        return finish
 
     def length(self) -> ra.Length:
-        length: ra.Length = ra.Length(self._position, 0.0)
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                position_beats: ra.Beats = self._position.getBeats( single_datasource._data._position )
-                if position_beats > length:
-                    length << position_beats
-        return length
+        return ra.Length(self.finish() - self.start())
 
     def duration(self) -> ra.Duration:
         total_length: ra.Duration = ra.Duration(0)
@@ -570,9 +566,19 @@ class Sequence(Container):  # Just a container of Elements
         return filtered_sequence
 
     def reverse(self) -> 'Sequence':
-        super().reverse()
-        self.first() << self.last() % ra.Position()
-        return self.stack()
+        finish_position: ra.Position = self.finish()
+        sequence_length: ra.Length = ra.Length( finish_position )
+        sequence_length << ra.Measures(sequence_length % ou.Measure())  # Rounded up Duration to next Measure
+        
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                single_element: oe.Element = single_datasource._data
+                element_position: ra.Position = single_element._position
+                element_duration: ra.Duration = single_element._duration
+                # Implicit Position conversion
+                new_position: ra.Position = sequence_length - (element_position + element_duration)
+                element_position << element_position.getSteps( new_position )
+        return super().reverse()    # Reverses the list
 
     def link(self) -> 'Sequence':
         self.sort()

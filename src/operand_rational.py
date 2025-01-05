@@ -704,7 +704,7 @@ class Position(Rational):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
                 self_copy._rational += self.getBeats(operand) % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self + Measures(operand)
@@ -714,7 +714,7 @@ class Position(Rational):
         self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
                 self_copy._rational -= self.getBeats(operand) % od.DataSource( Fraction() )
             case int() | float() | Fraction():
                 return self - Measures(operand)
@@ -746,28 +746,37 @@ class Length(Position):
     
     def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         match time:
-            case TimeValue() | ou.TimeUnit():
-                return ou.Measure( self.getMeasures(time) % int() + 1 )
+            case Position() | TimeValue() | ou.TimeUnit():
+                measures: Fraction = self.getMeasures(time) // Fraction()
+                if measures.denominator != 1:   # Checks if it is NOT an integer
+                    measures = Fraction(int(measures) + 1)  # moves forward one unit
+                return ou.Measure( measures )
             case _:
                 return super().getMeasure(time)
 
     def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':
         match time:
-            case TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit():
+                beats: Fraction = self.getBeats(time) // Fraction()
+                if beats.denominator != 1:   # Checks if it is NOT an integer
+                    beats = Fraction(int(beats) + 1)  # moves forward one unit
                 beats_per_measure: int = self._time_signature._top
-                return ou.Beat( (self.getBeats(time) % int() + 1) % beats_per_measure )
+                return ou.Beat( beats % beats_per_measure )
             case _:
                 return super().getBeat(time)
 
     def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
         match time:
-            case TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit():
+                steps: Fraction = self.getSteps(time) // Fraction()
+                if steps.denominator != 1:   # Checks if it is NOT an integer
+                    steps = Fraction(int(steps) + 1)  # moves forward one unit
                 beats_per_measure: int = self._time_signature._top
                 beats_per_note: int = self._time_signature._bottom
                 notes_per_step: Fraction = self._quantization._rational
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps_per_measure: int = int(beats_per_measure / beats_per_step)
-                return ou.Step( (self.getSteps(time) % int() + 1) % steps_per_measure )
+                return ou.Step( steps % steps_per_measure )
             case _:
                 return super().getBeat(time)
 
