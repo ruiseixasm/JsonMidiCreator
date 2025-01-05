@@ -238,11 +238,11 @@ class Element(o.Operand):
                 self._device        << operand._device
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Position():     self._position = operand % o.Operand()
-                    case ra.Duration():     self._duration = operand % o.Operand()
+                    case ra.Position():     self._position  = operand % o.Operand()
+                    case ra.Duration():     self._duration  = operand % o.Operand()
                     case ou.Stackable():    self._stackable = operand % o.Operand()
-                    case ou.Channel():      self._channel = operand % o.Operand()
-                    case od.Device():       self._device = operand % o.Operand()
+                    case ou.Channel():      self._channel   = operand % o.Operand()
+                    case od.Device():       self._device    = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration() | float() | Fraction():
@@ -631,6 +631,9 @@ class Note(Element):
                 | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
                 | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
                                     self._pitch << operand
+            case ou.DrumKit():
+                                    self << od.DataSource( ou.Channel(10) )
+                                    self._pitch << operand
             case ou.Velocity():     self._velocity << operand
             case ra.Gate():         self._gate << operand
             case ou.Tied():         self._tied << operand
@@ -728,6 +731,10 @@ class Cluster(Rest):
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
                 | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
+                for single_pitch in self._pitches:
+                    single_pitch << operand
+            case ou.DrumKit():
+                self << od.DataSource( ou.Channel(10) )
                 for single_pitch in self._pitches:
                     single_pitch << operand
             case _:

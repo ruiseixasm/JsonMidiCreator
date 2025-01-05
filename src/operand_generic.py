@@ -476,6 +476,8 @@ class Pitch(Generic):
                 else:
                     self._sharp << False
                     self._flat << False
+            case ou.DrumKit():
+                self << operand // float()
             case ou.Sharp():
                 self._sharp << operand
             case ou.Flat():
@@ -491,8 +493,8 @@ class Pitch(Generic):
                 self._scale     << operand
             case str():
                 string: str = operand.strip()
-                new_sharp: Sharp = self._sharp.copy(string)
-                new_flat: Flat = self._flat.copy(string)
+                new_sharp: ou.Sharp = self._sharp.copy(string)
+                new_flat: ou.Flat   = self._flat.copy(string)
                 if new_sharp != self._sharp:
                     self._sharp << new_sharp
                     if new_sharp:
@@ -661,6 +663,7 @@ class Pitch(Generic):
                 self._key._unit = index % 12
                 return
 
+
 class Controller(Generic):
     def __init__(self, *parameters):
         super().__init__()
@@ -767,6 +770,7 @@ class Controller(Generic):
             case _:
                 return self.copy()
         return self.copy() << value
+
 
 class Scale(Generic):
     """
