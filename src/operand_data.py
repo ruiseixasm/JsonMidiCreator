@@ -303,6 +303,7 @@ class Serialization(Data):
 class Playlist(Data):
     def __init__(self, *parameters):
         super().__init__([])
+        self._midi_track: ou.MidiTrack = ou.MidiTrack("Playlist 1")
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -318,7 +319,15 @@ class Playlist(Data):
         >>> play_list >> Play()
         <operand_data.Playlist object at 0x0000022EC9967490>
         """
-        return self._data
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.MidiTrack():    return self._midi_track
+                    case list():            return self._data
+                    case _:                 return super().__mod__(operand)
+            case ou.MidiTrack():    return self._midi_track.copy()
+            case list():            return self.deep_copy(self._data)
+            case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
