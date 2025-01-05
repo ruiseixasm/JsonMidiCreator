@@ -342,7 +342,7 @@ class Playlist(Data):
                 return self._data == other.getPlaylist()
         return super().__eq__(other)
     
-    def getPlaylist(self) -> list:
+    def getPlaylist(self, position = None) -> list:
         return Playlist.copy_play_list(self._data)
 
     # CHAINABLE OPERATIONS

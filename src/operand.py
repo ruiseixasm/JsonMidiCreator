@@ -258,7 +258,7 @@ class Operand:
     def name(self) -> str:
         return self.__class__.__name__
 
-    def getPlaylist(self):
+    def getPlaylist(self, position = None) -> list:
         return []
 
     def getMidilist(self):
