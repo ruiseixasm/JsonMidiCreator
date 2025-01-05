@@ -325,7 +325,7 @@ def test_sequence_operations():
     assert straight_sequence.copy().reverse()[3] == reversed_sequence[3] + Beats(0.25)
     assert straight_sequence.reverse() == reversed_sequence + All()**Beats(0.25)
 
-test_sequence_operations()
+# test_sequence_operations()
 
 
 def test_sequence_content():
