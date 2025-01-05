@@ -761,7 +761,7 @@ class Song(Container):
                             single_sequence << single_sequence.__add__(single_operand)
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, Sequence))
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Sequence, od.Playlist)))
 
     def __getitem__(self, key: str | int) -> Sequence:
         if isinstance(key, str):
@@ -801,8 +801,7 @@ class Song(Container):
 
     def __lshift__(self, operand: o.Operand) -> 'Song':
         super().__lshift__(operand)
-        self._datasource_list = o.filter_list(self._datasource_list,
-                                lambda data_source: isinstance(data_source._data, Sequence))
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Sequence, od.Playlist)))
         return self
 
     # operand is the pusher >>
