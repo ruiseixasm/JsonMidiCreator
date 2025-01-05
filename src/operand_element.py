@@ -654,9 +654,108 @@ class Note(Element):
                 return super().__sub__(operand)
     
 class Cluster(Note):
-    # A tone cluster is a musical chord comprising at least three adjacent tones in a scale.
-    ...
+    def __init__(self, *parameters):
+        self._pitches: list[og.Pitch] = [og.Pitch(1), og.Pitch(3), og.Pitch(5)]
+        super().__init__( *parameters )
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case list():            return self._pitches
+                    case _:                 return super().__mod__(operand)
+            case list():            return self.deep_copy(self._pitches)
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._pitches  == other % od.DataSource( list() )
+            case _:
+                return super().__eq__(other)
+    
+    def get_cluster_notes(self) -> list[Note]:
+        cluster_notes: list[Note] = []
+        for single_pitch in self._pitches:
+            cluster_notes.append( Note(self, single_pitch) )
+        return cluster_notes
+
+    def getPlaylist(self, position: ra.Position = None) -> list:
+        self_playlist: list = []
+        for single_element in self.get_cluster_notes():
+            self_playlist.extend(single_element.getPlaylist(position))
+        return self_playlist
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+        self_midilist: list = []
+        for single_element in self.get_cluster_notes():
+            self_midilist.extend(single_element.getMidilist(midi_track, position))    # extends the list with other list
+        return self_midilist
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["pitches"] = self.serialize( self._pitches )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Cluster':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "pitches" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._pitches  = self.deserialize( serialization["parameters"]["pitches"] )
+        return self
+
+    def __lshift__(self, operand: o.Operand) -> 'Cluster':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if not isinstance(operand, tuple):
+            for single_element in self._pitches:
+                single_element << operand
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case list():                self._pitches = operand % o.Operand()
+                    case _:                     super().__lshift__(operand)
+            case Cluster():
+                super().__lshift__(operand)
+                self._pitches  = self.deep_copy(operand % od.DataSource( list() ))
+            case list():
+                if len(operand) > 0 and all(isinstance(single_pitch, og.Pitch) for single_pitch in operand):
+                    self._pitches = self.deep_copy(operand)
+            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
+                | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
+                for single_pitch in self._pitches:
+                    single_pitch << operand
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __add__(self, operand: o.Operand) -> 'Cluster':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+                self_copy = self.copy()
+                for single_pitch in self_copy._pitches:
+                    single_pitch << od.DataSource( single_pitch + operand ) # Specific parameter
+                return self_copy
+            case _:
+                return super().__add__(operand)
+
+    def __sub__(self, operand: o.Operand) -> 'Cluster':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+                self_copy = self.copy()
+                for single_pitch in self_copy._pitches:
+                    single_pitch << od.DataSource( single_pitch - operand ) # Specific parameter
+                return self_copy
+            case _:
+                return super().__sub__(operand)
+    
 class Dyad(Cluster):
     # In music, a dyad is a set of two notes or pitches.
     ...
