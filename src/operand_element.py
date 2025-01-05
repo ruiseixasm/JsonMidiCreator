@@ -87,7 +87,7 @@ class Element(o.Operand):
                     case ou.Channel():      return self._channel
                     case od.Device():       return self._device
                     case Element():         return self
-                    case _:                 return ol.Null()
+                    case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case ra.Duration():     return self._duration % operand
             case ra.Length():       return ra.Length(self._position)

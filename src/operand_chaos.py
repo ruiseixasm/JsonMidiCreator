@@ -49,7 +49,7 @@ class Chaos(o.Operand):
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
                     case int() | float():       return self._xn % (operand % o.Operand())
-                    case _:                     return ol.Null()
+                    case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             case Chaos():               return self.copy()
             case ra.Xn():               return self._xn.copy()

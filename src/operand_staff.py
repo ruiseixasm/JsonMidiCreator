@@ -89,7 +89,7 @@ class Staff(o.Operand):
                             << od.DataSource( self % od.DataSource( ra.StepsPerNote() ) % od.DataSource( Fraction() ) \
                                 * (self % od.DataSource( ra.NotesPerMeasure() ) % od.DataSource( Fraction() )))
                     case Staff():               return self
-                    case _:                     return ol.Null()
+                    case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             # Direct Values
             case ra.Tempo():            return self._tempo.copy()

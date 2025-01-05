@@ -54,7 +54,7 @@ class TimeSignature(Generic):
                     case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
                     # Calculated Values
                     case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
-                    case _:                     return ol.Null()
+                    case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             case TimeSignature():       return self.copy()
             # Direct Values
@@ -689,7 +689,7 @@ class Controller(Generic):
                     case ou.Number():           return self._number
                     case ou.Value():            return self._value
                     case Controller():          return self
-                    case _:                     return ol.Null()
+                    case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             case ou.Number():           return self._number.copy()
             case ou.Value():            return self._value.copy()

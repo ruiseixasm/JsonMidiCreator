@@ -62,7 +62,7 @@ class Operator(o.Operand):
                     case Operator():        return self
                     case ol.Null() | None:  return ol.Null()
                     case o.Operand():       return self._operand
-                    case _:                 return ol.Null()
+                    case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case list():            return self._operator_list.copy()
             # case list():            return self._operator_list.copy()

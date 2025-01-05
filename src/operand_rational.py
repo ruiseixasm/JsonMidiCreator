@@ -79,7 +79,7 @@ class Rational(o.Operand):
                     case str():             return str(self._rational)
                     case Rational() | ou.Unit():
                                             return operand.__class__() << od.DataSource( self._rational )
-                    case _:                 return ol.Null()
+                    case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)

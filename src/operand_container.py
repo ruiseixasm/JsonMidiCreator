@@ -42,7 +42,7 @@ class Container(o.Operand):
         for single_operand in operands:
             match single_operand:
                 case Container():
-                    self._datasource_list.extend(single_operand.copy() % od.DataSource())
+                    self._datasource_list.extend(single_operand.copy() % od.DataSource( list() ))
                 case list():
                     for operand in single_operand:
                         if isinstance(operand, o.Operand):
@@ -82,7 +82,11 @@ class Container(o.Operand):
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
-            case od.DataSource():   return self._datasource_list
+            case od.DataSource():
+                # return self._datasource_list
+                match operand % o.Operand():
+                    case list():                return self._datasource_list
+                    case _:                     return super().__mod__(operand)
             case Container():       return self.copy()
             case od.Getter() | od.Operation():
                                     return self >> operand
@@ -121,7 +125,7 @@ class Container(o.Operand):
         if not isinstance(other, ol.Null):
             return self % other == other
         # if type(self) == type(other):
-        #     return self._datasource_list == other % od.DataSource()
+        #     return self._datasource_list == other % od.DataSource( list() )
             # When comparing lists containing objects in Python using the == operator,
             # Python will call the __eq__ method on the objects if it is defined,
             # rather than comparing their references directly.

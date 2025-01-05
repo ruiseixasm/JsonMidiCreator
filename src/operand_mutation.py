@@ -61,7 +61,7 @@ class Mutation(o.Operand):
                     case oc.Sequence():     return self._sequence
                     case str():             return self._operator
                     case od.Result():       return self._result
-                    case _:                 return ol.Null()
+                    case _:                 return super().__mod__(operand)
             case Mutation():        return self.copy()
             case od.Performers():   return self._performers.copy()
             case of.Frame():        return self._frame.copy()
