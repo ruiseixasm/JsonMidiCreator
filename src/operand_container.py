@@ -663,7 +663,7 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
             case Sequence():
-                if self._midi_track == operand._midi_track:
+                if self._midi_track._name == operand._midi_track._name:
 
                     right_sequence: Sequence = self.copy()
                     if operand.len() > 0:
@@ -727,7 +727,9 @@ class Sequence(Container):  # Just a container of Elements
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         match operand:
             case int(): # Implicit copy
-                many_operands = self.__class__() << self._midi_track    # empty list but same track
+                many_operands = self.__class__()    # empty list but same track
+                many_operands._midi_track   << self._midi_track
+                many_operands._position     = self._position.copy(0)
                 while operand > 0:
                     many_operands >>= self.copy()
                     operand -= 1

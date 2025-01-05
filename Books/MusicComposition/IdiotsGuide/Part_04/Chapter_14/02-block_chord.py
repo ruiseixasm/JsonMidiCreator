@@ -36,7 +36,7 @@ bass_line: Sequence = Note(1/1) + Note(2, 1/1) + Note(1/2, 6) + Note(1/2, 3) + N
 bass_line *= 4
 # bass_line >> Play()
 
-block_chord: Sequence = chords + bass_line << Channel(2) << Track("Block Chord")
+block_chord: Sequence = chords + bass_line << Channel(2) << Track("Block Chord") << Velocity(70)
 # block_chord >> Play()
 
 composition: Song = Song(block_chord) + melody_playlist
