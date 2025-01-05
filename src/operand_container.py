@@ -85,12 +85,22 @@ class Container(o.Operand):
             case od.DataSource():
                 # return self._datasource_list
                 match operand % o.Operand():
-                    case list():                return self._datasource_list
-                    case _:                     return super().__mod__(operand)
-            case Container():       return self.copy()
+                    case Container():
+                        return self
+                    case od.Getter() | od.Operation():
+                        return self >> operand
+                    case ch.Chaos():
+                        return self.shuffle(operand)
+                    case list():
+                        return self._datasource_list
+                    case _:
+                        return super().__mod__(operand)
+            case Container():
+                return self.copy()
             case od.Getter() | od.Operation():
-                                    return self >> operand
-            case ch.Chaos():        return self.copy().shuffle(operand)
+                return self.copy() >> operand
+            case ch.Chaos():
+                return self.copy().shuffle(operand)
             case list():
                 operands: list[o.Operand] = []
                 for single_datasource in self._datasource_list:
