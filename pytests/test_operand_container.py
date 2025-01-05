@@ -186,6 +186,9 @@ def test_mul_sequence():
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
 
+    two_notes << Track("Two Notes")
+    assert (two_notes * 4).len() == 8
+
     eight_notes_1 = two_notes * 4
     assert eight_notes_1.len() == 8
     first_note = eight_notes_1[0]

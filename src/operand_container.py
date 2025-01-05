@@ -720,7 +720,7 @@ class Sequence(Container):  # Just a container of Elements
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         match operand:
             case int(): # Implicit copy
-                many_operands = self.__class__()    # empty list
+                many_operands = self.__class__() << self._midi_track    # empty list but same track
                 while operand > 0:
                     many_operands >>= self.copy()
                     operand -= 1
