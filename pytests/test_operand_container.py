@@ -302,6 +302,15 @@ def test_sequence_operations():
     straight_sequence: Sequence = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
     reversed_sequence: Sequence = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
 
+    # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
+    # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
+    length_beats: int = 4 # Beats, 1 Measure
+    duration: float = 0.9375    # 15/16 Note
+
+    sequence_duration: Duration = straight_sequence % Duration()
+    print(sequence_duration % float())
+    assert sequence_duration == duration
+
     straight_length: Length = straight_sequence % Length()
     straight_length % Name() >> Print()
     assert straight_length % Name() == "Length"

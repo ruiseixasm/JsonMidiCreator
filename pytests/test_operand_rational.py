@@ -118,7 +118,18 @@ def test_length_unit():
     assert length % Measure() == 0
     assert (length + Step(1)) == 1  # Measure
 
-# test_length_unit()  
+# test_length_unit()
+
+
+def test_duration_eq():
+
+    duration: Duration = Duration(0)
+
+    print(duration % float())
+    assert duration == 0.0  # Notes
+    duration += 1/4
+    print(duration % float())
+    assert duration == 0.25 # Notes
 
 
 def test_time_mod():

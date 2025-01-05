@@ -412,6 +412,7 @@ class Sequence(Container):  # Just a container of Elements
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Length():       return self.length()
+            case ra.Duration():     return self.duration()
             case ra.Position():     return self._position.copy()
             case ra.Duration():     return self.duration()
             case _:                 return super().__mod__(operand)
@@ -437,28 +438,13 @@ class Sequence(Container):  # Just a container of Elements
                     finish = finish.getPosition(element_finish) # Explicit conversion
         return finish
 
+
     def length(self) -> ra.Length:
         return ra.Length(self.finish() - self.start())
 
     def duration(self) -> ra.Duration:
-        total_length: ra.Duration = ra.Duration(0)
-        if self.len() > 0:
-            # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
-            elements: list[oe.Element] = [
-                    single_data._data
-                    for single_data in self._datasource_list
-                    if isinstance(single_data._data, oe.Element)
-                ]
-            position_min: ra.Position = elements[0]._position
-            position_max: ra.Position = elements[0]._position
-            for single_element in elements:
-                if single_element._position < position_min:
-                    position_min = single_element._position
-                elif single_element._position > position_max:
-                    position_max = single_element._position
-            total_length << position_max - position_min
-            # total_length << total_length % ra.Measure() + 1 # Rounded up Duration to Measures
-        return total_length
+        return (self.finish() - self.start()).getDuration()
+
 
     if TYPE_CHECKING:
         from operand_element import Element
@@ -578,6 +564,14 @@ class Sequence(Container):  # Just a container of Elements
                 new_position: ra.Position = sequence_length - (element_position + element_duration)
                 element_position << element_position.getSteps( new_position )
         return super().reverse()    # Reverses the list
+
+
+    def trim(self) -> 'Sequence':
+        return self
+
+    def fill(self) -> 'Sequence':
+        return self
+
 
     def link(self) -> 'Sequence':
         self.sort()
