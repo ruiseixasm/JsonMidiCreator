@@ -563,7 +563,7 @@ class Sequence(Container):  # Just a container of Elements
         return sequence_copy
     
     def filter(self, criteria: any) -> 'Sequence':
-        filtered_sequence: Container = self.__class__()
+        filtered_sequence: Sequence = self.__class__()
         filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         filtered_sequence._midi_track   << self._midi_track
         filtered_sequence._position     << self._position
@@ -752,6 +752,18 @@ class Sequence(Container):  # Just a container of Elements
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         single_datasource._data /= operand
                 return self_copy
+
+    def __or__(self, operand: any) -> 'Sequence':
+        match operand:
+            case Sequence():
+                new_sequence: Sequence = self.__class__()
+                new_sequence._datasource_list.extend(self._datasource_list)
+                new_sequence._datasource_list.extend(operand._datasource_list)
+                new_sequence._midi_track   << self._midi_track
+                new_sequence._position     << self._position
+                return new_sequence
+            case _:
+                return self.filter(operand)
 
 class Song(Container):
     def __init__(self, *operands):
