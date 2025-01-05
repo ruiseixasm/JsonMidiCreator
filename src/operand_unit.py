@@ -249,13 +249,16 @@ class Beat(TimeUnit):
 class Step(TimeUnit):
     pass
 
-class Tone(Unit):
+class PitchParameter(Unit):
     pass
 
-class Semitone(Unit):
+class Tone(PitchParameter):
     pass
 
-class KeySignature(Unit):       # Sharps (+) and Flats (-)
+class Semitone(PitchParameter):
+    pass
+
+class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
         super().__init__()
         self._major: Major          = Major()
@@ -391,7 +394,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1]     # +7
     ]
 
-class Key(Unit):
+class Key(PitchParameter):
     """
     A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
     
@@ -534,7 +537,7 @@ class Home(Key):
 class Tonic(Key):
     pass
 
-class Octave(Unit):
+class Octave(PitchParameter):
     """
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
     
@@ -546,7 +549,75 @@ class Octave(Unit):
     def __init__(self, *parameters):
         super().__init__(1, *parameters) # By default it's 1 to be used in basic operations like + and -
 
-class Sharps(Unit):  # Sharps (###)
+class Degree(PitchParameter):
+    """
+    A Degree() represents its relation with a Tonic key on a scale
+    and respective Progressions.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a numeral (5) or the string (V) with 1 as the default
+    """
+    def __init__(self, *parameters):
+        super().__init__(0)             # Default Degree is I (tonic) has unit = 0
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case int() | float() | Fraction():
+                self_unit: int = self._unit
+                if self_unit < 0:
+                    self_unit -= 1
+                else:
+                    self_unit += 1
+                match operand:
+                    case Fraction():    return Fraction(self_unit)
+                    case float():       return float(self_unit)
+                    case _:             return self_unit
+            case str():
+                return __class__._degree[self._unit % 7]
+            case _:
+                return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Degree':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case str():
+                        self.stringSetDegree(operand % o.Operand())
+                    case _:
+                        super().__lshift__(operand)
+            case int() | float() | Fraction():
+                self._unit = int(operand)
+                if self._unit > 0:
+                    self._unit -= 1
+                elif self._unit < 0:
+                    self._unit += 1
+            case str():
+                self.stringSetDegree(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def stringSetDegree(self, string: str) -> None:
+        string = string.strip()
+        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
+            case "i"   | "tonic":                   self._unit = 0
+            case "ii"  | "supertonic":              self._unit = 1
+            case "iii" | "mediant":                 self._unit = 2
+            case "iv"  | "subdominant":             self._unit = 3
+            case "v"   | "dominant":                self._unit = 4
+            case "vi"  | "submediant":              self._unit = 5
+            case "vii" | "leading tone":            self._unit = 6
+
+class Sharps(PitchParameter):  # Sharps (###)
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -568,7 +639,7 @@ class Sharps(Unit):  # Sharps (###)
 class Sharp(Sharps):  # Sharp (#)
     pass
 
-class Flats(Unit):   # Flats (bbb)
+class Flats(PitchParameter):   # Flats (bbb)
     def __init__(self, *parameters):
         super().__init__(1)
         for single_parameter in parameters: # Faster than passing a tuple
@@ -750,74 +821,6 @@ class Mode(Unit):
     @staticmethod
     def numberToString(number: int) -> str:
         return __class__._modes_str[number % len(__class__._modes_str)]
-
-class Degree(Unit):
-    """
-    A Degree() represents its relation with a Tonic key on a scale
-    and respective Progressions.
-    
-    Parameters
-    ----------
-    first : integer_like
-        Accepts a numeral (5) or the string (V) with 1 as the default
-    """
-    def __init__(self, *parameters):
-        super().__init__(0)             # Default Degree is I (tonic) has unit = 0
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case int() | float() | Fraction():
-                self_unit: int = self._unit
-                if self_unit < 0:
-                    self_unit -= 1
-                else:
-                    self_unit += 1
-                match operand:
-                    case Fraction():    return Fraction(self_unit)
-                    case float():       return float(self_unit)
-                    case _:             return self_unit
-            case str():
-                return __class__._degree[self._unit % 7]
-            case _:
-                return super().__mod__(operand)
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Degree':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case str():
-                        self.stringSetDegree(operand % o.Operand())
-                    case _:
-                        super().__lshift__(operand)
-            case int() | float() | Fraction():
-                self._unit = int(operand)
-                if self._unit > 0:
-                    self._unit -= 1
-                elif self._unit < 0:
-                    self._unit += 1
-            case str():
-                self.stringSetDegree(operand)
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def stringSetDegree(self, string: str) -> None:
-        string = string.strip()
-        match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
-            case "i"   | "tonic":                   self._unit = 0
-            case "ii"  | "supertonic":              self._unit = 1
-            case "iii" | "mediant":                 self._unit = 2
-            case "iv"  | "subdominant":             self._unit = 3
-            case "v"   | "dominant":                self._unit = 4
-            case "vi"  | "submediant":              self._unit = 5
-            case "vii" | "leading tone":            self._unit = 6
 
 class Size(Unit):
     """
