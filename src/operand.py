@@ -194,7 +194,10 @@ class Operand:
         import operand_data as od
         import operand_rational as ra
         match operand:
-            case of.Frame():        return self % (operand % Operand())
+            case od.DataSource():
+                return self.__mod__( operand % Operand() )
+            case of.Frame():
+                return self % (operand % Operand())
             case od.Playlist():
                 position = operand % ra.Position()
                 if isinstance(position, ra.Position):
@@ -213,8 +216,16 @@ class Operand:
                 return self.name()
             case ra.Index():
                 return ra.Index(self._index)
-            case self.__class__():  return self.copy()
-            case _:                 return ol.Null()
+            case self.__class__():
+                return self.copy()
+            case _:
+                return ol.Null()
+
+    def __floordiv__(self, operand: any) -> any:
+        import operand_data as od
+        return self.__mod__(
+            od.DataSource( operand )
+        )
 
     def __eq__(self, other: 'Operand') -> bool:
         return True # All subclasses are Operands. Useful for Framing
@@ -410,12 +421,6 @@ class Operand:
     def __idiv__(self: TypeOperand, other) -> TypeOperand:
         return self.__truediv__(other)
     
-    def __floordiv__(self, operand: any) -> any:
-        import operand_data as od
-        return self.__mod__(
-            od.DataSource( operand )
-        )
-
     def __and__(self, operand: any) -> any:
         import operand_frame as of
         if isinstance(operand, of.Frame):   # Extracts the Frame operand first
