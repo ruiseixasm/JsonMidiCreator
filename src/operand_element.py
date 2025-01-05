@@ -484,13 +484,11 @@ class Rest(Element):
 
 class Note(Element):
     def __init__(self, *parameters):
-        super().__init__()
         self._pitch: og.Pitch       = og.Pitch()
         self._velocity: ou.Velocity = os.staff._velocity.copy()
         self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
         self._pitch = og.Pitch(key, octave)
@@ -875,7 +873,6 @@ class KeyScale(Note):
 
 class Chord(KeyScale):
     def __init__(self, *parameters):
-        super().__init__()
         self._size: ou.Size             = ou.Size(3)
         self._inversion: ou.Inversion   = ou.Inversion(0)
         self._dominant: ou.Dominant     = ou.Dominant(0)
@@ -883,8 +880,7 @@ class Chord(KeyScale):
         self._augmented: ou.Augmented   = ou.Augmented(0)
         self._sus2: ou.Sus2             = ou.Sus2(0)
         self._sus4: ou.Sus4             = ou.Sus4(0)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def size(self: 'Chord', size: int = None) -> 'Chord':
         self._size = ou.Size(size)
