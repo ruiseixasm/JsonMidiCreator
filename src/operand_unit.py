@@ -237,7 +237,10 @@ class Previous(Unit):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-class TimeUnit(Unit):
+class PositionParameter(Unit):
+    pass
+
+class TimeUnit(PositionParameter):
     pass
 
 class Measure(TimeUnit):
