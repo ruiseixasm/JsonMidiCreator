@@ -263,4 +263,9 @@ def test_drum_kit():
     print(pitch % float())
     assert pitch % float() == 39.0  # Black Key
 
+    pitch << DrumKit("Hi-Hat")
+    print(pitch % float())
+    assert pitch % float() == 42.0  # Black Key
+
+
 # test_drum_kit()
