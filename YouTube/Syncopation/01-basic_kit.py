@@ -29,7 +29,7 @@ staff << KeySignature(-1)   # Sets the default Key Signature configuration
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
 # Play a Maracas 16 times
-maracas: Sequence = Note(DrumKit("Maracas"), sixteenth) * 16
+# maracas: Sequence = Note(DrumKit("Maracas"), sixteenth) * 16
 # maracas >> Play()
 
 

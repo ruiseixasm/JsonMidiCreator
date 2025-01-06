@@ -263,6 +263,8 @@ def test_drum_kit():
     print(pitch % float())
     assert pitch % float() == 39.0  # Black Key
 
+    # A different KeySignature
+    pitch << KeySignature(-1)
     pitch << DrumKit("Hi-Hat")
     print(pitch % float())
     assert pitch % float() == 42.0  # Black Key
@@ -271,5 +273,5 @@ def test_drum_kit():
     assert pitch % float() == 35.0  # White Key
     assert pitch == 35.0  # White Key
 
+test_drum_kit()
 
-# test_drum_kit()
