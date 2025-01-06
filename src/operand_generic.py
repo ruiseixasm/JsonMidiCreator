@@ -308,10 +308,11 @@ class Pitch(Generic):
             case ou.Mode() | list():
                 return (self % Scale()) % operand
             case str():
-                note_key = int(self % float()) % 12
-                if self._major_scale[note_key] == 0 and self._key_signature._unit < 0:
-                    note_key += 12  # In case of FLAT Key Signature
-                return self._keys[note_key]
+                note_key = int(self % float()) % 12 + self._key._unit % 48 // 12 * 12
+
+                # if self._major_scale[note_key] == 0 and self._key_signature._unit < 0:
+                #     note_key += 12  # In case of FLAT Key Signature
+                return ou.Key._keys[note_key]
             case int(): # WITHOUT KEY SIGNATURE
                 
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
@@ -647,13 +648,8 @@ class Pitch(Generic):
                 self._key._unit = value
                 return
 
-    _keys: list[str]            = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
-                                   "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",      # Black Flats
-                                   "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",      # All Sharps
-                                   "C",  "Db", "D", "Eb", "Fb", "F",  "Gb", "G", "Ab", "A", "Bb", "Cb"]     # All Flats
-
     def key_to_int(self, key: str = "C"):
-        for index, value in enumerate(self._keys):
+        for index, value in enumerate(ou.Key._keys):
             if value.lower().find(key.strip().lower()) != -1:
                 self._key._unit = index % 12
                 return

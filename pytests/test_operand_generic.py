@@ -103,7 +103,7 @@ def test_pitch_set():
 def test_pitch_key_signature():
 
     major_keys_signatures: list[str] = [
-        "B", "Gb", "Db", "Ab", "Eb", "Bb", "F",
+        "Cb", "Gb", "Db", "Ab", "Eb", "Bb", "F",
         "C",
         "G", "D", "A", "E", "B", "F#", "C#"
     ]
