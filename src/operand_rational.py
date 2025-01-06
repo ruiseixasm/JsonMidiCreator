@@ -456,14 +456,13 @@ class Position(Rational):
     
 
     def getPosition(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Position':
-        beats: Fraction = Fraction(0)
+        time_beats: Beats = Beats()
         match time:
             case None:
-                return Position(self)
+                time_beats = self.getBeats()
             case Position() | TimeValue() | ou.TimeUnit():
-                time_beats: Beats = self.getBeats(time)
-                return Position(self, time_beats)
-        return Position(self, beats)
+                time_beats = self.getBeats(time)
+        return self.copy(time_beats)
 
     def getMeasures(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
         measures: Fraction = Fraction(0)
@@ -793,7 +792,7 @@ class Length(Position):
             beats = Fraction(int(beats) + 1)    # moves forward one unit
         else:
             beats = Fraction( int(beats) )
-        return Length(self.getPosition( Beats(beats) ))
+        return self.getPosition( Beats(beats) )
     
     # Length round type: (...]
     def roundSteps(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Length':
@@ -807,7 +806,7 @@ class Length(Position):
             steps = Fraction(int(steps) + 1)    # moves forward one unit
         else:
             steps = Fraction( int(steps) )
-        return Length(self.getPosition( Steps(steps) ))
+        return self.getPosition( Steps(steps) )
 
 
 class TimeValue(Rational):  # Works as Absolute Beats
