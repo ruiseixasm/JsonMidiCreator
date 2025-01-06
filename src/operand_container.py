@@ -555,9 +555,7 @@ class Sequence(Container):  # Just a container of Elements
         return filtered_sequence
 
     def reverse(self) -> 'Sequence':
-        finish_position: ra.Position = self.finish()
-        sequence_length: ra.Length = ra.Length( finish_position )
-        sequence_length << ra.Measures(sequence_length % ou.Measure())  # Rounded up Duration to next Measure
+        sequence_length: ra.Length = self.length()  # Rounded up Duration to next Measure
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
