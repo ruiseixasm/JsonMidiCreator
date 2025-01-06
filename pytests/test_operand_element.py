@@ -342,27 +342,27 @@ def test_note_pitch():
     
     note.reset()    # Becomes like a new note
 
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 60.0  # White Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 60.0  # White Key
     note << Pitch(35.0)
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 35.0  # White Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 35.0  # White Key
     note << Pitch(42.0)
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 42.0  # Black Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 42.0  # Black Key
     note << Pitch(39.0)
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 39.0  # Black Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 39.0  # Black Key
 
     note << DrumKit("Drum")
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 35.0  # White Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 35.0  # White Key
     note << DrumKit("Hi-Hat")
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 42.0  # Black Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 42.0  # Black Key
     note << DrumKit("Clap")
-    print(note // Pitch() % float())
-    assert note // Pitch() % float() == 39.0  # Black Key
+    print(note // Pitch() // float())
+    assert note // Pitch() // float() == 39.0  # Black Key
 
 
 
