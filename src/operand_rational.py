@@ -455,7 +455,7 @@ class Position(Rational):
         return f'Span Steps = {self._rational}'
     
 
-    def getPosition(self: TypeRational, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> TypeRational:
+    def getPosition(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Position':
         time_beats: Beats = Beats()
         match time:
             case None:
