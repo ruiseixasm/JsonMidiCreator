@@ -178,9 +178,6 @@ class DataSource(Data):
             super().__lshift__(operand)
         return self
 
-# Alias to the class DataSource
-Source = DataSource
-
 class SetNone(DataSource):
     def __init__(self, operand: o.Operand = None):
         super().__init__()

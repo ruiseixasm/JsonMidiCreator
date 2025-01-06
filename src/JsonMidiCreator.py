@@ -41,11 +41,22 @@ else:  # Assume Linux/Unix
 
 # Set group of constants
 
-# Class alias
-
-# Note
-Nt = Note
+# Class alias, abbreviations
+N = Nt = Note
 Ch = Channel
+Source = DataSource
+Tk = Trk = Track = MidiTrack
+Meas = Measures
+Bts = Beats
+Pt = Pitch
+Vel = Velocity
+Dur = Duration
+Pos = Position
+KS = KeySig = KeySignature
+TS = TimeSig = TimeSignature
+Seq = Sequence
+CC = ControlChange
+PC = ProgramChange
 
 
 # Keys
@@ -71,7 +82,6 @@ O8 = Octave(8)
 O9 = Octave(9)
 
 # Elements
-N = Note()
 R = Rest()
 
 # Actions

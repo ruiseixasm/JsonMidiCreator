@@ -31,3 +31,5 @@ staff << KeySignature(-1)   # Sets the default Key Signature configuration
 # Play a Maracas 16 times
 maracas: Sequence = Note(DrumKit("Maracas"), sixteenth) * 16
 maracas >> Play()
+
+

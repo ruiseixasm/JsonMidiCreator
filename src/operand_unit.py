@@ -1139,9 +1139,6 @@ class MidiTrack(Midi):
             case _:                 super().__lshift__(operand)
         return self
 
-# Alias to the class MidiTrack
-Track = MidiTrack
-
 class Channel(Midi):
     """
     A Channel() is an identifier normally associated to an instrument in a given midi device.

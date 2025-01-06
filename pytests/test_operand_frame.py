@@ -50,9 +50,9 @@ def test_foreach_mod():
 
     notes += frame  # Original sequences aren't modified by + operator
     sequence = Sequence() \
-        + (N << D) + (N << E) + (N << F) + (N << G) + (N << A) + (N << D) + (N << E) \
+        + (N() << D) + (N() << E) + (N() << F) + (N() << G) + (N() << A) + (N() << D) + (N() << E) \
         >> Stack()
-        # +     1          2          3          4          5          1          2
+        # +       1            2            3            4            5            1            2
     
     assert notes == sequence
 
