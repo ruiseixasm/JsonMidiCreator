@@ -462,23 +462,13 @@ class Pitch(Generic):
 
             case float() | Fraction() | ou.Semitone():
 
+                # It doesn't take into consideration the Key Signature (int not flat)
                 if isinstance(operand, ou.Semitone):
-                    key_offset: float = operand // float() - self % float()
+                    key_offset: int = operand // int() - self % int()
                 else:
-                    key_offset: float = float(operand) - self % float()
+                    key_offset: int = operand - self % int()
                 self.apply_key_offset(key_offset)
 
-                # ONE DOESN'T SIMPLE CHANGE THE SHARPS AND FLATS, THE USER DOES
-                # if self._major_scale[self._key._unit % 12] == 0:
-                #     if self._key_signature._unit < 0:
-                #         self._sharp << False
-                #         self._flat << True
-                #     else:
-                #         self._sharp << True
-                #         self._flat << False
-                # else:
-                #     self._sharp << False
-                #     self._flat << False
             case ou.DrumKit():
                 self << ou.KeySignature()   # Makes sure no Key Signature is in use
                 self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
