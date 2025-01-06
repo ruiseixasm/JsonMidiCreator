@@ -653,7 +653,8 @@ class Note(Element):
                 return self.copy() << od.DataSource( self._pitch - operand )    # Specific parameter
             case _:
                 return super().__sub__(operand)
-    
+
+
 class Cluster(Rest):
     def __init__(self, *parameters):
         self._pitches: list[og.Pitch] = [og.Pitch(1), og.Pitch(3), og.Pitch(5)]

@@ -41,6 +41,13 @@ else:  # Assume Linux/Unix
 
 # Set group of constants
 
+# Class alias
+
+# Note
+Nt = Note
+Ch = Channel
+
+
 # Keys
 K = Key # The class not the object
 C = Key("C")
