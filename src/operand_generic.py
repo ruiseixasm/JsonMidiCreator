@@ -477,6 +477,7 @@ class Pitch(Generic):
                     self._sharp << False
                     self._flat << False
             case ou.DrumKit():
+                self << ou.Degree()
                 self << operand // float()
             case ou.Sharp():
                 self._sharp << operand
