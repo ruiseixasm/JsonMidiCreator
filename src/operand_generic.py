@@ -257,8 +257,6 @@ class Pitch(Generic):
                     case Pitch():           return self
                     case ou.Octave():       return self._octave
                     case ou.Key():          return self._key
-                    case int():             return self % int()
-                    case float():           return self % float()
                     case ou.KeySignature(): return self._key_signature
                     case ou.Sharp():        return self._sharp
                     case ou.Flat():         return self._flat
