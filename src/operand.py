@@ -223,9 +223,7 @@ class Operand:
 
     def __floordiv__(self, operand: any) -> any:
         import operand_data as od
-        return self.__mod__(
-            od.DataSource( operand )
-        )
+        return self.__mod__( od.DataSource( operand ) )
 
     def __eq__(self, other: 'Operand') -> bool:
         return True # All subclasses are Operands. Useful for Framing
@@ -319,7 +317,7 @@ class Operand:
             return self
         return self
        
-    def __lshift__(self: TypeOperand, operand: 'Operand') -> TypeOperand:
+    def __lshift__(self: TypeOperand, operand: any) -> TypeOperand:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, type(self)):
             self._initiated = operand._initiated
@@ -329,6 +327,10 @@ class Operand:
             if operand._next_operand is not None:
                 self._next_operand = operand._next_operand.copy()
         return self
+
+    def __xor__(self: TypeOperand, operand: any) -> TypeOperand:
+        import operand_data as od
+        return self.__lshift__( od.DataSource( operand ) )
 
     def copy(self: TypeOperand, *parameters) -> TypeOperand:
         self_copy: TypeOperand = type(self)() << self
@@ -440,9 +442,6 @@ class Operand:
     def __ror__(self, operand: any) -> any:
         return self
     
-    def __xor__(self, operand: any) -> any:
-        self & operand  # Processes the tailed self operands or the Frame operand if any exists
-        return self
 
     # STATIC METHODS
     # @staticmethod decorator is needed in order to be possible to call it with self !!
