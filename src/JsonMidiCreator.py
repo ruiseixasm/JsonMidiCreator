@@ -44,7 +44,7 @@ else:  # Assume Linux/Unix
 # Class alias, abbreviations
 N = Nt = Note
 Ch = Channel
-Source = DataSource
+Src = Source = DataSource
 Tk = Trk = Track = MidiTrack
 Meas = Measures
 Bts = Beats
@@ -57,6 +57,8 @@ TS = TimeSig = TimeSignature
 Seq = Sequence
 CC = ControlChange
 PC = ProgramChange
+T = Tmp = Tpo = Tempo
+Q = Qtz = Qtzn = Quant = Quantization
 
 
 # Keys

@@ -234,7 +234,33 @@ def test_pitch_add():
     (pitch_5 + 1.0) % str() >> Print()
     assert pitch_5 + 1.0 == Key("D#")
 
-test_pitch_add()
+# test_pitch_add()
 
 
+def test_drum_kit():
 
+    pitch: Pitch = Pitch()
+
+    print(pitch % float())
+    assert pitch % float() == 60.0  # White Key
+    pitch << 35.0
+    print(pitch % float())
+    assert pitch % float() == 35.0  # White Key
+    pitch << 42.0
+    print(pitch % float())
+    assert pitch % float() == 42.0  # Black Key
+    pitch << 39.0
+    print(pitch % float())
+    assert pitch % float() == 39.0  # Black Key
+
+    pitch << DrumKit("Drum")
+    print(pitch % float())
+    assert pitch % float() == 35.0  # White Key
+    pitch << DrumKit("Hi-Hat")
+    print(pitch % float())
+    assert pitch % float() == 42.0  # Black Key
+    pitch << DrumKit("Clap")
+    print(pitch % float())
+    assert pitch % float() == 39.0  # Black Key
+
+# test_drum_kit()

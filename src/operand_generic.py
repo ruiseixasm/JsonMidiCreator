@@ -218,17 +218,17 @@ class Pitch(Generic):
         return float(self.get_key_int())
 
 
-    def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
+    def octave_key_offset(self, key_offset: int | float) -> tuple[int, int]:
         
         original_key_int: int = self._key._unit % 12
-        final_key_int: int = original_key_int + key_offset
+        final_key_int: int = original_key_int + int(key_offset)
         octave_offset: int = final_key_int // 12
         final_key: int = final_key_int % 12
         key_offset = final_key - original_key_int
 
         return octave_offset, key_offset
     
-    def apply_key_offset(self, key_offset: int) -> 'Pitch':
+    def apply_key_offset(self, key_offset: int | float) -> 'Pitch':
         
         octave_offset, key_offset = self.octave_key_offset(key_offset)
         self._octave._unit += octave_offset
@@ -452,6 +452,8 @@ class Pitch(Generic):
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset
+            case ou.Key():
+                self._key << operand
             case None:
                 self._key = self._key_signature % ou.Key()
             case int():
@@ -459,13 +461,15 @@ class Pitch(Generic):
                     self._key = self._key_signature % ou.Key()
                 else:
                     self._degree  << operand
-            case ou.Key():
-                self._key << operand
+
             case float() | Fraction() | ou.Semitone():
-                if isinstance(operand, o.Operand):
-                    self._key._unit = operand % od.DataSource( int() )
+
+                if isinstance(operand, ou.Semitone):
+                    key_offset: float = operand // float() - self % float()
                 else:
-                    self._key._unit = int(operand)
+                    key_offset: float = float(operand) - self % float()
+                self.apply_key_offset(key_offset)
+
                 if self._major_scale[self._key._unit % 12] == 0:
                     if self._key_signature._unit < 0:
                         self._sharp << False
