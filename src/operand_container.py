@@ -440,10 +440,10 @@ class Sequence(Container):  # Just a container of Elements
 
 
     def length(self) -> ra.Length:
-        return ra.Length( self.finish() ).roundMeasures()
+        return ra.Length( self.finish() - self.start() )
 
     def duration(self) -> ra.Duration:
-        return (self.finish() - self.start()).getDuration()
+        return self.length().getDuration()
 
 
     if TYPE_CHECKING:
@@ -552,7 +552,7 @@ class Sequence(Container):  # Just a container of Elements
         return filtered_sequence
 
     def reverse(self) -> 'Sequence':
-        sequence_length: ra.Length = self.length()  # Rounded up Duration to next Measure
+        sequence_length: ra.Length = self.length().roundMeasures()  # Rounded up Duration to next Measure
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data

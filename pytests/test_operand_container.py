@@ -304,7 +304,6 @@ def test_sequence_operations():
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
-    length_beats: int = 4 # Beats, 1 Measure
     duration: float = 0.9375    # 15/16 Note
 
     sequence_duration: Duration = straight_sequence % Duration()
@@ -316,16 +315,16 @@ def test_sequence_operations():
     assert straight_length % Name() == "Length"
     
     straight_serialization: dict = straight_length.getSerialization()
-    straight_serialization % Data("float") >> Print()   # 3.75 Beats => 1 Measure = 4.0 Beats
-    assert straight_serialization % Data("float") == 4.0
+    straight_serialization % Data("float") >> Print()   # 3.75 Beats
+    assert straight_serialization % Data("float") == 3.75
 
     reversed_length: Length = reversed_sequence % Length()
     reversed_length % Name() >> Print()
     assert reversed_length % Name() == "Length"
     
     reversed_serialization: dict = reversed_length.getSerialization()
-    reversed_serialization % Data("float") >> Print()   # 3.75 Beats => 1 Measure = 4.0 Beats
-    assert reversed_serialization % Data("float") == 4.0
+    reversed_serialization % Data("float") >> Print()   # 3.75 Beats
+    assert reversed_serialization % Data("float") == 3.75
 
     assert straight_sequence != reversed_sequence
     assert straight_sequence.copy().reverse()[0] == reversed_sequence[0] + Beats(0.25)
