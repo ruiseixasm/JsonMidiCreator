@@ -125,25 +125,25 @@ def test_position_round():
 
     # Position round type: [...)
     position: Position = Position()
-    assert position.roundMeasures() == 0.0
+    assert position.roundMeasures() == 0.0  # Common behavior
     position += Beat(1)
     assert position.roundMeasures() == 0.0
     position += 1.0 # Measure
     assert position.roundMeasures() == 1.0
     position -= Beat(1)
-    assert position.roundMeasures() == 1.0
+    assert position.roundMeasures() == 1.0  # Common behavior
 
 def test_length_round():
 
     # Length round type: (...]
     length: Length = Length()
-    assert length.roundMeasures() == 0.0
+    assert length.roundMeasures() == 0.0    # Common behavior
     length += Beat(1)
     assert length.roundMeasures() == 1.0
     length += 1.0 # Measure
     assert length.roundMeasures() == 2.0
     length -= Beat(1)
-    assert length.roundMeasures() == 1.0
+    assert length.roundMeasures() == 1.0    # Common behavior
 
 
 def test_duration_eq():

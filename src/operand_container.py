@@ -440,10 +440,7 @@ class Sequence(Container):  # Just a container of Elements
 
 
     def length(self) -> ra.Length:
-        finish_position: ra.Position = self.finish()
-        sequence_length: ra.Length = ra.Length( finish_position )
-        sequence_length << ra.Measures(sequence_length % ou.Measure())  # Rounded up Duration to next Measure
-        return sequence_length
+        return ra.Length( self.finish() ).roundMeasures()
 
     def duration(self) -> ra.Duration:
         return (self.finish() - self.start()).getDuration()
