@@ -340,7 +340,7 @@ def test_note_pitch():
     assert note + 2 == Note("E")    # C - D - E
 
     
-    note.reset()    # Becomes like a new note
+    note.clear()    # Becomes like a new note
 
     print(note // Pitch() // float())
     assert note // Pitch() // float() == 60.0  # White Key
