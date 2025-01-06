@@ -121,6 +121,31 @@ def test_length_unit():
 # test_length_unit()
 
 
+def test_position_round():
+
+    # Position round type: [...)
+    position: Position = Position()
+    assert position.roundMeasures() == 0.0
+    position += Beat(1)
+    assert position.roundMeasures() == 0.0
+    position += 1.0 # Measure
+    assert position.roundMeasures() == 1.0
+    position -= Beat(1)
+    assert position.roundMeasures() == 1.0
+
+def test_length_round():
+
+    # Length round type: (...]
+    length: Length = Length()
+    assert length.roundMeasures() == 0.0
+    length += Beat(1)
+    assert length.roundMeasures() == 1.0
+    length += 1.0 # Measure
+    assert length.roundMeasures() == 2.0
+    length -= Beat(1)
+    assert length.roundMeasures() == 1.0
+
+
 def test_duration_eq():
 
     duration: Duration = Duration(0)
