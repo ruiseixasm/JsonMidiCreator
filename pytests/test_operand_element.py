@@ -364,6 +364,13 @@ def test_note_pitch():
     print(note // Pitch() // float())
     assert note // Pitch() // float() == 39.0  # Black Key
 
+    note.clear()
+
+    assert note % Octave() == 4
+    note -= Octave()
+    assert note % Octave() == 3
+    note += Octave()
+    assert note % Octave() == 4
 
 
 # test_note_pitch()

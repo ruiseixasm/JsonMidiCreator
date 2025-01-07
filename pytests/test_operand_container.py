@@ -162,6 +162,12 @@ def test_add_sequence():
     assert three_notes == three_notes_2
     assert two_notes != three_notes_2               # two_notes remains unchanged, size 2!
 
+    assert two_notes[0] % Octave() == 4
+    two_notes -= Octave()
+    assert two_notes[0] % Octave() == 3
+    two_notes += Octave()
+    assert two_notes[0] % Octave() == 4
+
 
 def test_sub_sequence():
 

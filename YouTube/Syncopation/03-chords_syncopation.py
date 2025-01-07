@@ -48,40 +48,15 @@ base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 
-syncopation_1: Seq = no_syncopation + base_line
-syncopation_1 >> Play()
+syncopation: Seq = no_syncopation + (base_line + Step(1) << 1/16)
+# syncopation >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-syncopation_2: Seq = no_syncopation + (base_line << 1/16)
-syncopation_2 >> Play()
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
+chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
+# chords >> Play()
+chords -= NotEqual(Step(0))**Octave(1)
+chords *= 4
+chords >> Play()
 
-syncopation_3: Seq = no_syncopation + (base_line + Step(1) << 1/16)
-syncopation_3 >> Play()
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
-
-syncopation_4: Seq = no_syncopation + (base_line + Step(2) << 1/16)
-syncopation_4 >> Play()
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
-
-syncopation_5: Seq = no_syncopation + (base_line + Step(3) << 1/16)
-syncopation_5 >> Play(1)
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
-
-# Best outcome with some extra variation
-syncopation_6: Seq = no_syncopation + (base_line + Nths(5)**Step(1) << 1/16)
-syncopation_6 >> Play(1)
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
-
-# Best outcome with some extra variation
-syncopation_7: Seq = no_syncopation + (base_line + Nths(4)**Step(1) + Nths(5)**Step(1) << 1/16)
-syncopation_7 >> Play(1)
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
 
