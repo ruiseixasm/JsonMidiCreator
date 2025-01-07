@@ -124,7 +124,7 @@ def test_note_mod():
     assert note % Measure() == 1
     assert note == Measure(1)
 
-test_note_mod()
+# test_note_mod()
 
 
 def test_keyscale_mod():
@@ -152,6 +152,33 @@ def test_chord_mod():
     chord_string = chord % Degree() % str()
 
     assert chord_string == "I"
+
+    triad_c_major: Chord = Chord(KeySignature())  # C Major scale
+    three_notes: list[Note] = triad_c_major.get_chord_notes()
+    assert three_notes[0] == "C"
+    assert three_notes[1] == "E"
+    assert three_notes[2] == "G"
+
+    triad_e_minor: Chord = Chord(KeySignature(1, Minor()), "minor")  # E minor scale
+    three_notes = triad_e_minor.get_chord_notes()
+    print(f"Key: {three_notes[0] % str()}")
+    assert three_notes[0] == "E"
+    print(f"Key: {three_notes[1] % str()}")
+    assert three_notes[1] == "G"
+    print(f"Key: {three_notes[2] % str()}")
+    assert three_notes[2] == "B"
+
+    print("------")
+    triad_e_minor: Chord = Chord(KeySignature(1, Minor()))  # E minor scale
+    three_notes = triad_e_minor.get_chord_notes()
+    print(f"Key: {three_notes[0] % str()}")
+    assert three_notes[0] == "E"
+    print(f"Key: {three_notes[1] % str()}")
+    assert three_notes[1] == "G"
+    print(f"Key: {three_notes[2] % str()}")
+    assert three_notes[2] == "B"
+
+# test_chord_mod()
 
 
 def test_retrigger_mod():

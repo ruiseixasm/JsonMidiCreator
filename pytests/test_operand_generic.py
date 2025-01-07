@@ -90,6 +90,12 @@ def test_scale_mod():
     fifth_transposition: int = Scale("Major") % Transposition(5 - 1)
     assert fifth_transposition == 7 # Semitones
 
+    scale.clear()
+
+    assert scale % str() == "Major"
+    scale << KeySignature(Minor()) % list()
+    assert scale % str() == "minor"
+
 
 def test_pitch_set():
 

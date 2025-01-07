@@ -312,12 +312,16 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case og.Scale():            return og.Scale(self % list())
             case list():
                 key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
-                if self._unit != 0:
+                if not(self._unit == 0 and self._major):
                     key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
                     for key_i in range(11, -1, -1): # range(12) results in a bug
                         if key_signature[key_i] != 0:
                             key_signature_scale[key_i] = 0
                             key_signature_scale[(key_i + key_signature[key_i]) % 12] = 1
+                    if not self._major: # Needs to rotate scale to start on the key of A (9th key)
+                        original_scale: list[int] = key_signature_scale.copy()
+                        for key_i in range(12):
+                            key_signature_scale[key_i] = original_scale[(key_i + 9) % 12]                    
                 return key_signature_scale
             case _:                     return super().__mod__(operand)
 
@@ -501,8 +505,9 @@ class Key(PitchParameter):
                 self._unit = int(operand) % 48
 
             case str():
-                self._unit = self.getStringToNumber(operand) % 48
-                
+                self_unit: int = self.getStringToNumber(operand)
+                if self_unit != -1:
+                    self._unit = self_unit
 
             case _:
                 super().__lshift__(operand)
@@ -529,7 +534,7 @@ class Key(PitchParameter):
         for index, value in enumerate(Key._keys):
             if value.lower().find(key_to_find) != -1:
                 return index
-        return 0
+        return -1
 
 class Root(Key):
     pass

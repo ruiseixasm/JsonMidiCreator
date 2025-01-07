@@ -50,6 +50,14 @@ def test_unit_mod():
     assert integer_1 / integer_2 == int(12 / 10)
 
 
+def test_key_signature():
+
+    key_signature: KeySignature = KeySignature()
+    assert key_signature % list() == [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]   # Major scale
+    key_signature << Minor()
+    assert key_signature % list() == [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]   # minor scale
+
+
 def test_tonic_key_signature():
 
     signature: int = -2     # Two flats bb

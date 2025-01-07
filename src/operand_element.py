@@ -872,7 +872,11 @@ class KeyScale(Note):
                     case _:                 super().__lshift__(operand)
             case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
                 self._scale << operand
-            case _: super().__lshift__(operand)
+            case ou.KeySignature():
+                super().__lshift__(operand)
+                self._scale << operand % list()
+            case _:
+                super().__lshift__(operand)
         return self
 
 class Chord(KeyScale):
