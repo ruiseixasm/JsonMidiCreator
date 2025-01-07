@@ -307,12 +307,17 @@ class Pitch(Generic):
                 return self._key_signature % operand
             case ou.Mode() | list():
                 return (self % Scale()) % operand
+            
             case str():
-                note_key = int(self % float()) % 12 + self._key._unit % 48 // 12 * 12
-
-                # if self._major_scale[note_key] == 0 and self._key_signature._unit < 0:
-                #     note_key += 12  # In case of FLAT Key Signature
-                return ou.Key._keys[note_key]
+                key_note: int = int(self % float()) % 12
+                key_line: int = self._key._unit % 48 // 12
+                if key_line < 2:
+                    if self._key_signature._unit > 0:
+                        key_line = 0
+                    elif self._key_signature._unit < 0:
+                        key_line = 1
+                return ou.Key._keys[key_note + key_line * 12]
+            
             case int(): # WITHOUT KEY SIGNATURE
                 
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
