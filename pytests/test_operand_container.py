@@ -228,7 +228,7 @@ def test_element_stacking():
     two_notes >> Stack()
     assert two_notes % Last() % Beats() == Beats(1/2)
     
-test_element_stacking()
+# test_element_stacking()
 
 
 def test_sequence_filter():
