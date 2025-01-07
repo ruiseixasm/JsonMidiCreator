@@ -28,7 +28,7 @@ staff << KeySignature(-1)   # Sets the default Key Signature configuration
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
-hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16
+hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat >> Play()
 
@@ -68,13 +68,19 @@ print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 syncopation_5: Seq = no_syncopation + (wood_block + Step(3) << 1/16)
-syncopation_5 >> Play()
+syncopation_5 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 # Best outcome with some extra variation
-syncopation_6: Seq = no_syncopation + (wood_block + Nths(4)**Step(1) << 1/16)
-syncopation_6 >> Play()
+syncopation_6: Seq = no_syncopation + (wood_block + Nths(5)**Step(1) << 1/16)
+syncopation_6 >> Play(1)
+print("Delay for 0.5 seconds")
+time.sleep(0.5)
+
+# Best outcome with some extra variation
+syncopation_7: Seq = no_syncopation + (wood_block + Nths(4)**Step(1) + Nths(5)**Step(1) << 1/16)
+syncopation_7 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
