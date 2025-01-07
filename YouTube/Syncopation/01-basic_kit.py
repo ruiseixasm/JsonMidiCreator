@@ -72,3 +72,9 @@ syncopation_5 >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
+# Best outcome with some extra variation
+syncopation_6: Seq = no_syncopation + (wood_block + Nths(4)**Step(1) << 1/16)
+syncopation_6 >> Play()
+print("Delay for 0.5 seconds")
+time.sleep(0.5)
+
