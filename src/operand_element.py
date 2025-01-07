@@ -509,19 +509,11 @@ class Rest(Element):
         return self_midilist
 
 class Tiable(Element):
-    pass
-
-class Note(Tiable):
     def __init__(self, *parameters):
-        self._pitch: og.Pitch       = og.Pitch()
         self._velocity: ou.Velocity = os.staff._velocity.copy()
         self._gate: ra.Gate         = ra.Gate(1.0)
         self._tied: ou.Tied         = ou.Tied(False)
         super().__init__(*parameters)
-
-    def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
-        self._pitch = og.Pitch(key, octave)
-        return self
 
     def velocity(self: 'Note', velocity: int = None) -> 'Note':
         self._velocity = og.Pitch(velocity)
@@ -533,6 +525,90 @@ class Note(Tiable):
 
     def tied(self: 'Note', tied: bool = None) -> 'Note':
         self._tied = og.Pitch(tied)
+        return self
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Velocity():     return self._velocity
+                    case ra.Gate():         return self._gate
+                    case ou.Tied():         return self._tied
+                    case _:                 return super().__mod__(operand)
+            case ou.Velocity():     return self._velocity.copy()
+            case ra.Gate():         return self._gate.copy()
+            case ou.Tied():         return self._tied.copy()
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._velocity  == other._velocity \
+                    and self._gate      == other._gate \
+                    and self._tied      == other._tied
+            case _:
+                return super().__eq__(other)
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+        if not self._enabled:
+            return []
+        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist[0]["event"]       = "Tied"
+        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beats() ) % float() * (self._gate % float())
+        self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
+        return self_midilist
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["velocity"] = self.serialize( self._velocity )
+        serialization["parameters"]["gate"]     = self.serialize( self._gate )
+        serialization["parameters"]["tied"]     = self.serialize( self._tied )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict):
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
+            "tied" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._velocity  = self.deserialize( serialization["parameters"]["velocity"] )
+            self._gate      = self.deserialize( serialization["parameters"]["gate"] )
+            self._tied      = self.deserialize( serialization["parameters"]["tied"] )
+        return self
+      
+    def __lshift__(self, operand: o.Operand) -> 'Note':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Note():
+                super().__lshift__(operand)
+                self._velocity      << operand._velocity
+                self._gate          << operand._gate
+                self._tied          << operand._tied
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Degree():       self._degree    = operand % o.Operand()
+                    case ou.Velocity():     self._velocity  = operand % o.Operand()
+                    case ra.Gate():         self._gate      = operand % o.Operand()
+                    case ou.Tied():         self._tied      = operand % o.Operand()
+                    case _:                 super().__lshift__(operand)
+            case ou.DrumKit():      self << od.DataSource( ou.Channel(10) )
+            case ou.Velocity():     self._velocity << operand
+            case ra.Gate():         self._gate << operand
+            case ou.Tied():         self._tied << operand
+            case _:                 super().__lshift__(operand)
+        return self
+
+class Note(Tiable):
+    def __init__(self, *parameters):
+        self._pitch: og.Pitch       = og.Pitch()
+        super().__init__(*parameters)
+
+    def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
+        self._pitch = og.Pitch(key, octave)
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -552,17 +628,11 @@ class Note(Tiable):
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Pitch():        return self._pitch
-                    case ou.Velocity():     return self._velocity
-                    case ra.Gate():         return self._gate
-                    case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case og.Pitch():        return self._pitch.copy()
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | str() | ou.Key() | ou.Octave() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
                                     return self._pitch % operand
-            case ou.Velocity():     return self._velocity.copy()
-            case ra.Gate():         return self._gate.copy()
-            case ou.Tied():         return self._tied.copy()
             case int():             return self._pitch._degree % operand
             case _:                 return super().__mod__(operand)
 
@@ -571,10 +641,7 @@ class Note(Tiable):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pitch     == other._pitch \
-                    and self._velocity  == other._velocity \
-                    and self._gate      == other._gate \
-                    and self._tied      == other._tied
+                    and self._pitch     == other._pitch
             case _:
                 return super().__eq__(other)
     
@@ -614,31 +681,22 @@ class Note(Tiable):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Note"
-        self_midilist[0]["duration"]    = self._duration % od.DataSource( ra.Beats() ) % float() * (self._gate % float())
-        self_midilist[0]["bend"]        = Element.midi_128(self._pitch % float())
-        self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
+        self_midilist[0]["pitch"]       = Element.midi_128(self._pitch % float())
         return self_midilist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pitch"]    = self.serialize( self._pitch )
-        serialization["parameters"]["velocity"] = self.serialize( self._velocity )
-        serialization["parameters"]["gate"]     = self.serialize( self._gate )
-        serialization["parameters"]["tied"]     = self.serialize( self._tied )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "pitch" in serialization["parameters"] and "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
-            "tied" in serialization["parameters"]):
+            "pitch" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
-            self._velocity  = self.deserialize( serialization["parameters"]["velocity"] )
-            self._gate      = self.deserialize( serialization["parameters"]["gate"] )
-            self._tied      = self.deserialize( serialization["parameters"]["tied"] )
         return self
       
     def __lshift__(self, operand: o.Operand) -> 'Note':
@@ -647,16 +705,9 @@ class Note(Tiable):
             case Note():
                 super().__lshift__(operand)
                 self._pitch         << operand._pitch
-                self._velocity      << operand._velocity
-                self._gate          << operand._gate
-                self._tied          << operand._tied
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Pitch():        self._pitch     = operand % o.Operand()
-                    case ou.Degree():       self._degree    = operand % o.Operand()
-                    case ou.Velocity():     self._velocity  = operand % o.Operand()
-                    case ra.Gate():         self._gate      = operand % o.Operand()
-                    case ou.Tied():         self._tied      = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
@@ -665,9 +716,6 @@ class Note(Tiable):
             case ou.DrumKit():
                                     self << od.DataSource( ou.Channel(10) )
                                     self._pitch << operand
-            case ou.Velocity():     self._velocity << operand
-            case ra.Gate():         self._gate << operand
-            case ou.Tied():         self._tied << operand
             case _:                 super().__lshift__(operand)
         return self
 
