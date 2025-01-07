@@ -178,6 +178,22 @@ def test_chord_mod():
     print(f"Key: {three_notes[2] % str()}")
     assert three_notes[2] == "B"
 
+
+    staff << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
+    triad: Chord = Chord()
+    staff << KeySignature() # Resets the default Key Scale to Major C
+
+    print("------")
+    three_notes = triad.get_chord_notes()
+    print(f"Key: {three_notes[0] % str()}")
+    assert three_notes[0] == "E"
+    print(f"Key: {three_notes[1] % str()}")
+    assert three_notes[1] == "G"
+    print(f"Key: {three_notes[2] % str()}")
+    assert three_notes[2] == "B"
+
+
+
 # test_chord_mod()
 
 
