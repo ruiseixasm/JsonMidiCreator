@@ -440,8 +440,8 @@ class Pitch(Generic):
                         self._scale << operand % o.Operand()
                     case str():
                         self._flat << ((operand % o.Operand()).strip().lower().find("b") != -1) * 1
-                        self.key_to_int(operand % o.Operand())
-                        self._degree << operand % o.Operand()
+                        self._degree    << operand % o.Operand()
+                        self._key       << operand % o.Operand()
                     case _:
                         super().__lshift__(operand)
 
@@ -500,8 +500,7 @@ class Pitch(Generic):
                         self._sharp << False
                     self._flat  << new_flat
                 self._degree    << string
-                self.key_to_int(string)
-                self.stringToNumber(string)
+                self._key       << string
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -640,19 +639,6 @@ class Pitch(Generic):
             "a": 9,
             "b": 11
          }
-    
-    def stringToNumber(self, string: str):
-        string = string.lower().replace("dim", "").replace("aug", "").replace("maj", "")
-        for key, value in self._white_keys.items():
-            if string.find(key) != -1:
-                self._key._unit = value
-                return
-
-    def key_to_int(self, key: str = "C"):
-        for index, value in enumerate(ou.Key._keys):
-            if value.lower().find(key.strip().lower()) != -1:
-                self._key._unit = index % 12
-                return
 
 
 class Controller(Generic):
