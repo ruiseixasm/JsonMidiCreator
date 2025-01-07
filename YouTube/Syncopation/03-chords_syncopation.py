@@ -48,15 +48,21 @@ base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 
-syncopation: Seq = no_syncopation + (base_line + Step(1) << 1/16)
-# syncopation >> Play()
+syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
+# syncopation_1 >> Play()
+# print("Delay for 0.5 seconds")
+# time.sleep(0.5)
+
+chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
+chords -= NotEqual(Measure(0))**Octave(1)
+chords *= 4
+# chords >> Play()
+
+syncopation_2: Seq = syncopation_1 * 4 + chords # x4 because chords are 4x longer than the original syncopation
+syncopation_2 >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
-# chords >> Play()
-chords -= NotEqual(Measure(0))**Octave(1)
-chords *= 4
-chords >> Play()
+
 
 
