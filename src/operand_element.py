@@ -302,6 +302,10 @@ class Element(o.Operand):
             for _ in range(operand):
                 new_sequence += self # copy of element already included in Element processing
             return new_sequence.stack()
+        elif isinstance(operand, ra.TimeValue):
+            self_time_value: ra.TimeValue = self._duration % operand
+            self_repeating: int = (operand // Fraction()) // (self_time_value // Fraction())
+            return self.__mul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy() << self % operand * operand
 

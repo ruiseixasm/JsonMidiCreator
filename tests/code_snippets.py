@@ -327,11 +327,26 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # print(time_ms_2)
 # print(time_ms_3)
 
-my_dict = {"a": 1, "b": 2, "c": 3}
+# my_dict = {"a": 1, "b": 2, "c": 3}
 
-# Get the first key-value pair
-first_key, first_value = next(iter(my_dict.items()))
+# # Get the first key-value pair
+# first_key, first_value = next(iter(my_dict.items()))
 
-print(f"First key: {first_key}, First value: {first_value}")
+# print(f"First key: {first_key}, First value: {first_value}")
 
+from fractions import Fraction
 
+# two: Fraction = Fraction(2)
+# three: Fraction = Fraction(3)
+
+# one: int = three // two
+# print(one)
+
+time_1: Fraction = Fraction(4.5)
+time_2: Fraction = Fraction(0.4)
+
+amount: int = time_1 // time_2
+print(amount)
+
+amount: int = time_1 / time_2
+print(float(amount))
