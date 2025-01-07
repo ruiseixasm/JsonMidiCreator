@@ -49,22 +49,26 @@ wood_block: Sequence = Note(DrumKit("Wood Block"), dotted_eight) * Measures(4) #
 
 syncopation_1: Seq = no_syncopation + wood_block
 syncopation_1 >> Play()
-
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 syncopation_2: Seq = no_syncopation + (wood_block << 1/16)
 syncopation_2 >> Play()
-
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 syncopation_3: Seq = no_syncopation + (wood_block + Step(1) << 1/16)
 syncopation_3 >> Play()
-
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 syncopation_4: Seq = no_syncopation + (wood_block + Step(2) << 1/16)
 syncopation_4 >> Play()
+print("Delay for 0.5 seconds")
+time.sleep(0.5)
+
+syncopation_5: Seq = no_syncopation + (wood_block + Step(3) << 1/16)
+syncopation_5 >> Play()
+print("Delay for 0.5 seconds")
+time.sleep(0.5)
 
