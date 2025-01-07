@@ -28,6 +28,7 @@ staff << KeySignature(+1, Minor())  # Sets the default Key Signature configurati
 
 hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
+hi_hat << Disable()
 # hi_hat >> Play()
 
 kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
@@ -57,6 +58,7 @@ chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
 chords -= NotEqual(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
+chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 # chords >> Play()
 
 syncopation_2: Seq = syncopation_1 * 4 + chords # x4 because chords are 4x longer than the original syncopation

@@ -48,6 +48,15 @@ def test_element_mod():
     # Assert the captured output
     assert captured_output.getvalue().strip() in ["['VMPK', 'FLUID']", "['loopMIDI', 'Microsoft']"]
 
+    assert element % Enable()
+    assert not element % Disable()
+    element << Disable()
+    assert not element % Enable()
+    assert element % Disable()
+    element << Enable()
+    assert element % Enable()
+    assert not element % Disable()
+
 
 def test_clock_mod():
     # Redirect stdout to capture the print output
