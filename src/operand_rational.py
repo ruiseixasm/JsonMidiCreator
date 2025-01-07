@@ -584,9 +584,9 @@ class Position(Rational):
     def getMeasure(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         match time:
             case None:
-                return self.roundMeasures().getMeasures()
+                return ou.Measure( self.roundMeasures().getMeasures() // int() )
             case Position() | TimeValue() | ou.TimeUnit():
-                return self.roundMeasures(time).getMeasures()
+                return ou.Measure( self.roundMeasures(time).getMeasures() // int() )
         return ou.Measure()
 
     def getBeat(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Beat':

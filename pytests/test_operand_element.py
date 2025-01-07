@@ -116,6 +116,16 @@ def test_note_mod():
     # Resets changed Tempo to the default value of 120 bpm
     staff << Tempo(120)
 
+    note.clear()
+
+    assert note % Measure() == 0
+    assert note == Measure(0)
+    note += Measures(1)
+    assert note % Measure() == 1
+    assert note == Measure(1)
+
+test_note_mod()
+
 
 def test_keyscale_mod():
 

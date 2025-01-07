@@ -291,7 +291,6 @@ class Element(o.Operand):
                 return self.copy() << self % operand + operand
 
     def __sub__(self, operand: any) -> 'Element':
-        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy() << self % operand - operand
 

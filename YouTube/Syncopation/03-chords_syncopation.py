@@ -55,7 +55,7 @@ time.sleep(0.5)
 
 chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
 # chords >> Play()
-chords -= NotEqual(Step(0))**Octave(1)
+chords -= NotEqual(Measure(0))**Octave(1)
 chords *= 4
 chords >> Play()
 
