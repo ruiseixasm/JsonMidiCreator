@@ -233,6 +233,9 @@ class Pitch(Generic):
         octave_offset, key_offset = self.octave_key_offset(key_offset)
         self._octave._unit += octave_offset
         self._key._unit += key_offset
+        self._key._unit %= 48
+        if self._key._unit >= 24:   # Removes key from Key Signature specificity
+            self._key._unit -= 24
 
         return self
     
