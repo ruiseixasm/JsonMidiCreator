@@ -783,6 +783,12 @@ class Boolean(Unit):
 class Default(Boolean):
     pass
 
+class Enable(Boolean):
+    pass
+
+class Disable(Boolean):
+    pass
+
 class Stackable(Boolean):
     pass
 
