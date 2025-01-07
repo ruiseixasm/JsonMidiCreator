@@ -154,10 +154,10 @@ class Rational(o.Operand):
                 self._rational = operand._rational
             case od.DataSource():
                 match operand % o.Operand():
-                    case Fraction():
-                        self._rational = operand % o.Operand()
                     case float() | int():
                         self._rational = Fraction(operand % o.Operand())
+                    case Fraction():
+                        self._rational = operand % o.Operand()
                     case str():
                         try:
                             self._rational = Fraction(operand % o.Operand())
@@ -165,16 +165,20 @@ class Rational(o.Operand):
                             print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
                     case Rational() | ou.Unit():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case Fraction():                self._rational = operand
-            case float() | int() | str():   self << od.DataSource( operand )
+            case float() | int():
+                self._rational = Fraction(operand)
+            case Fraction():
+                self._rational = operand
+            case str():
+                self << od.DataSource( operand )
             case ou.Unit():
                 self._rational = operand % Fraction()
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        if self._limit_denominator > 0:
+        if self._limit_denominator > 0 and not isinstance(operand, tuple):
             self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
@@ -930,18 +934,16 @@ class Dotted(NoteValue):
         return self
 
 class Swing(Rational):
-    def __init__(self, value: float = None):
-        super().__init__( 0.50 if value is None else value )
+    def __init__(self, *parameters):
+        super().__init__(0.50, *parameters)
 
 class Gate(Rational):
-    def __init__(self, value: float = None):
-        super().__init__( 0.90 if value is None else value )
+    def __init__(self, *parameters):
+        super().__init__(0.90, *parameters)
 
 class Amplitude(Rational):
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 
 class Offset(Rational):
-    def __init__(self, value: float = None):
-        super().__init__(value)
+    pass
 

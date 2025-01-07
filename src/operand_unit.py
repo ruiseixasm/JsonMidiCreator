@@ -170,14 +170,14 @@ class Unit(o.Operand):
                     case float() | Fraction() | bool():
                                                     self._unit = int(operand % o.Operand())
                     case Unit() | ra.Rational():    self._unit = operand % o.Operand() % od.DataSource( int() )
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
             case int() | float() | Fraction():
                 self._unit = int(operand)
             case bool():
                 self._unit = 1 if operand else 0
             case ra.Rational():
                 self._unit = operand % int()
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
             case tuple():
                 for single_operand in operand:
                     self << single_operand
