@@ -55,6 +55,7 @@ syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
 
 chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
 chords -= NotEqual(Measure(0))**Octave(1)
+chords -= Octave(1)
 chords *= 4
 # chords >> Play()
 
