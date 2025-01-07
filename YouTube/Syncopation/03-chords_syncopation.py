@@ -31,12 +31,12 @@ hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
+kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + Beats(1)
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
