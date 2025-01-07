@@ -266,6 +266,10 @@ class Element(o.Operand):
                 self._channel       << operand
             case od.Device():
                 self._device        << operand
+            case ou.Enable():
+                self._enabled       = operand // int() != 0
+            case ou.Disable():
+                self._enabled       = operand // int() == 0
             case tuple():
                 for single_operand in operand:
                     self << single_operand
