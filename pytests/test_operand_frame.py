@@ -57,3 +57,28 @@ def test_foreach_mod():
     assert notes == sequence
 
 # test_foreach_mod()
+
+
+def test_conditional_note():
+    
+    note: Note = Note()
+
+    assert note % Octave() == 4
+    note -= Equal(Step(0))**Octave(1)
+    assert note % Octave() == 3
+    note += Equal(Step(0))**Octave(1)
+    assert note % Octave() == 4
+
+    four_notes: Sequence = Note() * 4
+    
+    assert four_notes[0] % Octave() == 4
+    assert four_notes[1] % Octave() == 4
+    four_notes -= NotEqual(Step(0))**Octave(1)
+    assert four_notes[0] % Octave() == 4
+    assert four_notes[1] % Octave() == 3
+    four_notes += NotEqual(Step(0))**Octave(1)
+    assert four_notes[0] % Octave() == 4
+    assert four_notes[1] % Octave() == 4
+
+
+# test_conditional_note()
