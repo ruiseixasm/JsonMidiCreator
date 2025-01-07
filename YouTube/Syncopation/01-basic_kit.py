@@ -44,7 +44,13 @@ no_syncopation: Seq = hi_hat + kick + clap
 # no_syncopation * 2 >> Play()
 
 
-wood_block: Sequence = Note(DrumKit("Wood Block"), dotted_eight) * Measures(4)
-wood_block >> Play()
+wood_block: Sequence = Note(DrumKit("Wood Block"), dotted_eight) * Measures(4) # (3/2 * 1/8) * 21 = 3.9375 = 63/16
+# wood_block >> Play()
+
+syncopation_1: Seq = no_syncopation + wood_block
+# syncopation_1 >> Play()
+
+syncopation_2: Seq = no_syncopation + (wood_block << 1/16)
+syncopation_2 >> Play()
 
 

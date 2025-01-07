@@ -529,10 +529,8 @@ class Sequence(Container):  # Just a container of Elements
                 self._position << operand
             case ra.Duration() | ra.Duration() | float() | Fraction():
                 super().__lshift__(operand)
-                self.stack()
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 super().__lshift__(operand)
-                self.link() # Maybe completely unnecessary
             case _:
                 super().__lshift__(operand)
                 self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))

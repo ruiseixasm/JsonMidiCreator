@@ -223,12 +223,12 @@ def test_element_stacking():
     two_notes: Sequence = Note() * 2
     assert two_notes % Last() % Beats() == Beats(1)
 
-    two_notes << 1/8    # Stacking is already included!
-    assert two_notes % Last() % Beats() == Beats(1/2)
+    two_notes << 1/8    # Stacking is NOT included!
+    assert two_notes % Last() % Beats() == Beats(1)
     two_notes >> Stack()
     assert two_notes % Last() % Beats() == Beats(1/2)
     
-# test_element_stacking()
+test_element_stacking()
 
 
 def test_sequence_filter():
