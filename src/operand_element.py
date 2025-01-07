@@ -217,6 +217,7 @@ class Element(o.Operand):
         serialization["parameters"]["stackable"]    = self.serialize(self._stackable)
         serialization["parameters"]["channel"]      = self.serialize(self._channel)
         serialization["parameters"]["device"]       = self.serialize(self._device)
+        serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -224,7 +225,8 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "stackable" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+            "stackable" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
+            "enabled" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._position      = self.deserialize(serialization["parameters"]["position"])
@@ -232,6 +234,7 @@ class Element(o.Operand):
             self._stackable     = self.deserialize(serialization["parameters"]["stackable"])
             self._channel       = self.deserialize(serialization["parameters"]["channel"])
             self._device        = self.deserialize(serialization["parameters"]["device"])
+            self._enabled       = self.deserialize(serialization["parameters"]["enabled"])
 
         return self
 
