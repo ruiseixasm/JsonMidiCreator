@@ -245,6 +245,7 @@ class Element(o.Operand):
                 self._stackable     << operand._stackable
                 self._channel       << operand._channel
                 self._device        << operand._device
+                self._enabled       = operand._enabled
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Position():     self._position  = operand % o.Operand()
