@@ -28,10 +28,23 @@ staff << KeySignature(-1)   # Sets the default Key Signature configuration
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
-# Play a Maracas 16 times
-# maracas: Sequence = Note(DrumKit("Maracas"), sixteenth) * 16
-# maracas >> Play()
+hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16
+hi_hat *= 4     # 4 measures long
+# hi_hat >> Play()
+
+kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
+kick *= 4       # 4 measures long
+# kick >> Play()
+
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + Beats(1)
+clap *= 4       # 4 measures long
+# clap >> Play()
+
+no_syncopation: Seq = hi_hat + kick + clap
+# no_syncopation * 2 >> Play()
 
 
-hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 32
-hi_hat >> Play()
+wood_block: Sequence = Note(DrumKit("Wood Block"), dotted_eight) * 1 >> Extend(Measures(4))
+wood_block >> Play()
+
+

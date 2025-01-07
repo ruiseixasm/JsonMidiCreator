@@ -687,6 +687,46 @@ class Link(Operation):
         else:
             return super().__rrshift__(operand)
 
+class Shuffle(Operation):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.shuffle()
+        else:
+            return super().__rrshift__(operand)
+
+class Reverse(Operation):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.reverse()
+        else:
+            return super().__rrshift__(operand)
+
+class Extend(Operation):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.extend(self._data)
+        else:
+            return super().__rrshift__(operand)
+
+class Trim(Operation):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.trim(self._data)
+        else:
+            return super().__rrshift__(operand)
+
+class Fill(Operation):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Sequence):
+            return operand.fill()
+        else:
+            return super().__rrshift__(operand)
+
 if TYPE_CHECKING:
     from operand_container import Container
 
@@ -745,22 +785,6 @@ class End(Getter):
         if isinstance(operand, oc.Sequence):
             return operand.finish()
         return ol.Null()
-
-class Shuffle(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.shuffle()
-        else:
-            return super().__rrshift__(operand)
-
-class Reverse(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.reverse()
-        else:
-            return super().__rrshift__(operand)
 
 class Name(Getter):
     pass

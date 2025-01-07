@@ -564,7 +564,14 @@ class Sequence(Container):  # Just a container of Elements
         return super().reverse()    # Reverses the list
 
 
-    def trim(self) -> 'Sequence':
+    def extend(self, time_value: ra.TimeValue) -> 'Sequence':
+        extended_sequence: Sequence = self.copy() << od.DataSource( self // list() )
+        while (extended_sequence >> self).length() <= time_value:
+            extended_sequence >>= self
+        self << od.DataSource( extended_sequence // list() )
+        return self
+
+    def trim(self, length: ra.Length) -> 'Sequence':
         return self
 
     def fill(self) -> 'Sequence':
