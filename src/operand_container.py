@@ -617,14 +617,14 @@ class Sequence(Container):  # Just a container of Elements
     
     def tie(self, tied: bool = True) -> 'Sequence':
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
+            if isinstance(single_datasource._data, oe.Tiable):
                 single_datasource._data << ou.Tied(tied)
         return self
     
     def slur(self, gate: float = 1.05) -> 'Sequence':
         last_element = None
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
+            if isinstance(single_datasource._data, oe.Tiable):
                 if last_element is not None:
                     last_element << ra.Gate(gate)
                 last_element = single_datasource._data
@@ -634,7 +634,7 @@ class Sequence(Container):  # Just a container of Elements
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
+            if isinstance(single_datasource._data, oe.Tiable):
                 actual_note = single_datasource._data
                 if last_note is not None:
                     while actual_note._pitch > last_note._pitch:

@@ -485,7 +485,10 @@ class Rest(Element):
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
 
-class Note(Element):
+class Tiable(Element):
+    pass
+
+class Note(Tiable):
     def __init__(self, *parameters):
         self._pitch: og.Pitch       = og.Pitch()
         self._velocity: ou.Velocity = os.staff._velocity.copy()
@@ -658,7 +661,7 @@ class Note(Element):
                 return super().__sub__(operand)
 
 
-class Cluster(Rest):
+class Cluster(Tiable):
     def __init__(self, *parameters):
         self._pitches: list[og.Pitch] = [og.Pitch(1), og.Pitch(3), og.Pitch(5)]
         super().__init__( *parameters )
