@@ -258,6 +258,25 @@ def test_sequence_composition():
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
+    print("------")
+    # correct version working with frame All()
+    beat_tick = (Nt(DrumKit(35)) * 3 + All()**Beat(1)) * 4
+    print(f"Measure: {beat_tick % Length() % Measure() % int()}")
+    assert beat_tick % Length() == Measure(4)
+    print(f"Measures: {beat_tick % Length() % Measures() % float()}")
+    assert beat_tick % Length() == Measures(4.0)
+    print(f"Position: {beat_tick % Position() % Measures() % float()}")
+    assert beat_tick % Position() == 0.0
+
+    print("------")
+    metronome: Sequence = measure_bell + beat_tick
+    print(f"Measure: {metronome % Length() % Measure() % int()}")
+    assert metronome % Length() == Measure(4)
+    print(f"Measures: {metronome % Length() % Measures() % float()}")
+    assert metronome % Length() == Measures(4.0)
+    print(f"Position: {metronome % Position() % Measures() % float()}")
+    assert metronome % Position() == 0.0
+
 # test_sequence_composition()
 
 
