@@ -375,9 +375,9 @@ class Position(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
         super().__init__()
-        self._tempo: Tempo                       = os.staff._tempo.copy()
-        self._time_signature: og.TimeSignature   = os.staff._time_signature.copy()
-        self._quantization: Quantization         = os.staff._quantization.copy()
+        self._tempo: Fraction                   = os.staff._tempo // Fraction()
+        self._time_signature: og.TimeSignature  = os.staff._time_signature.copy()
+        self._quantization: Fraction            = os.staff._quantization // Fraction()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -404,9 +404,9 @@ class Position(Rational):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case Tempo():               return self._tempo
+                    case Tempo():               return Tempo() << od.DataSource( self._tempo )
                     case og.TimeSignature():    return self._time_signature
-                    case Quantization():        return self._quantization
+                    case Quantization():        return Quantization() << od.DataSource( self._quantization )
                     case _:                     return super().__mod__(operand)
             case Measures():            return self.getMeasures()
             case Beats():               return self.getBeats()
@@ -415,11 +415,11 @@ class Position(Rational):
             case ou.Measure():          return self.getMeasure()
             case ou.Beat():             return self.getBeat()
             case ou.Step():             return self.getStep()
-            case Tempo():               return self._tempo.copy()
+            case Tempo():               return Tempo() << od.DataSource( self._tempo )
             case og.TimeSignature():    return self._time_signature.copy()
             case BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                                         return self._time_signature % operand
-            case Quantization():        return self._quantization.copy()
+            case Quantization():        return Quantization() << od.DataSource( self._quantization )
             case int():                 return self % ou.Measure(operand) % int()
             case float():               return self % Measures(operand) % float()
             case Fraction():            return self % Measures(operand) % Fraction()
@@ -503,8 +503,8 @@ class Position(Rational):
             case Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
-                tempo_a : Fraction = time._tempo._rational
-                tempo_b : Fraction = self._tempo._rational
+                tempo_a : Fraction = time._tempo
+                tempo_b : Fraction = self._tempo
                 beats_b : Fraction = beats_a * tempo_b / tempo_a
                 return Beats(beats_b)
             case Measures():
@@ -514,7 +514,7 @@ class Position(Rational):
                 beats = time._rational
             case Steps():
                 beats_per_note: int = self._time_signature._bottom
-                notes_per_step: Fraction = self._quantization._rational
+                notes_per_step: Fraction = self._quantization
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 beats = time._rational * beats_per_step
             case Duration():
@@ -541,7 +541,7 @@ class Position(Rational):
                 steps = self.getSteps(beats)
             case Beats():
                 beats_per_note: int = self._time_signature._bottom
-                notes_per_step: Fraction = self._quantization._rational
+                notes_per_step: Fraction = self._quantization
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 steps = time._rational / beats_per_step
             case Steps():
@@ -606,7 +606,7 @@ class Position(Rational):
     def getStep(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'ou.Step':
         beats_per_measure: int = self._time_signature._top
         beats_per_note: int = self._time_signature._bottom
-        notes_per_step: Fraction = self._quantization._rational
+        notes_per_step: Fraction = self._quantization
         beats_per_step: Fraction = beats_per_note * notes_per_step
         steps_per_measure: int = int(beats_per_measure / beats_per_step)
         steps: int = 0
@@ -653,7 +653,7 @@ class Position(Rational):
 
     def getMillis_rational(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
         beats: Fraction = self._rational
-        beats_per_minute: Fraction = self._tempo._rational
+        beats_per_minute: Fraction = self._tempo
         if time is not None:
             beats = self.getBeats(time) % od.DataSource( Fraction() )
         return beats / beats_per_minute * 60 * 1000
@@ -696,15 +696,15 @@ class Position(Rational):
             case Position():
                 super().__lshift__(operand)
                 # It's faster this way with direct access to the respective source variables
-                self._tempo._rational           = operand._tempo._rational
+                self._tempo                     = operand._tempo
                 self._time_signature._top       = operand._time_signature._top
                 self._time_signature._bottom    = operand._time_signature._bottom
-                self._quantization._rational    = operand._quantization._rational
+                self._quantization              = operand._quantization
             case od.DataSource():
                 match operand % o.Operand():
-                    case Tempo():               self._tempo             = operand % o.Operand()
+                    case Tempo():               self._tempo             = operand % o.Operand() // Fraction()
                     case og.TimeSignature():    self._time_signature    = operand % o.Operand()
-                    case Quantization():        self._quantization      = operand % o.Operand()
+                    case Quantization():        self._quantization      = operand % o.Operand() // Fraction()
                     case _:                     super().__lshift__(operand)
             case TimeValue():
                 self._rational = self.getBeats(operand)._rational
@@ -717,11 +717,11 @@ class Position(Rational):
             case int() | float() | Fraction():
                 self << Measures(operand)
             case Tempo():
-                self._tempo             << operand
+                self._tempo             = operand // Fraction()
             case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                 self._time_signature    << operand
             case Quantization():
-                self._quantization      << operand
+                self._quantization      = operand // Fraction()
             case _:
                 super().__lshift__(operand)
         return self
