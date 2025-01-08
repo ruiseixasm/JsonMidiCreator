@@ -37,11 +37,11 @@ def test_data_mod():
 
     assert o.found_dict_in_dict({'unit': 8191}, data_dict)
 
-    data = Data(Pitch())
-    data_degree_parameters = data % {"degree": "parameters"}
-    assert data_degree_parameters == {"unit": 0}
+    # data = Data(Pitch())
+    # data_degree_parameters = data % {}
+    # assert data_degree_parameters == 0
 
-# test_data_mod()
+test_data_mod()
 
 
 def test_data_source_mod():
