@@ -787,4 +787,8 @@ class End(Getter):
         return ol.Null()
 
 class Name(Getter):
-    pass
+    def __rrshift__(self, operand: o.Operand) -> str:
+        import operand_container as oc
+        if isinstance(operand, o.Operand):
+            return operand.__class__.__name__
+        return ol.Null()
