@@ -151,7 +151,7 @@ def test_note_mul():
     assert single_note * Beat(6) % Length() == Beats(6)
     assert single_note * Beats(6) % Length() == Beats(6)
 
-test_note_mul()
+# test_note_mul()
 
 
 def test_keyscale_mod():
@@ -219,9 +219,7 @@ def test_chord_mod():
     print(f"Key: {three_notes[2] % str()}")
     assert three_notes[2] == "B"
 
-
-
-# test_chord_mod()
+test_chord_mod()
 
 
 def test_retrigger_mod():
