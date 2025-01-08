@@ -690,8 +690,10 @@ class Sequence(Container):  # Just a container of Elements
                 return operand + self   # Order is irrelevant on Song
             case Sequence():
                 if self._midi_track == operand._midi_track:
+                    # Does the needed position conversion first
+                    operand_position: ra.Position = self._position.getPosition( operand._position )
                     # Make sure operand position is replicated to its elements
-                    operand += of.All()**operand._position
+                    operand += of.All()**operand_position
                     return Sequence(self, operand)
                 return Song(self, operand)
             case oe.Element():
