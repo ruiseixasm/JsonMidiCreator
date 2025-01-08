@@ -126,7 +126,7 @@ class Pitch(Generic):
         self._natural: ou.Natural               = ou.Natural(False)
         self._degree: ou.Degree                 = ou.Degree(1)
         self._scale: Scale                      = Scale([])
-        self._octave: ou.Octave                 = ou.Octave(4)  # By default it's the 4th Octave!
+        self._octave: int                       = 4     # By default it's the 4th Octave!
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -231,7 +231,7 @@ class Pitch(Generic):
     def apply_key_offset(self, key_offset: int | float) -> 'Pitch':
         
         octave_offset, key_offset = self.octave_key_offset(key_offset)
-        self._octave._unit += octave_offset
+        self._octave += octave_offset
         self._key._unit += key_offset
         self._key._unit %= 24   # Removes key from Key Signature specificity
 
@@ -256,7 +256,7 @@ class Pitch(Generic):
                 match operand % o.Operand():
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case Pitch():           return self
-                    case ou.Octave():       return self._octave
+                    case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
                     case ou.Key():          return self._key
                     case ou.KeySignature(): return self._key_signature
                     case ou.Sharp():        return self._sharp
@@ -322,12 +322,12 @@ class Pitch(Generic):
             case int(): # WITHOUT KEY SIGNATURE
                 
                 # IGNORES THE KEY SIGNATURE (CHROMATIC)
-                return 12 * (self._octave._unit + 1) + self.get_key_int()
+                return 12 * (self._octave + 1) + self.get_key_int()
              
             case float(): # WITH KEY SIGNATURE
 
                 # RESPECTS THE KEY SIGNATURE
-                return 12 * (self._octave._unit + 1) + self.get_key_float()
+                return 12 * (self._octave + 1) + self.get_key_float()
             
             case _:
                 return super().__mod__(operand)
@@ -412,7 +412,7 @@ class Pitch(Generic):
         match operand:
             case Pitch():
                 super().__lshift__(operand)
-                self._octave                << operand._octave
+                self._octave                = operand._octave
                 self._key_signature         << operand._key_signature
                 self._key._unit             = operand._key._unit
                 self._sharp._unit           = operand._sharp._unit
@@ -423,7 +423,7 @@ class Pitch(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Octave():
-                        self._octave    = operand % o.Operand()
+                        self._octave    = operand % o.Operand() // int()
                     case ou.Key():
                         self._key       = operand % o.Operand()
                     case int():
@@ -456,7 +456,7 @@ class Pitch(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
-                self._octave += octave_offset
+                self._octave += octave_offset // int()
             case ou.Key():
                 self._key << operand
             case None:
@@ -527,10 +527,10 @@ class Pitch(Generic):
                 operand_int = operand % int()
                 sum_int = self_int + operand_int
                 new_keynote._key << sum_int % 12
-                new_keynote._octave._unit = sum_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave = sum_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case ou.Octave():
-                self_copy._octave._unit += operand._unit
+                self_copy._octave += operand._unit
             case float():
                 key_offset: int = int(operand)
                 self_copy.apply_key_offset(key_offset)
@@ -558,10 +558,10 @@ class Pitch(Generic):
                 operand_int = operand % int()
                 delta_int = self_int - operand_int
                 new_keynote._key << delta_int % 12
-                new_keynote._octave._unit = delta_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave = delta_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case ou.Octave():
-                self_copy._octave._unit -= operand._unit
+                self_copy._octave -= operand._unit
             case float():
                 key_offset: int = int(operand) * -1
                 self_copy.apply_key_offset(key_offset)
@@ -586,14 +586,14 @@ class Pitch(Generic):
                 self_int = self % int()
                 multiplied_int = self_int * operand
                 new_keynote._key << multiplied_int % 12
-                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case float():
                 new_keynote = self.__class__()
                 self_float = self % float()
                 multiplied_int = int(self_float * operand)
                 new_keynote._key << multiplied_int % 12
-                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case _:
                 return super().__mul__(operand)
@@ -606,14 +606,14 @@ class Pitch(Generic):
                 self_int = self % int()
                 multiplied_int = int(self_int / operand)
                 new_keynote._key << multiplied_int % 12
-                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case float():
                 new_keynote = self.__class__()
                 self_float = self % float()
                 multiplied_int = int(self_float / operand)
                 new_keynote._key << multiplied_int % 12
-                new_keynote._octave._unit = multiplied_int // 12 - 1 # rooted on -1 octave
+                new_keynote._octave = multiplied_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case _:
                 return super().__div__(operand)
