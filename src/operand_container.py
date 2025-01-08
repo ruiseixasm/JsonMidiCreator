@@ -676,9 +676,11 @@ class Sequence(Container):  # Just a container of Elements
                 return self.filter(operand)
 
     def copy(self, *parameters) -> 'Sequence':
-        sequence_copy: Sequence = super().copy(*parameters)
+        sequence_copy: Sequence = super().copy()
         sequence_copy._midi_track   << self._midi_track
         sequence_copy._position     << self._position
+        for single_parameters in parameters:
+            sequence_copy << single_parameters
         return sequence_copy
     
     def filter(self, criteria: any) -> 'Sequence':
