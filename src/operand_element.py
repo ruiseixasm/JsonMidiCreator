@@ -504,13 +504,13 @@ class Rest(Element):
 
 class Tiable(Element):
     def __init__(self, *parameters):
-        self._velocity: ou.Velocity = os.staff._velocity.copy()
+        self._velocity: int         = os.staff._velocity // int()
         self._gate: Fraction        = Fraction(1)
         self._tied: ou.Tied         = ou.Tied(False)
         super().__init__(*parameters)
 
-    def velocity(self: 'Tiable', velocity: int = None) -> 'Tiable':
-        self._velocity = ou.Velocity(velocity)
+    def velocity(self: 'Tiable', velocity: int = 100) -> 'Tiable':
+        self._velocity = velocity
         return self
 
     def gate(self: 'Tiable', gate: float = None) -> 'Tiable':
@@ -525,11 +525,11 @@ class Tiable(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Velocity():     return self._velocity
+                    case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
                     case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
-            case ou.Velocity():     return self._velocity.copy()
+            case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
             case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
             case ou.Tied():         return self._tied.copy()
             case _:                 return super().__mod__(operand)
@@ -551,7 +551,7 @@ class Tiable(Element):
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Tied"
         self_midilist[0]["duration"]    = self._position.getBeats( self // ra.Duration() ) % float() * self._gate
-        self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
+        self_midilist[0]["velocity"]    = Element.midi_128(self._velocity)
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -579,18 +579,18 @@ class Tiable(Element):
         match operand:
             case Tiable():
                 super().__lshift__(operand)
-                self._velocity      << operand._velocity
+                self._velocity      = operand._velocity
                 self._gate          = operand._gate
                 self._tied          << operand._tied
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Degree():       self._degree    = operand % o.Operand()
-                    case ou.Velocity():     self._velocity  = operand % o.Operand()
+                    case ou.Velocity():     self._velocity  = operand % o.Operand() // int()
                     case ra.Gate():         self._gate      = operand % o.Operand() // Fraction()
                     case ou.Tied():         self._tied      = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case ou.DrumKit():      self << od.DataSource( ou.Channel(10) )
-            case ou.Velocity():     self._velocity << operand
+            case ou.Velocity():     self._velocity = operand // int()
             case ra.Gate():         self._gate = operand // Fraction()
             case ou.Tied():         self._tied << operand
             case _:                 super().__lshift__(operand)
@@ -646,7 +646,6 @@ class Note(Tiable):
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         key_note_float: float       = self._pitch % od.DataSource( float() )
-        velocity_int: int           = self._velocity % od.DataSource( int () )
 
         return [
                 {
@@ -654,7 +653,7 @@ class Note(Tiable):
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
-                        "data_byte_2": Element.midi_128(velocity_int),
+                        "data_byte_2": Element.midi_128(self._velocity),
                         "device": self._device
                     }
                 },
