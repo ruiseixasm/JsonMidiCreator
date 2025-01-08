@@ -68,12 +68,12 @@ chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 # chords >> Play()
 
 # syncopation_1 >> Play()
-print("Delay for 0.5 seconds")
-time.sleep(0.5)
-syncopation_1 * 4 >> Play()
+# print("Delay for 0.5 seconds")
+# time.sleep(0.5)
+# syncopation_1 * 4 >> Play()
 
 syncopation_2: Seq = syncopation_1 * 4 + chords # x4 because chords are 4x longer than the original syncopation
-# syncopation_2 >> Play()
+syncopation_2 >> Play()
 
 
 
