@@ -39,7 +39,7 @@ kick << Vel(80) # less pronounced kick
 kick << Disable()
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + All()**Beats(1)
 clap *= 4       # 4 measures long
 clap << Disable()
 # clap >> Play()
@@ -54,7 +54,7 @@ base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 base_line << Disable()
 
-syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
+syncopation_1: Seq = no_syncopation + (base_line + All()**Step(1) << 1/16)
 # syncopation_1 >> Play()
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
