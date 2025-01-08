@@ -239,6 +239,20 @@ def test_mul_sequence():
 # test_mul_sequence()
 
 
+def test_sequence_composition():
+
+    measure_bell: Sequence = Nt(DrumKit(34)) * 1 * 4
+    assert measure_bell % Length() == Measure(4)
+    beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4
+    assert beat_tick % Length() == Measure(4)
+
+    metronome: Sequence = measure_bell + beat_tick
+    assert metronome % Length() == Measure(4)
+
+
+# test_sequence_composition()
+
+
 def test_element_stacking():
 
     two_notes: Sequence = Note() * 2
