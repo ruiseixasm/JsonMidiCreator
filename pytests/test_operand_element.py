@@ -135,6 +135,16 @@ def test_note_mod():
 
 # test_note_mod()
 
+def test_note_mul():
+
+    single_note: Note = Note()
+    assert single_note * 2 % Length() == Beats(2)
+    assert single_note * 2.1 % Length() == Beats(2)
+    assert single_note * Beat(6) % Length() == Beats(6)
+    assert single_note * Beats(6) % Length() == Beats(6)
+
+test_note_mul()
+
 
 def test_keyscale_mod():
 
