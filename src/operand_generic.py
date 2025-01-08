@@ -132,27 +132,21 @@ class Pitch(Generic):
 
     def key_signature(self, sharps_flats: int = 0, major: bool = True) -> 'Pitch':
         return self << ou.KeySignature(sharps_flats, ou.Major(major))
-        return self << od.DataSource( ou.KeySignature(sharps_flats, ou.Major(major)) )
 
-    def sharp(self, unit: int = None) -> 'Pitch':
+    def sharp(self, unit: bool = True) -> 'Pitch':
         return self << ou.Sharp(unit)
-        return self << od.DataSource( ou.Sharp(unit) )
 
-    def flat(self, unit: int = None) -> 'Pitch':
+    def flat(self, unit: bool = True) -> 'Pitch':
         return self << ou.Flat(unit)
-        return self << od.DataSource( ou.Flat(unit) )
 
-    def natural(self, unit: int = None) -> 'Pitch':
+    def natural(self, unit: bool = True) -> 'Pitch':
         return self << ou.Natural(unit)
-        return self << od.DataSource( ou.Natural(unit) )
 
-    def degree(self, unit: int = None) -> 'Pitch':
+    def degree(self, unit: int = 1) -> 'Pitch':
         return self << ou.Degree(unit)
-        return self << od.DataSource( ou.Degree(unit) )
 
-    def scale(self, scale: list[int] | str = None) -> 'Pitch':
+    def scale(self, scale: list[int] | str = []) -> 'Pitch':
         return self << Scale(scale)
-        return self << od.DataSource( Scale(scale) )
 
 
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
