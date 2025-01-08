@@ -939,7 +939,7 @@ class Swing(Rational):
 
 class Gate(Rational):
     def __init__(self, *parameters):
-        super().__init__(0.90, *parameters)
+        super().__init__(1.0, *parameters)
 
 class Amplitude(Rational):
     pass

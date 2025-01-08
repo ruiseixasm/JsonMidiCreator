@@ -509,7 +509,7 @@ class Rest(Element):
 class Tiable(Element):
     def __init__(self, *parameters):
         self._velocity: ou.Velocity = os.staff._velocity.copy()
-        self._gate: ra.Gate         = ra.Gate(1.0)
+        self._gate: ra.Gate         = ra.Gate() # Default is already 1.0
         self._tied: ou.Tied         = ou.Tied(False)
         super().__init__(*parameters)
 
