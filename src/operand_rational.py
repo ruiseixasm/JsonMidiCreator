@@ -927,7 +927,8 @@ class Dotted(NoteValue):
             case int() | float() | Fraction():
                 super().__lshift__(operand) # Starts by setting the self._rational as NoteValue
                 # Then it's multiplied by 3/2 because it's a Dotted Note
-                self._rational *= 3/2
+                self._rational = self._rational * 3 / 2 # Retains the Fraction
+                # DON'T DO THIS: "self._rational *= 3/2"
             case _:
                 if not isinstance(operand, (Rational, ou.Unit)):
                     super().__lshift__(operand)
