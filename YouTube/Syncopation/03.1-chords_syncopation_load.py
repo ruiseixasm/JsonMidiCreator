@@ -27,7 +27,7 @@ staff << KeySignature(+1, Minor())  # Sets the default Key Signature configurati
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
 
-syncopation_2: Seq = Load("YouTube/Syncopation/_save_chords_syncopation.json") // Operand()
+syncopation_2: Seq = Load("YouTube/Syncopation/save_chords_syncopation.json") // Operand()
 syncopation_2 % Name() >> Print()
 syncopation_2 >> Play()
 

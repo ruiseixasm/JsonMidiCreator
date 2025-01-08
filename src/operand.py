@@ -268,9 +268,9 @@ class Operand:
             next_operand = self._next_operand.getSerialization()
         return { 
             "class": type(self).__name__,
-            "parameters": {},
+            "parameters": {}
             # "status": {}
-            "midi_creator_operand": True
+            # "midi_creator_operand": True
             # "status": {
             #     "next_operand": next_operand,
             #     "initiated":    self._initiated,
@@ -285,8 +285,7 @@ class Operand:
         if type(self) == Operand:   # Means unknown instantiation from random dict class name
             if not isinstance(serialization, dict): # Non serializable data shall be returned as is
                 return serialization
-            if "class" in serialization and "parameters" in serialization \
-                and ("status" in serialization or "midi_creator_operand" in serialization):
+            if "class" in serialization and "parameters" in serialization:
 
                 operand_name = serialization["class"]
                 operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
@@ -479,7 +478,7 @@ class Operand:
     def deserialize(data: any) -> any:
         match data:
             case dict():
-                if "class" in data and "parameters" in data and ("status" in data or "midi_creator_operand" in data):
+                if "class" in data and "parameters" in data:
                     return Operand().loadSerialization(data)
                 deserialized_dict: dict = {}
                 for key, value in data.items(): # Makes sure it processes Operands in dict
