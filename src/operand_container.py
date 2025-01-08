@@ -585,10 +585,10 @@ class Sequence(Container):  # Just a container of Elements
                 return Song(self, operand)
             case oe.Element():
                 return super().__add__(operand)
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                self_copy: Sequence = self.copy()
-                self_copy._position += operand
-                return self_copy
+            # case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            #     self_copy: Sequence = self.copy()
+            #     self_copy._position += operand
+            #     return self_copy
             case _:
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
@@ -604,10 +604,10 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__sub__(operand)
             case oe.Element():
                 return super().__sub__(operand)
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                self_copy: Sequence = self.copy()
-                self_copy._position -= operand
-                return self_copy
+            # case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            #     self_copy: Sequence = self.copy()
+            #     self_copy._position -= operand
+            #     return self_copy
             case _:
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
