@@ -536,121 +536,6 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
         return self
 
-    def copy(self, *parameters) -> 'Sequence':
-        sequence_copy: Sequence = super().copy(*parameters)
-        sequence_copy._midi_track   << self._midi_track
-        sequence_copy._position     << self._position
-        return sequence_copy
-    
-    def filter(self, criteria: any) -> 'Sequence':
-        filtered_sequence: Sequence = self.__class__()
-        filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
-        filtered_sequence._midi_track   << self._midi_track
-        filtered_sequence._position     << self._position
-        return filtered_sequence
-
-    def reverse(self) -> 'Sequence':
-        sequence_length: ra.Length = ra.Length( self.finish() ).roundMeasures() # Rounded up Duration to next Measure
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                single_element: oe.Element = single_datasource._data
-                element_position: ra.Position = single_element._position
-                element_duration: ra.Duration = single_element._duration
-                # Implicit Position conversion
-                new_position: ra.Position = sequence_length - (element_position + element_duration)
-                element_position << element_position.getSteps( new_position )
-        return super().reverse()    # Reverses the list
-
-
-    def extend(self, time_value: ra.TimeValue) -> 'Sequence':
-        extended_sequence: Sequence = self.copy() << od.DataSource( self // list() )
-        while (extended_sequence >> self).length() <= time_value:
-            extended_sequence >>= self
-        self << od.DataSource( extended_sequence // list() )
-        return self
-
-    def trim(self, length: ra.Length) -> 'Sequence':
-        return self
-
-    def fill(self) -> 'Sequence':
-        return self
-
-
-    def link(self) -> 'Sequence':
-        self.sort()
-        element_position: int = 0
-        first_element_position: int = None
-        last_element: oe.Element = None
-        for single_data in self._datasource_list:
-            if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() ):
-                if last_element is not None:
-                    last_element << (single_data._data._position - last_element._position).getDuration()
-                else:
-                    first_element_position = element_position
-                last_element = single_data._data
-            element_position += 1
-        # Add a Rest in the beginning if necessary
-        if first_element_position is not None:
-            first_element: oe.Element = self._datasource_list[first_element_position]._data
-            if first_element._position != ra.Position(0):
-                rest_length = ra.Duration(first_element._position)
-                self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
-        # Adjust last_element duration based on its Measure position
-        if last_element is not None:
-            last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
-        return self
-
-    def stack(self) -> 'Sequence':
-        # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
-        stackable_elements: list[oe.Element] = [
-                single_data._data
-                for single_data in self._datasource_list
-                if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() )
-            ]
-        for index, value in enumerate(stackable_elements):
-            single_element: oe.Element = value
-            if index > 0:
-                single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
-            else:
-                single_element._position = ra.Position(0)   # everything starts at the beginning (0)!
-        return self
-    
-    def tie(self, tied: bool = True) -> 'Sequence':
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Tiable):
-                single_datasource._data << ou.Tied(tied)
-        return self
-    
-    def slur(self, gate: float = 1.05) -> 'Sequence':
-        last_element = None
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Tiable):
-                if last_element is not None:
-                    last_element << ra.Gate(gate)
-                last_element = single_datasource._data
-        return self
-    
-    def smooth(self) -> 'Sequence':
-        last_note = None
-        smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Tiable):
-                actual_note = single_datasource._data
-                if last_note is not None:
-                    while actual_note._pitch > last_note._pitch:
-                        actual_note._pitch -= ou.Octave(1)
-                    while actual_note._pitch < last_note._pitch:
-                        actual_note._pitch += ou.Octave(1)
-                    if actual_note._pitch - last_note._pitch > smooth_range:
-                        actual_note._pitch -= ou.Octave(1)
-                last_note = actual_note
-        return self
-    
-    def split(self, position: ra.Position) -> tuple['Sequence', 'Sequence']:
-        self_left: Sequence     = self.filter(of.Less(position))
-        self_right: Sequence    = self.filter(of.GreaterEqual(position))
-        return self_left, self_right
-
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
@@ -798,6 +683,121 @@ class Sequence(Container):  # Just a container of Elements
                 return new_sequence
             case _:
                 return self.filter(operand)
+
+    def copy(self, *parameters) -> 'Sequence':
+        sequence_copy: Sequence = super().copy(*parameters)
+        sequence_copy._midi_track   << self._midi_track
+        sequence_copy._position     << self._position
+        return sequence_copy
+    
+    def filter(self, criteria: any) -> 'Sequence':
+        filtered_sequence: Sequence = self.__class__()
+        filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+        filtered_sequence._midi_track   << self._midi_track
+        filtered_sequence._position     << self._position
+        return filtered_sequence
+
+    def reverse(self) -> 'Sequence':
+        sequence_length: ra.Length = ra.Length( self.finish() ).roundMeasures() # Rounded up Duration to next Measure
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Element):
+                single_element: oe.Element = single_datasource._data
+                element_position: ra.Position = single_element._position
+                element_duration: ra.Duration = single_element._duration
+                # Implicit Position conversion
+                new_position: ra.Position = sequence_length - (element_position + element_duration)
+                element_position << element_position.getSteps( new_position )
+        return super().reverse()    # Reverses the list
+
+
+    def extend(self, time_value: ra.TimeValue) -> 'Sequence':
+        extended_sequence: Sequence = self.copy() << od.DataSource( self // list() )
+        while (extended_sequence >> self).length() <= time_value:
+            extended_sequence >>= self
+        self << od.DataSource( extended_sequence // list() )
+        return self
+
+    def trim(self, length: ra.Length) -> 'Sequence':
+        return self
+
+    def fill(self) -> 'Sequence':
+        return self
+
+
+    def link(self) -> 'Sequence':
+        self.sort()
+        element_position: int = 0
+        first_element_position: int = None
+        last_element: oe.Element = None
+        for single_data in self._datasource_list:
+            if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() ):
+                if last_element is not None:
+                    last_element << (single_data._data._position - last_element._position).getDuration()
+                else:
+                    first_element_position = element_position
+                last_element = single_data._data
+            element_position += 1
+        # Add a Rest in the beginning if necessary
+        if first_element_position is not None:
+            first_element: oe.Element = self._datasource_list[first_element_position]._data
+            if first_element._position != ra.Position(0):
+                rest_length = ra.Duration(first_element._position)
+                self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
+        # Adjust last_element duration based on its Measure position
+        if last_element is not None:
+            last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
+        return self
+
+    def stack(self) -> 'Sequence':
+        # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
+        stackable_elements: list[oe.Element] = [
+                single_data._data
+                for single_data in self._datasource_list
+                if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() )
+            ]
+        for index, value in enumerate(stackable_elements):
+            single_element: oe.Element = value
+            if index > 0:
+                single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
+            else:
+                single_element._position = ra.Position(0)   # everything starts at the beginning (0)!
+        return self
+    
+    def tie(self, tied: bool = True) -> 'Sequence':
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Tiable):
+                single_datasource._data << ou.Tied(tied)
+        return self
+    
+    def slur(self, gate: float = 1.05) -> 'Sequence':
+        last_element = None
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Tiable):
+                if last_element is not None:
+                    last_element << ra.Gate(gate)
+                last_element = single_datasource._data
+        return self
+    
+    def smooth(self) -> 'Sequence':
+        last_note = None
+        smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Tiable):
+                actual_note = single_datasource._data
+                if last_note is not None:
+                    while actual_note._pitch > last_note._pitch:
+                        actual_note._pitch -= ou.Octave(1)
+                    while actual_note._pitch < last_note._pitch:
+                        actual_note._pitch += ou.Octave(1)
+                    if actual_note._pitch - last_note._pitch > smooth_range:
+                        actual_note._pitch -= ou.Octave(1)
+                last_note = actual_note
+        return self
+    
+    def split(self, position: ra.Position) -> tuple['Sequence', 'Sequence']:
+        self_left: Sequence     = self.filter(of.Less(position))
+        self_right: Sequence    = self.filter(of.GreaterEqual(position))
+        return self_left, self_right
 
 class Song(Container):
     def __init__(self, *operands):
