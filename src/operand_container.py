@@ -525,12 +525,11 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case ou.MidiTrack():
                 self._midi_track << operand
-            case ra.Position(): # Use Frame objects to bypass this parameter into elements
-                self._position << operand
-            case ra.Duration() | ra.Duration() | float() | Fraction():
+            case ra.Duration() | float() | Fraction():
                 super().__lshift__(operand)
+            # Use Frame objects to bypass this parameter into elements (Setting Position)
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                super().__lshift__(operand)
+                self._position << operand
             case _:
                 super().__lshift__(operand)
                 self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
@@ -585,10 +584,6 @@ class Sequence(Container):  # Just a container of Elements
                 return Song(self, operand)
             case oe.Element():
                 return super().__add__(operand)
-            # case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-            #     self_copy: Sequence = self.copy()
-            #     self_copy._position += operand
-            #     return self_copy
             case _:
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
@@ -604,10 +599,6 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__sub__(operand)
             case oe.Element():
                 return super().__sub__(operand)
-            # case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-            #     self_copy: Sequence = self.copy()
-            #     self_copy._position -= operand
-            #     return self_copy
             case _:
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
