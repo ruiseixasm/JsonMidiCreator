@@ -29,10 +29,10 @@ measures_long: int = staff // Measures() // int()
 
 measure_bell: Sequence = Nt(DrumKit(34)) * 1 * measures_long
 measure_bell >> Play()
-beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * measures_long << Velocity(70)
+beat_tick: Sequence = (Nt(DrumKit(33)) * 3 + Beat(1)) * measures_long << Velocity(50)
 beat_tick >> Play()
 
-metronome: Sequence = measure_bell + beat_tick
+metronome: Sequence = (measure_bell + beat_tick) * 4
 metronome >> Play()
 
 

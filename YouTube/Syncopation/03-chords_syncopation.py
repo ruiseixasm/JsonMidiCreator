@@ -36,12 +36,12 @@ hi_hat *= 4     # 4 measures long
 kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
-kick << Disable()
+# kick << Disable()
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + All()**Beats(1)
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
 clap *= 4       # 4 measures long
-clap << Disable()
+# clap << Disable()
 # clap >> Play()
 
 no_syncopation: Seq = hi_hat + kick + clap
@@ -52,9 +52,9 @@ base_line: Seq = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see K
 base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
-base_line << Disable()
+# base_line << Disable()
 
-syncopation_1: Seq = no_syncopation + (base_line + All()**Step(1) << 1/16)
+syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
 # syncopation_1 >> Play()
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
@@ -64,7 +64,7 @@ chords -= NotEqual(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
 chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
-chords << Disable()
+# chords << Disable()
 # chords >> Play()
 
 # syncopation_1 >> Play()
