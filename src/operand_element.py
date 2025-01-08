@@ -313,15 +313,16 @@ class Element(o.Operand):
 
     def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
-        if isinstance(operand, int):    # Allows Frame skipping !
-            new_sequence: oc.Sequence = oc.Sequence()
-            for _ in range(operand):
-                new_sequence += self # copy of element already included in Element processing
-            return new_sequence.stack()
-        elif isinstance(operand, ra.TimeValue):
-            self_time_value: ra.TimeValue = self._duration % operand
-            self_repeating: int = (operand // Fraction()) // (self_time_value // Fraction())
-            return self.__mul__(self_repeating)
+        match operand:  # Allows Frame skipping to be applied to the elements' parameters!
+            case int() | float():
+                new_sequence: oc.Sequence = oc.Sequence()
+                for _ in range(int(operand)):
+                    new_sequence += self # copy of element already included in Element processing
+                return new_sequence.stack()
+            case ra.TimeValue() | ou.TimeUnit():
+                self_time_value: ra.TimeValue = self._duration % operand
+                self_repeating: int = (operand // Fraction()) // (self_time_value // Fraction())
+                return self.__mul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy() << self % operand * operand
 
@@ -352,9 +353,6 @@ class Element(o.Operand):
         precision = min(max(int(precision), 0), 12)
         return max(0.0, float(round(float(rational), precision)))
 
-class Loop(Element):
-    # Basically it's a short Sequence with a Position that can be used and placed as a loop
-    ...
 
 class Clock(Element):
     def __init__(self, *parameters):
