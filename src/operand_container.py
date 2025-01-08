@@ -694,6 +694,8 @@ class Sequence(Container):  # Just a container of Elements
                     operand_position: ra.Position = self._position.getPosition( operand._position )
                     # Make sure operand position is replicated to its elements
                     operand += of.All()**operand_position
+                    # Make sure the operand position is the same as the self one
+                    operand._position = self._position  # Can be "=" instead of "<<" in this case !
                     return Sequence(self, operand)
                 return Song(self, operand)
             case oe.Element():
@@ -733,20 +735,21 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case int(): 
                 many_operands = self.__class__()    # empty list but same track
-                many_operands._midi_track   << self._midi_track
-                many_operands._position     = self._position.copy(0)
+                many_operands._midi_track   = self._midi_track  # no need for "<<" because
+                many_operands._position     = self._position    # it will become 1 single sequence
                 while operand > 0:
-                    many_operands >>= self.copy()
+                    many_length: ra.Length = many_operands.length()
+                    many_operands += self.copy() + of.All()**many_length.roundMeasures()
                     operand -= 1
                 return many_operands
             case float(): 
                 many_operands = self.__class__()    # empty list but same track
-                many_operands._midi_track   << self._midi_track
-                many_operands._position     = self._position.copy(0)
+                many_operands._midi_track   = self._midi_track  # no need for "<<" because
+                many_operands._position     = self._position    # it will become 1 single sequence
                 repeat_copy: int = int(operand)
                 while repeat_copy > 0:
                     many_length: ra.Length = many_operands.length()
-                    many_operands += many_length >> self.copy()
+                    many_operands += self.copy() + of.All()**many_length
                     repeat_copy -= 1
                 return many_operands
             case ou.TimeUnit():

@@ -243,12 +243,20 @@ def test_sequence_composition():
 
     measure_bell: Sequence = Nt(DrumKit(34)) * 1 * 4
     assert measure_bell % Length() == Measure(4)
+    assert measure_bell % Length() == Measures(3.25)
+    assert measure_bell % Position() == 0.0
     beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4
     assert beat_tick % Length() == Measure(4)
+    assert beat_tick % Length() == Measures(3.75)
+    assert beat_tick % Position() == 0.25
 
     metronome: Sequence = measure_bell + beat_tick
-    assert metronome % Length() == Measure(4)
-
+    print(f"Measure: {metronome % Length() % Measure() % int()}")
+    assert metronome % Length() == Measure(5)
+    print(f"Measures: {metronome % Length() % Measures() % float()}")
+    assert metronome % Length() == Measures(4.25)
+    print(f"Position: {metronome % Position() % Measures() % float()}")
+    assert metronome % Position() == 0.0
 
 # test_sequence_composition()
 
