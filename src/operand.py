@@ -269,13 +269,14 @@ class Operand:
         return { 
             "class": type(self).__name__,
             "parameters": {},
-            "status": {
-                "next_operand": next_operand,
-                "initiated":    self._initiated,
-                "set":          self._set,
-                "index":        self._index
-            }
-            # Needs to create a new Serialization key, like "status"
+            # "status": {}
+            "midi_creator_operand": True
+            # "status": {
+            #     "next_operand": next_operand,
+            #     "initiated":    self._initiated,
+            #     "set":          self._set,
+            #     "index":        self._index
+            # }
         }
 
     # CHAINABLE OPERATIONS
@@ -284,37 +285,41 @@ class Operand:
         if type(self) == Operand:   # Means unknown instantiation from random dict class name
             if not isinstance(serialization, dict): # Non serializable data shall be returned as is
                 return serialization
-            if "class" in serialization and "parameters" in serialization and "status" in serialization:
+            if "class" in serialization and "parameters" in serialization \
+                and ("status" in serialization or "midi_creator_operand" in serialization):
+
                 operand_name = serialization["class"]
                 operand_class = find_class_by_name(Operand, operand_name)   # Heavy duty call
                 if operand_class:
                     operand_instance: Operand = operand_class()
                     if operand_class == Operand:    # avoids infinite recursion
-                        if (serialization["class"] == Operand.__name__ and
-                            "next_operand" in serialization["status"] and "initiated" in serialization["status"] and
-                            "set" in serialization["status"] and "index" in serialization["status"]):
-                            operand_instance._next_operand  = Operand().loadSerialization(serialization["status"]["next_operand"])
-                            operand_instance._initiated     = serialization["status"]["initiated"]
-                            operand_instance._set           = serialization["status"]["set"]
-                            operand_instance._index         = serialization["status"]["index"]
+                        # if (serialization["class"] == Operand.__name__ and
+                        #     "next_operand" in serialization["status"] and "initiated" in serialization["status"] and
+                        #     "set" in serialization["status"] and "index" in serialization["status"]):
+                        #     operand_instance._next_operand  = Operand().loadSerialization(serialization["status"]["next_operand"])
+                        #     operand_instance._initiated     = serialization["status"]["initiated"]
+                        #     operand_instance._set           = serialization["status"]["set"]
+                        #     operand_instance._index         = serialization["status"]["index"]
                         return operand_instance
+
                     # if isinstance(operand_instance, ol.Label):
                     #     return operand_instance         # avoids infinite recursion
                     return operand_instance.loadSerialization(serialization)
                 elif logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
                     logging.warning("Find class didn't found any class!")
             return None # Unable to recreate any Operand object from serialization !!
-        elif isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and 
-                                                  "parameters" in serialization and "status" in serialization and 
-            "next_operand" in serialization["status"] and "initiated" in serialization["status"] and
-            "set" in serialization["status"] and "index" in serialization["status"]):
+        
+        # elif isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and 
+        #                                           "parameters" in serialization and "status" in serialization and 
+        #     "next_operand" in serialization["status"] and "initiated" in serialization["status"] and
+        #     "set" in serialization["status"] and "index" in serialization["status"]):
 
-            self._next_operand  = Operand().loadSerialization(serialization["status"]["next_operand"])
-            # self._next_operand  = None
-            self._initiated     = serialization["status"]["initiated"]
-            self._set           = serialization["status"]["set"]
-            self._index         = serialization["status"]["index"]
-            return self
+        #     self._next_operand  = Operand().loadSerialization(serialization["status"]["next_operand"])
+        #     # self._next_operand  = None
+        #     self._initiated     = serialization["status"]["initiated"]
+        #     self._set           = serialization["status"]["set"]
+        #     self._index         = serialization["status"]["index"]
+        #     return self
         return self
        
     def __lshift__(self: TypeOperand, operand: any) -> TypeOperand:
@@ -474,7 +479,7 @@ class Operand:
     def deserialize(data: any) -> any:
         match data:
             case dict():
-                if "class" in data and "parameters" in data and "status" in data:
+                if "class" in data and "parameters" in data and ("status" in data or "midi_creator_operand" in data):
                     return Operand().loadSerialization(data)
                 deserialized_dict: dict = {}
                 for key, value in data.items(): # Makes sure it processes Operands in dict
