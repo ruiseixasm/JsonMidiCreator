@@ -81,7 +81,7 @@ def test_clock_div_floor():
     clock: Clock = Clock()
     assert clock // Duration() == 8
 
-test_clock_div_floor()
+# test_clock_div_floor()
 
 
 def test_note_mod():

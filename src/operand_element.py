@@ -83,7 +83,7 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Position():     return self._position
-                    case ra.Duration():     return operand % o.Operand() << od.DataSource( self._duration )
+                    case ra.Duration():     return (operand % o.Operand()).copy() << od.DataSource( self._duration )
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case od.Device():       return od.Device() << od.DataSource( self._device )
@@ -92,7 +92,7 @@ class Element(o.Operand):
                     case ou.Disable():      return ou.Disable(not self._enabled)
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand % o.Operand())
-            case ra.Duration():     return operand << od.DataSource( self._duration )
+            case ra.Duration():     return operand.copy() << od.DataSource( self._duration )
             case ra.Length():       return ra.Length(self._position)
             case ra.Position():     return self._position.copy()
             case ra.TimeValue() | ou.TimeUnit() \
