@@ -508,6 +508,7 @@ class Rest(Element):
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
 
+
 class Tiable(Element):
     def __init__(self, *parameters):
         self._velocity: ou.Velocity = os.staff._velocity.copy()
@@ -569,7 +570,7 @@ class Tiable(Element):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Tiable':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "velocity" in serialization["parameters"] and "gate" in serialization["parameters"] and
             "tied" in serialization["parameters"]):
@@ -580,10 +581,10 @@ class Tiable(Element):
             self._tied      = self.deserialize( serialization["parameters"]["tied"] )
         return self
       
-    def __lshift__(self, operand: o.Operand) -> 'Note':
+    def __lshift__(self, operand: o.Operand) -> 'Tiable':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Note():
+            case Tiable():
                 super().__lshift__(operand)
                 self._velocity      << operand._velocity
                 self._gate          << operand._gate
@@ -601,6 +602,7 @@ class Tiable(Element):
             case ou.Tied():         self._tied << operand
             case _:                 super().__lshift__(operand)
         return self
+
 
 class Note(Tiable):
     def __init__(self, *parameters):
@@ -691,7 +693,7 @@ class Note(Tiable):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> 'Note':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "pitch" in serialization["parameters"]):
 
