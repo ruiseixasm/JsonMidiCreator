@@ -350,6 +350,11 @@ def test_position_shift():
     four_notes_1: Sequence = Note() * 4 << NoteValue(1/8)
     four_notes_2: Sequence = Note() * 4
 
+    Beats(2) >> four_notes_1
+    assert four_notes_1 % Position() == Beats(2)
+    Beats(-2) >> four_notes_1
+    assert four_notes_1 % Position() == Beats(0)
+
     print(four_notes_2 % First() % Beats() % int())
     assert four_notes_2 % First() % Beats() == 0
 
