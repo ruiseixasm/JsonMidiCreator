@@ -41,9 +41,9 @@ class Element(o.Operand):
         super().__init__()
         self._position: ra.Position         = ra.Position()
         self._duration: ra.Duration         = ra.Duration(os.staff._duration)
-        self._stackable: bool               = ou.Stackable() // bool()
-        self._channel: int                  = ou.Channel() // int()
-        self._device: list[str]             = od.Device() // list()
+        self._stackable: bool               = True
+        self._channel: int                  = os.staff // ou.Channel() // int()
+        self._device: list[str]             = os.staff // od.Device() // list()
         self._enabled: bool                 = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -353,12 +353,12 @@ class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration      << os.staff._measures
-        self._pulses_per_quarternote: ou.PPQN = ou.PPQN()
+        self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
     def ppqn(self: 'Clock', ppqn: int = None) -> 'Clock':
-        self._pulses_per_quarternote = ou.PPQN(ppqn)
+        self._pulses_per_quarternote = ppqn
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -376,9 +376,9 @@ class Clock(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.PPQN():         return self._pulses_per_quarternote
+                    case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
                     case _:                 return super().__mod__(operand)
-            case ou.PPQN():         return self._pulses_per_quarternote.copy()
+            case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -386,7 +386,7 @@ class Clock(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pulses_per_quarternote == other % od.DataSource( ou.PPQN() )
+                    and self._pulses_per_quarternote == other._pulses_per_quarternote
             case _:
                 return super().__eq__(other)
     
@@ -395,7 +395,7 @@ class Clock(Element):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        pulses_per_note: Fraction = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
+        pulses_per_note: int = 4 * self._pulses_per_quarternote
         pulses_per_beat: Fraction = pulses_per_note * (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() ))
         total_clock_pulses: int = (pulses_per_beat * self._position.getBeats(self._duration)) % od.DataSource( int() )
 
@@ -457,12 +457,12 @@ class Clock(Element):
         match operand:
             case Clock():
                 super().__lshift__(operand)
-                self._pulses_per_quarternote << operand._pulses_per_quarternote
+                self._pulses_per_quarternote = operand._pulses_per_quarternote
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand()
+                    case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand() // int()
                     case _:                 super().__lshift__(operand)
-            case ou.PPQN():         self._pulses_per_quarternote << operand
+            case ou.PPQN():         self._pulses_per_quarternote = operand // int()
             case _: super().__lshift__(operand)
         return self
 
