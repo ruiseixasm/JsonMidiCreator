@@ -506,7 +506,7 @@ class Tiable(Element):
     def __init__(self, *parameters):
         self._velocity: int         = os.staff._velocity // int()
         self._gate: Fraction        = Fraction(1)
-        self._tied: ou.Tied         = ou.Tied(False)
+        self._tied: bool            = False
         super().__init__(*parameters)
 
     def velocity(self: 'Tiable', velocity: int = 100) -> 'Tiable':
@@ -517,8 +517,8 @@ class Tiable(Element):
         self._gate = ra.Gate(gate) // Fraction()
         return self
 
-    def tied(self: 'Tiable', tied: bool = None) -> 'Tiable':
-        self._tied = og.Pitch(tied)
+    def tied(self: 'Tiable', tied: bool = True) -> 'Tiable':
+        self._tied = tied
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -527,11 +527,11 @@ class Tiable(Element):
                 match operand % o.Operand():
                     case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
                     case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
-                    case ou.Tied():         return self._tied
+                    case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
             case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
-            case ou.Tied():         return self._tied.copy()
+            case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -549,7 +549,7 @@ class Tiable(Element):
         if not self._enabled:
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
-        self_midilist[0]["event"]       = "Tied"
+        self_midilist[0]["event"]       = "Tiable"
         self_midilist[0]["duration"]    = self._position.getBeats( self // ra.Duration() ) % float() * self._gate
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity)
         return self_midilist
@@ -581,18 +581,18 @@ class Tiable(Element):
                 super().__lshift__(operand)
                 self._velocity      = operand._velocity
                 self._gate          = operand._gate
-                self._tied          << operand._tied
+                self._tied          = operand._tied
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Degree():       self._degree    = operand % o.Operand()
                     case ou.Velocity():     self._velocity  = operand % o.Operand() // int()
                     case ra.Gate():         self._gate      = operand % o.Operand() // Fraction()
-                    case ou.Tied():         self._tied      = operand % o.Operand()
+                    case ou.Tied():         self._tied      = operand % o.Operand() // bool()
                     case _:                 super().__lshift__(operand)
             case ou.DrumKit():      self << od.DataSource( ou.Channel(10) )
             case ou.Velocity():     self._velocity = operand // int()
             case ra.Gate():         self._gate = operand // Fraction()
-            case ou.Tied():         self._tied << operand
+            case ou.Tied():         self._tied = operand // bool()
             case _:                 super().__lshift__(operand)
         return self
 
