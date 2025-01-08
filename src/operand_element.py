@@ -505,19 +505,19 @@ class Rest(Element):
 class Tiable(Element):
     def __init__(self, *parameters):
         self._velocity: ou.Velocity = os.staff._velocity.copy()
-        self._gate: ra.Gate         = ra.Gate() # Default is already 1.0
+        self._gate: Fraction        = Fraction(1)
         self._tied: ou.Tied         = ou.Tied(False)
         super().__init__(*parameters)
 
-    def velocity(self: 'Note', velocity: int = None) -> 'Note':
-        self._velocity = og.Pitch(velocity)
+    def velocity(self: 'Tiable', velocity: int = None) -> 'Tiable':
+        self._velocity = ou.Velocity(velocity)
         return self
 
-    def gate(self: 'Note', gate: float = None) -> 'Note':
-        self._gate = og.Pitch(gate)
+    def gate(self: 'Tiable', gate: float = None) -> 'Tiable':
+        self._gate = ra.Gate(gate) // Fraction()
         return self
 
-    def tied(self: 'Note', tied: bool = None) -> 'Note':
+    def tied(self: 'Tiable', tied: bool = None) -> 'Tiable':
         self._tied = og.Pitch(tied)
         return self
 
@@ -526,11 +526,11 @@ class Tiable(Element):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Velocity():     return self._velocity
-                    case ra.Gate():         return self._gate
+                    case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
                     case ou.Tied():         return self._tied
                     case _:                 return super().__mod__(operand)
             case ou.Velocity():     return self._velocity.copy()
-            case ra.Gate():         return self._gate.copy()
+            case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
             case ou.Tied():         return self._tied.copy()
             case _:                 return super().__mod__(operand)
 
@@ -550,7 +550,7 @@ class Tiable(Element):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "Tied"
-        self_midilist[0]["duration"]    = self // ra.Duration() % od.DataSource( ra.Beats() ) % float() * (self._gate % float())
+        self_midilist[0]["duration"]    = self._position.getBeats( self // ra.Duration() ) % float() * self._gate
         self_midilist[0]["velocity"]    = Element.midi_128(self._velocity % int())
         return self_midilist
 
@@ -580,18 +580,18 @@ class Tiable(Element):
             case Tiable():
                 super().__lshift__(operand)
                 self._velocity      << operand._velocity
-                self._gate          << operand._gate
+                self._gate          = operand._gate
                 self._tied          << operand._tied
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Degree():       self._degree    = operand % o.Operand()
                     case ou.Velocity():     self._velocity  = operand % o.Operand()
-                    case ra.Gate():         self._gate      = operand % o.Operand()
+                    case ra.Gate():         self._gate      = operand % o.Operand() // Fraction()
                     case ou.Tied():         self._tied      = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case ou.DrumKit():      self << od.DataSource( ou.Channel(10) )
             case ou.Velocity():     self._velocity << operand
-            case ra.Gate():         self._gate << operand
+            case ra.Gate():         self._gate = operand // Fraction()
             case ou.Tied():         self._tied << operand
             case _:                 super().__lshift__(operand)
         return self
@@ -659,7 +659,7 @@ class Note(Tiable):
                     }
                 },
                 {
-                    "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate._rational),
+                    "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
@@ -1201,7 +1201,7 @@ class Retrigger(Note):
     def __init__(self, *parameters):
         super().__init__()
         self._duration  *= 2 # Equivalent to twice single note duration
-        self._gate      << 0.50
+        self._gate      /= 2
         self._division  = ou.Division(16)
         self._swing     = ra.Swing(0.50)
         for single_parameter in parameters: # Faster than passing a tuple

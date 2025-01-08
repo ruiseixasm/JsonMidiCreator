@@ -495,6 +495,11 @@ class Operand:
             case tuple():   # JSON DOESN'T KEEP tuple() DATA TYPE !!!
                 data_list: list = __class__.deserialize(list(data))
                 return tuple(data_list)
+            case str():
+                try:
+                    return Fraction(data)
+                except ValueError:
+                    return data
             case _:
                 return data
 
