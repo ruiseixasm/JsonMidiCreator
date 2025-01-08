@@ -42,7 +42,7 @@ class Element(o.Operand):
         self._position: ra.Position         = ra.Position()
         self._duration: ra.Duration         = ra.Duration(os.staff._duration)
         self._stackable: ou.Stackable       = ou.Stackable()
-        self._channel: ou.Channel           = ou.Channel()
+        self._channel: int                  = ou.Channel() % int()
         self._device: od.Device             = od.Device()
         self._enabled: bool                 = True
         for single_parameter in parameters: # Faster than passing a tuple
@@ -61,7 +61,7 @@ class Element(o.Operand):
         return self
 
     def channel(self: TypeElement, channel: int = None) -> TypeElement:
-        self._channel = ou.Channel(channel)
+        self._channel = channel
         return self
 
     def device(self: 'TypeElement', device: list[str] = None) -> 'TypeElement':
@@ -85,7 +85,7 @@ class Element(o.Operand):
                     case ra.Position():     return self._position
                     case ra.Duration():     return self._duration
                     case ou.Stackable():    return self._stackable
-                    case ou.Channel():      return self._channel
+                    case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case od.Device():       return self._device
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
@@ -100,7 +100,7 @@ class Element(o.Operand):
                 | ra.Tempo() | ra.Quantization():
                                     return self._position % operand
             case ou.Stackable():    return self._stackable.copy()
-            case ou.Channel():      return self._channel.copy()
+            case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case od.Device():       return self._device.copy()
             case Element():         return self.copy()
             case od.Start():        return self.start()
@@ -118,7 +118,7 @@ class Element(o.Operand):
                 return  self._position      == other % od.DataSource( ra.Position() ) \
                     and self._duration      == other % od.DataSource( ra.Duration() ) \
                     and self._stackable     == other % od.DataSource( ou.Stackable() ) \
-                    and self._channel       == other % od.DataSource( ou.Channel() ) \
+                    and self._channel       == other._channel \
                     and self._device        == other % od.DataSource( od.Device() )
             case ra.Duration():
                 return self._duration == other
@@ -155,12 +155,6 @@ class Element(o.Operand):
             case _:
                 return self % od.DataSource( other ) > other
     
-    def __le__(self, other: 'o.Operand') -> bool:
-        return self == other or self < other
-    
-    def __ge__(self, other: 'o.Operand') -> bool:
-        return self == other or self > other
-
     def start(self) -> ra.Position:
         return self._position.copy()
 
@@ -168,15 +162,14 @@ class Element(o.Operand):
         return self._position + self._duration
 
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if self._enabled:
-            self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
-
-            return [
-                    {
-                        "time_ms":  self.get_time_ms(self_position_ms)
-                    }
-                ]
-        return []
+        if not self._enabled:
+            return []
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        return [
+                {
+                    "time_ms":  self.get_time_ms(self_position_ms)
+                }
+            ]
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         if not self._enabled:
@@ -203,7 +196,7 @@ class Element(o.Operand):
                     "track_name":   midi_track % str(),
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
-                    "channel":      Element.midi_16(self._channel % int() - 1),
+                    "channel":      Element.midi_16(self._channel - 1),
                     "time":         self_position,      # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
@@ -246,7 +239,7 @@ class Element(o.Operand):
                 self._position      << operand._position
                 self._duration      << operand._duration
                 self._stackable     << operand._stackable
-                self._channel       << operand._channel
+                self._channel       = operand._channel
                 self._device        << operand._device
                 self._enabled       = operand._enabled
             case od.DataSource():
@@ -254,7 +247,7 @@ class Element(o.Operand):
                     case ra.Position():     self._position  = operand % o.Operand()
                     case ra.Duration():     self._duration  = operand % o.Operand()
                     case ou.Stackable():    self._stackable = operand % o.Operand()
-                    case ou.Channel():      self._channel   = operand % o.Operand()
+                    case ou.Channel():      self._channel   = (operand % o.Operand()) // int()
                     case od.Device():       self._device    = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
@@ -267,7 +260,7 @@ class Element(o.Operand):
             case ou.Stackable():
                 self._stackable     << operand
             case ou.Channel():
-                self._channel       << operand
+                self._channel       = operand % int()
             case od.Device():
                 self._device        << operand
             case ou.Enable():
@@ -398,52 +391,52 @@ class Clock(Element):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if self._enabled:
-            self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        if not self._enabled:
+            return []
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-            device_list: list = self._device % od.DataSource( list() )
-            pulses_per_note: Fraction = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
-            pulses_per_beat: Fraction = pulses_per_note * (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() ))
-            total_clock_pulses: int = (pulses_per_beat * self._position.getBeats(self._duration)) % od.DataSource( int() )
+        device_list: list = self._device % od.DataSource( list() )
+        pulses_per_note: Fraction = 4 * self._pulses_per_quarternote % od.DataSource( Fraction() )
+        pulses_per_beat: Fraction = pulses_per_note * (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() ))
+        total_clock_pulses: int = (pulses_per_beat * self._position.getBeats(self._duration)) % od.DataSource( int() )
 
-            single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
+        single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
 
-            # First quarter note pulse (total 1 in 24 pulses per quarter note)
-            self_playlist = [
-                    {
-                        "time_ms": self.get_time_ms(self_position_ms),
-                        "midi_message": {
-                            "status_byte": 0xFA,    # Start Sequence
-                            "device": device_list
-                        }
+        # First quarter note pulse (total 1 in 24 pulses per quarter note)
+        self_playlist = [
+                {
+                    "time_ms": self.get_time_ms(self_position_ms),
+                    "midi_message": {
+                        "status_byte": 0xFA,    # Start Sequence
+                        "device": device_list
                     }
-                ]
+                }
+            ]
 
-            # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
-            for clock_pulse in range(1, total_clock_pulses):
-                self_playlist.append(
-                    {
-                        "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
-                        "midi_message": {
-                            "status_byte": 0xF8,    # Timing Clock
-                            "device": device_list
-                        }
-                    }
-                )
-
-            # Last quarter note pulse (45 pulses where this last one sets the stop)
+        # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+        for clock_pulse in range(1, total_clock_pulses):
             self_playlist.append(
                 {
-                    "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                    "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
                     "midi_message": {
-                        "status_byte": 0xFC,    # Stop Sequence
+                        "status_byte": 0xF8,    # Timing Clock
                         "device": device_list
                     }
                 }
             )
-            
-            return self_playlist
-        return []
+
+        # Last quarter note pulse (45 pulses where this last one sets the stop)
+        self_playlist.append(
+            {
+                "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
+                "midi_message": {
+                    "status_byte": 0xFC,    # Stop Sequence
+                    "device": device_list
+                }
+            }
+        )
+        
+        return self_playlist
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -481,21 +474,20 @@ class Rest(Element):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0x00 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0x00 | 0x0F & Element.midi_16(self._channel - 1),
                         "device": device_list
                     }
                 },
                 {
                     "time_ms": self.get_time_ms(self_position_ms + self_duration_ms),
                     "midi_message": {
-                        "status_byte": 0x00 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0x00 | 0x0F & Element.midi_16(self._channel - 1),
                         "device": device_list
                     }
                 }
@@ -652,7 +644,6 @@ class Note(Tiable):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
         key_note_float: float       = self._pitch % od.DataSource( float() )
         velocity_int: int           = self._velocity % od.DataSource( int () )
@@ -661,7 +652,7 @@ class Note(Tiable):
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0x90 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
                         "data_byte_2": Element.midi_128(velocity_int),
                         "device": device_list
@@ -670,7 +661,7 @@ class Note(Tiable):
                 {
                     "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate._rational),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0x80 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
                         "data_byte_2": 0,
                         "device": device_list
@@ -1552,14 +1543,13 @@ class ControlChange(Automation):
 
         number_int: int             = self % ou.Number() % od.DataSource( int() )
         value_int: int              = self % ou.Value() % od.DataSource( int() )
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0xB0 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(number_int),
                         "data_byte_2": Element.midi_128(value_int),
                         "device": device_list
@@ -1670,14 +1660,13 @@ class PitchBend(Automation):
 
         msb_midi: int               = self._bend % ol.MSB()
         lsb_midi: int               = self._bend % ol.LSB()
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xE0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0xE0 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": lsb_midi,
                         "data_byte_2": msb_midi,
                         "device": device_list
@@ -1785,14 +1774,13 @@ class Aftertouch(Automation):
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         pressure_int: int           = self._pressure % od.DataSource( int() )
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xD0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0xD0 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte": Element.midi_128(pressure_int),
                         "device": device_list
                     }
@@ -1903,14 +1891,13 @@ class PolyAftertouch(Aftertouch):
 
         key_note_float: float       = self._pitch % od.DataSource( float() )
         pressure_int: int           = self._pressure % od.DataSource( int() )
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xA0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0xA0 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
                         "data_byte_2": Element.midi_128(pressure_int),
                         "device": device_list
@@ -1995,14 +1982,13 @@ class ProgramChange(Automation):
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         program_int: int            = self._program % od.DataSource( int() )
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xC0 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0xC0 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte": Element.midi_128(program_int),
                         "device": device_list
                     }
@@ -2072,7 +2058,6 @@ class Panic(Element):
         self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(position))
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(position))
 
-        channel_int: int            = self._channel % od.DataSource( int() )
         device_list: list           = self._device % od.DataSource( list() )
         on_time_ms = self.get_time_ms(self._position.getMillis_rational())
         for key_note_midi in range(128):
@@ -2080,7 +2065,7 @@ class Panic(Element):
                 {   # Needs the Note On first in order to the following Note Off not be considered redundant
                     "time_ms": on_time_ms,
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0x90 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,   # 0 means it will result in no sound
                         "device": device_list
@@ -2089,7 +2074,7 @@ class Panic(Element):
                 {
                     "time_ms": on_time_ms,
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & Element.midi_16(channel_int - 1),
+                        "status_byte": 0x80 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
                         "device": device_list
