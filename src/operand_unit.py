@@ -264,7 +264,7 @@ class Semitone(PitchParameter):
 class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
         super().__init__()
-        self._major: Major          = Major()
+        self._major: bool = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
     
@@ -283,7 +283,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case KeySignature():        return self
                     case list():                return self % list()
-                    case Major():               return self._major
+                    case Major():               return Major() << od.DataSource(self._major)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand % o.Operand())
             case KeySignature():        return self.copy()
@@ -299,8 +299,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             
             case Key():
                 return Key(self % float())
-            case Major():               return self._major.copy()
-            case Minor():               return Minor(not (self._major % bool()))
+            case Major():               return Major() << od.DataSource(self._major)
+            case Minor():               return Minor() << od.DataSource(not self._major)
             case Sharps():
                 if self._unit > 0:
                     return Sharps(self._unit)
@@ -354,13 +354,13 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case od.DataSource():
                 match operand % o.Operand():
                     case int():     self._unit      = operand % o.Operand()
-                    case Major():   self._major     = operand % o.Operand()
+                    case Major():   self._major     = operand % o.Operand() // bool()
             case KeySignature():
                 super().__lshift__(operand)
-                self._major._unit   = operand._major._unit
+                self._major         = operand._major
             case int():     self._unit   = operand
-            case Major():   self._major  << operand
-            case Minor():   self._major  << (operand % int() == 0)
+            case Major():   self._major  = operand // bool()
+            case Minor():   self._major  = not (operand // bool())
             case Sharps() | Flats():
                 self._unit = operand._unit
                 if isinstance(operand, Flats):
