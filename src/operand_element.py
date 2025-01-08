@@ -320,8 +320,10 @@ class Element(o.Operand):
                     new_sequence += self # copy of element already included in Element processing
                 return new_sequence.stack()
             case ra.TimeValue() | ou.TimeUnit():
-                operand_duration: ra.Duration = self._position.getDuration(operand)
-                self_repeating: int = (operand_duration // Fraction()) // (self._duration // Fraction())
+                self_repeating: int = 0
+                if self._duration > 0.0:
+                    operand_duration: ra.Duration = self._position.getDuration(operand)
+                    self_repeating: int = (operand_duration // Fraction()) // (self._duration // Fraction())
                 return self.__mul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy() << self % operand * operand

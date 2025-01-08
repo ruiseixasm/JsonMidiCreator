@@ -690,6 +690,8 @@ class Sequence(Container):  # Just a container of Elements
                 return operand + self   # Order is irrelevant on Song
             case Sequence():
                 if self._midi_track == operand._midi_track:
+                    # Make sure operand position is replicated to its elements
+                    operand += of.All()**operand._position
                     return Sequence(self, operand)
                 return Song(self, operand)
             case oe.Element():
@@ -746,14 +748,18 @@ class Sequence(Container):  # Just a container of Elements
                     repeat_copy -= 1
                 return many_operands
             case ou.TimeUnit():
-                self_length: Fraction = self.length().roundMeasures() % operand // Fraction()
-                operand_length: Fraction = operand // Fraction()
-                self_repeating: int = operand_length // self_length
+                self_repeating: int = 0
+                operand_beats: Fraction = self._position.getBeats(operand) // Fraction()
+                self_beats: Fraction = self.length().roundMeasures() // Fraction()  # Beats default unit
+                if self_beats > 0:
+                    self_repeating = operand_beats // self_beats
                 return self * self_repeating
             case ra.TimeValue():
+                self_repeating: float = 0.0
                 self_length: Fraction = self.length() % operand // Fraction()
-                operand_length: Fraction = operand // Fraction()
-                self_repeating: float = operand_length / self_length
+                if self_length > 0:
+                    operand_length: Fraction = operand // Fraction()
+                    self_repeating: float = float( operand_length / self_length )
                 return self * self_repeating
             case _:
                 self_copy: Sequence = self.copy()

@@ -220,6 +220,12 @@ def test_mul_sequence():
     assert fifth_note % Measures() == 1.0   # in measures
 
     assert eight_notes_1 != eight_notes_2
+
+    assert two_notes % Length() == Beats(2)
+    assert two_notes * 2 % Length() == Beats(6)
+    assert two_notes * 2.0 % Length() == Beats(4)
+    assert two_notes * Beat(6) % Length() == Beats(2)
+    assert two_notes * Beats(6) % Length() == Beats(6)
     
 # test_mul_sequence()
 
@@ -291,7 +297,7 @@ def test_position_shift():
     print(four_notes_2 % First() % Beats() % int())
     assert four_notes_2 % First() % Beats() == 0
 
-    eight_notes = four_notes_1 >> four_notes_2
+    eight_notes = four_notes_1 >> four_notes_2  # Moves to the next Measure
     print(eight_notes % First() % Beats() % int())
     assert eight_notes % First() % Beats() == 0
     print(eight_notes % Middle(5) % Beats() % int())
@@ -299,6 +305,9 @@ def test_position_shift():
 
     print(four_notes_2 % First() % Beats() % int())
     assert four_notes_2 % First() % Beats() == 0
+
+    assert four_notes_1 % Length() == 3 * Beats(1) + Beats(1/2)
+    assert (Measures(1) >> four_notes_1) % Position() == Beats(4)
 
 # test_position_shift()
 
