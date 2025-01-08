@@ -375,10 +375,10 @@ class Pitch(Generic):
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["key"]              = self.serialize( self._key )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
+        serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["flat"]             = self.serialize( self._flat )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
-        serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
         return serialization
 
@@ -395,10 +395,10 @@ class Pitch(Generic):
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._key           = self.deserialize( serialization["parameters"]["key"] )
             self._octave        = self.deserialize( serialization["parameters"]["octave"] )
+            self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._flat          = self.deserialize( serialization["parameters"]["flat"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
-            self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
         return self
 
