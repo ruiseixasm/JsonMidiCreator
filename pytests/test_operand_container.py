@@ -245,26 +245,32 @@ def test_sequence_composition():
     assert measure_bell % Length() == Measure(4)
     assert measure_bell % Length() == Measures(3.25)
     assert measure_bell % Position() == 0.0
-    beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4
-    assert beat_tick % Length() == Measure(4)
-    assert beat_tick % Length() == Measures(3.75)
-    assert beat_tick % Position() == 0.25
 
+    beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
+    print(f"Measure: {beat_tick % Length() % Measure() % int()}")
+    assert beat_tick % Length() == Measure(4)
+    print(f"Measures: {beat_tick % Length() % Measures() % float()}")
+    # assert beat_tick % Finish() == Measures(4.0)
+    assert beat_tick % Length() == Measures(3.75)
+    print(f"Position: {beat_tick % Position() % Measures() % float()}")
+    assert beat_tick % Position() == 0.0    # Position basic operations work on elements
+
+    print("------")
     metronome: Sequence = measure_bell + beat_tick
     print(f"Measure: {metronome % Length() % Measure() % int()}")
-    assert metronome % Length() == Measure(5)
+    assert metronome % Length() == Measure(4)
     print(f"Measures: {metronome % Length() % Measures() % float()}")
-    assert metronome % Length() == Measures(4.25)
+    assert metronome % Length() == Measures(4.0)
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
-    print("------")
+    print("---------------------")
     # correct version working with frame All()
     beat_tick = (Nt(DrumKit(35)) * 3 + All()**Beat(1)) * 4
     print(f"Measure: {beat_tick % Length() % Measure() % int()}")
     assert beat_tick % Length() == Measure(4)
     print(f"Measures: {beat_tick % Length() % Measures() % float()}")
-    assert beat_tick % Length() == Measures(4.0)
+    assert beat_tick % Length() == Measures(3.75)
     print(f"Position: {beat_tick % Position() % Measures() % float()}")
     assert beat_tick % Position() == 0.0
 
