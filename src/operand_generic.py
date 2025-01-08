@@ -767,7 +767,7 @@ class Scale(Generic):
     def __init__(self, *parameters):
         super().__init__()
         self._scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
-        self._mode: ou.Mode         = ou.Mode()
+        self._mode: int             = 1
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -786,12 +786,12 @@ class Scale(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Mode():             return self._mode
+                    case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
                     case list():                return self._scale_list
                     case str():                 return __class__.get_scale_name(self._scale_list)
                     case int():                 return __class__.get_scale_number(self._scale_list)
                     case _:                     return super().__mod__(operand)
-            case ou.Mode():             return self._mode.copy()
+            case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
             case list():                return self.modulation(None)
             case str():                 return __class__.get_scale_name(self.modulation(None))
             case int():                 return __class__.get_scale_number(self.modulation(None))
@@ -840,7 +840,7 @@ class Scale(Generic):
     def modulation(self, mode: int | str = "5th") -> list[int]: # AKA as remode (remoding)
         self_scale = self._scale_list.copy()
         if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
-            mode_int = self._mode._unit if mode is None else ou.Mode(mode) % int()
+            mode_int = self._mode if mode is None else ou.Mode(mode) % int()
             tones = max(1, mode_int) - 1    # Modes start on 1, so, mode - 1 = tones
             transposition = 0
             if isinstance(self._scale_list, list) and len(self._scale_list) == 12:
@@ -879,16 +879,18 @@ class Scale(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Mode():         self._mode = operand % o.Operand()
+                    case ou.Mode():         self._mode = operand % o.Operand() // int()
                     case _:                 super().__lshift__(operand)
             case Scale():
                 super().__lshift__(operand)
                 self._scale_list    = operand._scale_list.copy()
-                self._mode          << operand._mode
+                self._mode          = operand._mode
             case od.Serialization():
                 self.loadSerialization(operand % od.DataSource( dict() ))
-            case ou.Mode() | int():
-                self._mode << operand
+            case int():
+                self._mode = operand
+            case ou.Mode():
+                self._mode = operand // int()
             case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
