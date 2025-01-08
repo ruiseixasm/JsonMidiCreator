@@ -727,7 +727,7 @@ class Sequence(Container):  # Just a container of Elements
     # multiply with a scalar
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case int(): # Implicit copy
+            case int(): 
                 many_operands = self.__class__()    # empty list but same track
                 many_operands._midi_track   << self._midi_track
                 many_operands._position     = self._position.copy(0)
@@ -735,6 +735,26 @@ class Sequence(Container):  # Just a container of Elements
                     many_operands >>= self.copy()
                     operand -= 1
                 return many_operands
+            case float(): 
+                many_operands = self.__class__()    # empty list but same track
+                many_operands._midi_track   << self._midi_track
+                many_operands._position     = self._position.copy(0)
+                repeat_copy: int = int(operand)
+                while repeat_copy > 0:
+                    many_length: ra.Length = many_operands.length()
+                    many_operands += many_length >> self.copy()
+                    repeat_copy -= 1
+                return many_operands
+            case ou.TimeUnit():
+                self_length: Fraction = self.length().roundMeasures() % operand // Fraction()
+                operand_length: Fraction = operand // Fraction()
+                self_repeating: int = operand_length // self_length
+                return self * self_repeating
+            case ra.TimeValue():
+                self_length: Fraction = self.length() % operand // Fraction()
+                operand_length: Fraction = operand // Fraction()
+                self_repeating: float = operand_length / self_length
+                return self * self_repeating
             case _:
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
