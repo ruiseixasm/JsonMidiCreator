@@ -121,12 +121,12 @@ class Pitch(Generic):
         
         self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
         self._key: ou.Key                       = ou.Key( self._key_signature.get_tonic_key() )
+        self._octave: int                       = 4     # By default it's the 4th Octave!
         self._sharp: ou.Sharp                   = ou.Sharp(False)
         self._flat: ou.Flat                     = ou.Flat(False)
         self._natural: ou.Natural               = ou.Natural(False)
         self._degree: ou.Degree                 = ou.Degree(1)
         self._scale: Scale                      = Scale([])
-        self._octave: int                       = 4     # By default it's the 4th Octave!
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -379,12 +379,12 @@ class Pitch(Generic):
 
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
         serialization["parameters"]["key"]              = self.serialize( self._key )
+        serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["sharp"]            = self.serialize( self._sharp )
         serialization["parameters"]["flat"]             = self.serialize( self._flat )
         serialization["parameters"]["natural"]          = self.serialize( self._natural )
         serialization["parameters"]["degree"]           = self.serialize( self._degree )
         serialization["parameters"]["scale"]            = self.serialize( self._scale )
-        serialization["parameters"]["octave"]           = self.serialize( self._octave )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -399,12 +399,12 @@ class Pitch(Generic):
 
             self._key_signature = self.deserialize( serialization["parameters"]["key_signature"] )
             self._key           = self.deserialize( serialization["parameters"]["key"] )
+            self._octave        = self.deserialize( serialization["parameters"]["octave"] )
             self._sharp         = self.deserialize( serialization["parameters"]["sharp"] )
             self._flat          = self.deserialize( serialization["parameters"]["flat"] )
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
             self._degree        = self.deserialize( serialization["parameters"]["degree"] )
             self._scale         = self.deserialize( serialization["parameters"]["scale"] )
-            self._octave        = self.deserialize( serialization["parameters"]["octave"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Pitch':
