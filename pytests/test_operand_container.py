@@ -168,6 +168,15 @@ def test_add_sequence():
     two_notes += Octave()
     assert two_notes[0] % Octave() == 4
 
+    assert two_notes % Length() == Beats(2)
+    # assert two_notes >> Length() == Beats(2)
+    assert (two_notes + two_notes) % Length() == Beats(2)
+    four_measures: Sequence = two_notes * 4
+    assert four_measures % Length() == Beats(3 * 4 + 2)
+    assert (four_measures + four_measures) % Length() == Beats(3 * 4 + 2)
+
+# test_add_sequence()
+
 
 def test_sub_sequence():
 
