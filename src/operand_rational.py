@@ -72,18 +72,18 @@ class Rational(o.Operand):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case Fraction():        return self._rational           # returns a Fraction()
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case str():             return str(self._rational)
                     case Rational() | ou.Unit():
                                             return operand.__class__() << od.DataSource( self._rational )
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % (operand % o.Operand())
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
+            case of.Frame():        return self % (operand % o.Operand())
             case str():             return str(self._rational)
             case Rational() | ou.Unit():
                                     return operand.__class__() << od.DataSource( self._rational )
@@ -154,10 +154,10 @@ class Rational(o.Operand):
                 self._rational = operand._rational
             case od.DataSource():
                 match operand % o.Operand():
-                    case float() | int():
-                        self._rational = Fraction(operand % o.Operand())
                     case Fraction():
                         self._rational = operand % o.Operand()
+                    case float() | int():
+                        self._rational = Fraction(operand % o.Operand())
                     case str():
                         try:
                             self._rational = Fraction(operand % o.Operand())
@@ -165,10 +165,10 @@ class Rational(o.Operand):
                             print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
                     case Rational() | ou.Unit():
                         self._rational = operand % o.Operand() % od.DataSource( Fraction() )
-            case float() | int():
-                self._rational = Fraction(operand)
             case Fraction():
                 self._rational = operand
+            case float() | int():
+                self._rational = Fraction(operand)
             case str():
                 self << od.DataSource( operand )
             case ou.Unit():
