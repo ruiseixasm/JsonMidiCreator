@@ -50,10 +50,8 @@ class Rational(o.Operand):
     _limit_denominator: int = 1000000  # default value of limit_denominator
 
     def __init__(self, *parameters):
-        super().__init__()
         self._rational: Fraction = Fraction(0)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
