@@ -883,14 +883,14 @@ class Scale(Generic):
                 self._mode          = operand._mode
             case od.DataSource():
                 match operand._data:
-                    case ou.Mode():         self._mode = operand._data // int()
+                    case ou.Mode():         self._mode = operand._data._unit
                     case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization(operand % od.DataSource( dict() ))
             case int():
                 self._mode = operand
             case ou.Mode():
-                self._mode = operand // int()
+                self._mode = operand._unit
             case str():
                 self_scale = __class__.get_scale(operand)
                 if len(self_scale) == 12:
