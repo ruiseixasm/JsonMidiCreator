@@ -595,13 +595,19 @@ class Degree(PitchParameter):
     def __add__(self, number: any) -> 'Degree':
         self_add: Degree = super().__add__(number)
         if self_add._unit == 0: # Must jump the 0 (zero)
-            self_add._unit = 1
+            if number < 0:
+                self_add._unit = -1
+            else:
+                self_add._unit = 1
         return self_add
     
     def __sub__(self, number: any) -> 'Degree':
         self_sub: Degree = super().__sub__(number)
         if self_sub._unit == 0: # Must jump the 0 (zero)
-            self_sub._unit = -1
+            if number < 0:
+                self_sub._unit = 1
+            else:
+                self_sub._unit = -1
         return self_sub
     
     def stringSetDegree(self, string: str) -> None:
