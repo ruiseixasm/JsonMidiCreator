@@ -273,8 +273,57 @@ class Lambda(HiPrecision):
     pass
 
 class Negative(Rational):
-    def __init__(self, value: float = None):
-        super().__init__(0 if value is None else value * (-1))
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
+
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case od.DataSource():
+                match operand % o.Operand():
+                    case Fraction():        return self._rational * -1
+                    case float():           return float(self._rational * -1)
+                    case int():             return int(self._rational * -1)
+                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case str():             return str(self._rational * -1)
+                    case Rational() | ou.Unit():
+                                            return operand.__class__() << od.DataSource( self._rational * -1 )
+                    case _:                 return super().__mod__(operand)
+            case Fraction():        return self._rational * -1
+            case float():           return float(self._rational * -1)
+            case int():             return int(self._rational * -1)
+            case of.Frame():        return self % (operand % o.Operand())
+            case str():             return str(self._rational * -1)
+            case Rational() | ou.Unit():
+                                    return operand.__class__() << od.DataSource( self._rational )
+            case _:                 return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Negative':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Negative():
+                super().__lshift__(operand)
+                self._rational = operand._rational
+            case od.DataSource():
+                match operand % o.Operand():
+                    case int() | float() | Fraction() | Rational() | ou.Unit():
+                        super().__lshift__(operand)
+                        self._rational *= -1
+                    case str():
+                        try:
+                            self._rational = Fraction(operand % o.Operand()) * -1
+                        except ValueError as e:
+                            print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
+            case int() | float() | Fraction() | Rational() | ou.Unit():
+                super().__lshift__(operand)
+                self._rational *= -1
+            case str():
+                try:
+                    self._rational = Fraction(operand % o.Operand()) * -1
+                except ValueError as e:
+                    print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
+        return self
 
 class RationalDefault(Rational):
     pass
@@ -370,16 +419,13 @@ class Quantization(Rational):
     pass
 
 
-
 class Position(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
-        super().__init__()
         self._tempo: Fraction                   = os.staff._tempo // Fraction()
         self._time_signature: og.TimeSignature  = os.staff._time_signature.copy()
         self._quantization: Fraction            = os.staff._quantization // Fraction()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )
@@ -913,7 +959,7 @@ class Dotted(NoteValue):
                     return int(other_rational)
                 if isinstance(operand, float):
                     return float(other_rational)
-                return Fraction(other_rational).limit_denominator(self._limit_denominator)
+                return other_rational
             case _: return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
