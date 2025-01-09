@@ -406,7 +406,7 @@ class Playlist(Data):
                 for midi_element in playlist_copy:
                     if "time_ms" in midi_element:
                         midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
-                return Playlist( playlist_copy )
+                return Playlist(self._midi_track) << DataSource( playlist_copy )
             case list():
                 return Playlist( self.deep_copy(self._data) + self.deep_copy(operand) )
             case o.Operand():
