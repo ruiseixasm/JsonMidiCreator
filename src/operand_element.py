@@ -644,7 +644,7 @@ class Note(Tiable):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        key_note_float: float       = self._pitch % od.DataSource( float() )
+        key_note_float: float = self._pitch % float()
 
         return [
                 {
@@ -1550,16 +1550,13 @@ class ControlChange(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        number_int: int             = self % ou.Number() % od.DataSource( int() )
-        value_int: int              = self % ou.Value() % od.DataSource( int() )
-
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte_1": Element.midi_128(number_int),
-                        "data_byte_2": Element.midi_128(value_int),
+                        "data_byte_1": Element.midi_128(self._controller._number),
+                        "data_byte_2": Element.midi_128(self._controller._value),
                         "device": self._device
                     }
                 }
@@ -1570,8 +1567,8 @@ class ControlChange(Automation):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ControllerEvent"
-        self_midilist[0]["number"]      = Element.midi_128(self._controller._number % int())
-        self_midilist[0]["value"]       = Element.midi_128(self._controller._value % int())
+        self_midilist[0]["number"]      = Element.midi_128(self._controller._number)
+        self_midilist[0]["value"]       = Element.midi_128(self._controller._value)
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1665,8 +1662,8 @@ class PitchBend(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        msb_midi: int               = ou.Bend(self._bend) % ol.MSB()
-        lsb_midi: int               = ou.Bend(self._bend) % ol.LSB()
+        msb_midi: int   = ou.Bend(self._bend) % ol.MSB()
+        lsb_midi: int   = ou.Bend(self._bend) % ol.LSB()
 
         return [
                 {
@@ -1900,8 +1897,7 @@ class PolyAftertouch(Aftertouch):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        key_note_float: float       = self._pitch % od.DataSource( float() )
-        pressure_int: int           = self._pressure % od.DataSource( int() )
+        key_note_float: float   = self._pitch % float()
 
         return [
                 {
@@ -1909,7 +1905,7 @@ class PolyAftertouch(Aftertouch):
                     "midi_message": {
                         "status_byte": 0xA0 | 0x0F & Element.midi_16(self._channel - 1),
                         "data_byte_1": Element.midi_128(key_note_float),
-                        "data_byte_2": Element.midi_128(pressure_int),
+                        "data_byte_2": Element.midi_128(self._pressure),
                         "device": self._device
                     }
                 }
