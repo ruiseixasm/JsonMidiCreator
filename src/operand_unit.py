@@ -42,10 +42,8 @@ class Unit(o.Operand):
         An Integer described as a Unit
     """
     def __init__(self, *parameters):
-        super().__init__()
         self._unit: int = 0
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def unit(self: TypeUnit, number: int = None) -> TypeUnit:
         return self << od.DataSource( number )
@@ -228,15 +226,11 @@ class Unit(o.Operand):
 
 class Next(Unit):
     def __init__(self, *parameters):
-        super().__init__(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(1, *parameters)
 
 class Previous(Unit):
     def __init__(self, *parameters):
-        super().__init__(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(1, *parameters)
 
 class PositionParameter(Unit):
     pass
@@ -264,10 +258,8 @@ class Semitone(PitchParameter):
 
 class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     def __init__(self, *parameters):
-        super().__init__()
         self._major: bool = True
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
     
     def get_tonic_key(self) -> int:
         circle_fifths_position: int = self._unit
@@ -568,10 +560,6 @@ class Degree(PitchParameter):
     first : integer_like
         Accepts a numeral (5) or the string (V) with 1 as the default
     """
-    def __init__(self, *parameters):
-        super().__init__(0)             # Default Degree is I (tonic) has unit = 0
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
@@ -888,9 +876,7 @@ class Mode(Unit):
         A Mode Number varies from 1 to 7 with 1 being normally the default
     """
     def __init__(self, *parameters):
-        super().__init__(1)         # By default the mode is 1 (1st)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(1, *parameters)         # By default the mode is 1 (1st)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -943,9 +929,7 @@ class Size(Unit):
         A Size Number varies from "1st" to "13th" with "3rd" being the triad default
     """
     def __init__(self, *parameters):
-        super().__init__(3)         # Default Size is 3
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(3, *parameters)         # Default Size is 3
             
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -993,8 +977,8 @@ class Division(Unit):
     first : integer_like
         The amount of notes grouped together with the default of 3 (Triplet)
     """
-    def __init__(self, unit: int = None):
-        super().__init__(3 if unit is None else unit)
+    def __init__(self, *parameters):
+        super().__init__(3, *parameters)
 
 class ScaleOperation(Unit):
     pass
@@ -1097,10 +1081,8 @@ class MidiTrack(Midi):
         For a given track concerning a composition, there default is 0.
     """
     def __init__(self, *parameters):
-        super().__init__(1)
         self._name: str = "Track 1"
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(1, *parameters)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1160,8 +1142,7 @@ class Channel(Midi):
     first : integer_like
         For a given device, there are 16 channels ranging from 1 to 16
     """
-    def __init__(self, unit: int = None):
-        super().__init__( os.staff._channel % int() if unit is None else unit )
+    pass
 
 class Velocity(Midi):
     """
@@ -1172,8 +1153,7 @@ class Velocity(Midi):
     first : integer_like
         A key velocity varies from 0 to 127
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    pass
 
 class Pressure(Midi):
     """
@@ -1184,8 +1164,7 @@ class Pressure(Midi):
     first : integer_like
         A key pressure varies from 0 to 127
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    pass
 
 class Bend(Midi):
     """
@@ -1197,8 +1176,6 @@ class Bend(Midi):
         Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
         this bending is 2 semi-tones bellow or above respectively
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1224,13 +1201,6 @@ class Program(Midi):
     first : integer_like
         A Program Number varies from 0 to 127
     """
-    def __init__(self, unit: str = "Piano"):
-        super().__init__()
-        match unit:
-            case str():
-                self.nameToNumber(unit)
-            case int() | float():
-                self._unit = int(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1442,8 +1412,7 @@ class Value(Midi):
     first : integer_like
         The Value shall be set from 0 to 127 accordingly to the range of CC Midi values
     """
-    def __init__(self, unit: int = None):
-        super().__init__(unit)
+    pass
 
 class Number(Midi):
     """
@@ -1454,13 +1423,6 @@ class Number(Midi):
     first : integer_like and string_like
         Allows the direct set with a number or in alternative with a name relative to the Controller
     """
-    def __init__(self, unit: str = "Pan"):
-        super().__init__()
-        match unit:
-            case str():
-                self.nameToNumber(unit)
-            case int() | float():
-                self._unit = int(unit)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
