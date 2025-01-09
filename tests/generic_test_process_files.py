@@ -526,9 +526,13 @@ results_list.append({
     "export":   original_export == result_export
 })
 
+total_time: float = 0.0
 for test in results_list:
     if test['export']:
         print(f"{test['test']}: \t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
     else:
         print(f"{test['test']}: \t\t\t\t{test['save']} | {test['export']}\t\t{test['time_ms']:.0f} ms")
+    total_time += test['time_ms']
+
+print(f"Total time: {total_time:.0f} ms")
 
