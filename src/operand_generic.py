@@ -648,11 +648,9 @@ class Pitch(Generic):
 
 class Controller(Generic):
     def __init__(self, *parameters):
-        super().__init__()
-        self._number: ou.Number  = ou.Number()
-        self._value: ou.Value    = ou.Value( ou.Number.getDefault(self._number % od.DataSource( int() )) )
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        self._number: int       = ou.Number("Pan") // int()
+        self._value: ou.Value   = ou.Value( ou.Number.getDefault(self._number % od.DataSource( int() )) )
+        super().__init__(*parameters)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -670,23 +668,23 @@ class Controller(Generic):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
-                    case ou.Number():           return self._number
+                    case ou.Number():           return ou.Number() << od.DataSource(self._number)
                     case ou.Value():            return self._value
                     case Controller():          return self
+                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % (operand % o.Operand())
-            case ou.Number():           return self._number.copy()
+            case ou.Number():           return ou.Number() << od.DataSource(self._number)
             case ou.Value():            return self._value.copy()
             case int() | float():       return self._value % int()
             case Controller():          return self.copy()
+            case of.Frame():            return self % (operand % o.Operand())
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Controller') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if self % ou.Number() == other % ou.Number() and self % ou.Value() == other % ou.Value():
+        if self._number == other._number and self % ou.Value() == other % ou.Value():
             return True
         return False
     
@@ -710,18 +708,20 @@ class Controller(Generic):
     def __lshift__(self, operand: o.Operand) -> 'Controller':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ou.Number():    self._number = operand % o.Operand()
-                    case ou.Value():     self._value = operand % o.Operand()
             case Controller():
                 super().__lshift__(operand)
-                self._number    << operand._number
+                self._number    = operand._number
                 self._value     << operand._value
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Number():    self._number = operand % o.Operand() // int()
+                    case ou.Value():     self._value = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Number() | str():
-                self._number << operand
+            case ou.Number():
+                self._number = operand // int()
+            case str():
+                self._number = ou.Number(operand) // int()
             case ou.Value() | int() | float():
                 self._value << operand
             case tuple():

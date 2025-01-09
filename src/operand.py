@@ -144,11 +144,13 @@ def filter_list(items: List[Any], condition: Callable[[Any], bool]) -> List[Any]
 # GLOBAL CLASSES
 
 class Operand:
-    def __init__(self):
+    def __init__(self, *parameters):
         self._next_operand: Operand = None
         self._initiated: bool   = False
         self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int = 0
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     # It has to skip self, contrary to the Frame __next__ that includes the self!!
     def __iter__(self):
