@@ -177,17 +177,17 @@ class Element(o.Operand):
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
         if isinstance(position, ra.Position):
-            self_numerator: int = position % ra.BeatsPerMeasure() % int()
-            self_denominator: int = int(1 / (position % ra.BeatNoteValue() % Fraction()))
+            self_numerator: int = position._time_signature._top
+            self_denominator: int = position._time_signature._bottom
             self_position: float = (position.getBeats() + position.getBeats(self._position)) % od.DataSource( float() )
             self_duration: float = position.getBeats(self // ra.Duration()) % od.DataSource( float() )
-            self_tempo: float = position._tempo % od.DataSource( float() )
+            self_tempo: float = float(position._tempo)
         else:
-            self_numerator: int = self._position % ra.BeatsPerMeasure() % int()
-            self_denominator: int = int(1 / (self._position % ra.BeatNoteValue() % Fraction()))
+            self_numerator: int = self._position._time_signature._top
+            self_denominator: int = self._position._time_signature._bottom
             self_position: float = self._position % od.DataSource( float() )
             self_duration: float = self._position.getBeats(self // ra.Duration()) % od.DataSource( float() )
-            self_tempo: float = self._position._tempo % od.DataSource( float() )
+            self_tempo: float = float(self._position._tempo)
 
         return [
                 {
