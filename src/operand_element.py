@@ -40,10 +40,10 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ra.Position         = ra.Position()
-        self._duration: Fraction            = os.staff._duration // Fraction()
+        self._duration: Fraction            = os.staff._duration._rational
         self._stackable: bool               = True
-        self._channel: int                  = os.staff._channel // int()
-        self._device: list[str]             = os.staff._device // list()
+        self._channel: int                  = os.staff._channel._unit
+        self._device: list[str]             = os.staff._device._data.copy()
         self._enabled: bool                 = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -356,7 +356,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration      = self._position.getDuration(os.staff._measures) // Fraction()
+        self._duration      = self._position.getDuration(os.staff._measures)._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -504,7 +504,7 @@ class Rest(Element):
 
 class Tiable(Element):
     def __init__(self, *parameters):
-        self._velocity: int         = os.staff._velocity // int()
+        self._velocity: int         = os.staff._velocity._unit
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         super().__init__(*parameters)
@@ -842,7 +842,7 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._position.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale  = og.Scale( os.staff // ou.KeySignature() % list() ) # Sets the default Scale based on the Staff Key Signature
+        self._scale: og.Scale  = og.Scale( os.staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
