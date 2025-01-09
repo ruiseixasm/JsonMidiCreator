@@ -38,11 +38,11 @@ class Generic(o.Operand):
 
 class TimeSignature(Generic):
     def __init__(self, top: int = 4, bottom: int = 4):
-        super().__init__()
         self._top: int      = 4 if top is None else int(max(1,  top  ))
         # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
         self._bottom: int   = 4 if \
             not (isinstance(bottom, int) and bottom > 0) else int(math.pow(2, int(max(0, math.log2(  bottom  )))))
+        super().__init__()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -117,8 +117,6 @@ class TimeSignature(Generic):
 
 class Pitch(Generic):
     def __init__(self, *parameters):
-        super().__init__()
-        
         self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
         self._key: int                          = int( self._key_signature % float() )
         self._octave: int                       = 4     # By default it's the 4th Octave!
@@ -127,8 +125,7 @@ class Pitch(Generic):
         self._flat: bool                        = False
         self._natural: bool                     = False
         self._scale: Scale                      = Scale([])
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def key_signature(self, sharps_flats: int = 0, major: bool = True) -> 'Pitch':
         return self << ou.KeySignature(sharps_flats, ou.Major(major))
@@ -769,11 +766,9 @@ class Scale(Generic):
         It can have the name of a scale as input, like, "Major" or "Melodic"
     """
     def __init__(self, *parameters):
-        super().__init__()
         self._scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major by default
         self._mode: int             = 1
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
