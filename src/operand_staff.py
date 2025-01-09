@@ -180,6 +180,19 @@ class Staff(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Staff':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Staff():
+                super().__lshift__(operand)
+                self._tempo             << operand._tempo
+                self._time_signature    << operand._time_signature
+                self._quantization      << operand._quantization
+                self._key_signature     << operand._key_signature
+                self._measures          << operand._measures
+                self._duration          << operand._duration
+                self._octave            << operand._octave
+                self._velocity          << operand._velocity
+                self._controller        << operand._controller
+                self._channel           << operand._channel
+                self._device            << operand._device
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Tempo():            self._tempo = operand % o.Operand()
@@ -195,19 +208,6 @@ class Staff(o.Operand):
                     case og.Controller():       self._controller = operand % o.Operand()
                     case ou.Channel():          self._channel = operand % o.Operand()
                     case od.Device():           self._device = operand % o.Operand()
-            case Staff():
-                super().__lshift__(operand)
-                self._tempo             << operand._tempo
-                self._time_signature    << operand._time_signature
-                self._quantization      << operand._quantization
-                self._key_signature     << operand._key_signature
-                self._measures          << operand._measures
-                self._duration          << operand._duration
-                self._octave            << operand._octave
-                self._velocity          << operand._velocity
-                self._controller        << operand._controller
-                self._channel           << operand._channel
-                self._device            << operand._device
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo << operand
