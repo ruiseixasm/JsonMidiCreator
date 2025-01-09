@@ -951,41 +951,41 @@ class KeyScale(Note):
 
 class Chord(KeyScale):
     def __init__(self, *parameters):
-        self._size: ou.Size             = ou.Size(3)
-        self._inversion: ou.Inversion   = ou.Inversion(0)
-        self._dominant: ou.Dominant     = ou.Dominant(0)
-        self._diminished: ou.Diminished = ou.Diminished(0)
-        self._augmented: ou.Augmented   = ou.Augmented(0)
-        self._sus2: ou.Sus2             = ou.Sus2(0)
-        self._sus4: ou.Sus4             = ou.Sus4(0)
+        self._size: int             = 3
+        self._inversion: int        = 0
+        self._dominant: bool        = False
+        self._diminished: bool      = False
+        self._augmented: bool       = False
+        self._sus2: bool            = False
+        self._sus4: bool            = False
         super().__init__(*parameters)
 
-    def size(self: 'Chord', size: int = None) -> 'Chord':
-        self._size = ou.Size(size)
+    def size(self: 'Chord', size: int = 3) -> 'Chord':
+        self._size = size
         return self
 
-    def inversion(self: 'Chord', inversion: int = None) -> 'Chord':
-        self._inversion = ou.Inversion(inversion)
+    def inversion(self: 'Chord', inversion: int = 1) -> 'Chord':
+        self._inversion = inversion
         return self
 
-    def dominant(self: 'Chord', dominant: int = None) -> 'Chord':
-        self._dominant = ou.Dominant(dominant)
+    def dominant(self: 'Chord', dominant: bool = True) -> 'Chord':
+        self._dominant = dominant
         return self
 
-    def diminished(self: 'Chord', diminished: int = None) -> 'Chord':
-        self._diminished = ou.Diminished(diminished)
+    def diminished(self: 'Chord', diminished: bool = True) -> 'Chord':
+        self._diminished = diminished
         return self
 
-    def augmented(self: 'Chord', augmented: int = None) -> 'Chord':
-        self._augmented = ou.Augmented(augmented)
+    def augmented(self: 'Chord', augmented: bool = True) -> 'Chord':
+        self._augmented = augmented
         return self
 
-    def sus2(self: 'Chord', sus2: int = None) -> 'Chord':
-        self._sus2 = ou.Sus2(sus2)
+    def sus2(self: 'Chord', sus2: bool = True) -> 'Chord':
+        self._sus2 = sus2
         return self
 
-    def sus4(self: 'Chord', sus4: int = None) -> 'Chord':
-        self._sus4 = ou.Sus4(sus4)
+    def sus4(self: 'Chord', sus4: bool = True) -> 'Chord':
+        self._sus4 = sus4
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -1003,21 +1003,21 @@ class Chord(KeyScale):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Size():         return self._size
-                    case ou.Inversion():    return self._inversion
-                    case ou.Dominant():     return self._dominant
-                    case ou.Diminished():   return self._diminished
-                    case ou.Augmented():    return self._augmented
-                    case ou.Sus2():         return self._sus2
-                    case ou.Sus4():         return self._sus4
+                    case ou.Size():         return ou.Size() << od.DataSource(self._size)
+                    case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
+                    case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
+                    case ou.Diminished():   return ou.Diminished() << od.DataSource(self._diminished)
+                    case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
+                    case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
+                    case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
                     case _:                 return super().__mod__(operand)
-            case ou.Size():         return self._size.copy()
-            case ou.Inversion():    return self._inversion.copy()
-            case ou.Dominant():     return self._dominant.copy()
-            case ou.Diminished():   return self._diminished.copy()
-            case ou.Augmented():    return self._augmented.copy()
-            case ou.Sus2():         return self._sus2.copy()
-            case ou.Sus4():         return self._sus4.copy()
+            case ou.Size():         return ou.Size() << od.DataSource(self._size)
+            case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
+            case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
+            case ou.Diminished():   return ou.Diminished() << od.DataSource(self._diminished)
+            case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
+            case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
+            case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1025,13 +1025,13 @@ class Chord(KeyScale):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._size          == other % od.DataSource( ou.Size() ) \
-                    and self._inversion     == other % od.DataSource( ou.Inversion() ) \
-                    and self._dominant      == other % od.DataSource( ou.Dominant() ) \
-                    and self._diminished    == other % od.DataSource( ou.Diminished() ) \
-                    and self._augmented     == other % od.DataSource( ou.Augmented() ) \
-                    and self._sus2          == other % od.DataSource( ou.Sus2() ) \
-                    and self._sus4          == other % od.DataSource( ou.Sus4() )
+                    and self._size          == other._size \
+                    and self._inversion     == other._inversion \
+                    and self._dominant      == other._dominant \
+                    and self._diminished    == other._diminished \
+                    and self._augmented     == other._augmented \
+                    and self._sus2          == other._sus2 \
+                    and self._sus4          == other._sus4
             case _:
                 return super().__eq__(other)
     
@@ -1040,7 +1040,7 @@ class Chord(KeyScale):
         max_size = self._scale.keys()
         if max_size % 2 == 0:
             max_size //= 2
-        max_size = min(self._size % od.DataSource( int() ), max_size)
+        max_size = min(self._size, max_size)
         # Sets Scale to be used
         if self._scale.hasScale():
             # modulated_scale: og.Scale = self._scale.copy().modulate(self._mode)
@@ -1075,7 +1075,7 @@ class Chord(KeyScale):
                 )
 
         # Where the inversions are done
-        inversion = min(self._inversion % od.DataSource( int() ), len(chord_notes) - 1)
+        inversion = min(self._inversion, len(chord_notes) - 1)
         if inversion > 0:
             first_note = chord_notes[inversion]
             not_first_note = True
@@ -1134,31 +1134,31 @@ class Chord(KeyScale):
         match operand:
             case Chord():
                 super().__lshift__(operand)
-                self._size          << operand._size
-                self._inversion     << operand._inversion
-                self._dominant      << operand._dominant
-                self._diminished    << operand._diminished
-                self._augmented     << operand._augmented
-                self._sus2          << operand._sus2
-                self._sus4          << operand._sus4
+                self._size          = operand._size
+                self._inversion     = operand._inversion
+                self._dominant      = operand._dominant
+                self._diminished    = operand._diminished
+                self._augmented     = operand._augmented
+                self._sus2          = operand._sus2
+                self._sus4          = operand._sus4
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Size():                 self._size = operand % o.Operand()
-                    case ou.Inversion():            self._inversion = operand % o.Operand()
-                    case ou.Dominant():             self._dominant = operand % o.Operand()
-                    case ou.Diminished():           self._diminished = operand % o.Operand()
-                    case ou.Augmented():            self._augmented = operand % o.Operand()
-                    case ou.Sus2():                 self._sus2 = operand % o.Operand()
-                    case ou.Sus4():                 self._sus4 = operand % o.Operand()
+                    case ou.Size():                 self._size = operand % o.Operand() // int()
+                    case ou.Inversion():            self._inversion = operand % o.Operand() // int()
+                    case ou.Dominant():             self._dominant = operand % o.Operand() // bool()
+                    case ou.Diminished():           self._diminished = operand % o.Operand() // bool()
+                    case ou.Augmented():            self._augmented = operand % o.Operand() // bool()
+                    case ou.Sus2():                 self._sus2 = operand % o.Operand() // bool()
+                    case ou.Sus4():                 self._sus4 = operand % o.Operand() // bool()
                     case _:                         super().__lshift__(operand)
-            case ou.Size():                 self._size << operand
-            case ou.Inversion():            self._inversion << operand
+            case ou.Size():                 self._size = operand // int()
+            case ou.Inversion():            self._inversion = operand // int()
             case str():
                 operand = operand.strip()
                 # Set Chord root note
                 self._pitch << operand
                 # Set Chord size
-                self._size << operand
+                self._size = ou.Size(od.DataSource( self._size ), operand) // int()
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
@@ -1169,32 +1169,32 @@ class Chord(KeyScale):
             case ou.Dominant():
                 if operand:
                     self.set_all()
-                self._dominant << operand
+                self._dominant = operand // bool()
             case ou.Diminished():
                 if operand:
                     self.set_all()
-                self._diminished << operand
+                self._diminished = operand // bool()
             case ou.Augmented():
                 if operand:
                     self.set_all()
-                self._augmented << operand
+                self._augmented = operand // bool()
             case ou.Sus2():
                 if operand:
                     self.set_all()
-                self._sus2 << operand
+                self._sus2 = operand // bool()
             case ou.Sus4():
                 if operand:
                     self.set_all()
-                self._sus4 << operand
+                self._sus4 = operand // bool()
             case _: super().__lshift__(operand)
         return self
     
     def set_all(self, data: any = False):    # mutual exclusive
-        self._dominant << data
-        self._diminished << data
-        self._augmented << data
-        self._sus2 << data
-        self._sus4 << data
+        self._dominant      = ou.Dominant(od.DataSource( self._dominant ), data) // bool()
+        self._diminished    = ou.Diminished(od.DataSource( self._diminished ), data) // bool()
+        self._augmented     = ou.Augmented(od.DataSource( self._augmented ), data) // bool()
+        self._sus2          = ou.Sus2(od.DataSource( self._sus2 ), data) // bool()
+        self._sus4          = ou.Sus4(od.DataSource( self._sus4 ), data) // bool()
 
 class Retrigger(Note):
     def __init__(self, *parameters):
