@@ -1860,7 +1860,7 @@ class PolyAftertouch(Aftertouch):
         self._pitch: og.Pitch  = og.Pitch()
         super().__init__(*parameters)
 
-    def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'PolyAftertouch':
+    def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = ou.Key("C"), octave: Optional[int] = ou.Octave(4)) -> 'PolyAftertouch':
         self._pitch = og.Pitch(key, octave)
         return self
 
@@ -1948,11 +1948,11 @@ class PolyAftertouch(Aftertouch):
 
 class ProgramChange(Automation):
     def __init__(self, *parameters):
-        self._program: ou.Program = ou.Program()
+        self._program: int = ou.Program("Piano") // int()
         super().__init__(*parameters)
 
-    def program(self: 'ProgramChange', program: Optional[int] = None) -> 'ProgramChange':
-        self._program = og.Pitch(program)
+    def program(self: 'ProgramChange', program: int | str = "Piano") -> 'ProgramChange':
+        self._program = ou.Program(program) // int()
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -1970,10 +1970,11 @@ class ProgramChange(Automation):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Program():      return self._program
+                    case ou.Program():      return ou.Program() << od.DataSource(self._program)
                     case _:                 return super().__mod__(operand)
-            case ou.Program():      return self._program.copy()
-            case int() | float():   return self._program % od.DataSource( int() )
+            case ou.Program():      return ou.Program() << od.DataSource(self._program)
+            case int():             return self._program
+            case float():           return float(self._program)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1981,7 +1982,7 @@ class ProgramChange(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._program == other % od.DataSource( ou.Program() )
+                    and self._program == other._program
             case _:
                 return super().__eq__(other)
     
@@ -1990,14 +1991,12 @@ class ProgramChange(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        program_int: int            = self._program % od.DataSource( int() )
-
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xC0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte": Element.midi_128(program_int),
+                        "data_byte": Element.midi_128(self._program),
                         "device": self._device
                     }
                 }
@@ -2008,7 +2007,7 @@ class ProgramChange(Automation):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ProgramChange"
-        self_midilist[0]["program"]     = Element.midi_128(self._program % int())
+        self_midilist[0]["program"]     = Element.midi_128(self._program)
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -2031,29 +2030,36 @@ class ProgramChange(Automation):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Program():          self._program = operand % o.Operand()
+                    case ou.Program():          self._program = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
             case ProgramChange():
                 super().__lshift__(operand)
-                self._program << operand._program
-            case ou.Program() | int() | float() | str():
-                self._program << operand
-            case _: super().__lshift__(operand)
+                self._program = operand._program
+            case ou.Program():
+                self._program = operand // int()
+            case int():
+                self._program = operand
+            case float():
+                self._program = int(operand)
+            case str():
+                self._program = ou.Program(operand) // int()
+            case _:
+                super().__lshift__(operand)
         return self
 
     def __add__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Program() | int() | float() | ou.Program() | Fraction():
-                return self.copy() << od.DataSource( self._program + operand )   # Specific parameter
+            case ou.Program() | int() | float() | Fraction():
+                return self.copy() << od.DataSource( self // ou.Program() + operand )
             case _:
                 return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Program() | int() | float() | ou.Program() | Fraction():
-                return self.copy() << od.DataSource( self._program - operand )   # Specific parameter
+            case ou.Program() | int() | float() | Fraction():
+                return self.copy() << od.DataSource( self // ou.Program() - operand )
             case _:
                 return super().__sub__(operand)
 
