@@ -1486,13 +1486,13 @@ class Automation(Element):
     def __init__(self, *parameters):
         super().__init__()
         self._duration      = self._position % od.DataSource( ra.Quantization() ) // Fraction()  # Equivalent to one Step
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
 class ControlChange(Automation):
     def __init__(self, *parameters):
-        super().__init__()
         self._controller: og.Controller = os.staff % og.Controller()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def controller(self: 'ControlChange', number: Optional[int] = None, value: Optional[int] = None) -> 'ControlChange':
         self._controller = og.Controller(
@@ -1609,10 +1609,8 @@ class ControlChange(Automation):
 
 class PitchBend(Automation):
     def __init__(self, *parameters):
-        super().__init__()
         self._bend: ou.Bend = ou.Bend()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def bend(self: 'PitchBend', bend: Optional[int] = None) -> 'PitchBend':
         self._bend = ou.Bend(bend)
@@ -1723,10 +1721,8 @@ class PitchBend(Automation):
 
 class Aftertouch(Automation):
     def __init__(self, *parameters):
-        super().__init__()
         self._pressure: ou.Pressure = ou.Pressure()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def pressure(self: 'Aftertouch', pressure: Optional[int] = None) -> 'Aftertouch':
         self._pressure = ou.Bend(pressure)
@@ -1836,10 +1832,8 @@ class Aftertouch(Automation):
 
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
-        super().__init__()
         self._pitch: og.Pitch  = og.Pitch()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'PolyAftertouch':
         self._pitch = og.Pitch(key, octave)
@@ -1929,10 +1923,8 @@ class PolyAftertouch(Aftertouch):
 
 class ProgramChange(Automation):
     def __init__(self, *parameters):
-        super().__init__()
         self._program: ou.Program = ou.Program()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def program(self: 'ProgramChange', program: Optional[int] = None) -> 'ProgramChange':
         self._program = og.Pitch(program)
