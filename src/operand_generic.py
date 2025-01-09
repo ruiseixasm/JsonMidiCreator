@@ -876,14 +876,14 @@ class Scale(Generic):
     def __lshift__(self, operand: any) -> 'Scale':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case ou.Mode():         self._mode = operand % o.Operand() // int()
-                    case _:                 super().__lshift__(operand)
             case Scale():
                 super().__lshift__(operand)
                 self._scale_list    = operand._scale_list.copy()
                 self._mode          = operand._mode
+            case od.DataSource():
+                match operand % o.Operand():
+                    case ou.Mode():         self._mode = operand % o.Operand() // int()
+                    case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization(operand % od.DataSource( dict() ))
             case int():
