@@ -649,7 +649,7 @@ class Pitch(Generic):
 class Controller(Generic):
     def __init__(self, *parameters):
         self._number: int       = ou.Number("Pan") // int()
-        self._value: ou.Value   = ou.Value( ou.Number.getDefault(self._number % od.DataSource( int() )) )
+        self._value: int        = ou.Number.getDefault(self._number)
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -669,13 +669,14 @@ class Controller(Generic):
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Number():           return ou.Number() << od.DataSource(self._number)
-                    case ou.Value():            return self._value
+                    case ou.Value():            return ou.Value() << od.DataSource(self._value)
                     case Controller():          return self
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return ou.Number() << od.DataSource(self._number)
-            case ou.Value():            return self._value.copy()
-            case int() | float():       return self._value % int()
+            case ou.Value():            return ou.Value() << od.DataSource(self._value)
+            case int():                 return self._value
+            case float():               return float(self._value)
             case Controller():          return self.copy()
             case of.Frame():            return self % (operand % o.Operand())
             case _:                     return super().__mod__(operand)
@@ -711,46 +712,50 @@ class Controller(Generic):
             case Controller():
                 super().__lshift__(operand)
                 self._number    = operand._number
-                self._value     << operand._value
+                self._value     = operand._value
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Number():    self._number = operand % o.Operand() // int()
-                    case ou.Value():     self._value = operand % o.Operand()
+                    case ou.Value():     self._value = operand % o.Operand() // int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Number():
                 self._number = operand // int()
             case str():
                 self._number = ou.Number(operand) // int()
-            case ou.Value() | int() | float():
-                self._value << operand
+            case ou.Value():
+                self._value = operand // int()
+            case int():
+                self._value = operand
+            case float():
+                self._value = int(operand)
             case tuple():
                 for single_operand in operand:
                     self << single_operand
         return self
 
     def __add__(self, operand) -> 'Controller':
-        value: ou.Value = self._value
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        value: int = self._value
         match operand:
-            case Controller():
-                value += operand % ou.Value() % int()
-            case int() | float() | ou.Value() | Fraction():
+            case o.Operand():
+                value += operand % int()
+            case int():
                 value += operand
-            case _:
-                return self.copy()
+            case float() | Fraction():
+                value += int(operand)
         return self.copy() << value
     
     def __sub__(self, operand) -> 'Controller':
-        value: ou.Value = self._value
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        value: int = self._value
         match operand:
-            case Controller():
-                value -= operand % ou.Value() % int()
-            case int() | float() | ou.Value() | Fraction():
+            case o.Operand():
+                value -= operand % int()
+            case int():
                 value -= operand
-            case _:
-                return self.copy()
+            case float() | Fraction():
+                value -= int(operand)
         return self.copy() << value
 
 
