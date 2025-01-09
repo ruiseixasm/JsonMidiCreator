@@ -40,9 +40,9 @@ class Operator(o.Operand):
         A Operand to be regulated
     """
     def __init__(self, operand: o.Operand = None):
-        super().__init__()
         self._operand = int() if operand is None else operand
         self._operator_list: list[Operator] = []
+        super().__init__()
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

@@ -34,6 +34,7 @@ TypeFrame = TypeVar('TypeFrame', bound='Frame')  # TypeFrame represents any subc
 class Frame(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
+        # These parameters replace the homologous Operand's ones
         self._next_operand: any = o.Operand()
         self._multi_data: dict  = {}
         for single_parameter in parameters: # Faster than passing a tuple
