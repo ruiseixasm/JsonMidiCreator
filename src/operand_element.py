@@ -1623,11 +1623,11 @@ class ControlChange(Automation):
 
 class PitchBend(Automation):
     def __init__(self, *parameters):
-        self._bend: ou.Bend = ou.Bend()
+        self._bend: int = 0
         super().__init__(*parameters)
 
-    def bend(self: 'PitchBend', bend: Optional[int] = None) -> 'PitchBend':
-        self._bend = ou.Bend(bend)
+    def bend(self: 'PitchBend', bend: int = 0) -> 'PitchBend':
+        self._bend = bend
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -1645,10 +1645,11 @@ class PitchBend(Automation):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Bend():         return self._bend
+                    case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
                     case _:                 return super().__mod__(operand)
-            case ou.Bend():         return self._bend.copy()
-            case int() | float():   return self._bend % od.DataSource( int() )
+            case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
+            case int():             return self._bend
+            case float():           return float(self._bend)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1656,7 +1657,7 @@ class PitchBend(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._bend == other % od.DataSource( ou.Bend() )
+                    and self._bend == other._bend
             case _:
                 return super().__eq__(other)
     
@@ -1665,8 +1666,8 @@ class PitchBend(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        msb_midi: int               = self._bend % ol.MSB()
-        lsb_midi: int               = self._bend % ol.LSB()
+        msb_midi: int               = ou.Bend(self._bend) % ol.MSB()
+        lsb_midi: int               = ou.Bend(self._bend) % ol.LSB()
 
         return [
                 {
@@ -1685,7 +1686,7 @@ class PitchBend(Automation):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "PitchWheelEvent"
-        self_midilist[0]["value"]       = self._bend % int()
+        self_midilist[0]["value"]       = self._bend
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1708,28 +1709,34 @@ class PitchBend(Automation):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Bend():             self._bend = operand % o.Operand()
+                    case ou.Bend():             self._bend = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
             case PitchBend():
                 super().__lshift__(operand)
-                self._bend << operand._bend
-            case ou.Bend() | int() | float():  self._bend << operand
-            case _: super().__lshift__(operand)
+                self._bend = operand._bend
+            case ou.Bend():
+                self._bend = operand // int()
+            case int():
+                self._bend = operand
+            case float():
+                self._bend = int(operand)
+            case _:
+                super().__lshift__(operand)
         return self
 
     def __add__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Bend() | int() | float() | ou.Bend() | Fraction():
-                return self.copy() << od.DataSource( self._bend + operand )   # Specific parameter
+            case ou.Bend() | int() | float() | Fraction():
+                return self.copy() << od.DataSource( self // ou.Bend() + operand )
             case _:
                 return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Bend() | int() | float() | ou.Bend() | Fraction():
-                return self.copy() << od.DataSource( self._bend - operand )   # Specific parameter
+            case ou.Bend() | int() | float() | Fraction():
+                return self.copy() << od.DataSource( self // ou.Bend() - operand )
             case _:
                 return super().__sub__(operand)
 
