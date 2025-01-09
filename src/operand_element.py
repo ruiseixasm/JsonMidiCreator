@@ -1742,11 +1742,11 @@ class PitchBend(Automation):
 
 class Aftertouch(Automation):
     def __init__(self, *parameters):
-        self._pressure: ou.Pressure = ou.Pressure()
+        self._pressure: int = 0
         super().__init__(*parameters)
 
-    def pressure(self: 'Aftertouch', pressure: Optional[int] = None) -> 'Aftertouch':
-        self._pressure = ou.Bend(pressure)
+    def pressure(self: 'Aftertouch', pressure: int = 0) -> 'Aftertouch':
+        self._pressure = pressure
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -1764,10 +1764,11 @@ class Aftertouch(Automation):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Pressure():     return self._pressure
+                    case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
                     case _:                 return super().__mod__(operand)
-            case ou.Pressure():     return self._pressure.copy()
-            case int() | float():   return self._pressure % od.DataSource( int() )
+            case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
+            case int():             return self._pressure
+            case float():           return float(self._pressure)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1775,7 +1776,7 @@ class Aftertouch(Automation):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._pressure == other % od.DataSource( ou.Pressure() )
+                    and self._pressure == other._pressure
             case _:
                 return super().__eq__(other)
     
@@ -1784,14 +1785,12 @@ class Aftertouch(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        pressure_int: int           = self._pressure % od.DataSource( int() )
-
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xD0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte": Element.midi_128(pressure_int),
+                        "data_byte": Element.midi_128(self._pressure),
                         "device": self._device
                     }
                 }
@@ -1802,7 +1801,7 @@ class Aftertouch(Automation):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ChannelPressure"
-        self_midilist[0]["pressure"]    = Element.midi_128(self._pressure % int())
+        self_midilist[0]["pressure"]    = Element.midi_128(self._pressure)
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1825,29 +1824,34 @@ class Aftertouch(Automation):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Pressure():         self._pressure = operand % o.Operand()
+                    case ou.Pressure():         self._pressure = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
             case Aftertouch():
                 super().__lshift__(operand)
-                self._pressure << operand._pressure
-            case ou.Pressure() | int() | float():
-                self._pressure << operand
-            case _: super().__lshift__(operand)
+                self._pressure = operand._pressure
+            case ou.Pressure():
+                self._pressure = operand // int()
+            case int():
+                self._pressure = operand
+            case float():
+                self._pressure = int(operand)
+            case _:
+                super().__lshift__(operand)
         return self
 
     def __add__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pressure() | int() | float() | ou.Pressure() | Fraction():
-                return self.copy() << od.DataSource( self._pressure + operand )   # Specific parameter
+            case ou.Pressure() | int() | float() | Fraction():
+                return self.copy() << od.DataSource( self // ou.Pressure() + operand )
             case _:
                 return super().__add__(operand)
 
     def __sub__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Pressure() | int() | float() | ou.Pressure() | Fraction():
-                return self.copy() << od.DataSource( self._pressure - operand )   # Specific parameter
+            case ou.Pressure() | int() | float() | Fraction():
+                return self.copy() << od.DataSource( self // ou.Pressure() - operand )
             case _:
                 return super().__sub__(operand)
 
