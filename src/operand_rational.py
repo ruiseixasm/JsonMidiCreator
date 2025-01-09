@@ -301,6 +301,8 @@ class Negative(Rational):
                     self._rational = Fraction(operand % o.Operand()) * -1
                 except ValueError as e:
                     print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
+            case _:
+                super().__lshift__(operand)
         return self
 
 class RationalDefault(Rational):
