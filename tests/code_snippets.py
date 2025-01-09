@@ -334,7 +334,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 
 # print(f"First key: {first_key}, First value: {first_value}")
 
-from fractions import Fraction
+# from fractions import Fraction
 
 # two: Fraction = Fraction(2)
 # three: Fraction = Fraction(3)
@@ -342,11 +342,14 @@ from fractions import Fraction
 # one: int = three // two
 # print(one)
 
-time_1: Fraction = Fraction(4.5)
-time_2: Fraction = Fraction(0.4)
+# time_1: Fraction = Fraction(4.5)
+# time_2: Fraction = Fraction(0.4)
 
-amount: int = time_1 // time_2
-print(amount)
+# amount: int = time_1 // time_2
+# print(amount)
 
-amount: int = time_1 / time_2
-print(float(amount))
+# amount: int = time_1 / time_2
+# print(float(amount))
+
+
+print(-1 % 7)

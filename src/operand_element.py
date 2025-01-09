@@ -584,7 +584,6 @@ class Tiable(Element):
                 self._tied          = operand._tied
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Degree():       self._degree    = operand % o.Operand()
                     case ou.Velocity():     self._velocity  = operand % o.Operand() // int()
                     case ra.Gate():         self._gate      = operand % o.Operand() // Fraction()
                     case ou.Tied():         self._tied      = operand % o.Operand() // bool()

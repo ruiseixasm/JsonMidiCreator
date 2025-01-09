@@ -120,7 +120,7 @@ class Pitch(Generic):
         self._key_signature: ou.KeySignature    = os.staff._key_signature.copy()
         self._key: int                          = int( self._key_signature % float() )
         self._octave: int                       = 4     # By default it's the 4th Octave!
-        self._degree: int                       = 0     # 0 is internally equivalent to 1
+        self._degree: int                       = 1     # By default it's Degree 1
         self._sharp: bool                       = False
         self._flat: bool                        = False
         self._natural: bool                     = False
@@ -153,8 +153,11 @@ class Pitch(Generic):
         sharp: ou.Sharp         = ou.Sharp(False)
         flat: ou.Flat           = ou.Flat(False)
         key_int: int            = self._key % 12
-        degree_transpose: int   = self._degree
-        semitone_transpose: int = 0
+        degree_transpose: int   = 0
+        if self._degree > 0:
+            degree_transpose    = self._degree - 1
+        if self._degree < 0:
+            degree_transpose    = self._degree + 1
 
         # strips existent accidentals
         if staff_white_keys[key_int] == 0: # Black key
@@ -169,6 +172,7 @@ class Pitch(Generic):
         if self._scale.hasScale():
             key_scale = self._scale % list()  # Already modulated
 
+        semitone_transpose: int = 0
         while degree_transpose > 0:
             semitone_transpose += 1
             if key_scale[(key_int + semitone_transpose) % 12]:          # Scale key
@@ -457,7 +461,10 @@ class Pitch(Generic):
                 if operand == 0:
                     self._key = int( self._key_signature % float() )
                 else:
-                    self._degree = ou.Degree(operand) // int()
+                    self._degree = operand
+
+            case ou.Degree():
+                self << operand // int()
 
             case float() | Fraction() | ou.Semitone():
 
@@ -481,8 +488,6 @@ class Pitch(Generic):
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 self._key_signature << operand
                 self._key = int( self._key_signature % float() )
-            case ou.Degree():
-                self._degree    = operand // int()
             case Scale() | ou.Mode():
                 self._scale     << operand
             case str():
@@ -532,10 +537,8 @@ class Pitch(Generic):
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
                 self_copy.apply_key_offset(key_offset)
-            case int():
-                self_copy._degree += operand
-            case ou.Unit():
-                self_copy._degree += operand % int()
+            case int() | ou.Unit():
+                self_copy._degree = (self // ou.Degree() + operand) // int()
             case _:
                 return super().__add__(operand)
 
@@ -565,10 +568,8 @@ class Pitch(Generic):
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
                 self_copy.apply_key_offset(key_offset)
-            case int():
-                self_copy._degree -= operand
-            case ou.Unit():
-                self_copy._degree -= operand % int()
+            case int() | ou.Unit():
+                self_copy._degree = (self // ou.Degree() - operand) // int()
             case _:
                 return super().__sub__(operand)
 

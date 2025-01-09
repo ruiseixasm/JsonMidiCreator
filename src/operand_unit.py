@@ -560,23 +560,18 @@ class Degree(PitchParameter):
     first : integer_like
         Accepts a numeral (5) or the string (V) with 1 as the default
     """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters) # By default the degree it's 1 (I, Tonic)
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case int() | float() | Fraction():
-                self_unit: int = self._unit
-                if self_unit < 0:
-                    self_unit -= 1
-                else:
-                    self_unit += 1
-                match operand:
-                    case Fraction():    return Fraction(self_unit)
-                    case float():       return float(self_unit)
-                    case _:             return self_unit
             case str():
-                return __class__._degree[self._unit % 7]
+                adjusted_degree: int = self._unit
+                if adjusted_degree > 0:
+                    adjusted_degree -= 1
+                return __class__._degree[adjusted_degree % 7]
             case _:
                 return super().__mod__(operand)
 
@@ -591,28 +586,34 @@ class Degree(PitchParameter):
                         self.stringSetDegree(operand % o.Operand())
                     case _:
                         super().__lshift__(operand)
-            case int() | float() | Fraction():
-                self._unit = int(operand)
-                if self._unit > 0:
-                    self._unit -= 1
-                elif self._unit < 0:
-                    self._unit += 1
             case str():
                 self.stringSetDegree(operand)
             case _:
                 super().__lshift__(operand)
         return self
 
+    def __add__(self, number: any) -> 'Degree':
+        self_add: Degree = super().__add__(number)
+        if self_add._unit == 0: # Must jump the 0 (zero)
+            self_add._unit = 1
+        return self_add
+    
+    def __sub__(self, number: any) -> 'Degree':
+        self_sub: Degree = super().__sub__(number)
+        if self_sub._unit == 0: # Must jump the 0 (zero)
+            self_sub._unit = -1
+        return self_sub
+    
     def stringSetDegree(self, string: str) -> None:
         string = string.strip()
         match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
-            case "i"   | "tonic":                   self._unit = 0
-            case "ii"  | "supertonic":              self._unit = 1
-            case "iii" | "mediant":                 self._unit = 2
-            case "iv"  | "subdominant":             self._unit = 3
-            case "v"   | "dominant":                self._unit = 4
-            case "vi"  | "submediant":              self._unit = 5
-            case "vii" | "leading tone":            self._unit = 6
+            case "i"   | "tonic":                   self._unit = 1
+            case "ii"  | "supertonic":              self._unit = 2
+            case "iii" | "mediant":                 self._unit = 3
+            case "iv"  | "subdominant":             self._unit = 4
+            case "v"   | "dominant":                self._unit = 5
+            case "vi"  | "submediant":              self._unit = 6
+            case "vii" | "leading tone":            self._unit = 7
 
 class Sharps(PitchParameter):  # Sharps (###)
     def __init__(self, *parameters):
