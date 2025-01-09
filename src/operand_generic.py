@@ -713,16 +713,16 @@ class Controller(Generic):
                 self._value     = operand._value
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():    self._number = operand._data // int()
-                    case ou.Value():     self._value = operand._data // int()
+                    case ou.Number():    self._number = operand._data._unit
+                    case ou.Value():     self._value = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Number():
-                self._number = operand // int()
+                self._number = operand._unit
             case str():
-                self._number = ou.Number(operand) // int()
+                self._number = ou.Number(operand)._unit
             case ou.Value():
-                self._value = operand // int()
+                self._value = operand._unit
             case int():
                 self._value = operand
             case float():
