@@ -317,7 +317,7 @@ class Playlist(Data):
         <operand_data.Playlist object at 0x0000022EC9967490>
         """
         match operand:
-            case od.DataSource():
+            case DataSource():
                 match operand._data:
                     case ou.MidiTrack():    return self._midi_track
                     case list():            return self._data
@@ -404,10 +404,10 @@ class Playlist(Data):
         match operand:
             case ra.NoteValue():
                 playlist_copy = self.deep_copy(self._data)
-                increase_position_ms: float = operand.getMillis_float()
-                for midi_element in playlist_copy:
-                    if "time_ms" in midi_element:
-                        midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
+                increase_position_ms: float = operand.getMillis_float() # OUTDATED, NEEDS TO BE REVIEWED WITH LENGTH INSTEAD
+                for self_dict in playlist_copy:
+                    if "time_ms" in self_dict:
+                        self_dict["time_ms"] = round(self_dict["time_ms"] + increase_position_ms, 3)
                 return Playlist(self._midi_track) << DataSource( playlist_copy )
             case list():
                 return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + self.deep_copy(operand) )
