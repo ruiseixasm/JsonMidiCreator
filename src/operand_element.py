@@ -1198,20 +1198,20 @@ class Chord(KeyScale):
 
 class Retrigger(Note):
     def __init__(self, *parameters):
+        self._division: int     = 16
+        self._swing: Fraction   = Fraction(0.5)
         super().__init__()
         self._duration  *= 2 # Equivalent to twice single note duration
-        self._gate      /= 2
-        self._division  = ou.Division(16)
-        self._swing     = ra.Swing(0.50)
+        self._gate      = Fraction(0.5)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def division(self: 'Retrigger', division: int = None) -> 'Retrigger':
-        self._division = ou.Division(division)
+    def division(self: 'Retrigger', division: int = 16) -> 'Retrigger':
+        self._division = division
         return self
 
-    def swing(self: 'Retrigger', swing: int = None) -> 'Retrigger':
-        self._swing = ra.Swing(swing)
+    def swing(self: 'Retrigger', swing: float = 0.5) -> 'Retrigger':
+        self._swing = Fraction(swing)
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
@@ -1229,24 +1229,25 @@ class Retrigger(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Division():     return self._division
-                    case ra.Swing():        return self._swing
+                    case ou.Division():     return ou.Division() << od.DataSource(self._division)
+                    case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Division():     return self._division.copy()
-            case int():             return self._division % int()
-            case ra.Swing():        return self._swing.copy()
+            case ou.Division():     return ou.Division() << od.DataSource(self._division)
+            case int():             return self._division
+            case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note
-            case ra.Duration():     return operand << od.DataSource( self._duration / 2 )
+            case ra.Duration():     return operand.copy() << od.DataSource( self._duration / 2 )
             case _:                 return super().__mod__(operand)
 
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = self % ra.Position()
-        single_note_duration: ra.Duration = ra.Duration( self._duration/(self._division % int()) ) # Already 2x single note duration
-        for _ in range(self._division % od.DataSource( int() )):
-            swing_ratio = self._swing % od.DataSource( Fraction() )
-            if self_iteration % 2: swing_ratio = 1 - swing_ratio
+        single_note_duration: ra.Duration = ra.Duration( self._duration/(self._division) ) # Already 2x single note duration
+        for _ in range(self._division):
+            swing_ratio = self._swing
+            if self_iteration % 2:
+                swing_ratio = 1 - swing_ratio
             note_duration: ra.Duration = single_note_duration * 2 * swing_ratio
             retrigger_notes.append(Note(self, note_duration, note_position))
             note_position += note_duration
@@ -1287,23 +1288,30 @@ class Retrigger(Note):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ou.Division():             self._division = operand % o.Operand()
-                    case ra.Swing():                self._swing = operand % o.Operand()
+                    case ou.Division():             self._division = operand % o.Operand() // int()
+                    case ra.Swing():                self._swing = operand % o.Operand() // Fraction()
                     case _:                         super().__lshift__(operand)
             case Retrigger():
                 super().__lshift__(operand)
-                self._division  << operand._division
-                self._swing     << operand._swing
-            case ou.Division() | int():
+                self._division  = operand._division
+                self._swing     = operand._swing
+            case int():
                 if operand > 0:
-                    self._division << operand
+                    self._division = operand
+            case ou.Division():
+                if operand > 0:
+                    self._division = operand // int()
             case ra.Swing():
-                if operand < 0:     self._swing << 0
-                elif operand > 1:   self._swing << 1
-                else:               self._swing << operand
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand // Fraction()
             case ra.Duration():
-                self._duration      = operand // Fraction() * 2  # Equivalent to two sized Notes
-            case _:                 super().__lshift__(operand)
+                self._duration = operand // Fraction() * 2  # Equivalent to two sized Notes
+            case _:
+                super().__lshift__(operand)
         return self
 
 class Note3(Retrigger):
@@ -1319,7 +1327,7 @@ class Note3(Retrigger):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._division  << ou.Division(3)
+        self._division = 3
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
