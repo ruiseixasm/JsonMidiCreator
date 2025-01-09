@@ -412,7 +412,7 @@ class Playlist(Data):
             case list():
                 return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + self.deep_copy(operand) )
             case o.Operand():
-                return Playlist( self.deep_copy(self._data) + self.deep_copy(operand.getPlaylist()) )
+                return Playlist( self.deep_copy(self._data) + operand.getPlaylist() )
             case _:
                 return Playlist(self)
 
