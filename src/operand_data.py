@@ -356,7 +356,7 @@ class Playlist(Data):
                     case ou.MidiTrack():
                         self._midi_track = operand._data
                     case list():
-                        self._data = operand
+                        self._data = operand._data
                     case _:
                         super().__lshift__(operand)
             case oc.Song() | oc.Sequence() | oe.Element() | Playlist():
@@ -412,16 +412,10 @@ class Playlist(Data):
             case list():
                 return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + self.deep_copy(operand) )
             case o.Operand():
-                return Playlist( self.deep_copy(self._data) + operand.getPlaylist() )
+                return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + operand.getPlaylist() )
             case _:
                 return Playlist(self)
 
-            # case list():
-            #     return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + self.deep_copy(operand) )
-            # case o.Operand():
-            #     return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + operand.getPlaylist() )
-            # case _:
-            #     return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) )
 
 class Load(Serialization):
     def __init__(self, file_name: str = None):
