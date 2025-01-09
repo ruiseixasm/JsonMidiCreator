@@ -105,6 +105,13 @@ class Mutation(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Mutation':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Mutation():
+                super().__lshift__(operand)
+                self._sequence      = operand._sequence.copy()
+                self._result        = operand._result.copy()
+                self._frame         = operand._frame.copy()
+                self._performers    = operand._performers.copy()
+                self._operator      = operand._operator # The string str()
             case od.DataSource():
                 match operand % o.Operand():
                     case od.Performers():           self._performers = operand % o.Operand()
@@ -114,13 +121,6 @@ class Mutation(o.Operand):
                     case od.Result():               self._result = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Mutation():
-                        super().__lshift__(operand)
-                        self._sequence      = operand._sequence.copy()
-                        self._result        = operand._result.copy()
-                        self._frame         = operand._frame.copy()
-                        self._performers    = operand._performers.copy()
-                        self._operator      = operand._operator # The string str()
             case od.Performers():           self._performers << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Sequence():
@@ -228,17 +228,17 @@ class Translocation(Mutation):
     def __lshift__(self, operand: o.Operand) -> 'Translocation':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Translocation():
+                super().__lshift__(operand)
+                self._chaos         << operand._chaos
+                self._filter        << operand._filter
+                self._parameters    << operand._parameters
             case od.DataSource():
                 match operand % o.Operand():
                     case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Translocation():
-                super().__lshift__(operand)
-                self._chaos         << operand._chaos
-                self._filter        << operand._filter
-                self._parameters    << operand._parameters
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
@@ -344,6 +344,12 @@ class Crossover(Mutation):
     def __lshift__(self, operand: o.Operand) -> 'Crossover':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Crossover():
+                super().__lshift__(operand)
+                self._sequences     << operand._sequences
+                self._chaos         << operand._chaos
+                self._filter        << operand._filter
+                self._parameters    << operand._parameters
             case od.DataSource():
                 match operand % o.Operand():
                     case od.Sequences():            self._sequences = operand % o.Operand()
@@ -351,12 +357,6 @@ class Crossover(Mutation):
                     case od.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Crossover():
-                super().__lshift__(operand)
-                self._sequences     << operand._sequences
-                self._chaos         << operand._chaos
-                self._filter        << operand._filter
-                self._parameters    << operand._parameters
             case od.Sequences():            self._sequences << operand
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
