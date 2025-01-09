@@ -340,7 +340,7 @@ class Playlist(Data):
         return super().__eq__(other)
     
     def getPlaylist(self, position = None) -> list:
-        return Playlist.copy_play_list(self._data)
+        return self.deep_copy(self._data)
 
     # CHAINABLE OPERATIONS
 
@@ -398,22 +398,16 @@ class Playlist(Data):
         import operand_rational as ra
         match operand:
             case ra.NoteValue():
-                playlist_copy = Playlist.copy_play_list(self._data)
+                playlist_copy = self.deep_copy(self._data)
                 increase_position_ms: float = operand.getMillis_float()
                 for midi_element in playlist_copy:
                     if "time_ms" in midi_element:
                         midi_element["time_ms"] = round(midi_element["time_ms"] + increase_position_ms, 3)
                 return Playlist( playlist_copy )
-            case list():        return Playlist( Playlist.copy_play_list(self._data) + Playlist.copy_play_list(operand) )
-            case o.Operand():   return Playlist( Playlist.copy_play_list(self._data) + Playlist.copy_play_list(operand.getPlaylist()) )
-            case _:             return Playlist( Playlist.copy_play_list(self._data) )
+            case list():        return Playlist( self.deep_copy(self._data) + self.deep_copy(operand) )
+            case o.Operand():   return Playlist( self.deep_copy(self._data) + self.deep_copy(operand.getPlaylist()) )
+            case _:             return Playlist( self.deep_copy(self._data) )
 
-    @staticmethod
-    def copy_play_list(play_list: list[dict]) -> list[dict]:
-        copy_play_list = []
-        for single_dict in play_list:
-            copy_play_list.append(o.Operand.deep_copy(single_dict))
-        return copy_play_list
 
 class Load(Serialization):
     def __init__(self, file_name: str = None):
