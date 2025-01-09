@@ -48,7 +48,7 @@ class Data(o.Operand):
         """
         match operand:
             case DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case of.Frame():                return self % DataSource( operand % o.Operand() )
                     case Data():                    return self
                     case ol.Null() | None:          return ol.Null()
@@ -318,7 +318,7 @@ class Playlist(Data):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.MidiTrack():    return self._midi_track
                     case list():            return self._data
                     case _:                 return super().__mod__(operand)
@@ -349,7 +349,7 @@ class Playlist(Data):
         import operand_element as oe
         match operand:
             case DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.MidiTrack():
                         self._midi_track = operand % o.Operand()
                     case list():

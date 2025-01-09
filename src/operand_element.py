@@ -81,7 +81,7 @@ class Element(o.Operand):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Position():     return self._position
                     case ra.Duration():     return (operand % o.Operand()).copy() << od.DataSource( self._duration )
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
@@ -243,7 +243,7 @@ class Element(o.Operand):
                 self._device        = operand._device   # It's a list of strings, but it won't be changed directly
                 self._enabled       = operand._enabled
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Position():     self._position  = operand % o.Operand()
                     case ra.Duration():     self._duration  = operand % o.Operand() // Fraction()
                     case ou.Stackable():    self._stackable = operand % o.Operand() // bool()
@@ -379,7 +379,7 @@ class Clock(Element):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
                     case _:                 return super().__mod__(operand)
             case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
@@ -463,7 +463,7 @@ class Clock(Element):
                 super().__lshift__(operand)
                 self._pulses_per_quarternote = operand._pulses_per_quarternote
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.PPQN():         self._pulses_per_quarternote = operand % o.Operand() // int()
                     case _:                 super().__lshift__(operand)
             case ou.PPQN():         self._pulses_per_quarternote = operand // int()
@@ -524,7 +524,7 @@ class Tiable(Element):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Velocity():     return ou.Velocity() << od.DataSource(self._velocity)
                     case ra.Gate():         return ra.Gate() << od.DataSource(self._gate)
                     case ou.Tied():         return ou.Tied() << od.DataSource( self._tied )
@@ -583,7 +583,7 @@ class Tiable(Element):
                 self._gate          = operand._gate
                 self._tied          = operand._tied
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Velocity():     self._velocity  = operand % o.Operand() // int()
                     case ra.Gate():         self._gate      = operand % o.Operand() // Fraction()
                     case ou.Tied():         self._tied      = operand % o.Operand() // bool()
@@ -620,7 +620,7 @@ class Note(Tiable):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Pitch():        return self._pitch
                     case _:                 return super().__mod__(operand)
             case og.Pitch():        return self._pitch.copy()
@@ -697,7 +697,7 @@ class Note(Tiable):
                 super().__lshift__(operand)
                 self._pitch         << operand._pitch
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Pitch():        self._pitch     = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -735,7 +735,7 @@ class Cluster(Tiable):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case list():            return self._pitches
                     case _:                 return super().__mod__(operand)
             case list():            return self.deep_copy(self._pitches)
@@ -793,7 +793,7 @@ class Cluster(Tiable):
                 super().__lshift__(operand)
                 self._pitches  = self.deep_copy(operand % od.DataSource( list() ))
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case list():                self._pitches = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case list():
@@ -870,7 +870,7 @@ class KeyScale(Note):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Scale():        return self._scale
                     case _:                 return super().__mod__(operand)
             case og.Scale():        return self._scale.copy()
@@ -936,7 +936,7 @@ class KeyScale(Note):
                 super().__lshift__(operand)
                 self._scale << operand._scale
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Scale():        self._scale = operand % o.Operand()
                     case _:                 super().__lshift__(operand)
             case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
@@ -1001,7 +1001,7 @@ class Chord(KeyScale):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Size():         return ou.Size() << od.DataSource(self._size)
                     case ou.Inversion():    return ou.Inversion() << od.DataSource(self._inversion)
                     case ou.Dominant():     return ou.Dominant() << od.DataSource(self._dominant)
@@ -1141,7 +1141,7 @@ class Chord(KeyScale):
                 self._sus2          = operand._sus2
                 self._sus4          = operand._sus4
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Size():                 self._size = operand % o.Operand() // int()
                     case ou.Inversion():            self._inversion = operand % o.Operand() // int()
                     case ou.Dominant():             self._dominant = operand % o.Operand() // bool()
@@ -1227,7 +1227,7 @@ class Retrigger(Note):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Division():     return ou.Division() << od.DataSource(self._division)
                     case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
                     case _:                 return super().__mod__(operand)
@@ -1290,7 +1290,7 @@ class Retrigger(Note):
                 self._division  = operand._division
                 self._swing     = operand._swing
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Division():             self._division = operand % o.Operand() // int()
                     case ra.Swing():                self._swing = operand % o.Operand() // Fraction()
                     case _:                         super().__lshift__(operand)
@@ -1383,7 +1383,7 @@ class Tuplet(Element):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
@@ -1458,7 +1458,7 @@ class Tuplet(Element):
                 self._swing     = operand._swing
                 self._elements  = self.deep_copy(operand % od.DataSource( list() ))
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Swing():            self._swing = operand % o.Operand() // Fraction()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
@@ -1527,7 +1527,7 @@ class ControlChange(Automation):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Controller():       return self._controller
                     case _:                     return super().__mod__(operand)
             case og.Controller():       return self._controller.copy()
@@ -1593,7 +1593,7 @@ class ControlChange(Automation):
                 super().__lshift__(operand)
                 self._controller << operand._controller
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Controller():       self._controller = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case og.Controller() | ou.Number() | ou.Value() | int() | float() | str():
@@ -1640,7 +1640,7 @@ class PitchBend(Automation):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
                     case _:                 return super().__mod__(operand)
             case ou.Bend():         return ou.Bend() << od.DataSource(self._bend)
@@ -1707,7 +1707,7 @@ class PitchBend(Automation):
                 super().__lshift__(operand)
                 self._bend = operand._bend
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Bend():             self._bend = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
             case ou.Bend():
@@ -1759,7 +1759,7 @@ class Aftertouch(Automation):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
                     case _:                 return super().__mod__(operand)
             case ou.Pressure():     return ou.Pressure() << od.DataSource(self._pressure)
@@ -1822,7 +1822,7 @@ class Aftertouch(Automation):
                 super().__lshift__(operand)
                 self._pressure = operand._pressure
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Pressure():         self._pressure = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
             case ou.Pressure():
@@ -1874,7 +1874,7 @@ class PolyAftertouch(Aftertouch):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Pitch():  return self._pitch
                     case _:             return super().__mod__(operand)
             case og.Pitch():  return self._pitch.copy()
@@ -1933,7 +1933,7 @@ class PolyAftertouch(Aftertouch):
                 super().__lshift__(operand)
                 self._pitch << operand._pitch
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case og.Pitch():          self._pitch = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case og.Pitch() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
@@ -1964,7 +1964,7 @@ class ProgramChange(Automation):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Program():      return ou.Program() << od.DataSource(self._program)
                     case _:                 return super().__mod__(operand)
             case ou.Program():      return ou.Program() << od.DataSource(self._program)
@@ -2027,7 +2027,7 @@ class ProgramChange(Automation):
                 super().__lshift__(operand)
                 self._program = operand._program
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Program():          self._program = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
             case ou.Program():

@@ -77,7 +77,7 @@ class Frame(o.Operand):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case Frame():
                         for single_operand in self:
                             if isinstance(single_operand, operand.__class__): # checks if it's the same Frame

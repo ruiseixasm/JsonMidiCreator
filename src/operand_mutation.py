@@ -55,7 +55,7 @@ class Mutation(o.Operand):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case od.Performers():   return self._performers
                     case of.Frame():        return self._frame
                     case oc.Sequence():     return self._sequence
@@ -113,7 +113,7 @@ class Mutation(o.Operand):
                 self._performers    = operand._performers.copy()
                 self._operator      = operand._operator # The string str()
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case od.Performers():           self._performers = operand % o.Operand()
                     case of.Frame():                self._frame = operand % o.Operand()
                     case oc.Sequence():             self._sequence = operand % o.Operand()
@@ -196,7 +196,7 @@ class Translocation(Mutation):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
@@ -234,7 +234,7 @@ class Translocation(Mutation):
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()
                     case od.Parameters():           self._parameters = operand % o.Operand()
@@ -308,7 +308,7 @@ class Crossover(Mutation):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case od.Sequences():    return self._sequences
                     case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
@@ -351,7 +351,7 @@ class Crossover(Mutation):
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case od.Sequences():            self._sequences = operand % o.Operand()
                     case ch.Chaos():                self._chaos = operand % o.Operand()
                     case od.Filter():               self._filter = operand % o.Operand()

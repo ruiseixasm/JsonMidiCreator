@@ -64,7 +64,7 @@ class Staff(o.Operand):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ra.Tempo():            return self._tempo
                     case og.TimeSignature():    return self._time_signature
@@ -194,7 +194,7 @@ class Staff(o.Operand):
                 self._channel           << operand._channel
                 self._device            << operand._device
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Tempo():            self._tempo = operand % o.Operand()
                     case og.TimeSignature():    self._time_signature = operand % o.Operand()
                     case ra.Quantization():     self._quantization = operand % o.Operand()    # Note Value

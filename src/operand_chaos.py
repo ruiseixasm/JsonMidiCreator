@@ -44,7 +44,7 @@ class Chaos(o.Operand):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case ra.Xn():               return self._xn
                     case ra.X0():               return self._x0
@@ -95,7 +95,7 @@ class Chaos(o.Operand):
                 self._xn            << operand._xn
                 self._x0            << operand._x0
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Xn():                   self._xn = operand % o.Operand()
                     case ra.X0():                   self._x0 = operand % o.Operand()
             case od.Serialization():
@@ -154,7 +154,7 @@ class Modulus(Chaos):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Amplitude():        return self._amplitude
                     case ra.Steps():             return self._steps
                     case _:                     return super().__mod__(operand)
@@ -196,7 +196,7 @@ class Modulus(Chaos):
                 self._amplitude     << operand._amplitude
                 self._steps         << operand._steps
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Amplitude():            self._amplitude = operand % o.Operand()
                     case ra.Steps():                 self._steps = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
@@ -229,7 +229,7 @@ class Flipper(Modulus):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Split():            return self._split
                     case int() | float():
                         self_index = super().__mod__(od.DataSource( operand % o.Operand() ))
@@ -273,7 +273,7 @@ class Flipper(Modulus):
                 super().__lshift__(operand)
                 self._split         << operand._split
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Split():                self._split = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case ra.Split():                self._split << operand
@@ -296,7 +296,7 @@ class Bouncer(Chaos):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Width():            return self._width
                     case ra.Height():           return self._height
                     case ra.dX():               return self._dx
@@ -376,7 +376,7 @@ class Bouncer(Chaos):
                 set_y               = operand._set_xy[1].copy()
                 self._set_xy        = (set_x, set_y)
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Width():                self._width = operand % o.Operand()
                     case ra.Height():               self._height = operand % o.Operand()
                     case ra.dX():                   self._dx = operand % o.Operand()
@@ -435,7 +435,7 @@ class SinX(Chaos):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Lambda():           return self._lambda
                     case _:                     return super().__mod__(operand)
             case ra.Lambda():           return self._lambda.copy()
@@ -471,7 +471,7 @@ class SinX(Chaos):
                 super().__lshift__(operand)
                 self._lambda            << operand._lambda
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Lambda():               self._lambda = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
             case ra.Lambda():               self._lambda << operand

@@ -57,7 +57,7 @@ class Operator(o.Operand):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case list():            return self._operator_list
                     case Operator():        return self
                     case ol.Null() | None:  return ol.Null()
@@ -108,7 +108,7 @@ class Operator(o.Operand):
                 self._operator_list = operator_list
                 self._operand       = self.deep_copy(operand % od.DataSource( o.Operand() ))
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case list():            self._operator_list = operand % o.Operand()
                     case _:                 self._operand = operand % o.Operand()
             case od.Serialization():
@@ -168,7 +168,7 @@ class Oscillator(Operator):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Length():           return self._length
                     case ra.Position():         return self._position
                     case ra.Amplitude():        return ra.Amplitude() << od.DataSource(self._amplitude)
@@ -223,7 +223,7 @@ class Oscillator(Operator):
                 self._amplitude     = operand._amplitude
                 self._offset        = operand._offset
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.Length():       self._length = operand % o.Operand()
                     case ra.Position():     self._position = operand % o.Operand()
                     case ra.Amplitude():    self._amplitude = operand % o.Operand() // Fraction()

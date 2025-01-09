@@ -47,7 +47,7 @@ class TimeSignature(Generic):
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case of.Frame():            return self % od.DataSource( operand % o.Operand() )
                     case TimeSignature():       return self
                     case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
@@ -98,7 +98,7 @@ class TimeSignature(Generic):
                 self._top               = operand._top
                 self._bottom            = operand._bottom
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ra.BeatsPerMeasure():
                         self._top           = operand % o.Operand() % od.DataSource( int() )
                     case ra.BeatNoteValue():
@@ -248,7 +248,7 @@ class Pitch(Generic):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case of.Frame():        return self % od.DataSource( operand % o.Operand() )
                     case Pitch():           return self
                     case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
@@ -665,7 +665,7 @@ class Controller(Generic):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Number():           return ou.Number() << od.DataSource(self._number)
                     case ou.Value():            return ou.Value() << od.DataSource(self._value)
                     case Controller():          return self
@@ -712,7 +712,7 @@ class Controller(Generic):
                 self._number    = operand._number
                 self._value     = operand._value
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Number():    self._number = operand % o.Operand() // int()
                     case ou.Value():     self._value = operand % o.Operand() // int()
             case od.Serialization():
@@ -785,7 +785,7 @@ class Scale(Generic):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
                     case list():                return self._scale_list
                     case str():                 return __class__.get_scale_name(self._scale_list)
@@ -882,7 +882,7 @@ class Scale(Generic):
                 self._scale_list    = operand._scale_list.copy()
                 self._mode          = operand._mode
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case ou.Mode():         self._mode = operand % o.Operand() // int()
                     case _:                 super().__lshift__(operand)
             case od.Serialization():

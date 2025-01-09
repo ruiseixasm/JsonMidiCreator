@@ -69,7 +69,7 @@ class Rational(o.Operand):
         """
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case Fraction():        return self._rational           # returns a Fraction()
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
@@ -151,7 +151,7 @@ class Rational(o.Operand):
                 super().__lshift__(operand)
                 self._rational = operand._rational
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case Fraction():
                         self._rational = operand % o.Operand()
                     case float() | int():
@@ -429,7 +429,7 @@ class Position(Rational):
         import operand_generic as og
         match operand:
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case Tempo():               return Tempo() << od.DataSource( self._tempo )
                     case og.TimeSignature():    return self._time_signature
                     case Quantization():        return Quantization() << od.DataSource( self._quantization )
@@ -727,7 +727,7 @@ class Position(Rational):
                 self._time_signature._bottom    = operand._time_signature._bottom
                 self._quantization              = operand._quantization
             case od.DataSource():
-                match operand % o.Operand():
+                match operand._data:
                     case Tempo():               self._tempo             = operand % o.Operand() // Fraction()
                     case og.TimeSignature():    self._time_signature    = operand % o.Operand()
                     case Quantization():        self._quantization      = operand % o.Operand() // Fraction()
