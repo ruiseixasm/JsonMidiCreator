@@ -427,7 +427,7 @@ class Pitch(Generic):
                     case float() | Fraction():
                         self._unit = int(operand._data)
                     case ou.Semitone():
-                        self._unit = operand._data % od.DataSource( int() )
+                        self._unit = operand._data._unit
                     case ou.KeySignature():
                         self._key_signature = operand._data
                     case ou.Sharp():
@@ -437,13 +437,13 @@ class Pitch(Generic):
                     case ou.Natural():
                         self._natural = operand._data // bool()
                     case ou.Degree():
-                        self._degree = operand._data // int()
+                        self._degree = operand._data._unit
                     case Scale():
                         self._scale << operand._data
                     case str():
                         self._flat      = ((operand._data).strip().lower().find("b") != -1) * 1
-                        self._degree    = (self // ou.Degree() << ou.Degree(operand._data)) // int()
-                        self._key       = ou.Key(operand._data) // int()
+                        self._degree    = (self // ou.Degree() << ou.Degree(operand._data))._unit
+                        self._key       = ou.Key(operand._data)._unit
                     case _:
                         super().__lshift__(operand)
 
