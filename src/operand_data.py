@@ -376,26 +376,29 @@ class Playlist(Data):
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.NoteValue)) and isinstance(self._data, list) and len(self._data) > 0:
-            operand_play_list = operand.getPlaylist()
-            if len(operand_play_list) > 0:
-                ending_position_ms = operand_play_list[0]["time_ms"]
+        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.NoteValue)):
+            operand_play_list: list[dict] = operand.getPlaylist()
+            self_copy: Playlist = self.copy()
+            if len(self_copy._data) > 0 and len(operand_play_list) > 0:
+                ending_position_ms: float = operand_play_list[0]["time_ms"]
                 for operand_dict in operand_play_list:
                     if "time_ms" in operand_dict and operand_dict["time_ms"] > ending_position_ms:
                         ending_position_ms = operand_dict["time_ms"]
-                increase_position_ms = ending_position_ms
+                # Where self_copy _data list is manipulated (pushed forward)
+                increase_position_ms: float = ending_position_ms
                 if not isinstance(operand, ra.NoteValue):
-                    starting_position_ms = self._data[0]["time_ms"]
-                    for self_dict in self._data:
-                        if "time_ms" in self_dict and self_dict["time_ms"] < starting_position_ms:
-                            starting_position_ms = self_dict["time_ms"]
+                    starting_position_ms = self_copy._data[0]["time_ms"]
+                    for self_copy_dict in self_copy._data:
+                        if "time_ms" in self_copy_dict and self_copy_dict["time_ms"] < starting_position_ms:
+                            starting_position_ms = self_copy_dict["time_ms"]
                     increase_position_ms = ending_position_ms - starting_position_ms
-                for self_dict in self._data:
-                    if "time_ms" in self_dict:
-                        self_dict["time_ms"] = round(self_dict["time_ms"] + increase_position_ms, 3)
+                for self_copy_dict in self_copy._data:
+                    if "time_ms" in self_copy_dict:
+                        self_copy_dict["time_ms"] = round(self_copy_dict["time_ms"] + increase_position_ms, 3)
 
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist)):
-            return operand + self
+            if not isinstance(operand, (ra.Position, ra.NoteValue)):
+                return self_copy << DataSource( operand_play_list + self_copy._data )
+            return self_copy
         else:
             return super().__rrshift__(operand)
 
