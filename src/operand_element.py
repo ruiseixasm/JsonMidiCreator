@@ -252,7 +252,7 @@ class Element(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
-                self._duration      = operand // Fraction()
+                self._duration      = operand._rational
             case Fraction():
                 self._duration      = operand
             case float():
@@ -264,13 +264,13 @@ class Element(o.Operand):
             case ou.Stackable():
                 self._stackable     = operand // bool()
             case ou.Channel():
-                self._channel       = operand // int()
+                self._channel       = operand._unit
             case od.Device():
-                self._device        = operand // list()
+                self._device        = operand._data
             case ou.Enable():
-                self._enabled       = operand // int() != 0
+                self._enabled       = operand._unit != 0
             case ou.Disable():
-                self._enabled       = operand // int() == 0
+                self._enabled       = operand._unit == 0
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -464,9 +464,9 @@ class Clock(Element):
                 self._pulses_per_quarternote = operand._pulses_per_quarternote
             case od.DataSource():
                 match operand._data:
-                    case ou.PPQN():         self._pulses_per_quarternote = operand._data // int()
+                    case ou.PPQN():         self._pulses_per_quarternote = operand._data._unit
                     case _:                 super().__lshift__(operand)
-            case ou.PPQN():         self._pulses_per_quarternote = operand // int()
+            case ou.PPQN():         self._pulses_per_quarternote = operand._unit
             case _: super().__lshift__(operand)
         return self
 
@@ -584,13 +584,13 @@ class Tiable(Element):
                 self._tied          = operand._tied
             case od.DataSource():
                 match operand._data:
-                    case ou.Velocity():     self._velocity  = operand._data // int()
-                    case ra.Gate():         self._gate      = operand._data // Fraction()
+                    case ou.Velocity():     self._velocity  = operand._data._unit
+                    case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data // bool()
                     case _:                 super().__lshift__(operand)
             case ou.DrumKit():      self << od.DataSource( ou.Channel(10) )
-            case ou.Velocity():     self._velocity = operand // int()
-            case ra.Gate():         self._gate = operand // Fraction()
+            case ou.Velocity():     self._velocity = operand._unit
+            case ra.Gate():         self._gate = operand._rational
             case ou.Tied():         self._tied = operand // bool()
             case _:                 super().__lshift__(operand)
         return self
@@ -1142,22 +1142,22 @@ class Chord(KeyScale):
                 self._sus4          = operand._sus4
             case od.DataSource():
                 match operand._data:
-                    case ou.Size():                 self._size = operand._data // int()
-                    case ou.Inversion():            self._inversion = operand._data // int()
+                    case ou.Size():                 self._size = operand._data._unit
+                    case ou.Inversion():            self._inversion = operand._data._unit
                     case ou.Dominant():             self._dominant = operand._data // bool()
                     case ou.Diminished():           self._diminished = operand._data // bool()
                     case ou.Augmented():            self._augmented = operand._data // bool()
                     case ou.Sus2():                 self._sus2 = operand._data // bool()
                     case ou.Sus4():                 self._sus4 = operand._data // bool()
                     case _:                         super().__lshift__(operand)
-            case ou.Size():                 self._size = operand // int()
-            case ou.Inversion():            self._inversion = operand // int()
+            case ou.Size():                 self._size = operand._unit
+            case ou.Inversion():            self._inversion = operand._unit
             case str():
                 operand = operand.strip()
                 # Set Chord root note
                 self._pitch << operand
                 # Set Chord size
-                self._size = ou.Size(od.DataSource( self._size ), operand) // int()
+                self._size = ou.Size(od.DataSource( self._size ), operand)._unit
                 # Set Chord scale
                 if (operand.find("m") != -1 or operand.find("min") != -1 or operand in {'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'}) \
                     and operand.find("dim") == -1:
@@ -1947,7 +1947,7 @@ class ProgramChange(Automation):
         super().__init__(*parameters)
 
     def program(self: 'ProgramChange', program: int | str = "Piano") -> 'ProgramChange':
-        self._program = ou.Program(program) // int()
+        self._program = ou.Program(program)._unit
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
