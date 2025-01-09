@@ -177,12 +177,12 @@ class Container(o.Operand):
 
     def __lshift__(self, operand: o.Operand) -> 'Container':
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case list():        self._datasource_list = operand % o.Operand()
             case Container():
                 super().__lshift__(operand)
                 self._datasource_list = self.deep_copy( operand._datasource_list )
+            case od.DataSource():
+                match operand % o.Operand():
+                    case list():        self._datasource_list = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -511,6 +511,11 @@ class Sequence(Container):  # Just a container of Elements
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
+            case Sequence():
+                super().__lshift__(operand)
+                self._midi_track    << operand._midi_track
+                self._position      << operand._position
+                self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.MidiTrack():    self._midi_track = operand % o.Operand()
@@ -518,11 +523,6 @@ class Sequence(Container):  # Just a container of Elements
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
-            case Container():
-                super().__lshift__(operand)
-                self._midi_track    << operand._midi_track
-                self._position      << operand._position
-                self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case ou.MidiTrack():
                 self._midi_track << operand
             case ra.Duration() | float() | Fraction():
