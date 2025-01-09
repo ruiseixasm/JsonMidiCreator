@@ -276,16 +276,6 @@ class Negative(Rational):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case Fraction():        return self._rational * -1
-                    case float():           return float(self._rational * -1)
-                    case int():             return int(self._rational * -1)
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
-                    case str():             return str(self._rational * -1)
-                    case Rational() | ou.Unit():
-                                            return operand.__class__() << od.DataSource( self._rational * -1 )
-                    case _:                 return super().__mod__(operand)
             case Fraction():        return self._rational * -1
             case float():           return float(self._rational * -1)
             case int():             return int(self._rational * -1)
@@ -303,16 +293,6 @@ class Negative(Rational):
             case Negative():
                 super().__lshift__(operand)
                 self._rational = operand._rational
-            case od.DataSource():
-                match operand % o.Operand():
-                    case int() | float() | Fraction() | Rational() | ou.Unit():
-                        super().__lshift__(operand)
-                        self._rational *= -1
-                    case str():
-                        try:
-                            self._rational = Fraction(operand % o.Operand()) * -1
-                        except ValueError as e:
-                            print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
             case int() | float() | Fraction() | Rational() | ou.Unit():
                 super().__lshift__(operand)
                 self._rational *= -1
