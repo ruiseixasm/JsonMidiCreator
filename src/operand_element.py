@@ -1943,7 +1943,7 @@ class PolyAftertouch(Aftertouch):
 
 class ProgramChange(Automation):
     def __init__(self, *parameters):
-        self._program: int = ou.Program("Piano") // int()
+        self._program: int = ou.Program("Piano")._unit
         super().__init__(*parameters)
 
     def program(self: 'ProgramChange', program: int | str = "Piano") -> 'ProgramChange':

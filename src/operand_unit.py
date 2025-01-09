@@ -1012,7 +1012,7 @@ class Modulation(ScaleOperation):    # Modal Modulation
         Modulation of a given Scale with 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
-        unit = Mode(mode) % od.DataSource( int() )
+        unit = Mode(mode)._unit
         super().__init__(unit)
 
 class Modulate(ScaleOperation):    # Modal Modulation
@@ -1025,7 +1025,7 @@ class Modulate(ScaleOperation):    # Modal Modulation
         Modulate a given Scale to 1 ("1st") as the default mode
     """
     def __init__(self, mode: int | str = None):
-        unit = Mode(mode) % od.DataSource( int() )
+        unit = Mode(mode)._unit
         super().__init__(unit)
 
     # CHAINABLE OPERATIONS
