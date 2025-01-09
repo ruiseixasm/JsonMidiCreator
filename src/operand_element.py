@@ -1490,8 +1490,8 @@ class Triplet(Tuplet):
             case list():
                 if len(operand) == 3:
                     super().__lshift__(operand)
-                return self
-            case _: super().__lshift__(operand)
+            case _:
+                super().__lshift__(operand)
         return self
 
 class Automation(Element):
