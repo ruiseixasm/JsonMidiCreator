@@ -646,7 +646,7 @@ class Pitch(Generic):
 
 class Controller(Generic):
     def __init__(self, *parameters):
-        self._number: int       = ou.Number("Pan") // int()
+        self._number: int       = ou.Number("Pan")._unit
         self._value: int        = ou.Number.getDefault(self._number)
         super().__init__(*parameters)
 
