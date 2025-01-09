@@ -352,13 +352,13 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     def __lshift__(self, operand: o.Operand) -> 'KeySignature':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case KeySignature():
+                super().__lshift__(operand)
+                self._major         = operand._major
             case od.DataSource():
                 match operand % o.Operand():
                     case int():     self._unit      = operand % o.Operand()
                     case Major():   self._major     = operand % o.Operand() // bool()
-            case KeySignature():
-                super().__lshift__(operand)
-                self._major         = operand._major
             case int():     self._unit   = operand
             case Major():   self._major  = operand // bool()
             case Minor():   self._major  = not (operand // bool())
@@ -1140,13 +1140,13 @@ class MidiTrack(Midi):
     def __lshift__(self, operand: o.Operand) -> 'MidiTrack':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case MidiTrack():
+                super().__lshift__(operand)
+                self._name          = operand._name
             case od.DataSource():
                 match operand % o.Operand():
                     case str():                     self._name = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case MidiTrack():
-                super().__lshift__(operand)
-                self._name          = operand._name
             case str():             self._name = operand
             case _:                 super().__lshift__(operand)
         return self

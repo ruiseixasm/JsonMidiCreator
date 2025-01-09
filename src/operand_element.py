@@ -790,13 +790,13 @@ class Cluster(Tiable):
             for single_element in self._pitches:
                 single_element << operand
         match operand:
+            case Cluster():
+                super().__lshift__(operand)
+                self._pitches  = self.deep_copy(operand % od.DataSource( list() ))
             case od.DataSource():
                 match operand % o.Operand():
                     case list():                self._pitches = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
-            case Cluster():
-                super().__lshift__(operand)
-                self._pitches  = self.deep_copy(operand % od.DataSource( list() ))
             case list():
                 if len(operand) > 0 and all(isinstance(single_pitch, og.Pitch) for single_pitch in operand):
                     self._pitches = self.deep_copy(operand)
@@ -1286,15 +1286,15 @@ class Retrigger(Note):
     def __lshift__(self, operand: o.Operand) -> 'Retrigger':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Retrigger():
+                super().__lshift__(operand)
+                self._division  = operand._division
+                self._swing     = operand._swing
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Division():             self._division = operand % o.Operand() // int()
                     case ra.Swing():                self._swing = operand % o.Operand() // Fraction()
                     case _:                         super().__lshift__(operand)
-            case Retrigger():
-                super().__lshift__(operand)
-                self._division  = operand._division
-                self._swing     = operand._swing
             case int():
                 if operand > 0:
                     self._division = operand
@@ -1454,15 +1454,15 @@ class Tuplet(Element):
             for single_element in self._elements:
                 single_element << operand
         match operand:
+            case Tuplet():
+                super().__lshift__(operand)
+                self._swing     = operand._swing
+                self._elements  = self.deep_copy(operand % od.DataSource( list() ))
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Swing():            self._swing = operand % o.Operand() // Fraction()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
-            case Tuplet():
-                super().__lshift__(operand)
-                self._swing     = operand._swing
-                self._elements  = self.deep_copy(operand % od.DataSource( list() ))
             case ra.Swing():
                 if operand < 0:
                     self._swing = Fraction(0)
@@ -1593,13 +1593,13 @@ class ControlChange(Automation):
     def __lshift__(self, operand: o.Operand) -> 'ControlChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case ControlChange():
+                super().__lshift__(operand)
+                self._controller << operand._controller
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Controller():       self._controller = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
-            case ControlChange():
-                super().__lshift__(operand)
-                self._controller << operand._controller
             case og.Controller() | ou.Number() | ou.Value() | int() | float() | str():
                 self._controller << operand
             case _: super().__lshift__(operand)
@@ -1707,13 +1707,13 @@ class PitchBend(Automation):
     def __lshift__(self, operand: o.Operand) -> 'PitchBend':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case PitchBend():
+                super().__lshift__(operand)
+                self._bend = operand._bend
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Bend():             self._bend = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
-            case PitchBend():
-                super().__lshift__(operand)
-                self._bend = operand._bend
             case ou.Bend():
                 self._bend = operand // int()
             case int():
@@ -1822,13 +1822,13 @@ class Aftertouch(Automation):
     def __lshift__(self, operand: o.Operand) -> 'Aftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Aftertouch():
+                super().__lshift__(operand)
+                self._pressure = operand._pressure
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Pressure():         self._pressure = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
-            case Aftertouch():
-                super().__lshift__(operand)
-                self._pressure = operand._pressure
             case ou.Pressure():
                 self._pressure = operand // int()
             case int():
@@ -1934,13 +1934,13 @@ class PolyAftertouch(Aftertouch):
     def __lshift__(self, operand: o.Operand) -> 'PolyAftertouch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case PolyAftertouch():
+                super().__lshift__(operand)
+                self._pitch << operand._pitch
             case od.DataSource():
                 match operand % o.Operand():
                     case og.Pitch():          self._pitch = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
-            case PolyAftertouch():
-                super().__lshift__(operand)
-                self._pitch << operand._pitch
             case og.Pitch() | ou.Key() | ou.Octave() | ou.Flat() | ou.Sharp() | ou.Natural() | int() | float() | str():
                                 self._pitch << operand
             case _:             super().__lshift__(operand)
@@ -2028,13 +2028,13 @@ class ProgramChange(Automation):
     def __lshift__(self, operand: o.Operand) -> 'ProgramChange':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case ProgramChange():
+                super().__lshift__(operand)
+                self._program = operand._program
             case od.DataSource():
                 match operand % o.Operand():
                     case ou.Program():          self._program = operand % o.Operand() // int()
                     case _:                     super().__lshift__(operand)
-            case ProgramChange():
-                super().__lshift__(operand)
-                self._program = operand._program
             case ou.Program():
                 self._program = operand // int()
             case int():

@@ -100,10 +100,6 @@ class Operator(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Operator':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case od.DataSource():
-                match operand % o.Operand():
-                    case list():            self._operator_list = operand % o.Operand()
-                    case _:                 self._operand = operand % o.Operand()
             case Operator():
                 super().__lshift__(operand)
                 operator_list = []
@@ -111,6 +107,10 @@ class Operator(o.Operand):
                     operator_list.append(self.deep_copy(single_operator))
                 self._operator_list = operator_list
                 self._operand       = self.deep_copy(operand % od.DataSource( o.Operand() ))
+            case od.DataSource():
+                match operand % o.Operand():
+                    case list():            self._operator_list = operand % o.Operand()
+                    case _:                 self._operand = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
