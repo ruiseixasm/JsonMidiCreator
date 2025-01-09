@@ -935,12 +935,10 @@ class Dotted(NoteValue):
         return self
 
 class Swing(Rational):
-    def __init__(self, *parameters):
-        super().__init__(0.50, *parameters)
+    pass
 
 class Gate(Rational):
-    def __init__(self, *parameters):
-        super().__init__(1.0, *parameters)
+    pass
 
 class Amplitude(Rational):
     pass
