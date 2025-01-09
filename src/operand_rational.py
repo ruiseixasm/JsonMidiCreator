@@ -298,9 +298,9 @@ class Negative(Rational):
                 self._rational *= -1
             case str():
                 try:
-                    self._rational = Fraction(operand % o.Operand()) * -1
+                    self._rational = Fraction(operand) * -1
                 except ValueError as e:
-                    print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
+                    print(f"Error: {e}, '{operand}' is not a number!")
             case _:
                 super().__lshift__(operand)
         return self
