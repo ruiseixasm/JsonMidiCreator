@@ -1343,16 +1343,16 @@ class Note3(Retrigger):
 
 class Tuplet(Element):
     def __init__(self, *parameters):
+        self._swing: Fraction           = Fraction(0.5)
+        self._elements: list[Element]   = [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
         super().__init__()
         self._duration  *= 2 # Equivalent to twice single note duration
-        self._swing     = ra.Swing(.50)
-        self._elements: list[Element] = [Note(ra.Gate(0.5)), Note(ra.Gate(0.5)), Note(ra.Gate(0.5))]
         self.set_elements_duration()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def swing(self: 'Tuplet', swing: int = None) -> 'Tuplet':
-        self._swing = ra.Swing(swing)
+    def swing(self: 'Tuplet', swing: float = 0.5) -> 'Tuplet':
+        self._swing = Fraction(swing)
         return self
 
     def elements(self: 'Tuplet', elements: Optional[List['Element']] = None) -> 'Tuplet':
@@ -1385,10 +1385,10 @@ class Tuplet(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Swing():        return self._swing
+                    case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
-            case ra.Swing():        return self._swing.copy()
+            case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
             case ra.Duration():     return operand << od.DataSource( self._duration / 2 )
@@ -1400,8 +1400,8 @@ class Tuplet(Element):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._swing     == other % od.DataSource( ra.Swing() ) \
-                    and self._elements  == other % od.DataSource( list() )
+                    and self._swing     == other._swing \
+                    and self._elements  == other._elements
             case _:
                 return super().__eq__(other)
     
@@ -1412,7 +1412,7 @@ class Tuplet(Element):
         for single_element in self._elements:
             element_duration = single_element % od.DataSource( ra.Duration() )
             tuplet_elements.append(single_element.copy() << element_position)
-            swing_ratio = self._swing % od.DataSource( Fraction() )
+            swing_ratio = self._swing
             if self_iteration % 2:
                 swing_ratio = 1 - swing_ratio
             element_position += element_duration * 2 * swing_ratio
@@ -1456,18 +1456,22 @@ class Tuplet(Element):
         match operand:
             case od.DataSource():
                 match operand % o.Operand():
-                    case ra.Swing():            self._swing = operand % o.Operand()
+                    case ra.Swing():            self._swing = operand % o.Operand() // Fraction()
                     case list():                self._elements = operand % o.Operand()
                     case _:                     super().__lshift__(operand)
             case Tuplet():
                 super().__lshift__(operand)
-                self._swing     << operand._swing
+                self._swing     = operand._swing
                 self._elements  = self.deep_copy(operand % od.DataSource( list() ))
             case ra.Swing():
-                if operand < 0:     self._swing << 0
-                elif operand > 1:   self._swing << 1
-                else:               self._swing << operand
-            case ra.Duration():     self._duration = operand // Fraction() * 2  # Equivalent to two sized Notes
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand // Fraction()
+            case ra.Duration():
+                self._duration = operand // Fraction() * 2  # Equivalent to two sized Notes
             case list():
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
