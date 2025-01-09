@@ -240,7 +240,7 @@ class Element(o.Operand):
                 self._duration      = operand._duration
                 self._stackable     = operand._stackable
                 self._channel       = operand._channel
-                self._device        = operand._device
+                self._device        = operand._device   # It's a list of strings, but it won't be changed directly
                 self._enabled       = operand._enabled
             case od.DataSource():
                 match operand % o.Operand():
