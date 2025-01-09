@@ -49,11 +49,11 @@ class Data(o.Operand):
         match operand:
             case DataSource():
                 match operand._data:
-                    case of.Frame():                return self % DataSource( operand % o.Operand() )
+                    case of.Frame():                return self % DataSource( operand._data )
                     case Data():                    return self
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
-            case of.Frame():                return self % (operand % o.Operand())
+            case of.Frame():                return self % (operand._data)
             case Serialization():           return self.getSerialization()
             case dict():
                 serialization: dict = self.getSerialization()
@@ -119,7 +119,7 @@ class Data(o.Operand):
                 super().__lshift__(operand)
                 self._data = self.deep_copy(operand._data)
             case DataSource():
-                self._data = operand % o.Operand()
+                self._data = operand._data
             # Data doesn't load serialization, just processed data!!
             case Serialization():
                 self.loadSerialization(operand % DataSource( dict() ))
@@ -211,7 +211,7 @@ class Serialization(Data):
         if isinstance(self._data, o.Operand):
             match operand:
                 case DataSource():
-                    if type(operand % o.Operand()) == o.Operand:    # Default DataSource content
+                    if type(operand._data) == o.Operand:    # Default DataSource content
                         return self._data
                     return self._data % operand # Already includes the DataSource wrapper
                 case dict():
@@ -351,7 +351,7 @@ class Playlist(Data):
             case DataSource():
                 match operand._data:
                     case ou.MidiTrack():
-                        self._midi_track = operand % o.Operand()
+                        self._midi_track = operand._data
                     case list():
                         self._data = operand
                     case _:

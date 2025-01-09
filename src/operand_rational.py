@@ -73,7 +73,7 @@ class Rational(o.Operand):
                     case Fraction():        return self._rational           # returns a Fraction()
                     case float():           return float(self._rational)
                     case int():             return int(self._rational)
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():        return self % od.DataSource( operand._data )
                     case str():             return str(self._rational)
                     case Rational() | ou.Unit():
                                             return operand.__class__() << od.DataSource( self._rational )
@@ -81,7 +81,7 @@ class Rational(o.Operand):
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
-            case of.Frame():        return self % (operand % o.Operand())
+            case of.Frame():        return self % (operand._data)
             case str():             return str(self._rational)
             case Rational() | ou.Unit():
                                     return operand.__class__() << od.DataSource( self._rational )
@@ -153,16 +153,16 @@ class Rational(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case Fraction():
-                        self._rational = operand % o.Operand()
+                        self._rational = operand._data
                     case float() | int():
-                        self._rational = Fraction(operand % o.Operand())
+                        self._rational = Fraction(operand._data)
                     case str():
                         try:
-                            self._rational = Fraction(operand % o.Operand())
+                            self._rational = Fraction(operand._data)
                         except ValueError as e:
-                            print(f"Error: {e}, '{operand % o.Operand()}' is not a number!")
+                            print(f"Error: {e}, '{operand._data}' is not a number!")
                     case Rational() | ou.Unit():
-                        self._rational = operand % o.Operand() % od.DataSource( Fraction() )
+                        self._rational = operand._data % od.DataSource( Fraction() )
             case Fraction():
                 self._rational = operand
             case float() | int():
@@ -279,7 +279,7 @@ class Negative(Rational):
             case Fraction():        return self._rational * -1
             case float():           return float(self._rational * -1)
             case int():             return int(self._rational * -1)
-            case of.Frame():        return self % (operand % o.Operand())
+            case of.Frame():        return self % (operand._data)
             case str():             return str(self._rational * -1)
             case Rational() | ou.Unit():
                                     return operand.__class__() << od.DataSource( self._rational )
@@ -728,9 +728,9 @@ class Position(Rational):
                 self._quantization              = operand._quantization
             case od.DataSource():
                 match operand._data:
-                    case Tempo():               self._tempo             = operand % o.Operand() // Fraction()
-                    case og.TimeSignature():    self._time_signature    = operand % o.Operand()
-                    case Quantization():        self._quantization      = operand % o.Operand() // Fraction()
+                    case Tempo():               self._tempo             = operand._data // Fraction()
+                    case og.TimeSignature():    self._time_signature    = operand._data
+                    case Quantization():        self._quantization      = operand._data // Fraction()
                     case _:                     super().__lshift__(operand)
             case TimeValue():
                 self._rational = self.getBeats(operand)._rational

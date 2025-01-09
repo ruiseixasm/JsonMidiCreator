@@ -182,7 +182,7 @@ class Container(o.Operand):
                 self._datasource_list = self.deep_copy( operand._datasource_list )
             case od.DataSource():
                 match operand._data:
-                    case list():        self._datasource_list = operand % o.Operand()
+                    case list():        self._datasource_list = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -518,8 +518,8 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case od.DataSource():
                 match operand._data:
-                    case ou.MidiTrack():    self._midi_track = operand % o.Operand()
-                    case ra.Position():     self._position = operand % o.Operand()
+                    case ou.MidiTrack():    self._midi_track = operand._data
+                    case ra.Position():     self._position = operand._data
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))

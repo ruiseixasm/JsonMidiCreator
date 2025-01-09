@@ -48,14 +48,14 @@ class TimeSignature(Generic):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():            return self % od.DataSource( operand._data )
                     case TimeSignature():       return self
                     case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
                     case ra.BeatNoteValue():    return ra.BeatNoteValue() << 1 / self._bottom
                     # Calculated Values
                     case ra.NotesPerMeasure():  return ra.NotesPerMeasure() << self._top / self._bottom
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % (operand % o.Operand())
+            case of.Frame():            return self % (operand._data)
             case TimeSignature():       return self.copy()
             # Direct Values
             case ra.BeatsPerMeasure():  return ra.BeatsPerMeasure() << self._top
@@ -100,11 +100,11 @@ class TimeSignature(Generic):
             case od.DataSource():
                 match operand._data:
                     case ra.BeatsPerMeasure():
-                        self._top           = operand % o.Operand() % od.DataSource( int() )
+                        self._top           = operand._data % od.DataSource( int() )
                     case ra.BeatNoteValue():
-                        if operand % o.Operand() % od.DataSource( int() ) > 0:
+                        if operand._data % od.DataSource( int() ) > 0:
                             # This formula is just to make sure it's a power of 2, it doesn't change the input value if it is already a power of 2
-                            self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (  operand % o.Operand() % od.DataSource( int() )  ))))))
+                            self._bottom    = int(math.pow(2, int(max(0, math.log2(1 / (  operand._data % od.DataSource( int() )  ))))))
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.BeatsPerMeasure():
@@ -249,7 +249,7 @@ class Pitch(Generic):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():        return self % od.DataSource( operand._data )
                     case Pitch():           return self
                     case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
                     case ou.Key():          return ou.Key() << od.DataSource(self._key)
@@ -266,7 +266,7 @@ class Pitch(Generic):
                         note_key += 12 * (self._flat)   # second line of the list
                         return ou.Key._keys[note_key]
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % (operand % o.Operand())
+            case of.Frame():        return self % (operand._data)
             case Pitch():           return self.copy()
             case ou.Octave():
                 final_pitch: int = int(self % float())
@@ -669,14 +669,14 @@ class Controller(Generic):
                     case ou.Number():           return ou.Number() << od.DataSource(self._number)
                     case ou.Value():            return ou.Value() << od.DataSource(self._value)
                     case Controller():          return self
-                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():            return self % od.DataSource( operand._data )
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return ou.Number() << od.DataSource(self._number)
             case ou.Value():            return ou.Value() << od.DataSource(self._value)
             case int():                 return self._value
             case float():               return float(self._value)
             case Controller():          return self.copy()
-            case of.Frame():            return self % (operand % o.Operand())
+            case of.Frame():            return self % (operand._data)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Controller') -> bool:
@@ -713,8 +713,8 @@ class Controller(Generic):
                 self._value     = operand._value
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():    self._number = operand % o.Operand() // int()
-                    case ou.Value():     self._value = operand % o.Operand() // int()
+                    case ou.Number():    self._number = operand._data // int()
+                    case ou.Value():     self._value = operand._data // int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Number():
@@ -883,7 +883,7 @@ class Scale(Generic):
                 self._mode          = operand._mode
             case od.DataSource():
                 match operand._data:
-                    case ou.Mode():         self._mode = operand % o.Operand() // int()
+                    case ou.Mode():         self._mode = operand._data // int()
                     case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization(operand % od.DataSource( dict() ))

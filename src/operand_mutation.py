@@ -114,11 +114,11 @@ class Mutation(o.Operand):
                 self._operator      = operand._operator # The string str()
             case od.DataSource():
                 match operand._data:
-                    case od.Performers():           self._performers = operand % o.Operand()
-                    case of.Frame():                self._frame = operand % o.Operand()
-                    case oc.Sequence():             self._sequence = operand % o.Operand()
-                    case str():                     self._operator = operand % o.Operand()
-                    case od.Result():               self._result = operand % o.Operand()
+                    case od.Performers():           self._performers = operand._data
+                    case of.Frame():                self._frame = operand._data
+                    case oc.Sequence():             self._sequence = operand._data
+                    case str():                     self._operator = operand._data
+                    case od.Result():               self._result = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case od.Performers():           self._performers << operand
@@ -235,9 +235,9 @@ class Translocation(Mutation):
                 self._parameters    << operand._parameters
             case od.DataSource():
                 match operand._data:
-                    case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case od.Filter():               self._filter = operand % o.Operand()
-                    case od.Parameters():           self._parameters = operand % o.Operand()
+                    case ch.Chaos():                self._chaos = operand._data
+                    case od.Filter():               self._filter = operand._data
+                    case od.Parameters():           self._parameters = operand._data
                     case _:                         super().__lshift__(operand)
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
@@ -352,10 +352,10 @@ class Crossover(Mutation):
                 self._parameters    << operand._parameters
             case od.DataSource():
                 match operand._data:
-                    case od.Sequences():            self._sequences = operand % o.Operand()
-                    case ch.Chaos():                self._chaos = operand % o.Operand()
-                    case od.Filter():               self._filter = operand % o.Operand()
-                    case od.Parameters():           self._parameters = operand % o.Operand()
+                    case od.Sequences():            self._sequences = operand._data
+                    case ch.Chaos():                self._chaos = operand._data
+                    case od.Filter():               self._filter = operand._data
+                    case od.Parameters():           self._parameters = operand._data
                     case _:                         super().__lshift__(operand)
             case od.Sequences():            self._sequences << operand
             case ch.Chaos():                self._chaos << operand

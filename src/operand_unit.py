@@ -68,7 +68,7 @@ class Unit(o.Operand):
                     case bool():            return False if self._unit == 0 else True
                     case Fraction():        return Fraction(self._unit)
                     case float():           return float(self._unit)
-                    case of.Frame():        return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():        return self % od.DataSource( operand._data )
                     case Unit() | ra.Rational():
                                             return operand.__class__() << od.DataSource( self._unit )
                     case _:                 return super().__mod__(operand)
@@ -76,7 +76,7 @@ class Unit(o.Operand):
             case bool():            return False if self._unit == 0 else True
             case Fraction():        return Fraction(self._unit)
             case float():           return float(self._unit)
-            case of.Frame():        return self % (operand % o.Operand())
+            case of.Frame():        return self % (operand._data)
             case Unit() | ra.Rational():
                                     return operand.__class__() << od.DataSource( self._unit )
             case _:                 return super().__mod__(operand)
@@ -165,10 +165,10 @@ class Unit(o.Operand):
                 self._unit = operand._unit
             case od.DataSource():
                 match operand._data:
-                    case int():                     self._unit = operand % o.Operand()
+                    case int():                     self._unit = operand._data
                     case float() | Fraction() | bool():
-                                                    self._unit = int(operand % o.Operand())
-                    case Unit() | ra.Rational():    self._unit = operand % o.Operand() % od.DataSource( int() )
+                                                    self._unit = int(operand._data)
+                    case Unit() | ra.Rational():    self._unit = operand._data % od.DataSource( int() )
             case int():
                 self._unit = operand
             case float() | Fraction() | bool():
@@ -273,12 +273,12 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():            return self % od.DataSource( operand._data )
                     case KeySignature():        return self
                     case list():                return self % list()
                     case Major():               return Major() << od.DataSource(self._major)
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % (operand % o.Operand())
+            case of.Frame():            return self % (operand._data)
             case KeySignature():        return self.copy()
             case int():                 return self.get_tonic_key()
             case float():
@@ -349,8 +349,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                 self._major         = operand._major
             case od.DataSource():
                 match operand._data:
-                    case int():     self._unit      = operand % o.Operand()
-                    case Major():   self._major     = operand % o.Operand() // bool()
+                    case int():     self._unit      = operand._data
+                    case Major():   self._major     = operand._data // bool()
             case int():     self._unit   = operand
             case Major():   self._major  = operand // bool()
             case Minor():   self._major  = not (operand // bool())
@@ -479,15 +479,15 @@ class Key(PitchParameter):
             case od.DataSource():
                 match operand._data:
                     case int():
-                        self._unit = operand % o.Operand()
+                        self._unit = operand._data
                     case float() | Fraction():
-                        self._unit = int(operand % o.Operand())
+                        self._unit = int(operand._data)
                     case Semitone():
-                        self._unit = operand % o.Operand() % od.DataSource( int() )
+                        self._unit = operand._data % od.DataSource( int() )
                         self << Degree(1)
 
                     case str():
-                        self._unit = self.getStringToNumber(operand % o.Operand()) % 48
+                        self._unit = self.getStringToNumber(operand._data) % 48
                     case _:
                         super().__lshift__(operand)
           
@@ -583,7 +583,7 @@ class Degree(PitchParameter):
             case od.DataSource():
                 match operand._data:
                     case str():
-                        self.stringSetDegree(operand % o.Operand())
+                        self.stringSetDegree(operand._data)
                     case _:
                         super().__lshift__(operand)
             case str():
@@ -688,7 +688,7 @@ class DrumKit(PitchParameter):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     self.nameToNumber(operand % o.Operand())
+                    case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
@@ -897,7 +897,7 @@ class Mode(Unit):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     self.stringToNumber(operand % o.Operand())
+                    case str():                     self.stringToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case str():             self.stringToNumber(operand)
             case _:                 super().__lshift__(operand)
@@ -951,7 +951,7 @@ class Size(Unit):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     self.stringToNumber(operand % o.Operand())
+                    case str():                     self.stringToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case str():             self.stringToNumber(operand)
             case _:                 super().__lshift__(operand)
@@ -1134,7 +1134,7 @@ class MidiTrack(Midi):
                 self._name          = operand._name
             case od.DataSource():
                 match operand._data:
-                    case str():                     self._name = operand % o.Operand()
+                    case str():                     self._name = operand._data
                     case _:                         super().__lshift__(operand)
             case str():             self._name = operand
             case _:                 super().__lshift__(operand)
@@ -1226,7 +1226,7 @@ class Program(Midi):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     self.nameToNumber(operand % o.Operand())
+                    case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
@@ -1445,7 +1445,7 @@ class Number(Midi):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     self.nameToNumber(operand % o.Operand())
+                    case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)

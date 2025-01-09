@@ -63,7 +63,7 @@ class Operator(o.Operand):
                     case ol.Null() | None:  return ol.Null()
                     case o.Operand():       return self._operand
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % (operand % o.Operand())
+            case of.Frame():        return self % (operand._data)
             case list():            return self._operator_list.copy()
             # case list():            return self._operator_list.copy()
             case Operator():        return self.copy()
@@ -109,8 +109,8 @@ class Operator(o.Operand):
                 self._operand       = self.deep_copy(operand % od.DataSource( o.Operand() ))
             case od.DataSource():
                 match operand._data:
-                    case list():            self._operator_list = operand % o.Operand()
-                    case _:                 self._operand = operand % o.Operand()
+                    case list():            self._operator_list = operand._data
+                    case _:                 self._operand = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -224,10 +224,10 @@ class Oscillator(Operator):
                 self._offset        = operand._offset
             case od.DataSource():
                 match operand._data:
-                    case ra.Length():       self._length = operand % o.Operand()
-                    case ra.Position():     self._position = operand % o.Operand()
-                    case ra.Amplitude():    self._amplitude = operand % o.Operand() // Fraction()
-                    case ra.Offset():       self._offset = operand % o.Operand() // Fraction()
+                    case ra.Length():       self._length = operand._data
+                    case ra.Position():     self._position = operand._data
+                    case ra.Amplitude():    self._amplitude = operand._data // Fraction()
+                    case ra.Offset():       self._offset = operand._data // Fraction()
                     case _:                 super().__lshift__(operand)
             case ra.Length():       self._length << operand
             case ra.Position():     self._position << operand

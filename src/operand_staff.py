@@ -65,7 +65,7 @@ class Staff(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case of.Frame():            return self % od.DataSource( operand % o.Operand() )
+                    case of.Frame():            return self % od.DataSource( operand._data )
                     case ra.Tempo():            return self._tempo
                     case og.TimeSignature():    return self._time_signature
                     case ra.Quantization():     return self._quantization
@@ -90,7 +90,7 @@ class Staff(o.Operand):
                                 * (self % od.DataSource( ra.NotesPerMeasure() ) % od.DataSource( Fraction() )))
                     case Staff():               return self
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % (operand % o.Operand())
+            case of.Frame():            return self % (operand._data)
             # Direct Values
             case ra.Tempo():            return self._tempo.copy()
             case og.TimeSignature():    return self._time_signature.copy()
@@ -195,19 +195,19 @@ class Staff(o.Operand):
                 self._device            << operand._device
             case od.DataSource():
                 match operand._data:
-                    case ra.Tempo():            self._tempo = operand % o.Operand()
-                    case og.TimeSignature():    self._time_signature = operand % o.Operand()
-                    case ra.Quantization():     self._quantization = operand % o.Operand()    # Note Value
-                    case ou.KeySignature():     self._key_signature = operand % o.Operand()
+                    case ra.Tempo():            self._tempo = operand._data
+                    case og.TimeSignature():    self._time_signature = operand._data
+                    case ra.Quantization():     self._quantization = operand._data    # Note Value
+                    case ou.KeySignature():     self._key_signature = operand._data
                     case ra.BeatsPerMeasure() | ra.BeatNoteValue():
-                                                self._time_signature << od.DataSource( operand % o.Operand() )
-                    case ra.Measures():         self._measures = operand % o.Operand()
-                    case ra.Duration():         self._duration = operand % o.Operand()
-                    case ou.Octave():           self._octave = operand % o.Operand()
-                    case ou.Velocity():         self._velocity = operand % o.Operand()
-                    case og.Controller():       self._controller = operand % o.Operand()
-                    case ou.Channel():          self._channel = operand % o.Operand()
-                    case od.Device():           self._device = operand % o.Operand()
+                                                self._time_signature << od.DataSource( operand._data )
+                    case ra.Measures():         self._measures = operand._data
+                    case ra.Duration():         self._duration = operand._data
+                    case ou.Octave():           self._octave = operand._data
+                    case ou.Velocity():         self._velocity = operand._data
+                    case og.Controller():       self._controller = operand._data
+                    case ou.Channel():          self._channel = operand._data
+                    case od.Device():           self._device = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo << operand
