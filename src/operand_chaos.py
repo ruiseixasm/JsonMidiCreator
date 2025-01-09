@@ -90,16 +90,16 @@ class Chaos(o.Operand):
     def __lshift__(self, operand: o.Operand) -> 'Chaos':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Chaos():
+                super().__lshift__(operand)
+                self._xn            << operand._xn
+                self._x0            << operand._x0
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Xn():                   self._xn = operand % o.Operand()
                     case ra.X0():                   self._x0 = operand % o.Operand()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case Chaos():
-                        super().__lshift__(operand)
-                        self._xn            << operand._xn
-                        self._x0            << operand._x0
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
             case int() | float():
@@ -191,17 +191,17 @@ class Modulus(Chaos):
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Modulus():
+                super().__lshift__(operand)
+                self._amplitude     << operand._amplitude
+                self._steps         << operand._steps
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Amplitude():            self._amplitude = operand % o.Operand()
                     case ra.Steps():                 self._steps = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Modulus():
-                        super().__lshift__(operand)
-                        self._amplitude     << operand._amplitude
-                        self._steps          << operand._steps
             case ra.Amplitude():            self._amplitude << operand
-            case ra.Steps():                 self._steps << operand
+            case ra.Steps():                self._steps << operand
             case _: super().__lshift__(operand)
         self._xn << (self._xn % float()) % (self._amplitude % float())
         return self
@@ -269,13 +269,13 @@ class Flipper(Modulus):
     def __lshift__(self, operand: o.Operand) -> 'Modulus':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Flipper():
+                super().__lshift__(operand)
+                self._split         << operand._split
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Split():                self._split = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Flipper():
-                        super().__lshift__(operand)
-                        self._split         << operand._split
             case ra.Split():                self._split << operand
             case _: super().__lshift__(operand)
         return self
@@ -364,6 +364,17 @@ class Bouncer(Chaos):
     def __lshift__(self, operand: o.Operand) -> 'Bouncer':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Bouncer():
+                super().__lshift__(operand)
+                self._width         << operand._width
+                self._height        << operand._height
+                self._dx            << operand._dx
+                self._dy            << operand._dy
+                self._x             << operand._x
+                self._y             << operand._y
+                set_x               = operand._set_xy[0].copy()
+                set_y               = operand._set_xy[1].copy()
+                self._set_xy        = (set_x, set_y)
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Width():                self._width = operand % o.Operand()
@@ -373,17 +384,6 @@ class Bouncer(Chaos):
                     case ra.X():                    self._x = operand % o.Operand()
                     case ra.Y():                    self._y = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case Bouncer():
-                        super().__lshift__(operand)
-                        self._width         << operand._width
-                        self._height        << operand._height
-                        self._dx            << operand._dx
-                        self._dy            << operand._dy
-                        self._x             << operand._x
-                        self._y             << operand._y
-                        set_x               = operand._set_xy[0].copy()
-                        set_y               = operand._set_xy[1].copy()
-                        self._set_xy        = (set_x, set_y)
             case ra.Width():                self._width << operand
             case ra.Height():               self._height << operand
             case ra.dX():                   self._dx << operand
@@ -467,13 +467,13 @@ class SinX(Chaos):
     def __lshift__(self, operand: o.Operand) -> 'SinX':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case SinX():
+                super().__lshift__(operand)
+                self._lambda            << operand._lambda
             case od.DataSource():
                 match operand % o.Operand():
                     case ra.Lambda():               self._lambda = operand % o.Operand()
                     case _:                         super().__lshift__(operand)
-            case SinX():
-                    super().__lshift__(operand)
-                    self._lambda            << operand._lambda
             case ra.Lambda():               self._lambda << operand
             case ra.Xn():                   self._xn << operand
             case ra.X0():                   self._x0 << operand
