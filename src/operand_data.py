@@ -348,6 +348,9 @@ class Playlist(Data):
         import operand_container as oc
         import operand_element as oe
         match operand:
+            case Playlist():
+                self._data          = self.deep_copy(operand._data)
+                self._midi_track    << operand._midi_track
             case DataSource():
                 match operand._data:
                     case ou.MidiTrack():
@@ -409,7 +412,7 @@ class Playlist(Data):
             case o.Operand():
                 return Playlist( self.deep_copy(self._data) + self.deep_copy(operand.getPlaylist()) )
             case _:
-                return Playlist( self.deep_copy(self._data) )
+                return Playlist(self)
 
             # case list():
             #     return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + self.deep_copy(operand) )
