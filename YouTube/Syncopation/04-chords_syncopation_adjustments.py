@@ -102,6 +102,7 @@ lead_notes << Foreach(repeated_chords)
 lead_notes << Equal(Degree(5))**Degree(7) << Equal(6)**5
 lead_notes += Octave(1)
 # lead_notes += Degree(4)
-lead_notes >> Play()
+# lead_notes >> Play()
 
-
+syncopation_4: Seq = syncopation_3 + lead_notes
+syncopation_4 >> Play()
