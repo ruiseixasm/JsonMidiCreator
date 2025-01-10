@@ -513,12 +513,7 @@ class Sequence(Container):  # Just a container of Elements
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case ra.Duration() | ra.Duration():
-                self_copy: Sequence = self.copy()
-                if self_copy.len() > 0:
-                    self_copy._datasource_list[0]._data << self_copy._datasource_list[0]._data % ra.Position() + operand
-                return self_copy
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | ra.Duration():
                 self._position += operand
                 return self
             case oe.Element():
