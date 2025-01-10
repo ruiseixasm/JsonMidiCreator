@@ -1497,12 +1497,11 @@ class Triplet(Tuplet):
 
 class Automation(Element):
     def __init__(self, *parameters):
-        super().__init__(*parameters)   # (*parameters) is required by correct Step duration initiation relative to self._position
+        super().__init__()   # (*parameters) is required by correct Step duration initiation relative to self._position
         # Requires self._position, so, it has to be defined after super() initiation
-        self._duration = self._position % od.DataSource( ra.Quantization() ) // Fraction()  # Equivalent to one Step
+        self._duration = self._position._quantization   # Equivalent to one Step
         for single_parameter in parameters: # Faster than passing a tuple
-            if isinstance(single_parameter, ra.Duration):   # Others already processed above
-                self << single_parameter
+            self << single_parameter
 
 class ControlChange(Automation):
     def __init__(self, *parameters):
