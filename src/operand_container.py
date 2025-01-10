@@ -188,11 +188,7 @@ class Container(o.Operand):
             case list():
                 self._datasource_list = []
                 for single_operand in operand:
-                    match single_operand:
-                        case o.Operand():
-                            self._datasource_list.append(od.DataSource( single_operand.copy() ))
-                        case _:
-                            self._datasource_list.append(od.DataSource( single_operand ))
+                    self._datasource_list.append(od.DataSource( self.deep_copy(single_operand) ))
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -205,11 +201,13 @@ class Container(o.Operand):
     def copy(self, *parameters) -> 'Container':
         container_copy: Container = self.__class__()
         for single_datasource in self._datasource_list:
-            container_copy._datasource_list.append( single_datasource.copy() )
+            container_copy._datasource_list.append( self.deep_copy(single_datasource) )
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand is not None:
-            container_copy._next_operand = self._next_operand.copy()
-        return container_copy << parameters
+            container_copy._next_operand = self.deep_copy(self._next_operand)
+        for single_parameter in parameters:
+            container_copy << single_parameter
+        return container_copy
     
     def clear(self, *parameters) -> 'Container':
         self._datasource_list = []
@@ -225,7 +223,8 @@ class Container(o.Operand):
                     self._datasource_list[operand_j]._data = self._datasource_list[operand_j + 1]._data
                     self._datasource_list[operand_j + 1]._data = temporary_operand
                     sorted_list = False
-            if sorted_list: break
+            if sorted_list:
+                break
         return self
     
     def shuffle(self, shuffler: ch.Chaos = None) -> 'Container':
@@ -258,24 +257,10 @@ class Container(o.Operand):
             case Container():
                 self_copy: Container = self.__class__()
                 for single_datasource in self._datasource_list:
-                    self_copy._datasource_list.append(single_datasource.copy())
+                    self_copy._datasource_list.append(self.deep_copy(single_datasource))
                 for single_datasource in operand._datasource_list:
-                    self_copy._datasource_list.append(single_datasource.copy())
+                    self_copy._datasource_list.append(self.deep_copy(single_datasource))
                 return self_copy
-            # case o.Operand():
-            #     self_copy = self.copy()
-            #     self_copy._datasource_list.append(od.DataSource( operand.copy() ))
-            #     return self_copy
-            # case int() | ou.Unit(): # repeat n times the last argument if any
-            #     self_copy: Container = self.copy()
-            #     if len(self._datasource_list) > 0:
-            #         last_datasource = self._datasource_list[len(self._datasource_list) - 1]
-            #         while operand > 0:
-            #             self_copy._datasource_list.append(last_datasource.copy())
-            #             operand -= 1
-            #     return self_copy
-            # case ol.Null():
-            #     return ol.Null()
             case _:
                 if isinstance(operand, od.DataSource):
                     self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
@@ -288,18 +273,6 @@ class Container(o.Operand):
         self_copy: Container = self.copy()
         self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
-        # match operand:
-        #     case o.Operand():
-        #         self_copy._datasource_list.insert(0, od.DataSource( operand.copy() ))
-        #     case int(): # repeat n times the first argument if any
-        #         if len(self._datasource_list) > 0:
-        #             first_datasource = self._datasource_list[0]
-        #             while operand > 0:
-        #                 self_copy._datasource_list.insert(0, first_datasource.copy())
-        #                 operand -= 1
-        #     case ol.Null():
-        #         return ol.Null()
-        # return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Container':
         self_copy: Container = self.copy()
@@ -335,7 +308,6 @@ class Container(o.Operand):
         return self.copy()
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
-        # self_copy: Container = self.copy()
         match operand:
             case Container():
                 pass
@@ -535,6 +507,14 @@ class Sequence(Container):  # Just a container of Elements
                 self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
         return self
 
+    def copy(self, *parameters) -> 'Sequence':
+        sequence_copy: Sequence = super().copy()
+        sequence_copy._midi_track   << self._midi_track
+        sequence_copy._position     << self._position
+        for single_parameters in parameters:
+            sequence_copy << single_parameters
+        return sequence_copy
+    
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
@@ -574,13 +554,13 @@ class Sequence(Container):  # Just a container of Elements
                 return operand + self   # Order is irrelevant on Song
             case Sequence():
                 if self._midi_track == operand._midi_track:
-                    # Does the needed position conversion first
-                    operand_position: ra.Position = self._position.getPosition( operand._position )
-                    # Make sure operand position is replicated to its elements
-                    operand += of.All()**operand_position
+                    # Does the needed position conversion first and replicates to its elements
+                    operand += self._position.getPosition( operand._position )  # Implicit copy of operand
                     # Make sure the operand position is the same as the self one
                     operand._position = self._position  # Can be "=" instead of "<<" in this case !
-                    return Sequence(self, operand)
+                    # operand is already a copy, let's take advantage of that
+                    operand._datasource_list = self.deep_copy(self._datasource_list) + operand._datasource_list
+                    return operand  # operand becomes the __add__ result as an implicit copy
                 return Song(self, operand)
             case oe.Element():
                 return super().__add__(operand)
@@ -615,7 +595,7 @@ class Sequence(Container):  # Just a container of Elements
                 many_operands._position     = self._position    # it will become 1 single sequence
                 while operand > 0:
                     many_length: ra.Length = many_operands.length()
-                    many_operands += self.copy() + of.All()**many_length.roundMeasures()
+                    many_operands += self.copy() + many_length.roundMeasures()
                     operand -= 1
                 return many_operands
             case float(): 
@@ -625,21 +605,21 @@ class Sequence(Container):  # Just a container of Elements
                 repeat_copy: int = int(operand)
                 while repeat_copy > 0:
                     many_length: ra.Length = many_operands.length()
-                    many_operands += self.copy() + of.All()**many_length
+                    many_operands += self.copy() + many_length
                     repeat_copy -= 1
                 return many_operands
             case ou.TimeUnit():
                 self_repeating: int = 0
-                operand_beats: Fraction = self._position.getBeats(operand) // Fraction()
-                self_beats: Fraction = self.length().roundMeasures() // Fraction()  # Beats default unit
+                operand_beats: Fraction = self._position.getBeats(operand)._rational
+                self_beats: Fraction = self.length().roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 return self * self_repeating
             case ra.TimeValue():
                 self_repeating: float = 0.0
-                self_length: Fraction = self.length() % operand // Fraction()
+                self_length: Fraction = (self.length() % operand)._rational
                 if self_length > 0:
-                    operand_length: Fraction = operand // Fraction()
+                    operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
                 return self * self_repeating
             case _:
@@ -675,14 +655,6 @@ class Sequence(Container):  # Just a container of Elements
             case _:
                 return self.filter(operand)
 
-    def copy(self, *parameters) -> 'Sequence':
-        sequence_copy: Sequence = super().copy()
-        sequence_copy._midi_track   << self._midi_track
-        sequence_copy._position     << self._position
-        for single_parameters in parameters:
-            sequence_copy << single_parameters
-        return sequence_copy
-    
     def filter(self, criteria: any) -> 'Sequence':
         filtered_sequence: Sequence = self.__class__()
         filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
@@ -704,10 +676,10 @@ class Sequence(Container):  # Just a container of Elements
 
 
     def extend(self, time_value: ra.TimeValue) -> 'Sequence':
-        extended_sequence: Sequence = self.copy() << od.DataSource( self // list() )
+        extended_sequence: Sequence = self.copy() << od.DataSource( self._datasource_list )
         while (extended_sequence >> self).length() <= time_value:
             extended_sequence >>= self
-        self << od.DataSource( extended_sequence // list() )
+        self._datasource_list = extended_sequence._datasource_list
         return self
 
     def trim(self, length: ra.Length) -> 'Sequence':
@@ -723,7 +695,7 @@ class Sequence(Container):  # Just a container of Elements
         first_element_position: int = None
         last_element: oe.Element = None
         for single_data in self._datasource_list:
-            if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() ):
+            if isinstance(single_data._data, oe.Element) and single_data._data._stackable:
                 if last_element is not None:
                     last_element << (single_data._data._position - last_element._position).getDuration()
                 else:
@@ -746,14 +718,14 @@ class Sequence(Container):  # Just a container of Elements
         stackable_elements: list[oe.Element] = [
                 single_data._data
                 for single_data in self._datasource_list
-                if isinstance(single_data._data, oe.Element) and single_data._data % od.DataSource( ou.Stackable() )
+                if isinstance(single_data._data, oe.Element) and single_data._data._stackable
             ]
         for index, value in enumerate(stackable_elements):
             single_element: oe.Element = value
             if index > 0:
                 single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
             else:
-                single_element._position = ra.Position(0)   # everything starts at the beginning (0)!
+                single_element._position = ra.Position()   # everything starts at the beginning (0)!
         return self
     
     def tie(self, tied: bool = True) -> 'Sequence':
@@ -775,7 +747,7 @@ class Sequence(Container):  # Just a container of Elements
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Tiable):
+            if isinstance(single_datasource._data, oe.Note):    # Only Note has single Pitch
                 actual_note = single_datasource._data
                 if last_note is not None:
                     while actual_note._pitch > last_note._pitch:
