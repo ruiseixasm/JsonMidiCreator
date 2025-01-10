@@ -525,17 +525,15 @@ class Sequence(Container):  # Just a container of Elements
                 return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
             case Sequence():
                 if self._midi_track._name == operand._midi_track._name:
-
-                    right_sequence: Sequence = self.copy()
                     if operand.len() > 0:
-                        left_sequence: Sequence = operand.copy()
-
-                        left_end_position: ra.Position = left_sequence.finish()
-                        right_start_position: ra.Position = right_sequence.start()
+                        left_end_position: ra.Position = operand.finish()
+                        right_start_position: ra.Position = self.start()
                         length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
-                        right_sequence += of.All()**length_shift    # Offsets the content
-                        return left_sequence + right_sequence
-                    return right_sequence
+                        right_sequence: Sequence = self + length_shift  # Offsets the content and it's an implicit copy
+                        added_sequence: Sequence = operand.copy()       # Preserves the left_sequence configuration
+                        added_sequence._datasource_list.extend(right_sequence._datasource_list)
+                        return added_sequence
+                    return self.copy()
                 return Song(operand, self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position))
