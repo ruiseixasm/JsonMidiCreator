@@ -94,7 +94,7 @@ def test_operand_copy():
     exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (Serialization)):
+        if not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
@@ -107,7 +107,7 @@ def test_operand_copy():
 
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (Serialization)):
+        if not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
@@ -115,7 +115,7 @@ def test_operand_copy():
             print(single_class.__name__)
             assert class_object == class_object.copy()
 
-test_operand_copy()
+# test_operand_copy()
 
 
 # Do 'pytest --markers' to see markers
@@ -132,7 +132,7 @@ def test_operand_serialization():
 
     for single_class in list_all_classes:
         class_object = single_class()
-        if not isinstance(class_object, (Serialization)):
+        if not isinstance(class_object, (int)):
             print(single_class.__name__)
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
@@ -144,7 +144,7 @@ def test_operand_serialization():
     exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (Serialization)):
+        if not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Unit]] = list_all_operand_classes(Unit)
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
@@ -161,7 +161,7 @@ def test_operand_serialization():
 
     for single_class in list_all_classes:
         class_object: Operand = single_class()
-        if not isinstance(class_object, (Serialization, Playlist)):
+        if not isinstance(class_object, (int)):
             list_unit_classes: list[Type[Rational]] = list_all_operand_classes(Rational)
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
