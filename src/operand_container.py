@@ -560,6 +560,7 @@ class Sequence(Container):  # Just a container of Elements
                         operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand
                     elif operand._position < self._position:
                         self_copy: Sequence = self + ( self._position - operand._position )         # Implicit copy of operand
+                        self_copy = self_copy._position.getPosition(operand._position) # Avoids changing other attributes of self_copy._position
                         operand_copy: Sequence = operand.copy()
                     else:
                         self_copy: Sequence = self.copy()
