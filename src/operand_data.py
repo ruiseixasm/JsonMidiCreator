@@ -214,6 +214,8 @@ class Serialization(Data):
                     if type(operand._data) == o.Operand:    # Default DataSource content
                         return self._data
                     return self._data % operand # Already includes the DataSource wrapper
+                    # # WHY NOT JUST THIS?
+                    # return self._data
                 case dict():
                     if isinstance(self._data, o.Operand):
                         return self._data.getSerialization()
@@ -222,6 +224,8 @@ class Serialization(Data):
                     if type(operand) == o.Operand:    # Default DataSource content
                         return self._data.copy()
                     return self._data % operand
+                    # # WHY NOT JUST THIS?
+                    # return self._data.copy()
         return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand | dict) -> bool:
@@ -230,11 +234,14 @@ class Serialization(Data):
             if isinstance(other, Data) and other._data is None:
                 return True # If both have Null data then they are equal
             return False
-        match other:
-            case dict():
-                return self.getSerialization() == other
-            case o.Operand():
-                return self.getSerialization() == other.getSerialization()
+        if isinstance(self._data, o.Operand):
+            match other:
+                case dict():
+                    return self._data.getSerialization() == other
+                case o.Operand():
+                    return self._data.__class__ == other.__class__ and self._data == other  # Just compares the Operand
+                case _:
+                    return False
         return super().__eq__(other)
     
     if TYPE_CHECKING:
@@ -273,7 +280,7 @@ class Serialization(Data):
         match operand:
             case Serialization():
                 super().__lshift__(operand)
-                self._data = self.deep_copy(operand._data)
+                self._data = self.deep_copy(operand._data)  # Still misses a Serialization copy!
             case o.Operand():   # DON'T REMOVE THIS STEP !!
                 self._data = operand.copy()
             case _: super().__lshift__(operand)
