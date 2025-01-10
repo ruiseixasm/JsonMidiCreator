@@ -595,7 +595,7 @@ class Sequence(Container):  # Just a container of Elements
                 many_operands._position     = self._position    # it will become 1 single sequence
                 while operand > 0:
                     many_length: ra.Length = many_operands.length()
-                    many_operands += self.copy() + many_length.roundMeasures()
+                    many_operands._datasource_list.extend( (self + many_length.roundMeasures())._datasource_list )
                     operand -= 1
                 return many_operands
             case float(): 
@@ -605,7 +605,7 @@ class Sequence(Container):  # Just a container of Elements
                 repeat_copy: int = int(operand)
                 while repeat_copy > 0:
                     many_length: ra.Length = many_operands.length()
-                    many_operands += self.copy() + many_length
+                    many_operands._datasource_list.extend( (self + many_length)._datasource_list )
                     repeat_copy -= 1
                 return many_operands
             case ou.TimeUnit():
