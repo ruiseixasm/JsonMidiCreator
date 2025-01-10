@@ -92,7 +92,7 @@ def test_serialization_mod():
     # Instead of 2 notes we have 6, BUT the SYMBOLIC value is the same, 1/4
     assert serialization_single_note_duration == ra.NoteValue(1/4)
 
-test_serialization_mod()
+# test_serialization_mod()
 
 
 def test_playlist_mod():

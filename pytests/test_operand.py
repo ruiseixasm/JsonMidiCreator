@@ -87,6 +87,8 @@ def test_operand_copy():
     for single_class in list_all_classes:
         class_object: Operand = single_class() << basic_parameters
         print(single_class.__name__)
+        if isinstance(class_object, Serialization):
+            print("Culprit!")
         assert class_object == class_object.copy()
 
     exclude_class_names: str = ""
@@ -113,7 +115,7 @@ def test_operand_copy():
             print(single_class.__name__)
             assert class_object == class_object.copy()
 
-# test_operand_copy()
+test_operand_copy()
 
 
 # Do 'pytest --markers' to see markers

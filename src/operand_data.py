@@ -149,9 +149,9 @@ class DataSource(Data):
     1941569818512
     1941604026545
     """
-    def __init__(self, operand: o.Operand = None):
+    def __init__(self, operand: any = None):
         super().__init__()
-        self._data = o.Operand() if operand is None else operand
+        self._data: any = o.Operand() if operand is None else operand
 
     def __mod__(self, operand: o.Operand):
         """
@@ -186,12 +186,13 @@ class SetNone(DataSource):
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
         super().__init__()
-        if isinstance(serialization, o.Operand):
-            self._data = serialization.copy()
-        elif isinstance(serialization, dict):
-            self._data = o.Operand().loadSerialization(serialization)
-        else:
-            self._data = None
+        match serialization:
+            case o.Operand():
+                self._data = serialization.copy()
+            case dict():
+                self._data = o.Operand().loadSerialization(serialization)
+            case _:
+                self._data = ol.Null()  # Contrary to None, ol.Null allows .copy() of itself
 
     def __mod__(self, operand: any) -> any:
         """
@@ -238,6 +239,8 @@ class Serialization(Data):
             match other:
                 case dict():
                     return self._data.getSerialization() == other
+                case Serialization():
+                    return self._data == other._data
                 case o.Operand():
                     return self._data.__class__ == other.__class__ and self._data == other  # Just compares the Operand
                 case _:
@@ -280,10 +283,15 @@ class Serialization(Data):
         match operand:
             case Serialization():
                 super().__lshift__(operand)
-                self._data = self.deep_copy(operand._data)  # Still misses a Serialization copy!
+                self._data = operand._data.copy()   # It's and Operand for sure
+            case DataSource():
+                match operand._data:
+                    case o.Operand():
+                        self._data = operand._data
+                    case dict():
+                        self._data = o.Operand().loadSerialization(operand._data)
             case o.Operand():   # DON'T REMOVE THIS STEP !!
                 self._data = operand.copy()
-            case _: super().__lshift__(operand)
         return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
