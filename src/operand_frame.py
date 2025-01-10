@@ -762,7 +762,7 @@ class Increment(Right):
                 incremented_operand._set = True
         return incremented_operand
 
-class Wrap(Right):
+class WrapR(Right):
     def __init__(self, wrapper: o.Operand = None):
         super().__init__(wrapper)
 
