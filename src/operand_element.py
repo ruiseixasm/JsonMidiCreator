@@ -1061,9 +1061,9 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                chord_notes.append(
-                    Note(self) + float(transposition)   # Jumps by semitones (floats)
-                )
+                new_note: Note = Note(self)
+                new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
+                chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
             # modulated_scale: og.Scale = os.staff % og.Scale(self._mode) # already modulated
             for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
@@ -1073,9 +1073,9 @@ class Chord(KeyScale):
                         key_step -= 1
                     if self._sus4:
                         key_step += 1   # cancels out if both sus2 and sus4 are set to true
-                chord_notes.append(
-                    Note(self) + key_step   # Jumps by steps (ints have become Degrees!!)
-                )
+                new_note: Note = Note(self)
+                new_note._pitch._degree += key_step # Jumps by degrees (scale tones)
+                chord_notes.append( new_note )
 
         # Where the inversions are done
         inversion = min(self._inversion, len(chord_notes) - 1)
@@ -1085,7 +1085,7 @@ class Chord(KeyScale):
             while not_first_note:   # Try to implement while inversion > 0 here
                 not_first_note = False
                 for single_note in chord_notes:
-                    if single_note % og.Pitch() < first_note % og.Pitch():   # Critical operation
+                    if single_note._pitch < first_note._pitch:   # Critical operation
                         single_note << single_note % ou.Octave() + 1
                         if single_note % od.DataSource( int() ) < 128:
                             not_first_note = True # to result in another while loop
