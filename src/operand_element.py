@@ -1713,10 +1713,10 @@ class PitchBend(Automation):
                 self._bend = operand._bend
             case od.DataSource():
                 match operand._data:
-                    case ou.Bend():             self._bend = operand._data // int()
+                    case ou.Bend():             self._bend = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case ou.Bend():
-                self._bend = operand // int()
+                self._bend = operand._unit
             case int():
                 self._bend = operand
             case float():
