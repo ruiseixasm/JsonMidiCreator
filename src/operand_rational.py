@@ -894,10 +894,10 @@ class Duration(TimeValue):
     """
     pass
 
-class NoteValue(Duration):
-    pass
+# NoteValue as an Alias to Duration
+NoteValue = Duration
 
-class Dotted(NoteValue):
+class Dotted(Duration):
     """
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:
