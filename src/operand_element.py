@@ -636,6 +636,8 @@ class Note(Tiable):
             case self.__class__():
                 return super().__eq__(other) \
                     and self._pitch     == other._pitch
+            case int(): # int() for Note concerns Degree
+                return self._pitch._degree == other
             case _:
                 return super().__eq__(other)
     
