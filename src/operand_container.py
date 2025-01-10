@@ -513,11 +513,6 @@ class Sequence(Container):  # Just a container of Elements
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | ra.Duration():
-                self._position += operand
-                return self
-            case oe.Element():
-                return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
             case Sequence():
                 if self._midi_track._name == operand._midi_track._name:
                     if operand.len() > 0:
@@ -530,6 +525,11 @@ class Sequence(Container):  # Just a container of Elements
                         return added_sequence
                     return self.copy()
                 return Song(operand, self)
+            case oe.Element():
+                return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | ra.Duration():
+                self._position += operand
+                return self
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position))
             case tuple():
