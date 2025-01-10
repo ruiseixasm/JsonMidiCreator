@@ -34,6 +34,6 @@ chord + controller >> Print() >> Play(1) >> Export("json/_Export_4.1_control_cha
 
 
 oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
-pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << Extract(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Steps()
+pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << GetR(Bend())**Wrap(oscillator)**Wrap(PitchBend())**Iterate(4)**Steps()
 
 chord + pitch_bend >> Play(1) >> Save("json/_Save_4.2_pitch_bend.json") >> Export("json/_Export_4.2_pitch_bend.json")

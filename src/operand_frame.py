@@ -791,7 +791,7 @@ class Wrap(Right):
                 wrapped_operand._set = True
         return wrapped_operand
 
-class Extract(Right):
+class GetR(Right):
     def __init__(self, operand: o.Operand = None):
         super().__init__(operand)
 
