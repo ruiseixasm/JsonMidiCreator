@@ -323,7 +323,7 @@ class Playlist(Data):
                     case list():            return self._data
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
-            case list():            return self.deep_copy(self._data)
+            case list():            return self.shallow_playlist_copy(self._data)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -340,7 +340,7 @@ class Playlist(Data):
         return super().__eq__(other)
     
     def getPlaylist(self, position = None) -> list:
-        return self.deep_copy(self._data)
+        return self.shallow_playlist_copy(self._data)
 
     # CHAINABLE OPERATIONS
 
@@ -349,7 +349,7 @@ class Playlist(Data):
         import operand_element as oe
         match operand:
             case Playlist():
-                self._data          = self.deep_copy(operand._data)
+                self._data          = self.shallow_playlist_copy(operand._data)
                 self._midi_track    << operand._midi_track
             case DataSource():
                 match operand._data:
@@ -364,60 +364,88 @@ class Playlist(Data):
             case ou.MidiTrack():
                 self._midi_track    << operand
             case list():
-                self._data = self.deep_copy(operand)
+                self._data = self.shallow_playlist_copy(operand)
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-            case _:
-                super().__lshift__(operand)
         return self
 
     def __rrshift__(self, operand: o.Operand) -> 'Playlist':
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
-        if isinstance(operand, (oc.Sequence, oe.Element, Playlist, ra.Position, ra.NoteValue)):
-            operand_play_list: list[dict] = operand.getPlaylist()
-            self_copy: Playlist = self.copy()
-            if len(self_copy._data) > 0 and len(operand_play_list) > 0:
-                ending_position_ms: float = operand_play_list[0]["time_ms"]
-                for operand_dict in operand_play_list:
-                    if "time_ms" in operand_dict and operand_dict["time_ms"] > ending_position_ms:
-                        ending_position_ms = operand_dict["time_ms"]
-                # Where self_copy _data list is manipulated (pushed forward)
-                increase_position_ms: float = ending_position_ms
-                if not isinstance(operand, ra.NoteValue):
+        match operand:
+            case oc.Sequence() | oe.Element() | Playlist():
+                operand_play_list: list[dict] = operand.getPlaylist()
+                self_copy: Playlist = self.copy()
+                if len(self_copy._data) > 0 and len(operand_play_list) > 0:
+                    ending_position_ms: float = operand_play_list[0]["time_ms"]
+                    for operand_dict in operand_play_list:
+                        if "time_ms" in operand_dict and operand_dict["time_ms"] > ending_position_ms:
+                            ending_position_ms = operand_dict["time_ms"]
+                    # Where self_copy _data list is manipulated (pushed forward)
+                    increase_position_ms: float = ending_position_ms
                     starting_position_ms = self_copy._data[0]["time_ms"]
                     for self_copy_dict in self_copy._data:
                         if "time_ms" in self_copy_dict and self_copy_dict["time_ms"] < starting_position_ms:
                             starting_position_ms = self_copy_dict["time_ms"]
                     increase_position_ms = ending_position_ms - starting_position_ms
-                for self_copy_dict in self_copy._data:
-                    if "time_ms" in self_copy_dict:
-                        self_copy_dict["time_ms"] = round(self_copy_dict["time_ms"] + increase_position_ms, 3)
-
-            if not isinstance(operand, (ra.Position, ra.NoteValue)):
+                    for self_copy_dict in self_copy._data:
+                        if "time_ms" in self_copy_dict:
+                            self_copy_dict["time_ms"] = round(self_copy_dict["time_ms"] + increase_position_ms, 3)
                 return self_copy << DataSource( operand_play_list + self_copy._data )
-            return self_copy
-        else:
-            return super().__rrshift__(operand)
+
+            case ra.Length():
+                operand_play_list: list[dict] = operand.getPlaylist()
+                offset_position_ms: float = operand_play_list[0]["time_ms"]
+                for self_dict in self._data:
+                    if "time_ms" in self_dict:
+                        self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
+                return self
+
+            case ra.Position():
+                operand_play_list: list[dict] = operand.getPlaylist()
+                new_start_position_ms: float = operand_play_list[0]["time_ms"]
+                if len(self._data) > 0:
+                    self_start_position_ms: float = self._data[0]["time_ms"]
+                    for self_dict in self._data:
+                        if "time_ms" in self_dict and self_dict["time_ms"] < self_start_position_ms:
+                            self_start_position_ms = self_dict["time_ms"]
+                    offset_position_ms: float = new_start_position_ms - self_start_position_ms
+                    for self_dict in self._data:
+                        if "time_ms" in self_dict:
+                            self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
+                return self
+
+            case _:
+                return super().__rrshift__(operand)
+
 
     def __add__(self, operand: o.Operand) -> 'Playlist':
         import operand_rational as ra
         match operand:
-            case ra.NoteValue():
-                playlist_copy = self.deep_copy(self._data)
+            case ra.Length():
+                playlist_copy = self.shallow_playlist_copy(self._data)
                 increase_position_ms: float = operand.getMillis_float() # OUTDATED, NEEDS TO BE REVIEWED WITH LENGTH INSTEAD
                 for self_dict in playlist_copy:
                     if "time_ms" in self_dict:
                         self_dict["time_ms"] = round(self_dict["time_ms"] + increase_position_ms, 3)
                 return Playlist(self._midi_track) << DataSource( playlist_copy )
             case list():
-                return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + self.deep_copy(operand) )
+                return Playlist(self._midi_track) << DataSource( self.shallow_playlist_copy(self._data) + self.shallow_playlist_copy(operand) )
             case o.Operand():
-                return Playlist(self._midi_track) << DataSource( self.deep_copy(self._data) + operand.getPlaylist() )
+                return Playlist(self._midi_track) << DataSource( self.shallow_playlist_copy(self._data) + operand.getPlaylist() )
             case _:
                 return Playlist(self)
+
+    # Only the "time_ms" data matters to be copied because the rest wont change (faster)
+    @staticmethod
+    def shallow_playlist_copy(playlist: list[dict]) -> list[dict]:
+        copied_playlist: list[dict] = []
+        for single_dict in playlist:
+            if isinstance(single_dict, dict) and "time_ms" in single_dict:
+                copied_playlist.append(single_dict.copy())
+        return copied_playlist
 
 
 class Load(Serialization):

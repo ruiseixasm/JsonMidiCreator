@@ -352,4 +352,36 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 # print(float(amount))
 
 
-print(-1 % 7)
+# print(-1 % 7)
+
+
+list_1: list[dict] = [
+    {
+        "time_ms": 123.456,
+        "content": {
+            "data_1": 123,
+            "data_2": 456
+        }
+    }
+]
+
+list_2: list[dict] = []
+
+list_2 = list_1.copy()
+
+list_2[0]["time_ms"] = 555
+list_2[0]["content"]["data_1"] = 555
+
+print(list_1)
+
+list_2 = []
+list_2.append(list_1[0].copy())
+
+list_2[0]["time_ms"] = 666
+list_2[0]["content"]["data_1"] = 666
+
+print(list_1)
+
+
+
+
