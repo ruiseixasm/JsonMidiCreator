@@ -55,14 +55,3 @@ class Dummy(Label):
 class MidiValue(Label):
     pass
 
-class MSB(MidiValue):
-    """
-    MSB() represents the Most Significant Byte.
-    """
-    pass
-
-class LSB(MidiValue):
-    """
-    LSB() represents the Least Significant Byte.
-    """
-    pass

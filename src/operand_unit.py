@@ -1183,21 +1183,7 @@ class Bend(Midi):
         Pitch bending where 0 is no bending and other values from -8192 to 8191 are the intended bending,
         this bending is 2 semi-tones bellow or above respectively
     """
-
-    def __mod__(self, operand: o.Operand) -> o.Operand:
-        match operand:
-            case od.DataSource():   return super().__mod__(operand)
-            case ol.MSB():
-                amount = 8192 + self._unit    # 2^14 = 16384, 16384 / 2 = 8192
-                amount = max(min(amount, 16383), 0) # midi safe
-                msb = amount >> 7               # MSB - total of 14 bits, 7 for each side, 2^7 = 128
-                return msb
-            case ol.LSB():
-                amount = 8192 + self._unit    # 2^14 = 16384, 16384 / 2 = 8192
-                amount = max(min(amount, 16383), 0) # midi safe
-                lsb = amount & 0x7F             # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
-                return lsb
-            case _:                 return super().__mod__(operand)
+    pass
 
 class Program(Midi):
     """

@@ -1664,9 +1664,12 @@ class PitchBend(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        msb_midi: int   = ou.Bend(self._bend) % ol.MSB()
-        lsb_midi: int   = ou.Bend(self._bend) % ol.LSB()
+        amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
+        amount = max(min(amount, 16383), 0) # midi safe
 
+        msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
+        lsb_midi: int = amount & 0x7F       # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
+    
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
