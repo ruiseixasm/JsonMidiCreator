@@ -42,17 +42,12 @@ class Container(o.Operand):
         for single_operand in operands:
             match single_operand:
                 case Container():
-                    self._datasource_list.extend(single_operand.copy() % od.DataSource( list() ))
+                    self._datasource_list.extend(self.deep_copy(single_operand._datasource_list))
                 case list():
                     for operand in single_operand:
-                        if isinstance(operand, o.Operand):
-                            self._datasource_list.append(od.DataSource( operand.copy() ))
-                        else:
-                            self._datasource_list.append(od.DataSource( operand ))
-                case o.Operand():
-                    self._datasource_list.append(od.DataSource( single_operand.copy() ))
+                        self._datasource_list.append(od.DataSource( self.deep_copy(operand) ))
                 case _:
-                    self._datasource_list.append(od.DataSource( single_operand ))
+                    self._datasource_list.append(od.DataSource( self.deep_copy(single_operand) ))
         
     def __getitem__(self, index: int) -> any:
         return self._datasource_list[index]._data
