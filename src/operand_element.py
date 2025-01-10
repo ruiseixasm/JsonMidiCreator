@@ -895,13 +895,15 @@ class KeyScale(Note):
         if self._scale.hasScale():
             for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
                 transposition: int = self._scale.transposition(key_note_i)
-                scale_notes.append(Note(self) + float(transposition))
+                new_note: Note = Note(self)
+                new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
+                scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
-            key_note_scale: og.Scale = self._pitch._key % og.Scale()
-            for note_i in range(key_note_scale.keys()):
-                scale_notes.append(
-                    Note(self) + note_i   # Jumps by steps (scale tones)
-                )
+            key_note_scale: og.Scale = self._pitch % og.Scale()
+            for degree_i in range(key_note_scale.keys()):
+                new_note: Note = Note(self)
+                new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
+                scale_notes.append( new_note )
         return scale_notes
     
     def getPlaylist(self, position: ra.Position = None) -> list:
@@ -1243,7 +1245,7 @@ class Retrigger(Note):
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.Position = self % ra.Position()
+        note_position: ra.Position = self._position
         single_note_duration: ra.Duration = ra.Duration( self._duration/(self._division) ) # Already 2x single note duration
         for _ in range(self._division):
             swing_ratio = self._swing
