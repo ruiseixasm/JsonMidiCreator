@@ -356,7 +356,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration      = self._position.getDuration(os.staff._measures)._rational
+        self._duration = self._position.getDuration(os.staff._measures)._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -399,9 +399,9 @@ class Clock(Element):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        pulses_per_note: int = 4 * self._pulses_per_quarternote
-        pulses_per_beat: Fraction = pulses_per_note * (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() ))
-        total_clock_pulses: int = (pulses_per_beat * self._position.getBeats( self // ra.Duration() )) % od.DataSource( int() )
+        pulses_per_note: int = self._pulses_per_quarternote * 4
+        pulses_per_beat: Fraction = (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() )) * pulses_per_note
+        total_clock_pulses: int = (self._position.getBeats( self // ra.Duration() ) * pulses_per_beat) % od.DataSource( int() )
 
         single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
 
