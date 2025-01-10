@@ -899,8 +899,7 @@ class KeyScale(Note):
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
-            key_note_scale: og.Scale = self._pitch % og.Scale()
-            for degree_i in range(key_note_scale.keys()):
+            for degree_i in range(self._pitch._scale.keys()):
                 new_note: Note = Note(self)
                 new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
