@@ -555,12 +555,18 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 if self._midi_track == operand._midi_track:
                     # Does the needed position conversion first and replicates to its elements
-                    operand += self._position.getPosition( operand._position )  # Implicit copy of operand
-                    # Make sure the operand position is the same as the self one
-                    operand._position = self._position  # Can be "=" instead of "<<" in this case !
+                    if operand._position > self._position:
+                        self_copy: Sequence = self.copy()
+                        operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand
+                    elif operand._position < self._position:
+                        self_copy: Sequence = self + ( self._position - operand._position )         # Implicit copy of operand
+                        operand_copy: Sequence = operand.copy()
+                    else:
+                        self_copy: Sequence = self.copy()
+                        operand_copy: Sequence = operand.copy()
                     # operand is already a copy, let's take advantage of that
-                    operand._datasource_list = self.deep_copy(self._datasource_list) + operand._datasource_list
-                    return operand  # operand becomes the __add__ result as an implicit copy
+                    self_copy._datasource_list += operand_copy._datasource_list
+                    return self_copy  # self_copy becomes the __add__ result as an add copy
                 return Song(self, operand)
             case oe.Element():
                 return super().__add__(operand)
