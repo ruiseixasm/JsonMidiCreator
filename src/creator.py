@@ -278,8 +278,10 @@ class Timer:
         self.start_time = None
         self.total_time = 0.0
         self._last_time = None
+        self._total_calls = 0
 
     def call_timer_a(self):
+        self._total_calls += 1
         if self.start_time is None:
             self._last_time = self.start_time = time.perf_counter()
         else:
@@ -315,8 +317,9 @@ class Timer:
     def __str__(self) -> str:
         if self.start_time:
             total_run_time = time.perf_counter() - self.start_time
-            return f"Profiling time: {round(self.get_total_time() * 1000):.0f} ms, \
-in a total of {round(total_run_time * 1000):.0f} ms ({(self.get_total_time() / total_run_time * 100):.2f}%)"
+            return f"Profiling time of {(self.get_total_time() * 1000):.0f} ms " \
+                + f"in a total of {(total_run_time * 1000):.0f} ms ({(self.get_total_time() / total_run_time * 100):.2f}%) " \
+                + f"and called {self._total_calls} times ({(self.get_total_time() * 1000 / self._total_calls):.3f} ms per call)!"
         return f"ZERO CALLS!"
 
 profiling_timer = Timer()
