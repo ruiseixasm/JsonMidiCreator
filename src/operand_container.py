@@ -342,6 +342,9 @@ class Container(o.Operand):
 
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
+
+        c.profiling_timer.call_timer_a()
+        
         super().__init__(*operands)
         self._midi_track: ou.MidiTrack = ou.MidiTrack()
         self._position: ra.Position = ra.Position(0)
@@ -355,6 +358,9 @@ class Sequence(Container):  # Just a container of Elements
                 case ra.Position():
                     self._position = single_operand.copy()
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+
+        c.profiling_timer.call_timer_b()
+
 
     def __getitem__(self, index: int) -> oe.Element:
         return self._datasource_list[index]._data
@@ -573,15 +579,11 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__add__(operand)
             case _:
 
-                c.profiling_timer.call_timer_a()
-        
                 self_copy: Sequence = Sequence() << self._position << self._midi_track
                 for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         # It's already a copy, avoids extra copy by filling the list directly
                         self_copy._datasource_list.append(od.DataSource( single_datasource._data + operand ))
-
-                c.profiling_timer.call_timer_b()
 
                 return self_copy
 
