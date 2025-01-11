@@ -18,6 +18,7 @@ from typing import Union, TypeVar, TYPE_CHECKING
 from fractions import Fraction
 import re
 # Json Midi Creator Libraries
+import creator as c
 import operand as o
 import operand_staff as os
 
@@ -749,30 +750,40 @@ class Position(Rational):
         return self
 
     def __add__(self, operand: o.Operand) -> 'Position':
-        self_copy = self.copy()
+
+        c.profiling_timer.call_timer_a()
+        
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
-                self_copy._rational += self.getBeats(operand) % od.DataSource( Fraction() )
+                self_copy = self.copy()
+                self_copy._rational += self.getBeats(operand)._rational
+                c.profiling_timer.call_timer_b()
+                return self_copy
             case int() | float() | Fraction():
+                c.profiling_timer.call_timer_b()
                 return self + Measures(operand)
-        return self_copy
+            
+        c.profiling_timer.call_timer_b()
+
+        return self.copy()
     
     def __sub__(self, operand: o.Operand) -> 'Position':
-        self_copy = self.copy()
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
-                self_copy._rational -= self.getBeats(operand) % od.DataSource( Fraction() )
+                self_copy = self.copy()
+                self_copy._rational -= self.getBeats(operand)._rational
+                return self_copy
             case int() | float() | Fraction():
                 return self - Measures(operand)
-        return self_copy
+        return self.copy()
     
     def __mul__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
-                multiplier: Fraction = operand.getMeasures() % od.DataSource( Fraction() )
+                multiplier: Fraction = operand.getMeasures()._rational
                 return super().__mul__(multiplier)
         return super().__mul__(operand)
     
@@ -780,7 +791,7 @@ class Position(Rational):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
-                divider: Fraction = operand.getMeasures() % od.DataSource( Fraction() )
+                divider: Fraction = operand.getMeasures()._rational
                 return super().__truediv__(divider)
         return super().__truediv__(operand)
 

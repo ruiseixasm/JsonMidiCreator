@@ -553,8 +553,6 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
-                    c.profiling_timer.call_timer_a()
-        
                     # Does the needed position conversion first and replicates to its elements
                     if operand._position > self._position:
                         self_copy: Sequence = self.copy()
@@ -568,8 +566,6 @@ class Sequence(Container):  # Just a container of Elements
                         operand_copy: Sequence = operand.copy()
                     # operand is already a copy, let's take advantage of that
                     self_copy._datasource_list.extend(operand_copy._datasource_list)
-
-                    c.profiling_timer.call_timer_b()
 
                     return self_copy  # self_copy becomes the __add__ result as an add copy
                 return Song(self, operand)
