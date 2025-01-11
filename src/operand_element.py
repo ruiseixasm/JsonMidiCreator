@@ -631,10 +631,10 @@ class Note(Tiable):
                     case og.Pitch():        return self._pitch
                     case _:                 return super().__mod__(operand)
             case og.Pitch():        return self._pitch.copy()
+            case int():             return self._pitch._degree
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | int() | str() | ou.Key() | ou.Octave() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
+                | str() | ou.Key() | ou.Octave() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
                                     return self._pitch % operand
-            case int():             return self._pitch._degree % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:

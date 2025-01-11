@@ -572,10 +572,17 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return super().__add__(operand)
             case _:
+
+                c.profiling_timer.call_timer_a()
+        
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        single_datasource._data += operand
+                        # Avoids extra copy by doing it directly
+                        single_datasource._data += single_datasource._data & operand    # Processes the tailed self operands or the Frame operand if any exists
+
+                c.profiling_timer.call_timer_b()
+
                 return self_copy
 
     def __sub__(self, operand: o.Operand) -> 'Sequence':
@@ -724,8 +731,6 @@ class Sequence(Container):  # Just a container of Elements
 
     def stack(self) -> 'Sequence':
 
-        c.profiling_timer.call_timer_a()
-        
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Element] = [
                 single_data._data
@@ -738,8 +743,6 @@ class Sequence(Container):  # Just a container of Elements
             else:
                 single_element._position = ra.Position()   # everything starts at the beginning (0)!
         
-        c.profiling_timer.call_timer_b()
-
         return self
     
     def tie(self, tied: bool = True) -> 'Sequence':
