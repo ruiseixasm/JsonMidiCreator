@@ -345,7 +345,7 @@ class Sequence(Container):  # Just a container of Elements
 
         super().__init__(*operands)
         self._midi_track: ou.MidiTrack = ou.MidiTrack()
-        self._position: ra.Position = ra.Position(0)
+        self._position: ra.Position = ra.Position()
         for single_operand in operands:
             match single_operand:
                 case Sequence():
@@ -728,7 +728,7 @@ class Sequence(Container):  # Just a container of Elements
         # Add a Rest in the beginning if necessary
         if first_element_position is not None:
             first_element: oe.Element = self._datasource_list[first_element_position]._data
-            if first_element._position != ra.Position(0):
+            if first_element._position != ra.Position():
                 rest_length = ra.Duration(first_element._position)
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element duration based on its Measure position
