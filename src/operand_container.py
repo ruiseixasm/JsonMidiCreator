@@ -573,15 +573,11 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__add__(operand)
             case _:
 
-                c.profiling_timer.call_timer_a()
-        
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
                         # Avoids extra copy by doing it directly
                         single_datasource._data += single_datasource._data & operand    # Processes the tailed self operands or the Frame operand if any exists
-
-                c.profiling_timer.call_timer_b()
 
                 return self_copy
 
@@ -594,10 +590,17 @@ class Sequence(Container):  # Just a container of Elements
             case oe.Element():
                 return super().__sub__(operand)
             case _:
+
+                c.profiling_timer.call_timer_a()
+        
                 self_copy: Sequence = self.copy()
                 for single_datasource in self_copy._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        single_datasource._data -= operand
+                        # Avoids extra copy by doing it directly
+                        single_datasource._data -= single_datasource._data & operand    # Processes the tailed self operands or the Frame operand if any exists
+
+                c.profiling_timer.call_timer_b()
+
                 return self_copy
 
     # multiply with a scalar
