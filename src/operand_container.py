@@ -553,19 +553,23 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
+                    c.profiling_timer.call_timer_a()
+        
                     # Does the needed position conversion first and replicates to its elements
                     if operand._position > self._position:
                         self_copy: Sequence = self.copy()
                         operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand
                     elif operand._position < self._position:
                         self_copy: Sequence = self + ( self._position - operand._position )         # Implicit copy of operand
-                        self_copy._position = self_copy._position.getPosition(operand._position) # Avoids changing other attributes of self_copy._position
+                        self_copy._position = self_copy._position.getPosition(operand._position)    # Avoids changing other attributes of self_copy._position
                         operand_copy: Sequence = operand.copy()
                     else:
                         self_copy: Sequence = self.copy()
                         operand_copy: Sequence = operand.copy()
                     # operand is already a copy, let's take advantage of that
-                    self_copy._datasource_list += operand_copy._datasource_list
+                    self_copy._datasource_list.extend(operand_copy._datasource_list)
+
+                    c.profiling_timer.call_timer_b()
 
                     return self_copy  # self_copy becomes the __add__ result as an add copy
                 return Song(self, operand)
@@ -598,8 +602,6 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case int():
 
-                c.profiling_timer.call_timer_a()
-        
                 many_operands = self.__class__()    # empty list but same track
                 many_operands._midi_track   = self._midi_track  # no need for "<<" because
                 many_operands._position     = self._position    # it will become 1 single sequence
@@ -607,18 +609,17 @@ class Sequence(Container):  # Just a container of Elements
                 for segment in range(operand):
                     many_operands._datasource_list.extend( (self + single_length * segment)._datasource_list )
 
-                c.profiling_timer.call_timer_b()
-
                 return many_operands
-            case float(): 
+            case float():
+
                 many_operands = self.__class__()    # empty list but same track
                 many_operands._midi_track   = self._midi_track  # no need for "<<" because
                 many_operands._position     = self._position    # it will become 1 single sequence
+                single_length: ra.Length    = self.length()
                 repeat_copy: int = int(operand)
-                while repeat_copy > 0:
-                    many_length: ra.Length = many_operands.length()
-                    many_operands._datasource_list.extend( (self + many_length)._datasource_list )
-                    repeat_copy -= 1
+                for segment in range(repeat_copy):
+                    many_operands._datasource_list.extend( (self + single_length * segment)._datasource_list )
+
                 return many_operands
             case ou.TimeUnit():
                 self_repeating: int = 0

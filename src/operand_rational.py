@@ -455,7 +455,7 @@ class Position(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Position():
-                return self == self.getBeats(other)
+                return self.getMillis_rational() == other.getMillis_rational()
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
@@ -467,7 +467,7 @@ class Position(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Position():
-                return self < self.getBeats(other)
+                return self.getMillis_rational() < other.getMillis_rational()
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other < other
         return False
@@ -476,7 +476,7 @@ class Position(Rational):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Position():
-                return self > self.getBeats(other)
+                return self.getMillis_rational() > other.getMillis_rational()
             case TimeValue() | ou.TimeUnit() | int() | float():
                 return self % other > other
         return False
