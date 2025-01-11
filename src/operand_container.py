@@ -573,11 +573,15 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__add__(operand)
             case _:
 
-                self_copy: Sequence = self.copy()
-                for single_datasource in self_copy._datasource_list:
+                c.profiling_timer.call_timer_a()
+        
+                self_copy: Sequence = Sequence() << self._position << self._midi_track
+                for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # Avoids extra copy by doing it directly
-                        single_datasource._data += single_datasource._data & operand    # Processes the tailed self operands or the Frame operand if any exists
+                        # It's already a copy, avoids extra copy by filling the list directly
+                        self_copy._datasource_list.append(od.DataSource( single_datasource._data + operand ))
+
+                c.profiling_timer.call_timer_b()
 
                 return self_copy
 
@@ -591,15 +595,11 @@ class Sequence(Container):  # Just a container of Elements
                 return super().__sub__(operand)
             case _:
 
-                c.profiling_timer.call_timer_a()
-        
-                self_copy: Sequence = self.copy()
-                for single_datasource in self_copy._datasource_list:
+                self_copy: Sequence = Sequence() << self._position << self._midi_track
+                for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # Avoids extra copy by doing it directly
-                        single_datasource._data -= single_datasource._data & operand    # Processes the tailed self operands or the Frame operand if any exists
-
-                c.profiling_timer.call_timer_b()
+                        # It's already a copy, avoids extra copy by filling the list directly
+                        self_copy._datasource_list.append(od.DataSource( single_datasource._data - operand ))
 
                 return self_copy
 
@@ -642,10 +642,13 @@ class Sequence(Container):  # Just a container of Elements
                     self_repeating: float = float( operand_length / self_length )
                 return self * self_repeating
             case _:
-                self_copy: Sequence = self.copy()
-                for single_datasource in self_copy._datasource_list:
+                
+                self_copy: Sequence = Sequence() << self._position << self._midi_track
+                for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        single_datasource._data *= operand
+                        # It's already a copy, avoids extra copy by filling the list directly
+                        self_copy._datasource_list.append(od.DataSource( single_datasource._data * operand ))
+
                 return self_copy
     
     def __rmul__(self, operand: any) -> 'Sequence':
@@ -656,10 +659,13 @@ class Sequence(Container):  # Just a container of Elements
             case int():
                 return super().__truediv__(operand)
             case _:
-                self_copy: Sequence = self.copy()
-                for single_datasource in self_copy._datasource_list:
+                
+                self_copy: Sequence = Sequence() << self._position << self._midi_track
+                for single_datasource in self._datasource_list:
                     if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        single_datasource._data /= operand
+                        # It's already a copy, avoids extra copy by filling the list directly
+                        self_copy._datasource_list.append(od.DataSource( single_datasource._data / operand ))
+
                 return self_copy
 
     def __or__(self, operand: any) -> 'Sequence':
