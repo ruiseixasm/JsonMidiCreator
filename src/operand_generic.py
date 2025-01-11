@@ -147,6 +147,7 @@ class Pitch(Generic):
 
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
+
         staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
         accidentals_int: int    = self._key_signature._unit
         key_sharp: int          = 0

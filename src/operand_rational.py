@@ -486,13 +486,9 @@ class Position(Rational):
     
 
     def getPosition(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Position':
-        time_beats: Beats = Beats()
-        match time:
-            case None:
-                time_beats = self.getBeats()
-            case Position() | TimeValue() | ou.TimeUnit():
-                time_beats = self.getBeats(time)
-        return self.copy(time_beats)
+        if isinstance(time, (Position, TimeValue, ou.TimeUnit)):
+            return self.copy( self.getBeats(time) )
+        return self.copy()
 
     def getMeasures(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> 'Measures':
         measures: Fraction = Fraction(0)
@@ -681,7 +677,7 @@ class Position(Rational):
         beats: Fraction = self._rational
         beats_per_minute: Fraction = self._tempo
         if time is not None:
-            beats = self.getBeats(time) % od.DataSource( Fraction() )
+            beats = self.getBeats(time)._rational
         return beats / beats_per_minute * 60 * 1000
     
     def getPlaylist(self, position: 'Position' = None) -> list:

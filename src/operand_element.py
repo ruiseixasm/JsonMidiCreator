@@ -331,12 +331,21 @@ class Element(o.Operand):
         return self.copy() << self % operand / operand
 
     def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
-        sequence_position_ms: Fraction = Fraction(0)
+
+        c.profiling_timer.call_timer_a()
+        
         if isinstance(position, ra.Position):
-            sequence_position_ms = position.getMillis_rational()
-        element_position_ms: Fraction = self._position.getMillis_rational()
-        self_position_ms: Fraction = sequence_position_ms + element_position_ms
-        self_duration_ms: Fraction = self._position.getMillis_rational( self // ra.Duration() )
+            reference_position: ra.Position = position
+            self_position_ms: Fraction = \
+                position.getMillis_rational() + self._position.getMillis_rational()
+        else:
+            reference_position: ra.Position = self._position
+            self_position_ms: Fraction = self._position.getMillis_rational()
+
+        self_duration_ms: Fraction = reference_position.getMillis_rational( ra.Duration(self._duration) )
+
+        c.profiling_timer.call_timer_b()
+
         return self_position_ms, self_duration_ms
     
     @staticmethod
@@ -642,6 +651,7 @@ class Note(Tiable):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
+
         if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)

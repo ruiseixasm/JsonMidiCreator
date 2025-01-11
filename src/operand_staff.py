@@ -251,3 +251,4 @@ length: ra.Length = ra.Length() \
     << od.DataSource( staff % od.DataSource( og.TimeSignature() ) ) \
     << od.DataSource( staff % od.DataSource( ra.Tempo() ) ) \
     << od.DataSource( staff % od.DataSource( ra.Quantization() ) )
+

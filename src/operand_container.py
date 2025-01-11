@@ -443,17 +443,27 @@ class Sequence(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
-        play_list = []
+    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+
+        if isinstance(position, ra.Position):
+            position += self._position
+        else:
+            position = self._position
+
+        play_list: list[dict] = []
         for single_element in self.get_sequence_elements():
             play_list.extend(single_element.getPlaylist(position))
+
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list[dict]:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        position: ra.Position = self._position + (ra.Position(0) if not isinstance(position, ra.Position) else position)
-        midi_list = []
+        if isinstance(position, ra.Position):
+            position += self._position
+        else:
+            position = self._position
+
+        midi_list: list[dict] = []
         for single_element in self.get_sequence_elements():
             midi_list.extend(single_element.getMidilist(midi_track, position))
         return midi_list
@@ -542,6 +552,7 @@ class Sequence(Container):  # Just a container of Elements
                 return operand + self   # Order is irrelevant on Song
             case Sequence():
                 if self._midi_track == operand._midi_track:
+
                     # Does the needed position conversion first and replicates to its elements
                     if operand._position > self._position:
                         self_copy: Sequence = self.copy()
@@ -555,6 +566,7 @@ class Sequence(Container):  # Just a container of Elements
                         operand_copy: Sequence = operand.copy()
                     # operand is already a copy, let's take advantage of that
                     self_copy._datasource_list += operand_copy._datasource_list
+
                     return self_copy  # self_copy becomes the __add__ result as an add copy
                 return Song(self, operand)
             case oe.Element():

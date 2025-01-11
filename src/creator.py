@@ -18,6 +18,7 @@ import platform
 import os
 import ctypes
 import math
+import time
 
 # Determine the directory of the current Python file
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -272,7 +273,44 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
 
 
 
+class Timer:
+    def __init__(self):
+        self.start_time = None
+        self.total_time = 0.0
+        self._last_time = None
 
+    def call_timer_a(self):
+        self._last_time = time.perf_counter()
+
+    def call_timer_b(self):
+        elapsed = time.perf_counter() - self._last_time
+        self.total_time += elapsed
+
+    def start(self):
+        """Start the timer."""
+        if self.start_time is not None:
+            raise RuntimeError("Timer is already running. Stop it before starting again.")
+        self.start_time = time.perf_counter()
+
+    def stop(self):
+        """Stop the timer and accumulate the elapsed time."""
+        if self.start_time is None:
+            raise RuntimeError("Timer is not running. Start it before stopping.")
+        elapsed = time.perf_counter() - self.start_time
+        self.total_time += elapsed
+        self.start_time = None
+
+    def reset(self):
+        """Reset the timer."""
+        self.start_time = None
+        self.total_time = 0.0
+
+    def get_total_time(self):
+        """Get the total accumulated time."""
+        return self.total_time
+
+
+profiling_timer = Timer()
 
 
 
