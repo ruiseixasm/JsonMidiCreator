@@ -529,11 +529,9 @@ class Sequence(Container):  # Just a container of Elements
 
         c.profiling_timer.call_timer_a()
 
-        sequence_copy: Sequence = Sequence()
+        sequence_copy: Sequence = Sequence() << self._midi_track << self._position
         for single_datasource in self._datasource_list:
             sequence_copy._datasource_list.append( self.deep_copy(single_datasource) )
-        sequence_copy._midi_track   << self._midi_track
-        sequence_copy._position     << self._position
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
             sequence_copy._next_operand = self.deep_copy(self._next_operand)
