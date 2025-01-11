@@ -319,7 +319,7 @@ class Timer:
             total_run_time = time.perf_counter() - self.start_time
             return f"Profiling time of {(self.get_total_time() * 1000):.0f} ms " \
                 + f"in a total of {(total_run_time * 1000):.0f} ms ({(self.get_total_time() / total_run_time * 100):.2f}%) " \
-                + f"| Called {self._total_calls} times ({(self.get_total_time() * 1000 / self._total_calls):.3f} ms per call)!"
+                + f"| Called {self._total_calls} times ({(self.get_total_time() * 1000 / self._total_calls):.3f} ms per call)"
         return f"ZERO CALLS!"
 
 profiling_timer = Timer()
