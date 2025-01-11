@@ -190,8 +190,8 @@ class Pitch(Generic):
                 else:
                     key_int -= 1
         elif not self._natural:
-            key_int += key_sharp        # applies pre-existing accidentals
-            if staff_white_keys[key_int % 12] == 1:  # If still in a White key
+            key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
+            if staff_white_keys[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
                 key_int += self._sharp  # applies Pitch self accidentals
 
         return key_int
