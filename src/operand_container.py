@@ -489,12 +489,12 @@ class Sequence(Container):  # Just a container of Elements
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
+
         match operand:
             case Sequence():
                 super().__lshift__(operand)
                 self._midi_track    << operand._midi_track
                 self._position      << operand._position
-                self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case od.DataSource():
                 match operand._data:
                     case ou.MidiTrack():    self._midi_track = operand._data
@@ -504,22 +504,44 @@ class Sequence(Container):  # Just a container of Elements
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case ou.MidiTrack():
                 self._midi_track << operand
-            case ra.Duration() | float() | Fraction():
-                super().__lshift__(operand)
+            case ra.Duration(): # Works for Frame too
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position << operand
-            case _:
-                super().__lshift__(operand)
-                self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():
+                self._datasource_list = []
+                for single_operand in operand:
+                    self._datasource_list.append(od.DataSource( self.deep_copy(single_operand) ))
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _: # Works for Frame too
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << operand
+                
         return self
 
     def copy(self, *parameters) -> 'Sequence':
-        sequence_copy: Sequence = super().copy()
+
+        c.profiling_timer.call_timer_a()
+
+        sequence_copy: Sequence = Sequence()
+        for single_datasource in self._datasource_list:
+            sequence_copy._datasource_list.append( self.deep_copy(single_datasource) )
         sequence_copy._midi_track   << self._midi_track
         sequence_copy._position     << self._position
-        for single_parameters in parameters:
-            sequence_copy << single_parameters
+        # COPY THE SELF OPERANDS RECURSIVELY
+        if self._next_operand:
+            sequence_copy._next_operand = self.deep_copy(self._next_operand)
+        for single_parameter in parameters:
+            sequence_copy << single_parameter
+
+        c.profiling_timer.call_timer_b()
+
         return sequence_copy
     
     # operand is the pusher >>

@@ -210,6 +210,7 @@ class Left(Frame):  # LEFT TO RIGHT
         self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
 
     def __and__(self, subject: any) -> any:
+                
         self_operand = self._next_operand
         if isinstance(self_operand, Frame):
             self_operand &= subject
@@ -235,6 +236,7 @@ class Left(Frame):  # LEFT TO RIGHT
         elif isinstance(self_operand, o.Operand) and not self_operand._set:
             self_operand = self_operand.copy() << subject   # Has to use a copy of the frame operand
             self_operand._set = True
+            
         return self_operand
     
 class Subject(Left):

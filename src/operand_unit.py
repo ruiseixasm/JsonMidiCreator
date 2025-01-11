@@ -305,8 +305,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case og.Scale():            return og.Scale(self % list())
             case list():
 
-                c.profiling_timer.call_timer_a()
-
                 key_signature_scale: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
                 if not(self._unit == 0 and self._major):
                     key_signature = KeySignature._key_signatures[(self._unit + 7) % 15]
@@ -319,8 +317,6 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                         for key_i in range(12):
                             key_signature_scale[key_i] = original_scale[(key_i + 9) % 12]            
                         
-                c.profiling_timer.call_timer_b()
-
                 return key_signature_scale
             case _:                     return super().__mod__(operand)
 
