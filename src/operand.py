@@ -405,20 +405,14 @@ class Operand:
     
     def __and__(self, operand: any) -> any:
         
-        c.profiling_timer.call_timer_a()
-
         import operand_frame as of
         if isinstance(operand, of.Frame):   # Extracts the Frame operand first
-            c.profiling_timer.call_timer_b()
             return self & (operand & self)
         if self._next_operand:
             result = self._next_operand & operand   # Recursively get result from the chain
-            c.profiling_timer.call_timer_b()
             # Apply << operation between current next_operand and the result
             return self._next_operand << result     # Ensures << is applied only if more elements in the chain
     
-        c.profiling_timer.call_timer_b()
-
         return operand  # Return operand if there is no next operand in the chain
     
     def __iand__(self, other: any) -> any:
