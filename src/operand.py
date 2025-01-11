@@ -304,8 +304,7 @@ class Operand:
             self._index = operand._index
             self._set = False   # by default a new copy of data unsets the Operand
             # COPY THE SELF OPERANDS RECURSIVELY
-            if operand._next_operand is not None:
-                self._next_operand = operand._next_operand.copy()
+            self._next_operand = self.deep_copy(operand._next_operand)
         return self
 
     def __xor__(self: TypeOperand, operand: any) -> TypeOperand:

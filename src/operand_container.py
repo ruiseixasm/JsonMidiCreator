@@ -176,8 +176,7 @@ class Container(o.Operand):
                 super().__lshift__(operand)
                 self._datasource_list = self.deep_copy( operand._datasource_list )
                 # COPY THE SELF OPERANDS RECURSIVELY
-                if self._next_operand:
-                    self._next_operand = self.deep_copy(operand._next_operand)
+                self._next_operand = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
                     case list():        self._datasource_list = operand._data
@@ -493,16 +492,19 @@ class Sequence(Container):  # Just a container of Elements
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
 
-        c.profiling_timer.call_timer_a()
-
         match operand:
             case Sequence():
+
+                c.profiling_timer.call_timer_a()
+
                 self._midi_track        << operand._midi_track
                 self._position          << operand._position
                 self._datasource_list   = self.deep_copy( operand._datasource_list )
                 # COPY THE SELF OPERANDS RECURSIVELY
-                if operand._next_operand:
-                    self._next_operand  = self.deep_copy(operand._next_operand)
+                self._next_operand  = self.deep_copy(operand._next_operand)
+                    
+                c.profiling_timer.call_timer_b()
+
             case od.DataSource():
                 match operand._data:
                     case ou.MidiTrack():    self._midi_track = operand._data
@@ -531,8 +533,6 @@ class Sequence(Container):  # Just a container of Elements
                 for single_datasource in self._datasource_list:
                     single_datasource._data << operand
                 
-        c.profiling_timer.call_timer_b()
-
         return self
 
     # def copy(self, *parameters) -> 'Sequence':
