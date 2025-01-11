@@ -280,7 +280,10 @@ class Timer:
         self._last_time = None
 
     def call_timer_a(self):
-        self._last_time = time.perf_counter()
+        if self.start_time is None:
+            self._last_time = self.start_time = time.perf_counter()
+        else:
+            self._last_time = time.perf_counter()
 
     def call_timer_b(self):
         elapsed = time.perf_counter() - self._last_time
@@ -309,6 +312,10 @@ class Timer:
         """Get the total accumulated time."""
         return self.total_time
 
+    def __str__(self) -> str:
+        total_run_time = time.perf_counter() - self.start_time
+        return f"Profiling time: {round(self.get_total_time() * 1000):.0f} ms, \
+in a total of {round(total_run_time * 1000):.0f} ms ({(self.get_total_time() / total_run_time * 100):.2f}%)"
 
 profiling_timer = Timer()
 

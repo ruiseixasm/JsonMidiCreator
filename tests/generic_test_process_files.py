@@ -536,4 +536,5 @@ for test in results_list:
     total_time += test['time_ms']
 
 print(f"Total time: {total_time:.0f} ms")
-print(f"Profiling time: {round(c.profiling_timer.get_total_time() * 1000):.0f} ms")
+print(c.profiling_timer)
+

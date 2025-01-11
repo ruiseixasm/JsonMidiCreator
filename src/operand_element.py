@@ -332,8 +332,6 @@ class Element(o.Operand):
 
     def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
 
-        c.profiling_timer.call_timer_a()
-        
         if isinstance(position, ra.Position):
             reference_position: ra.Position = position
             self_position_ms: Fraction = \
@@ -343,8 +341,6 @@ class Element(o.Operand):
             self_position_ms: Fraction = self._position.getMillis_rational()
 
         self_duration_ms: Fraction = reference_position.getMillis_rational( ra.Duration(self._duration) )
-
-        c.profiling_timer.call_timer_b()
 
         return self_position_ms, self_duration_ms
     

@@ -105,4 +105,7 @@ lead_notes += Octave(1)
 # lead_notes >> Play()
 
 syncopation_4: Seq = syncopation_3 + lead_notes
-syncopation_4 >> Play()
+syncopation_4.getPlaylist()
+# syncopation_4 >> Play()
+
+print(c.profiling_timer)

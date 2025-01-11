@@ -596,14 +596,19 @@ class Sequence(Container):  # Just a container of Elements
     # multiply with a scalar
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         match operand:
-            case int(): 
+            case int():
+
+                c.profiling_timer.call_timer_a()
+        
                 many_operands = self.__class__()    # empty list but same track
                 many_operands._midi_track   = self._midi_track  # no need for "<<" because
                 many_operands._position     = self._position    # it will become 1 single sequence
-                while operand > 0:
-                    many_length: ra.Length = many_operands.length()
-                    many_operands._datasource_list.extend( (self + many_length.roundMeasures())._datasource_list )
-                    operand -= 1
+                single_length: ra.Length    = self.length().roundMeasures()
+                for segment in range(operand):
+                    many_operands._datasource_list.extend( (self + single_length * segment)._datasource_list )
+
+                c.profiling_timer.call_timer_b()
+
                 return many_operands
             case float(): 
                 many_operands = self.__class__()    # empty list but same track
