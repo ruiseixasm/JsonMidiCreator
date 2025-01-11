@@ -723,18 +723,23 @@ class Sequence(Container):  # Just a container of Elements
         return self
 
     def stack(self) -> 'Sequence':
+
+        c.profiling_timer.call_timer_a()
+        
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Element] = [
                 single_data._data
                 for single_data in self._datasource_list
                 if isinstance(single_data._data, oe.Element) and single_data._data._stackable
             ]
-        for index, value in enumerate(stackable_elements):
-            single_element: oe.Element = value
+        for index, single_element in enumerate(stackable_elements):
             if index > 0:
                 single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
             else:
                 single_element._position = ra.Position()   # everything starts at the beginning (0)!
+        
+        c.profiling_timer.call_timer_b()
+
         return self
     
     def tie(self, tied: bool = True) -> 'Sequence':

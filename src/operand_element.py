@@ -245,10 +245,10 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case ra.Position():     self._position  = operand._data
-                    case ra.Duration():     self._duration  = operand._data // Fraction()
+                    case ra.Duration():     self._duration  = operand._data._rational
                     case ou.Stackable():    self._stackable = operand._data // bool()
-                    case ou.Channel():      self._channel   = operand._data // int()
-                    case od.Device():       self._device    = operand._data // list()
+                    case ou.Channel():      self._channel   = operand._data._unit
+                    case od.Device():       self._device    = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
@@ -256,7 +256,7 @@ class Element(o.Operand):
             case Fraction():
                 self._duration      = operand
             case float():
-                self._duration      = ra.Duration(operand) // Fraction()
+                self._duration      = ra.Duration(operand)._rational
             case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() \
                 | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.NotesPerMeasure() \
                 | ra.Tempo() | ra.Quantization():
@@ -313,13 +313,9 @@ class Element(o.Operand):
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case int() | float():
 
-                c.profiling_timer.call_timer_a()
-        
                 new_sequence: oc.Sequence = oc.Sequence()
                 for _ in range(int(operand)):
                     new_sequence._datasource_list.append(od.DataSource(self.copy()))
-
-                c.profiling_timer.call_timer_b()
 
                 return new_sequence.stack()
             case ra.TimeValue() | ou.TimeUnit():
