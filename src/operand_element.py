@@ -312,14 +312,20 @@ class Element(o.Operand):
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case int() | float():
+
+                c.profiling_timer.call_timer_a()
+        
                 new_sequence: oc.Sequence = oc.Sequence()
                 for _ in range(int(operand)):
-                    new_sequence += self # copy of element already included in Element processing
+                    new_sequence._datasource_list.append(od.DataSource(self.copy()))
+
+                c.profiling_timer.call_timer_b()
+
                 return new_sequence.stack()
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration > 0:
-                    operand_duration: Fraction = self._position.getDuration(operand) // Fraction()
+                    operand_duration: Fraction = self._position.getDuration(operand)._rational
                     self_repeating: int = operand_duration // self._duration
                 return self.__mul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

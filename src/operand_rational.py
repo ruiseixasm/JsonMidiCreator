@@ -751,21 +751,15 @@ class Position(Rational):
 
     def __add__(self, operand: o.Operand) -> 'Position':
 
-        c.profiling_timer.call_timer_a()
-        
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
                 self_copy = self.copy()
                 self_copy._rational += self.getBeats(operand)._rational
-                c.profiling_timer.call_timer_b()
                 return self_copy
             case int() | float() | Fraction():
-                c.profiling_timer.call_timer_b()
                 return self + Measures(operand)
             
-        c.profiling_timer.call_timer_b()
-
         return self.copy()
     
     def __sub__(self, operand: o.Operand) -> 'Position':
