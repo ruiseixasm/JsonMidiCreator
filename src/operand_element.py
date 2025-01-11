@@ -242,8 +242,6 @@ class Element(o.Operand):
         match operand:
             case Element():
 
-                c.profiling_timer.call_timer_a()
-
                 super().__lshift__(operand)
                 self._position      << operand._position
                 self._duration      = operand._duration
@@ -251,8 +249,6 @@ class Element(o.Operand):
                 self._channel       = operand._channel
                 self._device        = operand._device   # It's a list of strings, but it won't be changed directly
                 self._enabled       = operand._enabled
-
-                c.profiling_timer.call_timer_b()
 
             case od.DataSource():
                 match operand._data:
