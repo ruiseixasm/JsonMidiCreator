@@ -175,6 +175,9 @@ class Container(o.Operand):
             case Container():
                 super().__lshift__(operand)
                 self._datasource_list = self.deep_copy( operand._datasource_list )
+                # COPY THE SELF OPERANDS RECURSIVELY
+                if self._next_operand:
+                    self._next_operand = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
                     case list():        self._datasource_list = operand._data
@@ -193,16 +196,16 @@ class Container(o.Operand):
                         single_datasource._data << operand
         return self
 
-    def copy(self, *parameters) -> 'Container':
-        container_copy: Container = self.__class__()
-        for single_datasource in self._datasource_list:
-            container_copy._datasource_list.append( self.deep_copy(single_datasource) )
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if self._next_operand is not None:
-            container_copy._next_operand = self.deep_copy(self._next_operand)
-        for single_parameter in parameters:
-            container_copy << single_parameter
-        return container_copy
+    # def copy(self, *parameters) -> 'Container':
+    #     container_copy: Container = self.__class__()
+    #     for single_datasource in self._datasource_list:
+    #         container_copy._datasource_list.append( self.deep_copy(single_datasource) )
+    #     # COPY THE SELF OPERANDS RECURSIVELY
+    #     if self._next_operand:
+    #         container_copy._next_operand = self.deep_copy(self._next_operand)
+    #     for single_parameter in parameters:
+    #         container_copy << single_parameter
+    #     return container_copy
     
     def clear(self, *parameters) -> 'Container':
         self._datasource_list = []
@@ -490,11 +493,16 @@ class Sequence(Container):  # Just a container of Elements
 
     def __lshift__(self, operand: o.Operand) -> 'Sequence':
 
+        c.profiling_timer.call_timer_a()
+
         match operand:
             case Sequence():
-                super().__lshift__(operand)
-                self._midi_track    << operand._midi_track
-                self._position      << operand._position
+                self._midi_track        << operand._midi_track
+                self._position          << operand._position
+                self._datasource_list   = self.deep_copy( operand._datasource_list )
+                # COPY THE SELF OPERANDS RECURSIVELY
+                if operand._next_operand:
+                    self._next_operand  = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
                     case ou.MidiTrack():    self._midi_track = operand._data
@@ -523,24 +531,24 @@ class Sequence(Container):  # Just a container of Elements
                 for single_datasource in self._datasource_list:
                     single_datasource._data << operand
                 
-        return self
-
-    def copy(self, *parameters) -> 'Sequence':
-
-        c.profiling_timer.call_timer_a()
-
-        sequence_copy: Sequence = Sequence() << self._midi_track << self._position
-        for single_datasource in self._datasource_list:
-            sequence_copy._datasource_list.append( self.deep_copy(single_datasource) )
-        # COPY THE SELF OPERANDS RECURSIVELY
-        if self._next_operand:
-            sequence_copy._next_operand = self.deep_copy(self._next_operand)
-        for single_parameter in parameters:
-            sequence_copy << single_parameter
-
         c.profiling_timer.call_timer_b()
 
-        return sequence_copy
+        return self
+
+    # def copy(self, *parameters) -> 'Sequence':
+
+    #     sequence_copy: Sequence = Sequence()
+    #     sequence_copy._midi_track   << self._midi_track
+    #     sequence_copy._position     << self._position
+    #     for single_datasource in self._datasource_list:
+    #         sequence_copy._datasource_list.append( self.deep_copy(single_datasource) )
+    #     # COPY THE SELF OPERANDS RECURSIVELY
+    #     if self._next_operand:
+    #         sequence_copy._next_operand = self.deep_copy(self._next_operand)
+    #     for single_parameter in parameters:
+    #         sequence_copy << single_parameter
+
+    #     return sequence_copy
     
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
