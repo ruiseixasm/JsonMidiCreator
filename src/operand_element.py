@@ -53,7 +53,7 @@ class Element(o.Operand):
         return self
 
     def duration(self: 'TypeElement', duration: float = None) -> 'TypeElement':
-        self._duration = ra.Duration(duration) // Fraction()
+        self._duration = ra.Duration(duration)._rational
         return self
 
     def stackable(self: 'TypeElement', stackable: bool = None) -> 'TypeElement':
@@ -126,7 +126,7 @@ class Element(o.Operand):
             case self.__class__():
                 return self.eq_time(other) and self.eq_midi(other)
             case ra.Duration():
-                return self._duration == other // Fraction()
+                return self._duration == other._rational
             case ra.TimeValue() | ou.TimeUnit():
                 return self._position == other
             case _:
@@ -142,7 +142,7 @@ class Element(o.Operand):
             case self.__class__():
                 return  False
             case ra.Duration():
-                return self._duration < other // Fraction()
+                return self._duration < other._rational
             case ra.TimeValue() | ou.TimeUnit():
                 return self._position < other
             case _:
@@ -154,7 +154,7 @@ class Element(o.Operand):
             case self.__class__():
                 return  False
             case ra.Duration():
-                return self._duration > other // Fraction()
+                return self._duration > other._rational
             case ra.TimeValue() | ou.TimeUnit():
                 return self._position > other
             case _:
@@ -522,7 +522,7 @@ class Tiable(Element):
         return self
 
     def gate(self: 'Tiable', gate: float = None) -> 'Tiable':
-        self._gate = ra.Gate(gate) // Fraction()
+        self._gate = ra.Gate(gate)._rational
         return self
 
     def tied(self: 'Tiable', tied: bool = True) -> 'Tiable':
@@ -1309,7 +1309,7 @@ class Retrigger(Note):
             case od.DataSource():
                 match operand._data:
                     case ou.Division():             self._division = operand._data // int()
-                    case ra.Swing():                self._swing = operand._data // Fraction()
+                    case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case int():
                 if operand > 0:
@@ -1323,9 +1323,9 @@ class Retrigger(Note):
                 elif operand > 1:
                     self._swing = Fraction(1)
                 else:
-                    self._swing = operand // Fraction()
+                    self._swing = operand._rational
             case ra.Duration():
-                self._duration = operand // Fraction() * 2  # Equivalent to two sized Notes
+                self._duration = operand._rational * 2  # Equivalent to two sized Notes
             case _:
                 super().__lshift__(operand)
         return self
@@ -1476,7 +1476,7 @@ class Tuplet(Element):
                 self._elements  = self.deep_copy(operand % od.DataSource( list() ))
             case od.DataSource():
                 match operand._data:
-                    case ra.Swing():            self._swing = operand._data // Fraction()
+                    case ra.Swing():            self._swing = operand._data._rational
                     case list():                self._elements = operand._data
                     case _:                     super().__lshift__(operand)
             case ra.Swing():
@@ -1485,9 +1485,9 @@ class Tuplet(Element):
                 elif operand > 1:
                     self._swing = Fraction(1)
                 else:
-                    self._swing = operand // Fraction()
+                    self._swing = operand._rational
             case ra.Duration():
-                self._duration = operand // Fraction() * 2  # Equivalent to two sized Notes
+                self._duration = operand._rational * 2  # Equivalent to two sized Notes
             case list():
                                                                      # Rest because is the root super class with Duration
                 if len(operand) > 0 and all(isinstance(single_element, Rest) for single_element in operand):
