@@ -189,6 +189,7 @@ class Element(o.Operand):
             self_duration: float = self._position.getBeats(self // ra.Duration()) % od.DataSource( float() )
             self_tempo: float = float(self._position._tempo)
 
+        # Validation is done by midiutil Midi Range Validation
         return [
                 {
                     "event":        "Element",
@@ -196,7 +197,7 @@ class Element(o.Operand):
                     "track_name":   midi_track % str(),
                     "numerator":    self_numerator,
                     "denominator":  self_denominator,
-                    "channel":      Element.midi_16(self._channel - 1),
+                    "channel":      self._channel - 1,
                     "time":         self_position,      # beats
                     "duration":     self_duration,      # beats
                     "tempo":        self_tempo          # bpm
@@ -345,19 +346,33 @@ class Element(o.Operand):
         self_duration_ms: Fraction = reference_position.getMillis_rational( ra.Duration(self._duration) )
 
         return self_position_ms, self_duration_ms
-    
+
+    # TO BE REVIEWED !!
+    # THIS shall be placed in the C++ program instead:
+
     @staticmethod
     def midi_128(midi_value: int | float = 0):
         return min(max(int(midi_value), 0), 127)
+    
+    @staticmethod
+    def validate_midi_128(midi_value: int) -> bool:
+        return midi_value >= 0 and midi_value < 128
 
     @staticmethod
     def midi_16(midi_value: int | float = 0):
         return min(max(int(midi_value), 0), 15)
     
     @staticmethod
-    def get_time_ms(rational: Fraction, precision: int = 3) -> float:
-        precision = min(max(int(precision), 0), 12)
-        return max(0.0, float(round(float(rational), precision)))
+    def validate_midi_16(midi_value: int) -> bool:
+        return midi_value >= 0 and midi_value < 16
+
+    @staticmethod
+    def get_time_ms(rational: Fraction) -> float:
+        return max(0.0, float(round(float(rational), 3)))
+
+    @staticmethod
+    def validate_time_ms(time_ms: Fraction) -> bool:
+        return time_ms >= 0
 
 
 class Clock(Element):
@@ -556,9 +571,10 @@ class Tiable(Element):
         if not self._enabled:
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
+        # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Tiable"
-        self_midilist[0]["duration"]    = self._position.getBeats( self // ra.Duration() ) % float() * self._gate
-        self_midilist[0]["velocity"]    = Element.midi_128(self._velocity)
+        self_midilist[0]["duration"]    = float(self._position.getBeats( self // ra.Duration() )._rational * self._gate)
+        self_midilist[0]["velocity"]    = self._velocity
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -650,19 +666,21 @@ class Note(Tiable):
     
     def getPlaylist(self, position: ra.Position = None) -> list:
 
-        if not self._enabled:
-            return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        pitch_int: int = int(self._pitch % float())
 
-        key_note_float: float = self._pitch % float()
+        if not self._enabled or not self.validate_midi_128(pitch_int) \
+            or not self.validate_midi_128(self._velocity):
+            return []
+        
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0x90 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte_1": Element.midi_128(key_note_float),
-                        "data_byte_2": Element.midi_128(self._velocity),
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": self._velocity,
                         "device": self._device
                     }
                 },
@@ -670,7 +688,7 @@ class Note(Tiable):
                     "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate),
                     "midi_message": {
                         "status_byte": 0x80 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte_1": Element.midi_128(key_note_float),
+                        "data_byte_1": pitch_int,
                         "data_byte_2": 0,
                         "device": self._device
                     }
@@ -680,9 +698,13 @@ class Note(Tiable):
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         if not self._enabled:
             return []
+        
+        pitch_int: int = int(self._pitch % float())
+
         self_midilist: list = super().getMidilist(midi_track, position)
+        # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Note"
-        self_midilist[0]["pitch"]       = Element.midi_128(self._pitch % float())
+        self_midilist[0]["pitch"]       = pitch_int
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1557,17 +1579,21 @@ class ControlChange(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled:
+        if not self._enabled or not self.validate_midi_16(self._channel - 1) \
+            or not self.validate_midi_128(self._controller._number \
+            or not self.validate_midi_128(self._controller._value)):
             return []
+
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
+        # Midi validation is done in the JsonMidiPlayer
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xB0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte_1": Element.midi_128(self._controller._number),
-                        "data_byte_2": Element.midi_128(self._controller._value),
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": self._controller._number,
+                        "data_byte_2": self._controller._value,
                         "device": self._device
                     }
                 }
@@ -1578,8 +1604,9 @@ class ControlChange(Automation):
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
         self_midilist[0]["event"]       = "ControllerEvent"
-        self_midilist[0]["number"]      = Element.midi_128(self._controller._number)
-        self_midilist[0]["value"]       = Element.midi_128(self._controller._value)
+        # Validation is done by midiutil Midi Range Validation
+        self_midilist[0]["number"]      = self._controller._number
+        self_midilist[0]["value"]       = self._controller._value
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1669,7 +1696,7 @@ class PitchBend(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled:
+        if not self._enabled or not self.validate_midi_16(self._channel - 1):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
@@ -1683,7 +1710,7 @@ class PitchBend(Automation):
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xE0 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0xE0 | 0x0F & self._channel - 1,
                         "data_byte_1": lsb_midi,
                         "data_byte_2": msb_midi,
                         "device": self._device
@@ -1695,6 +1722,7 @@ class PitchBend(Automation):
         if not self._enabled:
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
+        # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
         self_midilist[0]["value"]       = self._bend
         return self_midilist
@@ -1791,7 +1819,8 @@ class Aftertouch(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled:
+        if not self._enabled or not self.validate_midi_16(self.channel - 1) \
+            or not self.validate_midi_128(self._pressure):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
@@ -1799,8 +1828,8 @@ class Aftertouch(Automation):
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xD0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte": Element.midi_128(self._pressure),
+                        "status_byte": 0xD0 | 0x0F & self._channel - 1,
+                        "data_byte": self._pressure,
                         "device": self._device
                     }
                 }
@@ -1810,8 +1839,9 @@ class Aftertouch(Automation):
         if not self._enabled:
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
+        # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
-        self_midilist[0]["pressure"]    = Element.midi_128(self._pressure)
+        self_midilist[0]["pressure"]    = self._pressure
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1889,7 +1919,7 @@ class PolyAftertouch(Aftertouch):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case og.Pitch():  return self._pitch
+                    case og.Pitch():    return self._pitch
                     case _:             return super().__mod__(operand)
             case og.Pitch():  return self._pitch.copy()
             case int() | float():
@@ -1907,19 +1937,21 @@ class PolyAftertouch(Aftertouch):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled:
-            return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        key_note_float: float   = self._pitch % float()
+        pitch_int: int = int(self._pitch % float())
+
+        if not self._enabled or not self.validate_midi_128(pitch_int) or not self.validate_midi_128(self._pressure):
+            return []
+
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xA0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte_1": Element.midi_128(key_note_float),
-                        "data_byte_2": Element.midi_128(self._pressure),
+                        "data_byte_1": pitch_int,
+                        "data_byte_2": self._pressure,
                         "device": self._device
                     }
                 }
@@ -1996,7 +2028,8 @@ class ProgramChange(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled:
+        if not self._enabled or not self.validate_midi_16(self._channel - 1) \
+            or not self.validate_midi_128(self._program):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
@@ -2004,8 +2037,8 @@ class ProgramChange(Automation):
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xC0 | 0x0F & Element.midi_16(self._channel - 1),
-                        "data_byte": Element.midi_128(self._program),
+                        "status_byte": 0xC0 | 0x0F & self._channel - 1,
+                        "data_byte": self._program,
                         "device": self._device
                     }
                 }
@@ -2015,8 +2048,9 @@ class ProgramChange(Automation):
         if not self._enabled:
             return []
         self_midilist: list = super().getMidilist(midi_track, position)
+        # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
-        self_midilist[0]["program"]     = Element.midi_128(self._program)
+        self_midilist[0]["program"]     = self._program
         return self_midilist
 
     def getSerialization(self) -> dict:

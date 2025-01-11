@@ -675,11 +675,12 @@ class Position(Rational):
 
 
     def getMillis_rational(self, time: Union['Position', 'TimeValue', 'ou.TimeUnit'] = None) -> Fraction:
-        beats: Fraction = self._rational
-        beats_per_minute: Fraction = self._tempo
-        if time is not None:
-            beats = self.getBeats(time)._rational
-        return beats / beats_per_minute * 60 * 1000
+
+        if time:
+            return self.getBeats(time)._rational / self._tempo * 60 * 1000
+        else:
+            return self._rational / self._tempo * 60 * 1000
+
     
     def getPlaylist(self, position: 'Position' = None) -> list:
         import operand_element as oe

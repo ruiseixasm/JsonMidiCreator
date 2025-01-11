@@ -343,8 +343,6 @@ class Container(o.Operand):
 class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
 
-        c.profiling_timer.call_timer_a()
-        
         super().__init__(*operands)
         self._midi_track: ou.MidiTrack = ou.MidiTrack()
         self._position: ra.Position = ra.Position(0)
@@ -358,8 +356,6 @@ class Sequence(Container):  # Just a container of Elements
                 case ra.Position():
                     self._position = single_operand.copy()
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
-
-        c.profiling_timer.call_timer_b()
 
 
     def __getitem__(self, index: int) -> oe.Element:

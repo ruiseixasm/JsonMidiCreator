@@ -321,6 +321,8 @@ in a total of {round(total_run_time * 1000):.0f} ms ({(self.get_total_time() / t
 
 profiling_timer = Timer()
 
+        # c.profiling_timer.call_timer_a()
+        # c.profiling_timer.call_timer_b()
 
 
 def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
