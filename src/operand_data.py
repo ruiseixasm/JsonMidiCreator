@@ -292,6 +292,8 @@ class Serialization(Data):
                         self._data = o.Operand().loadSerialization(operand._data)
             case o.Operand():   # DON'T REMOVE THIS STEP !!
                 self._data = operand.copy()
+            case dict():
+                self._data = o.Operand().loadSerialization(operand)
         return self
 
     def __rrshift__(self, operand: any) -> o.Operand:
