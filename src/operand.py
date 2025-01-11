@@ -481,7 +481,7 @@ class Operand:
                 return data
 
     @staticmethod
-    def deep_copy(data: any) -> any:
+    def deep_copy(data: TypeOperand) -> TypeOperand:
         match data:
             case Operand():
                 return data.copy() # Only Operand has copy method
