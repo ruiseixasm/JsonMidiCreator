@@ -347,32 +347,12 @@ class Element(o.Operand):
 
         return self_position_ms, self_duration_ms
 
-    # TO BE REVIEWED !!
-    # THIS shall be placed in the C++ program instead:
-
-    @staticmethod
-    def midi_128(midi_value: int | float = 0):
-        return min(max(int(midi_value), 0), 127)
-    
-    @staticmethod
-    def validate_midi_128(midi_value: int) -> bool:
-        return midi_value >= 0 and midi_value < 128
-
-    @staticmethod
-    def midi_16(midi_value: int | float = 0):
-        return min(max(int(midi_value), 0), 15)
-    
-    @staticmethod
-    def validate_midi_16(midi_value: int) -> bool:
-        return midi_value >= 0 and midi_value < 16
 
     @staticmethod
     def get_time_ms(rational: Fraction) -> float:
-        return max(0.0, float(round(float(rational), 3)))
+        # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
+        return round(float(rational), 3)
 
-    @staticmethod
-    def validate_time_ms(time_ms: Fraction) -> bool:
-        return time_ms >= 0
 
 
 class Clock(Element):
@@ -499,18 +479,19 @@ class Rest(Element):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0x00 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0x00 | 0x0F & self._channel - 1,
                         "device": self._device
                     }
                 },
                 {
                     "time_ms": self.get_time_ms(self_position_ms + self_duration_ms),
                     "midi_message": {
-                        "status_byte": 0x00 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0x00 | 0x0F & self._channel - 1,
                         "device": self._device
                     }
                 }
@@ -665,20 +646,18 @@ class Note(Tiable):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-
-        pitch_int: int = int(self._pitch % float())
-
-        if not self._enabled or not self.validate_midi_128(pitch_int) \
-            or not self.validate_midi_128(self._velocity):
+        if not self._enabled:
             return []
         
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        pitch_int: int = int(self._pitch % float())
 
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": self._velocity,
                         "device": self._device
@@ -687,7 +666,7 @@ class Note(Tiable):
                 {
                     "time_ms": self.get_time_ms(self_position_ms + self_duration_ms * self._gate),
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": 0,
                         "device": self._device
@@ -1579,14 +1558,12 @@ class ControlChange(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled or not self.validate_midi_16(self._channel - 1) \
-            or not self.validate_midi_128(self._controller._number \
-            or not self.validate_midi_128(self._controller._value)):
+        if not self._enabled:
             return []
 
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
-        # Midi validation is done in the JsonMidiPlayer
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
@@ -1696,7 +1673,7 @@ class PitchBend(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled or not self.validate_midi_16(self._channel - 1):
+        if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
@@ -1706,6 +1683,7 @@ class PitchBend(Automation):
         msb_midi: int = amount >> 7         # MSB - total of 14 bits, 7 for each side, 2^7 = 128
         lsb_midi: int = amount & 0x7F       # LSB - 0x7F = 127, 7 bits with 1s, 2^7 - 1
     
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
@@ -1819,11 +1797,11 @@ class Aftertouch(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled or not self.validate_midi_16(self.channel - 1) \
-            or not self.validate_midi_128(self._pressure):
+        if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
@@ -1937,19 +1915,18 @@ class PolyAftertouch(Aftertouch):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-
-        pitch_int: int = int(self._pitch % float())
-
-        if not self._enabled or not self.validate_midi_128(pitch_int) or not self.validate_midi_128(self._pressure):
+        if not self._enabled:
             return []
 
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        pitch_int: int = int(self._pitch % float())
 
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xA0 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0xA0 | 0x0F & self._channel - 1,
                         "data_byte_1": pitch_int,
                         "data_byte_2": self._pressure,
                         "device": self._device
@@ -2028,11 +2005,11 @@ class ProgramChange(Automation):
                 return super().__eq__(other)
     
     def getPlaylist(self, position: ra.Position = None) -> list:
-        if not self._enabled or not self.validate_midi_16(self._channel - 1) \
-            or not self.validate_midi_128(self._program):
+        if not self._enabled:
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
+        # Midi validation is done in the JsonMidiPlayer program
         return [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
@@ -2116,12 +2093,14 @@ class Panic(Element):
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(position))
 
         on_time_ms = self.get_time_ms(self._position.getMillis_rational())
+
+        # Midi validation is done in the JsonMidiPlayer program
         for key_note_midi in range(128):
             self_playlist.append(
                 {   # Needs the Note On first in order to the following Note Off not be considered redundant
                     "time_ms": on_time_ms,
                     "midi_message": {
-                        "status_byte": 0x90 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0x90 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,   # 0 means it will result in no sound
                         "device": self._device
@@ -2130,7 +2109,7 @@ class Panic(Element):
                 {
                     "time_ms": on_time_ms,
                     "midi_message": {
-                        "status_byte": 0x80 | 0x0F & Element.midi_16(self._channel - 1),
+                        "status_byte": 0x80 | 0x0F & self._channel - 1,
                         "data_byte_1": key_note_midi,
                         "data_byte_2": 0,
                         "device": self._device
