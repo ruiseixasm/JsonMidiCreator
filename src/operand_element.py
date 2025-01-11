@@ -111,15 +111,20 @@ class Element(o.Operand):
             case ou.Disable():      return ou.Disable(not self._enabled)
             case _:                 return super().__mod__(operand)
 
+    def eq_time(self, other: 'Element') -> bool:
+        return  self._position      == other._position \
+            and self._duration      == other._duration \
+            and self._stackable     == other._stackable
+
+    def eq_midi(self, other: 'Element') -> bool:
+        return  self._channel       == other._channel \
+            and self._device        == other._device
+
     def __eq__(self, other: 'o.Operand') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case self.__class__():
-                return  self._position      == other % od.DataSource( ra.Position() ) \
-                    and self._duration      == other._duration \
-                    and self._stackable     == other._stackable \
-                    and self._channel       == other._channel \
-                    and self._device        == other._device
+                return self.eq_time(other) and self.eq_midi(other)
             case ra.Duration():
                 return self._duration == other // Fraction()
             case ra.TimeValue() | ou.TimeUnit():
