@@ -341,7 +341,11 @@ class Element(o.Operand):
                 self_operand -= operand
                 return self << self_operand
 
-    def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
+    def __mul__(self, operand: any) -> 'Element':
+        self_copy: Element = self.copy()
+        return self_copy.__imul__(operand)
+
+    def __imul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case int() | float():
@@ -360,7 +364,11 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy() << self % operand * operand
 
-    def __truediv__(self, operand: o.Operand) -> 'Element':
+    def __truediv__(self, operand: any) -> 'Element':
+        self_copy: Element = self.copy()
+        return self_copy.__itruediv__(operand)
+
+    def __itruediv__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         return self.copy() << self % operand / operand

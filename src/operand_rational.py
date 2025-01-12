@@ -189,11 +189,10 @@ class Rational(o.Operand):
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                if value % od.DataSource( Fraction() ):
-                    self._rational += value % od.DataSource( Fraction() )
-            case Fraction():
+                self += value % od.DataSource( Fraction() )
+            case Fraction() | int():
                 self._rational += value
-            case float() | int():
+            case float():
                 self._rational += Fraction(value)
         return self
     
@@ -205,37 +204,44 @@ class Rational(o.Operand):
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                if value % od.DataSource( Fraction() ):
-                    self._rational -= value % od.DataSource( Fraction() )
-            case Fraction():
+                self -= value % od.DataSource( Fraction() )
+            case Fraction() | int():
                 self._rational -= value
-            case float() | int():
+            case float():
                 self._rational -= Fraction(value)
         return self
     
     def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
+        self_copy = self.copy()
+        return self_copy.__imul__(value)
+    
+    def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                return self.__class__() << od.DataSource( self._rational * (value % od.DataSource( Fraction() )) )
-            case Fraction():
-                return self.__class__() << od.DataSource( self._rational * value )
-            case float() | int():
-                return self.__class__() << od.DataSource( self._rational * Fraction(value) )
-        return self.copy()
+                self *= value % od.DataSource( Fraction() )
+            case Fraction() | int():
+                self._rational *= value
+            case float():
+                self._rational *= Fraction(value)
+        return self
     
     def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
+        self_copy = self.copy()
+        return self_copy.__itruediv__(value)
+    
+    def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                if value % od.DataSource( Fraction() ) != 0:
-                    return self.__class__() << od.DataSource( self._rational / (value % od.DataSource( Fraction() )) )
-            case Fraction():
-                if value != 0: return self.__class__() << od.DataSource( self._rational / value )
-            case float() | int():
-                if Fraction(value) != 0:
-                    return self.__class__() << od.DataSource( self._rational / Fraction(value) )
-        return self.copy()
+                self /= value % od.DataSource( Fraction() )
+            case Fraction() | int():
+                if value != 0:
+                    self._rational /= value
+            case float():
+                if value != 0:
+                    self._rational /= Fraction(value)
+        return self
 
 class HiPrecision(Rational):
 
@@ -777,21 +783,21 @@ class Position(Rational):
                 self -= Measures(operand)
         return self
     
-    def __mul__(self, operand: o.Operand) -> 'Position':
+    def __imul__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
                 multiplier: Fraction = operand.getMeasures()._rational
-                return super().__mul__(multiplier)
-        return super().__mul__(operand)
+                return super().__imul__(multiplier)
+        return super().__imul__(operand)
     
-    def __truediv__(self, operand: o.Operand) -> 'Position':
+    def __itruediv__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
                 divider: Fraction = operand.getMeasures()._rational
-                return super().__truediv__(divider)
-        return super().__truediv__(operand)
+                return super().__itruediv__(divider)
+        return super().__itruediv__(operand)
 
     def __rmul__(self, operand: o.Operand) -> 'Position':
         return self * operand

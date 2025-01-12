@@ -320,6 +320,8 @@ def test_div_time():
     position /= NoteValue(2)     # Duration is in NoteValue
     assert position == measures
 
+# test_div_time()
+
 
 def test_basic_conversions():
 

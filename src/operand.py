@@ -365,42 +365,47 @@ class Operand:
         # Simply delegate to the __rshift__ method
         return self.__rshift__(operand)
     
-    def __add__(self: TypeOperand, operand: any) -> TypeOperand:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self.copy()
 
+    def __add__(self: TypeOperand, operand: any) -> TypeOperand:
+        self_copy: Operand = self.copy()
+        return self_copy.__iadd__(operand)
+    
+    def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
+        return self
+    
     def __radd__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__add__(operand)
 
-    def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
-        return self.__add__(operand)
-    
+
     def __sub__(self: TypeOperand, operand: any) -> TypeOperand:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self.copy()
+        self_copy: Operand = self.copy()
+        return self_copy.__isub__(operand)
+    
+    def __isub__(self: TypeOperand, operand: any) -> TypeOperand:
+        return self
 
     def __rsub__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__mul__(-1).__add__(operand)
 
-    def __isub__(self: TypeOperand, other) -> TypeOperand:
-        return self.__sub__(other)
-    
+
     def __mul__(self: TypeOperand, operand: any) -> TypeOperand:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self.copy()
+        self_copy: Operand = self.copy()
+        return self_copy.__imul__(operand)
+    
+    def __imul__(self: TypeOperand, operand: any) -> TypeOperand:
+        return self
     
     def __rmul__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__mul__(operand)
 
-    def __imul__(self: TypeOperand, other) -> TypeOperand:
-        return self.__mul__(other)
-    
+
     def __truediv__(self: TypeOperand, operand: any) -> TypeOperand:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self.copy()
+        self_copy: Operand = self.copy()
+        return self_copy.__itruediv__(operand)
     
-    def __idiv__(self: TypeOperand, other) -> TypeOperand:
-        return self.__truediv__(other)
+    def __itruediv__(self: TypeOperand, operand: any) -> TypeOperand:
+        return self
+    
     
     def __and__(self, operand: any) -> any:
         

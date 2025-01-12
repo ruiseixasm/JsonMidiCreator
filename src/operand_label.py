@@ -46,6 +46,18 @@ class Label(o.Operand):
     def __not__(self) -> bool:
         return True
     
+    def __add__(self, operand: any) -> 'Label':
+        return self
+    
+    def __sub__(self, operand: any) -> 'Label':
+        return self
+    
+    def __mul__(self, operand: any) -> 'Label':
+        return self
+    
+    def __div__(self, operand: any) -> 'Label':
+        return self
+    
 class Null(Label):
     pass
     
