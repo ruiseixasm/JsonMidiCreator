@@ -356,7 +356,7 @@ class Element(o.Operand):
                     for _ in range(multiplier - 1):
                         new_sequence._datasource_list.append(od.DataSource( self.copy() ))
                 return new_sequence.stack()
-            case ra.TimeValue() | ou.TimeUnit() | ra.Duration():
+            case ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration > 0:
                     operand_duration: Fraction = self._position.getDuration(operand)._rational

@@ -550,9 +550,6 @@ class Sequence(Container):  # Just a container of Elements
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case ou.MidiTrack():
                 self._midi_track << operand
-            case ra.Duration(): # Works for Frame too
-                for single_datasource in self._datasource_list:
-                    single_datasource._data << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position << operand
@@ -603,7 +600,7 @@ class Sequence(Container):  # Just a container of Elements
                 right_sequence: Sequence = self + element_length    # Implicit copy
                 right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_sequence
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | ra.Duration():
+            case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position += operand
                 return self
             case od.Playlist():
@@ -762,7 +759,7 @@ class Sequence(Container):  # Just a container of Elements
         return super().reverse()    # Reverses the list
 
 
-    def extend(self, time_value: ra.TimeValue) -> 'Sequence':
+    def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Sequence':
         extended_sequence: Sequence = self.copy() << od.DataSource( self._datasource_list )
         while (extended_sequence >> self).length() <= time_value:
             extended_sequence >>= self
