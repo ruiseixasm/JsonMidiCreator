@@ -104,4 +104,4 @@ def test_playlist_mod():
     # Depends on the order, different order results in False!
     assert play_list == retrigger
     
-test_playlist_mod()
+# test_playlist_mod()

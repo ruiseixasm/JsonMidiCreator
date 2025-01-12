@@ -182,16 +182,8 @@ class Rational(o.Operand):
         return self
 
     def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
-        match value:
-            case Rational() | ou.Unit():
-                if value % od.DataSource( Fraction() ):
-                    return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
-            case Fraction():
-                return self.__class__() << od.DataSource( self._rational + value )
-            case float() | int():
-                return self.__class__() << od.DataSource( self._rational + Fraction(value) )
-        return self.copy()
+        self_copy = self.copy()
+        return self_copy.__iadd__(value)
     
     def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
@@ -206,15 +198,20 @@ class Rational(o.Operand):
         return self
     
     def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
+        self_copy = self.copy()
+        return self_copy.__isub__(value)
+    
+    def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                return self.__class__() << od.DataSource( self._rational - value % od.DataSource( Fraction() ) )
+                if value % od.DataSource( Fraction() ):
+                    self._rational -= value % od.DataSource( Fraction() )
             case Fraction():
-                return self.__class__() << od.DataSource( self._rational - value )
+                self._rational -= value
             case float() | int():
-                return self.__class__() << od.DataSource( self._rational - Fraction(value) )
-        return self.copy()
+                self._rational -= Fraction(value)
+        return self
     
     def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
@@ -762,17 +759,6 @@ class Position(Rational):
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: o.Operand) -> 'Position':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
-                self_copy = self.copy()
-                self_copy._rational += self.getBeats(operand)._rational
-                return self_copy
-            case int() | float() | Fraction():
-                return self + Measures(operand)
-        return self.copy()
-    
     def __iadd__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -782,16 +768,14 @@ class Position(Rational):
                 self += Measures(operand)
         return self
     
-    def __sub__(self, operand: o.Operand) -> 'Position':
+    def __isub__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
-                self_copy = self.copy()
-                self_copy._rational -= self.getBeats(operand)._rational
-                return self_copy
+                self._rational -= self.getBeats(operand)._rational
             case int() | float() | Fraction():
-                return self - Measures(operand)
-        return self.copy()
+                self -= Measures(operand)
+        return self
     
     def __mul__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
