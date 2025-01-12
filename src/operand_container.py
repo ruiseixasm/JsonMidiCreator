@@ -215,17 +215,22 @@ class Container(o.Operand):
     
     def sort(self, compare: o.Operand = None) -> 'Container':
         compare = ra.Position() if compare is None else compare
-        for operand_i in range(self.len() - 1):
-            sorted_list = True
-            for operand_j in range(self.len() - 1 - operand_i):
-                if self._datasource_list[operand_j]._data % compare > self._datasource_list[operand_j + 1]._data % compare:
-                    temporary_operand = self._datasource_list[operand_j]._data
-                    self._datasource_list[operand_j]._data = self._datasource_list[operand_j + 1]._data
-                    self._datasource_list[operand_j + 1]._data = temporary_operand
-                    sorted_list = False
-            if sorted_list:
-                break
+        self._datasource_list.sort(key=lambda x: x._data % compare)
         return self
+
+    # def sort(self, compare: o.Operand = None) -> 'Container':
+    #     compare = ra.Position() if compare is None else compare
+    #     for operand_i in range(self.len() - 1):
+    #         sorted_list = True
+    #         for operand_j in range(self.len() - 1 - operand_i):
+    #             if self._datasource_list[operand_j]._data % compare > self._datasource_list[operand_j + 1]._data % compare:
+    #                 temporary_operand = self._datasource_list[operand_j]._data
+    #                 self._datasource_list[operand_j]._data = self._datasource_list[operand_j + 1]._data
+    #                 self._datasource_list[operand_j + 1]._data = temporary_operand
+    #                 sorted_list = False
+    #         if sorted_list:
+    #             break
+    #     return self
     
     def shuffle(self, shuffler: ch.Chaos = None) -> 'Container':
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
