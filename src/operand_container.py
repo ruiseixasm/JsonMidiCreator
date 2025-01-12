@@ -195,16 +195,14 @@ class Container(o.Operand):
                         single_datasource._data << operand
         return self
 
-    # def copy(self, *parameters) -> 'Container':
-    #     container_copy: Container = self.__class__()
-    #     for single_datasource in self._datasource_list:
-    #         container_copy._datasource_list.append( self.deep_copy(single_datasource) )
-    #     # COPY THE SELF OPERANDS RECURSIVELY
-    #     if self._next_operand:
-    #         container_copy._next_operand = self.deep_copy(self._next_operand)
-    #     for single_parameter in parameters:
-    #         container_copy << single_parameter
-    #     return container_copy
+    def empty_copy(self, *parameters) -> 'Container':
+        empty_copy: Container = self.__class__()
+        # COPY THE SELF OPERANDS RECURSIVELY
+        if self._next_operand:
+            empty_copy._next_operand = self.deep_copy(self._next_operand)
+        for single_parameter in parameters:
+            empty_copy << single_parameter
+        return empty_copy
     
     def clear(self, *parameters) -> 'Container':
         self._datasource_list = []
@@ -566,20 +564,13 @@ class Sequence(Container):  # Just a container of Elements
                 
         return self
 
-    # def copy(self, *parameters) -> 'Sequence':
-
-    #     sequence_copy: Sequence = Sequence()
-    #     sequence_copy._midi_track   << self._midi_track
-    #     sequence_copy._position     << self._position
-    #     for single_datasource in self._datasource_list:
-    #         sequence_copy._datasource_list.append( self.deep_copy(single_datasource) )
-    #     # COPY THE SELF OPERANDS RECURSIVELY
-    #     if self._next_operand:
-    #         sequence_copy._next_operand = self.deep_copy(self._next_operand)
-    #     for single_parameter in parameters:
-    #         sequence_copy << single_parameter
-
-    #     return sequence_copy
+    def empty_copy(self, *parameters) -> 'Sequence':
+        empty_copy: Sequence = super().empty_copy()
+        empty_copy._midi_track   << self._midi_track
+        empty_copy._position     << self._position
+        for single_parameter in parameters:
+            empty_copy << single_parameter
+        return empty_copy
     
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Sequence':
@@ -703,24 +694,21 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case int():
 
-                many_operands = self.__class__()    # empty list but same track
-                many_operands._midi_track   = self._midi_track  # no need for "<<" because
-                many_operands._position     = self._position    # it will become 1 single sequence
-                single_length: ra.Length    = self.length().roundMeasures()
-                for segment in range(operand):
-                    many_operands._datasource_list.extend( (self + single_length * segment)._datasource_list )
-
+                self_copy = self.copy()
+                many_operands = self.empty_copy()
+                self_length: ra.Length    = self.length().roundMeasures()
+                for segments in range(operand):
+                    self_copy << self_length * segments    # moving forward the self_copy position
+                    many_operands += self_copy
                 return many_operands
             case float():
 
-                many_operands = self.__class__()    # empty list but same track
-                many_operands._midi_track   = self._midi_track  # no need for "<<" because
-                many_operands._position     = self._position    # it will become 1 single sequence
-                single_length: ra.Length    = self.length()
-                repeat_copy: int = int(operand)
-                for segment in range(repeat_copy):
-                    many_operands._datasource_list.extend( (self + single_length * segment)._datasource_list )
-
+                self_copy = self.copy()
+                many_operands = self.empty_copy()
+                self_length: ra.Length    = self.length()
+                for segments in range(int(operand)):
+                    self_copy << self_length * segments    # moving forward the self_copy position
+                    many_operands += self_copy
                 return many_operands
             case ou.TimeUnit():
                 self_repeating: int = 0

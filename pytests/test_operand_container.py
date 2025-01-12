@@ -202,9 +202,11 @@ def test_mul_sequence():
     assert two_notes != four_notes
 
     two_notes << Track("Two Notes")
-    assert (two_notes * 4).len() == 8
+    eight_notes: Sequence = two_notes * 4
+    print(f"Len: {eight_notes.len()}")
+    assert eight_notes.len() == 8
 
-    eight_notes_1 = two_notes * 4
+    eight_notes_1: Sequence = two_notes * 4
     assert eight_notes_1.len() == 8
     first_note = eight_notes_1[0]
     third_note = eight_notes_1[2]
@@ -242,10 +244,14 @@ def test_mul_sequence():
 def test_sequence_composition():
 
     measure_bell: Sequence = Nt(DrumKit(34)) * 1 * 4
+    print(f"Length: {measure_bell % Length() % float()}")
     assert measure_bell % Length() == Measure(4)
+    print(f"Length: {measure_bell % Length() % float()}")
     assert measure_bell % Length() == Measures(3.25)
+    print(f"Position: {measure_bell % Position() % float()}")
     assert measure_bell % Position() == 0.0
 
+    print("------")
     beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
     print(f"Measure: {beat_tick % Length() % Measure() % int()}")
     assert beat_tick % Length() == Measure(4)
