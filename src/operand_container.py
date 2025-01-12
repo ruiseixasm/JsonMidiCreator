@@ -602,8 +602,7 @@ class Sequence(Container):  # Just a container of Elements
 
     def __add__(self, operand: any) -> 'Sequence':
         self_copy: Sequence = self.copy()
-        self_copy += operand
-        return self_copy
+        return self_copy.__iadd__(operand)
             
     # Avoids the costly copy of Sequence self doing +=
     def __iadd__(self, operand: any) -> 'Sequence':
@@ -637,8 +636,7 @@ class Sequence(Container):  # Just a container of Elements
 
     def __sub__(self, operand: any) -> 'Sequence':
         self_copy: Sequence = self.copy()
-        self_copy -= operand
-        return self_copy
+        return self_copy.__isub__(operand)
 
     def __isub__(self, operand: any) -> 'Sequence':
         match operand:
@@ -655,8 +653,7 @@ class Sequence(Container):  # Just a container of Elements
     # multiply with a scalar
     def __mul__(self, operand: o.Operand) -> 'Sequence':
         self_copy: Sequence = self.copy()
-        self_copy *= operand
-        return self_copy
+        return self_copy.__imul__(operand)
     
     # in-place multiply with a scalar
     def __imul__(self, operand: o.Operand) -> 'Sequence':
