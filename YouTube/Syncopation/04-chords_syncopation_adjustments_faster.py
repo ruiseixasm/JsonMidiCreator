@@ -34,13 +34,16 @@ hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))
+kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4
+kick += Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2
+clap += Iterate(Beats(1))
+clap += Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
@@ -76,7 +79,8 @@ for step in range(16*2//3 + 1):
     moved_chords: Seq = Step(step * 3) >> chords.copy()
     repeated_chords += moved_chords
 # Make it shorter to fit in x4 composition
-repeated_chords = repeated_chords.sort() / 2
+repeated_chords.sort()
+repeated_chords /= 2
 # repeated_chords >> Play()
 
 # chords << Disable()
@@ -87,7 +91,8 @@ repeated_chords = repeated_chords.sort() / 2
 # time.sleep(0.5)
 # syncopation_1 * 4 >> Play()
 
-syncopation_2: Seq = syncopation_1 * 4 + repeated_chords # x4 because chords are 4x longer than the original syncopation
+syncopation_2: Seq = syncopation_1 * 4 # x4 because chords are 4x longer than the original syncopation
+syncopation_2 += repeated_chords
 # syncopation_2 >> Play()
 
 # Move forward 1/16 note (a step)
