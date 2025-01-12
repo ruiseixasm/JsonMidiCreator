@@ -318,7 +318,9 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                return oc.Sequence(self, operand)   # copy already included in Sequence initiation
+                new_sequence: Sequence = Sequence()
+                elements_list: list[Element] = [self, operand.copy()]
+                return new_sequence << od.DataSource( elements_list )
             case oc.Sequence():
                 return operand.__radd__(self)
             case _:
@@ -326,7 +328,7 @@ class Element(o.Operand):
 
     def __sub__(self, operand: any) -> 'Element':
         self_copy: Element = self.copy()
-        return self_copy << self % operand - operand
+        return self_copy.__isub__(operand)
 
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

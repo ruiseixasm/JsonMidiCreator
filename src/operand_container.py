@@ -179,7 +179,9 @@ class Container(o.Operand):
                 self._next_operand = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
-                    case list():        self._datasource_list = operand._data
+                    case list():
+                        for operand in single_operand:
+                            self._datasource_list.append(od.DataSource( operand ))
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
