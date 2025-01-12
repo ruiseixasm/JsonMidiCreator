@@ -318,6 +318,9 @@ class Element(o.Operand):
                 self_sequence += self
                 self_sequence += operand
                 return self_sequence
+            case ra.Position():
+                self._position += operand  # Specific and compounded parameter
+                return self
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
@@ -329,9 +332,14 @@ class Element(o.Operand):
 
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        self_operand: any = self % operand
-        self_operand -= operand
-        return self << self_operand
+        match operand:
+            case ra.Position():
+                self._position -= operand  # Specific and compounded parameter
+                return self
+            case _:
+                self_operand: any = self % operand
+                self_operand -= operand
+                return self << self_operand
 
     def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
