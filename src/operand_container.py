@@ -267,17 +267,17 @@ class Container(o.Operand):
                 return self_copy
     
     # Avoids the costly copy of Container self doing +=
-    # def __iadd__(self, operand: any) -> 'Container':
-    #     match operand:
-    #         case Container():
-    #             for single_datasource in operand._datasource_list:
-    #                 self._datasource_list.append(self.deep_copy(single_datasource))
-    #         case _:
-    #             if isinstance(operand, od.DataSource):
-    #                 self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
-    #             else:
-    #                 self._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
-    #     return self
+    def __iadd__(self, operand: any) -> 'Container':
+        match operand:
+            case Container():
+                for single_datasource in operand._datasource_list:
+                    self._datasource_list.append(self.deep_copy(single_datasource))
+            case _:
+                if isinstance(operand, od.DataSource):
+                    self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
+                else:
+                    self._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
+        return self
 
 
     def __radd__(self, operand: o.Operand) -> o.Operand:
@@ -302,6 +302,23 @@ class Container(o.Operand):
                         self_copy._datasource_list.pop()
                         operand -= 1
         return self_copy
+
+    def __isub__(self, operand: o.Operand) -> 'Container':
+        match operand:
+            case Container():
+                # Exclude items based on equality (==) comparison
+                self._datasource_list = [
+                        self_datasource.copy() for self_datasource in self._datasource_list
+                        if all(self_datasource != operand_datasource for operand_datasource in operand._datasource_list)
+                    ]
+            case o.Operand():
+                self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data != operand]
+            case int(): # repeat n times the last argument if any
+                if len(self._datasource_list) > 0:
+                    while operand > 0 and len(self._datasource_list) > 0:
+                        self._datasource_list.pop()
+                        operand -= 1
+        return self
 
     # multiply with a scalar 
     def __mul__(self, operand: o.Operand) -> 'Container':
@@ -960,6 +977,25 @@ class Song(Container):
         return self
 
     def __add__(self, operand: Sequence | oe.Element) -> 'Song':
+        self_copy: Song = self.copy()
+        if isinstance(operand, (Sequence, oe.Element)):
+            if isinstance(operand, oe.Element):
+                operand = Sequence(operand) # Makes sure it becomes a Sequence
+            else:
+                operand = operand.copy()
+            for single_sequence in self_copy:
+                if isinstance(single_sequence, Sequence):
+                    if single_sequence._midi_track == operand._midi_track:
+                        single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
+                        return self_copy
+            self_copy._datasource_list.append(od.DataSource( operand ))
+        elif isinstance(operand, od.Playlist):  # Adds Playlist right away!
+            self._datasource_list.append(od.DataSource( operand ))
+        elif isinstance(operand, of.Frame):
+            o.logging.warning(f"Frames don't work on Songs!")
+        return self_copy
+
+    def __iadd__(self, operand: Sequence | oe.Element) -> 'Song':
         if isinstance(operand, (Sequence, oe.Element)):
             if isinstance(operand, oe.Element):
                 operand = Sequence(operand) # Makes sure it becomes a Sequence
@@ -978,6 +1014,22 @@ class Song(Container):
         return self
 
     def __sub__(self, operand: o.Operand) -> 'Song':
+        self_copy: Song = self.copy()
+        if isinstance(operand, Sequence):
+            for single_sequence_i in len(self_copy._datasource_list):
+                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Sequence):
+                    if self_copy._datasource_list[single_sequence_i]._data == operand:
+                        del self_copy._datasource_list[single_sequence_i]
+        elif isinstance(operand, oe.Element):
+            for single_sequence_i in len(self_copy._datasource_list):
+                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Sequence):
+                    if self_copy._datasource_list[single_sequence_i]._data == Sequence(operand):
+                        del self_copy._datasource_list[single_sequence_i]
+        elif isinstance(operand, of.Frame):
+            o.logging.warning(f"Frames don't work on Songs!")
+        return self_copy
+
+    def __isub__(self, operand: o.Operand) -> 'Song':
         if isinstance(operand, Sequence):
             for single_sequence_i in len(self._datasource_list):
                 if isinstance(self._datasource_list[single_sequence_i]._data, Sequence):
