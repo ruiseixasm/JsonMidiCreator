@@ -745,7 +745,7 @@ class Position(Rational):
                     case og.TimeSignature():    self._time_signature    = operand._data
                     case Quantization():        self._quantization      = operand._data // Fraction()
                     case _:                     super().__lshift__(operand)
-            case TimeValue():
+            case TimeValue() | Duration():
                 self._rational = self.getBeats(operand)._rational
             case ou.Measure():
                 measure_beats: Beats = self.getBeats() - self.getBeats(self.getMeasure())
