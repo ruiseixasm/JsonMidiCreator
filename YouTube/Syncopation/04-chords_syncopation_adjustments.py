@@ -34,7 +34,7 @@ hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))
+kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 << Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()

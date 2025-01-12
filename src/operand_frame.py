@@ -346,10 +346,12 @@ class Formula(Left):
 class Iterate(Left):
     def __init__(self, step = None):
         super().__init__(1 if step is None else step)
+        self._value: any = self._multi_data['operand'] * 0
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(self._index)
-        self._index += self._multi_data['operand']    # iterates whenever called
+        self_operand = super().__and__(self._value)
+        self._value += self._multi_data['operand']    # iterates whenever called
+        self._index += 1
         return self_operand
     
 class Foreach(Left):
