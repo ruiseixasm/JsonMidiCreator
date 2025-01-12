@@ -663,20 +663,24 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case int():
 
-                many_operands = self.empty_copy()
-                self_length: ra.Length    = self.length().roundMeasures()
+                self_length: ra.Length = self.length().roundMeasures()
+                original_self: Sequence = self.empty_copy()
+                original_self._datasource_list = self._datasource_list
+                self._datasource_list = []  # Just to keep the self object
                 for segments in range(operand):
-                    self << self_length * segments    # moving forward the self position
-                    many_operands += self
-                return many_operands
+                    original_self << self_length * segments    # moving forward the original_self data position
+                    self += original_self
+                return self
             case float():
 
-                many_operands = self.empty_copy()
-                self_length: ra.Length    = self.length()
+                self_length: ra.Length = self.length()
+                original_self: Sequence = self.empty_copy()
+                original_self._datasource_list = self._datasource_list
+                self._datasource_list = []  # Just to keep the self object
                 for segments in range(int(operand)):
-                    self << self_length * segments    # moving forward the self position
-                    many_operands += self
-                return many_operands
+                    original_self << self_length * segments    # moving forward the original_self data position
+                    self += original_self
+                return self
             case ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._position.getBeats(operand)._rational
