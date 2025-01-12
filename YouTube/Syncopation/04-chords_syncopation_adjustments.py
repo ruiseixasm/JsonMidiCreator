@@ -45,9 +45,9 @@ clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
 
-print(f"Hi-Hat length: {hi_hat % Length() % float()}")
-print(f"Hi-Hat length: {kick % Length() % float()}")
-print(f"Hi-Hat length: {clap % Length() % float()}")
+print(f"Hi-Hat length:  {hi_hat % Length() % float()}")
+print(f"Kick length:    {kick % Length() % float()}")
+print(f"Clap length:    {clap % Length() % float()}")
 
 no_syncopation: Seq = hi_hat + kick + clap
 no_syncopation >> Play()
