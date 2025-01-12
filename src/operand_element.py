@@ -349,29 +349,35 @@ class Element(o.Operand):
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case int() | float():
-
                 new_sequence: oc.Sequence = oc.Sequence()
-                for _ in range(int(operand)):
-                    new_sequence._datasource_list.append(od.DataSource(self.copy()))
-
+                multiplier: int = int(operand)
+                if multiplier > 0:
+                    new_sequence._datasource_list.append(od.DataSource( self ))
+                    for _ in range(multiplier - 1):
+                        new_sequence._datasource_list.append(od.DataSource( self.copy() ))
                 return new_sequence.stack()
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration > 0:
                     operand_duration: Fraction = self._position.getDuration(operand)._rational
                     self_repeating: int = operand_duration // self._duration
-                return self.__mul__(self_repeating)
+                return self.__imul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self.copy() << self % operand * operand
+        self_operand: any = self % operand
+        self_operand *= operand
+        return self << self_operand
 
     def __truediv__(self, operand: any) -> 'Element':
         self_copy: Element = self.copy()
         return self_copy.__itruediv__(operand)
 
     def __itruediv__(self, operand: o.Operand) -> 'Element':
-        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self.copy() << self % operand / operand
+        if operand != 0:
+            self_operand: any = self % operand
+            self_operand /= operand
+            return self << self_operand
+        return self
 
     def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
 
