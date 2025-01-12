@@ -69,11 +69,13 @@ chords -= Octave(1)
 chords *= 4
 chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 
+c.profiling_timer.call_timer_a()
+
 # Adjust Chords duration to 1/16
 chords << Duration(1/16)
 # Duplicate the pattern to repeat it at 1 Beat forward
 chords << Iterate(2)**Measures()
-chords % Length() >> Print()
+chords % Length() % float() >> Print()  # Measures
 repeated_chords: Seq = Sequence()
 for step in range(16*2//3 + 1):
     moved_chords: Seq = Step(step * 3) >> chords.copy()
@@ -82,6 +84,8 @@ for step in range(16*2//3 + 1):
 repeated_chords.sort()
 repeated_chords /= 2
 # repeated_chords >> Play()
+
+c.profiling_timer.call_timer_b()
 
 # chords << Disable()
 # chords >> Play()
@@ -110,7 +114,7 @@ lead_notes += Octave(1)
 # lead_notes >> Play()
 
 syncopation_4: Seq = syncopation_3 + lead_notes
-# syncopation_4.getPlaylist()
-syncopation_4 >> Play()
+syncopation_4.getPlaylist()
+# syncopation_4 >> Play()
 
 print(c.profiling_timer)

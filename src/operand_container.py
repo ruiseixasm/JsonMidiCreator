@@ -537,9 +537,7 @@ class Sequence(Container):  # Just a container of Elements
                 self._position          << operand._position
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
-                c.profiling_timer.call_timer_a()
                 self._datasource_list   = self.deep_copy( operand._datasource_list )
-                c.profiling_timer.call_timer_b()
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand  = self.deep_copy(operand._next_operand)
 
