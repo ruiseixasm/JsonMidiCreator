@@ -508,12 +508,6 @@ class Key(PitchParameter):
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, operand: any) -> 'Key':
-        return super().__add__(operand)
-
-    def __sub__(self, operand: any) -> 'Key':
-        return super().__sub__(operand)
-
     _keys: list[str]            = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
                                    "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",      # Black Flats
                                    "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",      # All Sharps
