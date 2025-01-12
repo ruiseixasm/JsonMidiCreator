@@ -32,7 +32,7 @@ single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.
 # Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Steps(3*4 + 2)) >> Save("json/_Save_1.1_first_note.json")
 multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) \
-    >> (first_note + Rest() >> Stack()) * 3 \
+    >> ((first_note + Rest()) * 3 >> Stack()) \
     << MidiTrack(1, "Piano") \
     >> Play(0) \
     >> Save("json/_Save_1.2_sequence.json") \
