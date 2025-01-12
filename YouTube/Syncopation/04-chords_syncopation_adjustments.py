@@ -84,9 +84,9 @@ chords << Iterate(2)**Measures()
 # chords % Length() >> Print()
 
 repeated_chords: Seq = Sequence()
-for step in range(16*2//3 + 1):
-    moved_chords: Seq = Step(step * 3) >> chords.copy()
-    repeated_chords += moved_chords
+for _ in range(16*2//3 + 1):
+    repeated_chords += chords
+    Steps(3) >> chords
 # Make it shorter to fit in x4 composition
 repeated_chords = repeated_chords.sort() / 2
 # repeated_chords >> Play()

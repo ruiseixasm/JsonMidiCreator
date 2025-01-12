@@ -69,17 +69,19 @@ chords -= Octave(1)
 chords *= 4
 chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 
-c.profiling_timer.call_timer_a()
-
 # Adjust Chords duration to 1/16
 chords << Duration(1/16)
 # Duplicate the pattern to repeat it at 1 Beat forward
 chords << Iterate(2)**Measures()
 chords % Length() % float() >> Print()  # Measures
 repeated_chords: Seq = Sequence()
+
 for step in range(16*2//3 + 1):
-    moved_chords: Seq = Step(step * 3) >> chords.copy()
-    repeated_chords += moved_chords
+    repeated_chords += chords
+    Steps(3) >> chords
+
+c.profiling_timer.call_timer_a()
+
 # Make it shorter to fit in x4 composition
 repeated_chords.sort()
 repeated_chords /= 2
