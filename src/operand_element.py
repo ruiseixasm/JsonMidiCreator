@@ -319,7 +319,9 @@ class Element(o.Operand):
                 self_sequence += operand
                 return self_sequence
             case _:
-                return self << self % operand + operand
+                self_operand: any = self % operand
+                self_operand += operand
+                return self << self_operand
 
     def __sub__(self, operand: any) -> 'Element':
         self_copy: Element = self.copy()
@@ -327,7 +329,9 @@ class Element(o.Operand):
 
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        return self << self % operand - operand
+        self_operand: any = self % operand
+        self_operand -= operand
+        return self << self_operand
 
     def __mul__(self, operand: any) -> Union['Element', 'Sequence']:
         import operand_container as oc
@@ -366,7 +370,6 @@ class Element(o.Operand):
         self_duration_ms: Fraction = reference_position.getMillis_rational( ra.Duration(self._duration) )
 
         return self_position_ms, self_duration_ms
-
 
     @staticmethod
     def get_time_ms(rational: Fraction) -> float:
@@ -745,7 +748,8 @@ class Note(Tiable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                return self << od.DataSource( self._pitch + operand )    # Specific parameter
+                self._pitch += operand  # Specific and compounded parameter
+                return self
             case _:
                 return super().__iadd__(operand)
 
@@ -753,7 +757,8 @@ class Note(Tiable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                return self << od.DataSource( self._pitch - operand )    # Specific parameter
+                self._pitch -= operand  # Specific and compounded parameter
+                return self
             case _:
                 return super().__isub__(operand)
 
@@ -848,7 +853,7 @@ class Cluster(Tiable):
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
                 for single_pitch in self._pitches:
-                    single_pitch << od.DataSource( single_pitch + operand ) # Specific parameter
+                    single_pitch << od.DataSource( single_pitch + operand ) # Specific and compounded parameter
                 return self
             case _:
                 return super().__iadd__(operand)
@@ -858,7 +863,7 @@ class Cluster(Tiable):
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
                 for single_pitch in self._pitches:
-                    single_pitch << od.DataSource( single_pitch - operand ) # Specific parameter
+                    single_pitch << od.DataSource( single_pitch - operand ) # Specific and compounded parameter
                 return self
             case _:
                 return super().__isub__(operand)
@@ -1638,7 +1643,8 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Value():
-                return self << od.DataSource( self._controller + operand )   # Specific parameter
+                self._controller += operand  # Specific and compounded parameter
+                return self
             case _:
                 return super().__iadd__(operand)
 
@@ -1646,7 +1652,8 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Value():
-                return self << od.DataSource( self._controller - operand )   # Specific parameter
+                self._controller -= operand  # Specific and compounded parameter
+                return self
             case _:
                 return super().__isub__(operand)
 
@@ -1758,22 +1765,6 @@ class PitchBend(Automation):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'PitchBend':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.Bend() | int() | float() | Fraction():
-                return self << od.DataSource( self // ou.Bend() + operand )
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> 'PitchBend':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.Bend() | int() | float() | Fraction():
-                return self << od.DataSource( self // ou.Bend() - operand )
-            case _:
-                return super().__isub__(operand)
-
 class Aftertouch(Automation):
     def __init__(self, *parameters):
         self._pressure: int = 0
@@ -1874,22 +1865,6 @@ class Aftertouch(Automation):
             case _:
                 super().__lshift__(operand)
         return self
-
-    def __iadd__(self, operand: any) -> 'Aftertouch':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.Pressure() | int() | float() | Fraction():
-                return self << od.DataSource( self // ou.Pressure() + operand )
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> 'Aftertouch':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.Pressure() | int() | float() | Fraction():
-                return self << od.DataSource( self // ou.Pressure() - operand )
-            case _:
-                return super().__isub__(operand)
 
 class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
@@ -2084,22 +2059,6 @@ class ProgramChange(Automation):
             case _:
                 super().__lshift__(operand)
         return self
-
-    def __iadd__(self, operand: any) -> 'ProgramChange':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.Program() | int() | float() | Fraction():
-                return self << od.DataSource( self // ou.Program() + operand )
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> 'ProgramChange':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ou.Program() | int() | float() | Fraction():
-                return self << od.DataSource( self // ou.Program() - operand )
-            case _:
-                return super().__isub__(operand)
 
 class Panic(Element):
     def getPlaylist(self, position: ra.Position = None) -> list:
