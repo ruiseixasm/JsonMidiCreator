@@ -87,7 +87,10 @@ class Container(o.Operand):
                     case ch.Chaos():
                         return self.shuffle(operand)
                     case list():
-                        return self._datasource_list
+                        operands: list = []
+                        for single_datasource in self._datasource_list:
+                            operands.append( single_datasource._data )
+                        return operands
                     case _:
                         return super().__mod__(operand)
             case Container():
@@ -97,7 +100,7 @@ class Container(o.Operand):
             case ch.Chaos():
                 return self.copy().shuffle(operand)
             case list():
-                operands: list[o.Operand] = []
+                operands: list = []
                 for single_datasource in self._datasource_list:
                     operands.append(self.deep_copy(single_datasource._data))
                 return operands
@@ -617,6 +620,7 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
+                    operand_data_list: list[oe.Elements] = operand % od.DataSource(list())
                     # Does the needed position conversion first and replicates to its elements
                     if operand._position > self._position:
                         operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand

@@ -45,7 +45,12 @@ clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
 
+print(f"Hi-Hat length: {hi_hat % Length() % float()}")
+print(f"Hi-Hat length: {kick % Length() % float()}")
+print(f"Hi-Hat length: {clap % Length() % float()}")
+
 no_syncopation: Seq = hi_hat + kick + clap
+no_syncopation >> Play()
 # no_syncopation * 2 >> Play()
 
 
@@ -70,7 +75,9 @@ chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 chords << Duration(1/16)
 # Duplicate the pattern to repeat it at 1 Beat forward
 chords << Iterate(2)**Measures()
-chords % Length() >> Print()
+
+# chords % Length() >> Print()
+
 repeated_chords: Seq = Sequence()
 for step in range(16*2//3 + 1):
     moved_chords: Seq = Step(step * 3) >> chords.copy()
@@ -106,6 +113,6 @@ lead_notes += Octave(1)
 
 syncopation_4: Seq = syncopation_3 + lead_notes
 # syncopation_4.getPlaylist()
-syncopation_4 >> Play()
+# syncopation_4 >> Play()
 
 print(c.profiling_timer)
