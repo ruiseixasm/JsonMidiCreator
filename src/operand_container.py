@@ -620,23 +620,27 @@ class Sequence(Container):  # Just a container of Elements
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
-                    operand_data_list: list[oe.Elements] = operand % od.DataSource(list())
+                    operand_data_list: list[oe.Element] = operand % list()
                     # Does the needed position conversion first and replicates to its elements
                     if operand._position > self._position:
-                        operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand
+                        for single_element in operand_data_list:
+                            single_element += operand._position - self._position
                     elif operand._position < self._position:
                         self += self._position - operand._position                      # NO IMPLICIT COPY
                         self._position = self._position.getPosition(operand._position)  # Avoids changing other attributes of self._position
-                        operand_copy: Sequence = operand.copy()
-                    else:
-                        operand_copy: Sequence = operand.copy()
+                        
                     # operand is already a copy, let's take advantage of that
-                    self._datasource_list.extend(operand_copy._datasource_list)
+                    for single_element in operand_data_list:
+                        self._datasource_list.append(od.DataSource( single_element ))
 
                     return self
                 return Song(self, operand)
             case oe.Element():
                 return super().__iadd__(operand)
+            case list():
+                for single_element in operand:
+                    if isinstance(single_element, oe.Element):
+                        self._datasource_list.append(od.DataSource( single_element.copy() ))
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data += operand
