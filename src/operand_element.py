@@ -753,7 +753,7 @@ class Note(Tiable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self._pitch + operand )    # Specific parameter
+                return self << od.DataSource( self._pitch + operand )    # Specific parameter
             case _:
                 return super().__iadd__(operand)
 
@@ -769,7 +769,7 @@ class Note(Tiable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self._pitch - operand )    # Specific parameter
+                return self << od.DataSource( self._pitch - operand )    # Specific parameter
             case _:
                 return super().__isub__(operand)
 
@@ -874,10 +874,9 @@ class Cluster(Tiable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                self_copy = self.copy()
-                for single_pitch in self_copy._pitches:
+                for single_pitch in self._pitches:
                     single_pitch << od.DataSource( single_pitch + operand ) # Specific parameter
-                return self_copy
+                return self
             case _:
                 return super().__iadd__(operand)
 
@@ -896,10 +895,9 @@ class Cluster(Tiable):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                self_copy = self.copy()
-                for single_pitch in self_copy._pitches:
+                for single_pitch in self._pitches:
                     single_pitch << od.DataSource( single_pitch - operand ) # Specific parameter
-                return self_copy
+                return self
             case _:
                 return super().__isub__(operand)
     
@@ -1686,7 +1684,7 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Value():
-                return self.copy() << od.DataSource( self._controller + operand )   # Specific parameter
+                return self << od.DataSource( self._controller + operand )   # Specific parameter
             case _:
                 return super().__iadd__(operand)
 
@@ -1702,7 +1700,7 @@ class ControlChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int() | float() | ou.Value():
-                return self.copy() << od.DataSource( self._controller - operand )   # Specific parameter
+                return self << od.DataSource( self._controller - operand )   # Specific parameter
             case _:
                 return super().__isub__(operand)
 
@@ -1826,7 +1824,7 @@ class PitchBend(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self // ou.Bend() + operand )
+                return self << od.DataSource( self // ou.Bend() + operand )
             case _:
                 return super().__iadd__(operand)
 
@@ -1842,7 +1840,7 @@ class PitchBend(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Bend() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self // ou.Bend() - operand )
+                return self << od.DataSource( self // ou.Bend() - operand )
             case _:
                 return super().__isub__(operand)
 
@@ -1959,7 +1957,7 @@ class Aftertouch(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self // ou.Pressure() + operand )
+                return self << od.DataSource( self // ou.Pressure() + operand )
             case _:
                 return super().__iadd__(operand)
 
@@ -1975,7 +1973,7 @@ class Aftertouch(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Pressure() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self // ou.Pressure() - operand )
+                return self << od.DataSource( self // ou.Pressure() - operand )
             case _:
                 return super().__isub__(operand)
 
@@ -2185,7 +2183,7 @@ class ProgramChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self // ou.Program() + operand )
+                return self << od.DataSource( self // ou.Program() + operand )
             case _:
                 return super().__iadd__(operand)
 
@@ -2201,7 +2199,7 @@ class ProgramChange(Automation):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Program() | int() | float() | Fraction():
-                return self.copy() << od.DataSource( self // ou.Program() - operand )
+                return self << od.DataSource( self // ou.Program() - operand )
             case _:
                 return super().__isub__(operand)
 
