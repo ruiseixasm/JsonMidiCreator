@@ -607,8 +607,8 @@ class Degree(PitchParameter):
                 super().__lshift__(operand)
         return self
 
-    def __add__(self, number: any) -> 'Degree':
-        self_add: Degree = super().__add__(number)
+    def __iadd__(self, number: any) -> 'Degree':
+        self_add: Degree = super().__iadd__(number)
         if self_add._unit == 0: # Must jump the 0 (zero)
             if number > 0:
                 self_add._unit = 1
@@ -616,8 +616,8 @@ class Degree(PitchParameter):
                 self_add._unit = -1
         return self_add
     
-    def __sub__(self, number: any) -> 'Degree':
-        self_sub: Degree = super().__sub__(number)
+    def __isub__(self, number: any) -> 'Degree':
+        self_sub: Degree = super().__isub__(number)
         if self_sub._unit == 0: # Must jump the 0 (zero)
             if number > 0:
                 self_sub._unit = -1
