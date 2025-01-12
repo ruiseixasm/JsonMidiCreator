@@ -1965,6 +1965,24 @@ class PolyAftertouch(Aftertouch):
             case _:             super().__lshift__(operand)
         return self
 
+    def __iadd__(self, operand: any) -> 'PolyAftertouch':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+                self._pitch += operand  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> 'PolyAftertouch':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
+                self._pitch -= operand  # Specific and compounded parameter
+                return self
+            case _:
+                return super().__isub__(operand)
+
 class ProgramChange(Automation):
     def __init__(self, *parameters):
         self._program: int = ou.Program("Piano")._unit
