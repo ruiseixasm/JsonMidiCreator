@@ -185,13 +185,25 @@ class Rational(o.Operand):
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
             case Rational() | ou.Unit():
-                if value % od.DataSource( Fraction() ) is not None:
+                if value % od.DataSource( Fraction() ):
                     return self.__class__() << od.DataSource( self._rational + value % od.DataSource( Fraction() ) )
             case Fraction():
                 return self.__class__() << od.DataSource( self._rational + value )
             case float() | int():
                 return self.__class__() << od.DataSource( self._rational + Fraction(value) )
         return self.copy()
+    
+    def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
+        value = self & value    # Processes the tailed self operands or the Frame operand if any exists
+        match value:
+            case Rational() | ou.Unit():
+                if value % od.DataSource( Fraction() ):
+                    self._rational += value % od.DataSource( Fraction() )
+            case Fraction():
+                self._rational += value
+            case float() | int():
+                self._rational += Fraction(value)
+        return self
     
     def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
@@ -751,7 +763,6 @@ class Position(Rational):
         return self
 
     def __add__(self, operand: o.Operand) -> 'Position':
-
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
@@ -760,8 +771,16 @@ class Position(Rational):
                 return self_copy
             case int() | float() | Fraction():
                 return self + Measures(operand)
-            
         return self.copy()
+    
+    def __iadd__(self, operand: o.Operand) -> 'Position':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
+                self._rational += self.getBeats(operand)._rational
+            case int() | float() | Fraction():
+                self += Measures(operand)
+        return self
     
     def __sub__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

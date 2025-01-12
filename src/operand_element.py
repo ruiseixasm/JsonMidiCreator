@@ -1284,7 +1284,7 @@ class Retrigger(Note):
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.Position = self._position
+        note_position: ra.Position = self._position.copy()
         single_note_duration: ra.Duration = ra.Duration( self._duration/(self._division) ) # Already 2x single note duration
         for _ in range(self._division):
             swing_ratio = self._swing
