@@ -691,48 +691,9 @@ class Sequence(Container):  # Just a container of Elements
 
     # multiply with a scalar
     def __mul__(self, operand: o.Operand) -> 'Sequence':
-        match operand:
-            case int():
-
-                self_copy = self.copy()
-                many_operands = self.empty_copy()
-                self_length: ra.Length    = self.length().roundMeasures()
-                for segments in range(operand):
-                    self_copy << self_length * segments    # moving forward the self_copy position
-                    many_operands += self_copy
-                return many_operands
-            case float():
-
-                self_copy = self.copy()
-                many_operands = self.empty_copy()
-                self_length: ra.Length    = self.length()
-                for segments in range(int(operand)):
-                    self_copy << self_length * segments    # moving forward the self_copy position
-                    many_operands += self_copy
-                return many_operands
-            case ou.TimeUnit():
-                self_repeating: int = 0
-                operand_beats: Fraction = self._position.getBeats(operand)._rational
-                self_beats: Fraction = self.length().roundMeasures()._rational  # Beats default unit
-                if self_beats > 0:
-                    self_repeating = operand_beats // self_beats
-                return self * self_repeating
-            case ra.TimeValue():
-                self_repeating: float = 0.0
-                self_length: Fraction = (self.length() % operand)._rational
-                if self_length > 0:
-                    operand_length: Fraction = operand._rational
-                    self_repeating: float = float( operand_length / self_length )
-                return self * self_repeating
-            case _:
-                
-                self_copy: Sequence = Sequence() << self._position << self._midi_track
-                for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # It's already a copy, avoids extra copy by filling the list directly
-                        self_copy._datasource_list.append(od.DataSource( single_datasource._data * operand ))
-
-                return self_copy
+        self_copy: Sequence = self.copy()
+        self_copy *= operand
+        return self_copy
     
     # in-place multiply with a scalar
     def __imul__(self, operand: o.Operand) -> 'Sequence':
