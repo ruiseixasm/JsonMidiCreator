@@ -2157,16 +2157,16 @@ class ProgramChange(Automation):
                 self._program = operand._program
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():          self._program = operand._data // int()
+                    case ou.Program():          self._program = operand._data._unit
                     case _:                     super().__lshift__(operand)
             case ou.Program():
-                self._program = operand // int()
+                self._program = operand._unit
             case int():
                 self._program = operand
             case float():
                 self._program = int(operand)
             case str():
-                self._program = ou.Program(operand) // int()
+                self._program = ou.Program(operand)._unit
             case _:
                 super().__lshift__(operand)
         return self
