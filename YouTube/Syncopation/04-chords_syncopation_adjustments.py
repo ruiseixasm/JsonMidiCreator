@@ -33,24 +33,29 @@ hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
+# hi_hat * 2 >> Play()
 
+# Stackable being FALSE means all notes start at zero even after the "*" operation on Element
 kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 << Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 << Iterate(Beats(1)) 
+clap += Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
 
-print(f"Hi-Hat length:  {hi_hat % Length() % float()}")
-print(f"Kick length:    {kick % Length() % float()}")
-print(f"Clap length:    {clap % Length() % float()}")
+print(f"Hi-Hat length:  {hi_hat % Length() % Beats() % float()}")
+print(f"Kick length:    {kick % Length() % Beats() % float()}")
+print(f"Clap length:    {clap % Length() % Beats() % float()}")
 
 no_syncopation: Seq = hi_hat + kick + clap
-no_syncopation >> Play()
+print(f"No syncopation length:  {no_syncopation % Length() % Beats() % float()}")
+# no_syncopation >> Play()
+print(f"No syncopation * 2 length:  {no_syncopation * 2 % Length() % Beats() % float()}")
 # no_syncopation * 2 >> Play()
 
 
@@ -113,6 +118,6 @@ lead_notes += Octave(1)
 
 syncopation_4: Seq = syncopation_3 + lead_notes
 # syncopation_4.getPlaylist()
-# syncopation_4 >> Play()
+syncopation_4 >> Play()
 
 print(c.profiling_timer)

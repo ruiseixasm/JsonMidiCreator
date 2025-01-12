@@ -349,7 +349,7 @@ class Iterate(Left):
         self._value: any = self._multi_data['operand'] * 0
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(self._value)
+        self_operand = super().__and__(self.deep_copy(self._value))
         self._value += self._multi_data['operand']    # iterates whenever called
         self._index += 1
         return self_operand
