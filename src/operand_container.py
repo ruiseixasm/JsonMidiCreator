@@ -180,8 +180,8 @@ class Container(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case list():
-                        for operand in single_operand:
-                            self._datasource_list.append(od.DataSource( operand ))
+                        for single_item in operand._data:
+                            self._datasource_list.append(od.DataSource( single_item ))
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():

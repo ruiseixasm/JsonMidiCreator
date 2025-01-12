@@ -82,6 +82,7 @@ def test_sequence_mod():
         chords_sequence[degree] % Pitch() % float() >> Print()
         assert chords_sequence[degree] % Pitch() % float() == keys_float[degree]
 
+# test_sequence_mod()
 
 
 def test_rrshift_sequence():

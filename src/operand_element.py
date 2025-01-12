@@ -302,27 +302,22 @@ class Element(o.Operand):
                 return super().__rrshift__(operand)
 
     def __add__(self, operand: any) -> 'Element':
-        import operand_container as oc
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Element():
-                return oc.Sequence(self, operand)   # copy already included in Sequence initiation
-            case oc.Sequence():
-                return operand.__radd__(self)
-            case _:
-                self_copy: Element = self.copy()
-                return self_copy.__iadd__(operand)
+        self_copy: Element = self.copy()
+        return self_copy.__iadd__(operand)
 
     def __iadd__(self, operand: any) -> 'Element':
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                new_sequence: Sequence = Sequence()
+                new_sequence: oc.Sequence = oc.Sequence()
                 elements_list: list[Element] = [self, operand.copy()]
                 return new_sequence << od.DataSource( elements_list )
             case oc.Sequence():
-                return operand.__radd__(self)
+                self_sequence: oc.Sequence = operand.empty_copy()
+                self_sequence += self
+                self_sequence += operand
+                return self_sequence
             case _:
                 return self << self % operand + operand
 
