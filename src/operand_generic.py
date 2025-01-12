@@ -509,8 +509,11 @@ class Pitch(Generic):
         return self
 
     def __add__(self, operand) -> 'Pitch':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         self_copy: Pitch = self.copy()
+        return self_copy.__iadd__(operand)
+    
+    def __iadd__(self, operand) -> 'Pitch':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
                 # REVIEW TO DO A SUM OF "Pitch % int()" OF BOTH KEY NOTES
@@ -522,26 +525,26 @@ class Pitch(Generic):
                 new_keynote._octave = sum_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case ou.Octave():
-                self_copy._octave += operand._unit
+                self._octave += operand._unit
             case float():
                 key_offset: int = int(operand)
-                self_copy.apply_key_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int())
-                self_copy.apply_key_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
-                self_copy.apply_key_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case int() | ou.Unit():
-                self_copy._degree = (self // ou.Degree() + operand)._unit
-            case _:
-                return super().__add__(operand)
-
-        return self_copy
+                self._degree = (self // ou.Degree() + operand)._unit
+        return self
     
     def __sub__(self, operand) -> 'Pitch':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         self_copy: Pitch = self.copy()
+        return self_copy.__isub__(operand)
+    
+    def __isub__(self, operand) -> 'Pitch':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch(): # It may result in negative KeyNotes (unplayable)!
                 # REVIEW TO DO A SUM OF "Pitch % int()" OF BOTH KEY NOTES
@@ -553,22 +556,19 @@ class Pitch(Generic):
                 new_keynote._octave = delta_int // 12 - 1 # rooted on -1 octave
                 return new_keynote
             case ou.Octave():
-                self_copy._octave -= operand._unit
+                self._octave -= operand._unit
             case float():
                 key_offset: int = int(operand) * -1
-                self_copy.apply_key_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int()) * -1
-                self_copy.apply_key_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
-                self_copy.apply_key_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case int() | ou.Unit():
-                self_copy._degree = (self // ou.Degree() - operand)._unit
-            case _:
-                return super().__sub__(operand)
-
-        return self_copy
+                self._degree = (self // ou.Degree() - operand)._unit
+        return self
 
     def __mul__(self, operand) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
