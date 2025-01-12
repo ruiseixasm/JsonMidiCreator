@@ -658,9 +658,7 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case Song():
                 return operand - self   # Order is irrelevant on Song
-            case Container():
-                return super().__sub__(operand)
-            case oe.Element():
+            case oe.Element() | Container():
                 return super().__sub__(operand)
             case _:
 
@@ -671,6 +669,17 @@ class Sequence(Container):  # Just a container of Elements
                         self_copy._datasource_list.append(od.DataSource( single_datasource._data - operand ))
 
                 return self_copy
+
+    def __isub__(self, operand: any) -> 'Sequence':
+        match operand:
+            case Song():
+                return operand - self   # Order is irrelevant on Song
+            case oe.Element() | Container():
+                return super().__isub__(operand)
+            case _:
+                for single_datasource in self._datasource_list:
+                    single_datasource._data -= operand
+                return self
 
     # multiply with a scalar
     def __mul__(self, operand: o.Operand) -> 'Sequence':
