@@ -508,11 +508,11 @@ class Pitch(Generic):
 
         return self
 
-    def __add__(self, operand) -> 'Pitch':
+    def __add__(self, operand: any) -> 'Pitch':
         self_copy: Pitch = self.copy()
         return self_copy.__iadd__(operand)
     
-    def __iadd__(self, operand) -> 'Pitch':
+    def __iadd__(self, operand: any) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
@@ -539,11 +539,11 @@ class Pitch(Generic):
                 self._degree = (self // ou.Degree() + operand)._unit
         return self
     
-    def __sub__(self, operand) -> 'Pitch':
+    def __sub__(self, operand: any) -> 'Pitch':
         self_copy: Pitch = self.copy()
         return self_copy.__isub__(operand)
     
-    def __isub__(self, operand) -> 'Pitch':
+    def __isub__(self, operand: any) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch(): # It may result in negative KeyNotes (unplayable)!
