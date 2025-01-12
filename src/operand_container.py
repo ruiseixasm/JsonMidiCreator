@@ -607,7 +607,7 @@ class Sequence(Container):  # Just a container of Elements
     def __iadd__(self, operand: any) -> 'Sequence':
         match operand:
             case Song():
-                operand += self # Order is irrelevant on Song
+                operand += self # Order is irrelevant in Song
                 return operand 
             case Sequence():
                 if self._midi_track == operand._midi_track:
@@ -616,7 +616,7 @@ class Sequence(Container):  # Just a container of Elements
                     if operand._position > self._position:
                         operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand
                     elif operand._position < self._position:
-                        self += ( self._position - operand._position )                  # NO IMPLICIT COPY
+                        self += self._position - operand._position                      # NO IMPLICIT COPY
                         self._position = self._position.getPosition(operand._position)  # Avoids changing other attributes of self._position
                         operand_copy: Sequence = operand.copy()
                     else:
@@ -641,7 +641,8 @@ class Sequence(Container):  # Just a container of Elements
     def __isub__(self, operand: any) -> 'Sequence':
         match operand:
             case Song():
-                return operand - self   # Order is irrelevant on Song
+                operand -= self # Order is irrelevant in Song
+                return operand 
             case oe.Element() | Container():
                 return super().__isub__(operand)
             case _:
