@@ -336,6 +336,10 @@ class Container(o.Operand):
         return self.copy()
     
     def __truediv__(self, operand: o.Operand) -> 'Container':
+        self_copy: Container = self.copy()
+        return self_copy.__itruediv__(operand)
+
+    def __itruediv__(self, operand: o.Operand) -> 'Container':
         match operand:
             case Container():
                 pass
@@ -352,7 +356,7 @@ class Container(o.Operand):
                             ))
                         nth_item -= 1
                     return many_operands
-        return self.copy()
+        return self
 
     def __pow__(self, operand: 'o.Operand') -> 'Container':
         for single_datasource in self._datasource_list:
@@ -693,31 +697,25 @@ class Sequence(Container):  # Just a container of Elements
                     self_repeating: float = float( operand_length / self_length )
                 return self * self_repeating
             case _:
-                
-                self: Sequence = Sequence() << self._position << self._midi_track
                 for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # It's already a copy, avoids extra copy by filling the list directly
-                        self._datasource_list.append(od.DataSource( single_datasource._data * operand ))
-
+                    single_datasource._data *= operand
                 return self
             
     def __rmul__(self, operand: any) -> 'Sequence':
         return self.__mul__(operand)
     
     def __truediv__(self, operand: o.Operand) -> 'Sequence':
+        self_copy: Sequence = self.copy()
+        return self_copy.__itruediv__(operand)
+
+    def __itruediv__(self, operand: o.Operand) -> 'Sequence':
         match operand:
             case int():
-                return super().__truediv__(operand)
+                return super().__itruediv__(operand)
             case _:
-                
-                self_copy: Sequence = Sequence() << self._position << self._midi_track
                 for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # It's already a copy, avoids extra copy by filling the list directly
-                        self_copy._datasource_list.append(od.DataSource( single_datasource._data / operand ))
-
-                return self_copy
+                    single_datasource._data /= operand
+                return self
 
     def __or__(self, operand: any) -> 'Sequence':
         match operand:
