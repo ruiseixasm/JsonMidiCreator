@@ -599,45 +599,16 @@ class Sequence(Container):  # Just a container of Elements
         return self.copy()
 
     def __add__(self, operand: any) -> 'Sequence':
-        match operand:
-            case Song():
-                return operand + self   # Order is irrelevant on Song
-            case Sequence():
-                if self._midi_track == operand._midi_track:
-
-                    # Does the needed position conversion first and replicates to its elements
-                    if operand._position > self._position:
-                        self_copy: Sequence = self.copy()
-                        operand_copy: Sequence = operand + ( operand._position - self._position )   # Implicit copy of operand
-                    elif operand._position < self._position:
-                        self_copy: Sequence = self + ( self._position - operand._position )         # Implicit copy of operand
-                        self_copy._position = self_copy._position.getPosition(operand._position)    # Avoids changing other attributes of self_copy._position
-                        operand_copy: Sequence = operand.copy()
-                    else:
-                        self_copy: Sequence = self.copy()
-                        operand_copy: Sequence = operand.copy()
-                    # operand is already a copy, let's take advantage of that
-                    self_copy._datasource_list.extend(operand_copy._datasource_list)
-
-                    return self_copy  # self_copy becomes the __add__ result as an add copy
-                return Song(self, operand)
-            case oe.Element():
-                return super().__add__(operand)
-            case _:
-
-                self_copy: Sequence = Sequence() << self._position << self._midi_track
-                for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # It's already a copy, avoids extra copy by filling the list directly
-                        self_copy._datasource_list.append(od.DataSource( single_datasource._data + operand ))
-
-                return self_copy
+        self_copy: Sequence = self.copy()
+        self_copy += operand
+        return self_copy
             
     # Avoids the costly copy of Sequence self doing +=
     def __iadd__(self, operand: any) -> 'Sequence':
         match operand:
             case Song():
-                return operand + self   # Order is irrelevant on Song
+                operand += self # Order is irrelevant on Song
+                return operand 
             case Sequence():
                 if self._midi_track == operand._midi_track:
 
@@ -663,20 +634,9 @@ class Sequence(Container):  # Just a container of Elements
                 return self
 
     def __sub__(self, operand: any) -> 'Sequence':
-        match operand:
-            case Song():
-                return operand - self   # Order is irrelevant on Song
-            case oe.Element() | Container():
-                return super().__sub__(operand)
-            case _:
-
-                self_copy: Sequence = Sequence() << self._position << self._midi_track
-                for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, oe.Element): # Makes sure it's an Element
-                        # It's already a copy, avoids extra copy by filling the list directly
-                        self_copy._datasource_list.append(od.DataSource( single_datasource._data - operand ))
-
-                return self_copy
+        self_copy: Sequence = self.copy()
+        self_copy -= operand
+        return self_copy
 
     def __isub__(self, operand: any) -> 'Sequence':
         match operand:
