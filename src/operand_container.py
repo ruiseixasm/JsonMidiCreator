@@ -702,7 +702,7 @@ class Sequence(Container):  # Just a container of Elements
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 return self * self_repeating
-            case ra.TimeValue():
+            case ra.TimeValue() | ra.Duration():
                 self_repeating: float = 0.0
                 self_length: Fraction = (self.length() % operand)._rational
                 if self_length > 0:

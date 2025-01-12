@@ -472,7 +472,7 @@ class Position(Rational):
         match other:
             case Position():
                 return self.getMillis_rational() == other.getMillis_rational()
-            case TimeValue() | ou.TimeUnit() | int() | float():
+            case TimeValue() | ou.TimeUnit() | Duration() | int() | float():
                 return self % other == other
             case _:
                 if other.__class__ == o.Operand:
@@ -484,7 +484,7 @@ class Position(Rational):
         match other:
             case Position():
                 return self.getMillis_rational() < other.getMillis_rational()
-            case TimeValue() | ou.TimeUnit() | int() | float():
+            case TimeValue() | ou.TimeUnit() | Duration() | int() | float():
                 return self % other < other
         return False
     
@@ -493,7 +493,7 @@ class Position(Rational):
         match other:
             case Position():
                 return self.getMillis_rational() > other.getMillis_rational()
-            case TimeValue() | ou.TimeUnit() | int() | float():
+            case TimeValue() | ou.TimeUnit() | Duration() | int() | float():
                 return self % other > other
         return False
     
@@ -627,7 +627,7 @@ class Position(Rational):
         match time:
             case None:
                 return ou.Measure( self.roundMeasures().getMeasures() // int() )
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 return ou.Measure( self.roundMeasures(time).getMeasures() // int() )
         return ou.Measure()
 
@@ -637,7 +637,7 @@ class Position(Rational):
         match time:
             case None:
                 beats = self.roundBeats().getBeats() // int() % beats_per_measure
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 beats = self.roundBeats(time).getBeats() // int() % beats_per_measure
         return ou.Beat(beats)
 
@@ -651,7 +651,7 @@ class Position(Rational):
         match time:
             case None:
                 steps = self.roundSteps().getSteps() // int() % steps_per_measure
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 steps = self.roundSteps(time).getSteps() // int() % steps_per_measure
         return ou.Step(steps)
 
@@ -661,7 +661,7 @@ class Position(Rational):
         match time:
             case None:
                 measures = self.getMeasures() // Fraction()
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 measures = self.getMeasures(time) // Fraction()
         measures = Fraction( int(measures) )    # Position round type: [...)
         return self.getPosition( Measures(measures) )
@@ -672,7 +672,7 @@ class Position(Rational):
         match time:
             case None:
                 beats = self.getBeats() // Fraction()
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 beats = self.getBeats(time) // Fraction()
         beats = Fraction( int(beats) )  # Position round type: [...)
         return self.getPosition( Beats(beats) )
@@ -683,7 +683,7 @@ class Position(Rational):
         match time:
             case None:
                 steps = self.getSteps() // Fraction()
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 steps = self.getSteps(time) // Fraction()
         steps = Fraction( int(steps) )  # Position round type: [...)
         return self.getPosition( Steps(steps) )
@@ -768,7 +768,7 @@ class Position(Rational):
     def __iadd__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():  # Implicit Position conversion
                 self._rational += self.getBeats(operand)._rational
             case int() | float() | Fraction():
                 self += Measures(operand)
@@ -777,7 +777,7 @@ class Position(Rational):
     def __isub__(self, operand: o.Operand) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Position() | TimeValue() | ou.TimeUnit():  # Implicit Position conversion
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():  # Implicit Position conversion
                 self._rational -= self.getBeats(operand)._rational
             case int() | float() | Fraction():
                 self -= Measures(operand)
@@ -813,7 +813,7 @@ class Length(Position):
         match time:
             case None:
                 measures = self.getMeasures() // Fraction()
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 measures = self.getMeasures(time) // Fraction()
         if measures.denominator != 1:   # Length round type: (...]
             measures = Fraction(int(measures) + 1)  # moves forward one unit
@@ -827,7 +827,7 @@ class Length(Position):
         match time:
             case None:
                 beats = self.getBeats() // Fraction()
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 beats = self.getBeats(time) // Fraction()
         if beats.denominator != 1:   # Length round type: (...]
             beats = Fraction(int(beats) + 1)    # moves forward one unit
@@ -841,7 +841,7 @@ class Length(Position):
         match time:
             case None:
                 steps = self.getSteps() // Fraction()
-            case Position() | TimeValue() | ou.TimeUnit():
+            case Position() | TimeValue() | ou.TimeUnit() | Duration():
                 steps = self.getSteps(time) // Fraction()
         if steps.denominator != 1:   # Length round type: (...]
             steps = Fraction(int(steps) + 1)    # moves forward one unit
