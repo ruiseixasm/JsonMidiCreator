@@ -596,6 +596,12 @@ class Sequence(Container):  # Just a container of Elements
                 return Song(operand, self)
             case oe.Element():
                 return self.__radd__(operand).stack()   # Can't be removed (Analyze better why)
+                # aggregated_sequence: Sequence = self.empty_copy()
+                # aggregated_sequence << operand
+                # aggregated_sequence += self
+                # left_length: ra.Length = aggregated_sequence.length()
+                # aggregated_sequence += of.NotEqual(operand)**left_length
+                # return aggregated_sequence
             case ra.Position() | ra.TimeValue() | ou.TimeUnit() | ra.Duration():
                 self._position += operand
                 return self

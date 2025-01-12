@@ -123,7 +123,7 @@ class Element(o.Operand):
     def __eq__(self, other: 'o.Operand') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case self.__class__():
+            case Element():
                 return self.eq_time(other) and self.eq_midi(other)
             case ra.Duration():
                 return self._duration == other._rational
@@ -139,7 +139,7 @@ class Element(o.Operand):
     def __lt__(self, other: 'o.Operand') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case self.__class__():
+            case Element():
                 return  False
             case ra.Duration():
                 return self._duration < other._rational
@@ -151,7 +151,7 @@ class Element(o.Operand):
     def __gt__(self, other: 'o.Operand') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case self.__class__():
+            case Element():
                 return  False
             case ra.Duration():
                 return self._duration > other._rational
