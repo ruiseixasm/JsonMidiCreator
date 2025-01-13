@@ -791,19 +791,30 @@ class Scale(Generic):
                     case int():                 return __class__.get_scale_number(self._scale_list)
                     case _:                     return super().__mod__(operand)
             case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
-            case list():                return self.modulation(None)
+            case list():
+                modulated_scale: list[int] = self.modulation(None)
+                if self.hasScale() and len(operand) > 0 and isinstance(operand[0], (int, ou.Key)):
+                    if isinstance(operand[0], ou.Key):
+                        key_int: int = operand[0]._unit
+                    else:
+                        key_int: int = operand[0]
+                    key_scale: list = [0] * 12
+                    for key_i in range(12):
+                        key_scale[(key_i + key_int) % 12] = modulated_scale[key_i]
+                    return key_scale
+                return modulated_scale
             case str():                 return __class__.get_scale_name(self.modulation(None))
             case int():                 return __class__.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
-            case ou.Key():
-                if self.hasScale():
-                    key_int: int = int(operand % float())
-                    key_scale: list = [0] * 12
-                    for key_i in range(12):
-                        key_scale[(key_i + key_int) % 12] = self._scale_list[key_i]
-                    return key_scale
-                return []
+            # case ou.Key():
+            #     if self.hasScale():
+            #         key_int: int = int(operand % float())
+            #         key_scale: list = [0] * 12
+            #         for key_i in range(12):
+            #             key_scale[(key_i + key_int) % 12] = self._scale_list[key_i]
+            #         return key_scale
+            #     return []
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
@@ -905,7 +916,7 @@ class Scale(Generic):
             case _: super().__lshift__(operand)
         return self
 
-    _names = [
+    _names: list[list[str]] = [
         ["Chromatic", "chromatic"],
         # Diatonic Scales
         ["Major", "Maj", "maj", "M", "Ionian", "ionian", "C", "1", "1st", "First"],
@@ -927,7 +938,7 @@ class Scale(Generic):
         ["Blues", "blues"],
         ["Whole-tone", "Whole tone", "Whole", "whole"]
     ]
-    _scales = [
+    _scales: list[list[int]] = [
     #       Db    Eb       Gb    Ab    Bb
     #       C#    D#       F#    G#    A#
     #    C     D     E  F     G     A     B
@@ -951,6 +962,40 @@ class Scale(Generic):
         [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],   # Augmented
         [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0],   # Blues
         [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]    # Whole-tone
+    ]
+
+    _tonics: list[int] = [
+        # Chromatic scale
+        0,  # C
+        # Diatonic scales
+        0,  # C
+        2,  # D
+        4,  # E
+        5,  # F
+        7,  # G
+        9,  # A
+        11, # B
+        # Other Scales
+        # Harmonic scale
+        9,  # A
+        # Melodic
+        9,  # A
+        # Octatonic HW
+        0,  # C
+        # Octatonic WH
+        0,  # C
+        # Pentatonic Major
+        0,  # C
+        # Pentatonic minor
+        9,  # A
+        # Diminished
+        0,  # C
+        # Augmented
+        0,  # C
+        # Blues
+        9,  # A
+        # Whole-tone
+        0   # C
     ]
 
     @staticmethod

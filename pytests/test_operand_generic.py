@@ -135,7 +135,7 @@ def test_pitch_key_signature():
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
         pitch_key: Key = key_signature % Key()
-        scale_mode_list: list = c_major_scale % pitch_key
+        scale_mode_list: list = c_major_scale % list([pitch_key])
         print(scale_mode)
         print(pitch_key % str())
         print(key_signature_list)
@@ -146,7 +146,7 @@ def test_pitch_key_signature():
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
         pitch_key: Key = key_signature % Key()
-        scale_mode_list: list = c_major_scale % pitch_key
+        scale_mode_list: list = c_major_scale % list([pitch_key])
         print(scale_mode)
         print(pitch_key % str())
         print(key_signature_list)
@@ -166,6 +166,32 @@ def test_pitch_key_signature():
         E_minor_key % Sharp() >> Print(0)
 
 # test_pitch_key_signature()
+
+
+def test_pitch_scales():
+
+    major_scale_keys: list[str] = [
+        "C", "D", "E", "F", "G", "A", "B"
+    ]
+    major_pitch: Pitch = Pitch(Scale("Major"))
+    
+    for key_degree in range(1, 8):  # Excludes 8
+        major_pitch << Degree(key_degree)
+        print(major_pitch % str())
+        assert major_pitch % str() == major_scale_keys[key_degree - 1]
+
+    print("------")
+    minor_scale_keys: list[str] = [
+        "A", "B", "C", "D", "E", "F", "G"
+    ]
+    minor_pitch: Pitch = Pitch(Scale("minor"))
+    
+    for key_degree in range(1, 8):  # Excludes 8
+        minor_pitch << Degree(key_degree)
+        print(minor_pitch % str())
+        # assert minor_pitch % str() == minor_scale_keys[key_degree - 1]
+
+# test_pitch_scales()
 
 
 def test_pitch_add():
