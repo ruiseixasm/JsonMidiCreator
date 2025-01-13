@@ -787,8 +787,9 @@ class Scale(Generic):
                 match operand._data:
                     case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
                     case list():                return self._scale_list
-                    case str():                 return __class__.get_scale_name(self._scale_list)
-                    case int():                 return __class__.get_scale_number(self._scale_list)
+                    case str():                 return self.get_scale_name(self._scale_list)
+                    case int():                 return self.get_scale_number(self._scale_list)
+                    case ou.Key():              return ou.Key(self._tonics[ max(0, self.get_scale_number(self._scale_list)) ])
                     case _:                     return super().__mod__(operand)
             case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
             case list():
@@ -803,18 +804,11 @@ class Scale(Generic):
                         key_scale[(key_i + key_int) % 12] = modulated_scale[key_i]
                     return key_scale
                 return modulated_scale
-            case str():                 return __class__.get_scale_name(self.modulation(None))
-            case int():                 return __class__.get_scale_number(self.modulation(None))
+            case str():                 return self.get_scale_name(self.modulation(None))
+            case int():                 return self.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
-            # case ou.Key():
-            #     if self.hasScale():
-            #         key_int: int = int(operand % float())
-            #         key_scale: list = [0] * 12
-            #         for key_i in range(12):
-            #             key_scale[(key_i + key_int) % 12] = self._scale_list[key_i]
-            #         return key_scale
-            #     return []
+            case ou.Key():              return ou.Key( self.get_tonic_number() )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
@@ -997,6 +991,16 @@ class Scale(Generic):
         # Whole-tone
         0   # C
     ]
+
+    def get_tonic_number(self) -> int:
+        net_mode: int = self._mode - 1
+        self_tonic: int = self._tonics[ max(0, self.get_scale_number(self._scale_list)) ]
+        move_tonic: int = 0
+        while net_mode > 0:
+            move_tonic += 1
+            if self._scale_list[move_tonic % 12] == 1:
+                net_mode -= 1
+        return self_tonic + move_tonic
 
     @staticmethod
     def get_scale_number(scale: int | str | list = 0) -> int:
