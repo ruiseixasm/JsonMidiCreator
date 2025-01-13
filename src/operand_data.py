@@ -505,7 +505,7 @@ class RightShift(SideEffects):
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
-        super().__init__( os.staff._device % list() if device_list is None else device_list )
+        super().__init__( os.staff._device.copy() if device_list is None else device_list )
 
 class DataMany(Data):
     def __init__(self, *parameters):    # Allows multiple parameters

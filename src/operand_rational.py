@@ -418,9 +418,9 @@ class Quantization(Rational):
 class Position(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
-        self._tempo: Fraction                   = os.staff._tempo._rational
+        self._tempo: Fraction                   = os.staff._tempo
         self._time_signature: og.TimeSignature  = os.staff._time_signature.copy()
-        self._quantization: Fraction            = os.staff._quantization._rational
+        self._quantization: Fraction            = os.staff._quantization
         super().__init__(*parameters)
 
     def position(self: 'Position', beats: float = None) -> 'Position':

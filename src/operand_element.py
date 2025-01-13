@@ -40,10 +40,10 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ra.Position         = ra.Position()
-        self._duration: Fraction            = os.staff._duration._rational
+        self._duration: Fraction            = os.staff._duration
         self._stackable: bool               = True
-        self._channel: int                  = os.staff._channel._unit
-        self._device: list[str]             = os.staff._device._data.copy()
+        self._channel: int                  = os.staff._channel
+        self._device: list[str]             = os.staff._device.copy()
         self._enabled: bool                 = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -83,7 +83,7 @@ class Element(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case ra.Position():     return self._position
-                    case ra.Duration():     return (operand._data).copy() << od.DataSource( self._duration )
+                    case ra.Duration():     return operand._data << od.DataSource( self._duration )
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case od.Device():       return od.Device() << od.DataSource( self._device )
@@ -403,7 +403,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration = self._position.getDuration(os.staff._measures)._rational
+        self._duration = self._position.getDuration(os.staff // ra.Measures())._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -552,7 +552,7 @@ class Rest(Element):
 
 class Tiable(Element):
     def __init__(self, *parameters):
-        self._velocity: int         = os.staff._velocity._unit
+        self._velocity: int         = os.staff._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         super().__init__(*parameters)
