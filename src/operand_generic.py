@@ -494,7 +494,10 @@ class Pitch(Generic):
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 self._key_signature << operand
                 self._key = int( self._key_signature % float() )
-            case Scale() | ou.Mode():
+            case Scale():
+                self._scale     << operand
+                self._key = self._scale % ou.Key() % int()
+            case ou.Mode():
                 self._scale     << operand
             case str():
                 string: str = operand.strip()
