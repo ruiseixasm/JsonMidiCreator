@@ -236,7 +236,7 @@ class Staff(o.Operand):
             case Fraction():
                 self._duration = operand
             case str():
-                self._tempo = ra.Tempo(operand)._rational
+                self._tempo = ra.Tempo(self._tempo, operand)._rational
                 self._key_signature << operand
             case tuple():
                 for single_operand in operand:

@@ -392,7 +392,7 @@ class Tempo(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Rational':
+    def __lshift__(self, operand: o.Operand) -> 'Tempo':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -401,6 +401,32 @@ class Tempo(Rational):
                 if len(tempo) > 0:
                     self << float(tempo[0])
             case _: super().__lshift__(operand)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+
+    def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__iadd__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+    
+    def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__isub__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+    
+    def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__imul__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
+        return self
+    
+    def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Tempo':
+        super().__itruediv__(value)
+        # Makes sure it's positive
+        self._rational = max(Fraction(1), self._rational)
         return self
 
 class Quantization(Rational):
