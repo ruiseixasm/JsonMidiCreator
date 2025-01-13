@@ -269,6 +269,20 @@ class Pitch(Generic):
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
             case Pitch():           return self.copy()
+
+            case int(): # WITHOUT KEY SIGNATURE
+                
+                # IGNORES THE KEY SIGNATURE (CHROMATIC)
+                return 12 * (self._octave + 1) + self.get_key_int()
+             
+            case float(): # WITH KEY SIGNATURE
+
+                # RESPECTS THE KEY SIGNATURE
+                return 12 * (self._octave + 1) + self.get_key_float()
+            
+            case ou.Semitone():
+                return ou.Semitone(self % float())
+            
             case ou.Octave():
                 final_pitch: int = int(self % float())
                 return ou.Octave( final_pitch // 12 - 1 )
@@ -315,16 +329,6 @@ class Pitch(Generic):
                     elif self._key_signature._unit < 0:
                         key_line = 1
                 return ou.Key._keys[key_note + key_line * 12]
-            
-            case int(): # WITHOUT KEY SIGNATURE
-                
-                # IGNORES THE KEY SIGNATURE (CHROMATIC)
-                return 12 * (self._octave + 1) + self.get_key_int()
-             
-            case float(): # WITH KEY SIGNATURE
-
-                # RESPECTS THE KEY SIGNATURE
-                return 12 * (self._octave + 1) + self.get_key_float()
             
             case _:
                 return super().__mod__(operand)
