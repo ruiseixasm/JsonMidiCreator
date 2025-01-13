@@ -191,7 +191,7 @@ def test_pitch_scales():
         print(minor_pitch % str())
         assert minor_pitch % str() == minor_scale_keys[key_degree - 1]
 
-test_pitch_scales()
+# test_pitch_scales()
 
 
 def test_pitch_add():
