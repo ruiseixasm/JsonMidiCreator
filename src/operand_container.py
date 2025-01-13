@@ -638,7 +638,7 @@ class Sequence(Container):  # Just a container of Elements
                         self += self._position - operand._position                      # NO IMPLICIT COPY
                         self._position = self._position.getPosition(operand._position)  # Avoids changing other attributes of self._position
                         
-                    # operand is already a copy, let's take advantage of that
+                    # operand is already a copy, let's take advantage of that, Using a generator (no square brackets)
                     self._datasource_list.extend(
                         od.DataSource(single_element) for single_element in operand_data_list
                     )
