@@ -526,14 +526,7 @@ class Pitch(Generic):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
-                # REVIEW TO DO A SUM OF "Pitch % int()" OF BOTH KEY NOTES
-                new_keynote = self.__class__()
-                self_int = self % int()
-                operand_int = operand % int()
-                sum_int = self_int + operand_int
-                new_keynote._key = sum_int % 12
-                new_keynote._octave = sum_int // 12 - 1 # rooted on -1 octave
-                return new_keynote
+                self += operand % float()
             case ou.Octave():
                 self._octave += operand._unit
             case float():
@@ -556,15 +549,8 @@ class Pitch(Generic):
     def __isub__(self, operand: any) -> 'Pitch':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Pitch(): # It may result in negative KeyNotes (unplayable)!
-                # REVIEW TO DO A SUM OF "Pitch % int()" OF BOTH KEY NOTES
-                new_keynote = self.__class__()
-                self_int = self % int()
-                operand_int = operand % int()
-                delta_int = self_int - operand_int
-                new_keynote._key = delta_int % 12
-                new_keynote._octave = delta_int // 12 - 1 # rooted on -1 octave
-                return new_keynote
+            case Pitch():
+                self -= operand % float()
             case ou.Octave():
                 self._octave -= operand._unit
             case float():
