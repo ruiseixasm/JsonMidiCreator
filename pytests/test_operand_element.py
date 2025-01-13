@@ -154,6 +154,31 @@ def test_note_mul():
 # test_note_mul()
 
 
+def test_note_scale():
+
+    major_note: Note = Note(Scale("Major"))
+
+    assert major_note % Pitch() % Key() == "C"
+    major_note << Degree(2)
+    assert major_note % Pitch() % Key() == "D"
+    major_note += Degree(1)
+    assert major_note % Pitch() % Key() == "E"
+    major_note += 1 # integers are considered degree by Note
+    assert major_note % Pitch() % Key() == "F"
+
+    minor_note: Note = Note(Scale("minor"))
+
+    assert minor_note % Pitch() % Key() == "A"
+    minor_note << Degree(2)
+    assert minor_note % Pitch() % Key() == "B"
+    minor_note += Degree(1)
+    assert minor_note % Pitch() % Key() == "C"
+    minor_note += 1 # integers are considered degree by Note
+    assert minor_note % Pitch() % Key() == "D"
+
+# test_note_scale()
+
+
 def test_keyscale_mod():
 
     # Perform the operation
