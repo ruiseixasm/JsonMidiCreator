@@ -737,29 +737,35 @@ class Controller(Generic):
                     self << single_operand
         return self
 
-    def __add__(self, operand) -> 'Controller':
+    def __add__(self, operand: any) -> 'Controller':
+        self_copy: Controller = self.copy()
+        return self_copy.__iadd__(operand)
+
+    def __iadd__(self, operand) -> 'Controller':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        value: int = self._value
         match operand:
             case o.Operand():
-                value += operand % int()
+                self._value += operand % int()
             case int():
-                value += operand
+                self._value += operand
             case float() | Fraction():
-                value += int(operand)
-        return self.copy() << value
+                self._value += int(operand)
+        return self
     
-    def __sub__(self, operand) -> 'Controller':
+    def __sub__(self, operand: any) -> 'Controller':
+        self_copy: Controller = self.copy()
+        return self_copy.__isub__(operand)
+
+    def __isub__(self, operand) -> 'Controller':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        value: int = self._value
         match operand:
             case o.Operand():
-                value -= operand % int()
+                self._value -= operand % int()
             case int():
-                value -= operand
+                self._value -= operand
             case float() | Fraction():
-                value -= int(operand)
-        return self.copy() << value
+                self._value -= int(operand)
+        return self
 
 
 class Scale(Generic):
