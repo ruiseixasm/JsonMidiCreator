@@ -796,7 +796,7 @@ class Cluster(Tiable):
                 match operand._data:
                     case list():            return self._pitches
                     case _:                 return super().__mod__(operand)
-            case list():            return self.deep_copy(self._pitches)
+            case list():            return self.get_chord_notes()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -855,8 +855,10 @@ class Cluster(Tiable):
                     case list():                self._pitches = operand._data
                     case _:                     super().__lshift__(operand)
             case list():
-                if len(operand) > 0 and all(isinstance(single_pitch, og.Pitch) for single_pitch in operand):
-                    self._pitches = self.deep_copy(operand)
+                if len(operand) > 0 and all(isinstance(single_note, Note) for single_note in operand):
+                    self._pitches = []
+                    for single_note in operand:
+                        self._pitches.append(single_note % og.Pitch())
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
                 | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
@@ -928,10 +930,11 @@ class KeyScale(Note):
             case od.DataSource():
                 match operand._data:
                     case og.Scale():        return self._scale
+                    case list():            return self._scale % list()
                     case _:                 return super().__mod__(operand)
             case og.Scale():        return self._scale.copy()
-            case list() | ou.Mode():
-                                    return self._scale % operand
+            case ou.Mode():         return self._scale % operand
+            case list():            return self.get_scale_notes()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1074,6 +1077,7 @@ class Chord(KeyScale):
             case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
             case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
             case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
+            case list():            return self.get_chord_notes()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1293,6 +1297,7 @@ class Retrigger(Note):
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration / 2 )
+            case list():            return get_retrigger_notes()
             case _:                 return super().__mod__(operand)
 
     def get_retrigger_notes(self) -> list[Note]:
@@ -1448,7 +1453,7 @@ class Tuplet(Element):
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
             case ra.Duration():     return operand << od.DataSource( self._duration / 2 )
-            case list():            return self.deep_copy(self._elements)
+            case list():            return get_tuplet_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
