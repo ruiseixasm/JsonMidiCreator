@@ -639,8 +639,9 @@ class Sequence(Container):  # Just a container of Elements
                         self._position = self._position.getPosition(operand._position)  # Avoids changing other attributes of self._position
                         
                     # operand is already a copy, let's take advantage of that
-                    for single_element in operand_data_list:
-                        self._datasource_list.append(od.DataSource( single_element ))
+                    self._datasource_list.extend(
+                        od.DataSource(single_element) for single_element in operand_data_list
+                    )
 
                     return self
                 return Song(self, operand)
