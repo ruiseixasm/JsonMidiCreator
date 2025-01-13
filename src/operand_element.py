@@ -2100,7 +2100,7 @@ class ProgramChange(Automation):
             case float():
                 self._program = int(operand)
             case str():
-                self._program = ou.Program(operand)._unit
+                self._program = ou.Program(self._program, operand)._unit
             case _:
                 super().__lshift__(operand)
         return self

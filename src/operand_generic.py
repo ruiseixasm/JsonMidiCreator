@@ -450,7 +450,7 @@ class Pitch(Generic):
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
                             ((operand._data).strip().lower().find("b") != -1) * -1
                         self._degree    = (self // ou.Degree() << ou.Degree(operand._data))._unit
-                        self._key       = ou.Key(operand._data)._unit
+                        self._key       = ou.Key(self._key, operand._data)._unit
                     case _:
                         super().__lshift__(operand)
 
@@ -711,7 +711,7 @@ class Controller(Generic):
             case ou.Number():
                 self._number = operand._unit
             case str():
-                self._number = ou.Number(operand)._unit
+                self._number = ou.Number(self._number, operand)._unit
             case ou.Value():
                 self._value = operand._unit
             case int():
