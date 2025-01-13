@@ -36,13 +36,13 @@ hi_hat *= 4     # 4 measures long
 # hi_hat * 2 >> Play()
 
 # Stackable being FALSE means all notes start at zero even after the "*" operation on Element
-kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 << Iterate(Beats(1))
+kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum")) * 4 << Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 << Iterate(Beats(1)) 
+clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap")) * 2 << Iterate(Beats(1)) 
 clap += Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
@@ -65,7 +65,9 @@ base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 # base_line << Disable()
 
-syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
+base_line += Step(1)
+base_line << 1/16
+syncopation_1: Seq = no_syncopation + base_line
 # syncopation_1 >> Play()
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
@@ -88,7 +90,8 @@ for _ in range(16*2//3 + 1):
     repeated_chords += chords
     Steps(3) >> chords
 # Make it shorter to fit in x4 composition
-repeated_chords = repeated_chords.sort() / 2
+repeated_chords.sort()
+repeated_chords /= 2
 # repeated_chords >> Play()
 
 # chords << Disable()
@@ -99,14 +102,15 @@ repeated_chords = repeated_chords.sort() / 2
 # time.sleep(0.5)
 # syncopation_1 * 4 >> Play()
 
-syncopation_2: Seq = syncopation_1 * 4 + repeated_chords # x4 because chords are 4x longer than the original syncopation
+syncopation_1_4: Seq = syncopation_1 * 4
+syncopation_2: Seq = syncopation_1_4 + repeated_chords # x4 because chords are 4x longer than the original syncopation
 # syncopation_2 >> Play()
 
 # Move forward 1/16 note (a step)
 syncopation_3: Seq = Sequence()
 for _ in range(2):
     repeated_chords += Step(1)
-    syncopation_3 = syncopation_1 * 4 + repeated_chords
+    syncopation_3 = syncopation_1_4 + repeated_chords
     # syncopation_3 >> Play()
 
 lead_notes: Seq = Note() * repeated_chords.len()

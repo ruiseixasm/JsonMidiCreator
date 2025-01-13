@@ -58,7 +58,9 @@ base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 # base_line << Disable()
 
-syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
+base_line += Step(1)
+base_line << 1/16
+syncopation_1: Seq = no_syncopation + base_line
 # syncopation_1 >> Play()
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
@@ -80,14 +82,10 @@ for step in range(16*2//3 + 1):
     repeated_chords += chords
     Steps(3) >> chords
 
-c.profiling_timer.call_timer_a()
-
 # Make it shorter to fit in x4 composition
 repeated_chords.sort()
 repeated_chords /= 2
 # repeated_chords >> Play()
-
-c.profiling_timer.call_timer_b()
 
 # chords << Disable()
 # chords >> Play()
@@ -97,16 +95,20 @@ c.profiling_timer.call_timer_b()
 # time.sleep(0.5)
 # syncopation_1 * 4 >> Play()
 
-syncopation_2: Seq = syncopation_1 * 4 # x4 because chords are 4x longer than the original syncopation
-syncopation_2 += repeated_chords
+syncopation_1_4: Seq = syncopation_1 * 4
+syncopation_2: Seq = syncopation_1_4 + repeated_chords # x4 because chords are 4x longer than the original syncopation
 # syncopation_2 >> Play()
+
+c.profiling_timer.call_timer_a()
 
 # Move forward 1/16 note (a step)
 syncopation_3: Seq = Sequence()
 for _ in range(2):
     repeated_chords += Step(1)
-    syncopation_3 = syncopation_1 * 4 + repeated_chords
+    syncopation_3 = syncopation_1_4 + repeated_chords
     # syncopation_3 >> Play()
+
+c.profiling_timer.call_timer_b()
 
 lead_notes: Seq = Note() * repeated_chords.len()
 lead_notes << Foreach(repeated_chords)
