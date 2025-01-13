@@ -189,9 +189,9 @@ def test_pitch_scales():
     for key_degree in range(1, 8):  # Excludes 8
         minor_pitch << Degree(key_degree)
         print(minor_pitch % str())
-        # assert minor_pitch % str() == minor_scale_keys[key_degree - 1]
+        assert minor_pitch % str() == minor_scale_keys[key_degree - 1]
 
-# test_pitch_scales()
+test_pitch_scales()
 
 
 def test_pitch_add():

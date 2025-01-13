@@ -148,7 +148,7 @@ class Pitch(Generic):
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
 
-        staff_white_keys        = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+        staff_white_keys: tuple = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)  # Major scale
         accidentals_int: int    = self._key_signature._unit
         key_sharp: int          = 0
         key_int: int            = self._key % 12
@@ -160,25 +160,28 @@ class Pitch(Generic):
 
         # strips existent accidentals
         if staff_white_keys[key_int] == 0: # Black key
-            if self._key % 24 < 12:   # sharps
+            if self._key % 24 < 12: # sharps
                 key_sharp = 1
                 key_int -= 1
-            else:                               # flats
+            else:                   # flats
                 key_sharp = -1
                 key_int += 1
 
-        key_scale = staff_white_keys  # Major scale
         if self._scale.hasScale():
-            key_scale = self._scale % list()  # Already modulated
+            key_scale: list[int] = self._scale % list() # Scale already modulated
+            root_key: int = 0
+        else:
+            key_scale: list[int] = staff_white_keys     # Major scale
+            root_key: int = key_int
 
         semitone_transpose: int = 0
         while degree_transpose > 0:
             semitone_transpose += 1
-            if key_scale[(key_int + semitone_transpose) % 12]:          # Scale key
+            if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
                 degree_transpose -= 1
         while degree_transpose < 0:
             semitone_transpose -= 1
-            if key_scale[(key_int + semitone_transpose) % 12]:          # Scale key
+            if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
                 degree_transpose += 1
 
         key_int += semitone_transpose
