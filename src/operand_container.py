@@ -87,10 +87,10 @@ class Container(o.Operand):
                     case ch.Chaos():
                         return self.shuffle(operand)
                     case list():
-                        operands: list = []
-                        for single_datasource in self._datasource_list:
-                            operands.append( single_datasource._data )
-                        return operands
+                        return [
+                            single_datasource._data
+                                for single_datasource in self._datasource_list
+                        ]
                     case _:
                         return super().__mod__(operand)
             case Container():
@@ -100,10 +100,10 @@ class Container(o.Operand):
             case ch.Chaos():
                 return self.copy().shuffle(operand)
             case list():
-                operands: list = []
-                for single_datasource in self._datasource_list:
-                    operands.append(self.deep_copy(single_datasource._data))
-                return operands
+                return [
+                    self.deep_copy(single_datasource._data)
+                        for single_datasource in self._datasource_list
+                ]
             case int():
                 if operand >= 0 and operand < self.len():
                     return self[operand]
@@ -188,9 +188,10 @@ class Container(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._datasource_list = []
-                for single_operand in operand:
-                    self._datasource_list.append(od.DataSource( self.deep_copy(single_operand) ))
+                self._datasource_list = [
+                    od.DataSource( self.deep_copy(single_operand) )
+                        for single_operand in operand
+                ]
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -497,11 +498,11 @@ class Sequence(Container):  # Just a container of Elements
         else:
             position = self._position
 
-        play_list: list[dict] = []
-        for single_element in self.get_sequence_elements():
-            play_list.extend(single_element.getPlaylist(position))
-
-        return play_list
+        return [
+            single_playlist
+                for single_element in self.get_sequence_elements()
+                for single_playlist in single_element.getPlaylist(position)
+        ]
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list[dict]:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
@@ -510,10 +511,11 @@ class Sequence(Container):  # Just a container of Elements
         else:
             position = self._position
 
-        midi_list: list[dict] = []
-        for single_element in self.get_sequence_elements():
-            midi_list.extend(single_element.getMidilist(midi_track, position))
-        return midi_list
+        return [
+            single_midilist
+                for single_element in self.get_sequence_elements()
+                for single_midilist in single_element.getMidilist(midi_track, position)
+        ]
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -561,16 +563,16 @@ class Sequence(Container):  # Just a container of Elements
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._datasource_list = []
-                for single_operand in operand:
-                    self._datasource_list.append(od.DataSource( self.deep_copy(single_operand) ))
+                self._datasource_list = [
+                    od.DataSource( self.deep_copy(single_operand) )
+                        for single_operand in operand
+                ]
             case tuple():
                 for single_operand in operand:
                     self << single_operand
             case _: # Works for Frame too
                 for single_datasource in self._datasource_list:
                     single_datasource._data << operand
-                
         return self
 
     def empty_copy(self, *parameters) -> 'Sequence':
