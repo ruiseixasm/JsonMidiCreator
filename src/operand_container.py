@@ -558,7 +558,7 @@ class Sequence(Container):  # Just a container of Elements
             case ou.MidiTrack():
                 self._midi_track << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+            case ra.Position() | ra.PositionData() | og.TimeSignature() | ra.TimeValue() | ou.TimeUnit():
                 self._position << operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
