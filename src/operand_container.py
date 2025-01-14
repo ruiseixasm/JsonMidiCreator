@@ -410,7 +410,7 @@ class Sequence(Container):  # Just a container of Elements
         return self._datasource_list[index]._data
 
     def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Sequence':
-        if staff_reference:
+        if isinstance(staff_reference, og.Staff):
             for single_element in self:
                 if isinstance(single_element, oe.Element):
                     single_element.staff_reference(staff_reference)
