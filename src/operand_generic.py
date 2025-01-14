@@ -1369,7 +1369,7 @@ class Staff(Generic):
             return self.getBeats(ra.Measures(self._measures))._rational / self._tempo * 60 * 1000
 
     
-    def getPlaylist(self, position: 'ra.Position' = None) -> list:
+    def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         import operand_element as oe
         if position:
             return [

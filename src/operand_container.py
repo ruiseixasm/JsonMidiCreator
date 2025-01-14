@@ -392,7 +392,7 @@ class Sequence(Container):  # Just a container of Elements
         super().__init__(*operands)
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._position: ra.Position     = ra.Position()
-        self._staff_reference: og.Staff = og.defaults // og.Staff()
+        self._staff: og.Staff = og.defaults % og.Staff()
 
         for single_operand in operands:
             match single_operand:
@@ -417,7 +417,7 @@ class Sequence(Container):  # Just a container of Elements
         else:
             for single_element in self:
                 if isinstance(single_element, oe.Element):
-                    single_element.staff_reference(self._staff_reference)
+                    single_element.staff_reference(self._staff)
         return self
 
     def __mod__(self, operand: any) -> any:
@@ -435,9 +435,11 @@ class Sequence(Container):  # Just a container of Elements
         match operand:
             case od.DataSource():
                 match operand._data:
+                    case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
                     case ra.Position():     return self._position
                     case _:                 return super().__mod__(operand)
+            case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
@@ -533,6 +535,7 @@ class Sequence(Container):  # Just a container of Elements
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
+        serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
         serialization["parameters"]["position"]     = self.serialize(self._position)
         return serialization
@@ -541,9 +544,10 @@ class Sequence(Container):  # Just a container of Elements
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "midi_track" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._staff         = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
             self._position      = self.deserialize(serialization["parameters"]["position"])
         return self
@@ -552,7 +556,7 @@ class Sequence(Container):  # Just a container of Elements
 
         match operand:
             case Sequence():
-
+                self._staff             << operand._staff
                 self._midi_track        << operand._midi_track
                 self._position          << operand._position
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -563,11 +567,14 @@ class Sequence(Container):  # Just a container of Elements
 
             case od.DataSource():
                 match operand._data:
+                    case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case ra.Position():     self._position = operand._data
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+            case og.Staff():
+                self._staff << operand
             case ou.MidiTrack():
                 self._midi_track << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
