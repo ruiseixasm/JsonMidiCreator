@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << Tempo(30)
+defaults << Tempo(30)
 sevenths = Chord(1/2) * 8
 sevenths << Foreach(
     (Size("7th"),   Degree("V7")),
@@ -38,7 +38,7 @@ sevenths << Foreach(
 ) >> Stack()
 sevenths >> Rest() >> Play()
 
-staff << Tempo(90)
+defaults << Tempo(90)
 single_notes = Note() * 6
 single_notes << Foreach(
     ("G"),
@@ -58,7 +58,7 @@ chords << Foreach(
 chords >> Rest() >> Play()
 single_notes + chords >> Link() >> Rest() >> Play()
 
-staff << Tempo(30)
+defaults << Tempo(30)
 fifths = Chord(1/2) * 8
 fifths << Foreach(
     (Degree("viiº")),
@@ -75,7 +75,7 @@ fifths << Foreach(
 ) >> Stack()
 fifths >> Rest() >> Play()
 
-staff << Tempo(90)
+defaults << Tempo(90)
 single_notes = Note() * 7
 single_notes << Foreach(
     ("C"),

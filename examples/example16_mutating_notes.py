@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << 150
+defaults << 150
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 final_mutation = Mutation() * 40 * 4.37

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("bbb")
+defaults << KeySignature("bbb")
 
 simple_phrase: Sequence = Note("B") * 3 + Nth(2)**1 >> Link()
 simple_phrase >> Rest() >> Play()
@@ -35,7 +35,7 @@ off_beat >> Rest() >> Play()
 speeding_up: Sequence = dotted_quarter.copy() - Nth(2, 3)**Position(1/4) >> Link()
 speeding_up >> Rest() >> Play()
 
-staff << KeySignature("#")
+defaults << KeySignature("#")
 
 original_phrase: Sequence = Note("B") * 5 + Foreach(2, -1, 0, 2, 1) >> Link()
 original_phrase >> Rest() >> Play()

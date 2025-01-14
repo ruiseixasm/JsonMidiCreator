@@ -33,17 +33,11 @@ from operand_mutation import *
 import platform
 current_os = platform.system()
 if current_os == "Windows":
-    staff << Device(["loopMIDI", "Microsoft"])   # Microsoft GS Wavetable Synth
+    defaults << Device(["loopMIDI", "Microsoft"])   # Microsoft GS Wavetable Synth
 elif current_os == "Darwin":  # macOS
-    staff << Device(["IAC Bus", "Apple"])        # Apple DLS Synthesizer
+    defaults << Device(["IAC Bus", "Apple"])        # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
-    staff << Device(["VMPK", "FLUID"])           # FLUID Synth
-
-
-length: ra.Length = ra.Length() \
-    << od.DataSource( staff % od.DataSource( og.TimeSignature() ) ) \
-    << od.DataSource( staff % od.DataSource( ra.Tempo() ) ) \
-    << od.DataSource( staff % od.DataSource( ra.Quantization() ) )
+    defaults << Device(["VMPK", "FLUID"])           # FLUID Synth
 
 
 # Set group of constants

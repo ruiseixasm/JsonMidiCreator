@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("bbb")
+defaults << KeySignature("bbb")
 
 slow_paced: Sequence = Note("E", 1/2) * 7 >> Link() << Foreach(6, 5, 1, 3, 6, 5, 2)**Degree()
 slow_paced >> Rest() >> Play()

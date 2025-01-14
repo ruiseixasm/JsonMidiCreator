@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature(-1)   # Same as 'b'
+defaults << KeySignature(-1)   # Same as 'b'
 arch_contour_1: Sequence = Note("A") * 6 << Foreach(1/4, 1/8, 1/8, 1/4, 1/8, 1/8) >> Stack()
 arch_contour_2: Sequence = Note("A") * 4 << Foreach(1/4, 1/8, 1/8, 1/2) >> Stack()
 
@@ -32,7 +32,7 @@ arch_contour: Sequence = \
     arch_contour_2.copy() + Foreach(2, 1, -1, 1)
 arch_contour >> Rest() >> Play()
 
-staff << KeySignature("#")
+defaults << KeySignature("#")
 inverted_arch_1: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, Dotted(1/4), 1/8) >> Stack() \
     << Foreach("C", "A", "B", "G") << Less(Pitch("D", 4))**Octave(5) << Greater(Pitch("D", 5))**Octave(4)
 inverted_arch_2: Sequence = inverted_arch_1 >> Copy() \
@@ -42,7 +42,7 @@ inverted_arch_3: Sequence = Note("G") * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4)
 inverted_arch_4: Sequence = Note("A", 1/1) * 1
 (inverted_arch_1, inverted_arch_2, inverted_arch_3, inverted_arch_4, Rest()) >> Play()
 
-staff << KeySignature()
+defaults << KeySignature()
 ascending_m: Sequence = Note() * 4
 ascending_1: Sequence = ((ascending_m | Nth(1, 2, 3)).copy() << Foreach("F", "G", "A")) >> Link()
 ascending_2: Sequence = ascending_m.copy() << Foreach("G", "A", "B", "G")
@@ -50,7 +50,7 @@ ascending_3: Sequence = ascending_m.copy() << Foreach("C", "B", "C", "D")
 ascending_4: Sequence = (ascending_m | Nth(1)).copy() << "E" << 1/1
 (ascending_1, ascending_2, ascending_3, ascending_4, Rest()) >> Smooth() >> Play()
 
-staff << KeySignature(-2)
+defaults << KeySignature(-2)
 descending_m: Sequence = Note(1/8) * 5 >> Link()
 descending_1: Sequence = descending_m >> Copy() << Octave(5) << Foreach("D", "C", "B", "A", "B")
 descending_2: Sequence = descending_1.copy() - 1
@@ -62,7 +62,7 @@ descending: Sequence = (descending_1, descending_2, descending_3, descending_4, 
 # for note_i in range(descending.len() - 1):
 #     descending.copy() - Nth(note_i + 1)**1 >> Play()
 
-staff << KeySignature(2)
+defaults << KeySignature(2)
 stationary_m: Sequence = Note() * 4 << Foreach(Dotted(1/4), 1/8, 1/4, 1/4) >> Stack()
 stationary_1: Sequence = stationary_m >> Copy() << Foreach("A", "G", "A", "B")
 stationary_2: Sequence = stationary_1.copy() - (stationary_1 | Even()) >> Link() << Foreach("A", "G")

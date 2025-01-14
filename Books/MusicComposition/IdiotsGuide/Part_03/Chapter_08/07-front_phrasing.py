@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("#")
+defaults << KeySignature("#")
 
 front_phrasing: Sequence = Note("B", Position(Beats(3))) * 5
 front_phrasing << Nth(4, 5)**Foreach(1/2, 1/1)**Duration() >> Stack()

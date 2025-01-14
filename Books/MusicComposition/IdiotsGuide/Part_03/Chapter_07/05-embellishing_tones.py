@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("#")
+defaults << KeySignature("#")
 Scale(staff % KeySignature() % list()) % str() >> Print(0)
 
 embellishing: Sequence = Note("B") * 10 << Nth(3, 4, 5, 7, 8, 9, 10)**Foreach(1/2, 1/2, 1/2, Dotted(1/8), 1/16, 1/2, 1/1) >> Stack()

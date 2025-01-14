@@ -81,7 +81,7 @@ def test_clock_div_floor():
     clock: Clock = Clock()
     assert clock // Duration() == 8
 
-# test_clock_div_floor()
+test_clock_div_floor()
 
 
 def test_note_mod():
@@ -90,7 +90,7 @@ def test_note_mod():
     note = Note("F")
     assert note % Key() % str() == "F"
 
-    staff << Tempo(110)
+    defaults << Tempo(110)
 
     playlist: list = [    
         {
@@ -131,7 +131,7 @@ def test_note_mod():
     assert first_note_playlist == playlist
 
     # Resets changed Tempo to the default value of 120 bpm
-    staff << Tempo(120)
+    defaults << Tempo(120)
 
     note.clear()
 
@@ -231,9 +231,9 @@ def test_chord_mod():
     assert three_notes[2] == "B"
 
 
-    staff << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
+    defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
     triad: Chord = Chord()
-    staff << KeySignature() # Resets the default Key Scale to Major C
+    defaults << KeySignature() # Resets the default Key Scale to Major C
 
     print("------")
     three_notes = triad.get_chord_notes()
@@ -244,7 +244,7 @@ def test_chord_mod():
     print(f"Key: {three_notes[2] % str()}")
     assert three_notes[2] == "B"
 
-test_chord_mod()
+# test_chord_mod()
 
 
 def test_retrigger_mod():
@@ -331,7 +331,7 @@ def test_milliseconds_duration():
 
 def test_clock_element():
 
-    clock_measure = Clock(length.getDuration(Measure(1)))
+    clock_measure = Clock(Measures(1))
     clock_playlist: list = clock_measure.getPlaylist()
     expected_messages: int = 1 * 4 * 24 + 1 # +1 for the Stop clock message
     total_messages: int = len(clock_playlist)
@@ -343,11 +343,11 @@ def test_clock_element():
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 120 * 60 * 1000, 3)
 
-    staff << Tempo(90)
+    defaults << Tempo(90)
     clock_default = Clock()
     position_tempo: Tempo = clock_default % DataSource( Position() ) % Tempo()
     position_tempo >> Print(0)
-    assert position_tempo == staff % Tempo()
+    assert position_tempo == defaults % Tempo()
     clock_specific = Clock(NoteValue(Measures(1)))
     clock_playlist = clock_specific.getPlaylist()
     total_messages = len(clock_playlist)
@@ -366,7 +366,7 @@ def test_clock_element():
     assert clock_start["time_ms"] == 0.0
     assert clock_stop["time_ms"] == round(1.0 * 4 / 90 * 60 * 1000, 3)
 
-    staff << Tempo(120)
+    defaults << Tempo(120)
 
 # test_clock_element()
 

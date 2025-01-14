@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << TimeSignature(3, 4) << KeySignature("#")
+defaults << TimeSignature(3, 4) << KeySignature("#")
 outline = Note("D") * 2 + Note("E") + Note("G") + Note("C") << Dotted(1/2) << Octave(5)
 outline += Note("B", Dotted(1/2)) * 3 - Increment()**0
 outline >> Stack()
@@ -46,7 +46,7 @@ full >> Play()
 
 # ((full | Measure(0)) >> Print()) % Duration() >> Print(0)
 
-staff << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
+defaults << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
 outline: Sequence = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
 outline *= 4
 outline + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4

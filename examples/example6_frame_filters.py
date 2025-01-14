@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Measures(7)
+defaults << Measures(7)
 
 (Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() >> Print() >> Play(True)
 (Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() >> Print() >> Play(True)

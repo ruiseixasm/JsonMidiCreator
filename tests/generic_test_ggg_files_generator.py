@@ -24,7 +24,7 @@ from JsonMidiCreator import *
 ####### TEST1 ############
 
 # Global Staff setting up
-staff << Tempo(110) << Measures(6)
+defaults << Tempo(110) << Measures(6)
 
 # Set the default single Clock for the entire Staff Duration
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
@@ -59,7 +59,7 @@ all_elements += (Length( Beats(2) ) >> first_note) + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")
 
 
-staff >> Save("json/testing/_Save_Staff_ggg.json")
+defaults % Staff() >> Save("json/testing/_Save_Staff_ggg.json")
 
 
 ############### TEST2 #######################
@@ -89,7 +89,7 @@ load_0 >> load_1 >> load_2 >> load_3 >> Save ("json/testing/_Save_2.2_sequence_n
 ############### TEST3 #######################
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(1)
+defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
@@ -101,7 +101,7 @@ triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") 
 triplets_two = (Note3("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> Save("json/testing/_Save_Play_p.9_first_note.json") >> Export("json/testing/_Export_Play_p.9_sequence.json")
 
-staff << Measures(2)
+defaults << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
@@ -114,7 +114,7 @@ triplets >> single_clock >> Save("json/testing/_Save_Play_p.10.1_first_note.json
 ############### TEST4 #######################
 
 # Global Staff setting up
-staff << Tempo(60)
+defaults << Tempo(60)
 
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
 controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
@@ -133,7 +133,7 @@ chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> 
 ############### TEST5 #######################
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 (Chord() * 7 << Size("7th")) << Iterate()**Add(1)**Degree() \
     >> Save("json/testing/_Save_Play_p.11_first_note.json") >> Export("json/testing/_Export_Play_p.11_sequence.json")
@@ -150,7 +150,7 @@ Chord("G") << Size("13th") << Scale("5th") << Duration(8) << Octave(3) \
 ############### TEST6 #######################
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 (Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
@@ -170,7 +170,7 @@ all_chords >> Save("json/testing/_Save_Play_p.15.3_first_note.json") >> Export("
 ############### TEST7 #######################
 
 # Global Staff setting up
-staff << Tempo(120)
+defaults << Tempo(120)
 
 (Chord() << NoteValue(1)) * 3 + Iterate()**Inversion() << Duration(1) \
     >> Save("json/testing/_Save_Play_p.16_first_note.json") >> Export("json/testing/_Export_Play_p.16_sequence.json")
@@ -186,7 +186,7 @@ staff << Tempo(120)
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 (Chord() << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
@@ -199,7 +199,7 @@ staff << Tempo(120) << Measures(7)
 
 
 # Global Staff setting up
-staff << Tempo(240) << Measures(7)
+defaults << Tempo(240) << Measures(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 

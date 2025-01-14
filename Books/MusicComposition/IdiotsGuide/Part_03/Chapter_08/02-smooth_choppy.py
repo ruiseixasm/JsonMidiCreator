@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("b")
+defaults << KeySignature("b")
 
 dotted_note = Dotted(1/2)
 note_value = Duration(Dotted(1/2))

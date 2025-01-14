@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << KeySignature(1, Minor())   # Sets the default Key Note configuration
+defaults << KeySignature(1, Minor())   # Sets the default Key Note configuration
 
 # Original Motif to work on its pitches
 motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()

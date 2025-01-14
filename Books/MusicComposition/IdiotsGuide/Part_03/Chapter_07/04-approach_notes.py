@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << KeySignature("b")
+defaults << KeySignature("b")
 
 approach: Sequence = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
 approach -= approach % Last()

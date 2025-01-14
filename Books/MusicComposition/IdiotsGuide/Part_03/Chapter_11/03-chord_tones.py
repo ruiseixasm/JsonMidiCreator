@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-staff << "#"
+defaults << "#"
 Key() % str() >> Print()
 
 single_notes = Note() * 12 << Nth(3, 4, 7, 10, 11, 12)**Foreach(dotted_quarter, eight, half, dotted_quarter, eight, whole) >> S

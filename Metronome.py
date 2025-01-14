@@ -22,8 +22,8 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << Tempo(120)     # Sets the metronome tempo
-staff << Measures(4)    # Sets the length in Measures
+defaults << Tempo(120)     # Sets the metronome tempo
+defaults << Measures(4)    # Sets the length in Measures
 
 measures_long: int = staff // Measures() // int()
 

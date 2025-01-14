@@ -30,7 +30,7 @@ results_list        = []
 ####### TEST1 ############
 
 # Global Staff setting up
-staff << Tempo(110) << Measures(6)
+defaults << Tempo(110) << Measures(6)
 
 # Set the default single Clock for the entire Staff Duration
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/testing/_Save_1.1_jsonMidiCreator.json")
@@ -117,7 +117,7 @@ results_list.append({
 })
 
 
-staff >> Save("json/testing/_Save_Staff_process.json")
+defaults % Staff() >> Save("json/testing/_Save_Staff_process.json")
 
 
 ############### TEST2 #######################
@@ -179,7 +179,7 @@ results_list.append({
 ############### TEST3 #######################
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(1)
+defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")
@@ -234,7 +234,7 @@ original_save       = Load("json/testing/_Save_Play_p.10_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10_sequence.json")
 start_time = time.time()
 
-staff << Measures(2)
+defaults << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
@@ -269,7 +269,7 @@ original_save       = Load("json/testing/_Save_Play_p.10.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10.2_sequence.json")
 start_time = time.time()
 # Global Staff setting up
-staff << Tempo(60)
+defaults << Tempo(60)
 
 chord = Chord() << Duration(2) << Gate(1) >> Save("json/testing/_Save_4.1_control_change.json")
 controller = ControlChange("Pan") * (2*16 + 1) << Iterate()**Steps()
@@ -304,7 +304,7 @@ results_list.append({
 ############### TEST5 #######################
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 original_save       = Load("json/testing/_Save_Play_p.11_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.11_sequence.json")
@@ -359,7 +359,7 @@ results_list.append({
 ############### TEST6 #######################
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 original_save       = Load("json/testing/_Save_Play_p.14_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.14_sequence.json")
@@ -418,7 +418,7 @@ results_list.append({
 ############### TEST7 #######################
 
 # Global Staff setting up
-staff << Tempo(120)
+defaults << Tempo(120)
 
 original_save       = Load("json/testing/_Save_Play_p.16_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.16_sequence.json")
@@ -461,7 +461,7 @@ results_list.append({
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 original_save       = Load("json/testing/_Save_Play_p.19_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.19_sequence.json")
@@ -495,7 +495,7 @@ original_save       = Load("json/testing/_Save_Play_p.21_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.21_sequence.json")
 start_time = time.time()
 # Global Staff setting up
-staff << Tempo(240) << Measures(7)
+defaults << Tempo(240) << Measures(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 

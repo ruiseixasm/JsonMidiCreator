@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << KeySignature(-1)   # Sets the default Key Note configuration
+defaults << KeySignature(-1)   # Sets the default Key Note configuration
 
 
 four_eights: Sequence = Note(eight) * 4 + 3 # Increases 3 degrees from I to IV, from F to Bb

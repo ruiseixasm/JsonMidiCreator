@@ -23,20 +23,20 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 sequence = Note("C", NoteValue(0), NoteValue(4), Velocity(85), Gate(1)) * 8 + Iterate()**0
 sequence >> Play(True)
 
 # Global Staff setting up
-staff << KeySignature(1)
+defaults << KeySignature(1)
 sequence >> Play(True)
-staff << KeySignature(6)
+defaults << KeySignature(6)
 sequence >> Play()
-staff << KeySignature(7)
+defaults << KeySignature(7)
 sequence >> Play()
 
-staff << KeySignature()
+defaults << KeySignature()
 sequence += 1
 sequence >> Play()

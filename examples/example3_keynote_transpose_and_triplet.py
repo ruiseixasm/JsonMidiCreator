@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(1)
+defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()
@@ -35,7 +35,7 @@ triplets_one + single_clock >> Save("json/_Save_3.1_triple_note3.json") >> Play(
 triplets_two = (Note3("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/_Export_3.1_triple_note3.json") >> Play(False)
 
-staff << Measures(2)
+defaults << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8

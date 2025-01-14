@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-staff << "##"
+defaults << "##"
 Key() % str() >> Print()
 single_notes = Note() * 14 << Foreach(quarter, eight, eight, quarter, quarter, dotted_quarter, sixteenth, half,
                                  quarter, eight, eight, quarter, quarter, whole)
@@ -30,7 +30,7 @@ single_notes << Foreach("I", "ii", "I", "viiº", "V", "vi", "viiº", "vi", "IV",
 single_notes >> R >> P
 chords = Chord(1/1) * 4
 chords << Foreach("I", "vi", "IV", "V7")
-staff << 60.0
+defaults << 60.0
 chords >> R >> P
-staff << 100.0
+defaults << 100.0
 single_notes + chords >> L >> R >> P

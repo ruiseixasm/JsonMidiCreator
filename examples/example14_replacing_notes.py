@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << 160
+defaults << 160
 
 replacing_notes = \
     (Note() * 3 << Foreach(1/2, 1/4, 1/4)**NoteValue() << Foreach(1, 5, 7)**Degree() << Foreach(None, None, Flat())) + \

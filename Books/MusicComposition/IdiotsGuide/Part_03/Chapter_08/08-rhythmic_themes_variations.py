@@ -21,13 +21,13 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-staff << TimeSignature(2, 4) << KeySignature(-3)   # Same as 'bbb'
+defaults << TimeSignature(2, 4) << KeySignature(-3)   # Same as 'bbb'
 
 rhythmic_motif: Sequence = Note("G", 1/8, Position(Duration(1/8))) * 4 >> Link()
 rhythmic_motif - Equal(Measures(1))**2
 rhythmic_motif >> Rest() >> Play()
 
-staff << TimeSignature(4, 4) << KeySignature(-2)   # Same as 'bb'
+defaults << TimeSignature(4, 4) << KeySignature(-2)   # Same as 'bb'
 
 rhythmic_motif_1: Sequence = Note("B") * 4 << Foreach(1/8, 1/4, 1/8, 1/2)**Duration() >> Stack()
 rhythmic_motif_2: Sequence = Note("A") * 6 << Foreach(1/8, 1/4, 1/8, 1/8, 1/4, 1/8)**Duration() >> Stack()

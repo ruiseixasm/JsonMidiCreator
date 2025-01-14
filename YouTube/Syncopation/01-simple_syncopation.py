@@ -22,7 +22,7 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << KeySignature(-1)   # Sets the default Key Signature configuration
+defaults << KeySignature(-1)   # Sets the default Key Signature configuration
 
 # Note() >> Play()    # tests playing
 

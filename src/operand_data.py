@@ -505,7 +505,7 @@ class RightShift(SideEffects):
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
         import operand_generic as og
-        super().__init__( og.staff._device.copy() if device_list is None else device_list )
+        super().__init__( device_list if isinstance(device_list, list) else [] )
 
 class DataMany(Data):
     def __init__(self, *parameters):    # Allows multiple parameters

@@ -33,7 +33,7 @@ tension + Foreach(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
 tension >> Play()
 
 
-staff << KeySignature("#")
+defaults << KeySignature("#")
 center = Note("B", 5) * 11 << Foreach(1/2, None, None, 1/2, None, None, None, None, None, None, 1/1) >> Stack()
 
 (center | Measures(0)) + Foreach(0, -2, -1)
@@ -42,7 +42,7 @@ center = Note("B", 5) * 11 << Foreach(1/2, None, None, 1/2, None, None, None, No
 center >> Play()
 
 
-staff << KeySignature("b") << Tempo(90)
+defaults << KeySignature("b") << Tempo(90)
 repeat_1 = Note("B", 5) * 5 + Foreach(-1, 0, -1, -2, -1) << Foreach(1/8, 1/8)
 repeat_2 = Note("B", 5) * 4 + Foreach(-1, 0, -1, -2) << Foreach(1/8, 1/8, 1/4, 1/2)
 repeat_3 = Note("B", 5) * 5 + Foreach(-1, 0, -1, -2, -3) << Foreach(1/8, 1/8)
@@ -64,10 +64,10 @@ form_3 + Foreach(-2, 5, 4, 3, 2, 1, -1, 0, 1, 2)
 form_4 = Note("B", 5, Gate(1)) * 8 << Nth(6, 7)**Duration(1/2) << Nth(1, 8)**(Duration(1)) << Nth(8)**(Gate(0.9))
 form_4 + Foreach(3, 2, 1, -2, -1, 0, -3, -2)
 
-staff << KeySignature("#") << Tempo(125)
+defaults << KeySignature("#") << Tempo(125)
 form_1 >> form_2 >> form_3 >> form_4 >> Play()
 
 
 out_range = Note("F", 1/2) + Note("A") + Note("B") + (Note("C") + Note("F") + Note("G") + Note("A") + Note("B", 1/2) + Note("F", 1/2) + Note("G", 1/1) << 5)
-staff << KeySignature("bb")
+defaults << KeySignature("bb")
 out_range >> Stack() >> Play()

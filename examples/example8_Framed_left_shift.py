@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-staff << Tempo(120) << Measures(7)
+defaults << Tempo(120) << Measures(7)
 
 (Chord() << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) >> Play(True) << Even()**Velocity(50) >> Play(True)
 

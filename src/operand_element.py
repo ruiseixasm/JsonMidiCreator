@@ -39,10 +39,10 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ra.Position         = ra.Position()
-        self._duration: Fraction            = og.staff._duration
+        self._duration: Fraction            = og.defaults._duration
         self._stackable: bool               = True
-        self._channel: int                  = og.staff._channel
-        self._device: list[str]             = og.staff._device.copy()
+        self._channel: int                  = og.defaults._channel
+        self._device: list[str]             = og.defaults._device.copy()
         self._enabled: bool                 = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -402,7 +402,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration = self._position.getDuration(og.staff // ra.Measures())._rational
+        self._duration = self._position.getDuration(og.defaults._staff._measures)._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -427,8 +427,12 @@ class Clock(Element):
             case od.DataSource():
                 match operand._data:
                     case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
+                    case ra.Measures() | ou.Measure():
+                                            return operand << self._duration
                     case _:                 return super().__mod__(operand)
             case ou.PPQN():         return ou.PPQN() << od.DataSource( self._pulses_per_quarternote )
+            case ra.Measures() | ou.Measure():
+                                    return operand.copy() << self._duration
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -511,8 +515,12 @@ class Clock(Element):
             case od.DataSource():
                 match operand._data:
                     case ou.PPQN():         self._pulses_per_quarternote = operand._data._unit
+                    case ra.Measures() | ou.Measure():
+                                            self._duration = self._position.getDuration(operand._data)._rational
                     case _:                 super().__lshift__(operand)
             case ou.PPQN():         self._pulses_per_quarternote = operand._unit
+            case ra.Measures() | ou.Measure():
+                                    self._duration = self._position.getDuration(operand)._rational
             case _: super().__lshift__(operand)
         return self
 
@@ -551,7 +559,7 @@ class Rest(Element):
 
 class Tiable(Element):
     def __init__(self, *parameters):
-        self._velocity: int         = og.staff._velocity
+        self._velocity: int         = og.defaults._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         super().__init__(*parameters)
@@ -899,7 +907,7 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._position.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale  = og.Scale( og.staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
+        self._scale: og.Scale  = og.Scale( og.defaults._staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1121,7 +1129,7 @@ class Chord(KeyScale):
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
-            # modulated_scale: og.Scale = og.staff % og.Scale(self._mode) # already modulated
+            # modulated_scale: og.Scale = og.defaults % og.Scale(self._mode) # already modulated
             for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
@@ -1565,7 +1573,7 @@ class Automation(Element):
 
 class ControlChange(Automation):
     def __init__(self, *parameters):
-        self._controller: og.Controller = og.staff % og.Controller()
+        self._controller: og.Controller = og.defaults % og.Controller()
         super().__init__(*parameters)
 
     def controller(self: 'ControlChange', number: Optional[int] = None, value: Optional[int] = None) -> 'ControlChange':

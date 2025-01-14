@@ -22,8 +22,8 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 rest_play = (R, P)
-staff << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
-staff << Tempo(115)     # Same tempo than the video tutorial
+defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
+defaults << Tempo(115)     # Same tempo than the video tutorial
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 

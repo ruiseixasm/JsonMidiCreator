@@ -448,9 +448,9 @@ class Quantization(PositionData):
 class Position(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
-        self._tempo: Fraction                   = og.staff._tempo
-        self._time_signature: og.TimeSignature  = og.staff._time_signature.copy()
-        self._quantization: Fraction            = og.staff._quantization
+        self._tempo: Fraction                   = og.defaults._staff._tempo
+        self._time_signature: og.TimeSignature  = og.defaults._staff._time_signature.copy()
+        self._quantization: Fraction            = og.defaults._staff._quantization
         super().__init__(*parameters)
 
     def position(self: 'Position', beats: float = None) -> 'Position':
@@ -561,6 +561,8 @@ class Position(Rational):
                 return self.getMeasures(Beats(time._unit))
             case ou.Step():
                 return self.getMeasures(Steps(time._unit))
+            case float() | int() | Fraction():
+                return self.getMeasures(Measures(time))
         return Measures(measures)
 
     def getBeats(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Beats':
@@ -594,6 +596,8 @@ class Position(Rational):
                 return self.getBeats(Beats(time._unit))
             case ou.Step():
                 return self.getBeats(Steps(time._unit))
+            case float() | int() | Fraction():
+                return self.getBeats(Measures(time))
         return Beats(beats)
 
     def getSteps(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Steps':
@@ -623,6 +627,8 @@ class Position(Rational):
                 return self.getSteps(Beats(time._unit))
             case ou.Step():
                 return self.getSteps(Steps(time._unit))
+            case float() | int() | Fraction():
+                return self.getSteps(Measures(time))
         return Steps(steps)
 
     def getDuration(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Duration':
@@ -650,6 +656,8 @@ class Position(Rational):
                 return self.getDuration(Beats(time._unit))
             case ou.Step():
                 return self.getDuration(Steps(time._unit))
+            case float() | int() | Fraction():
+                return self.getDuration(Measures(time))
         return Duration(note_value)
 
 
@@ -659,6 +667,8 @@ class Position(Rational):
                 return ou.Measure( self.roundMeasures().getMeasures() // int() )
             case Position() | TimeValue()  | Duration()| ou.TimeUnit():
                 return ou.Measure( self.roundMeasures(time).getMeasures() // int() )
+            case float() | int() | Fraction():
+                return self.getMeasure(Measures(time))
         return ou.Measure()
 
     def getBeat(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'ou.Beat':
@@ -669,6 +679,8 @@ class Position(Rational):
                 beats = self.roundBeats().getBeats() // int() % beats_per_measure
             case Position() | TimeValue() | Duration() | ou.TimeUnit():
                 beats = self.roundBeats(time).getBeats() // int() % beats_per_measure
+            case float() | int() | Fraction():
+                return self.getBeat(Measures(time))
         return ou.Beat(beats)
 
     def getStep(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'ou.Step':
@@ -683,6 +695,8 @@ class Position(Rational):
                 steps = self.roundSteps().getSteps() // int() % steps_per_measure
             case Position() | TimeValue() | Duration() | ou.TimeUnit():
                 steps = self.roundSteps(time).getSteps() // int() % steps_per_measure
+            case float() | int() | Fraction():
+                return self.getStep(Measures(time))
         return ou.Step(steps)
 
     # Position round type: [...)
@@ -693,6 +707,8 @@ class Position(Rational):
                 measures = self.getMeasures() // Fraction()
             case Position() | TimeValue() | Duration() | ou.TimeUnit():
                 measures = self.getMeasures(time) // Fraction()
+            case float() | int() | Fraction():
+                return self.roundMeasures(Measures(time))
         measures = Fraction( int(measures) )    # Position round type: [...)
         return self.getPosition( Measures(measures) )
 
@@ -704,6 +720,8 @@ class Position(Rational):
                 beats = self.getBeats() // Fraction()
             case Position() | TimeValue() | Duration() | ou.TimeUnit():
                 beats = self.getBeats(time) // Fraction()
+            case float() | int() | Fraction():
+                return self.roundBeats(Measures(time))
         beats = Fraction( int(beats) )  # Position round type: [...)
         return self.getPosition( Beats(beats) )
     
@@ -715,6 +733,8 @@ class Position(Rational):
                 steps = self.getSteps() // Fraction()
             case Position() | TimeValue() | Duration() | ou.TimeUnit():
                 steps = self.getSteps(time) // Fraction()
+            case float() | int() | Fraction():
+                return self.roundSteps(Measures(time))
         steps = Fraction( int(steps) )  # Position round type: [...)
         return self.getPosition( Steps(steps) )
 
