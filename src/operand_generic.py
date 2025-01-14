@@ -1259,3 +1259,116 @@ class Staff(Generic):
 staff: Staff = Staff()
 
 
+class Defaults(Generic):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._duration: Fraction                    = Fraction(1/4)
+        self._octave: int                           = 4
+        self._velocity: int                         = 100
+        self._controller: Controller                = Controller("Pan") << ou.Value( ou.Number.getDefault("Pan") )
+        self._channel: int                          = 1
+        self._device: list                          = list(["Microsoft", "FLUID", "Apple"])
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def __mod__(self, operand: any) -> any:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case of.Frame():            return self % od.DataSource( operand._data )
+                    case ra.Duration():         return operand << self._duration
+                    case ou.Octave():           return ou.Octave(self._octave)
+                    case ou.Velocity():         return ou.Velocity(self._velocity)
+                    case Controller():          return self._controller
+                    case ou.Channel():          return ou.Channel(self._channel)
+                    case od.Device():           return od.Device(self._device)
+                    case _:                     return super().__mod__(operand)
+            case of.Frame():            return self % (operand._data)
+            case ra.Duration():         return operand.copy() << self._duration
+            case ou.Octave():           return ou.Octave(self._octave)
+            case ou.Velocity():         return ou.Velocity(self._velocity)
+            case Controller():       return self._controller.copy()
+            case ou.Number():           return self._controller % ou.Number()
+            case ou.Value():            return self._controller % ou.Value()
+            case ou.Channel():          return ou.Channel(self._channel)
+            case od.Device():           return od.Device(self._device)
+            case _:                     return super().__mod__(operand)
+
+    def __eq__(self, other: 'Defaults') -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if type(self) != type(other):
+            return False
+        return  self._duration          == other._duration \
+            and self._octave            == other._octave \
+            and self._velocity          == other._velocity \
+            and self._controller        == other._controller \
+            and self._channel           == other._channel \
+            and self._device            == other._device
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["duration"]         = self.serialize( self._duration )
+        serialization["parameters"]["octave"]           = self.serialize( self._octave )
+        serialization["parameters"]["velocity"]         = self.serialize( self._velocity )
+        serialization["parameters"]["controller"]       = self.serialize( self._controller )
+        serialization["parameters"]["channel"]          = self.serialize( self._channel )
+        serialization["parameters"]["device"]           = self.serialize( self._device )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> 'Defaults':
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "duration" in serialization["parameters"] and
+            "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._duration          = self.deserialize( serialization["parameters"]["duration"] )
+            self._octave            = self.deserialize( serialization["parameters"]["octave"] )
+            self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
+            self._controller        = self.deserialize( serialization["parameters"]["controller"] )
+            self._channel           = self.deserialize( serialization["parameters"]["channel"] )
+            self._device            = self.deserialize( serialization["parameters"]["device"] )
+        return self
+    
+    def __lshift__(self, operand: o.Operand) -> 'Defaults':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Defaults():
+                super().__lshift__(operand)
+                self._duration          = operand._duration
+                self._octave            = operand._octave
+                self._velocity          = operand._velocity
+                self._controller        << operand._controller
+                self._channel           = operand._channel
+                self._device            = operand._device.copy()
+            case od.DataSource():
+                match operand._data:
+                    case ra.Duration():         self._duration = operand._data._rational
+                    case ou.Octave():           self._octave = operand._data._unit
+                    case ou.Velocity():         self._velocity = operand._data._unit
+                    case Controller():       self._controller = operand._data
+                    case ou.Channel():          self._channel = operand._data._unit
+                    case od.Device():           self._device = operand._data._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ra.Duration():         self._duration = operand._rational
+            case ou.Octave():           self._octave = operand._unit
+            case ou.Velocity():         self._velocity = operand._unit
+            case Controller() | ou.Number() | ou.Value():
+                                        self._controller << operand
+            case ou.Channel():          self._channel = operand._unit
+            case od.Device():           self._device = operand._data.copy()
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+
+# Instantiate the Global Defaults here.
+defaults: Defaults = Defaults()
+
+
