@@ -1262,6 +1262,9 @@ staff: Staff = Staff()
 class Defaults(Generic):
     def __init__(self, *parameters):
         super().__init__()
+        self._staff: Staff                          = Staff(
+            ra.Tempo(120), TimeSignature(4, 4), ra.Quantization(1/16), ra.Measures(8)
+        )
         self._duration: Fraction                    = Fraction(1/4)
         self._octave: int                           = 4
         self._velocity: int                         = 100
@@ -1276,6 +1279,7 @@ class Defaults(Generic):
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
+                    case Staff():               return self._staff
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1284,10 +1288,13 @@ class Defaults(Generic):
                     case od.Device():           return od.Device(self._device)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand._data)
+            case Staff():               return self._staff.copy()
+            case ra.StepsPerMeasure() | ra.StepsPerNote() | int() | float() | Fraction() | str():
+                                        return self._staff % operand
             case ra.Duration():         return operand.copy() << self._duration
             case ou.Octave():           return ou.Octave(self._octave)
             case ou.Velocity():         return ou.Velocity(self._velocity)
-            case Controller():       return self._controller.copy()
+            case Controller():          return self._controller.copy()
             case ou.Number():           return self._controller % ou.Number()
             case ou.Value():            return self._controller % ou.Value()
             case ou.Channel():          return ou.Channel(self._channel)
@@ -1300,7 +1307,8 @@ class Defaults(Generic):
             return True
         if type(self) != type(other):
             return False
-        return  self._duration          == other._duration \
+        return  self._staff             == other._staff \
+            and self._duration          == other._duration \
             and self._octave            == other._octave \
             and self._velocity          == other._velocity \
             and self._controller        == other._controller \
@@ -1309,6 +1317,7 @@ class Defaults(Generic):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["staff"]            = self.serialize( self._staff )
         serialization["parameters"]["duration"]         = self.serialize( self._duration )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
         serialization["parameters"]["velocity"]         = self.serialize( self._velocity )
@@ -1321,11 +1330,12 @@ class Defaults(Generic):
 
     def loadSerialization(self, serialization: dict) -> 'Defaults':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "duration" in serialization["parameters"] and
+            "staff" in serialization["parameters"] and "duration" in serialization["parameters"] and
             "octave" in serialization["parameters"] and "velocity" in serialization["parameters"] and "controller" in serialization["parameters"] and
             "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._staff          = self.deserialize( serialization["parameters"]["staff"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
             self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
@@ -1339,6 +1349,7 @@ class Defaults(Generic):
         match operand:
             case Defaults():
                 super().__lshift__(operand)
+                self._staff             << operand._staff
                 self._duration          = operand._duration
                 self._octave            = operand._octave
                 self._velocity          = operand._velocity
@@ -1347,14 +1358,17 @@ class Defaults(Generic):
                 self._device            = operand._device.copy()
             case od.DataSource():
                 match operand._data:
+                    case Staff():               self._staff = operand._data
                     case ra.Duration():         self._duration = operand._data._rational
                     case ou.Octave():           self._octave = operand._data._unit
                     case ou.Velocity():         self._velocity = operand._data._unit
-                    case Controller():       self._controller = operand._data
+                    case Controller():          self._controller = operand._data
                     case ou.Channel():          self._channel = operand._data._unit
                     case od.Device():           self._device = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case Staff() | ra.StepsPerMeasure() | ra.StepsPerNote() | int() | float() | Fraction() | str():
+                                        self._staff << operand
             case ra.Duration():         self._duration = operand._rational
             case ou.Octave():           self._octave = operand._unit
             case ou.Velocity():         self._velocity = operand._unit
