@@ -323,11 +323,17 @@ def test_sequence_filter():
 
 def test_sequence_fitting():
 
-    six_notes: Note = Note() * 6
+    six_notes: Sequence = Note() * 6
     assert six_notes % Length() == Beats(6)
 
     six_notes.fit(Measures(2))
     assert six_notes % Length() == Beats(8)
+
+    six_notes << Tempo(60)  # 60 half of 120, half of 8 beats
+    assert six_notes % Length() == Beats(4)
+    six_notes.fit(Measures(2))  # Concerning the Sequence Position as reference
+    assert six_notes % Length() == Beats(8)
+
 
 # test_sequence_fitting()
 
