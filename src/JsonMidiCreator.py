@@ -17,7 +17,6 @@ from fractions import Fraction
 import time
 # Json Midi Creator Libraries
 from operand import *
-from operand_staff import *
 from operand_unit import *
 from operand_rational import *
 from operand_data import *
@@ -39,6 +38,13 @@ elif current_os == "Darwin":  # macOS
     staff << Device(["IAC Bus", "Apple"])        # Apple DLS Synthesizer
 else:  # Assume Linux/Unix
     staff << Device(["VMPK", "FLUID"])           # FLUID Synth
+
+
+length: ra.Length = ra.Length() \
+    << od.DataSource( staff % od.DataSource( og.TimeSignature() ) ) \
+    << od.DataSource( staff % od.DataSource( ra.Tempo() ) ) \
+    << od.DataSource( staff % od.DataSource( ra.Quantization() ) )
+
 
 # Set group of constants
 

@@ -21,7 +21,6 @@ import enum
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
-import operand_staff as os
 import operand_unit as ou
 import operand_rational as ra
 import operand_data as od
@@ -40,10 +39,10 @@ class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._position: ra.Position         = ra.Position()
-        self._duration: Fraction            = os.staff._duration
+        self._duration: Fraction            = og.staff._duration
         self._stackable: bool               = True
-        self._channel: int                  = os.staff._channel
-        self._device: list[str]             = os.staff._device.copy()
+        self._channel: int                  = og.staff._channel
+        self._device: list[str]             = og.staff._device.copy()
         self._enabled: bool                 = True
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -403,7 +402,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration = self._position.getDuration(os.staff // ra.Measures())._rational
+        self._duration = self._position.getDuration(og.staff // ra.Measures())._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -552,7 +551,7 @@ class Rest(Element):
 
 class Tiable(Element):
     def __init__(self, *parameters):
-        self._velocity: int         = os.staff._velocity
+        self._velocity: int         = og.staff._velocity
         self._gate: Fraction        = Fraction(1)
         self._tied: bool            = False
         super().__init__(*parameters)
@@ -900,7 +899,7 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._position.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale  = og.Scale( os.staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
+        self._scale: og.Scale  = og.Scale( og.staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1122,7 +1121,7 @@ class Chord(KeyScale):
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
-            # modulated_scale: og.Scale = os.staff % og.Scale(self._mode) # already modulated
+            # modulated_scale: og.Scale = og.staff % og.Scale(self._mode) # already modulated
             for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
@@ -1566,7 +1565,7 @@ class Automation(Element):
 
 class ControlChange(Automation):
     def __init__(self, *parameters):
-        self._controller: og.Controller = os.staff % og.Controller()
+        self._controller: og.Controller = og.staff % og.Controller()
         super().__init__(*parameters)
 
     def controller(self: 'ControlChange', number: Optional[int] = None, value: Optional[int] = None) -> 'ControlChange':

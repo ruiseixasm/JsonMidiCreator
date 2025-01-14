@@ -40,6 +40,18 @@ import sys
 #     test_track_2 = Track("Test")
 #     assert test_track_1 == test_track_2
 
+def test_staff_mod():
+
+    # Perform the operation
+    staff_1 = Staff()
+    staff_2 = staff_1.copy()
+    
+    assert staff_1 == staff_2
+    assert staff_1 % Tempo() % float() == 120.0
+    assert staff_1 % BeatsPerMeasure() % float() == 4.0
+    staff_1 << 110
+    assert staff_1 != staff_2
+
 def test_key_offset():
 
     pitch: Pitch = Pitch()  # Pitch 60, Key 0

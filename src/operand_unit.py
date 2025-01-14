@@ -21,7 +21,6 @@ import re
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
-import operand_staff as os
 import operand_data as od
 
 import operand_frame as of
