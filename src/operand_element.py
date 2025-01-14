@@ -44,8 +44,19 @@ class Element(o.Operand):
         self._channel: int                  = og.defaults._channel
         self._device: list[str]             = og.defaults._device.copy()
         self._enabled: bool                 = True
+
+        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
+
+    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Element':
+        if isinstance(staff_reference, og.Staff):
+            self._staff_reference = staff_reference
+        else:
+            self._staff_reference = og.defaults // og.Staff()
+        return self
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
         self._position = ra.Position(position)
@@ -657,6 +668,12 @@ class Note(Tiable):
         self._pitch: og.Pitch       = og.Pitch()
         super().__init__(*parameters)
 
+
+    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super().staff_reference(staff_reference)
+        self._pitch._staff_reference = self._staff_reference
+        return self
+
     def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
         self._pitch = og.Pitch(key, octave)
         return self
@@ -796,6 +813,13 @@ class Cluster(Tiable):
     def __init__(self, *parameters):
         self._pitches: list[og.Pitch] = [og.Pitch(1), og.Pitch(3), og.Pitch(5)]
         super().__init__( *parameters )
+
+
+    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super().staff_reference(staff_reference)
+        for single_pitch in self._pitches:
+            single_pitch._staff_reference = self._staff_reference
+        return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1904,6 +1928,12 @@ class PolyAftertouch(Aftertouch):
     def __init__(self, *parameters):
         self._pitch: og.Pitch  = og.Pitch()
         super().__init__(*parameters)
+
+
+    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super().staff_reference(staff_reference)
+        self._pitch._staff_reference = self._staff_reference
+        return self
 
     def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = ou.Key("C"), octave: Optional[int] = ou.Octave(4)) -> 'PolyAftertouch':
         self._pitch = og.Pitch(key, octave)

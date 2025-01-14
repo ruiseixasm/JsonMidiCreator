@@ -125,7 +125,18 @@ class Pitch(Generic):
         self._sharp: int                        = 0     # By default no Sharp or Flat
         self._natural: bool                     = False
         self._scale: Scale                      = Scale([])
+
+        self._staff_reference: Staff            = defaults // Staff()
+
         super().__init__(*parameters)
+
+
+    def staff_reference(self, staff_reference: 'Staff' = None) -> 'Pitch':
+        if isinstance(staff_reference, Staff):
+            self._staff_reference = staff_reference
+        else:
+            self._staff_reference = defaults // Staff()
+        return self
 
     def key_signature(self, sharps_flats: int = 0, major: bool = True) -> 'Pitch':
         return self << ou.KeySignature(sharps_flats, ou.Major(major))
@@ -1216,6 +1227,10 @@ class Defaults(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case Staff():               return self._staff
+                    case ra.Tempo() | ou.KeySignature() | TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
+                        | ra.Quantization() | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                        | int() | float() | Fraction() | str():
+                                                return self._staff // operand._data
                     case ra.Duration():         return operand << self._duration
                     case ou.Octave():           return ou.Octave(self._octave)
                     case ou.Velocity():         return ou.Velocity(self._velocity)
@@ -1273,7 +1288,7 @@ class Defaults(Generic):
             "channel" in serialization["parameters"] and "device" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff          = self.deserialize( serialization["parameters"]["staff"] )
+            self._staff             = self.deserialize( serialization["parameters"]["staff"] )
             self._duration          = self.deserialize( serialization["parameters"]["duration"] )
             self._octave            = self.deserialize( serialization["parameters"]["octave"] )
             self._velocity          = self.deserialize( serialization["parameters"]["velocity"] )
