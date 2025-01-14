@@ -1138,14 +1138,19 @@ class Staff(Generic):
 
     def getPosition(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Position':
         if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
-            return self.copy( self.getBeats(time) )
-        return self.copy()
+            return ra.Position( self.getBeats(time) )
+        return ra.Position()
+
+    def getLength(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Length':
+        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
+            return ra.Length( self.getBeats(time) )
+        return ra.Length()
 
     def getMeasures(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Measures':
         measures: Fraction = Fraction(0)
         match time:
             case None:
-                return self.getMeasures(ra.Beats(self._rational))
+                return ra.Measures(self._measures)
             case ra.Position():
                 time_beats: ra.Beats = self.getBeats(time)
                 return self.getMeasures(time_beats)
@@ -1174,7 +1179,7 @@ class Staff(Generic):
         beats: Fraction = Fraction(0)
         match time:
             case None:
-                return ra.Beats(self._rational)
+                return self.getBeats(ra.Measures(self._measures))
             case ra.Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
@@ -1209,7 +1214,7 @@ class Staff(Generic):
         steps: Fraction = Fraction(0)
         match time:
             case None:
-                return self.getSteps(ra.Beats(self._rational))
+                return self.getSteps(ra.Measures(self._measures))
             case ra.Position():
                 time_beats: ra.Beats = self.getBeats(time)
                 return self.getSteps(time_beats)
@@ -1240,7 +1245,7 @@ class Staff(Generic):
         note_value: Fraction = Fraction(0)
         match time:
             case None:
-                return self.getDuration(ra.Beats(self._rational))
+                return self.getDuration(ra.Measures(self._measures))
             case ra.Position():
                 time_beats: ra.Beats = self.getBeats(time)
                 return self.getDuration(time_beats)
@@ -1345,17 +1350,15 @@ class Staff(Generic):
 
 
     def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> Fraction:
-
         if time:
             return self.getBeats(time)._rational / self._tempo * 60 * 1000
         else:
-            return self._rational / self._tempo * 60 * 1000
+            return self.getBeats(ra.Measures(self._measures))._rational / self._tempo * 60 * 1000
 
     
     def getPlaylist(self, position: 'ra.Position' = None) -> list:
         import operand_element as oe
         self_position: ra.Position  = self + ra.Position() if position is None else position
-        
         return [
                 {
                     "time_ms": oe.Element.get_time_ms(self_position.getMillis_rational())
