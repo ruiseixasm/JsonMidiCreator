@@ -390,8 +390,10 @@ class Sequence(Container):  # Just a container of Elements
     def __init__(self, *operands):
 
         super().__init__(*operands)
-        self._midi_track: ou.MidiTrack = ou.MidiTrack()
-        self._position: ra.Position = ra.Position()
+        self._midi_track: ou.MidiTrack  = ou.MidiTrack()
+        self._position: ra.Position     = ra.Position()
+        self._staff_reference: og.Staff = og.defaults // og.Staff()
+
         for single_operand in operands:
             match single_operand:
                 case Sequence():
@@ -406,6 +408,17 @@ class Sequence(Container):  # Just a container of Elements
 
     def __getitem__(self, index: int) -> oe.Element:
         return self._datasource_list[index]._data
+
+    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Sequence':
+        if staff_reference:
+            for single_element in self:
+                if isinstance(single_element, oe.Element):
+                    single_element.staff_reference(staff_reference)
+        else:
+            for single_element in self:
+                if isinstance(single_element, oe.Element):
+                    single_element.staff_reference(self._staff_reference)
+        return self
 
     def __mod__(self, operand: any) -> any:
         """
