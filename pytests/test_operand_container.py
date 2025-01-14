@@ -321,6 +321,17 @@ def test_sequence_filter():
 # test_sequence_filter()
 
 
+def test_sequence_fitting():
+
+    six_notes: Note = Note() * 6
+    assert six_notes % Length() == Beats(6)
+
+    six_notes.fit(Measures(2))
+    assert six_notes % Length() == Beats(8)
+
+# test_sequence_fitting()
+
+
 def test_sequence_map():
 
     four_notes: Sequence = Note() * 4

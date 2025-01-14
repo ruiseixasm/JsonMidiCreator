@@ -689,7 +689,6 @@ class Sequence(Container):  # Just a container of Elements
                 for segments in range(operand):
                     original_self << self_length * segments    # moving forward the original_self data position
                     self += original_self
-                return self
             case float():
 
                 self_length: ra.Length = self.length()
@@ -699,25 +698,24 @@ class Sequence(Container):  # Just a container of Elements
                 for segments in range(int(operand)):
                     original_self << self_length * segments    # moving forward the original_self data position
                     self += original_self
-                return self
             case ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._position.getBeats(operand)._rational
                 self_beats: Fraction = self.length().roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
-                return self * self_repeating
-            case ra.TimeValue() | ra.Duration():
+                self *= self_repeating
+            case ra.TimeValue():
                 self_repeating: float = 0.0
                 self_length: Fraction = (self.length() % operand)._rational
                 if self_length > 0:
                     operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
-                return self * self_repeating
+                self *= self_repeating
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data *= operand
-                return self
+        return self
             
     def __rmul__(self, operand: any) -> 'Sequence':
         return self.__mul__(operand)
@@ -780,6 +778,16 @@ class Sequence(Container):  # Just a container of Elements
     def fill(self) -> 'Sequence':
         return self
 
+    def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Sequence':
+        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
+            fitting_finish: ra.Position = self._position.getPosition(time)
+        else:
+            fitting_finish: ra.Position = self._position.getPosition(ou.Measure(1))
+        actual_finish: ra.Position = self.finish()
+        length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
+        self *= ra.Position(length_ratio)   # Adjust positions
+        self *= ra.Duration(length_ratio)   # Adjust durations
+        return self
 
     def link(self) -> 'Sequence':
         self.sort()
