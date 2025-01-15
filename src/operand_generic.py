@@ -1282,25 +1282,29 @@ class Staff(Generic):
 
 
     def getMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Measure':
-        match time:
-            case ra.Position():
-                return ou.Measure( time.roundMeasures().getMeasures()._rational )
-            case _:
-                return ou.Measure( time )
+        if isinstance(time, ra.Position):
+            time = time.roundMeasures()
+        return ou.Measure( self.getMeasures( time ) )
 
     def getBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Beat':
-        match time:
-            case ra.Position():
-                return ou.Beat( time.roundBeats().getBeats()._rational )
-            case _:
-                return ou.Beat( time )
+        if isinstance(time, ra.Position):
+            time = time.roundBeats()
+        absolute_beat: int = ou.Beat( self.getBeats( time ) )._unit
+        beats_per_measure: int = self._time_signature._top
+        relative_beat: int = absolute_beat % beats_per_measure
+        return ou.Beat( relative_beat )
 
     def getStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Step':
-        match time:
-            case ra.Position():
-                return ou.Step( time.roundSteps().getSteps()._rational )
-            case _:
-                return ou.Step( time )
+        if isinstance(time, ra.Position):
+            time = time.roundSteps()
+        absolute_step: int = ou.Step( self.getSteps( time ) )._unit
+        beats_per_measure: int = self._time_signature._top
+        beats_per_note: int = self._time_signature._bottom
+        notes_per_step: Fraction = self._quantization
+        beats_per_step: Fraction = beats_per_note * notes_per_step
+        steps_per_measure: int = int(beats_per_measure / beats_per_step)
+        relative_step: int = absolute_step % steps_per_measure
+        return ou.Step( relative_step )
 
 
     def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> Fraction:
