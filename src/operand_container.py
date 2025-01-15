@@ -479,19 +479,19 @@ class Clip(Container):  # Just a container of Elements
     if TYPE_CHECKING:
         from operand_element import Element
 
-    def get_sequence_elements(self) -> list['Element']: # Helper method
-        sequence_elements: list[oe.Element] = []
+    def get_clip_elements(self) -> list['Element']: # Helper method
+        clip_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
                 if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
                     tied_notes.append(single_datasource._data.copy())
                 else:
-                    sequence_elements.append(single_datasource._data)
+                    clip_elements.append(single_datasource._data)
         if len(tied_notes) > 0: # Extends the root Note to accommodate all following Notes durations
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
-                # Must be in sequence to be tied (FS - Finish to Start)!
+                # Must be in clip to be tied (FS - Finish to Start)!
                 next_note_position: Fraction = first_tied_note._position_beats \
                     + (first_tied_note % ra.Length())._rational
                 if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
@@ -499,13 +499,13 @@ class Clip(Container):  # Just a container of Elements
                     and tied_notes[next_tied_note_i]._position_beats == next_note_position:
                     first_tied_note += tied_notes[next_tied_note_i]._duration_notevalue
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
-                        sequence_elements.append(first_tied_note)
+                        clip_elements.append(first_tied_note)
                 else:
-                    sequence_elements.append(first_tied_note)
+                    clip_elements.append(first_tied_note)
                     first_tied_note = tied_notes[next_tied_note_i]
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
-                        sequence_elements.append(first_tied_note)
-        return sequence_elements
+                        clip_elements.append(first_tied_note)
+        return clip_elements
 
     def getPlaylist(self, position_beats: Fraction = None) -> list[dict]:
 
@@ -516,7 +516,7 @@ class Clip(Container):  # Just a container of Elements
 
         return [
             single_playlist
-                for single_element in self.get_sequence_elements()
+                for single_element in self.get_clip_elements()
                 for single_playlist in single_element.getPlaylist(position_beats)
         ]
 
@@ -529,7 +529,7 @@ class Clip(Container):  # Just a container of Elements
 
         return [
             single_midilist
-                for single_element in self.get_sequence_elements()
+                for single_element in self.get_clip_elements()
                 for single_midilist in single_element.getMidilist(midi_track, position_beats)
         ]
 
@@ -620,19 +620,19 @@ class Clip(Container):  # Just a container of Elements
                         length_shift: ra.Length = self._staff.getLength(left_end_position - right_start_position).roundMeasures()
                         # Convert Length to Position
                         add_position: ra.Position = ra.Position(length_shift)
-                        right_sequence: Clip = self + add_position  # Offsets the content and it's an implicit copy
-                        added_sequence: Clip = operand.copy()       # Preserves the left_sequence configuration
-                        added_sequence._datasource_list.extend(right_sequence._datasource_list)
-                        return added_sequence
+                        right_clip: Clip = self + add_position  # Offsets the content and it's an implicit copy
+                        added_clip: Clip = operand.copy()       # Preserves the left_clip configuration
+                        added_clip._datasource_list.extend(right_clip._datasource_list)
+                        return added_clip
                     return self.copy()
                 return Song(operand, self)
             case oe.Element():
                 element_length: ra.Length = self._staff.getLength( operand % ra.Length() )
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(element_length)
-                right_sequence: Clip = self + add_position  # Implicit copy
-                right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
-                return right_sequence
+                right_clip: Clip = self + add_position  # Implicit copy
+                right_clip._datasource_list.insert(0, od.DataSource( operand.copy() ))
+                return right_clip
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.getBeats(operand)._rational
                 return self
@@ -760,23 +760,23 @@ class Clip(Container):  # Just a container of Elements
     def __or__(self, operand: any) -> 'Clip':
         match operand:
             case Clip():
-                new_sequence: Clip = self.__class__()
-                new_sequence._datasource_list.extend(self._datasource_list)
-                new_sequence._datasource_list.extend(operand._datasource_list)
-                new_sequence._midi_track        << self._midi_track
-                new_sequence._position_beats    = self._position_beats
-                new_sequence._staff             << self._staff
-                return new_sequence
+                new_clip: Clip = self.__class__()
+                new_clip._datasource_list.extend(self._datasource_list)
+                new_clip._datasource_list.extend(operand._datasource_list)
+                new_clip._midi_track        << self._midi_track
+                new_clip._position_beats    = self._position_beats
+                new_clip._staff             << self._staff
+                return new_clip
             case _:
                 return self.filter(operand)
 
     def filter(self, criteria: any) -> 'Clip':
-        filtered_sequence: Clip = self.__class__()
-        filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
-        filtered_sequence._midi_track       << self._midi_track
-        filtered_sequence._position_beats   = self._position_beats
-        filtered_sequence._staff            = self._staff.copy()
-        return filtered_sequence
+        filtered_clip: Clip = self.__class__()
+        filtered_clip._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+        filtered_clip._midi_track       << self._midi_track
+        filtered_clip._position_beats   = self._position_beats
+        filtered_clip._staff            = self._staff.copy()
+        return filtered_clip
 
     def reverse(self) -> 'Clip':
         length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
@@ -789,10 +789,10 @@ class Clip(Container):  # Just a container of Elements
 
 
     def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Clip':
-        extended_sequence: Clip = self.copy() << od.DataSource( self._datasource_list )
-        while (extended_sequence >> self).length() <= time_value:
-            extended_sequence >>= self
-        self._datasource_list = extended_sequence._datasource_list
+        extended_clip: Clip = self.copy() << od.DataSource( self._datasource_list )
+        while (extended_clip >> self).length() <= time_value:
+            extended_clip >>= self
+        self._datasource_list = extended_clip._datasource_list
         return self
 
     def trim(self, length: ra.Length) -> 'Clip':
@@ -899,46 +899,46 @@ class Song(Container):
                     single_operand = Clip(single_operand)
                 else:
                     single_operand = single_operand.copy()
-                for single_sequence in self:
-                    if isinstance(single_sequence, Clip):
-                        if single_sequence._midi_track == single_operand._midi_track:
-                            single_sequence << single_sequence.__add__(single_operand)
+                for single_clip in self:
+                    if isinstance(single_clip, Clip):
+                        if single_clip._midi_track == single_operand._midi_track:
+                            single_clip << single_clip.__add__(single_operand)
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Clip, od.Playlist)))
 
     def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
-            for single_sequence in self:
-                if isinstance(single_sequence, Clip):   # Playlists aren't selectable by name !
-                    if single_sequence._midi_track._name == key:
-                        return single_sequence
+            for single_clip in self:
+                if isinstance(single_clip, Clip):   # Playlists aren't selectable by name !
+                    if single_clip._midi_track._name == key:
+                        return single_clip
             return ol.Null()
         return self._datasource_list[key]._data
 
     def __mod__(self, operand: any) -> any:
         match operand:
             case ou.MidiTrack():
-                for single_sequence in self:
-                    if isinstance(single_sequence, Clip):
-                        if single_sequence._midi_track == operand:
-                            return single_sequence
+                for single_clip in self:
+                    if isinstance(single_clip, Clip):
+                        if single_clip._midi_track == operand:
+                            return single_clip
                 return ol.Null()
             case str():             return self[operand]
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, position: ra.Position = None) -> list:
         play_list: list = []
-        for single_sequence in self:
-            if isinstance(single_sequence, (Clip, od.Playlist)):
-                play_list.extend(single_sequence.getPlaylist(position))
+        for single_clip in self:
+            if isinstance(single_clip, (Clip, od.Playlist)):
+                play_list.extend(single_clip.getPlaylist(position))
         return play_list
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_list: list = []
-        for single_sequence in self:
-            if isinstance(single_sequence, Clip):   # Can't get Midilist from Playlist !
-                midi_list.extend(single_sequence.getMidilist(midi_track, position))
+        for single_clip in self:
+            if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
+                midi_list.extend(single_clip.getMidilist(midi_track, position))
         return midi_list
 
     # CHAINABLE OPERATIONS
@@ -955,10 +955,10 @@ class Song(Container):
                 operand = Clip(operand) # Track() already does the copy
             else:
                 operand = operand.copy()
-            for single_sequence in self:
-                if isinstance(single_sequence, Clip):
-                    if single_sequence._midi_track == operand._midi_track:
-                        single_sequence << single_sequence.__rrshift__(operand)
+            for single_clip in self:
+                if isinstance(single_clip, Clip):
+                    if single_clip._midi_track == operand._midi_track:
+                        single_clip << single_clip.__rrshift__(operand)
                         return self
             self._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, of.Frame):
@@ -971,10 +971,10 @@ class Song(Container):
                 operand = Clip(operand)
             else:
                 operand = operand.copy()
-            for single_sequence in self:
-                if isinstance(single_sequence, Clip):
-                    if single_sequence._midi_track == operand._midi_track:
-                        single_sequence << single_sequence.__radd__(operand)    # Where the difference lies!
+            for single_clip in self:
+                if isinstance(single_clip, Clip):
+                    if single_clip._midi_track == operand._midi_track:
+                        single_clip << single_clip.__radd__(operand)    # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, of.Frame):
@@ -988,10 +988,10 @@ class Song(Container):
                 operand = Clip(operand) # Makes sure it becomes a Track
             else:
                 operand = operand.copy()
-            for single_sequence in self_copy:
-                if isinstance(single_sequence, Clip):
-                    if single_sequence._midi_track == operand._midi_track:
-                        single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
+            for single_clip in self_copy:
+                if isinstance(single_clip, Clip):
+                    if single_clip._midi_track == operand._midi_track:
+                        single_clip << single_clip.__add__(operand)     # Where the difference lies!
                         return self_copy
             self_copy._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, od.Playlist):  # Adds Playlist right away!
@@ -1006,10 +1006,10 @@ class Song(Container):
                 operand = Clip(operand) # Makes sure it becomes a Track
             else:
                 operand = operand.copy()
-            for single_sequence in self:
-                if isinstance(single_sequence, Clip):
-                    if single_sequence._midi_track == operand._midi_track:
-                        single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
+            for single_clip in self:
+                if isinstance(single_clip, Clip):
+                    if single_clip._midi_track == operand._midi_track:
+                        single_clip << single_clip.__add__(operand)     # Where the difference lies!
                         return self
             self._datasource_list.append(od.DataSource( operand ))
         elif isinstance(operand, od.Playlist):  # Adds Playlist right away!
@@ -1021,30 +1021,30 @@ class Song(Container):
     def __sub__(self, operand: o.Operand) -> 'Song':
         self_copy: Song = self.copy()
         if isinstance(operand, Clip):
-            for single_sequence_i in len(self_copy._datasource_list):
-                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Clip):
-                    if self_copy._datasource_list[single_sequence_i]._data == operand:
-                        del self_copy._datasource_list[single_sequence_i]
+            for single_clip_i in len(self_copy._datasource_list):
+                if isinstance(self_copy._datasource_list[single_clip_i]._data, Clip):
+                    if self_copy._datasource_list[single_clip_i]._data == operand:
+                        del self_copy._datasource_list[single_clip_i]
         elif isinstance(operand, oe.Element):
-            for single_sequence_i in len(self_copy._datasource_list):
-                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Clip):
-                    if self_copy._datasource_list[single_sequence_i]._data == Clip(operand):
-                        del self_copy._datasource_list[single_sequence_i]
+            for single_clip_i in len(self_copy._datasource_list):
+                if isinstance(self_copy._datasource_list[single_clip_i]._data, Clip):
+                    if self_copy._datasource_list[single_clip_i]._data == Clip(operand):
+                        del self_copy._datasource_list[single_clip_i]
         elif isinstance(operand, of.Frame):
             o.logging.warning(f"Frames don't work on Songs!")
         return self_copy
 
     def __isub__(self, operand: o.Operand) -> 'Song':
         if isinstance(operand, Clip):
-            for single_sequence_i in len(self._datasource_list):
-                if isinstance(self._datasource_list[single_sequence_i]._data, Clip):
-                    if self._datasource_list[single_sequence_i]._data == operand:
-                        del self._datasource_list[single_sequence_i]
+            for single_clip_i in len(self._datasource_list):
+                if isinstance(self._datasource_list[single_clip_i]._data, Clip):
+                    if self._datasource_list[single_clip_i]._data == operand:
+                        del self._datasource_list[single_clip_i]
         elif isinstance(operand, oe.Element):
-            for single_sequence_i in len(self._datasource_list):
-                if isinstance(self._datasource_list[single_sequence_i]._data, Clip):
-                    if self._datasource_list[single_sequence_i]._data == Clip(operand):
-                        del self._datasource_list[single_sequence_i]
+            for single_clip_i in len(self._datasource_list):
+                if isinstance(self._datasource_list[single_clip_i]._data, Clip):
+                    if self._datasource_list[single_clip_i]._data == Clip(operand):
+                        del self._datasource_list[single_clip_i]
         elif isinstance(operand, of.Frame):
             o.logging.warning(f"Frames don't work on Songs!")
         return self

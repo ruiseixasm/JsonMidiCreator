@@ -327,14 +327,14 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                new_sequence: oc.Clip = oc.Clip()
+                new_clip: oc.Clip = oc.Clip()
                 elements_list: list[Element] = [self, operand.copy()]
-                return new_sequence << od.DataSource( elements_list )
+                return new_clip << od.DataSource( elements_list )
             case oc.Clip():
-                self_sequence: oc.Clip = operand.empty_copy()
-                self_sequence += self
-                self_sequence += operand
-                return self_sequence
+                self_clip: oc.Clip = operand.empty_copy()
+                self_clip += self
+                self_clip += operand
+                return self_clip
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
@@ -358,13 +358,13 @@ class Element(o.Operand):
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case int() | float():
-                new_sequence: oc.Clip = oc.Clip()
+                new_clip: oc.Clip = oc.Clip()
                 multiplier: int = int(operand)
                 if multiplier > 0:
-                    new_sequence._datasource_list.append(od.DataSource( self ))
+                    new_clip._datasource_list.append(od.DataSource( self ))
                     for _ in range(multiplier - 1):
-                        new_sequence._datasource_list.append(od.DataSource( self.copy() ))
-                return new_sequence.stack()
+                        new_clip._datasource_list.append(od.DataSource( self.copy() ))
+                return new_clip.stack()
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration_notevalue > 0:
