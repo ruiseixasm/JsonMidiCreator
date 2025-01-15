@@ -298,7 +298,7 @@ class TranslocatePitch(Translocation):
 class Crossover(Mutation):
     def __init__(self, *parameters):
         super().__init__()
-        self._sequences: od.Sequences   = od.Sequences()
+        self._clips: od.Clips   = od.Clips()
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(oe.Note())
@@ -309,12 +309,12 @@ class Crossover(Mutation):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case od.Sequences():    return self._sequences
+                    case od.Clips():    return self._clips
                     case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
-            case od.Sequences():    return self._sequences.copy()
+            case od.Clips():    return self._clips.copy()
             case ch.Chaos():        return self._chaos.copy()
             case od.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
@@ -322,7 +322,7 @@ class Crossover(Mutation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["sequences"]    = self.serialize(self._sequences)
+        serialization["parameters"]["clips"]    = self.serialize(self._clips)
         serialization["parameters"]["chaos"]        = self.serialize(self._chaos)
         serialization["parameters"]["filter"]       = self.serialize(self._filter)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
@@ -332,10 +332,10 @@ class Crossover(Mutation):
 
     def loadSerialization(self, serialization: dict) -> 'Crossover':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sequences" in serialization["parameters"] and "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
+            "clips" in serialization["parameters"] and "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sequences         = self.deserialize(serialization["parameters"]["sequences"])
+            self._clips         = self.deserialize(serialization["parameters"]["clips"])
             self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
             self._filter            = self.deserialize(serialization["parameters"]["filter"])
             self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
@@ -346,18 +346,18 @@ class Crossover(Mutation):
         match operand:
             case Crossover():
                 super().__lshift__(operand)
-                self._sequences     << operand._sequences
+                self._clips     << operand._clips
                 self._chaos         << operand._chaos
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case od.DataSource():
                 match operand._data:
-                    case od.Sequences():            self._sequences = operand._data
+                    case od.Clips():            self._clips = operand._data
                     case ch.Chaos():                self._chaos = operand._data
                     case od.Filter():               self._filter = operand._data
                     case od.Parameters():           self._parameters = operand._data
                     case _:                         super().__lshift__(operand)
-            case od.Sequences():            self._sequences << operand
+            case od.Clips():            self._clips << operand
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
@@ -368,16 +368,16 @@ class Crossover(Mutation):
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            result_sequence: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
-            source_len: int = result_sequence.len()
+            result_clip: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
+            source_len: int = result_clip.len()
             for actual_iteration in range(1, total_iterations + 1):
                 source_parameters: list[any] = []
                 for _ in range(source_len):
-                    for single_sequence in self._sequences._data:
-                        if isinstance(single_sequence, oc.Clip):
-                            source_parameters.append(single_sequence % ou.Next()) # moves the index one step forward
+                    for single_clip in self._clips._data:
+                        if isinstance(single_clip, oc.Clip):
+                            source_parameters.append(single_clip % ou.Next()) # moves the index one step forward
                     source_parameter = source_parameters[self._chaos * 1 % int() % len(source_parameters)]
-                    destination_parameter = result_sequence % ou.Next()
+                    destination_parameter = result_clip % ou.Next()
                     destination_parameter << source_parameter
                 if actual_iteration % muted_iterations == 0:
                     self.perform(number)
@@ -386,7 +386,7 @@ class Crossover(Mutation):
 
     def reset(self, *parameters) -> 'Crossover':
         super().reset()
-        self._sequences.reset()
+        self._clips.reset()
         self._chaos.reset()
         self._filter.reset()
         return self << parameters

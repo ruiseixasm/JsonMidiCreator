@@ -523,7 +523,7 @@ class Performers(DataMany):
                     single_operand.reset()
         return self
 
-class Sequences(DataMany):
+class Clips(DataMany):
     pass
 
 class Result(Data):
