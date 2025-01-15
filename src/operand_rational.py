@@ -689,12 +689,13 @@ class Position(Rational):
                     case Quantization():        self._quantization      = operand._data // Fraction()
                     case _:                     super().__lshift__(operand)
             case TimeValue() | Duration():
-                self._rational = self.getBeats(operand)._rational
+                self._rational = self._staff_reference.getBeats(operand)._rational
             case ou.Measure():
-                measure_beats: Beats = self.getBeats() - self.getBeats(self.getMeasure())
-                self._rational = (self.getBeats(operand) + measure_beats)._rational
+                measure_beats: Beats = self._staff_reference.getBeats(self) \
+                    - self._staff_reference.getBeats(self._staff_reference.getMeasure(self))
+                self._rational = (self._staff_reference.getBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
-                self_measure: ou.Measure = self.getMeasure()
+                self_measure: ou.Measure = self._staff_reference.getMeasure(self)
                 self._rational = (self.getBeats(self_measure) + self.getBeats(operand))._rational
             case int() | float() | Fraction():
                 self << Measures(operand)
