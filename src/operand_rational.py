@@ -324,11 +324,7 @@ class RationalDefault(Rational):
     pass
 
 
-class PositionData(Rational):
-    pass
-
-
-class BeatsPerMeasure(PositionData):
+class BeatsPerMeasure(Rational):
     """
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
     
@@ -339,7 +335,7 @@ class BeatsPerMeasure(PositionData):
     """
     pass
 
-class BeatNoteValue(PositionData):
+class BeatNoteValue(Rational):
     """
     BeatNoteValue() sets the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     
@@ -350,7 +346,7 @@ class BeatNoteValue(PositionData):
     """
     pass
 
-class NotesPerMeasure(PositionData):
+class NotesPerMeasure(Rational):
     """
     NotesPerMeasure() gets how many notes in a Measure and sets the Note Value of a Beat.
     
@@ -361,7 +357,7 @@ class NotesPerMeasure(PositionData):
     """
     pass
 
-class StepsPerMeasure(PositionData):
+class StepsPerMeasure(Rational):
     """
     StepsPerMeasure() is another way of getting and setting the Quantization.
     16 Steps per Measure means a Quantization of 1/16 in a Time Signature of 4/4.
@@ -373,7 +369,7 @@ class StepsPerMeasure(PositionData):
     """
     pass
 
-class StepsPerNote(PositionData):
+class StepsPerNote(Rational):
     """
     StepsPerNote() is simply the inverse value of the Quantization, like, 16 for 1/16.
     
@@ -384,7 +380,7 @@ class StepsPerNote(PositionData):
     """
     pass
 
-class Tempo(PositionData):
+class Tempo(Rational):
     """
     Tempo() represents the Beats per Minute (BPM).
     
@@ -433,26 +429,14 @@ class Tempo(PositionData):
         self._rational = max(Fraction(1), self._rational)
         return self
 
-class Quantization(PositionData):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : float_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
-    pass
 
-
-class Position(Rational):
+class Convertible(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
 
         self._staff_reference: og.Staff     = og.defaults._staff
 
         super().__init__(*parameters)
-
 
     if TYPE_CHECKING:
         from operand_generic import Staff
@@ -470,10 +454,6 @@ class Position(Rational):
         import operand_generic as og
         self._staff_reference = og.defaults._staff
         return self
-
-
-    def position(self: 'Position', beats: float = None) -> 'Position':
-        return self << od.DataSource( beats )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """
@@ -537,7 +517,15 @@ class Position(Rational):
     
     def __str__(self):
         return f'Span Steps = {self._rational}'
-    
+
+
+    def getMillis_rational(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> Fraction:
+        match time:
+            case None:
+                return self._staff_reference.getMillis_rational(self)
+            case _:
+                return self._staff_reference.getMillis_rational(time)
+
 
     def getPosition(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Position':
         if isinstance(time, (Position, TimeValue, Duration, ou.TimeUnit)):
@@ -595,6 +583,23 @@ class Position(Rational):
             case _:
                 return self._staff_reference.getStep(time)
 
+class Quantization(Convertible):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : float_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
+    pass
+
+
+class Position(Convertible):
+
+    def position(self: 'Position', beats: float = None) -> 'Position':
+        return self << od.DataSource( beats )
+
     # Position round type: [...)
     def roundMeasures(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Position':
         match time:
@@ -620,14 +625,6 @@ class Position(Rational):
                 return self._staff_reference.roundSteps(time)
 
 
-    def getMillis_rational(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> Fraction:
-        match time:
-            case None:
-                return self._staff_reference.getMillis_rational(self)
-            case _:
-                return self._staff_reference.getMillis_rational(time)
-
-    
     def getPlaylist(self, position: 'Position' = None) -> list:
         match position:
             case None:
@@ -703,7 +700,7 @@ class Length(Position):
     pass
 
 
-class TimeValue(Rational):  # Works as Absolute Beats
+class TimeValue(Convertible):  # Works as Absolute Beats
     """
     TimeUnit() represents any Time Length variables, namely, Measure, Beat, NoteValue and Step.
     
@@ -748,7 +745,7 @@ class Steps(TimeValue):
     """
     pass
 
-class Duration(Rational):
+class Duration(Convertible):
     """
     NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
     
