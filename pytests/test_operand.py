@@ -62,7 +62,7 @@ def test_floordiv_sequence():
     note: Note = Note()
     source_position: Position = note // Position()
 
-    assert id(source_position) == id(note._position)
+    assert id(source_position) == id(note._position_beats)
         
 # test_floordiv_sequence()
 

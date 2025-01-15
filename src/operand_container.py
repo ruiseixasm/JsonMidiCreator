@@ -450,7 +450,7 @@ class Clip(Container):  # Just a container of Elements
         start_beats: Fraction = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
-                position_beats: Fraction = single_datasource._data._position
+                position_beats: Fraction = single_datasource._data._position_beats
                 if start_beats is None or position_beats < start_beats:   # Implicit conversion
                     start_beats = position_beats
         if start_beats:
@@ -462,8 +462,8 @@ class Clip(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
-                element_finish: Fraction = single_element._position \
-                    + self._staff.getBeats(ra.Duration(single_element._duration))._rational
+                element_finish: Fraction = single_element._position_beats \
+                    + (single_element % ra.Length())._rational
                 if element_finish > finish:
                     finish = element_finish
         return self._staff.getPosition(ra.Beats(finish_beats))
@@ -492,11 +492,11 @@ class Clip(Container):  # Just a container of Elements
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ra.Position = first_tied_note._position + first_tied_note._duration # Duration is particularly tricky
+                next_note_position: ra.Position = first_tied_note._position_beats + first_tied_note._duration_notevalue # Duration is particularly tricky
                 if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
-                    and tied_notes[next_tied_note_i]._position == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i]._duration # Duration is particularly tricky
+                    and tied_notes[next_tied_note_i]._position_beats == next_note_position:
+                    first_tied_note += tied_notes[next_tied_note_i]._duration_notevalue # Duration is particularly tricky
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
                         sequence_elements.append(first_tied_note)
                 else:
@@ -775,8 +775,8 @@ class Clip(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
-                element_position: ra.Position = single_element._position
-                element_duration: ra.Duration = single_element._duration
+                element_position: ra.Position = single_element._position_beats
+                element_duration: ra.Duration = single_element._duration_notevalue
                 # Implicit Position conversion
                 new_position: ra.Position = sequence_length - (element_position + element_duration)
                 element_position << element_position.getSteps( new_position )
@@ -815,7 +815,7 @@ class Clip(Container):  # Just a container of Elements
         for single_data in self._datasource_list:
             if isinstance(single_data._data, oe.Element) and single_data._data._stackable:
                 if last_element is not None:
-                    last_element << (single_data._data._position - last_element._position).getDuration()
+                    last_element << (single_data._data._position_beats - last_element._position_beats).getDuration()
                 else:
                     first_element_position = element_position
                 last_element = single_data._data
@@ -823,12 +823,12 @@ class Clip(Container):  # Just a container of Elements
         # Add a Rest in the beginning if necessary
         if first_element_position is not None:
             first_element: oe.Element = self._datasource_list[first_element_position]._data
-            if first_element._position != ra.Position():
-                rest_length = ra.Duration(first_element._position)
+            if first_element._position_beats != ra.Position():
+                rest_length = ra.Duration(first_element._position_beats)
                 self._datasource_list.insert(first_element_position, od.DataSource( oe.Rest(rest_length) ))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:
-            last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
+            last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position_beats).getDuration()
         return self
 
     def stack(self) -> 'Clip':
@@ -841,9 +841,9 @@ class Clip(Container):  # Just a container of Elements
             ]
         for index, single_element in enumerate(stackable_elements):
             if index > 0:
-                single_element._position = stackable_elements[index - 1]._position + stackable_elements[index - 1]._duration  # Stacks on Element Duration
+                single_element._position_beats = stackable_elements[index - 1]._position_beats + stackable_elements[index - 1]._duration_notevalue  # Stacks on Element Duration
             else:
-                single_element._position = ra.Position()   # everything starts at the beginning (0)!
+                single_element._position_beats = ra.Position()   # everything starts at the beginning (0)!
         
         return self
     
