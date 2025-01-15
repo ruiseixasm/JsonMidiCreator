@@ -703,24 +703,17 @@ class Clip(Container):  # Just a container of Elements
     # in-place multiply with a scalar
     def __imul__(self, operand: o.Operand) -> 'Clip':
         match operand:
-            case int():
-
-                self_length: ra.Length = self.length().roundMeasures()
-                original_self: Clip = self.empty_copy()
-                original_self._datasource_list = self._datasource_list
-                self._datasource_list = []  # Just to keep the self object
-                for segments in range(operand):
-                    original_self << self_length * segments    # moving forward the original_self data position
-                    self += original_self
-            case float():
-
-                self_length: ra.Length = self.length()
-                original_self: Clip = self.empty_copy()
-                original_self._datasource_list = self._datasource_list
-                self._datasource_list = []  # Just to keep the self object
-                for segments in range(int(operand)):
-                    original_self << self_length * segments    # moving forward the original_self data position
-                    self += original_self
+            case int() | float():
+                if isinstance(operand, int):
+                    self_length: ra.Length = self.length().roundMeasures()  # Length is NOT a Position
+                else:
+                    self_length: ra.Length = self.length()                  # Length is NOT a Position
+                    operand = int(operand)
+                if operand > 1:
+                    for segment in range(operand - 1):
+                        self += self_length * (segment + 1) >> self.copy()
+                elif operand == 0:   # Must be empty
+                    self._datasource_list = []  # Just to keep the self object
             case ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._staff.getBeats(operand)._rational

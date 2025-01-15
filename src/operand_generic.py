@@ -1283,49 +1283,28 @@ class Staff(Generic):
 
     def getMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         match time:
-            case None:
-                return ou.Measure( self.roundMeasures().getMeasures() // int() )
-            case ra.Position() | ra.TimeValue() | ra.Duration()| ou.TimeUnit():
-                return ou.Measure( self.roundMeasures(time).getMeasures() // int() )
-            case float() | int() | Fraction():
-                return self.getMeasure(ra.Measures(time))
-        return ou.Measure()
+            case ra.Position():
+                return ou.Measure( time.roundMeasures().getMeasures()._rational )
+            case _:
+                return ou.Measure( time )
 
     def getBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Beat':
-        beats_per_measure: int = self._time_signature._top
-        beats: int = 0
         match time:
-            case None:
-                beats = self.roundBeats().getBeats() // int() % beats_per_measure
-            case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
-                beats = self.roundBeats(time).getBeats() // int() % beats_per_measure
-            case float() | int() | Fraction():
-                return self.getBeat(ra.Measures(time))
-        return ou.Beat(beats)
+            case ra.Position():
+                return ou.Beat( time.roundBeats().getBeats()._rational )
+            case _:
+                return ou.Beat( time )
 
     def getStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Step':
-        beats_per_measure: int = self._time_signature._top
-        beats_per_note: int = self._time_signature._bottom
-        notes_per_step: Fraction = self._quantization
-        beats_per_step: Fraction = beats_per_note * notes_per_step
-        steps_per_measure: int = int(beats_per_measure / beats_per_step)
-        steps: int = 0
         match time:
-            case None:
-                steps = self.roundSteps().getSteps() // int() % steps_per_measure
-            case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
-                steps = self.roundSteps(time).getSteps() // int() % steps_per_measure
-            case float() | int() | Fraction():
-                return self.getStep(ra.Measures(time))
-        return ou.Step(steps)
+            case ra.Position():
+                return ou.Step( time.roundSteps().getSteps()._rational )
+            case _:
+                return ou.Step( time )
 
 
     def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> Fraction:
-        match time:
-            case None:
-                return self.getBeats(ra.Measures(self._measures))._rational / self._tempo * 60 * 1000
-            case _:
-                return self.getBeats(time)._rational / self._tempo * 60 * 1000
+        return self.getBeats(time)._rational / self._tempo * 60 * 1000
             
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:

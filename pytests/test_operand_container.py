@@ -290,7 +290,7 @@ def test_sequence_composition():
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
-test_sequence_composition()
+# test_sequence_composition()
 
 
 def test_element_stacking():
