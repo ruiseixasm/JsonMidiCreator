@@ -114,6 +114,8 @@ class Element(o.Operand):
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue )
             case ra.Length():       return self._staff_reference.getLength(ra.Duration(self._duration_notevalue))
             case ra.Position():     return self._staff_reference.getPosition(ra.Beats(self._position_beats))
+            case ra.TimeValue() | ou.TimeUnit():
+                                    return self._staff_reference.getPosition(ra.Beats(self._position_beats)) % operand
             case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case od.Device():       return od.Device() << od.DataSource( self._device )
