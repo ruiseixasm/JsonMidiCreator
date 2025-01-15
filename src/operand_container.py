@@ -612,7 +612,7 @@ class Clip(Container):  # Just a container of Elements
                     if operand.len() > 0:
                         left_end_position: ra.Position = operand.finish()
                         right_start_position: ra.Position = self.start()
-                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
+                        length_shift: ra.Length = self._staff.getLength(left_end_position - right_start_position).roundMeasures()
                         right_sequence: Clip = self + length_shift  # Offsets the content and it's an implicit copy
                         added_sequence: Clip = operand.copy()       # Preserves the left_sequence configuration
                         added_sequence._datasource_list.extend(right_sequence._datasource_list)
