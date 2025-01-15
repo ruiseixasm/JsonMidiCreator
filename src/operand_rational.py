@@ -448,13 +448,33 @@ class Quantization(PositionData):
 class Position(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
+
+        self._staff_reference: og.Staff     = og.defaults._staff
+
         self._tempo: Fraction                   = og.defaults._staff._tempo
         self._time_signature: og.TimeSignature  = og.defaults._staff._time_signature.copy()
         self._quantization: Fraction            = og.defaults._staff._quantization
 
-        self._staff_reference: og.Staff     = og.defaults._staff
-
         super().__init__(*parameters)
+
+
+    if TYPE_CHECKING:
+        from operand_generic import Staff
+
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'Position':
+        import operand_generic as og
+        if isinstance(staff_reference, og.Staff):
+            self._staff_reference = staff_reference
+        return self
+
+    def get_staff_reference(self) -> 'Staff':
+        return self._staff_reference
+
+    def reset_staff_reference(self) -> 'Position':
+        import operand_generic as og
+        self._staff = og.defaults._staff
+        return self
+
 
     def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )

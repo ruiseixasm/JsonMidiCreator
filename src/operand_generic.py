@@ -134,9 +134,15 @@ class Pitch(Generic):
     def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'Pitch':
         if isinstance(staff_reference, Staff):
             self._staff_reference = staff_reference
-        else:
-            self._staff_reference = defaults // Staff()
         return self
+
+    def get_staff_reference(self) -> 'Staff':
+        return self._staff_reference
+
+    def reset_staff_reference(self) -> 'Pitch':
+        self._staff = defaults._staff
+        return self
+
 
     def key_signature(self, sharps_flats: int = 0, major: bool = True) -> 'Pitch':
         return self << ou.KeySignature(sharps_flats, ou.Major(major))

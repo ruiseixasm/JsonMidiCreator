@@ -56,6 +56,14 @@ class Element(o.Operand):
             self._staff_reference = staff_reference
         return self
 
+    def get_staff_reference(self) -> 'og.Staff':
+        return self._staff_reference
+
+    def reset_staff_reference(self) -> 'Element':
+        self._staff = og.defaults._staff
+        return self
+
+
     def position(self: TypeElement, position: float = None) -> TypeElement:
         self._position = ra.Position(position)
         return self
@@ -672,6 +680,12 @@ class Note(Tiable):
         self._pitch._staff_reference = self._staff_reference
         return self
 
+    def reset_staff_reference(self) -> 'Note':
+        super().reset_staff_reference()
+        self._pitch.reset_staff_reference()
+        return self
+
+
     def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
         self._pitch = og.Pitch(key, octave)
         return self
@@ -813,11 +827,18 @@ class Cluster(Tiable):
         super().__init__( *parameters )
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Cluster':
         super().set_staff_reference(staff_reference)
         for single_pitch in self._pitches:
             single_pitch._staff_reference = self._staff_reference
         return self
+
+    def reset_staff_reference(self) -> 'Cluster':
+        super().reset_staff_reference()
+        for single_pitch in self._pitches:
+            single_pitch.reset_staff_reference()
+        return self
+
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
@@ -1928,10 +1949,16 @@ class PolyAftertouch(Aftertouch):
         super().__init__(*parameters)
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'PolyAftertouch':
         super().set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._staff_reference
         return self
+
+    def reset_staff_reference(self) -> 'PolyAftertouch':
+        super().reset_staff_reference()
+        self._pitch.reset_staff_reference()
+        return self
+
 
     def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = ou.Key("C"), octave: Optional[int] = ou.Octave(4)) -> 'PolyAftertouch':
         self._pitch = og.Pitch(key, octave)
