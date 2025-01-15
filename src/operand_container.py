@@ -717,9 +717,14 @@ class Clip(Container):  # Just a container of Elements
                     # Convert self_length to a Position
                     add_position: ra.Position = ra.Position(self_length)
                     self_copy: Clip = self.copy()
-                    for _ in range(operand - 1):
+                    for _ in range(operand - 2):
                         self_copy += add_position
                         self += self_copy   # implicit copy of self_copy
+                    # Uses the last self_copy for the last iteration
+                    self_copy += add_position
+                    self._datasource_list.extend(
+                        single_data_element for single_data_element in self_copy._datasource_list
+                    )
                 elif operand == 0:   # Must be empty
                     self._datasource_list = []  # Just to keep the self object
             case ou.TimeUnit():
