@@ -456,7 +456,7 @@ class Pitch(Generic):
                     case ou.Degree():
                         self._degree = operand._data._unit
                     case Scale():
-                        self._scale << operand._data
+                        self._scale = operand._data
                     case str():
                         self._sharp     = \
                             ((operand._data).strip().lower().find("#") != -1) * 1 + \
@@ -1059,6 +1059,7 @@ class Staff(Generic):
         self._quantization: Fraction                = Fraction(1/16)
         # Key Signature is an alias of Sharps and Flats of a Scale
         self._key_signature: ou.KeySignature        = ou.KeySignature()
+        self._scale: Scale                          = Scale([])
         self._measures: int                         = 8
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -1086,6 +1087,7 @@ class Staff(Generic):
                     case TimeSignature():       return self._time_signature
                     case ra.Quantization():     return ra.Quantization(self._quantization)
                     case ou.KeySignature():     return self._key_signature
+                    case Scale():               return self._scale
                     case ra.BeatsPerMeasure():  return self._time_signature % od.DataSource( ra.BeatsPerMeasure() )
                     case ra.BeatNoteValue():    return self._time_signature % od.DataSource( ra.BeatNoteValue() )
                     case ra.Measures():         return ra.Measures(self._measures)
@@ -1106,6 +1108,7 @@ class Staff(Generic):
             case TimeSignature():       return self._time_signature.copy()
             case ra.Quantization():     return ra.Quantization(self._quantization)
             case ou.KeySignature():     return self._key_signature.copy()
+            case Scale():               return self._scale.copy()
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         return self._key_signature % operand
             case ra.BeatsPerMeasure():  return self._time_signature % ra.BeatsPerMeasure()
@@ -1391,6 +1394,7 @@ class Staff(Generic):
         serialization["parameters"]["time_signature"]   = self.serialize( self._time_signature )
         serialization["parameters"]["quantization"]     = self.serialize( self._quantization )
         serialization["parameters"]["key_signature"]    = self.serialize( self._key_signature )
+        serialization["parameters"]["scale"]            = self.serialize( self._scale )
         serialization["parameters"]["measures"]         = self.serialize( self._measures )
         return serialization
 
@@ -1399,13 +1403,14 @@ class Staff(Generic):
     def loadSerialization(self, serialization: dict) -> 'Staff':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "measures" in serialization["parameters"] and "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
-            "key_signature" in serialization["parameters"] and "quantization" in serialization["parameters"]):
+            "key_signature" in serialization["parameters"] and "scale" in serialization["parameters"] and "quantization" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._tempo             = self.deserialize( serialization["parameters"]["tempo"] )
             self._time_signature    = self.deserialize( serialization["parameters"]["time_signature"] )
             self._quantization      = self.deserialize( serialization["parameters"]["quantization"] )
             self._key_signature     = self.deserialize( serialization["parameters"]["key_signature"] )
+            self._scale             = self.deserialize( serialization["parameters"]["scale"] )
             self._measures          = self.deserialize( serialization["parameters"]["measures"] )
         return self
     
@@ -1418,13 +1423,15 @@ class Staff(Generic):
                 self._time_signature    << operand._time_signature
                 self._quantization      = operand._quantization
                 self._key_signature     << operand._key_signature
+                self._scale             << operand._scale
                 self._measures          = operand._measures
             case od.DataSource():
                 match operand._data:
                     case ra.Tempo():            self._tempo = operand._data._rational
-                    case TimeSignature():    self._time_signature = operand._data
+                    case TimeSignature():       self._time_signature = operand._data
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case ou.KeySignature():     self._key_signature = operand._data
+                    case Scale():               self._scale = operand._data
                     case ra.BeatsPerMeasure() | ra.BeatNoteValue():
                                                 self._time_signature << od.DataSource( operand._data )
                     case ra.Measures():         self._measures = operand._data // int()
@@ -1436,6 +1443,7 @@ class Staff(Generic):
             case ra.Quantization():     self._quantization = operand._rational
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                                         self._key_signature << operand
+            case Scale():               self._scale << operand
             case ra.Measures() | ou.Measure():         
                                         self._measures = operand // int()
             # Calculated Values
