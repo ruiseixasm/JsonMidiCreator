@@ -389,6 +389,14 @@ def test_position_shift():
     Steps(3) >> chords
     assert chords % Position() == 3 * 1/16
 
+    Steps(-3) >> chords
+    fifth_measure_chords: Clip = Measures(4) >> chords.copy()
+    assert fifth_measure_chords % Length() == 4.0
+
+    aggregated_chords: Clip = chords + fifth_measure_chords
+    assert aggregated_chords % Length() == 8.0
+
+
     four_notes_1: Clip = Note() * 4 << NoteValue(1/8)
     four_notes_2: Clip = Note() * 4
 

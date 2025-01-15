@@ -657,7 +657,7 @@ class Clip(Container):  # Just a container of Elements
 
                     operand_data_list: list[oe.Element] = operand % list()
                     # Does the needed position conversion first and replicates to its elements
-                    operand_position_beats: Fraction = self._staff.getPosition(operand._staff.getPosition(ra.Measures(operand._position_beats)))._rational
+                    operand_position_beats: Fraction = self._staff.getPosition(operand._staff.getPosition(ra.Beats(operand._position_beats)))._rational
                     if operand_position_beats > self._position_beats:
                         for single_element in operand_data_list:
                             single_element += ra.Beats(operand_position_beats - self._position_beats)
