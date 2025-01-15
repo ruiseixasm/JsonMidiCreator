@@ -383,6 +383,12 @@ def test_clip_selectors():
 
 def test_position_shift():
 
+    chords: Clip = Chord() * 4 << Foreach(1, 5, 6, 4)
+
+    assert chords % Position() == 0.0
+    Steps(3) >> chords
+    assert chords % Position() == 3 * 1/16
+
     four_notes_1: Clip = Note() * 4 << NoteValue(1/8)
     four_notes_2: Clip = Note() * 4
 

@@ -78,17 +78,23 @@ chords -= Octave(1)
 chords *= 4
 chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 
+# Duplicate the pattern to repeat it at 1 Beat forward (jumps by 2, 1 chord for each 2 measures)
+chords << Iterate(2)**Measures()
 # Adjust Chords duration to 1/16
 chords << Duration(1/16)
-# Duplicate the pattern to repeat it at 1 Beat forward
-chords << Iterate(2)**Measures()
+
+# chords >> Play()
 
 # chords % Length() >> Print()
+# chords >> Play()
 
 repeated_chords: Clip = Clip()
 for _ in range(16*2//3 + 1):
     repeated_chords += chords
     Steps(3) >> chords
+    
+repeated_chords >> Play()
+
 # Make it shorter to fit in x4 composition
 repeated_chords.sort()
 repeated_chords /= 2
@@ -122,6 +128,6 @@ lead_notes += Octave(1)
 
 syncopation_4: Clip = syncopation_3 + lead_notes
 # syncopation_4.getPlaylist()
-syncopation_4 >> Play()
+# syncopation_4 >> Play()
 
 print(c.profiling_timer)
