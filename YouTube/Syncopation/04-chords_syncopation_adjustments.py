@@ -85,7 +85,7 @@ chords << Iterate(2)**Measures()
 
 # chords % Length() >> Print()
 
-repeated_chords: Trk = Track()
+repeated_chords: Trk = Clip()
 for _ in range(16*2//3 + 1):
     repeated_chords += chords
     Steps(3) >> chords
@@ -107,7 +107,7 @@ syncopation_2: Trk = syncopation_1_4 + repeated_chords # x4 because chords are 4
 # syncopation_2 >> Play()
 
 # Move forward 1/16 note (a step)
-syncopation_3: Trk = Track()
+syncopation_3: Trk = Clip()
 for _ in range(2):
     repeated_chords += Step(1)
     syncopation_3 = syncopation_1_4 + repeated_chords

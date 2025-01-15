@@ -21,26 +21,26 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-smooth_movement_p1: Track = Note() * 4
-smooth_movement_p2: Track = Note() * 3 << Foreach(Dotted(1/4), 1/8, 1/2) >> Stack() << Foreach("E", "D", "D")
-smooth_movement_1: Track = smooth_movement_p1.copy() << Foreach("E", "E", "F", "G")
-smooth_movement_2: Track = (smooth_movement_p1.copy() << "G") - Iterate()
-smooth_movement_3: Track = smooth_movement_p1.copy() << Nth(3, 4)**Foreach("D", "E")
+smooth_movement_p1: Clip = Note() * 4
+smooth_movement_p2: Clip = Note() * 3 << Foreach(Dotted(1/4), 1/8, 1/2) >> Stack() << Foreach("E", "D", "D")
+smooth_movement_1: Clip = smooth_movement_p1.copy() << Foreach("E", "E", "F", "G")
+smooth_movement_2: Clip = (smooth_movement_p1.copy() << "G") - Iterate()
+smooth_movement_3: Clip = smooth_movement_p1.copy() << Nth(3, 4)**Foreach("D", "E")
 
 (smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2, 
  smooth_movement_1, smooth_movement_2, smooth_movement_3, smooth_movement_p2 - 1, Rest()) >> Play()
 
 defaults << KeySignature("b")
-whole_notes: Track = Note(1/1) * 4 << Foreach("F", "B", "E", Pitch("C", 5))
+whole_notes: Clip = Note(1/1) * 4 << Foreach("F", "B", "E", Pitch("C", 5))
 whole_notes >> Rest() >> Play()
 
-melodic_e: Track = Note(1/8, Position(1/2) - Duration(1/8)) * 5
-melodic_1: Track = (melodic_e.copy() << "E") + Iterate() + Nth(5)**1
-melodic_2: Track = (melodic_e.copy() - (melodic_e | Nth(1)) << "B" << Measures(1)) - Iterate()
-melodic_3: Track = melodic_1.copy() + 1 << Measures(2)
+melodic_e: Clip = Note(1/8, Position(1/2) - Duration(1/8)) * 5
+melodic_1: Clip = (melodic_e.copy() << "E") + Iterate() + Nth(5)**1
+melodic_2: Clip = (melodic_e.copy() - (melodic_e | Nth(1)) << "B" << Measures(1)) - Iterate()
+melodic_3: Clip = melodic_1.copy() + 1 << Measures(2)
 whole_notes + melodic_1 + melodic_2 + melodic_3 >> Link() >> Rest() >> Play(True)
 
-outline: Track = Note(1/2) * 7 >> Link()
+outline: Clip = Note(1/2) * 7 >> Link()
 outline << Foreach("F", "A", "G", "F", "E", "D", "E")
 outline >> Rest() >> Play()
 

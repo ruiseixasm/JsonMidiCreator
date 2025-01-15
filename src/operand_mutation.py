@@ -40,7 +40,7 @@ TypeMutation = TypeVar('TypeMutation', bound='Mutation')  # TypeMutation represe
 class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._sequence: oc.Track     = oe.Note() * 4
+        self._sequence: oc.Clip     = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Steps(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._performers: od.Performers = od.Performers(
                 od.Stack(),
@@ -58,7 +58,7 @@ class Mutation(o.Operand):
                 match operand._data:
                     case od.Performers():   return self._performers
                     case of.Frame():        return self._frame
-                    case oc.Track():     return self._sequence
+                    case oc.Clip():     return self._sequence
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return super().__mod__(operand)
@@ -66,7 +66,7 @@ class Mutation(o.Operand):
             case od.Performers():   return self._performers.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
-            case oc.Track():     return self._result._data.copy()
+            case oc.Clip():     return self._result._data.copy()
             case str():             return self._operator
             case od.Result():       return self._result.copy()
             case ou.Next():         return self * operand
@@ -116,14 +116,14 @@ class Mutation(o.Operand):
                 match operand._data:
                     case od.Performers():           self._performers = operand._data
                     case of.Frame():                self._frame = operand._data
-                    case oc.Track():             self._sequence = operand._data
+                    case oc.Clip():             self._sequence = operand._data
                     case str():                     self._operator = operand._data
                     case od.Result():               self._result = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case od.Performers():           self._performers << operand
             case of.Frame():                self._frame = operand.copy()
-            case oc.Track():
+            case oc.Clip():
                                             self._sequence  = operand.copy()
                                             self._result    << self._sequence
             case str():                     self._operator = operand
@@ -249,8 +249,8 @@ class Translocation(Mutation):
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            source_result: oc.Track  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
-            jumbled_result: oc.Track = source_result.copy()
+            source_result: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
+            jumbled_result: oc.Clip = source_result.copy()
             for actual_iteration in range(1, total_iterations + 1):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
                 for single_parameter in self._parameters._data: # A tuple of parameters
@@ -368,13 +368,13 @@ class Crossover(Mutation):
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            result_sequence: oc.Track  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
+            result_sequence: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
             source_len: int = result_sequence.len()
             for actual_iteration in range(1, total_iterations + 1):
                 source_parameters: list[any] = []
                 for _ in range(source_len):
                     for single_sequence in self._sequences._data:
-                        if isinstance(single_sequence, oc.Track):
+                        if isinstance(single_sequence, oc.Clip):
                             source_parameters.append(single_sequence % ou.Next()) # moves the index one step forward
                     source_parameter = source_parameters[self._chaos * 1 % int() % len(source_parameters)]
                     destination_parameter = result_sequence % ou.Next()

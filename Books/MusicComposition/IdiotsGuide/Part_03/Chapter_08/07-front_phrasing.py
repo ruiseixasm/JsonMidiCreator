@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 defaults << KeySignature("#")
 
-front_phrasing: Track = Note("B", Position(Beats(3))) * 5
+front_phrasing: Clip = Note("B", Position(Beats(3))) * 5
 front_phrasing << Nth(4, 5)**Foreach(1/2, 1/1)**Duration() >> Stack()
 front_phrasing + Foreach(0, 0, 3, 2, 0) >> Tie()
 front_phrasing >> Rest() >> Play()

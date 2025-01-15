@@ -219,20 +219,6 @@ class Container(o.Operand):
         self._datasource_list.sort(key=lambda x: x._data % compare)
         return self
 
-    # def sort(self, compare: o.Operand = None) -> 'Container':
-    #     compare = ra.Position() if compare is None else compare
-    #     for operand_i in range(self.len() - 1):
-    #         sorted_list = True
-    #         for operand_j in range(self.len() - 1 - operand_i):
-    #             if self._datasource_list[operand_j]._data % compare > self._datasource_list[operand_j + 1]._data % compare:
-    #                 temporary_operand = self._datasource_list[operand_j]._data
-    #                 self._datasource_list[operand_j]._data = self._datasource_list[operand_j + 1]._data
-    #                 self._datasource_list[operand_j + 1]._data = temporary_operand
-    #                 sorted_list = False
-    #         if sorted_list:
-    #             break
-    #     return self
-    
     def shuffle(self, shuffler: ch.Chaos = None) -> 'Container':
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
@@ -386,7 +372,7 @@ class Container(o.Operand):
     def __ror__(self, operand: any) -> 'Container':
         return self.__or__(operand)
 
-class Track(Container):  # Just a container of Elements
+class Clip(Container):  # Just a container of Elements
     def __init__(self, *operands):
 
         super().__init__(*operands)
@@ -396,7 +382,7 @@ class Track(Container):  # Just a container of Elements
 
         for single_operand in operands:
             match single_operand:
-                case Track():
+                case Clip():
                     self._midi_track    << single_operand._midi_track
                     self._position      << single_operand._position
                 case ou.MidiTrack():
@@ -409,7 +395,7 @@ class Track(Container):  # Just a container of Elements
     def __getitem__(self, index: int) -> oe.Element:
         return self._datasource_list[index]._data
 
-    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Track':
+    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
         if isinstance(staff_reference, og.Staff):
             for single_element in self:
                 if isinstance(single_element, oe.Element):
@@ -552,10 +538,10 @@ class Track(Container):  # Just a container of Elements
             self._position      = self.deserialize(serialization["parameters"]["position"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Track':
+    def __lshift__(self, operand: o.Operand) -> 'Clip':
 
         match operand:
-            case Track():
+            case Clip():
                 self._staff             << operand._staff
                 self._midi_track        << operand._midi_track
                 self._position          << operand._position
@@ -595,8 +581,8 @@ class Track(Container):  # Just a container of Elements
                     single_datasource._data << operand
         return self
 
-    def empty_copy(self, *parameters) -> 'Track':
-        empty_copy: Track = super().empty_copy()
+    def empty_copy(self, *parameters) -> 'Clip':
+        empty_copy: Clip = super().empty_copy()
         empty_copy._midi_track   << self._midi_track
         empty_copy._position     << self._position
         for single_parameter in parameters:
@@ -604,16 +590,16 @@ class Track(Container):  # Just a container of Elements
         return empty_copy
     
     # operand is the pusher >>
-    def __rrshift__(self, operand: o.Operand) -> 'Track':
+    def __rrshift__(self, operand: o.Operand) -> 'Clip':
         match operand:
-            case Track():
+            case Clip():
                 if self._midi_track._name == operand._midi_track._name:
                     if operand.len() > 0:
                         left_end_position: ra.Position = operand.finish()
                         right_start_position: ra.Position = self.start()
                         length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
-                        right_sequence: Track = self + length_shift  # Offsets the content and it's an implicit copy
-                        added_sequence: Track = operand.copy()       # Preserves the left_sequence configuration
+                        right_sequence: Clip = self + length_shift  # Offsets the content and it's an implicit copy
+                        added_sequence: Clip = operand.copy()       # Preserves the left_sequence configuration
                         added_sequence._datasource_list.extend(right_sequence._datasource_list)
                         return added_sequence
                     return self.copy()
@@ -624,7 +610,7 @@ class Track(Container):  # Just a container of Elements
                                 operand._position.getPosition( operand % ra.Duration() )
                             )
                     )
-                right_sequence: Track = self + element_length    # Implicit copy
+                right_sequence: Clip = self + element_length    # Implicit copy
                 right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_sequence
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
@@ -636,17 +622,17 @@ class Track(Container):  # Just a container of Elements
                 return super().__rrshift__(operand)
         return self.copy()
 
-    def __add__(self, operand: any) -> 'Track':
-        self_copy: Track = self.copy()
+    def __add__(self, operand: any) -> 'Clip':
+        self_copy: Clip = self.copy()
         return self_copy.__iadd__(operand)
             
     # Avoids the costly copy of Track self doing +=
-    def __iadd__(self, operand: any) -> 'Track':
+    def __iadd__(self, operand: any) -> 'Clip':
         match operand:
             case Song():
                 operand += self # Order is irrelevant in Song
                 return operand 
-            case Track():
+            case Clip():
                 if self._midi_track == operand._midi_track:
 
                     operand_data_list: list[oe.Element] = operand % list()
@@ -676,11 +662,11 @@ class Track(Container):  # Just a container of Elements
                     single_datasource._data += operand
                 return self
 
-    def __sub__(self, operand: any) -> 'Track':
-        self_copy: Track = self.copy()
+    def __sub__(self, operand: any) -> 'Clip':
+        self_copy: Clip = self.copy()
         return self_copy.__isub__(operand)
 
-    def __isub__(self, operand: any) -> 'Track':
+    def __isub__(self, operand: any) -> 'Clip':
         match operand:
             case Song():
                 operand -= self # Order is irrelevant in Song
@@ -693,17 +679,17 @@ class Track(Container):  # Just a container of Elements
                 return self
 
     # multiply with a scalar
-    def __mul__(self, operand: o.Operand) -> 'Track':
-        self_copy: Track = self.copy()
+    def __mul__(self, operand: o.Operand) -> 'Clip':
+        self_copy: Clip = self.copy()
         return self_copy.__imul__(operand)
     
     # in-place multiply with a scalar
-    def __imul__(self, operand: o.Operand) -> 'Track':
+    def __imul__(self, operand: o.Operand) -> 'Clip':
         match operand:
             case int():
 
                 self_length: ra.Length = self.length().roundMeasures()
-                original_self: Track = self.empty_copy()
+                original_self: Clip = self.empty_copy()
                 original_self._datasource_list = self._datasource_list
                 self._datasource_list = []  # Just to keep the self object
                 for segments in range(operand):
@@ -712,7 +698,7 @@ class Track(Container):  # Just a container of Elements
             case float():
 
                 self_length: ra.Length = self.length()
-                original_self: Track = self.empty_copy()
+                original_self: Clip = self.empty_copy()
                 original_self._datasource_list = self._datasource_list
                 self._datasource_list = []  # Just to keep the self object
                 for segments in range(int(operand)):
@@ -737,14 +723,14 @@ class Track(Container):  # Just a container of Elements
                     single_datasource._data *= operand
         return self
             
-    def __rmul__(self, operand: any) -> 'Track':
+    def __rmul__(self, operand: any) -> 'Clip':
         return self.__mul__(operand)
     
-    def __truediv__(self, operand: o.Operand) -> 'Track':
-        self_copy: Track = self.copy()
+    def __truediv__(self, operand: o.Operand) -> 'Clip':
+        self_copy: Clip = self.copy()
         return self_copy.__itruediv__(operand)
 
-    def __itruediv__(self, operand: o.Operand) -> 'Track':
+    def __itruediv__(self, operand: o.Operand) -> 'Clip':
         match operand:
             case int():
                 return super().__itruediv__(operand)
@@ -753,10 +739,10 @@ class Track(Container):  # Just a container of Elements
                     single_datasource._data /= operand
                 return self
 
-    def __or__(self, operand: any) -> 'Track':
+    def __or__(self, operand: any) -> 'Clip':
         match operand:
-            case Track():
-                new_sequence: Track = self.__class__()
+            case Clip():
+                new_sequence: Clip = self.__class__()
                 new_sequence._datasource_list.extend(self._datasource_list)
                 new_sequence._datasource_list.extend(operand._datasource_list)
                 new_sequence._midi_track   << self._midi_track
@@ -765,14 +751,14 @@ class Track(Container):  # Just a container of Elements
             case _:
                 return self.filter(operand)
 
-    def filter(self, criteria: any) -> 'Track':
-        filtered_sequence: Track = self.__class__()
+    def filter(self, criteria: any) -> 'Clip':
+        filtered_sequence: Clip = self.__class__()
         filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         filtered_sequence._midi_track   << self._midi_track
         filtered_sequence._position     << self._position
         return filtered_sequence
 
-    def reverse(self) -> 'Track':
+    def reverse(self) -> 'Clip':
         sequence_length: ra.Length = ra.Length( self.finish() ).roundMeasures() # Rounded up Duration to next Measure
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
@@ -785,20 +771,20 @@ class Track(Container):  # Just a container of Elements
         return super().reverse()    # Reverses the list
 
 
-    def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Track':
-        extended_sequence: Track = self.copy() << od.DataSource( self._datasource_list )
+    def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Clip':
+        extended_sequence: Clip = self.copy() << od.DataSource( self._datasource_list )
         while (extended_sequence >> self).length() <= time_value:
             extended_sequence >>= self
         self._datasource_list = extended_sequence._datasource_list
         return self
 
-    def trim(self, length: ra.Length) -> 'Track':
+    def trim(self, length: ra.Length) -> 'Clip':
         return self
 
-    def fill(self) -> 'Track':
+    def fill(self) -> 'Clip':
         return self
 
-    def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Track':
+    def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Clip':
         if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
             fitting_finish: ra.Position = self._position.getPosition(time)
         else:
@@ -809,7 +795,7 @@ class Track(Container):  # Just a container of Elements
         self *= ra.Duration(length_ratio)   # Adjust durations
         return self
 
-    def link(self) -> 'Track':
+    def link(self) -> 'Clip':
         self.sort()
         element_position: int = 0
         first_element_position: int = None
@@ -833,7 +819,7 @@ class Track(Container):  # Just a container of Elements
             last_element << (ra.Position(last_element % ra.Measures() + 1) - last_element._position).getDuration()
         return self
 
-    def stack(self) -> 'Track':
+    def stack(self) -> 'Clip':
 
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Element] = [
@@ -849,13 +835,13 @@ class Track(Container):  # Just a container of Elements
         
         return self
     
-    def tie(self, tied: bool = True) -> 'Track':
+    def tie(self, tied: bool = True) -> 'Clip':
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Tiable):
                 single_datasource._data << ou.Tied(tied)
         return self
     
-    def slur(self, gate: float = 1.05) -> 'Track':
+    def slur(self, gate: float = 1.05) -> 'Clip':
         last_element = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Tiable):
@@ -864,7 +850,7 @@ class Track(Container):  # Just a container of Elements
                 last_element = single_datasource._data
         return self
     
-    def smooth(self) -> 'Track':
+    def smooth(self) -> 'Clip':
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for single_datasource in self._datasource_list:
@@ -880,32 +866,32 @@ class Track(Container):  # Just a container of Elements
                 last_note = actual_note
         return self
     
-    def split(self, position: ra.Position) -> tuple['Track', 'Track']:
-        self_left: Track     = self.filter(of.Less(position))
-        self_right: Track    = self.filter(of.GreaterEqual(position))
+    def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
+        self_left: Clip     = self.filter(of.Less(position))
+        self_right: Clip    = self.filter(of.GreaterEqual(position))
         return self_left, self_right
 
 class Song(Container):
     def __init__(self, *operands):
         super().__init__()
         for single_operand in operands:
-            if isinstance(single_operand, (Track, oe.Element)):
+            if isinstance(single_operand, (Clip, oe.Element)):
                 if isinstance(single_operand, oe.Element):
-                    single_operand = Track(single_operand)
+                    single_operand = Clip(single_operand)
                 else:
                     single_operand = single_operand.copy()
                 for single_sequence in self:
-                    if isinstance(single_sequence, Track):
+                    if isinstance(single_sequence, Clip):
                         if single_sequence._midi_track == single_operand._midi_track:
                             single_sequence << single_sequence.__add__(single_operand)
                             continue
                 self._datasource_list.append(od.DataSource( single_operand ))
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Track, od.Playlist)))
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Clip, od.Playlist)))
 
-    def __getitem__(self, key: str | int) -> Track:
+    def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
             for single_sequence in self:
-                if isinstance(single_sequence, Track):   # Playlists aren't selectable by name !
+                if isinstance(single_sequence, Clip):   # Playlists aren't selectable by name !
                     if single_sequence._midi_track._name == key:
                         return single_sequence
             return ol.Null()
@@ -915,7 +901,7 @@ class Song(Container):
         match operand:
             case ou.MidiTrack():
                 for single_sequence in self:
-                    if isinstance(single_sequence, Track):
+                    if isinstance(single_sequence, Clip):
                         if single_sequence._midi_track == operand:
                             return single_sequence
                 return ol.Null()
@@ -925,14 +911,14 @@ class Song(Container):
     def getPlaylist(self, position: ra.Position = None) -> list:
         play_list: list = []
         for single_sequence in self:
-            if isinstance(single_sequence, (Track, od.Playlist)):
+            if isinstance(single_sequence, (Clip, od.Playlist)):
                 play_list.extend(single_sequence.getPlaylist(position))
         return play_list
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_list: list = []
         for single_sequence in self:
-            if isinstance(single_sequence, Track):   # Can't get Midilist from Playlist !
+            if isinstance(single_sequence, Clip):   # Can't get Midilist from Playlist !
                 midi_list.extend(single_sequence.getMidilist(midi_track, position))
         return midi_list
 
@@ -940,18 +926,18 @@ class Song(Container):
 
     def __lshift__(self, operand: o.Operand) -> 'Song':
         super().__lshift__(operand)
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Track, od.Playlist)))
+        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Clip, od.Playlist)))
         return self
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Song':
-        if isinstance(operand, (Track, oe.Element)):
+        if isinstance(operand, (Clip, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand) # Track() already does the copy
+                operand = Clip(operand) # Track() already does the copy
             else:
                 operand = operand.copy()
             for single_sequence in self:
-                if isinstance(single_sequence, Track):
+                if isinstance(single_sequence, Clip):
                     if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__rrshift__(operand)
                         return self
@@ -960,14 +946,14 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __radd__(self, operand: Track | oe.Element) -> 'Song':
-        if isinstance(operand, (Track, oe.Element)):
+    def __radd__(self, operand: Clip | oe.Element) -> 'Song':
+        if isinstance(operand, (Clip, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand)
+                operand = Clip(operand)
             else:
                 operand = operand.copy()
             for single_sequence in self:
-                if isinstance(single_sequence, Track):
+                if isinstance(single_sequence, Clip):
                     if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__radd__(operand)    # Where the difference lies!
                         return self
@@ -976,15 +962,15 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self
 
-    def __add__(self, operand: Track | oe.Element) -> 'Song':
+    def __add__(self, operand: Clip | oe.Element) -> 'Song':
         self_copy: Song = self.copy()
-        if isinstance(operand, (Track, oe.Element)):
+        if isinstance(operand, (Clip, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand) # Makes sure it becomes a Track
+                operand = Clip(operand) # Makes sure it becomes a Track
             else:
                 operand = operand.copy()
             for single_sequence in self_copy:
-                if isinstance(single_sequence, Track):
+                if isinstance(single_sequence, Clip):
                     if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
                         return self_copy
@@ -995,14 +981,14 @@ class Song(Container):
             o.logging.warning(f"Frames don't work on Songs!")
         return self_copy
 
-    def __iadd__(self, operand: Track | oe.Element) -> 'Song':
-        if isinstance(operand, (Track, oe.Element)):
+    def __iadd__(self, operand: Clip | oe.Element) -> 'Song':
+        if isinstance(operand, (Clip, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand) # Makes sure it becomes a Track
+                operand = Clip(operand) # Makes sure it becomes a Track
             else:
                 operand = operand.copy()
             for single_sequence in self:
-                if isinstance(single_sequence, Track):
+                if isinstance(single_sequence, Clip):
                     if single_sequence._midi_track == operand._midi_track:
                         single_sequence << single_sequence.__add__(operand)     # Where the difference lies!
                         return self
@@ -1015,30 +1001,30 @@ class Song(Container):
 
     def __sub__(self, operand: o.Operand) -> 'Song':
         self_copy: Song = self.copy()
-        if isinstance(operand, Track):
+        if isinstance(operand, Clip):
             for single_sequence_i in len(self_copy._datasource_list):
-                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Track):
+                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Clip):
                     if self_copy._datasource_list[single_sequence_i]._data == operand:
                         del self_copy._datasource_list[single_sequence_i]
         elif isinstance(operand, oe.Element):
             for single_sequence_i in len(self_copy._datasource_list):
-                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Track):
-                    if self_copy._datasource_list[single_sequence_i]._data == Track(operand):
+                if isinstance(self_copy._datasource_list[single_sequence_i]._data, Clip):
+                    if self_copy._datasource_list[single_sequence_i]._data == Clip(operand):
                         del self_copy._datasource_list[single_sequence_i]
         elif isinstance(operand, of.Frame):
             o.logging.warning(f"Frames don't work on Songs!")
         return self_copy
 
     def __isub__(self, operand: o.Operand) -> 'Song':
-        if isinstance(operand, Track):
+        if isinstance(operand, Clip):
             for single_sequence_i in len(self._datasource_list):
-                if isinstance(self._datasource_list[single_sequence_i]._data, Track):
+                if isinstance(self._datasource_list[single_sequence_i]._data, Clip):
                     if self._datasource_list[single_sequence_i]._data == operand:
                         del self._datasource_list[single_sequence_i]
         elif isinstance(operand, oe.Element):
             for single_sequence_i in len(self._datasource_list):
-                if isinstance(self._datasource_list[single_sequence_i]._data, Track):
-                    if self._datasource_list[single_sequence_i]._data == Track(operand):
+                if isinstance(self._datasource_list[single_sequence_i]._data, Clip):
+                    if self._datasource_list[single_sequence_i]._data == Clip(operand):
                         del self._datasource_list[single_sequence_i]
         elif isinstance(operand, of.Frame):
             o.logging.warning(f"Frames don't work on Songs!")

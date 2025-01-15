@@ -33,7 +33,7 @@ TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents 
 
 
 if TYPE_CHECKING:
-    from operand_container import Track
+    from operand_container import Clip
 
 class Element(o.Operand):
     def __init__(self, *parameters):
@@ -302,7 +302,7 @@ class Element(o.Operand):
                 return self.copy() << self % od.DataSource( ra.Position() ) + operand
             case ra.Position():
                 return self.copy() << operand
-            case Element() | oc.Track():
+            case Element() | oc.Clip():
                 return operand + self >> od.Stack()
             case od.Serialization():
                 return operand % od.DataSource() >> self
@@ -320,11 +320,11 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                new_sequence: oc.Track = oc.Track()
+                new_sequence: oc.Clip = oc.Clip()
                 elements_list: list[Element] = [self, operand.copy()]
                 return new_sequence << od.DataSource( elements_list )
-            case oc.Track():
-                self_sequence: oc.Track = operand.empty_copy()
+            case oc.Clip():
+                self_sequence: oc.Clip = operand.empty_copy()
                 self_sequence += self
                 self_sequence += operand
                 return self_sequence
@@ -355,11 +355,11 @@ class Element(o.Operand):
         self_copy: Element = self.copy()
         return self_copy.__imul__(operand)
 
-    def __imul__(self, operand: any) -> Union['Element', 'Track']:
+    def __imul__(self, operand: any) -> Union['Element', 'Clip']:
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case int() | float():
-                new_sequence: oc.Track = oc.Track()
+                new_sequence: oc.Clip = oc.Clip()
                 multiplier: int = int(operand)
                 if multiplier > 0:
                     new_sequence._datasource_list.append(od.DataSource( self ))

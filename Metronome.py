@@ -27,12 +27,12 @@ defaults << Measures(4)    # Sets the length in Measures
 
 measures_long: int = defaults // Measures() // int()
 
-measure_bell: Track = Nt(DrumKit(34)) * 1 * measures_long
+measure_bell: Clip = Nt(DrumKit(34)) * 1 * measures_long
 measure_bell >> Play()
-beat_tick: Track = (Nt(DrumKit(33)) * 3 + Beat(1)) * measures_long << Velocity(50)
+beat_tick: Clip = (Nt(DrumKit(33)) * 3 + Beat(1)) * measures_long << Velocity(50)
 beat_tick >> Play()
 
-metronome: Track = (measure_bell + beat_tick) * 4
+metronome: Clip = (measure_bell + beat_tick) * 4
 metronome >> Play()
 
 

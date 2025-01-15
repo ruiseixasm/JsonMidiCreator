@@ -240,7 +240,7 @@ class Oscillator(Operator):
     def __or__(self, operand: any):
         operand = super().__or__(operand)
         match operand:
-            case oc.Track():
+            case oc.Clip():
                 for single_data in operand:
                     self | single_data
             case oe.Element() | ra.Position():

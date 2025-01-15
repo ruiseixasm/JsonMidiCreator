@@ -26,10 +26,10 @@ defaults << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif: Track = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
 
-motif_key: Track = motif.copy() << KeySignature("##")
+motif_key: Clip = motif.copy() << KeySignature("##")
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
 motif_modulation = motif >> motif_key + Octave()
@@ -39,10 +39,10 @@ defaults << "#" << 120 << Minor()  # Minor Keys
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif: Track = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree()
 
-motif_key: Track = motif.copy() << Sharps(2)
+motif_key: Clip = motif.copy() << Sharps(2)
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
 motif_modulation = motif >> motif_key

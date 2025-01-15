@@ -375,7 +375,7 @@ class Playlist(Data):
                         self._data = operand._data
                     case _:
                         super().__lshift__(operand)
-            case oc.Song() | oc.Track() | oe.Element() | Playlist():
+            case oc.Song() | oc.Clip() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
             case ou.MidiTrack():
                 self._midi_track    << operand
@@ -391,7 +391,7 @@ class Playlist(Data):
         import operand_element as oe
         import operand_container as oc
         match operand:
-            case oc.Track() | oe.Element() | Playlist():
+            case oc.Clip() | oe.Element() | Playlist():
                 operand_play_list: list[dict] = operand.getPlaylist()
                 self_copy: Playlist = self.copy()
                 if len(self_copy._data) > 0 and len(operand_play_list) > 0:
@@ -635,12 +635,12 @@ class Clear(Operation):
             return super().__rrshift__(operand)
 
 if TYPE_CHECKING:
-    from operand_container import Track
+    from operand_container import Clip
 
 class Stack(Operation):
-    def __rrshift__(self, operand: any) -> 'Track':
+    def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.stack()
         else:
             return super().__rrshift__(operand)
@@ -649,9 +649,9 @@ class Tie(Operation):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
-    def __rrshift__(self, operand: o.Operand) -> 'Track':
+    def __rrshift__(self, operand: o.Operand) -> 'Clip':
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.tie(self._data)
         else:
             return super().__rrshift__(operand)
@@ -660,17 +660,17 @@ class Slur(Operation):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
-    def __rrshift__(self, operand: o.Operand) -> 'Track':
+    def __rrshift__(self, operand: o.Operand) -> 'Clip':
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.slur(self._data)
         else:
             return super().__rrshift__(operand)
 
 class Smooth(Operation):
-    def __rrshift__(self, operand: o.Operand) -> 'Track':
+    def __rrshift__(self, operand: o.Operand) -> 'Clip':
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.smooth()
         else:
             return super().__rrshift__(operand)
@@ -732,7 +732,7 @@ class Link(Operation):
 
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.link()
         else:
             return super().__rrshift__(operand)
@@ -756,7 +756,7 @@ class Reverse(Operation):
 class Extend(Operation):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.extend(self._data)
         else:
             return super().__rrshift__(operand)
@@ -764,7 +764,7 @@ class Extend(Operation):
 class Trim(Operation):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.trim(self._data)
         else:
             return super().__rrshift__(operand)
@@ -772,7 +772,7 @@ class Trim(Operation):
 class Fill(Operation):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.fill()
         else:
             return super().__rrshift__(operand)
@@ -825,14 +825,14 @@ class Middle(Getter):
 class Start(Getter):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.start()
         return ol.Null()
 
 class End(Getter):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(operand, oc.Track):
+        if isinstance(operand, oc.Clip):
             return operand.finish()
         return ol.Null()
 
