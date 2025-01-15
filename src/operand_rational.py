@@ -605,29 +605,25 @@ class Position(Convertible):
     def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )
 
-    # Position round type: [...)
-    def roundMeasures(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Position':
-        match time:
-            case None:
-                return self._staff_reference.roundMeasures(self)
-            case _:
-                return self._staff_reference.roundMeasures(time)
+
 
     # Position round type: [...)
-    def roundBeats(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Position':
-        match time:
-            case None:
-                return self._staff_reference.roundBeats(self)
-            case _:
-                return self._staff_reference.roundBeats(time)
+    def roundMeasures(self) -> 'Position':
+        measures: Fraction = self.getMeasures()._rational
+        measures = Fraction( int(measures) )
+        return self.getPosition( Measures(measures) )
+
+    # Position round type: [...)
+    def roundBeats(self) -> 'Position':
+        beats: Fraction = self.getBeats()._rational
+        beats = Fraction( int(beats) )
+        return self.getPosition( Beats(beats) )
     
     # Position round type: [...)
-    def roundSteps(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Position':
-        match time:
-            case None:
-                return self._staff_reference.roundSteps(self)
-            case _:
-                return self._staff_reference.roundSteps(time)
+    def roundSteps(self) -> 'Position':
+        steps: Fraction = self.getSteps()._rational
+        steps = Fraction( int(steps) )
+        return self.getPosition( Steps(steps) )
 
 
     def getPlaylist(self, position: 'Position' = None) -> list:
@@ -702,7 +698,34 @@ class Position(Convertible):
         return self / operand
 
 class Length(Position):
-    pass
+    
+    # Length round type: (...]
+    def roundMeasures(self) -> 'Length':
+        measures: Fraction = self.getMeasures()._rational
+        if measures.denominator != 1:
+            measures = Fraction(int(measures) + 1)  # moves forward one unit
+        else:
+            measures = Fraction( int(measures) )
+        return self.getPosition( Measures(measures) )
+
+    # Length round type: (...]
+    def roundBeats(self) -> 'Length':
+        beats: Fraction = self.getBeats()._rational
+        if beats.denominator != 1:
+            beats = Fraction(int(beats) + 1)  # moves forward one unit
+        else:
+            beats = Fraction( int(beats) )
+        return self.getPosition( Beats(beats) )
+    
+    # Length round type: (...]
+    def roundSteps(self) -> 'Length':
+        steps: Fraction = self.getSteps()._rational
+        if steps.denominator != 1:
+            steps = Fraction(int(steps) + 1)  # moves forward one unit
+        else:
+            steps = Fraction( int(steps) )
+        return self.getPosition( Steps(steps) )
+
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats
