@@ -45,7 +45,7 @@ class Element(o.Operand):
         self._device: list[str]             = og.defaults._device.copy()
         self._enabled: bool                 = True
 
-        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+        self._staff_reference: og.Staff     = og.defaults._staff
 
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -55,7 +55,7 @@ class Element(o.Operand):
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
         else:
-            self._staff_reference = og.defaults // og.Staff()
+            self._staff_reference = og.defaults._staff
         return self
 
     def position(self: TypeElement, position: float = None) -> TypeElement:

@@ -257,7 +257,7 @@ class TimeUnit(PositionParameter):
     def __init__(self, *parameters):
         import operand_generic as og
         
-        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+        self._staff_reference: og.Staff     = og.defaults._staff
 
         super().__init__(*parameters)
 

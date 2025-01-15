@@ -452,7 +452,7 @@ class Position(Rational):
         self._time_signature: og.TimeSignature  = og.defaults._staff._time_signature.copy()
         self._quantization: Fraction            = og.defaults._staff._quantization
 
-        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+        self._staff_reference: og.Staff     = og.defaults._staff
 
         super().__init__(*parameters)
 
@@ -915,7 +915,7 @@ class TimeValue(Rational):  # Works as Absolute Beats
     def __init__(self, *parameters):
         import operand_generic as og
 
-        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+        self._staff_reference: og.Staff     = og.defaults._staff
 
         super().__init__(*parameters)
 
@@ -965,7 +965,7 @@ class Duration(Rational):
     def __init__(self, *parameters):
         import operand_generic as og
         
-        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+        self._staff_reference: og.Staff     = og.defaults._staff
 
         super().__init__(*parameters)
 
