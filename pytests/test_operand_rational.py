@@ -337,30 +337,30 @@ def test_basic_conversions():
 # test_basic_conversions()
 
 
-def test_full_conversions():
+# def test_full_conversions():
 
-    position = Position()
+#     position = Position()
 
-    for time_value in (Measures(10.5), Beats(10.5 * 4),
-                       Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
-        assert position.getMeasures(time_value) == 10.5
-        assert position.getMeasure(time_value) == 10
-        assert position.getBeats(time_value) == 10.5 * 4
-        assert position.getBeat(time_value) == 2
-        assert position.getSteps(time_value) == 10.5 * 4 * 4
-        assert position.getStep(time_value) == 2 * 4
-        assert position.getDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+#     for time_value in (Measures(10.5), Beats(10.5 * 4),
+#                        Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
+#         assert position.getMeasures(time_value) == 10.5
+#         assert position.getMeasure(time_value) == 10
+#         assert position.getBeats(time_value) == 10.5 * 4
+#         assert position.getBeat(time_value) == 2
+#         assert position.getSteps(time_value) == 10.5 * 4 * 4
+#         assert position.getStep(time_value) == 2 * 4
+#         assert position.getDuration(time_value) == 10 * (1/1) + 2 * (1/4)
 
-    for time_unit in (Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
-        assert position.getMeasures(time_unit) == 10
-        assert position.getMeasure(time_unit) == 10
-        assert position.getBeats(time_unit) == 10 * 4
-        assert position.getBeat(time_unit) == 0
-        assert position.getSteps(time_unit) == 10 * 4 * 4
-        assert position.getStep(time_unit) == 0 * 4
-        assert position.getDuration(time_unit) == 10 * (1/1)
+#     for time_unit in (Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
+#         assert position.getMeasures(time_unit) == 10
+#         assert position.getMeasure(time_unit) == 10
+#         assert position.getBeats(time_unit) == 10 * 4
+#         assert position.getBeat(time_unit) == 0
+#         assert position.getSteps(time_unit) == 10 * 4 * 4
+#         assert position.getStep(time_unit) == 0 * 4
+#         assert position.getDuration(time_unit) == 10 * (1/1)
 
-# test_full_conversions()
+# # test_full_conversions()
 
 
 def test_multi_testing():

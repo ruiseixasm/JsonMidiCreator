@@ -319,3 +319,40 @@ def test_drum_kit():
 
 # test_drum_kit()
 
+
+def test_full_conversions():
+
+    default_staff: Staff = defaults % Staff()
+
+    for time_value in (Position(10.5), Measures(10.5), Beats(10.5 * 4),
+                       Steps(10.5 * 4 * 4), Duration(10 * (1/1) + 2 * (1/4))):
+        assert default_staff.getMeasures(time_value) == 10.5
+        assert default_staff.getMeasure(time_value) == 10
+        assert default_staff.getBeats(time_value) == 10.5 * 4
+        assert default_staff.getBeat(time_value) == 2
+        assert default_staff.getSteps(time_value) == 10.5 * 4 * 4
+        assert default_staff.getStep(time_value) == 2 * 4
+        assert default_staff.getDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+
+    for time_value in (Length(10.5)):
+        assert default_staff.getMeasures(time_value) == 10.5
+        assert default_staff.getMeasure(time_value) == 11   # Considers entire Measure where it's present
+        assert default_staff.getBeats(time_value) == 10.5 * 4
+        assert default_staff.getBeat(time_value) == 2
+        assert default_staff.getSteps(time_value) == 10.5 * 4 * 4
+        assert default_staff.getStep(time_value) == 2 * 4
+        assert default_staff.getDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+
+    for time_unit in (Position(10), Length(10), Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
+        assert default_staff.getMeasures(time_unit) == 10
+        assert default_staff.getMeasure(time_unit) == 10
+        assert default_staff.getBeats(time_unit) == 10 * 4
+        assert default_staff.getBeat(time_unit) == 0
+        assert default_staff.getSteps(time_unit) == 10 * 4 * 4
+        assert default_staff.getStep(time_unit) == 0 * 4
+        assert default_staff.getDuration(time_unit) == 10 * (1/1)
+
+# test_full_conversions()
+
+
+
