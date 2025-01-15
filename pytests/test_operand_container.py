@@ -49,7 +49,7 @@ def test_container_mod():
 def test_sequence_mod():
 
     # Perform the operation
-    sequence_1 = Sequence(Note("A"), Note("B"))
+    sequence_1 = Track(Note("A"), Note("B"))
     sequence_2 = Note("A") + Note("B")
 
     sequence_1 % Position() % Fraction() >> Print() # 0
@@ -65,7 +65,7 @@ def test_sequence_mod():
     assert sequence_1 == sequence_2
     
 
-    chords_sequence: Sequence = Sequence(Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord())
+    chords_sequence: Track = Track(Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord())
     assert chords_sequence.len() == 7
     for single_item in chords_sequence:
         assert single_item == "C"
@@ -87,7 +87,7 @@ def test_sequence_mod():
 
 def test_rrshift_sequence():
 
-    two_notes: Sequence = Note() * 2
+    two_notes: Track = Note() * 2
     assert two_notes.len() == 2
     # Checks each note position
     two_notes % Position() % Fraction() >> Print()      # 0
@@ -95,7 +95,7 @@ def test_rrshift_sequence():
 
     print("------")
     measure_length: Length = Length(1)
-    moved_two_notes: Sequence = measure_length >> two_notes.copy()
+    moved_two_notes: Track = measure_length >> two_notes.copy()
     moved_two_notes % Position() % Fraction() >> Print()    # 1
     assert moved_two_notes == Position(1)
     moved_two_notes[0] % Position() % Fraction() >> Print() # 0
@@ -152,13 +152,13 @@ def test_milliseconds_duration():
 
 def test_add_sequence():
 
-    two_notes: Sequence = Note() * 2
-    four_notes: Sequence = Note() * 4
+    two_notes: Track = Note() * 2
+    four_notes: Track = Note() * 4
 
     assert two_notes + two_notes >> Stack() == four_notes
     assert two_notes != four_notes
 
-    three_notes: Sequence = Note() * 3
+    three_notes: Track = Note() * 3
     three_notes_2 = two_notes + Note() >> Stack()   # two_notes is NOT changed and thus remains of size 2
     assert three_notes == three_notes_2
     assert two_notes != three_notes_2               # two_notes remains unchanged, size 2!
@@ -172,7 +172,7 @@ def test_add_sequence():
     assert two_notes % Length() == Beats(2)
     # assert two_notes >> Length() == Beats(2)
     assert (two_notes + two_notes) % Length() == Beats(2)
-    four_measures: Sequence = two_notes * 4
+    four_measures: Track = two_notes * 4
     assert four_measures % Length() == Beats(3 * 4 + 2)
     assert (four_measures + four_measures) % Length() == Beats(3 * 4 + 2)
 
@@ -182,9 +182,9 @@ def test_add_sequence():
 def test_sub_sequence():
 
     single_note: Element = Note()
-    four_notes: Sequence = Note() * 4
-    notes_to_remove: Sequence = four_notes % Nth(1, 3)
-    remaining_notes: Sequence = four_notes % Nth(2, 4)
+    four_notes: Track = Note() * 4
+    notes_to_remove: Track = four_notes % Nth(1, 3)
+    remaining_notes: Track = four_notes % Nth(2, 4)
 
     assert notes_to_remove.len() < four_notes.len()
     assert notes_to_remove.len() == remaining_notes.len()
@@ -196,18 +196,18 @@ def test_sub_sequence():
 
 def test_mul_sequence():
 
-    two_notes: Sequence = Note() * 2
-    four_notes: Sequence = Note() * 4
+    two_notes: Track = Note() * 2
+    four_notes: Track = Note() * 4
 
     assert two_notes * 2 >> Stack() == four_notes
     assert two_notes != four_notes
 
-    two_notes << Track("Two Notes")
-    eight_notes: Sequence = two_notes * 4
+    two_notes << MidiTrack("Two Notes")
+    eight_notes: Track = two_notes * 4
     print(f"Len: {eight_notes.len()}")
     assert eight_notes.len() == 8
 
-    eight_notes_1: Sequence = two_notes * 4
+    eight_notes_1: Track = two_notes * 4
     assert eight_notes_1.len() == 8
     first_note = eight_notes_1[0]
     third_note = eight_notes_1[2]
@@ -244,7 +244,7 @@ def test_mul_sequence():
 
 def test_sequence_composition():
 
-    measure_bell: Sequence = Nt(DrumKit(34)) * 1 * 4
+    measure_bell: Track = Nt(DrumKit(34)) * 1 * 4
     print(f"Length: {measure_bell % Length() % float()}")
     assert measure_bell % Length() == Measure(4)
     print(f"Length: {measure_bell % Length() % float()}")
@@ -253,7 +253,7 @@ def test_sequence_composition():
     assert measure_bell % Position() == 0.0
 
     print("------")
-    beat_tick: Sequence = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
+    beat_tick: Track = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
     print(f"Measure: {beat_tick % Length() % Measure() % int()}")
     assert beat_tick % Length() == Measure(4)
     print(f"Measures: {beat_tick % Length() % Measures() % float()}")
@@ -263,7 +263,7 @@ def test_sequence_composition():
     assert beat_tick % Position() == 0.0    # Position basic operations work on elements
 
     print("------")
-    metronome: Sequence = measure_bell + beat_tick
+    metronome: Track = measure_bell + beat_tick
     print(f"Measure: {metronome % Length() % Measure() % int()}")
     assert metronome % Length() == Measure(4)
     print(f"Measures: {metronome % Length() % Measures() % float()}")
@@ -282,7 +282,7 @@ def test_sequence_composition():
     assert beat_tick % Position() == 0.0
 
     print("------")
-    metronome: Sequence = measure_bell + beat_tick
+    metronome: Track = measure_bell + beat_tick
     print(f"Measure: {metronome % Length() % Measure() % int()}")
     assert metronome % Length() == Measure(4)
     print(f"Measures: {metronome % Length() % Measures() % float()}")
@@ -295,7 +295,7 @@ def test_sequence_composition():
 
 def test_element_stacking():
 
-    two_notes: Sequence = Note() * 2
+    two_notes: Track = Note() * 2
     assert two_notes % Last() % Beats() == Beats(1)
 
     two_notes << 1/8    # Stacking is NOT included!
@@ -308,14 +308,14 @@ def test_element_stacking():
 
 def test_sequence_filter():
 
-    four_notes: Sequence = Note() * 4
+    four_notes: Track = Note() * 4
     assert four_notes.len() == 4
-    single_note: Sequence = four_notes | Beat(2)
+    single_note: Track = four_notes | Beat(2)
     assert single_note.len() == 1
 
-    eight_notes: Sequence = Note() * 8
+    eight_notes: Track = Note() * 8
     assert eight_notes.len() == 8
-    single_note: Sequence = eight_notes | Beat(2)
+    single_note: Track = eight_notes | Beat(2)
     assert single_note.len() == 2
 
 # test_sequence_filter()
@@ -323,7 +323,7 @@ def test_sequence_filter():
 
 def test_sequence_fitting():
 
-    six_notes: Sequence = Note() * 6
+    six_notes: Track = Note() * 6
     assert six_notes % Length() == Beats(6)
 
     six_notes.fit(Measures(2))
@@ -340,7 +340,7 @@ def test_sequence_fitting():
 
 def test_sequence_map():
 
-    four_notes: Sequence = Note() * 4
+    four_notes: Track = Note() * 4
     four_notes += All()**Beat(1)
     assert four_notes[0] % Beat() == 1
     assert four_notes[0] % Beats() == 1
@@ -354,14 +354,14 @@ def test_sequence_map():
 
 def test_sequence_selectors():
 
-    four_notes: Sequence = Note() * 4
+    four_notes: Track = Note() * 4
     four_notes += All()**Beat(1)
     assert four_notes % First() % Beats() == 1
     assert four_notes % Middle(3) % Beats() == 3    # Middle uses nth, so, 3 means the 3rd element
     assert four_notes % Last() % Beats() == 4
 
     # Test for bad input
-    empty_sequence: Sequence = Sequence()
+    empty_sequence: Track = Track()
     assert empty_sequence % First() == Null()
     assert empty_sequence % Middle(3) == Null()
     assert empty_sequence % Last() == Null()
@@ -371,8 +371,8 @@ def test_sequence_selectors():
 
 def test_position_shift():
 
-    four_notes_1: Sequence = Note() * 4 << NoteValue(1/8)
-    four_notes_2: Sequence = Note() * 4
+    four_notes_1: Track = Note() * 4 << NoteValue(1/8)
+    four_notes_2: Track = Note() * 4
 
     Beats(2) >> four_notes_1
     assert four_notes_1 % Position() == Beats(2)
@@ -399,8 +399,8 @@ def test_position_shift():
 
 def test_sequence_operations():
 
-    straight_sequence: Sequence = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
-    reversed_sequence: Sequence = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
+    straight_sequence: Track = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
+    reversed_sequence: Track = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
@@ -438,12 +438,12 @@ def test_sequence_operations():
 
 def test_sequence_content():
 
-    sequence_elements: Sequence = Note() * 4
+    sequence_elements: Track = Note() * 4
 
     for item in sequence_elements:
         assert isinstance(item, Element)
 
-    sequence_items: Sequence = Sequence(Note(), Channel(1), Velocity(100), Rest())
+    sequence_items: Track = Track(Note(), Channel(1), Velocity(100), Rest())
     assert sequence_items.len() == 2
     for item in sequence_items:
         assert isinstance(item, Element)

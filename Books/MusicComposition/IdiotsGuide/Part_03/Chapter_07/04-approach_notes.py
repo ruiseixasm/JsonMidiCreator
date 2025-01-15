@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 defaults << KeySignature("b")
 
-approach: Sequence = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
+approach: Track = (Note("C", 5, Dotted(1/2)) + Note("G")) * 4
 approach -= approach % Last()
 approach << Equal(Measures(3))**Duration(1)
 approach - Equal(Measures(1))**2 - Equal(Measures(2), Measures(3))**Equal(Beats(0))**4
@@ -34,7 +34,7 @@ approach >> Play()
 (approach | Measures(2) | Beats(3)) - 3
 approach >> Play()
 
-four_steps: Sequence = Note("C", 1/16) * 4 - Increment()
+four_steps: Track = Note("C", 1/16) * 4 - Increment()
 approach |= Beats(0)
 approach = approach \
             + (four_steps.copy() + Octave(1) + 2 << Position(Measures(0), Beats(3)) >> Stack()) \

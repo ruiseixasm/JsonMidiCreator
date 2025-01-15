@@ -23,10 +23,10 @@ from JsonMidiCreator import *
 
 defaults << KeySignature("bbb")
 
-slow_paced: Sequence = Note("E", 1/2) * 7 >> Link() << Foreach(6, 5, 1, 3, 6, 5, 2)**Degree()
+slow_paced: Track = Note("E", 1/2) * 7 >> Link() << Foreach(6, 5, 1, 3, 6, 5, 2)**Degree()
 slow_paced >> Rest() >> Play()
 
-embellishing: Sequence = \
+embellishing: Track = \
     Note("E", Degree("IV"), Position(Measures(0) + Dotted(1/4))) + \
     Note("E", Degree("ii"), Position(Measures(1) - Duration(1/8))) + \
     Note("E", Degree("ii"), Position(Measures(1) + Duration(1/4))) + \
@@ -37,7 +37,7 @@ embellishing: Sequence = \
     Note("E", Degree("iii"), Position(Measures(3) - Duration(1/8)))
 slow_paced + embellishing >> Link() >> Rest() >> Play()
 
-variation: Sequence = Note("E") * 10
+variation: Track = Note("E") * 10
 variation << Foreach(
         Measures(0, Steps(2)),
         Measures(0, Steps(4)),

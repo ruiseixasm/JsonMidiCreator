@@ -47,7 +47,7 @@ full >> Play()
 # ((full | Measure(0)) >> Print()) % Duration() >> Print(0)
 
 defaults << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
-outline: Sequence = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
+outline: Track = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
 outline *= 4
 outline + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4
 (outline - outline % Last() | outline % Last()) << Dotted(1/2)

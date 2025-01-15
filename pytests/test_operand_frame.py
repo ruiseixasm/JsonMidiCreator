@@ -49,7 +49,7 @@ def test_foreach_mod():
     notes = Note() * 7  # default degree 1 relative to the note C
 
     notes += frame  # Original sequences aren't modified by + operator
-    sequence = Sequence() \
+    sequence = Track() \
         + (N() << D) + (N() << E) + (N() << F) + (N() << G) + (N() << A) + (N() << D) + (N() << E) \
         >> Stack()
         # +       1            2            3            4            5            1            2
@@ -69,7 +69,7 @@ def test_conditional_note():
     note += Equal(Step(0))**Octave(1)
     assert note % Octave() == 4
 
-    four_notes: Sequence = Note() * 4
+    four_notes: Track = Note() * 4
     
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4

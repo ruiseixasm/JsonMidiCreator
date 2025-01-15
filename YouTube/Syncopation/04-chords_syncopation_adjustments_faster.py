@@ -76,7 +76,7 @@ chords << Duration(1/16)
 # Duplicate the pattern to repeat it at 1 Beat forward
 chords << Iterate(2)**Measures()
 chords % Length() % float() >> Print()  # Measures
-repeated_chords: Seq = Sequence()
+repeated_chords: Seq = Track()
 
 for step in range(16*2//3 + 1):
     repeated_chords += chords
@@ -102,7 +102,7 @@ syncopation_2: Seq = syncopation_1_4 + repeated_chords # x4 because chords are 4
 c.profiling_timer.call_timer_a()
 
 # Move forward 1/16 note (a step)
-syncopation_3: Seq = Sequence()
+syncopation_3: Seq = Track()
 for _ in range(2):
     repeated_chords += Step(1)
     syncopation_3 = syncopation_1_4 + repeated_chords

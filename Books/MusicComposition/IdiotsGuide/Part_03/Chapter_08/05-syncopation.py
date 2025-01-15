@@ -23,11 +23,11 @@ from JsonMidiCreator import *
 
 defaults << KeySignature("b")
 
-smooth: Sequence = Note("F") * (3*4 + 1) >> Link()
+smooth: Track = Note("F") * (3*4 + 1) >> Link()
 smooth + Foreach(0, -1, 0, 1, 2, 3, 2, 1, 0, 1, 0, -2, -1)
 smooth >> Rest() >> Play()
 
-syncopated: Sequence = smooth.copy() \
+syncopated: Track = smooth.copy() \
     - Equal(Measures(0))**Even()**Position(Duration(1/8)) \
     + Equal(Measures(1))**Position(Duration(1/8)) \
     + Equal(Measures(2))**GreaterEqual(Beats(2))**Position(Duration(1/8))
@@ -40,22 +40,22 @@ syncopated >> Rest() >> Play()
 
 defaults << KeySignature(3)    # 3 sharps
 
-straight_a: Sequence = Note("A", 1/8) * 4 + Foreach(0, 1, 3, 2)
-straight_b: Sequence = Note("A", 1/8) * 4 - Foreach(0, 1, 2, 3)
-straight_c: Sequence = Note("B", 1/8) * 4 - Foreach(0, 1, 3, 2)
-straight_d: Sequence = Note("G", 1/8) * 4 + Foreach(0, 1, 0, -1)
-straight_e: Sequence = Note("B", 1/2)
+straight_a: Track = Note("A", 1/8) * 4 + Foreach(0, 1, 3, 2)
+straight_b: Track = Note("A", 1/8) * 4 - Foreach(0, 1, 2, 3)
+straight_c: Track = Note("B", 1/8) * 4 - Foreach(0, 1, 3, 2)
+straight_d: Track = Note("G", 1/8) * 4 + Foreach(0, 1, 0, -1)
+straight_e: Track = Note("B", 1/2)
 
-straight: Sequence = straight_a + straight_e + straight_d + straight_e + straight_a + straight_c + straight_d + straight_e >> Stack()
+straight: Track = straight_a + straight_e + straight_d + straight_e + straight_a + straight_c + straight_d + straight_e >> Stack()
 straight - Equal(NoteValue(1/2))**Foreach(0, 5, 2)
 straight >> Rest() >> Play()
 
-triple_notes: Sequence = Note("A", 1/16) + Note("A", 1/8) + Note("A", 1/16) >> Stack()
-single_note: Sequence = Note("A", 1/2) * 1
-measure_0: Sequence = triple_notes * 2 + single_note >> Stack()
-measure_1: Sequence = measure_0.copy()
-measure_2: Sequence = triple_notes * 4 >> Stack()
-measure_3: Sequence = measure_0.copy()
+triple_notes: Track = Note("A", 1/16) + Note("A", 1/8) + Note("A", 1/16) >> Stack()
+single_note: Track = Note("A", 1/2) * 1
+measure_0: Track = triple_notes * 2 + single_note >> Stack()
+measure_1: Track = measure_0.copy()
+measure_2: Track = triple_notes * 4 >> Stack()
+measure_3: Track = measure_0.copy()
 
 measure_0 + Foreach(0, 1, 3, 3, 2, 1, 1)
 measure_1 - Foreach(0, 1, 2, 2, 3, 4, 4)

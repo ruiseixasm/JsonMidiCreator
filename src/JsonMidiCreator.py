@@ -46,7 +46,7 @@ else:  # Assume Linux/Unix
 N = Nt = Note
 Ch = Channel
 Src = Source = DataSource
-Tk = Trk = Track = MidiTrack
+Tk = Trk = Track
 Meas = Measures
 Bts = Beats
 Pt = Pitch
@@ -55,7 +55,7 @@ Dur = Duration
 Pos = Position
 KS = KeySig = KeySignature
 TS = TimeSig = TimeSignature
-Seq = Sequence
+Seq = Track
 CC = ControlChange
 PC = ProgramChange
 T = Tmp = Tpo = Tempo

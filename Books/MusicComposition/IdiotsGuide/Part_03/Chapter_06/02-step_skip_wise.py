@@ -25,5 +25,5 @@ step_wise = Note("F") * (4*4 - 3) + Nth(2, 3, 4, 7, 8, 9, 10)**Iterate()**0 << E
 (step_wise | Nth(1, 5, 6, 11, 12, 13)) + Foreach(1, 3, 2, 5, 4, 3)
 step_wise >> Play()
 
-skip_wise: Sequence = Note() * 4 + Foreach(4, 8, 7, 4)
+skip_wise: Track = Note() * 4 + Foreach(4, 8, 7, 4)
 skip_wise >> skip_wise - 1 >> skip_wise - 1 >> (skip_wise - 1 - (skip_wise | Nth(2, 3, 4)) << Duration(1/1)) >> Play()

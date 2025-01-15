@@ -27,7 +27,7 @@ dotted_note = Dotted(1/2)
 note_value = Duration(Dotted(1/2))
 print(dotted_note == note_value)
 
-smoothly: Sequence = Note("F", 1/8) * 3 << Nth(3)**Duration(Dotted(1/2))
+smoothly: Track = Note("F", 1/8) * 3 << Nth(3)**Duration(Dotted(1/2))
 smoothly *= 3
 smoothly += Note("F")
 smoothly >> Stack() >> Link()

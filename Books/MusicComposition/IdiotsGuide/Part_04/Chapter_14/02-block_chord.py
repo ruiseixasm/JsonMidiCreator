@@ -28,15 +28,15 @@ defaults << Tempo(120)
 melody_playlist: Playlist = Import("./Books/MusicComposition/IdiotsGuide/Part_04/Chapter_14/exported_lead_sheet_melody_jmp.json")
 # melody_playlist >> Play()
 
-chords: Sequence = Chord(1) + Chord(2, Octave(3), Inversion(2)) + Chord(6, 1/2, Octave(4)) + Chord(3, 1/2, Octave(3), Inversion(1)) + Chord(6, Octave(4)) >> Stack()
+chords: Track = Chord(1) + Chord(2, Octave(3), Inversion(2)) + Chord(6, 1/2, Octave(4)) + Chord(3, 1/2, Octave(3), Inversion(1)) + Chord(6, Octave(4)) >> Stack()
 chords *= 4
 # chords >> Play()
 
-bass_line: Sequence = Note(1/1) + Note(2, 1/1) + Note(1/2, 6) + Note(1/2, 3) + Note(1/1, 6) << Foreach(3, 3, 3, 2, 3)**Octave() >> Stack()
+bass_line: Track = Note(1/1) + Note(2, 1/1) + Note(1/2, 6) + Note(1/2, 3) + Note(1/1, 6) << Foreach(3, 3, 3, 2, 3)**Octave() >> Stack()
 bass_line *= 4
 # bass_line >> Play()
 
-block_chord: Sequence = chords + bass_line << Channel(2) << Track("Block Chord") << Velocity(70)
+block_chord: Track = chords + bass_line << Channel(2) << MidiTrack("Block Chord") << Velocity(70)
 # block_chord >> Play()
 
 composition: Song = Song(block_chord) + melody_playlist

@@ -35,8 +35,8 @@ def test_mutation_mod():
 
     # Perform the operation
     mutation = Mutation()
-    sequence_100_1 = mutation * 100 % Sequence()
+    sequence_100_1 = mutation * 100 % Track()
     mutation.reset()
-    assert mutation % Sequence() != sequence_100_1
-    sequence_100_2 = mutation * 100 % Sequence()
+    assert mutation % Track() != sequence_100_1
+    sequence_100_2 = mutation * 100 % Track()
     assert sequence_100_1 == sequence_100_2

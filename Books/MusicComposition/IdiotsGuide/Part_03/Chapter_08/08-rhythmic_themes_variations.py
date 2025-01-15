@@ -23,14 +23,14 @@ from JsonMidiCreator import *
 
 defaults << TimeSignature(2, 4) << KeySignature(-3)   # Same as 'bbb'
 
-rhythmic_motif: Sequence = Note("G", 1/8, Position(Duration(1/8))) * 4 >> Link()
+rhythmic_motif: Track = Note("G", 1/8, Position(Duration(1/8))) * 4 >> Link()
 rhythmic_motif - Equal(Measures(1))**2
 rhythmic_motif >> Rest() >> Play()
 
 defaults << TimeSignature(4, 4) << KeySignature(-2)   # Same as 'bb'
 
-rhythmic_motif_1: Sequence = Note("B") * 4 << Foreach(1/8, 1/4, 1/8, 1/2)**Duration() >> Stack()
-rhythmic_motif_2: Sequence = Note("A") * 6 << Foreach(1/8, 1/4, 1/8, 1/8, 1/4, 1/8)**Duration() >> Stack()
+rhythmic_motif_1: Track = Note("B") * 4 << Foreach(1/8, 1/4, 1/8, 1/2)**Duration() >> Stack()
+rhythmic_motif_2: Track = Note("A") * 6 << Foreach(1/8, 1/4, 1/8, 1/8, 1/4, 1/8)**Duration() >> Stack()
 
 rhythmic_motif_1.copy() + Foreach(0, 1, 0, -1) >> rhythmic_motif_1.copy() + Foreach(-2, -1, -2, -3) \
     >> rhythmic_motif_2.copy() + Foreach(0, 1, 0, -1, -2, -4) >> Note("C", 1/1) >> Rest() >> Play()

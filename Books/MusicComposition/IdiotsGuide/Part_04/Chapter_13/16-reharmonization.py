@@ -24,12 +24,12 @@ from JsonMidiCreator import *
 rest_play = (R, P)
 
 # Original Motif to work on its pitches
-motif: Sequence = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif: Track = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
-melody: Sequence = motif * 2 << Track("Melody")
+melody: Track = motif * 2 << MidiTrack("Melody")
 
-chords: Sequence = Chord() * 6 << Foreach(half, half, whole, half, half, whole) >> Stack()
-chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << Track("Harmony")
+chords: Track = Chord() * 6 << Foreach(half, half, whole, half, half, whole) >> Stack()
+chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << MidiTrack("Harmony")
 chords - Octave()
 
 song: Song = melody + chords
