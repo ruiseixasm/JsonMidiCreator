@@ -559,7 +559,7 @@ class Clip(Container):  # Just a container of Elements
             case Clip():
                 self._staff             << operand._staff
                 self._midi_track        << operand._midi_track
-                self._position_beats          << operand._position_beats
+                self._position_beats    = operand._position_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
                 self._datasource_list   = self.deep_copy( operand._datasource_list )
@@ -570,7 +570,7 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
-                    case ra.Position():     self._position_beats = operand._data
+                    case ra.Position():     self._position_beats = self._staff.getBeats(operand._data)._rational
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
@@ -581,8 +581,10 @@ class Clip(Container):  # Just a container of Elements
             case ou.MidiTrack():
                 self._midi_track << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
-            case ra.Position() | ra.PositionData() | og.TimeSignature() | ra.TimeValue() | ou.TimeUnit():
-                self._position_beats << operand
+            case ra.Position():
+                self._position_beats = self._staff.getBeats(operand)._rational
+            case ra.PositionData() | og.TimeSignature() | ra.TimeValue() | ou.TimeUnit():
+                self._position_beats = self._staff.getBeats(operand)._rational
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -600,8 +602,8 @@ class Clip(Container):  # Just a container of Elements
 
     def empty_copy(self, *parameters) -> 'Clip':
         empty_copy: Clip = super().empty_copy()
-        empty_copy._midi_track   << self._midi_track
-        empty_copy._position_beats     << self._position_beats
+        empty_copy._midi_track      << self._midi_track
+        empty_copy._position_beats  = self._position_beats
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
@@ -627,7 +629,7 @@ class Clip(Container):  # Just a container of Elements
                 right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_sequence
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
-                self._position_beats += operand
+                self._position_beats += self._staff.getBeats(operand)._rational
                 return self
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
