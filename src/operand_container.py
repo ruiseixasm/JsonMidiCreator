@@ -845,7 +845,7 @@ class Clip(Container):  # Just a container of Elements
             ]
         for index, single_element in enumerate(stackable_elements):
             if index > 0:
-                duration_beats: Fraction = self._staff.getBeats(ra.Duration(stackable_elements[index - 1]._duration_notevalue))
+                duration_beats: Fraction = self._staff.getBeats(ra.Duration(stackable_elements[index - 1]._duration_notevalue))._rational
                 single_element._position_beats = stackable_elements[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:   # FIRST ELEMENT!
                 single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!

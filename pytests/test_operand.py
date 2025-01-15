@@ -60,9 +60,9 @@ def test_classes_getters():
 def test_floordiv_sequence():
 
     note: Note = Note()
-    source_position: Position = note // Position()
+    source_pitch: Pitch = note // Pitch()
 
-    assert id(source_position) == id(note._position_beats)
+    assert id(source_pitch) == id(note._pitch)
         
 # test_floordiv_sequence()
 
