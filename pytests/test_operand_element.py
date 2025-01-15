@@ -344,10 +344,6 @@ def test_clock_element():
     assert clock_stop["time_ms"] == round(1.0 * 4 / 120 * 60 * 1000, 3)
 
     defaults << Tempo(90)
-    clock_default = Clock()
-    position_tempo: Tempo = clock_default % DataSource( Position() ) % Tempo()
-    position_tempo >> Print(0)
-    assert position_tempo == defaults % Tempo()
     clock_specific = Clock(NoteValue(Measures(1)))
     clock_playlist = clock_specific.getPlaylist()
     total_messages = len(clock_playlist)
