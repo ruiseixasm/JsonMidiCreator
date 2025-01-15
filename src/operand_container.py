@@ -432,13 +432,13 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():     return self._staff.getPosition(ra.Beats(self._position))
+                    case ra.Position():     return operand << self._staff.getPosition(ra.Beats(self._position))
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
-            case ra.Position():     return self._position.copy()
+            case ra.Position():     return operand.copy() << self._staff.getPosition(ra.Beats(self._position))
             case ra.Duration():     return self.duration()
             case ra.Tempo() | ou.KeySignature() | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
                 | ra.Quantization() | og.Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -447,25 +447,26 @@ class Clip(Container):  # Just a container of Elements
             case _:                 return super().__mod__(operand)
 
     def start(self) -> ra.Position:
-        start: ra.Position = None
+        start_beats: Fraction = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
-                element_position: ra.Position = single_datasource._data._position
-                if not start or element_position < start:   # Implicit conversion
-                    start = element_position
-        if start:
-            return start.copy()
-        return self._position.copy(0.0)
+                position_beats: Fraction = single_datasource._data._position
+                if start_beats is None or position_beats < start_beats:   # Implicit conversion
+                    start_beats = position_beats
+        if start_beats:
+            return self._staff.getPosition(ra.Beats(start_beats))
+        return self._staff.getPosition(0)
 
     def finish(self) -> ra.Position:
-        finish: ra.Position = self._position.copy(0.0)
+        finish_beats: Fraction = Fraction(0)
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
-                element_finish: ra.Position = single_element._position + single_element._duration
+                element_finish: Fraction = single_element._position \
+                    + self._staff.getBeats(ra.Duration(single_element._duration))._rational
                 if element_finish > finish:
                     finish = element_finish
-        return finish.copy()
+        return self._staff.getPosition(ra.Beats(finish_beats))
 
 
     def length(self) -> ra.Length:
