@@ -472,7 +472,7 @@ class Position(Rational):
 
     def reset_staff_reference(self) -> 'Position':
         import operand_generic as og
-        self._staff = og.defaults._staff
+        self._staff_reference = og.defaults._staff
         return self
 
 

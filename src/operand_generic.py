@@ -140,7 +140,7 @@ class Pitch(Generic):
         return self._staff_reference
 
     def reset_staff_reference(self) -> 'Pitch':
-        self._staff = defaults._staff
+        self._staff_reference = defaults._staff
         return self
 
 
