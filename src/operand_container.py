@@ -618,15 +618,19 @@ class Clip(Container):  # Just a container of Elements
                         left_end_position: ra.Position = operand.finish()
                         right_start_position: ra.Position = self.start()
                         length_shift: ra.Length = self._staff.getLength(left_end_position - right_start_position).roundMeasures()
-                        right_sequence: Clip = self + length_shift  # Offsets the content and it's an implicit copy
+                        # Convert Length to Position
+                        add_position: ra.Position = ra.Position(length_shift)
+                        right_sequence: Clip = self + add_position  # Offsets the content and it's an implicit copy
                         added_sequence: Clip = operand.copy()       # Preserves the left_sequence configuration
                         added_sequence._datasource_list.extend(right_sequence._datasource_list)
                         return added_sequence
                     return self.copy()
                 return Song(operand, self)
             case oe.Element():
-                element_length: ra.Length = self._staff.getLength( operand % ra.Duration() )
-                right_sequence: Clip = self + element_length    # Implicit copy
+                element_length: ra.Length = self._staff.getLength( operand % ra.Length() )
+                # Convert Length to Position
+                add_position: ra.Position = ra.Position(element_length)
+                right_sequence: Clip = self + add_position  # Implicit copy
                 right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_sequence
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
