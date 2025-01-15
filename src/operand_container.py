@@ -620,11 +620,7 @@ class Clip(Container):  # Just a container of Elements
                     return self.copy()
                 return Song(operand, self)
             case oe.Element():
-                element_length: ra.Length = ra.Length( 
-                        self._position.getPosition(
-                                operand._position.getPosition( operand % ra.Duration() )
-                            )
-                    )
+                element_length: ra.Length = self._staff.getLength( operand % ra.Duration() )
                 right_sequence: Clip = self + element_length    # Implicit copy
                 right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_sequence
@@ -657,7 +653,7 @@ class Clip(Container):  # Just a container of Elements
                             single_element += operand._position - self._position
                     elif operand._position < self._position:
                         self += self._position - operand._position                      # NO IMPLICIT COPY
-                        self._position = self._position.getPosition(operand._position)  # Avoids changing other attributes of self._position
+                        self._position = self._staff.getPosition(operand._position)  # Avoids changing other attributes of self._position
                         
                     # operand is already a copy, let's take advantage of that, Using a generator (no square brackets)
                     self._datasource_list.extend(
@@ -801,9 +797,9 @@ class Clip(Container):  # Just a container of Elements
 
     def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Clip':
         if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
-            fitting_finish: ra.Position = self._position.getPosition(time)
+            fitting_finish: ra.Position = self._staff.getPosition(time)
         else:
-            fitting_finish: ra.Position = self._position.getPosition(ou.Measure(1))
+            fitting_finish: ra.Position = self._staff.getPosition(ou.Measure(1))
         actual_finish: ra.Position = self.finish()
         length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
         self *= ra.Position(length_ratio)   # Adjust positions
