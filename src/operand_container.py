@@ -383,12 +383,12 @@ class Clip(Container):  # Just a container of Elements
         for single_operand in operands:
             match single_operand:
                 case Clip():
-                    self._midi_track    << single_operand._midi_track
-                    self._position_beats      = single_operand._position_beats
+                    self._midi_track        << single_operand._midi_track
+                    self._position_beats    = single_operand._position_beats
                 case ou.MidiTrack():
-                    self._midi_track    << single_operand
+                    self._midi_track        << single_operand
                 case ra.Position():
-                    self._position_beats      = self._staff.getPosition(single_operand)._rational
+                    self._position_beats    = self._staff.getPosition(single_operand)._rational
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
 
@@ -492,11 +492,12 @@ class Clip(Container):  # Just a container of Elements
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in sequence to be tied (FS - Finish to Start)!
-                next_note_position: ra.Position = first_tied_note._position_beats + first_tied_note._duration_notevalue # Duration is particularly tricky
+                next_note_position: Fraction = first_tied_note._position_beats \
+                    + (first_tied_note % ra.Length())._rational
                 if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
                     and tied_notes[next_tied_note_i]._position_beats == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i]._duration_notevalue # Duration is particularly tricky
+                    first_tied_note += tied_notes[next_tied_note_i]._duration_notevalue
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
                         sequence_elements.append(first_tied_note)
                 else:

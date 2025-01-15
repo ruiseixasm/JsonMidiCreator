@@ -106,6 +106,9 @@ class Element(o.Operand):
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
+                    case int():             return self._staff_reference.getMeasures(ra.Beats(self._position_beats)) % int()
+                    case float():           return float( self._duration_notevalue )
+                    case Fraction():        return self._duration_notevalue
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue )
@@ -119,6 +122,7 @@ class Element(o.Operand):
             case od.End():          return self.finish()
             case int():             return self._staff_reference.getMeasures(ra.Beats(self._position_beats)) % int()
             case float():           return float( self._duration_notevalue )
+            case Fraction():        return self._duration_notevalue
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case _:                 return super().__mod__(operand)
