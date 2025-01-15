@@ -378,17 +378,17 @@ class Clip(Container):  # Just a container of Elements
         super().__init__(*operands)
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
-        self._position: Fraction        = Fraction(0)   # in Beats
+        self._position_beats: Fraction  = Fraction(0)   # in Beats
 
         for single_operand in operands:
             match single_operand:
                 case Clip():
                     self._midi_track    << single_operand._midi_track
-                    self._position      = single_operand._position
+                    self._position_beats      = single_operand._position_beats
                 case ou.MidiTrack():
                     self._midi_track    << single_operand
                 case ra.Position():
-                    self._position      = self._staff.getPosition(single_operand)._rational
+                    self._position_beats      = self._staff.getPosition(single_operand)._rational
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
 
@@ -432,13 +432,13 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():     return operand << self._staff.getPosition(ra.Beats(self._position))
+                    case ra.Position():     return operand << self._staff.getPosition(ra.Beats(self._position_beats))
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
-            case ra.Position():     return operand.copy() << self._staff.getPosition(ra.Beats(self._position))
+            case ra.Position():     return operand.copy() << self._staff.getPosition(ra.Beats(self._position_beats))
             case ra.Duration():     return self.duration()
             case ra.Tempo() | ou.KeySignature() | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
                 | ra.Quantization() | og.Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -509,9 +509,9 @@ class Clip(Container):  # Just a container of Elements
     def getPlaylist(self, position: ra.Position = None) -> list[dict]:
 
         if isinstance(position, ra.Position):
-            position += self._position
+            position += self._position_beats
         else:
-            position = self._position
+            position = self._position_beats
 
         return [
             single_playlist
@@ -522,9 +522,9 @@ class Clip(Container):  # Just a container of Elements
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list[dict]:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
         if isinstance(position, ra.Position):
-            position += self._position
+            position += self._position_beats
         else:
-            position = self._position
+            position = self._position_beats
 
         return [
             single_midilist
@@ -537,7 +537,7 @@ class Clip(Container):  # Just a container of Elements
 
         serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
-        serialization["parameters"]["position"]     = self.serialize(self._position)
+        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -549,7 +549,7 @@ class Clip(Container):  # Just a container of Elements
             super().loadSerialization(serialization)
             self._staff         = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
-            self._position      = self.deserialize(serialization["parameters"]["position"])
+            self._position_beats      = self.deserialize(serialization["parameters"]["position"])
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Clip':
@@ -558,7 +558,7 @@ class Clip(Container):  # Just a container of Elements
             case Clip():
                 self._staff             << operand._staff
                 self._midi_track        << operand._midi_track
-                self._position          << operand._position
+                self._position_beats          << operand._position_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
                 self._datasource_list   = self.deep_copy( operand._datasource_list )
@@ -569,7 +569,7 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
-                    case ra.Position():     self._position = operand._data
+                    case ra.Position():     self._position_beats = operand._data
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
@@ -581,7 +581,7 @@ class Clip(Container):  # Just a container of Elements
                 self._midi_track << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case ra.Position() | ra.PositionData() | og.TimeSignature() | ra.TimeValue() | ou.TimeUnit():
-                self._position << operand
+                self._position_beats << operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -600,7 +600,7 @@ class Clip(Container):  # Just a container of Elements
     def empty_copy(self, *parameters) -> 'Clip':
         empty_copy: Clip = super().empty_copy()
         empty_copy._midi_track   << self._midi_track
-        empty_copy._position     << self._position
+        empty_copy._position_beats     << self._position_beats
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
@@ -626,10 +626,10 @@ class Clip(Container):  # Just a container of Elements
                 right_sequence._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_sequence
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
-                self._position += operand
+                self._position_beats += operand
                 return self
             case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist(self._position))
+                return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
                 return super().__rrshift__(operand)
         return self.copy()
@@ -649,12 +649,12 @@ class Clip(Container):  # Just a container of Elements
 
                     operand_data_list: list[oe.Element] = operand % list()
                     # Does the needed position conversion first and replicates to its elements
-                    if operand._position > self._position:
+                    if operand._position_beats > self._position_beats:
                         for single_element in operand_data_list:
-                            single_element += operand._position - self._position
-                    elif operand._position < self._position:
-                        self += self._position - operand._position                      # NO IMPLICIT COPY
-                        self._position = self._staff.getPosition(operand._position)  # Avoids changing other attributes of self._position
+                            single_element += operand._position_beats - self._position_beats
+                    elif operand._position_beats < self._position_beats:
+                        self += self._position_beats - operand._position_beats                      # NO IMPLICIT COPY
+                        self._position_beats = self._staff.getPosition(operand._position_beats)  # Avoids changing other attributes of self._position
                         
                     # operand is already a copy, let's take advantage of that, Using a generator (no square brackets)
                     self._datasource_list.extend(
@@ -718,7 +718,7 @@ class Clip(Container):  # Just a container of Elements
                     self += original_self
             case ou.TimeUnit():
                 self_repeating: int = 0
-                operand_beats: Fraction = self._position.getBeats(operand)._rational
+                operand_beats: Fraction = self._position_beats.getBeats(operand)._rational
                 self_beats: Fraction = self.length().roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
@@ -758,7 +758,7 @@ class Clip(Container):  # Just a container of Elements
                 new_sequence._datasource_list.extend(self._datasource_list)
                 new_sequence._datasource_list.extend(operand._datasource_list)
                 new_sequence._midi_track   << self._midi_track
-                new_sequence._position     << self._position
+                new_sequence._position_beats     << self._position_beats
                 return new_sequence
             case _:
                 return self.filter(operand)
@@ -767,7 +767,7 @@ class Clip(Container):  # Just a container of Elements
         filtered_sequence: Clip = self.__class__()
         filtered_sequence._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         filtered_sequence._midi_track   << self._midi_track
-        filtered_sequence._position     << self._position
+        filtered_sequence._position_beats     << self._position_beats
         return filtered_sequence
 
     def reverse(self) -> 'Clip':
