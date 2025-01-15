@@ -55,7 +55,6 @@ Dur = Duration
 Pos = Position
 KS = KeySig = KeySignature
 TS = TimeSig = TimeSignature
-Seq = Track
 CC = ControlChange
 PC = ProgramChange
 T = Tmp = Tpo = Tempo

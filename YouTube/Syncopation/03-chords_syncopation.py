@@ -28,38 +28,38 @@ defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configur
 
 
 
-hi_hat: Seq = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Trk = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Seq = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))
+kick: Trk = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Seq = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
+clap: Trk = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1)) + Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
 
-no_syncopation: Seq = hi_hat + kick + clap
+no_syncopation: Trk = hi_hat + kick + clap
 # no_syncopation * 2 >> Play()
 
 
-base_line: Seq = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
+base_line: Trk = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
 base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 # base_line << Disable()
 
-syncopation_1: Seq = no_syncopation + (base_line + Step(1) << 1/16)
+syncopation_1: Trk = no_syncopation + (base_line + Step(1) << 1/16)
 # syncopation_1 >> Play()
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
 
-chords: Seq = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
+chords: Trk = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
 chords -= NotEqual(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
@@ -72,7 +72,7 @@ chords << Velocity(80)  # Chords tend to be loud, so they need to be softened
 # time.sleep(0.5)
 # syncopation_1 * 4 >> Play()
 
-syncopation_2: Seq = syncopation_1 * 4 + chords # x4 because chords are 4x longer than the original syncopation
+syncopation_2: Trk = syncopation_1 * 4 + chords # x4 because chords are 4x longer than the original syncopation
 syncopation_2 >> Save("YouTube/Syncopation/save_chords_syncopation.json")
 syncopation_2 >> MidiExport("YouTube/Syncopation/save_chords_syncopation.mid")
 syncopation_2 >> Play()
