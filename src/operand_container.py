@@ -72,7 +72,7 @@ class Container(o.Operand):
 
         Examples
         --------
-        >>> sequence = Sequence(Note("A"), Note("B"))
+        >>> sequence = Track(Note("A"), Note("B"))
         >>> sequence % list() >> Print()
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
@@ -428,7 +428,7 @@ class Track(Container):  # Just a container of Elements
 
         Examples
         --------
-        >>> sequence = Sequence(Note("A"), Note("B"))
+        >>> sequence = Track(Note("A"), Note("B"))
         >>> sequence % list() >> Print()
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
@@ -640,7 +640,7 @@ class Track(Container):  # Just a container of Elements
         self_copy: Track = self.copy()
         return self_copy.__iadd__(operand)
             
-    # Avoids the costly copy of Sequence self doing +=
+    # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> 'Track':
         match operand:
             case Song():
@@ -947,7 +947,7 @@ class Song(Container):
     def __rrshift__(self, operand: o.Operand) -> 'Song':
         if isinstance(operand, (Track, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand) # Sequence() already does the copy
+                operand = Track(operand) # Track() already does the copy
             else:
                 operand = operand.copy()
             for single_sequence in self:
@@ -980,7 +980,7 @@ class Song(Container):
         self_copy: Song = self.copy()
         if isinstance(operand, (Track, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand) # Makes sure it becomes a Sequence
+                operand = Track(operand) # Makes sure it becomes a Track
             else:
                 operand = operand.copy()
             for single_sequence in self_copy:
@@ -998,7 +998,7 @@ class Song(Container):
     def __iadd__(self, operand: Track | oe.Element) -> 'Song':
         if isinstance(operand, (Track, oe.Element)):
             if isinstance(operand, oe.Element):
-                operand = Track(operand) # Makes sure it becomes a Sequence
+                operand = Track(operand) # Makes sure it becomes a Track
             else:
                 operand = operand.copy()
             for single_sequence in self:
@@ -1046,9 +1046,9 @@ class Song(Container):
 
     # # Multiply of song shall mean the number of loops
     # def __mul__(self, operand: o.Operand) -> 'Song':
-    #     self_copy: Sequence = self.copy()
+    #     self_copy: Track = self.copy()
     #     for single_datasource in self_copy._datasource_list:
-    #         if isinstance(single_datasource._data, Sequence): # Makes sure it's an Element
+    #         if isinstance(single_datasource._data, Track): # Makes sure it's an Element
     #             single_datasource._data *= operand
     #     return self_copy
     

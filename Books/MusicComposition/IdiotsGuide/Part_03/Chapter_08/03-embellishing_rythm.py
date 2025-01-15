@@ -31,7 +31,7 @@ long_notes_pl >> Rest() >> Play()
 short_notes: Track = long_notes - (long_notes.copy() | Measures(2)) + (long_notes.copy() << Duration(1/4) | Measures(2)) * 4 >> Link()
 short_notes >> Rest() >> Play()
 
-# repeated_notes: Sequence = short_notes.copy() << Equal(Measure(2))**Odd()**Dotted(1/4) << Equal(Measure(2))**Even()**NoteValue(1/8) >> Stack()
+# repeated_notes: Track = short_notes.copy() << Equal(Measure(2))**Odd()**Dotted(1/4) << Equal(Measure(2))**Even()**NoteValue(1/8) >> Stack()
 position_1 = Position(2, Beats(1))
 position_2 = Position(2, Beats(2))
 position_1 += Position()**Duration() << 1/16

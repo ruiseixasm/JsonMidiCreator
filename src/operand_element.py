@@ -471,7 +471,7 @@ class Clock(Element):
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
-                        "status_byte": 0xFA,    # Start Sequence
+                        "status_byte": 0xFA,    # Start Track
                         "device": self._device
                     }
                 }
@@ -494,7 +494,7 @@ class Clock(Element):
             {
                 "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                 "midi_message": {
-                    "status_byte": 0xFC,    # Stop Sequence
+                    "status_byte": 0xFC,    # Stop Track
                     "device": self._device
                 }
             }

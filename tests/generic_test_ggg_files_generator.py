@@ -41,7 +41,7 @@ Note3() << (NoteValue() << Duration(1/16)) >> Save("json/testing/_Save_Play_p.3.
 
 # Base Note creation to be used in the Sequencer
 base_note = Note() << (NoteValue() << Dotted(1/64))
-# Creation and configuration of a Sequence of notes
+# Creation and configuration of a Track of notes
 first_sequence = (base_note * 8 << Duration(1/16) >> Stack() << MidiTrack(2, "Drums") << Channel(10)) >> Save("json/testing/_Save_1.4__first_sequence.json")
 
 # Creation and configuration of second Sequencer
@@ -53,7 +53,7 @@ second_sequence = Rest(4/1, Channel(10)) >> second_sequence
 second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 first_sequence = Rest(2/1, Channel(10)) >> first_sequence
 
-# Creations, aggregation of both Sequences in a Sequence element and respective Play
+# Creations, aggregation of both Sequences in a Track element and respective Play
 all_elements = Song(first_sequence) + second_sequence
 all_elements += (Length( Beats(2) ) >> first_note) + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")

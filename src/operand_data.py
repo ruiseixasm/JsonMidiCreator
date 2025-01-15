@@ -806,7 +806,7 @@ class Last(Getter):
 
 class Middle(Getter):
     """
-    Middle() represent the Nth Operand in a Container or Sequence.
+    Middle() represent the Nth Operand in a Container or Track.
     
     Parameters
     ----------

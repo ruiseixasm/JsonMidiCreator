@@ -150,7 +150,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #                 raise ValueError("Unsupported type provided")
 
 # # Example usage:
-# multi_elements = Sequence()
+# multi_elements = Track()
 
 # # Assuming you have some Element instances
 # elem1 = Element()
@@ -195,7 +195,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 #             raise ValueError(f"Unsupported type provided: {single_element}")
 
 # # Example usage:
-# multi_elements = Sequence()
+# multi_elements = Track()
 
 # # Assuming you have some Element instances
 # elem1 = Element("Element1")
