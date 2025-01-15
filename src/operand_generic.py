@@ -1372,12 +1372,13 @@ class Staff(Generic):
 
 
     def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> Fraction:
-        if time:
-            return self.getBeats(time)._rational / self._tempo * 60 * 1000
-        else:
-            return self.getBeats(ra.Measures(self._measures))._rational / self._tempo * 60 * 1000
+        match time:
+            case None:
+                return self.getBeats(ra.Measures(self._measures))._rational / self._tempo * 60 * 1000
+            case _:
+                return self.getBeats(time)._rational / self._tempo * 60 * 1000
+            
 
-    
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         import operand_element as oe
         if position:

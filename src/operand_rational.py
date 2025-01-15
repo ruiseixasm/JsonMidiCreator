@@ -636,22 +636,19 @@ class Position(Rational):
 
 
     def getMillis_rational(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> Fraction:
-
-        if time:
-            return self.getBeats(time)._rational / self._tempo * 60 * 1000
-        else:
-            return self._rational / self._tempo * 60 * 1000
+        match time:
+            case None:
+                return self._staff_reference.getMillis_rational(self)
+            case _:
+                return self._staff_reference.getMillis_rational(time)
 
     
     def getPlaylist(self, position: 'Position' = None) -> list:
-        import operand_element as oe
-        self_position: Position  = self + Position() if position is None else position
-        
-        return [
-                {
-                    "time_ms": oe.Element.get_time_ms(self_position.getMillis_rational())
-                }
-            ]
+        match position:
+            case None:
+                return self._staff_reference.getPlaylist(self)
+            case _:
+                return self._staff_reference.getPlaylist(position)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
