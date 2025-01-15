@@ -93,7 +93,7 @@ for _ in range(16*2//3 + 1):
     repeated_chords += chords
     Steps(3) >> chords
     
-repeated_chords >> Play()
+# repeated_chords >> Play()
 
 # Make it shorter to fit in x4 composition
 repeated_chords.sort()
@@ -128,6 +128,6 @@ lead_notes += Octave(1)
 
 syncopation_4: Clip = syncopation_3 + lead_notes
 # syncopation_4.getPlaylist()
-# syncopation_4 >> Play()
+syncopation_4 >> Play()
 
 print(c.profiling_timer)
