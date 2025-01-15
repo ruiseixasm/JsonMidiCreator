@@ -336,6 +336,8 @@ class Element(o.Operand):
                 self_clip += operand
                 return self_clip
             case _:
+                if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
+                    operand = self._staff_reference.getBeats(operand)
                 self_operand: any = self % operand
                 self_operand += operand
                 return self << self_operand
@@ -346,6 +348,8 @@ class Element(o.Operand):
 
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
+            operand = self._staff_reference.getBeats(operand)
         self_operand: any = self % operand
         self_operand -= operand
         return self << self_operand

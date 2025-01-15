@@ -46,46 +46,46 @@ def test_container_mod():
 # test_container_mod()
 
 
-def test_sequence_mod():
+def test_clip_mod():
 
     # Perform the operation
-    sequence_1 = Clip(Note("A"), Note("B"))
-    sequence_2 = Note("A") + Note("B")
+    clip_1 = Clip(Note("A"), Note("B"))
+    clip_2 = Note("A") + Note("B")
 
-    sequence_1 % Position() % Fraction() >> Print() # 0
-    assert sequence_1 == Position(0.0)
-    assert sequence_1 % Position() == Position(0.0)
-    assert sequence_1 % Position() % Fraction() == 0
+    clip_1 % Position() % Fraction() >> Print() # 0
+    assert clip_1 == Position(0.0)
+    assert clip_1 % Position() == Position(0.0)
+    assert clip_1 % Position() % Fraction() == 0
 
-    assert sequence_1 == sequence_2
+    assert clip_1 == clip_2
 
-    sequence_1 >> Stack()
-    sequence_2 >> Stack()
+    clip_1 >> Stack()
+    clip_2 >> Stack()
 
-    assert sequence_1 == sequence_2
+    assert clip_1 == clip_2
     
 
-    chords_sequence: Clip = Clip(Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord())
-    assert chords_sequence.len() == 7
-    for single_item in chords_sequence:
+    chords_clip: Clip = Clip(Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord())
+    assert chords_clip.len() == 7
+    for single_item in chords_clip:
         assert single_item == "C"
     
-    chords_sequence << Iterate()**Add(1)**Degree()
+    chords_clip << Iterate()**Add(1)**Degree()
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        chords_sequence[degree] % str() >> Print()
-        assert chords_sequence[degree] == keys[degree]
+        chords_clip[degree] % str() >> Print()
+        assert chords_clip[degree] == keys[degree]
 
     print("------")
     keys_float: list = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
     for degree in range(7):
-        chords_sequence[degree] % Pitch() % float() >> Print()
-        assert chords_sequence[degree] % Pitch() % float() == keys_float[degree]
+        chords_clip[degree] % Pitch() % float() >> Print()
+        assert chords_clip[degree] % Pitch() % float() == keys_float[degree]
 
-# test_sequence_mod()
+# test_clip_mod()
 
 
-def test_rrshift_sequence():
+def test_rrshift_clip():
 
     two_notes: Clip = Note() * 2
     assert two_notes.len() == 2
@@ -118,39 +118,39 @@ def test_rrshift_sequence():
     four_notes[3] % Position() % Fraction() >> Print()  # 5/4
     assert four_notes[3] == Position(1 + 1/4)
 
-# test_rrshift_sequence()
+# test_rrshift_clip()
 
 
 def test_milliseconds_duration():
 
     duration = NoteValue(1/16 * (3*4 + 2))
     duration >> Print()
-    rest_sequence = Rest(duration) * 1
-    sequence_playlist = rest_sequence.getPlaylist()
+    rest_clip = Rest(duration) * 1
+    clip_playlist = rest_clip.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    sequence_start = sequence_playlist[0]
-    sequence_stop = sequence_playlist[1]
-    assert sequence_start["time_ms"] == 0.0
-    assert sequence_stop["time_ms"] == 1750.0
+    clip_start = clip_playlist[0]
+    clip_stop = clip_playlist[1]
+    assert clip_start["time_ms"] == 0.0
+    assert clip_stop["time_ms"] == 1750.0
 
-    rest_sequence_copy = rest_sequence.copy()
-    sequence_playlist = rest_sequence_copy.getPlaylist()
+    rest_clip_copy = rest_clip.copy()
+    clip_playlist = rest_clip_copy.getPlaylist()
     # 3.5 beats / 120 bpm * 60 * 1000 = 1750.0 ms
-    sequence_start = sequence_playlist[0]
-    sequence_stop = sequence_playlist[1]
-    assert sequence_start["time_ms"] == 0.0
-    assert sequence_stop["time_ms"] == 1750.0
+    clip_start = clip_playlist[0]
+    clip_stop = clip_playlist[1]
+    assert clip_start["time_ms"] == 0.0
+    assert clip_stop["time_ms"] == 1750.0
 
-    rest_default_sequence = Rest() * 1
-    sequence_playlist = rest_default_sequence.getPlaylist()
+    rest_default_clip = Rest() * 1
+    clip_playlist = rest_default_clip.getPlaylist()
     # 1.0 beat / 120 bpm * 60 * 1000 = 500.0 ms
-    sequence_start = sequence_playlist[0]
-    sequence_stop = sequence_playlist[1]
-    assert sequence_start["time_ms"] == 0.0
-    assert sequence_stop["time_ms"] == 500.0
+    clip_start = clip_playlist[0]
+    clip_stop = clip_playlist[1]
+    assert clip_start["time_ms"] == 0.0
+    assert clip_stop["time_ms"] == 500.0
 
 
-def test_add_sequence():
+def test_add_clip():
 
     two_notes: Clip = Note() * 2
     four_notes: Clip = Note() * 4
@@ -176,10 +176,10 @@ def test_add_sequence():
     assert four_measures % Length() == Beats(3 * 4 + 2)
     assert (four_measures + four_measures) % Length() == Beats(3 * 4 + 2)
 
-# test_add_sequence()
+# test_add_clip()
 
 
-def test_sub_sequence():
+def test_sub_clip():
 
     single_note: Element = Note()
     four_notes: Clip = Note() * 4
@@ -194,7 +194,7 @@ def test_sub_sequence():
     assert four_notes - notes_to_remove == remaining_notes
 
 
-def test_mul_sequence():
+def test_mul_clip():
 
     two_notes: Clip = Note() * 2
     four_notes: Clip = Note() * 4
@@ -239,10 +239,10 @@ def test_mul_sequence():
     assert two_notes * Beat(6) % Length() == Beats(2)
     assert two_notes * Beats(6) % Length() == Beats(6)
     
-# test_mul_sequence()
+# test_mul_clip()
 
 
-def test_sequence_composition():
+def test_clip_composition():
 
     measure_bell: Clip = Nt(DrumKit(34)) * 1 * 4
     print(f"Length: {measure_bell % Length() % float()}")
@@ -290,7 +290,7 @@ def test_sequence_composition():
     print(f"Position: {metronome % Position() % Measures() % float()}")
     assert metronome % Position() == 0.0
 
-test_sequence_composition()
+# test_clip_composition()
 
 
 def test_element_stacking():
@@ -306,7 +306,25 @@ def test_element_stacking():
 # test_element_stacking()
 
 
-def test_sequence_filter():
+def test_clip_lshift():
+
+    base_line: Clip = Nt(dotted_eight) * Measures(4)
+    print(f"Length: {base_line % Length() % float()}")
+    assert base_line % Length() == 3/16 * 21 # 3.9375 measures
+    base_line += Step(1)
+    print(f"Length: {base_line % Length() % float()}")
+    assert base_line % Length() == 3/16 * 21 # 3.9375 measures
+    base_line -= Step(1)
+    print(f"Length: {base_line % Length() % float()}")
+    assert base_line % Length() == 3/16 * 21 # 3.9375 measures
+    base_line << 1/16
+    print(f"Length: {base_line % Length() % float()}")
+    assert base_line % Length() == 3/16 * 21 - 1/8 # 3.8125 measures
+
+# test_clip_lshift()
+
+
+def test_clip_filter():
 
     four_notes: Clip = Note() * 4
     assert four_notes.len() == 4
@@ -318,10 +336,10 @@ def test_sequence_filter():
     single_note: Clip = eight_notes | Beat(2)
     assert single_note.len() == 2
 
-# test_sequence_filter()
+# test_clip_filter()
 
 
-def test_sequence_fitting():
+def test_clip_fitting():
 
     six_notes: Clip = Note() * 6
     assert six_notes % Length() == Beats(6)
@@ -329,10 +347,10 @@ def test_sequence_fitting():
     six_notes.fit(Measures(2))
     assert six_notes % Length() == Beats(8)
 
-# test_sequence_fitting()
+# test_clip_fitting()
 
 
-def test_sequence_map():
+def test_clip_map():
 
     four_notes: Clip = Note() * 4
     four_notes += All()**Beat(1)
@@ -346,7 +364,7 @@ def test_sequence_map():
     assert four_notes[3] % Beats() == 4
 
 
-def test_sequence_selectors():
+def test_clip_selectors():
 
     four_notes: Clip = Note() * 4
     four_notes += All()**Beat(1)
@@ -355,12 +373,12 @@ def test_sequence_selectors():
     assert four_notes % Last() % Beats() == 4
 
     # Test for bad input
-    empty_sequence: Clip = Clip()
-    assert empty_sequence % First() == Null()
-    assert empty_sequence % Middle(3) == Null()
-    assert empty_sequence % Last() == Null()
+    empty_clip: Clip = Clip()
+    assert empty_clip % First() == Null()
+    assert empty_clip % Middle(3) == Null()
+    assert empty_clip % Last() == Null()
 
-# test_sequence_selectors()
+# test_clip_selectors()
 
 
 def test_position_shift():
@@ -391,20 +409,20 @@ def test_position_shift():
 # test_position_shift()
 
 
-def test_sequence_operations():
+def test_clip_operations():
 
-    straight_sequence: Clip = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
-    reversed_sequence: Clip = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
+    straight_clip: Clip = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
+    reversed_clip: Clip = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     duration: float = 0.9375    # 15/16 Note
 
-    sequence_duration: Duration = straight_sequence % Duration()
-    print(sequence_duration % float())
-    assert sequence_duration == duration
+    clip_duration: Duration = straight_clip % Duration()
+    print(clip_duration % float())
+    assert clip_duration == duration
 
-    straight_length: Length = straight_sequence % Length()
+    straight_length: Length = straight_clip % Length()
     straight_length % Name() >> Print()
     assert straight_length % Name() == "Length"
     
@@ -412,7 +430,7 @@ def test_sequence_operations():
     straight_serialization % Data("float") >> Print()   # 3.75 Beats
     assert straight_serialization % Data("float") == 3.75
 
-    reversed_length: Length = reversed_sequence % Length()
+    reversed_length: Length = reversed_clip % Length()
     reversed_length % Name() >> Print()
     assert reversed_length % Name() == "Length"
     
@@ -420,30 +438,30 @@ def test_sequence_operations():
     reversed_serialization % Data("float") >> Print()   # 3.75 Beats
     assert reversed_serialization % Data("float") == 3.75
 
-    assert straight_sequence != reversed_sequence
-    assert straight_sequence.copy().reverse()[0] == reversed_sequence[0] + Beats(0.25)
-    assert straight_sequence.copy().reverse()[1] == reversed_sequence[1] + Beats(0.25)
-    assert straight_sequence.copy().reverse()[2] == reversed_sequence[2] + Beats(0.25)
-    assert straight_sequence.copy().reverse()[3] == reversed_sequence[3] + Beats(0.25)
-    assert straight_sequence.reverse() == reversed_sequence + All()**Beats(0.25)
+    assert straight_clip != reversed_clip
+    assert straight_clip.copy().reverse()[0] == reversed_clip[0] + Beats(0.25)
+    assert straight_clip.copy().reverse()[1] == reversed_clip[1] + Beats(0.25)
+    assert straight_clip.copy().reverse()[2] == reversed_clip[2] + Beats(0.25)
+    assert straight_clip.copy().reverse()[3] == reversed_clip[3] + Beats(0.25)
+    assert straight_clip.reverse() == reversed_clip + All()**Beats(0.25)
 
-# test_sequence_operations()
+# test_clip_operations()
 
 
-def test_sequence_content():
+def test_clip_content():
 
-    sequence_elements: Clip = Note() * 4
+    clip_elements: Clip = Note() * 4
 
-    for item in sequence_elements:
+    for item in clip_elements:
         assert isinstance(item, Element)
 
-    sequence_items: Clip = Clip(Note(), Channel(1), Velocity(100), Rest())
-    assert sequence_items.len() == 2
-    for item in sequence_items:
+    clip_items: Clip = Clip(Note(), Channel(1), Velocity(100), Rest())
+    assert clip_items.len() == 2
+    for item in clip_items:
         assert isinstance(item, Element)
 
-    sequence_items = sequence_items + Channel() + Velocity() + Clock()  # Only Elements are added, in this case Clock
-    assert sequence_items.len() == 3
-    for item in sequence_items:
+    clip_items = clip_items + Channel() + Velocity() + Clock()  # Only Elements are added, in this case Clock
+    assert clip_items.len() == 3
+    for item in clip_items:
         assert isinstance(item, Element)
 

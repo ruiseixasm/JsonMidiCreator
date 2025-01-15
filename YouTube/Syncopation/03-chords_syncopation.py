@@ -53,6 +53,7 @@ base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 # base_line << Disable()
+# base_line >> Play()
 
 syncopation_1: Clip = no_syncopation + (base_line + Step(1) << 1/16)
 # syncopation_1 >> Play()
