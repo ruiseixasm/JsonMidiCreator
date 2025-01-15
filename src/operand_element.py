@@ -278,6 +278,8 @@ class Element(o.Operand):
                 self._duration_notevalue      = operand
             case float():
                 self._duration_notevalue      = ra.Duration(operand)._rational
+            case ra.Length():
+                self._duration_notevalue      = self._staff_reference.getDuration(operand)._rational
             case int():
                 self._position_beats      = self._staff_reference.getBeats(ra.Measures(operand))._rational
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():

@@ -399,7 +399,8 @@ def test_note_position():
 
     measure_length: Length = Length(1)
     note += measure_length
-    assert note % Position() == 2.0
+    assert note % Position() == 1.0
+    assert note % Length() == 1.0 + 1/4
 
 # test_note_position()
 
