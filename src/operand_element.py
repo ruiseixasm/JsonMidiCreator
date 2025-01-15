@@ -54,6 +54,7 @@ class Element(o.Operand):
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Element':
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
+            self._position._staff_reference = staff_reference
         return self
 
     def get_staff_reference(self) -> 'og.Staff':
