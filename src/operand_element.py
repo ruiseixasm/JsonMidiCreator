@@ -260,12 +260,13 @@ class Element(o.Operand):
             case Element():
 
                 super().__lshift__(operand)
-                self._position      << operand._position
-                self._duration      = operand._duration
-                self._stackable     = operand._stackable
-                self._channel       = operand._channel
-                self._device        = operand._device   # It's a list of strings, but it won't be changed directly
-                self._enabled       = operand._enabled
+                self._position          << operand._position
+                self._duration          = operand._duration
+                self._stackable         = operand._stackable
+                self._channel           = operand._channel
+                self._device            = operand._device   # It's a list of strings, but it won't be changed directly
+                self._enabled           = operand._enabled
+                self._staff_reference   = operand._staff_reference
 
             case od.DataSource():
                 match operand._data:

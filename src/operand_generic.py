@@ -439,6 +439,7 @@ class Pitch(Generic):
                 self._sharp                 = operand._sharp
                 self._natural               = operand._natural
                 self._scale                 << operand._scale
+                self._staff_reference       = operand._staff_reference
             case od.DataSource():
                 match operand._data:
                     case ou.Octave():

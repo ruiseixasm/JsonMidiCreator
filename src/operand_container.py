@@ -452,9 +452,9 @@ class Clip(Container):  # Just a container of Elements
             if isinstance(single_datasource._data, oe.Element):
                 element_position: ra.Position = single_datasource._data._position
                 if not start or element_position < start:   # Implicit conversion
-                    start = self._position.getPosition( element_position )
+                    start = element_position
         if start:
-            return start
+            return start.copy()
         return self._position.copy(0.0)
 
     def finish(self) -> ra.Position:
@@ -463,9 +463,9 @@ class Clip(Container):  # Just a container of Elements
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
                 element_finish: ra.Position = single_element._position + single_element._duration
-                if element_finish > finish:    # Implicit conversion
-                    finish = finish.getPosition(element_finish) # Explicit conversion
-        return finish
+                if element_finish > finish:
+                    finish = element_finish
+        return finish.copy()
 
 
     def length(self) -> ra.Length:
