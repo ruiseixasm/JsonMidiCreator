@@ -752,48 +752,7 @@ class Position(Rational):
         return self / operand
 
 class Length(Position):
-    
-    # Length round type: (...]
-    def roundMeasures(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Length':
-        measures: Fraction = Fraction(0)
-        match time:
-            case None:
-                measures = self.getMeasures() // Fraction()
-            case Position() | TimeValue() | Duration() | ou.TimeUnit():
-                measures = self.getMeasures(time) // Fraction()
-        if measures.denominator != 1:   # Length round type: (...]
-            measures = Fraction(int(measures) + 1)  # moves forward one unit
-        else:
-            measures = Fraction( int(measures) )
-        return Length(self.getPosition( Measures(measures) ))
-
-    # Length round type: (...]
-    def roundBeats(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Length':
-        beats: Fraction = Fraction(0)
-        match time:
-            case None:
-                beats = self.getBeats() // Fraction()
-            case Position() | TimeValue() | Duration() | ou.TimeUnit():
-                beats = self.getBeats(time) // Fraction()
-        if beats.denominator != 1:   # Length round type: (...]
-            beats = Fraction(int(beats) + 1)    # moves forward one unit
-        else:
-            beats = Fraction( int(beats) )
-        return self.getPosition( Beats(beats) )
-    
-    # Length round type: (...]
-    def roundSteps(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Length':
-        steps: Fraction = Fraction(0)
-        match time:
-            case None:
-                steps = self.getSteps() // Fraction()
-            case Position() | TimeValue() | Duration() | ou.TimeUnit():
-                steps = self.getSteps(time) // Fraction()
-        if steps.denominator != 1:   # Length round type: (...]
-            steps = Fraction(int(steps) + 1)    # moves forward one unit
-        else:
-            steps = Fraction( int(steps) )
-        return self.getPosition( Steps(steps) )
+    pass
 
 
 class TimeValue(Rational):  # Works as Absolute Beats
