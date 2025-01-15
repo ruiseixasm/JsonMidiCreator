@@ -1192,7 +1192,7 @@ class Staff(Generic):
             case ra.Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
-                tempo_a : Fraction = time._tempo
+                tempo_a : Fraction = time._staff_reference._tempo
                 tempo_b : Fraction = self._tempo
                 beats_b : Fraction = beats_a * tempo_b / tempo_a
                 return ra.Beats(beats_b)

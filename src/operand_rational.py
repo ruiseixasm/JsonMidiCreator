@@ -451,10 +451,6 @@ class Position(Rational):
 
         self._staff_reference: og.Staff     = og.defaults._staff
 
-        self._tempo: Fraction                   = og.defaults._staff._tempo
-        self._time_signature: og.TimeSignature  = og.defaults._staff._time_signature.copy()
-        self._quantization: Fraction            = og.defaults._staff._quantization
-
         super().__init__(*parameters)
 
 
@@ -497,12 +493,6 @@ class Position(Rational):
         """
         import operand_generic as og
         match operand:
-            case od.DataSource():
-                match operand._data:
-                    case Tempo():               return Tempo() << od.DataSource( self._tempo )
-                    case og.TimeSignature():    return self._time_signature
-                    case Quantization():        return Quantization() << od.DataSource( self._quantization )
-                    case _:                     return super().__mod__(operand)
             case Measures():            return self._staff_reference.getMeasures(self)
             case Beats():               return self._staff_reference.getBeats(self)
             case Steps():               return self._staff_reference.getSteps(self)
@@ -510,11 +500,6 @@ class Position(Rational):
             case ou.Measure():          return self._staff_reference.getMeasure(self)
             case ou.Beat():             return self._staff_reference.getBeat(self)
             case ou.Step():             return self._staff_reference.getStep(self)
-            case Tempo():               return Tempo() << od.DataSource( self._tempo )
-            case og.TimeSignature():    return self._time_signature.copy()
-            case BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
-                                        return self._time_signature % operand
-            case Quantization():        return Quantization() << od.DataSource( self._quantization )
             case int():                 return self._staff_reference.getMeasure(self) % int()
             case float():               return self._staff_reference.getMeasures(self) % float()
             case Fraction():            return self._staff_reference.getMeasures(self) % Fraction()
@@ -650,26 +635,7 @@ class Position(Rational):
             case _:
                 return self._staff_reference.getPlaylist(position)
 
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["tempo"]            = self.serialize(self._tempo)
-        serialization["parameters"]["time_signature"]   = self.serialize(self._time_signature)
-        serialization["parameters"]["quantization"]     = self.serialize(self._quantization)
-        return serialization
-
     # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> 'Position':
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "tempo" in serialization["parameters"] and "time_signature" in serialization["parameters"] and
-            "quantization" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._tempo             = self.deserialize(serialization["parameters"]["tempo"])
-            self._time_signature    = self.deserialize(serialization["parameters"]["time_signature"])
-            self._quantization      = self.deserialize(serialization["parameters"]["quantization"])
-
-        return self
 
     def __lshift__(self, operand: o.Operand) -> 'Position':
         import operand_generic as og
@@ -677,17 +643,7 @@ class Position(Rational):
         match operand:
             case Position():
                 super().__lshift__(operand)
-                # It's faster this way with direct access to the respective source variables
-                self._tempo                     = operand._tempo
-                self._time_signature._top       = operand._time_signature._top
-                self._time_signature._bottom    = operand._time_signature._bottom
-                self._quantization              = operand._quantization
-            case od.DataSource():
-                match operand._data:
-                    case Tempo():               self._tempo             = operand._data // Fraction()
-                    case og.TimeSignature():    self._time_signature    = operand._data
-                    case Quantization():        self._quantization      = operand._data // Fraction()
-                    case _:                     super().__lshift__(operand)
+                self._staff_reference = operand._staff_reference
             case TimeValue() | Duration():
                 self._rational = self._staff_reference.getBeats(operand)._rational
             case ou.Measure():
@@ -699,12 +655,6 @@ class Position(Rational):
                 self._rational = (self.getBeats(self_measure) + self.getBeats(operand))._rational
             case int() | float() | Fraction():
                 self << Measures(operand)
-            case Tempo():
-                self._tempo             = operand // Fraction()
-            case og.TimeSignature() | BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
-                self._time_signature    << operand
-            case Quantization():
-                self._quantization      = operand // Fraction()
             case _:
                 super().__lshift__(operand)
         return self

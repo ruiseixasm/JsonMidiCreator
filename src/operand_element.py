@@ -468,46 +468,50 @@ class Clock(Element):
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
 
         pulses_per_note: int = self._pulses_per_quarternote * 4
-        pulses_per_beat: Fraction = (self._position % ra.BeatNoteValue() % od.DataSource( Fraction() )) * pulses_per_note
-        total_clock_pulses: int = (self._position.getBeats( self // ra.Duration() ) * pulses_per_beat) % od.DataSource( int() )
+        pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
+        total_clock_pulses: int = self._staff_reference.getBeats( self // ra.Duration() ) * pulses_per_beat % int()
 
-        single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
+        if total_clock_pulses > 0:
 
-        # First quarter note pulse (total 1 in 24 pulses per quarter note)
-        self_playlist = [
-                {
-                    "time_ms": self.get_time_ms(self_position_ms),
-                    "midi_message": {
-                        "status_byte": 0xFA,    # Start Track
-                        "device": self._device
+            single_pulse_duration_ms: Fraction = self_duration_ms / total_clock_pulses
+
+            # First quarter note pulse (total 1 in 24 pulses per quarter note)
+            self_playlist = [
+                    {
+                        "time_ms": self.get_time_ms(self_position_ms),
+                        "midi_message": {
+                            "status_byte": 0xFA,    # Start Track
+                            "device": self._device
+                        }
                     }
-                }
-            ]
+                ]
+        
+            # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
+            for clock_pulse in range(1, total_clock_pulses):
+                self_playlist.append(
+                    {
+                        "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
+                        "midi_message": {
+                            "status_byte": 0xF8,    # Timing Clock
+                            "device": self._device
+                        }
+                    }
+                )
 
-        # Middle quarter note pulses (total 23 in 24 pulses per quarter note)
-        for clock_pulse in range(1, total_clock_pulses):
+            # Last quarter note pulse (45 pulses where this last one sets the stop)
             self_playlist.append(
                 {
-                    "time_ms": self.get_time_ms(single_pulse_duration_ms * clock_pulse),
+                    "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
                     "midi_message": {
-                        "status_byte": 0xF8,    # Timing Clock
+                        "status_byte": 0xFC,    # Stop Track
                         "device": self._device
                     }
                 }
             )
+            
+            return self_playlist
 
-        # Last quarter note pulse (45 pulses where this last one sets the stop)
-        self_playlist.append(
-            {
-                "time_ms": self.get_time_ms(single_pulse_duration_ms * total_clock_pulses),
-                "midi_message": {
-                    "status_byte": 0xFC,    # Stop Track
-                    "device": self._device
-                }
-            }
-        )
-        
-        return self_playlist
+        return []
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1610,7 +1614,7 @@ class Automation(Element):
     def __init__(self, *parameters):
         super().__init__(*parameters)   # (*parameters) is required by correct Step duration initiation relative to self._position
         # Requires self._position, so, it has to be defined after super() initiation
-        self._duration = self._position._quantization   # Equivalent to one Step
+        self._duration = self._position._staff_reference._quantization   # Equivalent to one Step
         for single_parameter in parameters: # Faster than passing a tuple
             if isinstance(single_parameter, ra.Duration):   # Others already processed above
                 self << single_parameter
