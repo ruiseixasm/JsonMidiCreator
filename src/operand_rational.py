@@ -713,7 +713,7 @@ class Position(Rational):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Position conversion
-                self._rational += self.getBeats(operand)._rational
+                self._rational += self._staff_reference.getBeats(operand)._rational
             case int() | float() | Fraction():
                 self += Measures(operand)
         return self
@@ -722,7 +722,7 @@ class Position(Rational):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Position conversion
-                self._rational -= self.getBeats(operand)._rational
+                self._rational -= self._staff_reference.getBeats(operand)._rational
             case int() | float() | Fraction():
                 self -= Measures(operand)
         return self
