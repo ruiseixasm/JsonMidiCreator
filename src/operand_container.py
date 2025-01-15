@@ -398,7 +398,7 @@ class Clip(Container):  # Just a container of Elements
 
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
         if isinstance(staff_reference, og.Staff):
-            self._staff = staff_reference.copy()
+            self._staff << staff_reference
             for single_element in self:
                 if isinstance(single_element, oe.Element):
                     single_element.set_staff_reference(self._staff)
@@ -557,7 +557,6 @@ class Clip(Container):  # Just a container of Elements
 
         match operand:
             case Clip():
-                self._staff             << operand._staff
                 self._midi_track        << operand._midi_track
                 self._position_beats    = operand._position_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -565,6 +564,7 @@ class Clip(Container):  # Just a container of Elements
                 self._datasource_list   = self.deep_copy( operand._datasource_list )
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand  = self.deep_copy(operand._next_operand)
+                self.set_staff_reference(operand._staff)
 
             case od.DataSource():
                 match operand._data:
@@ -604,6 +604,7 @@ class Clip(Container):  # Just a container of Elements
         empty_copy: Clip = super().empty_copy()
         empty_copy._midi_track      << self._midi_track
         empty_copy._position_beats  = self._position_beats
+        empty_copy._staff           << self._staff
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
@@ -763,7 +764,7 @@ class Clip(Container):  # Just a container of Elements
                 new_sequence._datasource_list.extend(operand._datasource_list)
                 new_sequence._midi_track        << self._midi_track
                 new_sequence._position_beats    = self._position_beats
-                new_sequence._staff             = self._staff.copy()
+                new_sequence._staff             << self._staff
                 return new_sequence
             case _:
                 return self.filter(operand)
