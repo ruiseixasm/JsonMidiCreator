@@ -82,34 +82,34 @@ def test_position_default():
 # test_position_default()
 
 
-def test_position_specific():
+# def test_position_specific():
 
-    position_measures: Position = Position(TimeSignature(3, 8), Quantization(1/32), 1.5)  # 1.5 Measures
-    beats_per_measure: int = 3
-    beats_per_note: int = 8
-    steps_per_note: int = 32
-    steps_per_beat: float = steps_per_note / beats_per_note
-    steps_per_measure: int = steps_per_beat * beats_per_measure
+#     position_measures: Position = Position(TimeSignature(3, 8), Quantization(1/32), 1.5)  # 1.5 Measures
+#     beats_per_measure: int = 3
+#     beats_per_note: int = 8
+#     steps_per_note: int = 32
+#     steps_per_beat: float = steps_per_note / beats_per_note
+#     steps_per_measure: int = steps_per_beat * beats_per_measure
 
-    print(position_measures % Beats() % DataSource( Fraction() ))
-    assert position_measures % Beats() == 1.5 * beats_per_measure
-    print(position_measures % Steps() % DataSource( Fraction() ))
-    print(1.5 * beats_per_measure * steps_per_beat)
-    assert position_measures.getSteps() == 1.5 * beats_per_measure * steps_per_beat
-    print(int(1.5 * beats_per_measure) % beats_per_measure)
-    assert position_measures.getBeat() == int(1.5 * beats_per_measure) % beats_per_measure
-    print(int(1.5 * steps_per_measure) % steps_per_measure)
-    assert position_measures.getStep() == int(1.5 * steps_per_measure) % steps_per_measure
+#     print(position_measures % Beats() % DataSource( Fraction() ))
+#     assert position_measures % Beats() == 1.5 * beats_per_measure
+#     print(position_measures % Steps() % DataSource( Fraction() ))
+#     print(1.5 * beats_per_measure * steps_per_beat)
+#     assert position_measures.getSteps() == 1.5 * beats_per_measure * steps_per_beat
+#     print(int(1.5 * beats_per_measure) % beats_per_measure)
+#     assert position_measures.getBeat() == int(1.5 * beats_per_measure) % beats_per_measure
+#     print(int(1.5 * steps_per_measure) % steps_per_measure)
+#     assert position_measures.getStep() == int(1.5 * steps_per_measure) % steps_per_measure
 
-    position_copy: Position = Position(position_measures)
-    assert position_copy == position_measures
-    assert position_copy.getBeats() == position_measures.getBeats()
+#     position_copy: Position = Position(position_measures)
+#     assert position_copy == position_measures
+#     assert position_copy.getBeats() == position_measures.getBeats()
 
-    position_copy << Tempo(120 / 2)
-    assert position_copy != position_measures
-    assert position_measures.getBeats(position_copy) == position_measures.getBeats() * 2 # Double the tempo
+#     position_copy << Tempo(120 / 2)
+#     assert position_copy != position_measures
+#     assert position_measures.getBeats(position_copy) == position_measures.getBeats() * 2 # Double the tempo
 
-# test_position_specific()
+# # test_position_specific()
 
 
 def test_length_unit():

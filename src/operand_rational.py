@@ -569,17 +569,11 @@ class Position(Rational):
         beats: Fraction = Fraction(0)
         match time:
             case None:
-                return Beats(self._rational)
+                return self._staff_reference.getBeats(self)
             case Position():
-                # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
-                beats_a : Fraction = time._rational
-                tempo_a : Fraction = time._tempo
-                tempo_b : Fraction = self._tempo
-                beats_b : Fraction = beats_a * tempo_b / tempo_a
-                return Beats(beats_b)
+                return self._staff_reference.getBeats(time)
             case Measures():
-                beats_per_measure: int = self._time_signature._top
-                beats = time._rational * beats_per_measure
+                return self._staff_reference.getBeats(time)
             case Beats():
                 beats = time._rational
             case Steps():
