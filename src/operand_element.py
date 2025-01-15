@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 class Element(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._position: ra.Position         = ra.Position()
+        self._position: Fraction            = Fraction(0)   # in Beats
         self._duration: Fraction            = og.defaults._duration
         self._stackable: bool               = True
         self._channel: int                  = og.defaults._channel
@@ -54,7 +54,6 @@ class Element(o.Operand):
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Element':
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
-            self._position._staff_reference = staff_reference
         return self
 
     def get_staff_reference(self) -> 'og.Staff':
@@ -65,8 +64,8 @@ class Element(o.Operand):
         return self
 
 
-    def position(self: TypeElement, position: float = None) -> TypeElement:
-        self._position = ra.Position(position)
+    def position(self: TypeElement, position_measures: float = None) -> TypeElement:
+        self._position = self._staff_reference.getPosition(ra.Measures(position_measures))._rational
         return self
 
     def duration(self: 'TypeElement', duration: float = None) -> 'TypeElement':
@@ -99,7 +98,7 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Position():     return self._position
+                    case ra.Position():     return self._staff_reference.getPosition(ra.Beats(self._position))
                     case ra.Duration():     return operand._data << od.DataSource( self._duration )
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
@@ -110,26 +109,23 @@ class Element(o.Operand):
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration )
-            case ra.Length():       return ra.Length(self._position)
-            case ra.Position():     return self._position.copy()
-            case ra.TimeValue() | ou.TimeUnit() \
-                | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.NotesPerMeasure() \
-                | ra.Tempo() | ra.Quantization():
-                                    return self._position % operand
+            case ra.Length():       return self._staff_reference.getLength(ra.Duration(self._duration))
+            case ra.Position():     return self._staff_reference.getPosition(ra.Beats(self._position))
             case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case od.Device():       return od.Device() << od.DataSource( self._device )
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.finish()
-            case int():             return self._position % operand
+            case int():             return self._staff_reference.getMeasures(ra.Beats(self._position)) % int()
             case float():           return float( self._duration )
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
             case _:                 return super().__mod__(operand)
 
     def eq_time(self, other: 'Element') -> bool:
-        return  self._position      == other._position \
+        return  self._staff_reference.getPosition(ra.Beats(self._position)) \
+                    == other._staff_reference.getPosition(ra.Beats(other._position)) \
             and self._duration      == other._duration \
             and self._stackable     == other._stackable
 
@@ -145,7 +141,7 @@ class Element(o.Operand):
             case ra.Duration():
                 return self._duration == other._rational
             case ra.TimeValue() | ou.TimeUnit():
-                return self._position == other
+                return self._staff_reference.getPosition(ra.Beats(self._position)) == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -161,7 +157,7 @@ class Element(o.Operand):
             case ra.Duration():
                 return self._duration < other._rational
             case ra.TimeValue() | ou.TimeUnit():
-                return self._position < other
+                return self._staff_reference.getPosition(ra.Beats(self._position)) < other
             case _:
                 return self % od.DataSource( other ) < other
     
@@ -173,43 +169,38 @@ class Element(o.Operand):
             case ra.Duration():
                 return self._duration > other._rational
             case ra.TimeValue() | ou.TimeUnit():
-                return self._position > other
+                return self._staff_reference.getPosition(ra.Beats(self._position)) > other
             case _:
                 return self % od.DataSource( other ) > other
     
     def start(self) -> ra.Position:
-        return self._position.copy()
+        return self._staff_reference.getPosition(ra.Beats(self._position))
 
     def finish(self) -> ra.Position:
-        return self._position + self % ra.Duration()
+        return self._staff_reference.getPosition(ra.Beats(self._position)) + self % ra.Duration()
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
         return [
                 {
                     "time_ms":  self.get_time_ms(self_position_ms)
                 }
             ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
         midi_track: ou.MidiTrack = ou.MidiTrack() if not isinstance(midi_track, ou.MidiTrack) else midi_track
 
-        if isinstance(position, ra.Position):
-            self_numerator: int = position._time_signature._top
-            self_denominator: int = position._time_signature._bottom
-            self_position: float = (position.getBeats() + position.getBeats(self._position)) % od.DataSource( float() )
-            self_duration: float = position.getBeats(self // ra.Duration()) % od.DataSource( float() )
-            self_tempo: float = float(position._tempo)
-        else:
-            self_numerator: int = self._position._time_signature._top
-            self_denominator: int = self._position._time_signature._bottom
-            self_position: float = self._position % od.DataSource( float() )
-            self_duration: float = self._position.getBeats(self // ra.Duration()) % od.DataSource( float() )
-            self_tempo: float = float(self._position._tempo)
+        self_numerator: int = self._staff_reference._time_signature._top
+        self_denominator: int = self._staff_reference._time_signature._bottom
+        self_position: float = float(self._position)
+        self_duration: float = self._staff_reference.getBeats(self // ra.Duration()) % od.DataSource( float() )
+        self_tempo: float = float(self._staff_reference._tempo)
+        if isinstance(position_beats, Fraction):
+            self_position = float(position_beats + self._position)
 
         # Validation is done by midiutil Midi Range Validation
         return [
@@ -260,7 +251,7 @@ class Element(o.Operand):
             case Element():
 
                 super().__lshift__(operand)
-                self._position          << operand._position
+                self._position          = operand._position
                 self._duration          = operand._duration
                 self._stackable         = operand._stackable
                 self._channel           = operand._channel
@@ -283,10 +274,10 @@ class Element(o.Operand):
                 self._duration      = operand
             case float():
                 self._duration      = ra.Duration(operand)._rational
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit() | int() \
-                | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.NotesPerMeasure() \
-                | ra.Tempo() | ra.Quantization():
-                self._position      << operand
+            case int():
+                self._position      = self._staff_reference.getBeats(ra.Measures(operand))._rational
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                self._position      = self._staff_reference.getBeats(operand)._rational
             case ou.Stackable():
                 self._stackable     = operand // bool()
             case ou.Channel():
@@ -336,9 +327,6 @@ class Element(o.Operand):
                 self_sequence += self
                 self_sequence += operand
                 return self_sequence
-            case ra.Position():
-                self._position += operand  # Specific and compounded parameter
-                return self
             case _:
                 self_operand: any = self % operand
                 self_operand += operand
@@ -350,14 +338,9 @@ class Element(o.Operand):
 
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case ra.Position():
-                self._position -= operand  # Specific and compounded parameter
-                return self
-            case _:
-                self_operand: any = self % operand
-                self_operand -= operand
-                return self << self_operand
+        self_operand: any = self % operand
+        self_operand -= operand
+        return self << self_operand
 
     def __mul__(self, operand: any) -> 'Element':
         self_copy: Element = self.copy()
@@ -377,7 +360,7 @@ class Element(o.Operand):
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration > 0:
-                    operand_duration: Fraction = self._position.getDuration(operand)._rational
+                    operand_duration: Fraction = self._staff_reference.getDuration(operand)._rational
                     self_repeating: int = operand_duration // self._duration
                 return self.__imul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -397,17 +380,15 @@ class Element(o.Operand):
             return self << self_operand
         return self
 
-    def get_position_duration_ms(self, position: ra.Position = None) -> tuple:
+    def get_position_duration_ms(self, position_beats: Fraction = None) -> tuple:
 
-        if isinstance(position, ra.Position):
-            reference_position: ra.Position = position
-            self_position_ms: Fraction = \
-                position.getMillis_rational() + self._position.getMillis_rational()
+        if isinstance(position_beats, Fraction):
+            self_position_ms: Fraction = self._staff_reference.getMillis_rational(
+                ra.Beats(position_beats + self._position)
+            )
         else:
-            reference_position: ra.Position = self._position
-            self_position_ms: Fraction = self._position.getMillis_rational()
-
-        self_duration_ms: Fraction = reference_position.getMillis_rational( ra.Duration(self._duration) )
+            self_position_ms: Fraction = self._staff_reference.getMillis_rational(ra.Beats(self._position))
+        self_duration_ms: Fraction = self._staff_reference.getMillis_rational( ra.Duration(self._duration) )
 
         return self_position_ms, self_duration_ms
 
@@ -421,7 +402,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration = self._position.getDuration(og.defaults._staff._measures)._rational
+        self._duration = self._staff_reference.getDuration(ra.Measures(og.defaults._staff._measures))._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -463,10 +444,10 @@ class Clock(Element):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
         pulses_per_note: int = self._pulses_per_quarternote * 4
         pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
@@ -539,20 +520,20 @@ class Clock(Element):
                 match operand._data:
                     case ou.PPQN():         self._pulses_per_quarternote = operand._data._unit
                     case ra.Measures() | ou.Measure():
-                                            self._duration = self._position.getDuration(operand._data)._rational
+                                            self._duration = self._staff_reference.getDuration(operand._data)._rational
                     case _:                 super().__lshift__(operand)
             case ou.PPQN():         self._pulses_per_quarternote = operand._unit
             case ra.Measures() | ou.Measure():
-                                    self._duration = self._position.getDuration(operand)._rational
+                                    self._duration = self._staff_reference.getDuration(operand)._rational
             case _: super().__lshift__(operand)
         return self
 
 class Rest(Element):
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -572,10 +553,10 @@ class Rest(Element):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         self_midilist[0]["event"]       = "Rest"
         return self_midilist
 
@@ -623,13 +604,13 @@ class Tiable(Element):
             case _:
                 return super().__eq__(other)
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Tiable"
-        self_midilist[0]["duration"]    = float(self._position.getBeats( self // ra.Duration() )._rational * self._gate)
+        self_midilist[0]["duration"]    = float(self._staff_reference.getBeats( self // ra.Duration() )._rational * self._gate)
         self_midilist[0]["velocity"]    = self._velocity
         return self_midilist
 
@@ -732,11 +713,11 @@ class Note(Tiable):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
         
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
         pitch_int: int = int(self._pitch % float())
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -761,13 +742,13 @@ class Note(Tiable):
                 }
             ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
         
         pitch_int: int = int(self._pitch % float())
 
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Note"
         self_midilist[0]["pitch"]       = pitch_int
@@ -870,16 +851,16 @@ class Cluster(Tiable):
             cluster_notes.append( Note(self, single_pitch) )
         return cluster_notes
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
         for single_element in self.get_cluster_notes():
-            self_playlist.extend(single_element.getPlaylist(position))
+            self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
         for single_element in self.get_cluster_notes():
-            self_midilist.extend(single_element.getMidilist(midi_track, position))    # extends the list with other list
+            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
@@ -955,7 +936,7 @@ class Dyad(Cluster):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self << self._position.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
+        self << self._staff_reference.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale  = og.Scale( og.defaults._staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -1018,16 +999,16 @@ class KeyScale(Note):
                 scale_notes.append( new_note )
         return scale_notes
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
         for single_note in self.get_scale_notes():
-            self_playlist.extend(single_note.getPlaylist(position))
+            self_playlist.extend(single_note.getPlaylist(position_beats))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
         for single_note in self.get_scale_notes():
-            self_midilist.extend(single_note.getMidilist(midi_track, position))
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
         return self_midilist
 
     def getSerialization(self) -> dict:
@@ -1204,16 +1185,16 @@ class Chord(KeyScale):
                             not_first_note = True # to result in another while loop
         return chord_notes
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
         for single_note in self.get_chord_notes():
-            self_playlist.extend(single_note.getPlaylist(position))    # extends the list with other list
+            self_playlist.extend(single_note.getPlaylist(position_beats))    # extends the list with other list
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
         for single_note in self.get_chord_notes():
-            self_midilist.extend(single_note.getMidilist(midi_track, position))    # extends the list with other list
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
@@ -1359,7 +1340,7 @@ class Retrigger(Note):
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.Position = self._position.copy()
+        note_position: ra.Position = self._staff_reference.getPosition(ra.Beats(self._position))
         single_note_duration: ra.Duration = ra.Duration( self._duration/(self._division) ) # Already 2x single note duration
         for _ in range(self._division):
             swing_ratio = self._swing
@@ -1371,16 +1352,16 @@ class Retrigger(Note):
             self_iteration += 1
         return retrigger_notes
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
         for single_note in self.get_retrigger_notes():
-            self_playlist.extend(single_note.getPlaylist(position))
+            self_playlist.extend(single_note.getPlaylist(position_beats))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
         for single_note in self.get_retrigger_notes():
-            self_midilist.extend(single_note.getMidilist(midi_track, position))    # extends the list with other list
+            self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
@@ -1536,16 +1517,16 @@ class Tuplet(Element):
             self_iteration += 1
         return tuplet_elements
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
         for single_element in self.get_tuplet_elements():
-            self_playlist.extend(single_element.getPlaylist(position))
+            self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
         for single_element in self.get_tuplet_elements():
-            self_midilist.extend(single_element.getMidilist(midi_track, position))    # extends the list with other list
+            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
@@ -1615,7 +1596,7 @@ class Automation(Element):
     def __init__(self, *parameters):
         super().__init__(*parameters)   # (*parameters) is required by correct Step duration initiation relative to self._position
         # Requires self._position, so, it has to be defined after super() initiation
-        self._duration = self._position._staff_reference._quantization   # Equivalent to one Step
+        self._duration = self._staff_reference._quantization   # Equivalent to one Step
         for single_parameter in parameters: # Faster than passing a tuple
             if isinstance(single_parameter, ra.Duration):   # Others already processed above
                 self << single_parameter
@@ -1663,11 +1644,11 @@ class ControlChange(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
 
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -1682,10 +1663,10 @@ class ControlChange(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         self_midilist[0]["event"]       = "ControllerEvent"
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["number"]      = self._controller._number
@@ -1780,10 +1761,10 @@ class PitchBend(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
         amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
         amount = max(min(amount, 16383), 0) # midi safe
@@ -1804,10 +1785,10 @@ class PitchBend(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "PitchWheelEvent"
         self_midilist[0]["value"]       = self._bend
@@ -1888,10 +1869,10 @@ class Aftertouch(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -1905,10 +1886,10 @@ class Aftertouch(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ChannelPressure"
         self_midilist[0]["pressure"]    = self._pressure
@@ -2002,11 +1983,11 @@ class PolyAftertouch(Aftertouch):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
 
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
         pitch_int: int = int(self._pitch % float())
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -2110,10 +2091,10 @@ class ProgramChange(Automation):
             case _:
                 return super().__eq__(other)
     
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position)
+        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -2127,10 +2108,10 @@ class ProgramChange(Automation):
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position)
+        self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "ProgramChange"
         self_midilist[0]["program"]     = self._program
@@ -2174,15 +2155,15 @@ class ProgramChange(Automation):
         return self
 
 class Panic(Element):
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(position))
-        self_playlist.extend(PitchBend(0).getPlaylist(position))
-        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(position))
-        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(position))
-        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(position))
+        self_playlist.extend((ControlChange(123) << ou.Value(0)).getPlaylist(position_beats))
+        self_playlist.extend(PitchBend(0).getPlaylist(position_beats))
+        self_playlist.extend((ControlChange(64) << ou.Value(0)).getPlaylist(position_beats))
+        self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(position_beats))
+        self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(position_beats))
 
-        on_time_ms = self.get_time_ms(self._position.getMillis_rational())
+        on_time_ms = self.get_time_ms(self._staff_reference.getMillis_rational(ra.Beats(self._position)))
 
         # Midi validation is done in the JsonMidiPlayer program
         for key_note_midi in range(128):
@@ -2207,8 +2188,8 @@ class Panic(Element):
                 }
             )
 
-        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlaylist(position))
-        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlaylist(position))
+        self_playlist.extend((ControlChange(7) << ou.Value(100)).getPlaylist(position_beats))
+        self_playlist.extend((ControlChange(11) << ou.Value(127)).getPlaylist(position_beats))
 
         return self_playlist
 

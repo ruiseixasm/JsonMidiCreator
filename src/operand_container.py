@@ -378,17 +378,17 @@ class Clip(Container):  # Just a container of Elements
         super().__init__(*operands)
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
-        self._position: ra.Position     = ra.Position()
+        self._position: Fraction        = Fraction(0)   # in Beats
 
         for single_operand in operands:
             match single_operand:
                 case Clip():
                     self._midi_track    << single_operand._midi_track
-                    self._position      << single_operand._position
+                    self._position      = single_operand._position
                 case ou.MidiTrack():
                     self._midi_track    << single_operand
                 case ra.Position():
-                    self._position = single_operand.copy()
+                    self._position      = self._staff.getPosition(single_operand)._rational
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
 
@@ -432,7 +432,7 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():     return self._position
+                    case ra.Position():     return self._staff.getPosition(ra.Beats(self._position))
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
