@@ -451,6 +451,9 @@ class Position(Rational):
         self._tempo: Fraction                   = og.defaults._staff._tempo
         self._time_signature: og.TimeSignature  = og.defaults._staff._time_signature.copy()
         self._quantization: Fraction            = og.defaults._staff._quantization
+
+        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+
         super().__init__(*parameters)
 
     def position(self: 'Position', beats: float = None) -> 'Position':
@@ -909,7 +912,13 @@ class TimeValue(Rational):  # Works as Absolute Beats
     first : float_like
         Not intended to be set directly
     """
-    pass
+    def __init__(self, *parameters):
+        import operand_generic as og
+
+        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+
+        super().__init__(*parameters)
+
 
 class Measures(TimeValue):
     """
@@ -953,7 +962,12 @@ class Duration(Rational):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    pass
+    def __init__(self, *parameters):
+        import operand_generic as og
+        
+        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+
+        super().__init__(*parameters)
 
 # NoteValue as an Alias to Duration
 NoteValue = Duration

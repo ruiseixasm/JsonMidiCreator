@@ -1468,9 +1468,7 @@ class Staff(Generic):
 class Defaults(Generic):
     def __init__(self, *parameters):
         super().__init__()
-        self._staff: Staff                          = Staff(
-            ra.Tempo(120), TimeSignature(4, 4), ra.Quantization(1/16), ra.Measures(8)
-        )
+        self._staff: Staff                          = Staff()
         self._duration: Fraction                    = Fraction(1/4)
         self._octave: int                           = 4
         self._velocity: int                         = 100

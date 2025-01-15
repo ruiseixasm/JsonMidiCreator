@@ -254,7 +254,12 @@ class PositionParameter(Unit):
     pass
 
 class TimeUnit(PositionParameter):
-    pass
+    def __init__(self, *parameters):
+        import operand_generic as og
+        
+        self._staff_reference: og.Staff     = og.defaults // og.Staff()
+
+        super().__init__(*parameters)
 
 class Measure(TimeUnit):
     pass
