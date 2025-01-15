@@ -464,8 +464,8 @@ class Clip(Container):  # Just a container of Elements
                 single_element: oe.Element = single_datasource._data
                 element_finish: Fraction = single_element._position_beats \
                     + (single_element % ra.Length())._rational
-                if element_finish > finish:
-                    finish = element_finish
+                if element_finish > finish_beats:
+                    finish_beats = element_finish
         return self._staff.getPosition(ra.Beats(finish_beats))
 
 

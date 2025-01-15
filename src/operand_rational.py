@@ -431,6 +431,23 @@ class Tempo(Rational):
 
 
 class Convertible(Rational):
+    pass
+
+
+class Quantization(Convertible):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : float_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
+    pass
+
+
+class Position(Convertible):
+
     def __init__(self, *parameters):
         import operand_generic as og
 
@@ -583,19 +600,7 @@ class Convertible(Rational):
             case _:
                 return self._staff_reference.getStep(time)
 
-class Quantization(Convertible):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : float_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
-    pass
 
-
-class Position(Convertible):
 
     def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )
