@@ -131,7 +131,7 @@ class Pitch(Generic):
         super().__init__(*parameters)
 
 
-    def staff_reference(self, staff_reference: 'Staff' = None) -> 'Pitch':
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'Pitch':
         if isinstance(staff_reference, Staff):
             self._staff_reference = staff_reference
         else:

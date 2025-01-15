@@ -912,12 +912,7 @@ class TimeValue(Rational):  # Works as Absolute Beats
     first : float_like
         Not intended to be set directly
     """
-    def __init__(self, *parameters):
-        import operand_generic as og
-
-        self._staff_reference: og.Staff     = og.defaults._staff
-
-        super().__init__(*parameters)
+    pass
 
 
 class Measures(TimeValue):
@@ -962,12 +957,7 @@ class Duration(Rational):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    def __init__(self, *parameters):
-        import operand_generic as og
-        
-        self._staff_reference: og.Staff     = og.defaults._staff
-
-        super().__init__(*parameters)
+    pass
 
 # NoteValue as an Alias to Duration
 NoteValue = Duration

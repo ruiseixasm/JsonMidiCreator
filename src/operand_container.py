@@ -376,9 +376,9 @@ class Clip(Container):  # Just a container of Elements
     def __init__(self, *operands):
 
         super().__init__(*operands)
+        self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._position: ra.Position     = ra.Position()
-        self._staff: og.Staff = og.defaults % og.Staff()
 
         for single_operand in operands:
             match single_operand:
@@ -395,15 +395,22 @@ class Clip(Container):  # Just a container of Elements
     def __getitem__(self, index: int) -> oe.Element:
         return self._datasource_list[index]._data
 
-    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
         if isinstance(staff_reference, og.Staff):
+            self._staff = staff_reference.copy()
             for single_element in self:
                 if isinstance(single_element, oe.Element):
-                    single_element.staff_reference(staff_reference)
-        else:
-            for single_element in self:
-                if isinstance(single_element, oe.Element):
-                    single_element.staff_reference(self._staff)
+                    single_element.set_staff_reference(self._staff)
+        return self
+
+    def get_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'og.Staff':
+        return self._staff
+
+    def reset_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
+        self._staff = og.defaults._staff.copy()
+        for single_element in self:
+            if isinstance(single_element, oe.Element):
+                single_element.set_staff_reference(self._staff)
         return self
 
     def __mod__(self, operand: any) -> any:

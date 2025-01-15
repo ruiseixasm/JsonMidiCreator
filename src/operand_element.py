@@ -51,11 +51,9 @@ class Element(o.Operand):
             self << single_parameter
 
 
-    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Element':
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Element':
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
-        else:
-            self._staff_reference = og.defaults._staff
         return self
 
     def position(self: TypeElement, position: float = None) -> TypeElement:
@@ -669,8 +667,8 @@ class Note(Tiable):
         super().__init__(*parameters)
 
 
-    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
-        super().staff_reference(staff_reference)
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super().set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._staff_reference
         return self
 
@@ -815,8 +813,8 @@ class Cluster(Tiable):
         super().__init__( *parameters )
 
 
-    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
-        super().staff_reference(staff_reference)
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super().set_staff_reference(staff_reference)
         for single_pitch in self._pitches:
             single_pitch._staff_reference = self._staff_reference
         return self
@@ -1930,8 +1928,8 @@ class PolyAftertouch(Aftertouch):
         super().__init__(*parameters)
 
 
-    def staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
-        super().staff_reference(staff_reference)
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Note':
+        super().set_staff_reference(staff_reference)
         self._pitch._staff_reference = self._staff_reference
         return self
 
