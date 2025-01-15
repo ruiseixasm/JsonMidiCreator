@@ -503,21 +503,21 @@ class Position(Rational):
                     case og.TimeSignature():    return self._time_signature
                     case Quantization():        return Quantization() << od.DataSource( self._quantization )
                     case _:                     return super().__mod__(operand)
-            case Measures():            return self.getMeasures()
-            case Beats():               return self.getBeats()
-            case Steps():               return self.getSteps()
-            case Duration():            return self.getDuration()
-            case ou.Measure():          return self.getMeasure()
-            case ou.Beat():             return self.getBeat()
-            case ou.Step():             return self.getStep()
+            case Measures():            return self._staff_reference.getMeasures(self)
+            case Beats():               return self._staff_reference.getBeats(self)
+            case Steps():               return self._staff_reference.getSteps(self)
+            case Duration():            return self._staff_reference.getDuration(self)
+            case ou.Measure():          return self._staff_reference.getMeasure(self)
+            case ou.Beat():             return self._staff_reference.getBeat(self)
+            case ou.Step():             return self._staff_reference.getStep(self)
             case Tempo():               return Tempo() << od.DataSource( self._tempo )
             case og.TimeSignature():    return self._time_signature.copy()
             case BeatsPerMeasure() | BeatNoteValue() | NotesPerMeasure():
                                         return self._time_signature % operand
             case Quantization():        return Quantization() << od.DataSource( self._quantization )
-            case int():                 return self % ou.Measure(operand) % int()
-            case float():               return self % Measures(operand) % float()
-            case Fraction():            return self % Measures(operand) % Fraction()
+            case int():                 return self._staff_reference.getMeasure(self) % int()
+            case float():               return self._staff_reference.getMeasures(self) % float()
+            case Fraction():            return self._staff_reference.getMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
