@@ -507,30 +507,30 @@ class Clip(Container):  # Just a container of Elements
                         sequence_elements.append(first_tied_note)
         return sequence_elements
 
-    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = None) -> list[dict]:
 
-        if isinstance(position, ra.Position):
-            position += self._position_beats
+        if isinstance(position_beats, Fraction):
+            position_beats += self._position_beats
         else:
-            position = self._position_beats
+            position_beats = self._position_beats
 
         return [
             single_playlist
                 for single_element in self.get_sequence_elements()
-                for single_playlist in single_element.getPlaylist(position)
+                for single_playlist in single_element.getPlaylist(position_beats)
         ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        if isinstance(position, ra.Position):
-            position += self._position_beats
+        if isinstance(position_beats, Fraction):
+            position_beats += self._position_beats
         else:
-            position = self._position_beats
+            position_beats = self._position_beats
 
         return [
             single_midilist
                 for single_element in self.get_sequence_elements()
-                for single_midilist in single_element.getMidilist(midi_track, position)
+                for single_midilist in single_element.getMidilist(midi_track, position_beats)
         ]
 
     def getSerialization(self) -> dict:
