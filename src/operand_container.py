@@ -431,6 +431,10 @@ class Clip(Container):  # Just a container of Elements
             case ra.Duration():     return self.duration()
             case ra.Position():     return self._position.copy()
             case ra.Duration():     return self.duration()
+            case ra.Tempo() | ou.KeySignature() | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
+                | ra.Quantization() | og.Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                | int() | float() | Fraction() | str():
+                                    return self._staff % operand
             case _:                 return super().__mod__(operand)
 
     def start(self) -> ra.Position:
@@ -560,6 +564,8 @@ class Clip(Container):  # Just a container of Elements
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
             case og.Staff():
+                self._staff << operand
+            case ra.Tempo() | og.TimeSignature() | ra.Quantization():
                 self._staff << operand
             case ou.MidiTrack():
                 self._midi_track << operand

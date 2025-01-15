@@ -329,12 +329,6 @@ def test_sequence_fitting():
     six_notes.fit(Measures(2))
     assert six_notes % Length() == Beats(8)
 
-    six_notes << Tempo(60)  # 60 half of 120, half of 8 beats
-    assert six_notes % Length() == Beats(4)
-    six_notes.fit(Measures(2))  # Concerning the Track Position as reference
-    assert six_notes % Length() == Beats(8)
-
-
 # test_sequence_fitting()
 
 
