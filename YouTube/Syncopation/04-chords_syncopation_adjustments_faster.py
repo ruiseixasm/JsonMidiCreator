@@ -29,30 +29,30 @@ defaults << Tempo(115)     # Same tempo than the video tutorial
 
 
 
-hi_hat: Trk = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Clip = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 
-kick: Trk = Nt(Dur(defaults % Quant()), DrumKit("Drum"), Stackable(False)) * 4
+kick: Clip = Nt(Dur(defaults % Quant()), DrumKit("Drum"), Stackable(False)) * 4
 kick += Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Trk = Nt(Dur(defaults % Quant()), DrumKit("Clap"), Stackable(False)) * 2
+clap: Clip = Nt(Dur(defaults % Quant()), DrumKit("Clap"), Stackable(False)) * 2
 clap += Iterate(Beats(1))
 clap += Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
 # clap >> Play()
 
-no_syncopation: Trk = hi_hat + kick + clap
+no_syncopation: Clip = hi_hat + kick + clap
 # no_syncopation * 2 >> Play()
 
 
-base_line: Trk = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
+base_line: Clip = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
 base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
@@ -60,12 +60,12 @@ base_line[0] % str() >> Print() # Prints the real key being played
 
 base_line += Step(1)
 base_line << 1/16
-syncopation_1: Trk = no_syncopation + base_line
+syncopation_1: Clip = no_syncopation + base_line
 # syncopation_1 >> Play()
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
 
-chords: Trk = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
+chords: Clip = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
 chords -= NotEqual(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
@@ -76,7 +76,7 @@ chords << Duration(1/16)
 # Duplicate the pattern to repeat it at 1 Beat forward
 chords << Iterate(2)**Measures()
 chords % Length() % float() >> Print()  # Measures
-repeated_chords: Trk = Clip()
+repeated_chords: Clip = Clip()
 
 for step in range(16*2//3 + 1):
     repeated_chords += chords
@@ -95,14 +95,14 @@ repeated_chords /= 2
 # time.sleep(0.5)
 # syncopation_1 * 4 >> Play()
 
-syncopation_1_4: Trk = syncopation_1 * 4
-syncopation_2: Trk = syncopation_1_4 + repeated_chords # x4 because chords are 4x longer than the original syncopation
+syncopation_1_4: Clip = syncopation_1 * 4
+syncopation_2: Clip = syncopation_1_4 + repeated_chords # x4 because chords are 4x longer than the original syncopation
 # syncopation_2 >> Play()
 
 c.profiling_timer.call_timer_a()
 
 # Move forward 1/16 note (a step)
-syncopation_3: Trk = Clip()
+syncopation_3: Clip = Clip()
 for _ in range(2):
     repeated_chords += Step(1)
     syncopation_3 = syncopation_1_4 + repeated_chords
@@ -110,14 +110,14 @@ for _ in range(2):
 
 c.profiling_timer.call_timer_b()
 
-lead_notes: Trk = Note() * repeated_chords.len()
+lead_notes: Clip = Note() * repeated_chords.len()
 lead_notes << Foreach(repeated_chords)
 lead_notes << Equal(Degree(5))**Degree(7) << Equal(6)**5
 lead_notes += Octave(1)
 # lead_notes += Degree(4)
 # lead_notes >> Play()
 
-syncopation_4: Trk = syncopation_3 + lead_notes
+syncopation_4: Clip = syncopation_3 + lead_notes
 syncopation_4.getPlaylist()
 # syncopation_4 >> Play()
 

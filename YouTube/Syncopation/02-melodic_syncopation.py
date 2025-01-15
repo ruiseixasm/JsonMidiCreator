@@ -26,61 +26,61 @@ defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configur
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
-hi_hat: Trk = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Clip = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat >> Play()
 
-kick: Trk = Nt(Dur(defaults % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
+kick: Clip = Nt(Dur(defaults % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick >> Play()
 
-clap: Trk = Nt(Dur(defaults % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + All()**Beats(1)
+clap: Clip = Nt(Dur(defaults % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + All()**Beats(1)
 clap *= 4       # 4 measures long
 # clap >> Play()
 
-no_syncopation: Trk = hi_hat + kick + clap
+no_syncopation: Clip = hi_hat + kick + clap
 # no_syncopation * 2 >> Play()
 
 
-base_line: Trk = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
+base_line: Clip = Nt(dotted_eight) * Measures(4) # Tonic note E in E minor (see Key Signature setting above)
 base_line << Octave(1)  # Sets it as a Base line, lower Octave
 base_line << Velocity(70)   # Reduces the velocity to make it less prominent
 base_line[0] % str() >> Print() # Prints the real key being played
 
-syncopation_1: Trk = no_syncopation + base_line
+syncopation_1: Clip = no_syncopation + base_line
 syncopation_1 >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-syncopation_2: Trk = no_syncopation + (base_line << 1/16)
+syncopation_2: Clip = no_syncopation + (base_line << 1/16)
 syncopation_2 >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-syncopation_3: Trk = no_syncopation + (base_line + All()**Step(1) << 1/16)
+syncopation_3: Clip = no_syncopation + (base_line + All()**Step(1) << 1/16)
 syncopation_3 >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-syncopation_4: Trk = no_syncopation + (base_line + All()**Step(2) << 1/16)
+syncopation_4: Clip = no_syncopation + (base_line + All()**Step(2) << 1/16)
 syncopation_4 >> Play()
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
-syncopation_5: Trk = no_syncopation + (base_line + All()**Step(3) << 1/16)
+syncopation_5: Clip = no_syncopation + (base_line + All()**Step(3) << 1/16)
 syncopation_5 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 # Best outcome with some extra variation
-syncopation_6: Trk = no_syncopation + (base_line + Nths(5)**Step(1) << 1/16)
+syncopation_6: Clip = no_syncopation + (base_line + Nths(5)**Step(1) << 1/16)
 syncopation_6 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 # Best outcome with some extra variation
-syncopation_7: Trk = no_syncopation + (base_line + Nths(4)**Step(1) + Nths(5)**Step(1) << 1/16)
+syncopation_7: Clip = no_syncopation + (base_line + Nths(4)**Step(1) + Nths(5)**Step(1) << 1/16)
 syncopation_7 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
