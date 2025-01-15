@@ -560,33 +560,10 @@ class Position(Rational):
         return self.copy()
 
     def getMeasures(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Measures':
-        measures: Fraction = Fraction(0)
-        match time:
-            case None:
-                return self.getMeasures(Beats(self._rational))
-            case Position():
-                time_beats: Beats = self.getBeats(time)
-                return self.getMeasures(time_beats)
-            case Measures():
-                measures = time._rational
-            case Beats():
-                beats_per_measure: int = self._time_signature._top
-                measures = time._rational / beats_per_measure
-            case Steps():
-                beats = self.getBeats(time)
-                measures = self.getMeasures(beats)
-            case Duration():
-                beats = self.getBeats(time)
-                measures = self.getMeasures(beats)
-            case ou.Measure():
-                return self.getMeasures(Measures(time._unit))
-            case ou.Beat():
-                return self.getMeasures(Beats(time._unit))
-            case ou.Step():
-                return self.getMeasures(Steps(time._unit))
-            case float() | int() | Fraction():
-                return self.getMeasures(Measures(time))
-        return Measures(measures)
+        if time:
+            return self._staff_reference.getMeasures(time)
+        return self._staff_reference.getMeasures(self)
+        
 
     def getBeats(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Beats':
         beats: Fraction = Fraction(0)
