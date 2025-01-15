@@ -43,7 +43,7 @@ defaults << Measures(2)
 single_clock >> triplets_one >> triplets_two >> Play(False)
 # triplets_two % First() % Beats() % float() >> Print()
 
-# triplets remain a sequence. Frames don't operate on Songs!!
+# triplets remain a clip. Frames don't operate on Songs!!
 debug_sequence = triplets_one >> triplets_two
 # triplets_two % First() % Beats() % float() >> Print()
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)

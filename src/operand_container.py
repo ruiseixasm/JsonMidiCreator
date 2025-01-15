@@ -72,8 +72,8 @@ class Container(o.Operand):
 
         Examples
         --------
-        >>> sequence = Track(Note("A"), Note("B"))
-        >>> sequence % list() >> Print()
+        >>> clip = Track(Note("A"), Note("B"))
+        >>> clip % list() >> Print()
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:
@@ -423,8 +423,8 @@ class Clip(Container):  # Just a container of Elements
 
         Examples
         --------
-        >>> sequence = Track(Note("A"), Note("B"))
-        >>> sequence % list() >> Print()
+        >>> clip = Track(Note("A"), Note("B"))
+        >>> clip % list() >> Print()
         [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
         """
         match operand:

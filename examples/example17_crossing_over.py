@@ -39,7 +39,7 @@ sequences = Sequences(
     single_notes, slow_melody, fast_melody
 )
 
-sequence = Note() * 12   # blank sequence to work on
+clip = Note() * 12   # blank clip to work on
 
 
 performers = od.Performers(
@@ -48,7 +48,7 @@ performers = od.Performers(
         Subject(Rest())**PushTo(Play()), # Plays a single Rest at the end,
         Foreach()**Get(Position())**PushOut(Print())  # To see what's data is being changed
     )
-crossing_over = Crossover(sequence, sequences, performers)
+crossing_over = Crossover(clip, sequences, performers)
 
 final_mutation = crossing_over * 40 * 8.37
 # final_mutation >> Print()

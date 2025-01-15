@@ -40,7 +40,7 @@ TypeMutation = TypeVar('TypeMutation', bound='Mutation')  # TypeMutation represe
 class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._sequence: oc.Clip     = oe.Note() * 4
+        self._clip: oc.Clip     = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Steps(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
         self._performers: od.Performers = od.Performers(
                 od.Stack(),
@@ -48,7 +48,7 @@ class Mutation(o.Operand):
                 of.Subject(oe.Rest())**of.PushTo(od.Play()) # Finally plays a single Rest (just to have an interval between)
             )
         self._operator: str             = "<<"
-        self._result: od.Result         = od.Result(self._sequence)
+        self._result: od.Result         = od.Result(self._clip)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -58,7 +58,7 @@ class Mutation(o.Operand):
                 match operand._data:
                     case od.Performers():   return self._performers
                     case of.Frame():        return self._frame
-                    case oc.Clip():     return self._sequence
+                    case oc.Clip():     return self._clip
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return super().__mod__(operand)
@@ -82,7 +82,7 @@ class Mutation(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["sequence"]         = self.serialize(self._sequence)
+        serialization["parameters"]["clip"]         = self.serialize(self._clip)
         serialization["parameters"]["frame"]            = self.serialize(self._frame)
         serialization["parameters"]["performers"]       = self.serialize(self._performers)
         serialization["parameters"]["operator"]         = self.serialize(self._operator)
@@ -92,11 +92,11 @@ class Mutation(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> 'Mutation':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sequence" in serialization["parameters"] and "frame" in serialization["parameters"] and "performers" in serialization["parameters"] and
+            "clip" in serialization["parameters"] and "frame" in serialization["parameters"] and "performers" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._sequence          = self.deserialize(serialization["parameters"]["sequence"])
+            self._clip          = self.deserialize(serialization["parameters"]["clip"])
             self._frame             = self.deserialize(serialization["parameters"]["frame"])
             self._performers        = self.deserialize(serialization["parameters"]["performers"])
             self._operator          = self.deserialize(serialization["parameters"]["operator"])
@@ -107,7 +107,7 @@ class Mutation(o.Operand):
         match operand:
             case Mutation():
                 super().__lshift__(operand)
-                self._sequence      = operand._sequence.copy()
+                self._clip      = operand._clip.copy()
                 self._result        = operand._result.copy()
                 self._frame         = operand._frame.copy()
                 self._performers    = operand._performers.copy()
@@ -116,7 +116,7 @@ class Mutation(o.Operand):
                 match operand._data:
                     case od.Performers():           self._performers = operand._data
                     case of.Frame():                self._frame = operand._data
-                    case oc.Clip():             self._sequence = operand._data
+                    case oc.Clip():             self._clip = operand._data
                     case str():                     self._operator = operand._data
                     case od.Result():               self._result = operand._data
             case od.Serialization():
@@ -124,8 +124,8 @@ class Mutation(o.Operand):
             case od.Performers():           self._performers << operand
             case of.Frame():                self._frame = operand.copy()
             case oc.Clip():
-                                            self._sequence  = operand.copy()
-                                            self._result    << self._sequence
+                                            self._clip  = operand.copy()
+                                            self._result    << self._clip
             case str():                     self._operator = operand
             case tuple():
                 for single_operand in operand:
@@ -178,10 +178,10 @@ class Mutation(o.Operand):
 
     def reset(self, *parameters) -> 'Mutation':
         super().reset(*parameters)
-        self._sequence.reset()
+        self._clip.reset()
         self._frame.reset()
         self._performers.reset()
-        self._result << self._sequence
+        self._result << self._clip
         return self
 
 class Translocation(Mutation):

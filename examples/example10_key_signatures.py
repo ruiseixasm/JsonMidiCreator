@@ -26,17 +26,17 @@ from JsonMidiCreator import *
 defaults << Tempo(120) << Measures(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
-sequence = Note("C", NoteValue(0), NoteValue(4), Velocity(85), Gate(1)) * 8 + Iterate()**0
-sequence >> Play(True)
+clip = Note("C", NoteValue(0), NoteValue(4), Velocity(85), Gate(1)) * 8 + Iterate()**0
+clip >> Play(True)
 
 # Global Staff setting up
 defaults << KeySignature(1)
-sequence >> Play(True)
+clip >> Play(True)
 defaults << KeySignature(6)
-sequence >> Play()
+clip >> Play()
 defaults << KeySignature(7)
-sequence >> Play()
+clip >> Play()
 
 defaults << KeySignature()
-sequence += 1
-sequence >> Play()
+clip += 1
+clip >> Play()

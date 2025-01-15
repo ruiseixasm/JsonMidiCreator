@@ -106,7 +106,7 @@ def test_rrshift_sequence():
     four_notes = two_notes >> two_notes     # moves the second pair of notes to the next measure (1)!
     assert two_notes == two_notes_original  # Original two_notes is not changed!
     assert four_notes.len() == 4
-    # Last two notes change position, but the sequence position remains the same, Element Stacking!
+    # Last two notes change position, but the clip position remains the same, Element Stacking!
     four_notes % Position() % Fraction() >> Print()     # 0
     assert four_notes == Position(0)
     four_notes[0] % Position() % Fraction() >> Print()  # 0

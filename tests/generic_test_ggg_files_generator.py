@@ -107,7 +107,7 @@ defaults << Measures(2)
 # A 1/16 triplet has a total duration of a 1/8
 single_clock >> triplets_one >> triplets_two >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
 
-# triplets remain a sequence. Frames don't operate on Songs!!
+# triplets remain a clip. Frames don't operate on Songs!!
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
 triplets >> single_clock >> Save("json/testing/_Save_Play_p.10.1_first_note.json") >> Export("json/testing/_Export_Play_p.10.1_sequence.json")
 

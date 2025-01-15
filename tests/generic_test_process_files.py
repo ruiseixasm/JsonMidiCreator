@@ -251,7 +251,7 @@ original_save       = Load("json/testing/_Save_Play_p.10.1_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.10.1_sequence.json")
 start_time = time.time()
 
-# triplets remain a sequence. Frames don't operate on Songs!!
+# triplets remain a clip. Frames don't operate on Songs!!
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
 triplets >> single_clock >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10.1_sequence_compare.json")
