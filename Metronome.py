@@ -25,7 +25,7 @@ rest_play = (R, P)
 defaults << Tempo(120)     # Sets the metronome tempo
 defaults << Measures(4)    # Sets the length in Measures
 
-measures_long: int = staff // Measures() // int()
+measures_long: int = defaults // Measures() // int()
 
 measure_bell: Track = Nt(DrumKit(34)) * 1 * measures_long
 measure_bell >> Play()

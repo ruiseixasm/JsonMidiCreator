@@ -28,15 +28,15 @@ defaults << KeySignature(-1)   # Sets the default Key Signature configuration
 
 # https://youtu.be/7rhZAXjhPzI?si=7qEpDmaWQ80skir2
 
-hi_hat: Trk = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Trk = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat >> Play()
 
-kick: Trk = Nt(Dur(staff % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
+kick: Trk = Nt(Dur(defaults % Quant()), DrumKit("Drum"), Stackable(False)) * 4 + Iterate(Beats(1))**Position()
 kick *= 4       # 4 measures long
 # kick >> Play()
 
-clap: Trk = Nt(Dur(staff % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + Beats(1)
+clap: Trk = Nt(Dur(defaults % Quant()), DrumKit("Clap"), Stackable(False)) * 2 + Iterate(Beats(1))**Position() + Beats(1)
 clap *= 4       # 4 measures long
 # clap >> Play()
 

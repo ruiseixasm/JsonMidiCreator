@@ -1072,10 +1072,10 @@ class Staff(Generic):
 
         Examples
         --------
-        >>> staff % Tempo() % float()
+        >>> defaults % Tempo() % float()
         120.0
         >>> defaults << BeatsPerMeasure(3)
-        >>> staff % BeatsPerMeasure() % float()
+        >>> defaults % BeatsPerMeasure() % float()
         3.0
         """
         match operand:

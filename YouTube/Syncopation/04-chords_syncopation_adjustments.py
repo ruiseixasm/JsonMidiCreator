@@ -29,20 +29,20 @@ defaults << Tempo(115)     # Same tempo than the video tutorial
 
 
 
-hi_hat: Trk = Nt(Dur(staff % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
+hi_hat: Trk = Nt(Dur(defaults % Quant()), DrumKit("Hi-Hat")) * 16 << NotEqual(Step(0))**Velocity(70)
 hi_hat *= 4     # 4 measures long
 # hi_hat << Disable()
 # hi_hat >> Play()
 # hi_hat * 2 >> Play()
 
 # Stackable being FALSE means all notes start at zero even after the "*" operation on Element
-kick: Trk = Nt(Dur(staff % Quant()), DrumKit("Drum")) * 4 << Iterate(Beats(1))
+kick: Trk = Nt(Dur(defaults % Quant()), DrumKit("Drum")) * 4 << Iterate(Beats(1))
 kick *= 4       # 4 measures long
 kick << Vel(80) # less pronounced kick
 # kick << Disable()
 # kick >> Play()
 
-clap: Trk = Nt(Dur(staff % Quant()), DrumKit("Clap")) * 2 << Iterate(Beats(1)) 
+clap: Trk = Nt(Dur(defaults % Quant()), DrumKit("Clap")) * 2 << Iterate(Beats(1)) 
 clap += Beats(1)
 clap *= 4       # 4 measures long
 # clap << Disable()
