@@ -1150,50 +1150,9 @@ class Staff(Generic):
     # Conversion (Simple, One-way) | Only destination Staff is considered #
     #######################################################################
 
-    def convertToPosition(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Position':
-        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
-            return ra.Position( self.convertToBeats(time) )
-        return ra.Position()
-
-    def convertToLength(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Length':
-        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
-            return ra.Length( self.convertToBeats(time) )
-        return ra.Length()
-
-    def convertToMeasures(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Measures':
-        measures: Fraction = Fraction(0)
-        match time:
-            case None:
-                return ra.Measures(self._measures)
-            case ra.Position():
-                time_beats: ra.Beats = self.convertToBeats(time)
-                return self.convertToMeasures(time_beats)
-            case ra.Measures():
-                measures = time._rational
-            case ra.Beats():
-                beats_per_measure: int = self._time_signature._top
-                measures = time._rational / beats_per_measure
-            case ra.Steps():
-                beats = self.convertToBeats(time)
-                measures = self.convertToMeasures(beats)
-            case ra.Duration():
-                beats = self.convertToBeats(time)
-                measures = self.convertToMeasures(beats)
-            case ou.Measure():
-                return self.convertToMeasures(ra.Measures(time._unit))
-            case ou.Beat():
-                return self.convertToMeasures(ra.Beats(time._unit))
-            case ou.Step():
-                return self.convertToMeasures(ra.Steps(time._unit))
-            case float() | int() | Fraction():
-                return self.convertToMeasures(ra.Measures(time))
-        return ra.Measures(measures)
-
-    def convertToBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Beats':
+    def convertToBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Beats':
         beats: Fraction = Fraction(0)
         match time:
-            case None:
-                return self.convertToBeats(ra.Measures(self._measures))
             case ra.Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
@@ -1224,11 +1183,46 @@ class Staff(Generic):
                 return self.convertToBeats(ra.Measures(time))
         return ra.Beats(beats)
 
-    def convertToSteps(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Steps':
+    def convertToPosition(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Position':
+        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
+            return ra.Position( self.convertToBeats(time) )
+        return ra.Position()
+
+    def convertToLength(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Length':
+        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
+            return ra.Length( self.convertToBeats(time) )
+        return ra.Length()
+
+    def convertToMeasures(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Measures':
+        measures: Fraction = Fraction(0)
+        match time:
+            case ra.Position():
+                time_beats: ra.Beats = self.convertToBeats(time)
+                return self.convertToMeasures(time_beats)
+            case ra.Measures():
+                measures = time._rational
+            case ra.Beats():
+                beats_per_measure: int = self._time_signature._top
+                measures = time._rational / beats_per_measure
+            case ra.Steps():
+                beats = self.convertToBeats(time)
+                measures = self.convertToMeasures(beats)
+            case ra.Duration():
+                beats = self.convertToBeats(time)
+                measures = self.convertToMeasures(beats)
+            case ou.Measure():
+                return self.convertToMeasures(ra.Measures(time._unit))
+            case ou.Beat():
+                return self.convertToMeasures(ra.Beats(time._unit))
+            case ou.Step():
+                return self.convertToMeasures(ra.Steps(time._unit))
+            case float() | int() | Fraction():
+                return self.convertToMeasures(ra.Measures(time))
+        return ra.Measures(measures)
+
+    def convertToSteps(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Steps':
         steps: Fraction = Fraction(0)
         match time:
-            case None:
-                return self.convertToSteps(ra.Measures(self._measures))
             case ra.Position():
                 time_beats: ra.Beats = self.convertToBeats(time)
                 return self.convertToSteps(time_beats)
@@ -1255,11 +1249,9 @@ class Staff(Generic):
                 return self.convertToSteps(ra.Measures(time))
         return ra.Steps(steps)
 
-    def convertToDuration(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Duration':
+    def convertToDuration(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Duration':
         note_value: Fraction = Fraction(0)
         match time:
-            case None:
-                return self.convertToDuration(ra.Measures(self._measures))
             case ra.Position():
                 time_beats: ra.Beats = self.convertToBeats(time)
                 return self.convertToDuration(time_beats)
@@ -1285,12 +1277,12 @@ class Staff(Generic):
         return ra.Duration(note_value)
 
 
-    def convertToMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+    def convertToMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Measure':
         if isinstance(time, ra.Position):
             time = time.roundMeasures()
         return ou.Measure( self.convertToMeasures( time ) )
 
-    def convertToBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+    def convertToBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Beat':
         if isinstance(time, ra.Position):
             time = time.roundBeats()
         absolute_beat: int = ou.Beat( self.convertToBeats( time ) )._unit
@@ -1298,7 +1290,7 @@ class Staff(Generic):
         relative_beat: int = absolute_beat % beats_per_measure
         return ou.Beat( relative_beat )
 
-    def convertToStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Step':
+    def convertToStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Step':
         if isinstance(time, ra.Position):
             time = time.roundSteps()
         absolute_step: int = ou.Step( self.convertToSteps( time ) )._unit
@@ -1315,21 +1307,19 @@ class Staff(Generic):
     # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
     ################################################################################################################
 
-    def transformPosition(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Position':
+    def transformPosition(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Position':
         if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
             return ra.Position( self.transformBeats(time) )
         return ra.Position()
 
-    def transformLength(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Length':
+    def transformLength(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Length':
         if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
             return ra.Length( self.transformBeats(time) )
         return ra.Length()
 
-    def transformMeasures(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Measures':
+    def transformMeasures(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Measures':
         measures: Fraction = Fraction(0)
         match time:
-            case None:
-                return ra.Measures(self._measures)
             case ra.Position():
                 time_beats: ra.Beats = self.transformBeats(time)
                 return self.transformMeasures(time_beats)
@@ -1354,11 +1344,9 @@ class Staff(Generic):
                 return self.transformMeasures(ra.Measures(time))
         return ra.Measures(measures)
 
-    def transformBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Beats':
+    def transformBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Beats':
         beats: Fraction = Fraction(0)
         match time:
-            case None:
-                return self.transformBeats(ra.Measures(self._measures))
             case ra.Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
@@ -1389,11 +1377,9 @@ class Staff(Generic):
                 return self.transformBeats(ra.Measures(time))
         return ra.Beats(beats)
 
-    def transformSteps(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Steps':
+    def transformSteps(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Steps':
         steps: Fraction = Fraction(0)
         match time:
-            case None:
-                return self.transformSteps(ra.Measures(self._measures))
             case ra.Position():
                 time_beats: ra.Beats = self.transformBeats(time)
                 return self.transformSteps(time_beats)
@@ -1420,11 +1406,9 @@ class Staff(Generic):
                 return self.transformSteps(ra.Measures(time))
         return ra.Steps(steps)
 
-    def transformDuration(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ra.Duration':
+    def transformDuration(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Duration':
         note_value: Fraction = Fraction(0)
         match time:
-            case None:
-                return self.transformDuration(ra.Measures(self._measures))
             case ra.Position():
                 time_beats: ra.Beats = self.transformBeats(time)
                 return self.transformDuration(time_beats)
@@ -1450,12 +1434,12 @@ class Staff(Generic):
         return ra.Duration(note_value)
 
 
-    def transformMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Measure':
+    def transformMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Measure':
         if isinstance(time, ra.Position):
             time = time.roundMeasures()
         return ou.Measure( self.transformMeasures( time ) )
 
-    def transformBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Beat':
+    def transformBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Beat':
         if isinstance(time, ra.Position):
             time = time.roundBeats()
         absolute_beat: int = ou.Beat( self.transformBeats( time ) )._unit
@@ -1463,7 +1447,7 @@ class Staff(Generic):
         relative_beat: int = absolute_beat % beats_per_measure
         return ou.Beat( relative_beat )
 
-    def transformStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'ou.Step':
+    def transformStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Step':
         if isinstance(time, ra.Position):
             time = time.roundSteps()
         absolute_step: int = ou.Step( self.transformSteps( time ) )._unit
@@ -1479,7 +1463,7 @@ class Staff(Generic):
 
 
 
-    def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> Fraction:
+    def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> Fraction:
         return self.convertToBeats(time)._rational / self._tempo * 60 * 1000
             
 

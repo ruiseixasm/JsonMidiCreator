@@ -439,7 +439,7 @@ class Convertible(Rational):
     if TYPE_CHECKING:
         from operand_generic import Staff
 
-    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'Position':
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'Convertible':
         import operand_generic as og
         if isinstance(staff_reference, og.Staff):
             self._staff_reference = staff_reference
@@ -448,7 +448,7 @@ class Convertible(Rational):
     def get_staff_reference(self) -> 'Staff':
         return self._staff_reference
 
-    def reset_staff_reference(self) -> 'Position':
+    def reset_staff_reference(self) -> 'Convertible':
         import operand_generic as og
         self._staff_reference = og.defaults._staff
         return self
