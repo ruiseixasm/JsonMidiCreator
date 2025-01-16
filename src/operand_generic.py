@@ -1255,7 +1255,7 @@ class Staff(Generic):
 
     def transformBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Beats':
         match time:
-            case ra.Beats():
+            case ra.Beats() | ra.Position():
                 # beats_b / tempo_b = beats_a / tempo_a => beats_b = beats_a * tempo_b / tempo_a
                 beats_a : Fraction = time._rational
                 tempo_a : Fraction = time._staff_reference._tempo
@@ -1294,22 +1294,10 @@ class Staff(Generic):
 
     def getMillis_rational(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> Fraction:
         return self.convertToBeats(time)._rational / self._tempo * 60 * 1000
-            
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         import operand_element as oe
-        if position:
-            return [
-                    {
-                        "time_ms": oe.Element.get_time_ms(self.getMillis_rational(position))
-                    }
-                ]
-        return [
-                {
-                    "time_ms": oe.Element.get_time_ms(0)
-                }
-            ]
-
+        return [{ "time_ms": oe.Element.get_time_ms(self.getMillis_rational(position)) }]
 
 
     def getSerialization(self) -> dict:
