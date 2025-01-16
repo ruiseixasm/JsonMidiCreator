@@ -490,16 +490,16 @@ class Position(Convertible):
         """
         import operand_generic as og
         match operand:
-            case Measures():            return self._staff_reference.getMeasures(self)
-            case Beats():               return self._staff_reference.getBeats(self)
-            case Steps():               return self._staff_reference.getSteps(self)
-            case Duration():            return self._staff_reference.getDuration(self)
-            case ou.Measure():          return self._staff_reference.getMeasure(self)
-            case ou.Beat():             return self._staff_reference.getBeat(self)
-            case ou.Step():             return self._staff_reference.getStep(self)
-            case int():                 return self._staff_reference.getMeasure(self) % int()
-            case float():               return self._staff_reference.getMeasures(self) % float()
-            case Fraction():            return self._staff_reference.getMeasures(self) % Fraction()
+            case Measures():            return self._staff_reference.convertToMeasures(self)
+            case Beats():               return self._staff_reference.convertToBeats(self)
+            case Steps():               return self._staff_reference.convertToSteps(self)
+            case Duration():            return self._staff_reference.convertToDuration(self)
+            case ou.Measure():          return self._staff_reference.convertToMeasure(self)
+            case ou.Beat():             return self._staff_reference.convertToBeat(self)
+            case ou.Step():             return self._staff_reference.convertToStep(self)
+            case int():                 return self._staff_reference.convertToMeasure(self) % int()
+            case float():               return self._staff_reference.convertToMeasures(self) % float()
+            case Fraction():            return self._staff_reference.convertToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -552,53 +552,53 @@ class Position(Convertible):
     def getMeasures(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Measures':
         match time:
             case None:
-                return self._staff_reference.getMeasures(self)
+                return self._staff_reference.convertToMeasures(self)
             case _:
-                return self._staff_reference.getMeasures(time)
+                return self._staff_reference.convertToMeasures(time)
         
 
     def getBeats(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Beats':
         match time:
             case None:
-                return self._staff_reference.getBeats(self)
+                return self._staff_reference.convertToBeats(self)
             case _:
-                return self._staff_reference.getBeats(time)
+                return self._staff_reference.convertToBeats(time)
 
     def getSteps(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Steps':
         match time:
             case None:
-                return self._staff_reference.getSteps(self)
+                return self._staff_reference.convertToSteps(self)
             case _:
-                return self._staff_reference.getSteps(time)
+                return self._staff_reference.convertToSteps(time)
 
     def getDuration(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'Duration':
         match time:
             case None:
-                return self._staff_reference.getDuration(self)
+                return self._staff_reference.convertToDuration(self)
             case _:
-                return self._staff_reference.getDuration(time)
+                return self._staff_reference.convertToDuration(time)
 
 
     def getMeasure(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'ou.Measure':
         match time:
             case None:
-                return self._staff_reference.getMeasure(self)
+                return self._staff_reference.convertToMeasure(self)
             case _:
-                return self._staff_reference.getMeasure(time)
+                return self._staff_reference.convertToMeasure(time)
 
     def getBeat(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'ou.Beat':
         match time:
             case None:
-                return self._staff_reference.getBeat(self)
+                return self._staff_reference.convertToBeat(self)
             case _:
-                return self._staff_reference.getBeat(time)
+                return self._staff_reference.convertToBeat(time)
 
     def getStep(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> 'ou.Step':
         match time:
             case None:
-                return self._staff_reference.getStep(self)
+                return self._staff_reference.convertToStep(self)
             case _:
-                return self._staff_reference.getStep(time)
+                return self._staff_reference.convertToStep(time)
 
 
 
@@ -643,13 +643,13 @@ class Position(Convertible):
                 super().__lshift__(operand)
                 self._staff_reference = operand._staff_reference
             case TimeValue() | Duration():
-                self._rational = self._staff_reference.getBeats(operand)._rational
+                self._rational = self._staff_reference.convertToBeats(operand)._rational
             case ou.Measure():
-                measure_beats: Beats = self._staff_reference.getBeats(self) \
-                    - self._staff_reference.getBeats(self._staff_reference.getMeasure(self))
-                self._rational = (self._staff_reference.getBeats(operand) + measure_beats)._rational
+                measure_beats: Beats = self._staff_reference.convertToBeats(self) \
+                    - self._staff_reference.convertToBeats(self._staff_reference.convertToMeasure(self))
+                self._rational = (self._staff_reference.convertToBeats(operand) + measure_beats)._rational
             case ou.Beat() | ou.Step():
-                self_measure: ou.Measure = self._staff_reference.getMeasure(self)
+                self_measure: ou.Measure = self._staff_reference.convertToMeasure(self)
                 self._rational = (self.getBeats(self_measure) + self.getBeats(operand))._rational
             case int() | float() | Fraction():
                 self << Measures(operand)
@@ -661,7 +661,7 @@ class Position(Convertible):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Position conversion
-                self._rational += self._staff_reference.getBeats(operand)._rational
+                self._rational += self._staff_reference.convertToBeats(operand)._rational
             case int() | float() | Fraction():
                 self += Measures(operand)
         return self
@@ -670,7 +670,7 @@ class Position(Convertible):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Position conversion
-                self._rational -= self._staff_reference.getBeats(operand)._rational
+                self._rational -= self._staff_reference.convertToBeats(operand)._rational
             case int() | float() | Fraction():
                 self -= Measures(operand)
         return self

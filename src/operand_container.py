@@ -388,7 +388,7 @@ class Clip(Container):  # Just a container of Elements
                 case ou.MidiTrack():
                     self._midi_track        << single_operand
                 case ra.Position():
-                    self._position_beats    = self._staff.getPosition(single_operand)._rational
+                    self._position_beats    = self._staff.convertToPosition(single_operand)._rational
         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
 
@@ -432,13 +432,13 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():     return operand << self._staff.getPosition(ra.Beats(self._position_beats))
+                    case ra.Position():     return operand << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
-            case ra.Position():     return operand.copy() << self._staff.getPosition(ra.Beats(self._position_beats))
+            case ra.Position():     return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Duration():     return self.duration()
             case ra.Tempo() | ou.KeySignature() | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
                 | ra.Quantization() | og.Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -454,8 +454,8 @@ class Clip(Container):  # Just a container of Elements
                 if start_beats is None or position_beats < start_beats:   # Implicit conversion
                     start_beats = position_beats
         if start_beats:
-            return self._staff.getPosition(ra.Beats(start_beats))
-        return self._staff.getPosition(0)
+            return self._staff.convertToPosition(ra.Beats(start_beats))
+        return self._staff.convertToPosition(0)
 
     def finish(self) -> ra.Position:
         finish_beats: Fraction = Fraction(0)
@@ -466,7 +466,7 @@ class Clip(Container):  # Just a container of Elements
                     + (single_element % ra.Length())._rational
                 if element_finish > finish_beats:
                     finish_beats = element_finish
-        return self._staff.getPosition(ra.Beats(finish_beats))
+        return self._staff.convertToPosition(ra.Beats(finish_beats))
 
 
     def length(self) -> ra.Length:
@@ -570,7 +570,7 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
-                    case ra.Position():     self._position_beats = self._staff.getBeats(operand._data)._rational
+                    case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
@@ -582,9 +582,9 @@ class Clip(Container):  # Just a container of Elements
                 self._midi_track << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case ra.Position():
-                self._position_beats = self._staff.getBeats(operand)._rational
+                self._position_beats = self._staff.convertToBeats(operand)._rational
             case ra.TimeValue() | ou.TimeUnit():
-                self._position_beats = self._staff.getBeats(operand)._rational
+                self._position_beats = self._staff.convertToBeats(operand)._rational
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -617,7 +617,7 @@ class Clip(Container):  # Just a container of Elements
                     if operand.len() > 0:
                         left_end_position: ra.Position = operand.finish()
                         right_start_position: ra.Position = self.start()
-                        length_shift: ra.Length = self._staff.getLength(left_end_position - right_start_position).roundMeasures()
+                        length_shift: ra.Length = self._staff.convertToLength(left_end_position - right_start_position).roundMeasures()
                         # Convert Length to Position
                         add_position: ra.Position = ra.Position(length_shift)
                         right_clip: Clip = self + add_position  # Offsets the content and it's an implicit copy
@@ -627,14 +627,14 @@ class Clip(Container):  # Just a container of Elements
                     return self.copy()
                 return Song(operand, self)
             case oe.Element():
-                element_length: ra.Length = self._staff.getLength( operand % ra.Length() )
+                element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(element_length)
                 right_clip: Clip = self + add_position  # Implicit copy
                 right_clip._datasource_list.insert(0, od.DataSource( operand.copy() ))
                 return right_clip
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
-                self._position_beats += self._staff.getBeats(operand)._rational
+                self._position_beats += self._staff.convertToBeats(operand)._rational
                 return self
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
@@ -657,7 +657,7 @@ class Clip(Container):  # Just a container of Elements
 
                     operand_data_list: list[oe.Element] = operand % list()
                     # Does the needed position conversion first and replicates to its elements
-                    operand_position_beats: Fraction = self._staff.getPosition(operand._staff.getPosition(ra.Beats(operand._position_beats)))._rational
+                    operand_position_beats: Fraction = self._staff.convertToPosition(operand._staff.convertToPosition(ra.Beats(operand._position_beats)))._rational
                     if operand_position_beats > self._position_beats:
                         for single_element in operand_data_list:
                             single_element += ra.Beats(operand_position_beats - self._position_beats)
@@ -729,7 +729,7 @@ class Clip(Container):  # Just a container of Elements
                     self._datasource_list = []  # Just to keep the self object
             case ou.TimeUnit():
                 self_repeating: int = 0
-                operand_beats: Fraction = self._staff.getBeats(operand)._rational
+                operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
                 self_beats: Fraction = self.length().roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
@@ -788,7 +788,7 @@ class Clip(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
-                duration_beats: Fraction = self._staff.getBeats(ra.Duration(single_element._duration_notevalue))
+                duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(single_element._duration_notevalue))
                 single_element._position_beats = length_beats - (single_element._position_beats + duration_beats)
         return super().reverse()    # Reverses the list
 
@@ -808,9 +808,9 @@ class Clip(Container):  # Just a container of Elements
 
     def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Clip':
         if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
-            fitting_finish: ra.Position = self._staff.getPosition(time)
+            fitting_finish: ra.Position = self._staff.convertToPosition(time)
         else:
-            fitting_finish: ra.Position = self._staff.getPosition(ou.Measure(1))
+            fitting_finish: ra.Position = self._staff.convertToPosition(ou.Measure(1))
         actual_finish: ra.Position = self.finish()
         length_ratio: Fraction = fitting_finish._rational / actual_finish._rational
         self *= ra.Position(length_ratio)   # Adjust positions
@@ -825,7 +825,7 @@ class Clip(Container):  # Just a container of Elements
         for single_data in self._datasource_list:
             if isinstance(single_data._data, oe.Element) and single_data._data._stackable:
                 if last_element is not None:
-                    last_element << self._staff.getDuration(ra.Beats(single_data._data._position_beats - last_element._position_beats))
+                    last_element << self._staff.convertToDuration(ra.Beats(single_data._data._position_beats - last_element._position_beats))
                 else:
                     first_element_index = element_index
                 last_element = single_data._data
@@ -834,12 +834,12 @@ class Clip(Container):  # Just a container of Elements
         if first_element_index is not None:
             first_element: oe.Element = self._datasource_list[first_element_index]._data
             if first_element._position_beats != 0:  # Not the first position
-                rest_duration: ra.Duration = self._staff.getDuration(ra.Beats(first_element._position_beats))
+                rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
                 self._datasource_list.insert(first_element_index, od.DataSource( oe.Rest(rest_duration) ))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:    # LAST ELEMENT ONLY!
-            remaining_beats: Fraction = self._staff.getLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational - last_element._position_beats
-            last_element << self._staff.getDuration(ra.Beats(remaining_beats))
+            remaining_beats: Fraction = self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational - last_element._position_beats
+            last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
         return self
 
     def stack(self) -> 'Clip':
@@ -852,7 +852,7 @@ class Clip(Container):  # Just a container of Elements
             ]
         for index, single_element in enumerate(stackable_elements):
             if index > 0:
-                duration_beats: Fraction = self._staff.getBeats(ra.Duration(stackable_elements[index - 1]._duration_notevalue))._rational
+                duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(stackable_elements[index - 1]._duration_notevalue))._rational
                 single_element._position_beats = stackable_elements[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
             else:   # FIRST ELEMENT!
                 single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!

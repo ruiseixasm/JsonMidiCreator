@@ -65,7 +65,7 @@ class Element(o.Operand):
 
 
     def position(self: TypeElement, position_measures: float = None) -> TypeElement:
-        self._position_beats = self._staff_reference.getPosition(ra.Measures(position_measures))._rational
+        self._position_beats = self._staff_reference.convertToPosition(ra.Measures(position_measures))._rational
         return self
 
     def duration(self: 'TypeElement', duration: float = None) -> 'TypeElement':
@@ -98,7 +98,7 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Position():     return self._staff_reference.getPosition(ra.Beats(self._position_beats))
+                    case ra.Position():     return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
                     case ra.Duration():     return operand._data << od.DataSource( self._duration_notevalue )
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
@@ -106,23 +106,23 @@ class Element(o.Operand):
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
-                    case int():             return self._staff_reference.getMeasures(ra.Beats(self._position_beats)) % int()
+                    case int():             return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
                     case float():           return float( self._duration_notevalue )
                     case Fraction():        return self._duration_notevalue
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue )
-            case ra.Length():       return self._staff_reference.getLength(ra.Duration(self._duration_notevalue))
-            case ra.Position():     return self._staff_reference.getPosition(ra.Beats(self._position_beats))
+            case ra.Length():       return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+            case ra.Position():     return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
             case ra.TimeValue() | ou.TimeUnit():
-                                    return self._staff_reference.getPosition(ra.Beats(self._position_beats)) % operand
+                                    return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case od.Device():       return od.Device() << od.DataSource( self._device )
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.finish()
-            case int():             return self._staff_reference.getMeasures(ra.Beats(self._position_beats)) % int()
+            case int():             return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
             case float():           return float( self._duration_notevalue )
             case Fraction():        return self._duration_notevalue
             case ou.Enable():       return ou.Enable(self._enabled)
@@ -130,8 +130,8 @@ class Element(o.Operand):
             case _:                 return super().__mod__(operand)
 
     def eq_time(self, other: 'Element') -> bool:
-        return  self._staff_reference.getPosition(ra.Beats(self._position_beats)) \
-                    == other._staff_reference.getPosition(ra.Beats(other._position_beats)) \
+        return  self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) \
+                    == other._staff_reference.convertToPosition(ra.Beats(other._position_beats)) \
             and self._duration_notevalue      == other._duration_notevalue \
             and self._stackable     == other._stackable
 
@@ -147,7 +147,7 @@ class Element(o.Operand):
             case ra.Duration():
                 return self._duration_notevalue == other._rational
             case ra.TimeValue() | ou.TimeUnit():
-                return self._staff_reference.getPosition(ra.Beats(self._position_beats)) == other
+                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -163,7 +163,7 @@ class Element(o.Operand):
             case ra.Duration():
                 return self._duration_notevalue < other._rational
             case ra.TimeValue() | ou.TimeUnit():
-                return self._staff_reference.getPosition(ra.Beats(self._position_beats)) < other
+                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) < other
             case _:
                 return self % od.DataSource( other ) < other
     
@@ -175,15 +175,15 @@ class Element(o.Operand):
             case ra.Duration():
                 return self._duration_notevalue > other._rational
             case ra.TimeValue() | ou.TimeUnit():
-                return self._staff_reference.getPosition(ra.Beats(self._position_beats)) > other
+                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) > other
             case _:
                 return self % od.DataSource( other ) > other
     
     def start(self) -> ra.Position:
-        return self._staff_reference.getPosition(ra.Beats(self._position_beats))
+        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
 
     def finish(self) -> ra.Position:
-        return self._staff_reference.getPosition(ra.Beats(self._position_beats)) + self % ra.Duration()
+        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self % ra.Duration()
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
@@ -203,7 +203,7 @@ class Element(o.Operand):
         self_numerator: int = self._staff_reference._time_signature._top
         self_denominator: int = self._staff_reference._time_signature._bottom
         self_position: float = float(self._position_beats)
-        self_duration: float = self._staff_reference.getBeats(self // ra.Duration()) % od.DataSource( float() )
+        self_duration: float = self._staff_reference.convertToBeats(self // ra.Duration()) % od.DataSource( float() )
         self_tempo: float = float(self._staff_reference._tempo)
         if isinstance(position_beats, Fraction):
             self_position = float(position_beats + self._position_beats)
@@ -281,11 +281,11 @@ class Element(o.Operand):
             case float():
                 self._duration_notevalue      = ra.Duration(operand)._rational
             case ra.Length():
-                self._duration_notevalue      = self._staff_reference.getDuration(operand)._rational
+                self._duration_notevalue      = self._staff_reference.convertToDuration(operand)._rational
             case int():
-                self._position_beats      = self._staff_reference.getBeats(ra.Measures(operand))._rational
+                self._position_beats      = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                self._position_beats      = self._staff_reference.getBeats(operand)._rational
+                self._position_beats      = self._staff_reference.convertToBeats(operand)._rational
             case ou.Stackable():
                 self._stackable     = operand // bool()
             case ou.Channel():
@@ -337,7 +337,7 @@ class Element(o.Operand):
                 return self_clip
             case _:
                 if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
-                    operand = self._staff_reference.getBeats(operand)
+                    operand = self._staff_reference.convertToBeats(operand)
                 self_operand: any = self % operand
                 self_operand += operand
                 return self << self_operand
@@ -349,7 +349,7 @@ class Element(o.Operand):
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
-            operand = self._staff_reference.getBeats(operand)
+            operand = self._staff_reference.convertToBeats(operand)
         self_operand: any = self % operand
         self_operand -= operand
         return self << self_operand
@@ -372,7 +372,7 @@ class Element(o.Operand):
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration_notevalue > 0:
-                    operand_duration: Fraction = self._staff_reference.getDuration(operand)._rational
+                    operand_duration: Fraction = self._staff_reference.convertToDuration(operand)._rational
                     self_repeating: int = operand_duration // self._duration_notevalue
                 return self.__imul__(self_repeating)
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -414,7 +414,7 @@ class Element(o.Operand):
 class Clock(Element):
     def __init__(self, *parameters):
         super().__init__()
-        self._duration_notevalue = self._staff_reference.getDuration(ra.Measures(og.defaults._staff._measures))._rational
+        self._duration_notevalue = self._staff_reference.convertToDuration(ra.Measures(og.defaults._staff._measures))._rational
         self._pulses_per_quarternote: int = 24
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -463,7 +463,7 @@ class Clock(Element):
 
         pulses_per_note: int = self._pulses_per_quarternote * 4
         pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
-        total_clock_pulses: int = self._staff_reference.getBeats( self // ra.Duration() ) * pulses_per_beat % int()
+        total_clock_pulses: int = self._staff_reference.convertToBeats( self // ra.Duration() ) * pulses_per_beat % int()
 
         if total_clock_pulses > 0:
 
@@ -532,11 +532,11 @@ class Clock(Element):
                 match operand._data:
                     case ou.PPQN():         self._pulses_per_quarternote = operand._data._unit
                     case ra.Measures() | ou.Measure():
-                                            self._duration_notevalue = self._staff_reference.getDuration(operand._data)._rational
+                                            self._duration_notevalue = self._staff_reference.convertToDuration(operand._data)._rational
                     case _:                 super().__lshift__(operand)
             case ou.PPQN():         self._pulses_per_quarternote = operand._unit
             case ra.Measures() | ou.Measure():
-                                    self._duration_notevalue = self._staff_reference.getDuration(operand)._rational
+                                    self._duration_notevalue = self._staff_reference.convertToDuration(operand)._rational
             case _: super().__lshift__(operand)
         return self
 
@@ -622,7 +622,7 @@ class Tiable(Element):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Tiable"
-        self_midilist[0]["duration"]    = float(self._staff_reference.getBeats( self // ra.Duration() )._rational * self._gate)
+        self_midilist[0]["duration"]    = float(self._staff_reference.convertToBeats( self // ra.Duration() )._rational * self._gate)
         self_midilist[0]["velocity"]    = self._velocity
         return self_midilist
 
@@ -948,7 +948,7 @@ class Dyad(Cluster):
 class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
-        self << self._staff_reference.getDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
+        self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale  = og.Scale( og.defaults._staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -1352,7 +1352,7 @@ class Retrigger(Note):
     def get_retrigger_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
-        note_position: ra.Position = self._staff_reference.getPosition(ra.Beats(self._position_beats))
+        note_position: ra.Position = self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
         single_note_duration: ra.Duration = ra.Duration( self._duration_notevalue/(self._division) ) # Already 2x single note duration
         for _ in range(self._division):
             swing_ratio = self._swing
