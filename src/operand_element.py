@@ -98,31 +98,38 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Position():     return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
-                    case ra.Duration():     return operand._data << od.DataSource( self._duration_notevalue )
+                    case ra.Position():
+                        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+                    case ra.Duration():
+                        return operand._data.set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case od.Device():       return od.Device() << od.DataSource( self._device )
                     case Element():         return self
                     case ou.Enable():       return ou.Enable(self._enabled)
                     case ou.Disable():      return ou.Disable(not self._enabled)
-                    case int():             return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
+                    case int():
+                        return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
                     case float():           return float( self._duration_notevalue )
                     case Fraction():        return self._duration_notevalue
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
-            case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue )
-            case ra.Length():       return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
-            case ra.Position():     return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+            case ra.Duration():
+                return operand.copy().set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
+            case ra.Length():
+                return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+            case ra.Position():
+                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
             case ra.TimeValue() | ou.TimeUnit():
-                                    return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
+                return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case od.Device():       return od.Device() << od.DataSource( self._device )
             case Element():         return self.copy()
             case od.Start():        return self.start()
             case od.End():          return self.finish()
-            case int():             return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
+            case int():
+                return self._staff_reference.convertToMeasures(ra.Beats(self._position_beats)) % int()
             case float():           return float( self._duration_notevalue )
             case Fraction():        return self._duration_notevalue
             case ou.Enable():       return ou.Enable(self._enabled)

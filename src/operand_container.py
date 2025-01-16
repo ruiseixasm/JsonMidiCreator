@@ -656,20 +656,18 @@ class Clip(Container):  # Just a container of Elements
                 if self._midi_track == operand._midi_track:
 
                     operand_data_list: list[oe.Element] = operand % list()
-                    # Does the needed position conversion first and replicates to its elements
-                    operand_position_beats: Fraction = self._staff.convertToPosition(operand._staff.convertToPosition(ra.Beats(operand._position_beats)))._rational
+                    # Does the needed position transformation, first and replicates to its elements (it may be from other clip)
+                    operand_position_beats: Fraction = self._staff.transformPosition(operand % ra.Position())._rational
                     if operand_position_beats > self._position_beats:
                         for single_element in operand_data_list:
                             single_element += ra.Beats(operand_position_beats - self._position_beats)
                     elif operand_position_beats < self._position_beats:
                         self += ra.Beats(self._position_beats - operand_position_beats) # NO IMPLICIT COPY
                         self._position_beats = operand_position_beats
-                        
                     # operand is already a copy, let's take advantage of that, Using a generator (no square brackets)
                     self._datasource_list.extend(
                         od.DataSource(single_element) for single_element in operand_data_list
                     )
-
                     return self
                 return Song(self, operand)
             case oe.Element():
