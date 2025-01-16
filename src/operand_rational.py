@@ -453,6 +453,17 @@ class Convertible(Rational):
         self._staff_reference = og.defaults._staff
         return self
 
+    def __mod__(self, operand: o.Operand) -> o.Operand:
+        match operand:
+            case Measures():            return self._staff_reference.convertToMeasures(self)
+            case Beats():               return self._staff_reference.convertToBeats(self)
+            case Steps():               return self._staff_reference.convertToSteps(self)
+            case Duration():            return self._staff_reference.convertToDuration(self)
+            case ou.Measure():          return self._staff_reference.convertToMeasure(self)
+            case ou.Beat():             return self._staff_reference.convertToBeat(self)
+            case ou.Step():             return self._staff_reference.convertToStep(self)
+            case _:                     return super().__mod__(operand)
+
 
 class Quantization(Convertible):
     """
@@ -484,15 +495,7 @@ class Position(Convertible):
         >>> position % Step() % float() >> Print()
         8.0
         """
-        import operand_generic as og
         match operand:
-            case Measures():            return self._staff_reference.convertToMeasures(self)
-            case Beats():               return self._staff_reference.convertToBeats(self)
-            case Steps():               return self._staff_reference.convertToSteps(self)
-            case Duration():            return self._staff_reference.convertToDuration(self)
-            case ou.Measure():          return self._staff_reference.convertToMeasure(self)
-            case ou.Beat():             return self._staff_reference.convertToBeat(self)
-            case ou.Step():             return self._staff_reference.convertToStep(self)
             case int():                 return self._staff_reference.convertToMeasure(self) % int()
             case float():               return self._staff_reference.convertToMeasures(self) % float()
             case Fraction():            return self._staff_reference.convertToMeasures(self) % Fraction()
@@ -501,9 +504,9 @@ class Position(Convertible):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Position():
-                return self.getMillis_rational() == other.getMillis_rational()
-            case TimeValue() | Duration() | ou.TimeUnit() | int() | float():
+            case Position() | TimeValue() | Duration():
+                return self._staff_reference.convertToBeats(self) == self._staff_reference.convertToBeats(other)
+            case ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
                 if other.__class__ == o.Operand:
@@ -513,18 +516,18 @@ class Position(Convertible):
     def __lt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Position():
-                return self.getMillis_rational() < other.getMillis_rational()
-            case TimeValue() | Duration() | ou.TimeUnit() | int() | float():
+            case Position() | TimeValue() | Duration():
+                return self._staff_reference.convertToBeats(self) < self._staff_reference.convertToBeats(other)
+            case ou.TimeUnit() | int() | float():
                 return self % other < other
         return False
     
     def __gt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Position():
-                return self.getMillis_rational() > other.getMillis_rational()
-            case TimeValue() | Duration() | ou.TimeUnit() | int() | float():
+            case Position() | TimeValue() | Duration():
+                return self._staff_reference.convertToBeats(self) > self._staff_reference.convertToBeats(other)
+            case ou.TimeUnit() | int() | float():
                 return self % other > other
         return False
     
@@ -818,6 +821,8 @@ class Dotted(Duration):
         Fraction(3, 2)
         """
         match operand:
+            case Dotted():
+                return self.copy()
             case int() | float() | Fraction():
                 # Reverses the value by multiplying it by 3/2 because it's a Dotted Note
                 other_rational: Fraction = self._rational * 2/3
