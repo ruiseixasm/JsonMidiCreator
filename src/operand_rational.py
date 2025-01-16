@@ -464,6 +464,36 @@ class Convertible(Rational):
             case ou.Step():             return self._staff_reference.convertToStep(self)
             case _:                     return super().__mod__(operand)
 
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Position() | TimeValue() | Duration():
+                return self._staff_reference.convertToBeats(self)._rational == self._staff_reference.convertToBeats(other)._rational
+            case ou.TimeUnit() | int() | float():
+                return self % other == other
+            case _:
+                if other.__class__ == o.Operand:
+                    return True
+        return False
+
+    def __lt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Position() | TimeValue() | Duration():
+                return self._staff_reference.convertToBeats(self)._rational < self._staff_reference.convertToBeats(other)._rational
+            case ou.TimeUnit() | int() | float():
+                return self % other < other
+        return False
+    
+    def __gt__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case Position() | TimeValue() | Duration():
+                return self._staff_reference.convertToBeats(self)._rational > self._staff_reference.convertToBeats(other)._rational
+            case ou.TimeUnit() | int() | float():
+                return self % other > other
+        return False
+    
 
 class Quantization(Convertible):
     """
@@ -501,38 +531,8 @@ class Position(Convertible):
             case Fraction():            return self._staff_reference.convertToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case Position() | TimeValue() | Duration():
-                return self._staff_reference.convertToBeats(self) == self._staff_reference.convertToBeats(other)
-            case ou.TimeUnit() | int() | float():
-                return self % other == other
-            case _:
-                if other.__class__ == o.Operand:
-                    return True
-        return False
-
-    def __lt__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case Position() | TimeValue() | Duration():
-                return self._staff_reference.convertToBeats(self) < self._staff_reference.convertToBeats(other)
-            case ou.TimeUnit() | int() | float():
-                return self % other < other
-        return False
-    
-    def __gt__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case Position() | TimeValue() | Duration():
-                return self._staff_reference.convertToBeats(self) > self._staff_reference.convertToBeats(other)
-            case ou.TimeUnit() | int() | float():
-                return self % other > other
-        return False
-    
     def __str__(self):
-        return f'Span Steps = {self._rational}'
+        return f'Span Beats = {self._rational}'
 
 
     def getMillis_rational(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> Fraction:
