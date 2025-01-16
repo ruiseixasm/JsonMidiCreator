@@ -473,7 +473,7 @@ class Clip(Container):  # Just a container of Elements
         return ra.Length( self.finish() - self.start() )
 
     def duration(self) -> ra.Duration:
-        return self.length().getDuration()
+        return self.length().convertToDuration()
 
 
     if TYPE_CHECKING:
