@@ -655,7 +655,6 @@ class Quantization(Convertible):
     """
     pass
 
-
 class Position(Convertible):
 
     def position(self: 'Position', beats: float = None) -> 'Position':
@@ -685,9 +684,6 @@ class Position(Convertible):
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
-
-
-
 
     # Position round type: [...)
     def roundMeasures(self) -> 'Position':
@@ -799,7 +795,6 @@ class Length(Position):
         else:
             steps = Fraction( int(steps) )
         return self.convertToLength( Steps(steps) )
-
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats
