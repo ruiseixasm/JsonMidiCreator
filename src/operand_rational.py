@@ -431,28 +431,9 @@ class Tempo(Rational):
 
 
 class Convertible(Rational):
-    pass
-
-
-class Quantization(Convertible):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : float_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
-    pass
-
-
-class Position(Convertible):
-
     def __init__(self, *parameters):
         import operand_generic as og
-
         self._staff_reference: og.Staff     = og.defaults._staff
-
         super().__init__(*parameters)
 
     if TYPE_CHECKING:
@@ -471,6 +452,21 @@ class Position(Convertible):
         import operand_generic as og
         self._staff_reference = og.defaults._staff
         return self
+
+
+class Quantization(Convertible):
+    """
+    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
+    
+    Parameters
+    ----------
+    first : float_like
+        By default it's configured without any verbose, set to 1 or True to enable verbose
+    """
+    pass
+
+
+class Position(Convertible):
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         """

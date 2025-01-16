@@ -250,11 +250,29 @@ class Previous(Unit):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-class PositionParameter(Unit):
-    pass
 
-class TimeUnit(PositionParameter):
-    pass
+class TimeUnit(Unit):
+    def __init__(self, *parameters):
+        import operand_generic as og
+        self._staff_reference: og.Staff     = og.defaults._staff
+        super().__init__(*parameters)
+
+    if TYPE_CHECKING:
+        from operand_generic import Staff
+
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'TimeUnit':
+        import operand_generic as og
+        if isinstance(staff_reference, og.Staff):
+            self._staff_reference = staff_reference
+        return self
+
+    def get_staff_reference(self) -> 'Staff':
+        return self._staff_reference
+
+    def reset_staff_reference(self) -> 'TimeUnit':
+        import operand_generic as og
+        self._staff_reference = og.defaults._staff
+        return self
 
 class Measure(TimeUnit):
     pass
