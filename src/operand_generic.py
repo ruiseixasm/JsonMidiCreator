@@ -1165,11 +1165,11 @@ class Staff(Generic):
                 beats_per_note: int = self._time_signature._bottom
                 beats = time._rational * beats_per_note
             case ou.Measure():
-                return self.convertToBeats(ra.Measures(time._unit))
+                return self.convertToBeats(ra.Measures(time))
             case ou.Beat():
-                return self.convertToBeats(ra.Beats(time._unit))
+                return self.convertToBeats(ra.Beats(time))
             case ou.Step():
-                return self.convertToBeats(ra.Steps(time._unit))
+                return self.convertToBeats(ra.Steps(time))
             case float() | int() | Fraction():
                 return self.convertToBeats(ra.Measures(time))
         return ra.Beats(beats).set_staff_reference(self)
