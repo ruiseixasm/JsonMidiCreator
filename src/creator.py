@@ -157,6 +157,8 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False):
         except Exception as e:
             print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
 
+
+
 def saveMidiFile(midi_list: list[dict], filename="output.mid"):
     try:
         # pip install midiutil
@@ -234,7 +236,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
 
             match event["event"]:
                 case "Note":
-                    if isinstance(event["duration"], (float, int)) and event["duration"] >= 0:
+                    if isinstance(event["duration"], (float, int)) and event["duration"] > 0:
                         if 0 <= event["channel"] < 16:
                             if 0 <= event["pitch"] < 128:
                                 if 0 <= event["velocity"] < 128:
@@ -253,7 +255,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                         else:
                             print(f"Error, Note Channel with wrong values! ({event["channel"]})")
                     else:
-                        print(f"Error, Note Duration with wrong values! ({event["duration"]})")
+                        print(f"Error, Note Duration must be above zero! ({event["duration"]})")
                 # case "Rest":    # Doesn't make sense to send phony notes as Rests!
                 #     MyMIDI.addNote(
                 #         event["track"],
@@ -275,32 +277,50 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                     event["value"]
                                 )
                             else:
-                                print("Error, CC Value with wrong values!")
+                                print(f"Error, CC Value with wrong values! ({event["value"]})")
                         else:
-                            print("Error, CC Number with wrong values!")
+                            print(f"Error, CC Number with wrong values! ({event["number"]})")
                     else:
-                        print("Error, CC Channel with wrong values!")
+                        print(f"Error, CC Channel with wrong values! ({event["channel"]})")
                 case "PitchWheelEvent":
-                    MyMIDI.addPitchWheelEvent(
-                        event["track"],
-                        event["channel"],
-                        event["time"],
-                        event["value"]
-                    )
+                    if 0 <= event["channel"] < 16:
+                            if -8192 <= event["value"] < 8192:
+                                MyMIDI.addPitchWheelEvent(
+                                    event["track"],
+                                    event["channel"],
+                                    event["time"],
+                                    event["value"]
+                                )
+                            else:
+                                print(f"Error, Pitch Value with wrong values! ({event["value"]})")
+                    else:
+                        print(f"Error, Pitch Channel with wrong values! ({event["channel"]})")
                 case "ChannelPressure":
-                    MyMIDI.addChannelPressure(
-                        event["track"],
-                        event["channel"],
-                        event["time"],
-                        event["pressure"]
-                    )
+                    if 0 <= event["channel"] < 16:
+                        if 0 <= event["pressure"] < 128:
+                            MyMIDI.addChannelPressure(
+                                event["track"],
+                                event["channel"],
+                                event["time"],
+                                event["pressure"]
+                            )
+                        else:
+                            print(f"Error, Channel Pressure Value with wrong values! ({event["pressure"]})")
+                    else:
+                        print(f"Error, Channel Pressure Channel with wrong values! ({event["channel"]})")
                 case "ProgramChange":
-                    MyMIDI.addProgramChange(
-                        event["track"],
-                        event["channel"],
-                        event["time"],
-                        event["program"]
-                    )
+                    if 0 <= event["channel"] < 16:
+                        if 0 <= event["program"] < 128:
+                            MyMIDI.addProgramChange(
+                                event["track"],
+                                event["channel"],
+                                event["time"],
+                                event["program"]
+                            )
+                        else:
+                            print(f"Error, Program Change Program with wrong values! ({event["program"]})")
+                    else:
+                        print(f"Error, Program Change Channel with wrong values! ({event["channel"]})")
         with open(filename, "wb") as output_file:   # opened to write in binary mode
             MyMIDI.writeFile(output_file)
 

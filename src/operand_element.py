@@ -1785,6 +1785,7 @@ class PitchBend(Automation):
             return []
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
 
+        # from -8192 to 8191
         amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
         amount = max(min(amount, 16383), 0) # midi safe
 
