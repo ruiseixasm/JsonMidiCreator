@@ -334,6 +334,13 @@ def test_basic_conversions():
     assert position % Step() % Fraction() == 2 * 4  # Eight step in the Measure 10
     assert position % Duration() % Fraction() == 10 * (1/1) + 2 * (1/4)
 
+    quantization: Quantization = Quantization(1/16)
+    assert quantization % Fraction() == 1/16
+    duration: Duration = Duration()
+    assert duration % Fraction() == 0
+    duration << quantization
+    assert duration % Fraction() == 1/16
+
 # test_basic_conversions()
 
 
