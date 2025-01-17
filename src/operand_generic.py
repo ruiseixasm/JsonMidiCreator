@@ -1148,9 +1148,13 @@ class Staff(Generic):
     # Conversion (Simple, One-way) | Only destination Staff is considered #
     #######################################################################
 
+    # The most internally called method
     def convertToBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Beats':
         beats: Fraction = Fraction(0)
         match time:
+            case ra.Duration(): # The most internally called option
+                beats_per_note: int = self._time_signature._bottom
+                beats = time._rational * beats_per_note
             case ra.Beats() | ra.Position():
                 beats = time._rational
             case ra.Measures():
@@ -1161,9 +1165,6 @@ class Staff(Generic):
                 notes_per_step: Fraction = self._quantization
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 beats = time._rational * beats_per_step
-            case ra.Duration():
-                beats_per_note: int = self._time_signature._bottom
-                beats = time._rational * beats_per_note
             case ou.Measure():
                 return self.convertToBeats(ra.Measures(time))
             case ou.Beat():
@@ -1261,9 +1262,7 @@ class Staff(Generic):
                 tempo_a : Fraction = time._staff_reference._tempo
                 tempo_b : Fraction = self._tempo
                 beats_b : Fraction = beats_a * tempo_b / tempo_a
-                new_beats: ra.Beats = ra.Beats(beats_b)
-                new_beats.set_staff_reference(self)
-                return new_beats
+                return ra.Beats(beats_b).set_staff_reference(self)
             case _:
                 return self.transformBeats(time._staff_reference.convertToBeats(time))
 
