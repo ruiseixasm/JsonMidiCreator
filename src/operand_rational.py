@@ -764,11 +764,6 @@ class Position(Convertible):
                 return super().__itruediv__(divider)
         return super().__itruediv__(operand)
 
-    def __rmul__(self, operand: o.Operand) -> 'Position':
-        return self * operand
-    
-    def __rtruediv__(self, operand: o.Operand) -> 'Position':
-        return self / operand
 
 class Length(Position):
     
@@ -854,7 +849,52 @@ class Duration(Convertible):
     first : float_like
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Duration':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                self._rational = self._staff_reference.convertToDuration(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: o.Operand) -> 'Duration':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():  # Implicit Duration conversion
+                self._rational += self._staff_reference.convertToDuration(operand)._rational
+            case int() | float() | Fraction():
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: o.Operand) -> 'Duration':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():  # Implicit Duration conversion
+                self._rational -= self._staff_reference.convertToDuration(operand)._rational
+            case int() | float() | Fraction():
+                super().__isub__(operand)
+        return self
+    
+    def __imul__(self, operand: o.Operand) -> 'Duration':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                multiplier: Fraction = self._staff_reference.convertToDuration(operand)._rational
+                return super().__imul__(multiplier)
+        return super().__imul__(operand)
+    
+    def __itruediv__(self, operand: o.Operand) -> 'Duration':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                divider: Fraction = self._staff_reference.convertToDuration(operand)._rational
+                return super().__itruediv__(divider)
+        return super().__itruediv__(operand)
+
 
 # NoteValue as an Alias to Duration
 NoteValue = Duration
