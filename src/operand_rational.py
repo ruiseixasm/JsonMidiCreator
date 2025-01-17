@@ -669,7 +669,55 @@ class Quantization(Convertible):
     first : float_like
         By default it's configured without any verbose, set to 1 or True to enable verbose
     """
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Quantization':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+            case Convertible() | ou.TimeUnit():
+                self._rational = self._staff_reference.convertToDuration(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> 'Quantization':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                super().__iadd__(self._staff_reference.convertToDuration(operand)._rational)
+            case _:
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: any) -> 'Quantization':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                super().__isub__(self._staff_reference.convertToDuration(operand)._rational)
+            case _:
+                super().__isub__(operand)
+        return self
+    
+    def __imul__(self, operand: any) -> 'Quantization':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                super().__imul__(self._staff_reference.convertToDuration(operand)._rational)
+            case _:
+                super().__imul__(operand)
+        return self
+    
+    def __itruediv__(self, operand: any) -> 'Quantization':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Convertible() | ou.TimeUnit():
+                super().__itruediv__(self._staff_reference.convertToDuration(operand)._rational)
+            case _:
+                super().__itruediv__(operand)
+        return self
+
 
 class Position(Convertible):
 
@@ -722,7 +770,6 @@ class Position(Convertible):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Position':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
@@ -831,7 +878,6 @@ class Measures(TimeValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Measures':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -915,7 +961,6 @@ class Beats(TimeValue):
         return self
 
     def __lshift__(self, operand: any) -> 'Beats':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -975,7 +1020,6 @@ class Steps(TimeValue):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Steps':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -1047,7 +1091,6 @@ class Duration(Convertible):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Duration':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
