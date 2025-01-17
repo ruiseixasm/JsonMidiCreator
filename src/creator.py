@@ -172,7 +172,10 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
         if all(key in event for key in ("event", "track", "track_name", "tempo", "time", "channel")) \
             and isinstance(event["track"], int) and isinstance(event["time"], (float, int)) \
             and event["track"] >= 0 and event["time"] >= 0:
+
             processed_events.append(event)
+        else:
+            print("Error, some midi key events aren't valid!")
     
     if len(processed_events) > 0:
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
@@ -190,18 +193,24 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
         }
         for event in processed_events:
             if event["track"] != last_event["track"]:  # events already sorted (processed)
-                MyMIDI.addTrackName(
-                    event["track"],
-                    event["time"],
-                    event["track_name"]
-                )
+                if isinstance(event["track_name"], str):
+                    MyMIDI.addTrackName(
+                        event["track"],
+                        event["time"],
+                        event["track_name"]
+                    )
+                else:
+                    print("Error, Track name is NOT a string!")
             if event["track"] != last_event["track"] or event["tempo"] != last_event["tempo"]:  # events already sorted (processed)
-                last_event["tempo"] = event["tempo"]
-                MyMIDI.addTempo(
-                    event["track"],
-                    event["time"],
-                    event["tempo"]
-                )
+                if isinstance(event["tempo"], (float, int)):
+                    last_event["tempo"] = event["tempo"]
+                    MyMIDI.addTempo(
+                        event["track"],
+                        event["time"],
+                        event["tempo"]
+                    )
+                else:
+                    print("Error, Tempo is NOT a number!")
             if all(key in event for key in ("numerator", "denominator")):
                 if event["track"] != last_event["track"] \
                     or event["numerator"] != last_event["numerator"] or event["denominator"] != last_event["denominator"]:
@@ -218,18 +227,33 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                             int(math.log2(event["denominator"])),
                             24, 8
                         )
+                    else:
+                        print("Error, Time Signature with wrong values!")
+
             last_event["track"] = event["track"]
 
             match event["event"]:
                 case "Note":
-                    MyMIDI.addNote(
-                        event["track"],
-                        event["channel"],
-                        event["pitch"],
-                        event["time"],
-                        event["duration"],
-                        event["velocity"]
-                    )
+                    if isinstance(event["duration"], (float, int)) and event["duration"] >= 0:
+                        if 0 >= event["channel"] < 16:
+                            if 0 >= event["pitch"] < 128:
+                                if 0 >= event["velocity"] < 128:
+                                    MyMIDI.addNote(
+                                        event["track"],
+                                        event["channel"],
+                                        event["pitch"],
+                                        event["time"],
+                                        event["duration"],
+                                        event["velocity"]
+                                    )
+                                else:
+                                    print("Error, Note Velocity with wrong values!")
+                            else:
+                                print("Error, Note Pitch with wrong values!")
+                        else:
+                            print("Error, Note Channel with wrong values!")
+                    else:
+                        print("Error, Note Duration with wrong values!")
                 # case "Rest":    # Doesn't make sense to send phony notes as Rests!
                 #     MyMIDI.addNote(
                 #         event["track"],
@@ -240,13 +264,22 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                 #         0
                 #     )
                 case "ControllerEvent":
-                    MyMIDI.addControllerEvent(
-                        event["track"],
-                        event["channel"],
-                        event["time"],
-                        event["number"],
-                        event["value"]
-                    )
+                    if 0 >= event["channel"] < 16:
+                        if 0 >= event["number"] < 128:
+                            if 0 >= event["value"] < 128:
+                                MyMIDI.addControllerEvent(
+                                    event["track"],
+                                    event["channel"],
+                                    event["time"],
+                                    event["number"],
+                                    event["value"]
+                                )
+                            else:
+                                print("Error, CC Value with wrong values!")
+                        else:
+                            print("Error, CC Number with wrong values!")
+                    else:
+                        print("Error, CC Channel with wrong values!")
                 case "PitchWheelEvent":
                     MyMIDI.addPitchWheelEvent(
                         event["track"],
