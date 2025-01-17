@@ -537,7 +537,60 @@ class Beat(TimeUnit):
 
 
 class Step(TimeUnit):
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Step':
+        import operand_rational as ra
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+            case TimeUnit() | ra.Convertible():
+                self._unit = self._staff_reference.convertToStep(operand)._unit
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    def __iadd__(self, operand: any) -> 'Step':
+        import operand_rational as ra
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case TimeUnit() | ra.Convertible():
+                super().__iadd__(self._staff_reference.convertToStep(operand)._unit)
+            case _:
+                super().__iadd__(operand)
+        return self
+    
+    def __isub__(self, operand: any) -> 'Step':
+        import operand_rational as ra
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case TimeUnit() | ra.Convertible():
+                super().__isub__(self._staff_reference.convertToStep(operand)._unit)
+            case _:
+                super().__isub__(operand)
+        return self
+    
+    def __imul__(self, operand: any) -> 'Step':
+        import operand_rational as ra
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case TimeUnit() | ra.Convertible():
+                super().__imul__(self._staff_reference.convertToStep(operand)._unit)
+            case _:
+                super().__imul__(operand)
+        return self
+    
+    def __itruediv__(self, operand: any) -> 'Step':
+        import operand_rational as ra
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case TimeUnit() | ra.Convertible():
+                super().__itruediv__(self._staff_reference.convertToStep(operand)._unit)
+            case _:
+                super().__itruediv__(operand)
+        return self
+
 
 class PitchParameter(Unit):
     pass
