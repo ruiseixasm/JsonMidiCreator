@@ -53,7 +53,7 @@ class Rational(o.Operand):
         self._rational: Fraction = Fraction(0)
         super().__init__(*parameters)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract the Rational, because a Rational is an Fraction
         it should be used in conjugation with a float(). If used with an int() it
@@ -144,7 +144,7 @@ class Rational(o.Operand):
                 self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Rational':
+    def __lshift__(self, operand: any) -> 'Rational':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Rational():
@@ -289,7 +289,7 @@ class Negative(Rational):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: any) -> any:
         match operand:
             case Fraction():        return self._rational * -1
             case float():           return float(self._rational * -1)
@@ -302,7 +302,7 @@ class Negative(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Negative':
+    def __lshift__(self, operand: any) -> 'Negative':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Negative():
@@ -392,7 +392,7 @@ class Tempo(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Tempo':
+    def __lshift__(self, operand: any) -> 'Tempo':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -453,7 +453,7 @@ class Convertible(Rational):
         self._staff_reference = og.defaults._staff
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: any) -> any:
         match operand:
             case Measures():            return self._staff_reference.convertToMeasures(self)
             case Beats():               return self._staff_reference.convertToBeats(self)
@@ -676,7 +676,7 @@ class Position(Convertible):
     def position(self: 'Position', beats: float = None) -> 'Position':
         return self << od.DataSource( beats )
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, in the case of a Time,
         those Parameters are the respective time unit, like Measure and NoteValue,
@@ -721,7 +721,7 @@ class Position(Convertible):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Position':
+    def __lshift__(self, operand: any) -> 'Position':
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -742,7 +742,7 @@ class Position(Convertible):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: o.Operand) -> 'Position':
+    def __iadd__(self, operand: any) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Position conversion
@@ -751,7 +751,7 @@ class Position(Convertible):
                 self += Measures(operand)
         return self
     
-    def __isub__(self, operand: o.Operand) -> 'Position':
+    def __isub__(self, operand: any) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Position conversion
@@ -760,7 +760,7 @@ class Position(Convertible):
                 self -= Measures(operand)
         return self
     
-    def __imul__(self, operand: o.Operand) -> 'Position':
+    def __imul__(self, operand: any) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
@@ -768,7 +768,7 @@ class Position(Convertible):
                 return super().__imul__(multiplier)
         return super().__imul__(operand)
     
-    def __itruediv__(self, operand: o.Operand) -> 'Position':
+    def __itruediv__(self, operand: any) -> 'Position':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Position():
@@ -828,7 +828,19 @@ class Measures(TimeValue):
     first : float_like
         Proportional value to a Measure on the Staff
     """
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Measures':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+            case Convertible() | ou.TimeUnit():
+                self._rational = self._staff_reference.convertToMeasures(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 class Beats(TimeValue):
     """
@@ -839,7 +851,19 @@ class Beats(TimeValue):
     first : float_like
         Proportional value to a Beat on the Staff
     """
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Beats':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+            case Convertible() | ou.TimeUnit():
+                self._rational = self._staff_reference.convertToBeats(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
 
 class Steps(TimeValue):
     """
@@ -852,7 +876,7 @@ class Steps(TimeValue):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Steps':
+    def __lshift__(self, operand: any) -> 'Steps':
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -876,7 +900,7 @@ class Duration(Convertible):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Duration':
+    def __lshift__(self, operand: any) -> 'Duration':
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -888,7 +912,7 @@ class Duration(Convertible):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: o.Operand) -> 'Duration':
+    def __iadd__(self, operand: any) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -897,7 +921,7 @@ class Duration(Convertible):
                 super().__iadd__(operand)
         return self
     
-    def __isub__(self, operand: o.Operand) -> 'Duration':
+    def __isub__(self, operand: any) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -906,7 +930,7 @@ class Duration(Convertible):
                 super().__isub__(operand)
         return self
     
-    def __imul__(self, operand: o.Operand) -> 'Duration':
+    def __imul__(self, operand: any) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -915,7 +939,7 @@ class Duration(Convertible):
                 super().__imul__(operand)
         return self
     
-    def __itruediv__(self, operand: o.Operand) -> 'Duration':
+    def __itruediv__(self, operand: any) -> 'Duration':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -945,7 +969,7 @@ class Dotted(Duration):
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: any) -> any:
         """
         The % symbol is used to extract a Parameter, in the case of a Dotted Note,
         those Parameters are the Dotted length as a Fraction(), a float() an int()
@@ -977,7 +1001,7 @@ class Dotted(Duration):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Dotted':
+    def __lshift__(self, operand: any) -> 'Dotted':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource() | Duration() | od.Serialization():
