@@ -1151,11 +1151,11 @@ class Staff(Generic):
     def convertToBeats(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Beats':
         beats: Fraction = Fraction(0)
         match time:
+            case ra.Beats() | ra.Position():
+                beats = time._rational
             case ra.Measures():
                 beats_per_measure: int = self._time_signature._top
                 beats = time._rational * beats_per_measure
-            case ra.Beats() | ra.Position():
-                beats = time._rational
             case ra.Steps():
                 beats_per_note: int = self._time_signature._bottom
                 notes_per_step: Fraction = self._quantization
@@ -1177,11 +1177,11 @@ class Staff(Generic):
     def convertToMeasures(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ra.Measures':
         measures: Fraction = Fraction(0)
         match time:
-            case ra.Measures():
-                measures = time._rational
             case ra.Beats() | ra.Position():
                 beats_per_measure: int = self._time_signature._top
                 measures = time._rational / beats_per_measure
+            case ra.Measures():
+                measures = time._rational
             case _:
                 return self.convertToMeasures(self.convertToBeats(time))
         return ra.Measures(measures).set_staff_reference(self)
