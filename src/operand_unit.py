@@ -274,6 +274,143 @@ class TimeUnit(Unit):
         self._staff_reference = og.defaults._staff
         return self
 
+    #######################################################################
+    # Conversion (Simple, One-way) | Only destination Staff is considered #
+    #######################################################################
+
+    if TYPE_CHECKING:
+        from operand_rational import Convertible, Position, Length, Duration, Measures, Beats, Steps
+
+    def convertToBeats(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beats':
+        match time:
+            case None:
+                return self._staff_reference.convertToBeats(self)
+            case _:
+                return self._staff_reference.convertToBeats(time)
+
+    def convertToMeasures(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measures':
+        match time:
+            case None:
+                return self._staff_reference.convertToMeasures(self)
+            case _:
+                return self._staff_reference.convertToMeasures(time)
+        
+    def convertToSteps(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Steps':
+        match time:
+            case None:
+                return self._staff_reference.convertToSteps(self)
+            case _:
+                return self._staff_reference.convertToSteps(time)
+
+    def convertToDuration(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Duration':
+        match time:
+            case None:
+                return self._staff_reference.convertToDuration(self)
+            case _:
+                return self._staff_reference.convertToDuration(time)
+
+    def convertToMeasure(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measure':
+        match time:
+            case None:
+                return self._staff_reference.convertToMeasure(self)
+            case _:
+                return self._staff_reference.convertToMeasure(time)
+
+    def convertToBeat(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beat':
+        match time:
+            case None:
+                return self._staff_reference.convertToBeat(self)
+            case _:
+                return self._staff_reference.convertToBeat(time)
+
+    def convertToStep(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Step':
+        match time:
+            case None:
+                return self._staff_reference.convertToStep(self)
+            case _:
+                return self._staff_reference.convertToStep(time)
+
+    def convertToPosition(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Position':
+        match time:
+            case None:
+                return self._staff_reference.convertToPosition(self)
+            case _:
+                return self._staff_reference.convertToPosition(time)
+
+    def convertToLength(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Length':
+        match time:
+            case None:
+                return self._staff_reference.convertToLength(self)
+            case _:
+                return self._staff_reference.convertToLength(time)
+
+    ################################################################################################################
+    # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
+    ################################################################################################################
+
+    def transformBeats(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beats':
+        match time:
+            case None:
+                return self._staff_reference.transformBeats(self)
+            case _:
+                return self._staff_reference.transformBeats(time)
+
+    def transformMeasures(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measures':
+        match time:
+            case None:
+                return self._staff_reference.transformMeasures(self)
+            case _:
+                return self._staff_reference.transformMeasures(time)
+
+    def transformSteps(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Steps':
+        match time:
+            case None:
+                return self._staff_reference.transformSteps(self)
+            case _:
+                return self._staff_reference.transformSteps(time)
+
+    def transformDuration(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Duration':
+        match time:
+            case None:
+                return self._staff_reference.transformDuration(self)
+            case _:
+                return self._staff_reference.transformDuration(time)
+
+    def transformMeasure(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Measure':
+        match time:
+            case None:
+                return self._staff_reference.transformMeasure(self)
+            case _:
+                return self._staff_reference.transformMeasure(time)
+
+    def transformBeat(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Beat':
+        match time:
+            case None:
+                return self._staff_reference.transformBeat(self)
+            case _:
+                return self._staff_reference.transformBeat(time)
+
+    def transformStep(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Step':
+        match time:
+            case None:
+                return self._staff_reference.transformStep(self)
+            case _:
+                return self._staff_reference.transformStep(time)
+
+    def transformPosition(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Position':
+        match time:
+            case None:
+                return self._staff_reference.transformPosition(self)
+            case _:
+                return self._staff_reference.transformPosition(time)
+
+    def transformLength(self, time: Union['Convertible', 'TimeUnit'] = None) -> 'Length':
+        match time:
+            case None:
+                return self._staff_reference.transformLength(self)
+            case _:
+                return self._staff_reference.transformLength(time)
+
 class Measure(TimeUnit):
     pass
 

@@ -496,7 +496,7 @@ class Convertible(Rational):
             case _:
                 return super().__gt__(other)
         return False
-    
+
     #######################################################################
     # Conversion (Simple, One-way) | Only destination Staff is considered #
     #######################################################################
