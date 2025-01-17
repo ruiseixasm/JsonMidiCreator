@@ -472,8 +472,7 @@ class Convertible(Rational):
             case ou.TimeUnit() | int() | float():
                 return self % other == other
             case _:
-                if other.__class__ == o.Operand:
-                    return True
+                return super().__eq__(other)
         return False
 
     def __lt__(self, other: any) -> bool:
@@ -483,6 +482,8 @@ class Convertible(Rational):
                 return self._staff_reference.convertToBeats(self)._rational < self._staff_reference.convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other < other
+            case _:
+                return super().__lt__(other)
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -492,6 +493,8 @@ class Convertible(Rational):
                 return self._staff_reference.convertToBeats(self)._rational > self._staff_reference.convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other > other
+            case _:
+                return super().__gt__(other)
         return False
     
     #######################################################################
