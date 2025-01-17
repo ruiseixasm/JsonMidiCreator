@@ -1210,18 +1210,18 @@ class Staff(Generic):
             case ra.Duration():
                 duration = time._rational
             case _:
-                return self.convertToDuration(self.convertToBeats(time))
+                return self.convertToDuration( self.convertToBeats(time) )
         return ra.Duration(duration).set_staff_reference(self)
 
     def convertToMeasure(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Measure':
         if isinstance(time, ra.Position):
             time = time.roundMeasures()
-        return ou.Measure(self.convertToMeasures(time)._rational).set_staff_reference(self)
+        return ou.Measure( self.convertToMeasures(time)._rational ).set_staff_reference(self)
 
     def convertToBeat(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Beat':
         if isinstance(time, ra.Position):
             time = time.roundBeats()
-        absolute_beat: int = ou.Beat( self.convertToBeats( time ) )._unit
+        absolute_beat: int = int( self.convertToBeats( time )._rational )
         beats_per_measure: int = self._time_signature._top
         relative_beat: int = absolute_beat % beats_per_measure
         return ou.Beat(relative_beat).set_staff_reference(self)
@@ -1229,7 +1229,7 @@ class Staff(Generic):
     def convertToStep(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit']) -> 'ou.Step':
         if isinstance(time, ra.Position):
             time = time.roundSteps()
-        absolute_step: int = ou.Step( self.convertToSteps( time ) )._unit
+        absolute_step: int = int( self.convertToSteps( time )._rational )
         beats_per_measure: int = self._time_signature._top
         beats_per_note: int = self._time_signature._bottom
         notes_per_step: Fraction = self._quantization
