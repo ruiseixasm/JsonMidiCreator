@@ -235,9 +235,9 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
             match event["event"]:
                 case "Note":
                     if isinstance(event["duration"], (float, int)) and event["duration"] >= 0:
-                        if 0 >= event["channel"] < 16:
-                            if 0 >= event["pitch"] < 128:
-                                if 0 >= event["velocity"] < 128:
+                        if 0 <= event["channel"] < 16:
+                            if 0 <= event["pitch"] < 128:
+                                if 0 <= event["velocity"] < 128:
                                     MyMIDI.addNote(
                                         event["track"],
                                         event["channel"],
@@ -247,13 +247,13 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                         event["velocity"]
                                     )
                                 else:
-                                    print("Error, Note Velocity with wrong values!")
+                                    print(f"Error, Note Velocity with wrong values! ({event["velocity"]})")
                             else:
-                                print("Error, Note Pitch with wrong values!")
+                                print(f"Error, Note Pitch with wrong values! ({event["pitch"]})")
                         else:
-                            print("Error, Note Channel with wrong values!")
+                            print(f"Error, Note Channel with wrong values! ({event["channel"]})")
                     else:
-                        print("Error, Note Duration with wrong values!")
+                        print(f"Error, Note Duration with wrong values! ({event["duration"]})")
                 # case "Rest":    # Doesn't make sense to send phony notes as Rests!
                 #     MyMIDI.addNote(
                 #         event["track"],
@@ -264,9 +264,9 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                 #         0
                 #     )
                 case "ControllerEvent":
-                    if 0 >= event["channel"] < 16:
-                        if 0 >= event["number"] < 128:
-                            if 0 >= event["value"] < 128:
+                    if 0 <= event["channel"] < 16:
+                        if 0 <= event["number"] < 128:
+                            if 0 <= event["value"] < 128:
                                 MyMIDI.addControllerEvent(
                                     event["track"],
                                     event["channel"],
