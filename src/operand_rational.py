@@ -649,7 +649,6 @@ class Convertible(Rational):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Convertible':
-        import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
