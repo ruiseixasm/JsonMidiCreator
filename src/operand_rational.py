@@ -646,6 +646,19 @@ class Convertible(Rational):
             case _:
                 return self._staff_reference.getPlaylist(position)
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Convertible':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+                self._staff_reference = operand._staff_reference
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Quantization(Convertible):
     """
@@ -714,7 +727,6 @@ class Position(Convertible):
         match operand:
             case Position():
                 super().__lshift__(operand)
-                self._staff_reference = operand._staff_reference
             case TimeValue() | Duration():
                 self._rational = self._staff_reference.convertToBeats(operand)._rational
             case ou.Measure():
@@ -838,7 +850,20 @@ class Steps(TimeValue):
     first : float_like
         Steps as 1, 2, 4, 8
     """
-    pass
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: o.Operand) -> 'Steps':
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case self.__class__():
+                super().__lshift__(operand)
+            case Convertible() | ou.TimeUnit():
+                self._rational = self._staff_reference.convertToSteps(operand)._rational
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Duration(Convertible):
     """
@@ -855,6 +880,8 @@ class Duration(Convertible):
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case self.__class__():
+                super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
                 self._rational = self._staff_reference.convertToDuration(operand)._rational
             case _:

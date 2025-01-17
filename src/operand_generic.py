@@ -1166,11 +1166,11 @@ class Staff(Generic):
                 beats_per_step: Fraction = beats_per_note * notes_per_step
                 beats = time._rational * beats_per_step
             case ou.Measure():
-                return self.convertToBeats(ra.Measures(time))
+                return self.convertToBeats(ra.Measures(time._unit))
             case ou.Beat():
-                return self.convertToBeats(ra.Beats(time))
+                return self.convertToBeats(ra.Beats(time._unit))
             case ou.Step():
-                return self.convertToBeats(ra.Steps(time))
+                return self.convertToBeats(ra.Steps(time._unit))
             case float() | int() | Fraction():
                 return self.convertToBeats(ra.Measures(time))
         return ra.Beats(beats).set_staff_reference(self)
