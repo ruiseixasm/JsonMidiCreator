@@ -411,6 +411,21 @@ class TimeUnit(Unit):
             case _:
                 return self._staff_reference.transformLength(time)
 
+
+    def getMillis_rational(self, time: Union['Convertible', 'TimeUnit'] = None) -> Fraction:
+        match time:
+            case None:
+                return self._staff_reference.getMillis_rational(self)
+            case _:
+                return self._staff_reference.getMillis_rational(time)
+
+    def getPlaylist(self, position: 'Position' = None) -> list:
+        match position:
+            case None:
+                return self._staff_reference.getPlaylist(self)
+            case _:
+                return self._staff_reference.getPlaylist(position)
+
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'TimeUnit':
