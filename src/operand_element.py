@@ -402,19 +402,19 @@ class Element(o.Operand):
     def get_position_duration_ms(self, position_beats: Fraction = None) -> tuple:
 
         if isinstance(position_beats, Fraction):
-            self_position_ms: Fraction = self._staff_reference.getMillis_rational(
+            self_position_ms: Fraction = self._staff_reference.getMinutes(
                 ra.Beats(position_beats + self._position_beats)
             )
         else:
-            self_position_ms: Fraction = self._staff_reference.getMillis_rational( ra.Beats(self._position_beats) )
-        self_duration_ms: Fraction = self._staff_reference.getMillis_rational( ra.Duration(self._duration_notevalue) )
+            self_position_ms: Fraction = self._staff_reference.getMinutes( ra.Beats(self._position_beats) )
+        self_duration_ms: Fraction = self._staff_reference.getMinutes( ra.Duration(self._duration_notevalue) )
 
         return self_position_ms, self_duration_ms
 
     @staticmethod
-    def get_time_ms(rational: Fraction) -> float:
+    def get_time_ms(minutes: Fraction) -> float:
         # Validation is done by JsonMidiPlayer and midiutil Midi Range Validation
-        return round(float(rational), 3)
+        return round(float(minutes * 60_000), 3)
 
 
 
@@ -2183,7 +2183,7 @@ class Panic(Element):
         self_playlist.extend((ControlChange(1) << ou.Value(0)).getPlaylist(position_beats))
         self_playlist.extend((ControlChange(121) << ou.Value(0)).getPlaylist(position_beats))
 
-        on_time_ms = self.get_time_ms(self._staff_reference.getMillis_rational(ra.Beats(self._position_beats)))
+        on_time_ms = self.get_time_ms(self._staff_reference.getMinutes(ra.Beats(self._position_beats)))
 
         # Midi validation is done in the JsonMidiPlayer program
         for key_note_midi in range(128):

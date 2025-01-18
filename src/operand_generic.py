@@ -1291,12 +1291,12 @@ class Staff(Generic):
         return self.convertToLength(self.transformBeats(time))
 
 
-    def getMillis_rational(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> Fraction:
-        return self.convertToBeats(time)._rational / self._tempo * 60 * 1000
+    def getMinutes(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> Fraction:
+        return self.convertToBeats(time)._rational / self._tempo
 
     def getPlaylist(self, position: 'ra.Position' = None) -> list[dict]:
         import operand_element as oe
-        return [{ "time_ms": oe.Element.get_time_ms(self.getMillis_rational(position)) }]
+        return [{ "time_ms": oe.Element.get_time_ms(self.getMinutes(position)) }]
 
 
     def getSerialization(self) -> dict:

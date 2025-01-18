@@ -635,9 +635,9 @@ class Convertible(Rational):
     def getMillis_rational(self, time: Union['Position', 'TimeValue', 'Duration', 'ou.TimeUnit'] = None) -> Fraction:
         match time:
             case None:
-                return self._staff_reference.getMillis_rational(self)
+                return self._staff_reference.getMinutes(self)
             case _:
-                return self._staff_reference.getMillis_rational(time)
+                return self._staff_reference.getMinutes(time)
 
     def getPlaylist(self, position: 'Position' = None) -> list:
         match position:
