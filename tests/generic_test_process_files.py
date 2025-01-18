@@ -181,6 +181,7 @@ results_list.append({
 # Global Staff setting up
 defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
+composition: Song = Song(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.7.2_sequence.json")
@@ -208,7 +209,9 @@ original_save       = Load("json/testing/_Save_Play_p.8_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.8_sequence.json")
 start_time = time.time()
 triplets_one = (Note3("E") << NoteValue(1/16)) * 8
-triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+old_composition: Song = triplets_one + single_clock
+new_composition: Song = triplets_one + composition
+triplets_one + composition >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.8_first_note_compare.json") >> Export("json/testing/_Export_Play_p.8_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -238,7 +241,8 @@ defaults << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
-single_clock >> triplets_one >> triplets_two >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+complete_song: Song = Song(single_clock, triplets_one >> triplets_two)
+complete_song >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

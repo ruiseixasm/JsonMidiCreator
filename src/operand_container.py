@@ -613,19 +613,17 @@ class Clip(Container):  # Just a container of Elements
     def __rrshift__(self, operand: o.Operand) -> 'Clip':
         match operand:
             case Clip():
-                if self._midi_track._name == operand._midi_track._name:
-                    if operand.len() > 0:
-                        left_end_position: ra.Position = operand.finish()
-                        right_start_position: ra.Position = self.start()
-                        length_shift: ra.Length = self._staff.convertToLength(left_end_position - right_start_position).roundMeasures()
-                        # Convert Length to Position
-                        add_position: ra.Position = ra.Position(length_shift)
-                        right_clip: Clip = self + add_position  # Offsets the content and it's an implicit copy
-                        added_clip: Clip = operand.copy()       # Preserves the left_clip configuration
-                        added_clip._datasource_list.extend(right_clip._datasource_list)
-                        return added_clip
-                    return self.copy()
-                return Song(operand, self)
+                if operand.len() > 0:
+                    left_end_position: ra.Position = operand.finish()
+                    right_start_position: ra.Position = self.start()
+                    length_shift: ra.Length = self._staff.convertToLength(left_end_position - right_start_position).roundMeasures()
+                    # Convert Length to Position
+                    add_position: ra.Position = ra.Position(length_shift)
+                    right_clip: Clip = self + add_position  # Offsets the content and it's an implicit copy
+                    added_clip: Clip = operand.copy()       # Preserves the left_clip configuration
+                    added_clip._datasource_list.extend(right_clip._datasource_list)
+                    return added_clip
+                return self.copy()
             case oe.Element():
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
@@ -650,8 +648,11 @@ class Clip(Container):  # Just a container of Elements
     def __iadd__(self, operand: any) -> 'Clip':
         match operand:
             case Song():
-                operand += self # Order is irrelevant in Song
-                return operand 
+                # Song at the right must be a copy
+                new_song: Song = operand.copy()
+                # Inserts self content at the beginning of the Song
+                new_song._datasource_list.insert(0, od.DataSource( self ))
+                return new_song # Operand Song replaces self Clip
             case Clip():
                 if self._midi_track == operand._midi_track:
 
