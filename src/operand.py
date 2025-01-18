@@ -151,6 +151,7 @@ class Operand:
         self._initiated: bool   = False
         self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int = 0
+        self._source: Operand = None    # Lets the receiver know where the Operand comes from
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
