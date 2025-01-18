@@ -612,6 +612,8 @@ class Clip(Container):  # Just a container of Elements
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Clip':
         match operand:
+            case Song():
+                return operand + self
             case Clip():
                 if operand.len() > 0:
                     left_end_position: ra.Position = operand.finish()
@@ -960,88 +962,32 @@ class Song(Container):
                 return new_song
         return self.copy()
 
-    def __radd__(self, operand: Clip | oe.Element) -> 'Song':
-        if isinstance(operand, (Clip, oe.Element)):
-            if isinstance(operand, oe.Element):
-                operand = Clip(operand)
-            else:
-                operand = operand.copy()
-            for single_clip in self:
-                if isinstance(single_clip, Clip):
-                    if single_clip._midi_track == operand._midi_track:
-                        single_clip << single_clip.__radd__(operand)    # Where the difference lies!
-                        return self
-            self._datasource_list.append(od.DataSource( operand ))
-        elif isinstance(operand, of.Frame):
-            o.logging.warning(f"Frames don't work on Songs!")
+    def __add__(self, operand: Union['Song', 'Clip']) -> 'Song':
+        return self.copy().__iadd__(operand)
+            
+    def __iadd__(self, operand: Union['Song', 'Clip']) -> 'Song':
+        match operand:
+            case Clip():
+                self._datasource_list.extend(
+                    data_clip.copy() for data_clip in operand._datasource_list
+                )
+            case Song():
+                self._datasource_list.append( od.DataSource( operand.copy() ) )
         return self
 
-    def __add__(self, operand: Clip | oe.Element) -> 'Song':
-        self_copy: Song = self.copy()
-        if isinstance(operand, (Clip, oe.Element)):
-            if isinstance(operand, oe.Element):
-                operand = Clip(operand) # Makes sure it becomes a Track
-            else:
-                operand = operand.copy()
-            for single_clip in self_copy:
-                if isinstance(single_clip, Clip):
-                    if single_clip._midi_track == operand._midi_track:
-                        single_clip << single_clip.__add__(operand)     # Where the difference lies!
-                        return self_copy
-            self_copy._datasource_list.append(od.DataSource( operand ))
-        elif isinstance(operand, od.Playlist):  # Adds Playlist right away!
-            self._datasource_list.append(od.DataSource( operand ))
-        elif isinstance(operand, of.Frame):
-            o.logging.warning(f"Frames don't work on Songs!")
-        return self_copy
-
-    def __iadd__(self, operand: Clip | oe.Element) -> 'Song':
-        if isinstance(operand, (Clip, oe.Element)):
-            if isinstance(operand, oe.Element):
-                operand = Clip(operand) # Makes sure it becomes a Track
-            else:
-                operand = operand.copy()
-            for single_clip in self:
-                if isinstance(single_clip, Clip):
-                    if single_clip._midi_track == operand._midi_track:
-                        single_clip << single_clip.__add__(operand)     # Where the difference lies!
-                        return self
-            self._datasource_list.append(od.DataSource( operand ))
-        elif isinstance(operand, od.Playlist):  # Adds Playlist right away!
-            self._datasource_list.append(od.DataSource( operand ))
-        elif isinstance(operand, of.Frame):
-            o.logging.warning(f"Frames don't work on Songs!")
-        return self
-
-    def __sub__(self, operand: o.Operand) -> 'Song':
-        self_copy: Song = self.copy()
-        if isinstance(operand, Clip):
-            for single_clip_i in len(self_copy._datasource_list):
-                if isinstance(self_copy._datasource_list[single_clip_i]._data, Clip):
-                    if self_copy._datasource_list[single_clip_i]._data == operand:
-                        del self_copy._datasource_list[single_clip_i]
-        elif isinstance(operand, oe.Element):
-            for single_clip_i in len(self_copy._datasource_list):
-                if isinstance(self_copy._datasource_list[single_clip_i]._data, Clip):
-                    if self_copy._datasource_list[single_clip_i]._data == Clip(operand):
-                        del self_copy._datasource_list[single_clip_i]
-        elif isinstance(operand, of.Frame):
-            o.logging.warning(f"Frames don't work on Songs!")
-        return self_copy
-
-    def __isub__(self, operand: o.Operand) -> 'Song':
-        if isinstance(operand, Clip):
-            for single_clip_i in len(self._datasource_list):
-                if isinstance(self._datasource_list[single_clip_i]._data, Clip):
-                    if self._datasource_list[single_clip_i]._data == operand:
-                        del self._datasource_list[single_clip_i]
-        elif isinstance(operand, oe.Element):
-            for single_clip_i in len(self._datasource_list):
-                if isinstance(self._datasource_list[single_clip_i]._data, Clip):
-                    if self._datasource_list[single_clip_i]._data == Clip(operand):
-                        del self._datasource_list[single_clip_i]
-        elif isinstance(operand, of.Frame):
-            o.logging.warning(f"Frames don't work on Songs!")
+    def __sub__(self, operand: Union['Song', 'Clip']) -> 'Song':
+        return self.copy().__isub__(operand)
+            
+    def __isub__(self, operand: Union['Song', 'Clip']) -> 'Song':
+        match operand:
+            case Clip():
+                self._datasource_list = [
+                    data_clip for data_clip in self._datasource_list if data_clip != operand
+                ]
+            case Song():
+                self._datasource_list = [
+                    data_clip for data_clip in self._datasource_list if data_clip not in operand._datasource_list
+                ]
         return self
 
     # # Multiply of song shall mean the number of loops
