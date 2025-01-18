@@ -967,11 +967,11 @@ class Song(Container):
             
     def __iadd__(self, operand: Union['Song', 'Clip']) -> 'Song':
         match operand:
-            case Clip():
+            case Song():
                 self._datasource_list.extend(
                     data_clip.copy() for data_clip in operand._datasource_list
                 )
-            case Song():
+            case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
         return self
 
@@ -980,13 +980,13 @@ class Song(Container):
             
     def __isub__(self, operand: Union['Song', 'Clip']) -> 'Song':
         match operand:
-            case Clip():
-                self._datasource_list = [
-                    data_clip for data_clip in self._datasource_list if data_clip != operand
-                ]
             case Song():
                 self._datasource_list = [
                     data_clip for data_clip in self._datasource_list if data_clip not in operand._datasource_list
+                ]
+            case Clip():
+                self._datasource_list = [
+                    data_clip for data_clip in self._datasource_list if data_clip._data != operand
                 ]
         return self
 

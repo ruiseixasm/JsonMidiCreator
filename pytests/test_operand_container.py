@@ -479,3 +479,23 @@ def test_clip_content():
     for item in clip_items:
         assert isinstance(item, Element)
 
+
+def test_song_operations():
+
+    clip_1: Clip = Clip(Clock())
+    clip_2: Clip = Clip(Note())
+
+    song_1: Song = Song(clip_1, clip_2)
+    song_2: Song = Song(clip_2, clip_1)
+
+    assert song_1.len() == 2
+    assert song_2.len() == 2
+
+    assert (song_1 + clip_2).len() == 3
+    assert (song_1 - clip_2).len() == 1
+
+    assert (song_1 + song_2).len() == 4
+    assert (song_1 >> song_2).len() == 4
+    
+
+test_song_operations()
