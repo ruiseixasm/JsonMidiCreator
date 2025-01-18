@@ -242,7 +242,7 @@ defaults << Measures(2)
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
 complete_song: Song = Song(single_clock, triplets_one >> triplets_two)
-complete_song >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+composition >> triplets_one >> triplets_two >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -256,9 +256,9 @@ original_export     = Import("json/testing/_Export_Play_p.10.1_sequence.json")
 start_time = time.time()
 
 # triplets remain a clip. Frames don't operate on Songs!!
-triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
+triplets: Clip = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
 complete_song = Song(triplets, single_clock)
-complete_song >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+triplets >> composition >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
