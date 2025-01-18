@@ -31,19 +31,17 @@ single_note = Note() << (NoteValue() << Measures(2)) >> Play()
 note_transposed = single_note + 5.0 >> Play()
 
 triplets_one = (Note3("E") << NoteValue(1/16)) * 8
-old_composition: Song = triplets_one + single_clock
-new_composition: Song = triplets_one + composition
-new_composition >> Save("json/_Save_3.1_triple_note3.json") >> Play(False)
+triplets_one + composition >> Save("json/_Save_3.1_triple_note3.json") >> Play(False)
 
 triplets_two = (Note3("G") << NoteValue(1/16)) * 8
-triplets_two + composition >> Export("json/_Export_3.1_triple_note3.json") >> Play(False)
+triplets_two + single_clock >> Export("json/_Export_3.1_triple_note3.json") >> Play(False)
 
 defaults << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
 # triplets_two % First() % Beats() % float() >> Print()
-composition >> triplets_one >> triplets_two >> Play(False)
+composition >> (triplets_one >> triplets_two) >> Play(False)
 # triplets_two % First() % Beats() % float() >> Print()
 
 # triplets remain a clip. Frames don't operate on Songs!!

@@ -91,6 +91,7 @@ load_0 >> load_1 >> load_2 >> load_3 >> Save ("json/testing/_Save_2.2_sequence_n
 # Global Staff setting up
 defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
+composition: Song = Song(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
@@ -105,11 +106,11 @@ defaults << Measures(2)
 
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
-single_clock >> triplets_one >> triplets_two >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
+composition >> (triplets_one >> triplets_two) >> Save("json/testing/_Save_Play_p.10_first_note.json") >> Export("json/testing/_Export_Play_p.10_sequence.json")
 
 # triplets remain a clip. Frames don't operate on Songs!!
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
-triplets >> single_clock >> Save("json/testing/_Save_Play_p.10.1_first_note.json") >> Export("json/testing/_Export_Play_p.10.1_sequence.json")
+triplets >> composition >> Save("json/testing/_Save_Play_p.10.1_first_note.json") >> Export("json/testing/_Export_Play_p.10.1_sequence.json")
 
 ############### TEST4 #######################
 

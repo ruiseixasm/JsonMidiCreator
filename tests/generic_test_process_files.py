@@ -211,7 +211,7 @@ start_time = time.time()
 triplets_one: Clip = (Note3("E") << NoteValue(1/16)) * 8
 old_composition: Song = triplets_one + single_clock
 new_composition: Song = triplets_one + composition
-triplets_one + composition >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+triplets_one + single_clock >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.8_first_note_compare.json") >> Export("json/testing/_Export_Play_p.8_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -242,7 +242,7 @@ defaults << Measures(2)
 # Duration needs to be adjusted because Elements are Stacked based on Duration and not on Duration!
 # A 1/16 triplet has a total duration of a 1/8
 complete_song: Song = Song(single_clock, triplets_one >> triplets_two)
-complete_song >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+composition >> (triplets_one >> triplets_two) >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
