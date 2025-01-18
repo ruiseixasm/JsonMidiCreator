@@ -257,7 +257,8 @@ start_time = time.time()
 
 # triplets remain a clip. Frames don't operate on Songs!!
 triplets = (triplets_one >> triplets_two) + Equal(Beat(1))**Semitone(2)
-triplets >> single_clock >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
+complete_song = Song(triplets, single_clock)
+complete_song >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_Play_p.10.1_first_note_compare.json") >> Export("json/testing/_Export_Play_p.10.1_sequence_compare.json")
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
