@@ -493,9 +493,13 @@ def test_song_operations():
 
     assert (song_1 + clip_2).len() == 3
     assert (song_1 - clip_2).len() == 1
-
     assert (song_1 + song_2).len() == 4
+
+    assert (song_1 >> clip_2).len() == 3
     assert (song_1 >> song_2).len() == 4
     
+    assert Song(song_2, clip_2).len() == 3
+    assert Song(song_2, song_1).len() == 4
+
 
 test_song_operations()

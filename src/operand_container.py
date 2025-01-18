@@ -897,8 +897,14 @@ class Song(Container):
     def __init__(self, *operands):
         super().__init__()
         for single_operand in operands:
-            if isinstance(single_operand, (Clip, od.Playlist)):
-                self._datasource_list.append(od.DataSource( single_operand.copy() ))
+            match single_operand:
+                case Song():
+                    self._datasource_list.extend(
+                        data_clip.copy() for data_clip in single_operand._datasource_list
+                    )
+                case Clip() | od.Playlist():
+                    self._datasource_list.append(od.DataSource( single_operand.copy() ))
+
 
     def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
