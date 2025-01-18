@@ -45,7 +45,7 @@ else:  # Assume Linux/Unix
 # Class alias, abbreviations
 N = Nt = Note
 Ch = Channel
-Src = Source = DataSource
+DS = Src = DataSource
 Meas = Measures
 Bts = Beats
 Pt = Pitch
@@ -161,5 +161,3 @@ S30 = Steps(29)
 S31 = Steps(30)
 S32 = Steps(31)
 
-# Classes
-DS = DataSource

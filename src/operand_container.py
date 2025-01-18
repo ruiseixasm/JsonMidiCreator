@@ -968,10 +968,10 @@ class Song(Container):
                 return new_song
         return self.copy()
 
-    def __add__(self, operand: Union['Song', 'Clip']) -> 'Song':
+    def __add__(self, operand: any) -> 'Song':
         return self.copy().__iadd__(operand)
             
-    def __iadd__(self, operand: Union['Song', 'Clip']) -> 'Song':
+    def __iadd__(self, operand: any) -> 'Song':
         match operand:
             case Song():
                 self._datasource_list.extend(
@@ -979,12 +979,16 @@ class Song(Container):
                 )
             case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
+            case o.Operand():   # Only propagates Operands!
+                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data += operand
         return self
 
-    def __sub__(self, operand: Union['Song', 'Clip']) -> 'Song':
+    def __sub__(self, operand: any) -> 'Song':
         return self.copy().__isub__(operand)
             
-    def __isub__(self, operand: Union['Song', 'Clip']) -> 'Song':
+    def __isub__(self, operand: any) -> 'Song':
         match operand:
             case Song():
                 self._datasource_list = [
@@ -994,15 +998,31 @@ class Song(Container):
                 self._datasource_list = [
                     data_clip for data_clip in self._datasource_list if data_clip._data != operand
                 ]
+            case o.Operand():   # Only propagates Operands!
+                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data -= operand
         return self
 
-    # # Multiply of song shall mean the number of loops
-    # def __mul__(self, operand: o.Operand) -> 'Song':
-    #     self_copy: Track = self.copy()
-    #     for single_datasource in self_copy._datasource_list:
-    #         if isinstance(single_datasource._data, Track): # Makes sure it's an Element
-    #             single_datasource._data *= operand
-    #     return self_copy
-    
-    # def __rmul__(self, operand: any) -> 'Song':
-    #     return self.__mul__(operand)
+    def __mul__(self, operand: any) -> 'Song':
+        return self.copy().__imul__(operand)
+            
+    def __imul__(self, operand: any) -> 'Song':
+        match operand:
+            case o.Operand():   # Only propagates Operands!
+                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data *= operand
+        return self
+
+    def __truediv__(self, operand: any) -> 'Song':
+        return self.copy().__itruediv__(operand)
+            
+    def __itruediv__(self, operand: any) -> 'Song':
+        match operand:
+            case o.Operand():   # Only propagates Operands!
+                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data /= operand
+        return self
+

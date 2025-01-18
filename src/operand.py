@@ -151,7 +151,7 @@ class Operand:
         self._initiated: bool   = False
         self._set: bool = False # Intended to be used by Frame subclasses to flag set Operands
         self._index: int = 0
-        self._source: Operand = None    # Lets the receiver know where the Operand comes from
+        self._source_operand: Operand = None    # Lets the receiver know where the Operand comes from
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -168,6 +168,18 @@ class Operand:
             case Operand(): self._current_node = self._current_node._next_operand
             case _:         self._current_node = None
         return previous_node
+
+    def set_source_operand(self, source_operand: 'Operand' = None) -> 'Operand':
+        if isinstance(source_operand, Operand):
+            self._source_operand = source_operand
+        return self
+
+    def get_source_operand(self) -> 'Operand':
+        return self._source_operand
+
+    def reset_source_operand(self) -> 'Operand':
+        self._source_operand = None
+        return self
 
     def len(self) -> int:
         list_size = 0
