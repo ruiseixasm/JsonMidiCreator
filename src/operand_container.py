@@ -941,20 +941,24 @@ class Song(Container):
 
     # operand is the pusher >>
     def __rrshift__(self, operand: o.Operand) -> 'Song':
-        if isinstance(operand, (Clip, oe.Element)):
-            if isinstance(operand, oe.Element):
-                operand = Clip(operand) # Track() already does the copy
-            else:
-                operand = operand.copy()
-            for single_clip in self:
-                if isinstance(single_clip, Clip):
-                    if single_clip._midi_track == operand._midi_track:
-                        single_clip << single_clip.__rrshift__(operand)
-                        return self
-            self._datasource_list.append(od.DataSource( operand ))
-        elif isinstance(operand, of.Frame):
-            o.logging.warning(f"Frames don't work on Songs!")
-        return self
+        match operand:
+            case Song():
+                new_song: Song = Song()
+                new_song._datasource_list = [
+                    data_clip.copy() for data_clip in operand._datasource_list
+                ]
+                new_song._datasource_list.extend(
+                    data_clip.copy() for data_clip in self._datasource_list
+                )
+                return new_song
+            case Clip():
+                new_song: Song = Song()
+                new_song._datasource_list = [ od.DataSource( operand.copy() ) ]
+                new_song._datasource_list.extend(
+                    data_clip.copy() for data_clip in self._datasource_list
+                )
+                return new_song
+        return self.copy()
 
     def __radd__(self, operand: Clip | oe.Element) -> 'Song':
         if isinstance(operand, (Clip, oe.Element)):
