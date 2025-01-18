@@ -966,8 +966,17 @@ class Song(Container):
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: o.Operand) -> 'Song':
-        super().__lshift__(operand)
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Clip, od.Playlist)))
+        match operand:
+            case Song():
+                self._datasource_list.extend(
+                    data_clip.copy() for data_clip in operand._datasource_list
+                )
+            case Clip():
+                self._datasource_list.append( od.DataSource( operand.copy() ) )
+            case o.Operand():   # Only propagates Operands!
+                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data << operand
         return self
 
     # operand is the pusher >>
