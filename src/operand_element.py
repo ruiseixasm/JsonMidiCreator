@@ -406,7 +406,7 @@ class Element(o.Operand):
                 ra.Beats(position_beats + self._position_beats)
             )
         else:
-            self_position_ms: Fraction = self._staff_reference.getMillis_rational(ra.Beats(self._position_beats))
+            self_position_ms: Fraction = self._staff_reference.getMillis_rational( ra.Beats(self._position_beats) )
         self_duration_ms: Fraction = self._staff_reference.getMillis_rational( ra.Duration(self._duration_notevalue) )
 
         return self_position_ms, self_duration_ms
