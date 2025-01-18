@@ -210,7 +210,7 @@ class Element(o.Operand):
         self_numerator: int = self._staff_reference._time_signature._top
         self_denominator: int = self._staff_reference._time_signature._bottom
         self_position: float = float(self._position_beats)
-        self_duration: float = self._staff_reference.convertToBeats(self // ra.Duration()) % od.DataSource( float() )
+        self_duration: float = self._staff_reference.convertToBeats(ra.Duration(self._duration_notevalue)) % od.DataSource( float() )
         self_tempo: float = float(self._staff_reference._tempo)
         if isinstance(position_beats, Fraction):
             self_position = float(position_beats + self._position_beats)
@@ -470,7 +470,7 @@ class Clock(Element):
 
         pulses_per_note: int = self._pulses_per_quarternote * 4
         pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
-        total_clock_pulses: int = self._staff_reference.convertToBeats( self // ra.Duration() ) * pulses_per_beat % int()
+        total_clock_pulses: int = self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) ) * pulses_per_beat % int()
 
         if total_clock_pulses > 0:
 
@@ -629,7 +629,7 @@ class Tiable(Element):
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Tiable"
-        self_midilist[0]["duration"]    = float(self._staff_reference.convertToBeats( self // ra.Duration() )._rational * self._gate)
+        self_midilist[0]["duration"]    = float(self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate)
         self_midilist[0]["velocity"]    = self._velocity
         return self_midilist
 
