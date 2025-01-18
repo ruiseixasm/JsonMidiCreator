@@ -594,14 +594,11 @@ class Clip(Container):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case od.FromSong(): # If it comes from Song its destiny is the Clip
+                self << self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _: # Works for Frame too
-                # If it comes from Song its destiny is the Clip
-                if isinstance(operand, o.Operand) and isinstance(operand.get_source_operand(), Song):
-                    operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-                    self << operand
-                else:
-                    for single_datasource in self._datasource_list:
-                        single_datasource._data << operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data << operand
         return self
 
     def empty_copy(self, *parameters) -> 'Clip':
@@ -679,14 +676,11 @@ class Clip(Container):  # Just a container of Elements
                 for single_element in operand:
                     if isinstance(single_element, oe.Element):
                         self._datasource_list.append(od.DataSource( single_element.copy() ))
+            case od.FromSong(): # If it comes from Song its destiny is the Clip
+                self += self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
-                # If it comes from Song its destiny is the Clip
-                if isinstance(operand, o.Operand) and isinstance(operand.get_source_operand(), Song):
-                    operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-                    self += operand
-                else:
-                    for single_datasource in self._datasource_list:
-                        single_datasource._data += operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data += operand
         return self
 
     def __sub__(self, operand: any) -> 'Clip':
@@ -700,14 +694,11 @@ class Clip(Container):  # Just a container of Elements
                 return operand 
             case oe.Element() | Container():
                 return super().__isub__(operand)
+            case od.FromSong(): # If it comes from Song its destiny is the Clip
+                self -= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
-                # If it comes from Song its destiny is the Clip
-                if isinstance(operand, o.Operand) and isinstance(operand.get_source_operand(), Song):
-                    operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-                    self -= operand
-                else:
-                    for single_datasource in self._datasource_list:
-                        single_datasource._data -= operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data -= operand
         return self
 
     # multiply with a scalar
@@ -752,14 +743,11 @@ class Clip(Container):  # Just a container of Elements
                     operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
                 self *= self_repeating
+            case od.FromSong(): # If it comes from Song its destiny is the Clip
+                self *= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
-                # If it comes from Song its destiny is the Clip
-                if isinstance(operand, o.Operand) and isinstance(operand.get_source_operand(), Song):
-                    operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-                    self *= operand
-                else:
-                    for single_datasource in self._datasource_list:
-                        single_datasource._data *= operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data *= operand
         return self
             
     def __rmul__(self, operand: any) -> 'Clip':
@@ -773,14 +761,11 @@ class Clip(Container):  # Just a container of Elements
         match operand:
             case int():
                 return super().__itruediv__(operand)
+            case od.FromSong(): # If it comes from Song its destiny is the Clip
+                self /= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
-                # If it comes from Song its destiny is the Clip
-                if isinstance(operand, o.Operand) and isinstance(operand.get_source_operand(), Song):
-                    operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-                    self /= operand
-                else:
-                    for single_datasource in self._datasource_list:
-                        single_datasource._data /= operand
+                for single_datasource in self._datasource_list:
+                    single_datasource._data /= operand
         return self
 
     def __or__(self, operand: any) -> 'Clip':
@@ -973,10 +958,9 @@ class Song(Container):
                 )
             case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
-            case o.Operand():   # Only propagates Operands!
-                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+            case _:
                 for single_datasource in self._datasource_list: 
-                    single_datasource._data << operand
+                    single_datasource._data << od.FromSong(operand)
         return self
 
     # operand is the pusher >>
@@ -1011,10 +995,9 @@ class Song(Container):
                 )
             case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
-            case o.Operand():   # Only propagates Operands!
-                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+            case _:
                 for single_datasource in self._datasource_list: 
-                    single_datasource._data += operand
+                    single_datasource._data += od.FromSong(operand)
         return self
 
     def __sub__(self, operand: any) -> 'Song':
@@ -1030,31 +1013,24 @@ class Song(Container):
                 self._datasource_list = [
                     data_clip for data_clip in self._datasource_list if data_clip._data != operand
                 ]
-            case o.Operand():   # Only propagates Operands!
-                operand.set_source_operand(self)    # Set the operand source as this Song (self)
+            case _:
                 for single_datasource in self._datasource_list: 
-                    single_datasource._data -= operand
+                    single_datasource._data -= od.FromSong(operand)
         return self
 
     def __mul__(self, operand: any) -> 'Song':
         return self.copy().__imul__(operand)
             
     def __imul__(self, operand: any) -> 'Song':
-        match operand:
-            case o.Operand():   # Only propagates Operands!
-                operand.set_source_operand(self)    # Set the operand source as this Song (self)
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data *= operand
+        for single_datasource in self._datasource_list: 
+            single_datasource._data *= od.FromSong(operand)
         return self
 
     def __truediv__(self, operand: any) -> 'Song':
         return self.copy().__itruediv__(operand)
             
     def __itruediv__(self, operand: any) -> 'Song':
-        match operand:
-            case o.Operand():   # Only propagates Operands!
-                operand.set_source_operand(self)    # Set the operand source as this Song (self)
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data /= operand
+        for single_datasource in self._datasource_list: 
+            single_datasource._data /= od.FromSong(operand)
         return self
 
