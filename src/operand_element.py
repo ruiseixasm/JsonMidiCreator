@@ -361,7 +361,7 @@ class Element(o.Operand):
         self_operand -= operand
         return self << self_operand
 
-    def __mul__(self, operand: any) -> 'Element':
+    def __mul__(self, operand: any) -> Union['Element', 'Clip']:
         self_copy: Element = self.copy()
         return self_copy.__imul__(operand)
 

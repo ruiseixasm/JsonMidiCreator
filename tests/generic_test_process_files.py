@@ -180,7 +180,7 @@ results_list.append({
 
 # Global Staff setting up
 defaults << Tempo(120) << Measures(1)
-single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
+single_clock: Clip = Clock() * 1 << MidiTrack(0, "Clock Track")
 composition: Song = Song(single_clock)
 
 original_save       = Load("json/testing/_Save_Play_p.7.2_first_note.json")
@@ -208,7 +208,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.8_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.8_sequence.json")
 start_time = time.time()
-triplets_one = (Note3("E") << NoteValue(1/16)) * 8
+triplets_one: Clip = (Note3("E") << NoteValue(1/16)) * 8
 old_composition: Song = triplets_one + single_clock
 new_composition: Song = triplets_one + composition
 triplets_one + composition >> Save("json/testing/_Save_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
@@ -223,7 +223,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.9_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.9_sequence.json")
 start_time = time.time()
-triplets_two = (Note3("G") << NoteValue(1/16)) * 8
+triplets_two: Clip = (Note3("G") << NoteValue(1/16)) * 8
 triplets_two + single_clock >> Export("json/testing/_Export_3.1_triple_note3.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
