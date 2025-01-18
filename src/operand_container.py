@@ -898,18 +898,8 @@ class Song(Container):
     def __init__(self, *operands):
         super().__init__()
         for single_operand in operands:
-            if isinstance(single_operand, (Clip, oe.Element)):
-                if isinstance(single_operand, oe.Element):
-                    single_operand = Clip(single_operand)
-                else:
-                    single_operand = single_operand.copy()
-                for single_clip in self:
-                    if isinstance(single_clip, Clip):
-                        if single_clip._midi_track == single_operand._midi_track:
-                            single_clip << single_clip.__add__(single_operand)
-                            continue
-                self._datasource_list.append(od.DataSource( single_operand ))
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, (Clip, od.Playlist)))
+            if isinstance(single_operand, (Clip, od.Playlist)):
+                self._datasource_list.append(od.DataSource( single_operand.copy() ))
 
     def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
