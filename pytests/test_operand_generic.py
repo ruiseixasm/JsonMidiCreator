@@ -371,7 +371,7 @@ def test_full_conversions():
         assert default_staff.convertToDuration(time_unit) == 10 * (1/1)
         assert default_staff.convertToLength(time_unit) == 10.0
 
-test_full_conversions()
+# test_full_conversions()
 
 
 # def test_multi_testing():
