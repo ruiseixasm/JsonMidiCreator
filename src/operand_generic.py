@@ -126,7 +126,7 @@ class Pitch(Generic):
         self._natural: bool                     = False
         self._scale: Scale                      = Scale([])
 
-        self._staff_reference: Staff            = defaults // Staff()
+        self._staff_reference: Staff            = defaults._staff
 
         super().__init__(*parameters)
 
