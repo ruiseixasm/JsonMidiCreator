@@ -616,18 +616,7 @@ class Clip(Container):  # Just a container of Elements
             case Song():
                 return operand + self
             case Clip():
-
-                if operand.len() > 0:
-                    left_end_position: ra.Position = operand.finish()
-                    right_start_position: ra.Position = self.start()
-                    length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
-                    # Convert Length to Position
-                    add_position: ra.Position = ra.Position(length_shift)
-                    right_clip: Clip = self + add_position  # Offsets the content and it's an implicit copy
-                    added_clip: Clip = operand.copy()       # Preserves the left_clip configuration
-                    added_clip._datasource_list.extend(right_clip._datasource_list)
-                    return added_clip.set_staff_reference()
-                return self.copy()
+                return Song(operand, self)
             case oe.Element():
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position

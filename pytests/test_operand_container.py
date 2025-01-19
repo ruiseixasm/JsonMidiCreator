@@ -103,7 +103,7 @@ def test_rrshift_clip():
 
     print("------")
     two_notes_original = two_notes.copy()
-    four_notes = two_notes >> two_notes     # moves the second pair of notes to the next measure (1)!
+    four_notes = two_notes * two_notes     # moves the second pair of notes to the next measure (1)!
     assert two_notes == two_notes_original  # Original two_notes is not changed!
     assert four_notes.len() == 4
     # Last two notes change position, but the clip position remains the same, Element Stacking!
@@ -412,7 +412,7 @@ def test_position_shift():
     print(four_notes_2 % First() % Beats() % int())
     assert four_notes_2 % First() % Beats() == 0
 
-    eight_notes = four_notes_1 >> four_notes_2  # Moves to the next Measure
+    eight_notes = four_notes_1 * four_notes_2  # * Moves four_notes_2 to the next Measure
     print(eight_notes % First() % Beats() % int())
     assert eight_notes % First() % Beats() == 0
     print(eight_notes % Middle(5) % Beats() % int())
