@@ -632,16 +632,17 @@ class Clip(Container):  # Just a container of Elements
                 new_song._datasource_list.insert(0, od.DataSource( self ))
                 return new_song # Operand Song replaces self Clip
             case Clip():
-                operand_copy: Clip = operand.copy()
-                operand_copy._staff = self._staff
-                operand_copy.set_staff_reference()
-                if operand_copy._position_beats > self._position_beats:
-                    for single_element in operand_copy:
-                        single_element += ra.Beats(operand_copy._position_beats - self._position_beats)
-                elif operand_copy._position_beats < self._position_beats:
-                    self += ra.Beats(self._position_beats - operand_copy._position_beats) # NO IMPLICIT COPY
-                    self._position_beats = operand_copy._position_beats
-                self._datasource_list.extend( operand_copy._datasource_list )
+                operand_elements = [
+                    single_data._data.copy().set_staff_reference(self._staff) for single_data in operand._datasource_list
+                        if isinstance(single_data._data, oe.Element)
+                ]
+                if operand._position_beats > self._position_beats:
+                    for single_element in operand_elements:
+                        single_element += ra.Beats(operand._position_beats - self._position_beats)
+                elif operand._position_beats < self._position_beats:
+                    self += ra.Beats(self._position_beats - operand._position_beats) # NO IMPLICIT COPY
+                    self._position_beats = operand._position_beats
+                self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
             case oe.Element():
                 return super().__iadd__(operand)
             case list():
@@ -678,9 +679,20 @@ class Clip(Container):  # Just a container of Elements
         self_copy: Clip = self.copy()
         return self_copy.__imul__(operand)
     
-    # in-place multiply with a scalar
+    # in-place multiply (NO COPY!)
     def __imul__(self, operand: o.Operand) -> 'Clip':
         match operand:
+            case Clip():
+                left_end_position: ra.Position = self.finish()
+                right_start_position: ra.Position = operand.start()
+                length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
+                # Convert Length to Position
+                add_position: ra.Position = ra.Position(length_shift)
+                operand_elements = [
+                    (single_data._data + add_position).set_staff_reference(self._staff) for single_data in operand._datasource_list
+                        if isinstance(single_data._data, oe.Element)
+                ]
+                self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
             case int() | float():
                 if isinstance(operand, int):
                     self_length: ra.Length = self.length().roundMeasures()  # Length is NOT a Position
@@ -715,16 +727,6 @@ class Clip(Container):  # Just a container of Elements
                     operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
                 self *= self_repeating
-            case Clip():
-                left_end_position: ra.Position = self.finish()
-                right_start_position: ra.Position = operand.start()
-                length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
-                # Convert Length to Position
-                add_position: ra.Position = ra.Position(length_shift)
-                right_clip: Clip = operand + add_position  # Offsets the content and it's an implicit copy
-                right_clip._staff = self._staff
-                right_clip.set_staff_reference()
-                self._datasource_list.extend(right_clip._datasource_list)
             case od.FromSong(): # If it comes from Song its destiny is the Clip
                 self *= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
