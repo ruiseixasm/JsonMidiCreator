@@ -607,9 +607,9 @@ class Clip(Container):  # Just a container of Elements
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(element_length)
-                right_clip: Clip = self + add_position  # Implicit copy
-                right_clip._datasource_list.insert(0, od.DataSource( operand.copy().set_staff_reference(self._staff) ))
-                return right_clip
+                new_clip: Clip = self + add_position  # Implicit copy
+                new_clip._datasource_list.insert(0, od.DataSource( operand.copy().set_staff_reference(self._staff) ))
+                return new_clip
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
                 return self
