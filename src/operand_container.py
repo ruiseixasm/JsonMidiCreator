@@ -399,9 +399,9 @@ class Clip(Container):  # Just a container of Elements
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
         if isinstance(staff_reference, og.Staff):
             self._staff << staff_reference
-            for single_element in self:
-                if isinstance(single_element, oe.Element):
-                    single_element.set_staff_reference(self._staff)
+        for single_element in self:
+            if isinstance(single_element, oe.Element):
+                single_element.set_staff_reference(self._staff)
         return self
 
     def get_staff_reference(self) -> 'og.Staff':
@@ -619,20 +619,20 @@ class Clip(Container):  # Just a container of Elements
                 if operand.len() > 0:
                     left_end_position: ra.Position = operand.finish()
                     right_start_position: ra.Position = self.start()
-                    length_shift: ra.Length = self._staff.convertToLength(left_end_position - right_start_position).roundMeasures()
+                    length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
                     # Convert Length to Position
                     add_position: ra.Position = ra.Position(length_shift)
                     right_clip: Clip = self + add_position  # Offsets the content and it's an implicit copy
                     added_clip: Clip = operand.copy()       # Preserves the left_clip configuration
                     added_clip._datasource_list.extend(right_clip._datasource_list)
-                    return added_clip
+                    return added_clip.set_staff_reference()
                 return self.copy()
             case oe.Element():
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(element_length)
                 right_clip: Clip = self + add_position  # Implicit copy
-                right_clip._datasource_list.insert(0, od.DataSource( operand.copy() ))
+                right_clip._datasource_list.insert(0, od.DataSource( operand.copy().set_staff_reference(self._staff) ))
                 return right_clip
             case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
@@ -743,13 +743,22 @@ class Clip(Container):  # Just a container of Elements
                     operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
                 self *= self_repeating
+            case Clip():
+                left_end_position: ra.Position = self.finish()
+                right_start_position: ra.Position = operand.start()
+                length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
+                # Convert Length to Position
+                add_position: ra.Position = ra.Position(length_shift)
+                right_clip: Clip = operand + add_position  # Offsets the content and it's an implicit copy
+                self._datasource_list.extend(right_clip._datasource_list)
+                self.set_staff_reference()
             case od.FromSong(): # If it comes from Song its destiny is the Clip
                 self *= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data *= operand
         return self
-            
+
     def __rmul__(self, operand: any) -> 'Clip':
         return self.__mul__(operand)
     
