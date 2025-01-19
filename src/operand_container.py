@@ -589,13 +589,20 @@ class Clip(Container):  # Just a container of Elements
             empty_copy << single_parameter
         return empty_copy
     
-    # operand is the pusher >>
+    # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.Operand) -> 'Clip':
         match operand:
             case Song():
-                return operand + self
+                wrapper_song: Song = Song()
+                wrapper_song._datasource_list = [
+                    data_clip for data_clip in operand._datasource_list
+                ]
+                wrapper_song._datasource_list.append( od.DataSource( self ) )
+                return wrapper_song
             case Clip():
-                return Song(operand, self)
+                wrapper_song: Song = Song()
+                wrapper_song._datasource_list = [ od.DataSource( operand ), od.DataSource( self ) ]
+                return wrapper_song
             case oe.Element():
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
@@ -610,7 +617,7 @@ class Clip(Container):  # Just a container of Elements
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
                 return super().__rrshift__(operand)
-        return self.copy()
+        return self
 
     def __add__(self, operand: any) -> 'Clip':
         self_copy: Clip = self.copy()
@@ -936,26 +943,26 @@ class Song(Container):
                     single_datasource._data << od.FromSong(operand)
         return self
 
-    # operand is the pusher >>
+    # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.Operand) -> 'Song':
         match operand:
             case Song():
-                new_song: Song = Song()
-                new_song._datasource_list = [
-                    data_clip.copy() for data_clip in operand._datasource_list
+                wrapper_song: Song = Song()
+                wrapper_song._datasource_list = [
+                    data_clip for data_clip in operand._datasource_list
                 ]
-                new_song._datasource_list.extend(
-                    data_clip.copy() for data_clip in self._datasource_list
+                wrapper_song._datasource_list.extend(
+                    data_clip for data_clip in self._datasource_list
                 )
-                return new_song
+                return wrapper_song
             case Clip():
-                new_song: Song = Song()
-                new_song._datasource_list = [ od.DataSource( operand.copy() ) ]
-                new_song._datasource_list.extend(
-                    data_clip.copy() for data_clip in self._datasource_list
+                wrapper_song: Song = Song()
+                wrapper_song._datasource_list = [ od.DataSource( operand ) ]
+                wrapper_song._datasource_list.extend(
+                    data_clip for data_clip in self._datasource_list
                 )
-                return new_song
-        return self.copy()
+                return wrapper_song
+        return self
 
     def __add__(self, operand: any) -> 'Song':
         return self.copy().__iadd__(operand)
