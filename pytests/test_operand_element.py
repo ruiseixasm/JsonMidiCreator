@@ -186,7 +186,9 @@ def test_note_shift():
 
 def test_note_scale():
 
-    major_note: Note = Note(Scale("Major"))
+    defaults << Scale("Major")
+    major_note: Note = Note()
+    defaults << Scale([])
 
     assert major_note % Pitch() % Key() == "C"
     major_note << Degree(2)
@@ -196,7 +198,9 @@ def test_note_scale():
     major_note += 1 # integers are considered degree by Note
     assert major_note % Pitch() % Key() == "F"
 
-    minor_note: Note = Note(Scale("minor"))
+    defaults << Scale("minor")
+    minor_note: Note = Note()
+    defaults << Scale([])
 
     assert minor_note % Pitch() % Key() == "A"
     minor_note << Degree(2)
@@ -235,13 +239,16 @@ def test_chord_mod():
 
     assert chord_string == "I"
 
-    triad_c_major: Chord = Chord(KeySignature())  # C Major scale
+    triad_c_major: Chord = Chord()  # C Major scale
     three_notes: list[Note] = triad_c_major.get_chord_notes()
     assert three_notes[0] == "C"
     assert three_notes[1] == "E"
     assert three_notes[2] == "G"
 
-    triad_e_minor: Chord = Chord(KeySignature(1, Minor()), "minor")  # E minor scale
+    defaults << KeySignature(1, Minor())    # E minor scale
+    triad_e_minor: Chord = Chord("minor")
+    defaults << KeySignature()
+
     three_notes = triad_e_minor.get_chord_notes()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"
@@ -251,7 +258,10 @@ def test_chord_mod():
     assert three_notes[2] == "B"
 
     print("------")
-    triad_e_minor: Chord = Chord(KeySignature(1, Minor()))  # E minor scale
+    defaults << KeySignature(1, Minor())    # E minor scale
+    triad_e_minor: Chord = Chord()  
+    defaults << KeySignature()
+
     three_notes = triad_e_minor.get_chord_notes()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"

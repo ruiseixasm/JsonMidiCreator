@@ -119,7 +119,7 @@ class TimeSignature(Generic):
 class Pitch(Generic):
     def __init__(self, *parameters):
         self._staff_reference: Staff            = defaults._staff
-        self._key: int                          = int( self._staff_reference._key_signature % float() )
+        self._key: int                          = self._staff_reference % ou.Key() // int()
         self._octave: int                       = 4     # By default it's the 4th Octave!
         self._degree: int                       = 1     # By default it's Degree 1
         self._sharp: int                        = 0     # By default no Sharp or Flat
@@ -382,7 +382,7 @@ class Pitch(Generic):
         return False
     
     def getSerialization(self) -> dict:
-        
+
         serialization = super().getSerialization()
         serialization["parameters"]["key"]              = self.serialize( self._key )
         serialization["parameters"]["octave"]           = self.serialize( self._octave )
@@ -1088,6 +1088,10 @@ class Staff(Generic):
             case ra.Measures():         return ra.Measures(self._measures)
             case ou.Measure():          return ou.Measure(self._measures)
             # Calculated Values
+            case ou.Key():
+                if self._scale.hasScale():
+                    return self._scale % ou.Key()
+                return self._key_signature % ou.Key()
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():
@@ -1095,7 +1099,8 @@ class Staff(Generic):
             case ra.StepsPerMeasure():
                 return ra.StepsPerMeasure() \
                     << (self % ra.StepsPerNote() % Fraction()) * (self % ra.NotesPerMeasure() % Fraction())
-            case _:                     return super().__mod__(operand)
+            case _:
+                return super().__mod__(operand)
 
     def __eq__(self, other: 'Staff') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists

@@ -791,12 +791,12 @@ class Key(PitchParameter):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case float():           return self % float()
                     case str():
                         note_key = self % int() % 12
                         note_key += 12 * (self._flat._unit != 0)
                         return Key._keys[note_key]
-                    case _:                 return super().__mod__(operand)
+                    case _:
+                        return super().__mod__(operand)
 
             case int():
                 return self._unit % 12

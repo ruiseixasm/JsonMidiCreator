@@ -125,9 +125,12 @@ def test_pitch_key_signature():
         "C",
         "G", "D", "A", "E", "B", "F#", "C#"
     ]
-    pitch_key = Pitch()
     for signature in range(len(major_keys_signatures)): # Major
-        pitch_key << KeySignature(signature - 7)
+
+        defaults << KeySignature(signature - 7)
+        pitch_key: Pitch = Pitch()
+        defaults << KeySignature()
+
         print(f"Major Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % str() == major_keys_signatures[signature]
 
@@ -137,7 +140,11 @@ def test_pitch_key_signature():
         "E", "B", "F#", "C#", "G#", "D#", "A#"
     ]
     for signature in range(len(minor_keys_signatures)): # Minor
-        pitch_key << KeySignature(signature - 7, Minor())
+        
+        defaults << KeySignature(signature - 7, Minor())
+        pitch_key: Pitch = Pitch()
+        defaults << KeySignature()
+
         print(f"minor Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % str() == minor_keys_signatures[signature]
 
@@ -165,9 +172,13 @@ def test_pitch_key_signature():
         print(scale_mode_list)
         assert key_signature_list == scale_mode_list
 
-    E_minor_key: Pitch = Pitch(KeySignature("#", Minor()))
+    defaults << KeySignature("#", Minor())
+    E_minor_key: Pitch = Pitch()
+    defaults << KeySignature()
+
     assert E_minor_key % str() == "E"
-    E_minor_key << Sharps(2) << Degree(3)
+    defaults << Sharps(2)
+    E_minor_key << Degree(3)
     assert E_minor_key % str() == "D"
     B_minor_scale_list: list = ["B", "C#", "D", "E", "F#", "G", "A"]
     # Sharp and Flat shall not be set by Degree
@@ -176,6 +187,8 @@ def test_pitch_key_signature():
         E_minor_key << Degree(key_degree)
         assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
+
+    defaults << Sharps(0)
 
 # test_pitch_key_signature()
 
