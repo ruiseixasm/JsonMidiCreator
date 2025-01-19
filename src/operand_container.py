@@ -658,7 +658,9 @@ class Clip(Container):  # Just a container of Elements
                 new_song._datasource_list.insert(0, od.DataSource( self ))
                 return new_song # Operand Song replaces self Clip
             case Clip():
-                operand_copy: Clip = operand.copy().set_staff_reference(self._staff)
+                operand_copy: Clip = operand.copy()
+                operand_copy._staff = self._staff
+                operand_copy.set_staff_reference()
                 if operand_copy._position_beats > self._position_beats:
                     for single_element in operand_copy:
                         single_element += ra.Beats(operand_copy._position_beats - self._position_beats)
@@ -746,8 +748,9 @@ class Clip(Container):  # Just a container of Elements
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(length_shift)
                 right_clip: Clip = operand + add_position  # Offsets the content and it's an implicit copy
+                right_clip._staff = self._staff
+                right_clip.set_staff_reference()
                 self._datasource_list.extend(right_clip._datasource_list)
-                self.set_staff_reference()
             case od.FromSong(): # If it comes from Song its destiny is the Clip
                 self *= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
             case _:
