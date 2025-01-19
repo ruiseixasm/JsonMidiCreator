@@ -40,14 +40,7 @@ class Container(o.Operand):
         self._datasource_list: list[Type[od.DataSource]] = []
         self._datasource_iterator: int = 0
         for single_operand in operands:
-            match single_operand:
-                case Container():
-                    self._datasource_list.extend(self.deep_copy(single_operand._datasource_list))
-                case list():
-                    for operand in single_operand:
-                        self._datasource_list.append(od.DataSource( self.deep_copy(operand) ))
-                case _:
-                    self._datasource_list.append(od.DataSource( self.deep_copy(single_operand) ))
+            self << single_operand
         
     def __getitem__(self, index: int) -> any:
         return self._datasource_list[index]._data
@@ -197,8 +190,7 @@ class Container(o.Operand):
                     self << single_operand
             case _: # Works for Frame too
                 for single_datasource in self._datasource_list:
-                    if isinstance(single_datasource._data, o.Operand):
-                        single_datasource._data << operand
+                    single_datasource._data << operand
         return self
 
     def empty_copy(self, *parameters) -> 'Container':
@@ -573,9 +565,8 @@ class Clip(Container):  # Just a container of Elements
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
-            case og.Staff():
-                self._staff << operand
-            case ra.Tempo() | og.TimeSignature() | ra.Quantization():
+
+            case og.Staff() | ra.StaffData():
                 self._staff << operand
             case ou.MidiTrack():
                 self._midi_track << operand
@@ -589,7 +580,7 @@ class Clip(Container):  # Just a container of Elements
             case list():
                 self._datasource_list = [
                     od.DataSource( self.deep_copy(single_operand) )
-                        for single_operand in operand
+                        for single_operand in operand if isinstance(single_operand, oe.Element)
                 ]
             case tuple():
                 for single_operand in operand:
@@ -899,17 +890,6 @@ class Clip(Container):  # Just a container of Elements
         return self_left, self_right
 
 class Song(Container):
-    def __init__(self, *operands):
-        super().__init__()
-        for single_operand in operands:
-            match single_operand:
-                case Song():
-                    self._datasource_list.extend(
-                        data_clip.copy() for data_clip in single_operand._datasource_list
-                    )
-                case Clip() | od.Playlist():
-                    self._datasource_list.append(od.DataSource( single_operand.copy() ))
-
 
     def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
@@ -950,11 +930,19 @@ class Song(Container):
     def __lshift__(self, operand: o.Operand) -> 'Song':
         match operand:
             case Song():
-                self._datasource_list.extend(
-                    data_clip.copy() for data_clip in operand._datasource_list
-                )
+                super().__lshift__(operand)
             case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():
+                self._datasource_list = [
+                    od.DataSource( self.deep_copy(single_operand) )
+                        for single_operand in operand if isinstance(single_operand, (Clip, od.Playlist))
+                ]
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
             case _:
                 for single_datasource in self._datasource_list: 
                     single_datasource._data << od.FromSong(operand)

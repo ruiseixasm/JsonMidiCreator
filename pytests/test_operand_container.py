@@ -32,7 +32,7 @@ import sys
 
 def test_container_mod():
 
-    keys_container: Container = Container(Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch())
+    keys_container: Container = Container([Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch()])
     assert keys_container.len() == 7
     for single_item in keys_container:
         assert single_item == "C"
@@ -49,7 +49,7 @@ def test_container_mod():
 def test_clip_mod():
 
     # Perform the operation
-    clip_1 = Clip(Note("A"), Note("B"))
+    clip_1 = Clip([Note("A"), Note("B")])
     clip_2 = Note("A") + Note("B")
 
     clip_1 % Position() % Fraction() >> Print() # 0
@@ -65,7 +65,7 @@ def test_clip_mod():
     assert clip_1 == clip_2
     
 
-    chords_clip: Clip = Clip(Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord())
+    chords_clip: Clip = Clip([Chord(), Chord(), Chord(), Chord(), Chord(), Chord(), Chord()])
     assert chords_clip.len() == 7
     for single_item in chords_clip:
         assert single_item == "C"
@@ -473,7 +473,7 @@ def test_clip_content():
     for item in clip_elements:
         assert isinstance(item, Element)
 
-    clip_items: Clip = Clip(Note(), Channel(1), Velocity(100), Rest())
+    clip_items: Clip = Clip([Note(), Channel(1), Velocity(100), Rest()])
     assert clip_items.len() == 2
     for item in clip_items:
         assert isinstance(item, Element)
@@ -486,11 +486,11 @@ def test_clip_content():
 
 def test_song_operations():
 
-    clip_1: Clip = Clip(Clock())
-    clip_2: Clip = Clip(Note())
+    clip_1: Clip = Clip([Clock()])
+    clip_2: Clip = Clip([Note()])
 
-    song_1: Song = Song(clip_1, clip_2)
-    song_2: Song = Song(clip_2, clip_1)
+    song_1: Song = Song([clip_1, clip_2])
+    song_2: Song = Song([clip_2, clip_1])
 
     assert song_1.len() == 2
     assert song_2.len() == 2
@@ -501,9 +501,5 @@ def test_song_operations():
 
     assert (song_1 >> clip_2).len() == 3
     assert (song_1 >> song_2).len() == 4
-    
-    assert Song(song_2, clip_2).len() == 3
-    assert Song(song_2, song_1).len() == 4
-
 
 # test_song_operations()
