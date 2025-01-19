@@ -342,12 +342,21 @@ class Element(o.Operand):
                 self_clip += self
                 self_clip += operand
                 return self_clip
+            # For efficient reasons
+            case ra.Length():
+                length_notevalue: Fraction = self._staff_reference.convertToDuration(operand)._rational
+                self._duration_notevalue += length_notevalue
+            case ra.Position():
+                self._position_beats += operand._rational
+            case ra.Duration():
+                self._duration_notevalue += operand._rational
             case _:
-                if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
+                if isinstance(operand, ou.TimeUnit):    # avoids erroneous behavior
                     operand = self._staff_reference.convertToBeats(operand)
                 self_operand: any = self % operand
                 self_operand += operand
                 return self << self_operand
+        return self
 
     def __sub__(self, operand: any) -> 'Element':
         self_copy: Element = self.copy()
@@ -355,11 +364,22 @@ class Element(o.Operand):
 
     def __isub__(self, operand: any) -> 'Element':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
-            operand = self._staff_reference.convertToBeats(operand)
-        self_operand: any = self % operand
-        self_operand -= operand
-        return self << self_operand
+        match operand:
+            # For efficient reasons
+            case ra.Length():
+                length_notevalue: Fraction = self._staff_reference.convertToDuration(operand)._rational
+                self._duration_notevalue -= length_notevalue
+            case ra.Position():
+                self._position_beats -= operand._rational
+            case ra.Duration():
+                self._duration_notevalue -= operand._rational
+            case _:
+                if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
+                    operand = self._staff_reference.convertToBeats(operand)
+                self_operand: any = self % operand
+                self_operand -= operand
+                return self << self_operand
+        return self
 
     def __mul__(self, operand: any) -> Union['Element', 'Clip']:
         self_copy: Element = self.copy()
