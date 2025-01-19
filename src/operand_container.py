@@ -416,9 +416,8 @@ class Clip(Container):  # Just a container of Elements
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
-            case ra.Length():       return self.length()
-            case ra.Duration():     return self.duration()
             case ra.Position():     return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
+            case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
             case ra.Tempo() | ou.KeySignature() | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
                 | ra.Quantization() | og.Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
@@ -609,7 +608,7 @@ class Clip(Container):  # Just a container of Elements
                 add_position: ra.Position = ra.Position(element_length)
                 self += add_position  # No copy!
                 self._datasource_list.insert(0, od.DataSource( operand.set_staff_reference(self._staff) ))
-            case ra.Position() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
+            case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
                 return self
             case od.Playlist():

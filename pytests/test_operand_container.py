@@ -250,19 +250,19 @@ def test_clip_composition():
 
     measure_bell: Clip = Nt(DrumKit(34)) * 1 * 4
     print(f"Length: {measure_bell % Length() % float()}")
-    assert measure_bell % Length() == Measure(4)
-    print(f"Length: {measure_bell % Length() % float()}")
     assert measure_bell % Length() == Measures(3.25)
+    print(f"Length: {measure_bell % Length() % float()}")
+    assert measure_bell % Length() == Measure(4)
     print(f"Position: {measure_bell % Position() % float()}")
     assert measure_bell % Position() == 0.0
 
     print("------")
     beat_tick: Clip = (Nt(DrumKit(35)) * 3 + Beat(1)) * 4   # Position basic operations work on elements
-    print(f"Measure: {beat_tick % Length() % Measure() % int()}")
-    assert beat_tick % Length() == Measure(4)
     print(f"Measures: {beat_tick % Length() % Measures() % float()}")
     # assert beat_tick % Finish() == Measures(4.0)
     assert beat_tick % Length() == Measures(3.75)
+    print(f"Measure: {beat_tick % Length() % Measure() % int()}")
+    assert beat_tick % Length() == Measure(4)
     print(f"Position: {beat_tick % Position() % Measures() % float()}")
     assert beat_tick % Position() == 0.0    # Position basic operations work on elements
 

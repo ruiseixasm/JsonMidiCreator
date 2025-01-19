@@ -412,14 +412,6 @@ class Playlist(Data):
                             self_copy_dict["time_ms"] = round(self_copy_dict["time_ms"] + increase_position_ms, 3)
                 return self_copy << DataSource( operand_play_list + self_copy._data )
 
-            case ra.Length():
-                operand_play_list: list[dict] = operand.getPlaylist()
-                offset_position_ms: float = operand_play_list[0]["time_ms"]
-                for self_dict in self._data:
-                    if "time_ms" in self_dict:
-                        self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
-                return self
-
             case ra.Position():
                 operand_play_list: list[dict] = operand.getPlaylist()
                 new_start_position_ms: float = operand_play_list[0]["time_ms"]
@@ -432,6 +424,14 @@ class Playlist(Data):
                     for self_dict in self._data:
                         if "time_ms" in self_dict:
                             self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
+                return self
+
+            case ra.Length():
+                operand_play_list: list[dict] = operand.getPlaylist()
+                offset_position_ms: float = operand_play_list[0]["time_ms"]
+                for self_dict in self._data:
+                    if "time_ms" in self_dict:
+                        self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
                 return self
 
             case _:

@@ -349,6 +349,7 @@ def test_full_conversions():
         assert default_staff.convertToSteps(time_value) == 10.5 * 4 * 4
         assert default_staff.convertToStep(time_value) == 2 * 4
         assert default_staff.convertToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+        assert default_staff.convertToLength(time_value) == 10.5
 
     for time_value in (Length(10.5)):
         assert default_staff.convertToMeasures(time_value) == 10.5
@@ -358,6 +359,7 @@ def test_full_conversions():
         assert default_staff.convertToSteps(time_value) == 10.5 * 4 * 4
         assert default_staff.convertToStep(time_value) == 2 * 4
         assert default_staff.convertToDuration(time_value) == 10 * (1/1) + 2 * (1/4)
+        assert default_staff.convertToLength(time_value) == 10.5
 
     for time_unit in (Position(10), Length(10), Measure(10), Beat(10 * 4), Step(10 * 4 * 4)):
         assert default_staff.convertToMeasures(time_unit) == 10
@@ -367,8 +369,9 @@ def test_full_conversions():
         assert default_staff.convertToSteps(time_unit) == 10 * 4 * 4
         assert default_staff.convertToStep(time_unit) == 0 * 4
         assert default_staff.convertToDuration(time_unit) == 10 * (1/1)
+        assert default_staff.convertToLength(time_unit) == 10.0
 
-# test_full_conversions()
+test_full_conversions()
 
 
 # def test_multi_testing():

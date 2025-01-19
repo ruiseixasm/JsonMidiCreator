@@ -116,10 +116,10 @@ class Element(o.Operand):
             case of.Frame():        return self % (operand._data)
             case ra.Duration():
                 return operand.copy().set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
-            case ra.Length():
-                return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             case ra.Position():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+            case ra.Length():
+                return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             case ra.TimeValue() | ou.TimeUnit():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
             case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
@@ -283,6 +283,8 @@ class Element(o.Operand):
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
                 self._duration_notevalue      = operand._rational
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                self._position_beats      = self._staff_reference.convertToBeats(operand)._rational
             case Fraction():
                 self._duration_notevalue      = operand
             case float():
@@ -291,8 +293,6 @@ class Element(o.Operand):
                 self._duration_notevalue      = self._staff_reference.convertToDuration(operand)._rational
             case int():
                 self._position_beats      = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                self._position_beats      = self._staff_reference.convertToBeats(operand)._rational
             case ou.Stackable():
                 self._stackable     = operand // bool()
             case ou.Channel():
@@ -308,14 +308,14 @@ class Element(o.Operand):
                     self << single_operand
         return self
 
-    # operand is the pusher
+    # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.Operand) -> 'Element':
         import operand_container as oc
         match operand:
-            case ra.Length():
-                return self.copy() << self % od.DataSource( ra.Position() ) + operand
             case ra.Position():
-                return self.copy() << operand
+                self << operand
+            case ra.Length():
+                self << ra.Position(ra.Beats(self._position_beats + operand._rational))
             case Element() | oc.Clip():
                 return operand + self >> od.Stack()
             case od.Serialization():
@@ -324,6 +324,7 @@ class Element(o.Operand):
                 return operand >> od.Playlist(self.getPlaylist())
             case _:
                 return super().__rrshift__(operand)
+        return self
 
     def __add__(self, operand: any) -> 'Element':
         self_copy: Element = self.copy()
@@ -343,13 +344,8 @@ class Element(o.Operand):
                 self_clip += operand
                 return self_clip
             # For efficient reasons
-            case ra.Length():
-                length_notevalue: Fraction = self._staff_reference.convertToDuration(operand)._rational
-                self._duration_notevalue += length_notevalue
             case ra.Position():
                 self._position_beats += operand._rational
-            case ra.Duration():
-                self._duration_notevalue += operand._rational
             case _:
                 if isinstance(operand, ou.TimeUnit):    # avoids erroneous behavior
                     operand = self._staff_reference.convertToBeats(operand)
@@ -366,13 +362,8 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             # For efficient reasons
-            case ra.Length():
-                length_notevalue: Fraction = self._staff_reference.convertToDuration(operand)._rational
-                self._duration_notevalue -= length_notevalue
             case ra.Position():
                 self._position_beats -= operand._rational
-            case ra.Duration():
-                self._duration_notevalue -= operand._rational
             case _:
                 if isinstance(operand, ou.TimeUnit):    # avoid erroneous behavior
                     operand = self._staff_reference.convertToBeats(operand)

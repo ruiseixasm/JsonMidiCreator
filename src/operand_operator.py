@@ -169,13 +169,13 @@ class Oscillator(Operator):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Length():           return self._length
                     case ra.Position():         return self._position
+                    case ra.Length():           return self._length
                     case ra.Amplitude():        return ra.Amplitude() << od.DataSource(self._amplitude)
                     case ra.Offset():           return ra.Offset() << od.DataSource(self._offset)
                     case _:                     return super().__mod__(operand)
-            case ra.Length():           return self._length.copy()
             case ra.Position():         return self._position.copy()
+            case ra.Length():           return self._length.copy()
             case ra.Amplitude():        return ra.Amplitude() << od.DataSource(self._amplitude)
             case ra.Offset():           return ra.Offset() << od.DataSource(self._offset)
             case _:                     return super().__mod__(operand)
@@ -224,13 +224,13 @@ class Oscillator(Operator):
                 self._offset        = operand._offset
             case od.DataSource():
                 match operand._data:
-                    case ra.Length():       self._length = operand._data
                     case ra.Position():     self._position = operand._data
+                    case ra.Length():       self._length = operand._data
                     case ra.Amplitude():    self._amplitude = operand._data // Fraction()
                     case ra.Offset():       self._offset = operand._data // Fraction()
                     case _:                 super().__lshift__(operand)
-            case ra.Length():       self._length << operand
             case ra.Position():     self._position << operand
+            case ra.Length():       self._length << operand
             case ra.Amplitude():    self._amplitude = operand // Fraction()
             case ra.Offset():       self._offset = operand // Fraction()
             case _:

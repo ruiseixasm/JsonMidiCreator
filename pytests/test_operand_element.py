@@ -143,6 +143,18 @@ def test_note_mod():
 
 # test_note_mod()
 
+
+def test_note_length():
+
+    note: Note = Note()
+    assert note % Length() == 0.25  # Measures
+
+    rest: Rest = Rest()
+    assert rest % Length() == 0.25  # Measures
+
+# test_note_length()
+
+
 def test_note_mul():
 
     single_note: Note = Note()
@@ -152,6 +164,24 @@ def test_note_mul():
     assert single_note * Beats(6) % Length() == Beats(6)
 
 # test_note_mul()
+
+def test_note_shift():
+
+    note: Note = Note()
+    assert note % Position() == 0.0 # Measures
+    Length( Beats(2) ) >> note
+    print(f"Position: {note % Position() % float()}")
+    assert note % Position() == 0.5 # Measures (4 Beats per Measure)
+
+    second_note: Note = Note()
+    assert second_note % Position() == 0.0 # Measures
+    two_notes: Clip = note >> second_note   # Must be a Clip!
+    assert two_notes.len() == 2
+    assert two_notes % Position() == 0.0 # Measures
+    assert two_notes[0] % Position() == 0.0 # Measures
+    assert two_notes[1] % Position() == 0.25 # Measures
+
+# test_note_shift()
 
 
 def test_note_scale():

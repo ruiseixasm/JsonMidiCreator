@@ -339,7 +339,7 @@ class Operand:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self: TypeOperand, operand) -> TypeOperand:
+    def __rshift__(self, operand: TypeOperand) -> TypeOperand:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
