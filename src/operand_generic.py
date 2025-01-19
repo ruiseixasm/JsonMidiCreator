@@ -1152,7 +1152,7 @@ class Staff(Generic):
     def convertToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Beats':
         beats: Fraction = Fraction(0)
         match time:
-            case ra.Duration() | ra.Quantization(): # The most internally called option
+            case ra.Duration(): # The most internally called option
                 beats_per_note: int = self._time_signature._bottom
                 beats = time._rational * beats_per_note
             case ra.Beats() | ra.Position():
@@ -1207,7 +1207,7 @@ class Staff(Generic):
             case ra.Beats() | ra.Position():
                 beats_per_note: int = self._time_signature._bottom
                 duration = time._rational / beats_per_note
-            case ra.Duration() | ra.Quantization():
+            case ra.Duration():
                 duration = time._rational
             case _:
                 return self.convertToDuration( self.convertToBeats(time) )
@@ -1343,13 +1343,13 @@ class Staff(Generic):
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case ou.KeySignature():     self._key_signature = operand._data
                     case Scale():               self._scale = operand._data
-                    case ra.BeatsPerMeasure() | ra.BeatNoteValue():
+                    case ra.TimeSignatureData():
                                                 self._time_signature << od.DataSource( operand._data )
                     case ra.Measures():         self._measures = operand._data // int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
-            case TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue():
+            case TimeSignature() | ra.TimeSignatureData():
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
@@ -1395,8 +1395,8 @@ class Defaults(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case Staff():               return self._staff
-                    case ra.Tempo() | ou.KeySignature() | TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
-                        | ra.Quantization() | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+                    case ra.StaffData() | ou.KeySignature() | TimeSignature() \
+                        | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
                                                 return self._staff // operand._data
                     case ra.Duration():         return operand << self._duration
@@ -1408,8 +1408,8 @@ class Defaults(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand._data)
             case Staff():               return self._staff.copy()
-            case ra.Tempo() | ou.KeySignature() | TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
-                | ra.Quantization() | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+            case ra.StaffData() | ou.KeySignature() | TimeSignature() \
+                | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
             case ra.Duration():         return operand.copy() << self._duration
@@ -1488,8 +1488,8 @@ class Defaults(Generic):
                     case od.Device():           self._device = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Tempo() | ou.KeySignature() | TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
-                | ra.Quantization() | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+            case ra.StaffData() | ou.KeySignature() | TimeSignature() \
+                | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
             case ra.Duration():         self._duration = operand._rational

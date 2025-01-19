@@ -324,7 +324,14 @@ class RationalDefault(Rational):
     pass
 
 
-class BeatsPerMeasure(Rational):
+
+class StaffData(Rational):
+    pass
+
+class TimeSignatureData(StaffData):
+    pass
+
+class BeatsPerMeasure(TimeSignatureData):
     """
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
     
@@ -335,7 +342,7 @@ class BeatsPerMeasure(Rational):
     """
     pass
 
-class BeatNoteValue(Rational):
+class BeatNoteValue(TimeSignatureData):
     """
     BeatNoteValue() sets the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     
@@ -346,7 +353,7 @@ class BeatNoteValue(Rational):
     """
     pass
 
-class NotesPerMeasure(Rational):
+class NotesPerMeasure(TimeSignatureData):
     """
     NotesPerMeasure() gets how many notes in a Measure and sets the Note Value of a Beat.
     
@@ -357,7 +364,7 @@ class NotesPerMeasure(Rational):
     """
     pass
 
-class StepsPerMeasure(Rational):
+class StepsPerMeasure(TimeSignatureData):
     """
     StepsPerMeasure() is another way of getting and setting the Quantization.
     16 Steps per Measure means a Quantization of 1/16 in a Time Signature of 4/4.
@@ -369,7 +376,7 @@ class StepsPerMeasure(Rational):
     """
     pass
 
-class StepsPerNote(Rational):
+class StepsPerNote(TimeSignatureData):
     """
     StepsPerNote() is simply the inverse value of the Quantization, like, 16 for 1/16.
     
@@ -380,7 +387,7 @@ class StepsPerNote(Rational):
     """
     pass
 
-class Tempo(Rational):
+class Tempo(StaffData):
     """
     Tempo() represents the Beats per Minute (BPM).
     
@@ -428,6 +435,10 @@ class Tempo(Rational):
         # Makes sure it's positive
         self._rational = max(Fraction(1), self._rational)
         return self
+
+class Quantization(StaffData):
+    pass
+
 
 
 class Convertible(Rational):
@@ -658,64 +669,6 @@ class Convertible(Rational):
                 super().__lshift__(operand)
         return self
 
-
-class Quantization(Convertible):
-    """
-    Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
-    
-    Parameters
-    ----------
-    first : float_like
-        By default it's configured without any verbose, set to 1 or True to enable verbose
-    """
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> 'Quantization':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case self.__class__():
-                super().__lshift__(operand)
-            case Convertible() | ou.TimeUnit():
-                self._rational = self._staff_reference.convertToDuration(operand)._rational
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    def __iadd__(self, operand: any) -> 'Quantization':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Convertible() | ou.TimeUnit():
-                super().__iadd__(self._staff_reference.convertToDuration(operand)._rational)
-            case _:
-                super().__iadd__(operand)
-        return self
-    
-    def __isub__(self, operand: any) -> 'Quantization':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Convertible() | ou.TimeUnit():
-                super().__isub__(self._staff_reference.convertToDuration(operand)._rational)
-            case _:
-                super().__isub__(operand)
-        return self
-    
-    def __imul__(self, operand: any) -> 'Quantization':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Convertible() | ou.TimeUnit():
-                super().__imul__(self._staff_reference.convertToDuration(operand)._rational)
-            case _:
-                super().__imul__(operand)
-        return self
-    
-    def __itruediv__(self, operand: any) -> 'Quantization':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Convertible() | ou.TimeUnit():
-                super().__itruediv__(self._staff_reference.convertToDuration(operand)._rational)
-            case _:
-                super().__itruediv__(operand)
-        return self
 
 
 class Position(Convertible):

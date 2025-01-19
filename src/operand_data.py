@@ -177,14 +177,9 @@ class DataSource(Data):
             super().__lshift__(operand)
         return self
 
-class SetNone(DataSource):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__()
-        self._data = o.Operand() if operand is None else operand
-
 
 class FromSong(Data):   # Just a data wrapper
-    def __init__(self, operand):
+    def __init__(self, operand: any = None):
         super().__init__()
         self._data = operand
 
