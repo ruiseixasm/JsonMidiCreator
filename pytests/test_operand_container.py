@@ -238,7 +238,11 @@ def test_mul_clip():
     assert two_notes * 2.0 % Length() == Beats(4)
     assert two_notes * Beat(6) % Length() == Beats(2)
     assert two_notes * Beats(6) % Length() == Beats(6)
-    
+
+    assert (two_notes * two_notes).len() == 4
+    assert two_notes * two_notes % Length() == 1.5 # Measures
+
+
 # test_mul_clip()
 
 
