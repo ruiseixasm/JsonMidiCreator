@@ -616,6 +616,7 @@ class Clip(Container):  # Just a container of Elements
             case Song():
                 return operand + self
             case Clip():
+
                 if operand.len() > 0:
                     left_end_position: ra.Position = operand.finish()
                     right_start_position: ra.Position = self.start()
@@ -657,19 +658,14 @@ class Clip(Container):  # Just a container of Elements
                 new_song._datasource_list.insert(0, od.DataSource( self ))
                 return new_song # Operand Song replaces self Clip
             case Clip():
-                operand_data_list: list[oe.Element] = operand % list()
-                # Does the needed position transformation, first and replicates to its elements (it may be from other clip)
-                operand_position_beats: Fraction = self._staff.transformPosition(operand % ra.Position())._rational
-                if operand_position_beats > self._position_beats:
-                    for single_element in operand_data_list:
-                        single_element += ra.Beats(operand_position_beats - self._position_beats)
-                elif operand_position_beats < self._position_beats:
-                    self += ra.Beats(self._position_beats - operand_position_beats) # NO IMPLICIT COPY
-                    self._position_beats = operand_position_beats
-                # operand is already a copy, let's take advantage of that, Using a generator (no square brackets)
-                self._datasource_list.extend(
-                    od.DataSource(single_element) for single_element in operand_data_list
-                )
+                operand_copy: Clip = operand.copy().set_staff_reference(self._staff)
+                if operand_copy._position_beats > self._position_beats:
+                    for single_element in operand_copy:
+                        single_element += ra.Beats(operand_copy._position_beats - self._position_beats)
+                elif operand_copy._position_beats < self._position_beats:
+                    self += ra.Beats(self._position_beats - operand_copy._position_beats) # NO IMPLICIT COPY
+                    self._position_beats = operand_copy._position_beats
+                self._datasource_list.extend( operand_copy._datasource_list )
             case oe.Element():
                 return super().__iadd__(operand)
             case list():
