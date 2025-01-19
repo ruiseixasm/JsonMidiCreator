@@ -366,22 +366,10 @@ class Container(o.Operand):
 
 class Clip(Container):  # Just a container of Elements
     def __init__(self, *operands):
-
-        super().__init__(*operands)
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._position_beats: Fraction  = Fraction(0)   # in Beats
-
-        for single_operand in operands:
-            match single_operand:
-                case Clip():
-                    self._midi_track        << single_operand._midi_track
-                    self._position_beats    = single_operand._position_beats
-                case ou.MidiTrack():
-                    self._midi_track        << single_operand
-                case ra.Position():
-                    self._position_beats    = self._staff.convertToPosition(single_operand)._rational
-        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+        super().__init__(*operands)
 
 
     def __getitem__(self, index: int) -> oe.Element:
