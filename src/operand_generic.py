@@ -122,7 +122,7 @@ class Pitch(Generic):
         self._key: int                          = self._staff_reference % ou.Key() // int()
         self._octave: int                       = 4     # By default it's the 4th Octave!
         self._degree: int                       = 1     # By default it's Degree 1
-        self._sharp: int                        = 0     # By default no Sharp or Flat
+        self._sharp: int                        = 0     # By default not a Sharp or Flat
         self._natural: bool                     = False
         super().__init__(*parameters)
 
@@ -469,7 +469,6 @@ class Pitch(Generic):
                 self.apply_key_offset(key_offset)
 
             case ou.DrumKit():
-                self << ou.KeySignature()   # Makes sure no Key Signature is in use
                 self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
                 self << operand // float()
             case ou.Sharp():

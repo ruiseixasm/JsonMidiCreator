@@ -678,7 +678,7 @@ class Tiable(Element):
                     case ra.Gate():         self._gate      = operand._data._rational
                     case ou.Tied():         self._tied      = operand._data // bool()
                     case _:                 super().__lshift__(operand)
-            case ou.DrumKit():      self << od.DataSource( ou.Channel(10) )
+            case ou.DrumKit():      self._channel = 10
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():         self._tied = operand // bool()
@@ -811,7 +811,7 @@ class Note(Tiable):
             case og.Pitch() | ou.PitchParameter() | int() | str() | None:
                                     self._pitch << operand
             case ou.DrumKit():
-                                    self << od.DataSource( ou.Channel(10) )
+                                    self._channel = 10
                                     self._pitch << operand
             case _:                 super().__lshift__(operand)
         return self

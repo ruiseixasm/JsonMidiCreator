@@ -1059,7 +1059,7 @@ class Flat(PitchParameter):   # Flat (b)
         return self
 
 
-class DrumKit(PitchParameter):
+class DrumKit(Unit):
     def __init__(self, *parameters):
         super().__init__(35, *parameters)
 
