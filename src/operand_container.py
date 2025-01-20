@@ -575,7 +575,7 @@ class Clip(Container):  # Just a container of Elements
                         self._position_beats = self._staff.convertToBeats(operand)._rational
                     case ou.MidiTrack():
                         self._midi_track << operand
-                    case ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+                    case og.Staff() | ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                             | int() | float() | Fraction() | str():
                         self._staff << operand
 
