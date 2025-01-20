@@ -803,7 +803,7 @@ class Clip(Container):  # Just a container of Elements
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
                 single_element: oe.Element = single_datasource._data
-                duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(single_element._duration_notevalue))
+                duration_beats: Fraction = single_element % ra.Length() // Fraction()
                 single_element._position_beats = length_beats - (single_element._position_beats + duration_beats)
         return super().reverse()    # Reverses the list
 
