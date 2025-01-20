@@ -419,8 +419,7 @@ class Clip(Container):  # Just a container of Elements
             case ra.Position():     return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
-            case ra.Tempo() | ou.KeySignature() | og.TimeSignature() | ra.BeatsPerMeasure() | ra.BeatNoteValue() | ra.StepsPerMeasure() | ra.StepsPerNote() \
-                | ra.Quantization() | og.Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
+            case ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                 | int() | float() | Fraction() | str():
                                     return self._staff % operand
             case _:                 return super().__mod__(operand)
@@ -553,7 +552,7 @@ class Clip(Container):  # Just a container of Elements
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
-            case og.Staff() | ra.StaffParameters():
+            case og.Staff() | ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff << operand
             case ou.MidiTrack():
                 self._midi_track << operand
@@ -611,7 +610,6 @@ class Clip(Container):  # Just a container of Elements
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
                 return self
-            
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
