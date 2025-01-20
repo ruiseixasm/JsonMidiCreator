@@ -386,7 +386,7 @@ class Element(o.Operand):
                     new_clip._datasource_list.append(od.DataSource( self ))
                     for _ in range(multiplier - 1):
                         new_clip._datasource_list.append(od.DataSource( self.copy() ))
-                return new_clip.stack()
+                return new_clip.stack().set_staff_reference()
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
                 if self._duration_notevalue > 0:

@@ -85,6 +85,15 @@ def test_clip_mod():
 # test_clip_mod()
 
 
+def test_staff_reference():
+
+    clip: Clip = Note() * 1
+
+    assert clip.test_staff_reference()
+
+# test_staff_reference()
+
+
 def test_rrshift_clip():
 
     two_notes: Clip = Note() * 2

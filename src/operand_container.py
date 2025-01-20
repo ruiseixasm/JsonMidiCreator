@@ -394,6 +394,15 @@ class Clip(Container):  # Just a container of Elements
                 single_element.set_staff_reference(self._staff)
         return self
 
+    def test_staff_reference(self) -> bool:
+        clip_staff_id: int = id(self._staff)
+        for single_element in self:
+            if isinstance(single_element, oe.Element):
+                element_staff_id: int = id( single_element._staff_reference )
+                if element_staff_id != clip_staff_id:
+                    return False
+        return True
+
 
     def __mod__(self, operand: any) -> any:
         """
