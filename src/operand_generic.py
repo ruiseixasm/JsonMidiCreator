@@ -469,6 +469,8 @@ class Pitch(Generic):
                 self.apply_key_offset(key_offset)
 
             case ou.DrumKit():
+                self._natural = False
+                self._sharp = 0
                 self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
                 self << operand // float()  # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
