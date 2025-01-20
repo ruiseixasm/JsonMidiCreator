@@ -491,7 +491,7 @@ def test_tied_notes():
 
     assert len(clip_elements) == 1 # Two tied notes become a long single one
 
-test_tied_notes()
+# test_tied_notes()
 
 
 def test_song_operations():
