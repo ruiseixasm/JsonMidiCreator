@@ -236,7 +236,7 @@ class Container(o.Operand):
         new_container._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         return new_container
 
-    def __add__(self, operand: o.Operand) -> 'Container':
+    def __add__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 self_copy: Container = self.__class__()
@@ -254,7 +254,7 @@ class Container(o.Operand):
                 return self_copy
     
     # Avoids the costly copy of Container self doing +=
-    def __iadd__(self, operand: any) -> 'Container':
+    def __iadd__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 for single_datasource in operand._datasource_list:
@@ -267,12 +267,12 @@ class Container(o.Operand):
         return self
 
 
-    def __radd__(self, operand: o.Operand) -> o.Operand:
+    def __radd__(self: TypeContainer, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
         self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
 
-    def __sub__(self, operand: o.Operand) -> 'Container':
+    def __sub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         self_copy: Container = self.copy()
         match operand:
             case Container():
@@ -290,7 +290,7 @@ class Container(o.Operand):
                         operand -= 1
         return self_copy
 
-    def __isub__(self, operand: o.Operand) -> 'Container':
+    def __isub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 # Exclude items based on equality (==) comparison
@@ -308,7 +308,7 @@ class Container(o.Operand):
         return self
 
     # multiply with a scalar 
-    def __mul__(self, operand: o.Operand) -> 'Container':
+    def __mul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 pass
@@ -322,11 +322,11 @@ class Container(o.Operand):
                 return many_operands
         return self.copy()
     
-    def __truediv__(self, operand: o.Operand) -> 'Container':
+    def __truediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         self_copy: Container = self.copy()
         return self_copy.__itruediv__(operand)
 
-    def __itruediv__(self, operand: o.Operand) -> 'Container':
+    def __itruediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 pass
@@ -345,13 +345,13 @@ class Container(o.Operand):
                     return many_operands
         return self
 
-    def __pow__(self, operand: 'o.Operand') -> 'Container':
+    def __pow__(self: TypeContainer, operand: 'o.Operand') -> TypeContainer:
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, o.Operand):
                 single_datasource._data.__pow__(operand)
         return self
 
-    def __or__(self, operand: any) -> 'Container':
+    def __or__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 new_container: Container = self.__class__()
@@ -361,7 +361,7 @@ class Container(o.Operand):
             case _:
                 return self.filter(operand)
 
-    def __ror__(self, operand: any) -> 'Container':
+    def __ror__(self: TypeContainer, operand: any) -> TypeContainer:
         return self.__or__(operand)
 
 class Clip(Container):  # Just a container of Elements
@@ -658,7 +658,7 @@ class Clip(Container):  # Just a container of Elements
                     self._position_beats = operand._position_beats
                 self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
             case oe.Element():
-                return super().__iadd__(operand)
+                return super().__iadd__(operand).set_staff_reference()
             case list():
                 for single_element in operand:
                     if isinstance(single_element, oe.Element):

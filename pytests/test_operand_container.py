@@ -87,9 +87,16 @@ def test_clip_mod():
 
 def test_staff_reference():
 
-    clip: Clip = Note() * 1
+    clip_add: Clip = Note() + Note()
+    assert clip_add.test_staff_reference()
 
-    assert clip.test_staff_reference()
+    clip_mul: Clip = Note() * 1
+    assert clip_mul.test_staff_reference()
+
+    assert (clip_add + Note()).test_staff_reference()
+    assert (Note() + clip_add).test_staff_reference()
+    assert (clip_add + clip_mul).test_staff_reference()
+    assert (clip_add * clip_mul).test_staff_reference()
 
 # test_staff_reference()
 
