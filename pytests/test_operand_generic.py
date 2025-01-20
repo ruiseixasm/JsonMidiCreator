@@ -176,15 +176,15 @@ def test_pitch_key_signature():
     E_minor_key: Pitch = Pitch()
 
     assert E_minor_key % str() == "E"
-    defaults << Sharps(2)
+    defaults << Sharps(2)   # Changes to B minor (##) but remains the Tonic E
     E_minor_key << Degree(3)
-    assert E_minor_key % str() == "D"
+    assert E_minor_key % str() == "G"
     B_minor_scale_list: list = ["B", "C#", "D", "E", "F#", "G", "A"]
     # Sharp and Flat shall not be set by Degree
     for key_degree in range(1, 8):
         print(key_degree)
         E_minor_key << Degree(key_degree)
-        assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
+        assert E_minor_key % str() == B_minor_scale_list[(key_degree + 2) % 7]
         E_minor_key % Sharp() >> Print(0)
 
     defaults << KeySignature()
