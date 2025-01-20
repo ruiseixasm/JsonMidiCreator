@@ -174,7 +174,6 @@ def test_pitch_key_signature():
 
     defaults << KeySignature("#", Minor())
     E_minor_key: Pitch = Pitch()
-    defaults << KeySignature()
 
     assert E_minor_key % str() == "E"
     defaults << Sharps(2)
@@ -188,7 +187,7 @@ def test_pitch_key_signature():
         assert E_minor_key % str() == B_minor_scale_list[key_degree - 1]
         E_minor_key % Sharp() >> Print(0)
 
-    defaults << Sharps(0)
+    defaults << KeySignature()
 
 # test_pitch_key_signature()
 
@@ -198,7 +197,9 @@ def test_pitch_scales():
     major_scale_keys: list[str] = [
         "C", "D", "E", "F", "G", "A", "B"
     ]
-    major_pitch: Pitch = Pitch(Scale("Major"))
+
+    defaults << Scale("Major")
+    major_pitch: Pitch = Pitch()
     
     for key_degree in range(1, 8):  # Excludes 8
         major_pitch << Degree(key_degree)
@@ -209,17 +210,22 @@ def test_pitch_scales():
     minor_scale_keys: list[str] = [
         "A", "B", "C", "D", "E", "F", "G"
     ]
-    minor_pitch: Pitch = Pitch(Scale("minor"))
+    defaults << Scale("minor")
+    minor_pitch: Pitch = Pitch()
     
     for key_degree in range(1, 8):  # Excludes 8
         minor_pitch << Degree(key_degree)
         print(minor_pitch % str())
         assert minor_pitch % str() == minor_scale_keys[key_degree - 1]
 
+    defaults << Scale([])
+
 # test_pitch_scales()
 
 
 def test_pitch_add():
+
+    defaults << KeySignature()
 
     # Perform the operation
     pitch_b: Pitch = Pitch()    # 60.0
@@ -235,7 +241,8 @@ def test_pitch_add():
     assert pitch_1 + 1    == Pitch("B")
     assert pitch_1 + 2.0  == Pitch("B")
 
-    pitch_2 = Pitch(KeySignature(1)) << Degree("iii")  # Become Key B (60.0 + 11.0 = 71.0)
+    defaults << KeySignature(1)
+    pitch_2 = Pitch() << Degree("iii")  # Become Key B (60.0 + 11.0 = 71.0)
     assert pitch_2 % Octave() == 4
     assert (pitch_2 + 2) % Octave() == 5
     pitch_2 % int() >> Print()
@@ -244,6 +251,7 @@ def test_pitch_add():
     (Pitch("D") + 12.0) % float() >> Print()    # 74.0
     assert pitch_2 + 2 == Pitch("D") + 12.0 # Next octave
 
+    defaults << KeySignature()
     assert pitch_1 << Sharp() == Pitch("A") + 1.0
     assert pitch_1 << Natural() == Pitch("A")
     assert Pitch("Ab") == Pitch("A") - 1.0
