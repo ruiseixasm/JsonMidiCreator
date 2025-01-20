@@ -178,6 +178,16 @@ class DataSource(Data):
         return self
 
 
+class ClipParameter(Data):   # Just a data wrapper
+    def __init__(self, operand: any = None):
+        super().__init__()
+        self._data = operand
+
+class SongParameter(Data):   # Just a data wrapper
+    def __init__(self, operand: any = None):
+        super().__init__()
+        self._data = operand
+
 class FromSong(Data):   # Just a data wrapper
     def __init__(self, operand: any = None):
         super().__init__()
