@@ -606,11 +606,11 @@ class Step(TimeUnit):
                 super().__itruediv__(operand)
         return self
 
-
-class Sharps(Unit):  # Sharps (###)
+class Accidentals(Unit):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
+class Sharps(Accidentals):  # Sharps (###)
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Sharps':
@@ -627,12 +627,7 @@ class Sharps(Unit):  # Sharps (###)
                 super().__lshift__(operand)
         return self
 
-class Flats(Unit):   # Flats (bbb)
-    def __init__(self, *parameters):
-        super().__init__(1)
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
+class Flats(Accidentals):   # Flats (bbb)
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Flats':

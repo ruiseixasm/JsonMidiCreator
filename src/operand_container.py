@@ -611,6 +611,7 @@ class Clip(Container):  # Just a container of Elements
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
                 return self
+            
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
