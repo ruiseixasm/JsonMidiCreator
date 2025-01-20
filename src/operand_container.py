@@ -552,15 +552,11 @@ class Clip(Container):  # Just a container of Elements
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
-            case og.Staff() | ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor():
-                self._staff << operand
             case ou.MidiTrack():
                 self._midi_track << operand
+            case og.Staff() | ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
-            case ra.Position():
-                self._position_beats = self._staff.convertToBeats(operand)._rational
-            case ra.TimeValue() | ou.TimeUnit():
-                self._position_beats = self._staff.convertToBeats(operand)._rational
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -571,8 +567,18 @@ class Clip(Container):  # Just a container of Elements
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-            case od.FromSong(): # If it comes from Song its destiny is the Clip
-                self << self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                    
+            case od.ClipParameter():
+                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                        self._position_beats = self._staff.convertToBeats(operand)._rational
+                    case ou.MidiTrack():
+                        self._midi_track << operand
+                    case ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+                            | int() | float() | Fraction() | str():
+                        self._staff << operand
+
             case _: # Works for Frame too
                 for single_datasource in self._datasource_list:
                     single_datasource._data << operand
@@ -647,8 +653,13 @@ class Clip(Container):  # Just a container of Elements
                 for single_element in operand:
                     if isinstance(single_element, oe.Element):
                         self._datasource_list.append(od.DataSource( single_element.copy() ))
-            case od.FromSong(): # If it comes from Song its destiny is the Clip
-                self += self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                        
+            case od.ClipParameter():
+                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                        self._position_beats += self._staff.convertToBeats(operand)._rational
+
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data += operand
@@ -665,8 +676,13 @@ class Clip(Container):  # Just a container of Elements
                 return operand 
             case oe.Element() | Container():
                 return super().__isub__(operand)
-            case od.FromSong(): # If it comes from Song its destiny is the Clip
-                self -= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+            
+            case od.ClipParameter():
+                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                        self._position_beats -= self._staff.convertToBeats(operand)._rational
+
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data -= operand
@@ -725,8 +741,13 @@ class Clip(Container):  # Just a container of Elements
                     operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
                 self *= self_repeating
-            case od.FromSong(): # If it comes from Song its destiny is the Clip
-                self *= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+
+            case od.ClipParameter():
+                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                        self._position_beats *= self._staff.convertToBeats(operand)._rational
+
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data *= operand
@@ -743,8 +764,13 @@ class Clip(Container):  # Just a container of Elements
         match operand:
             case int():
                 return super().__itruediv__(operand)
-            case od.FromSong(): # If it comes from Song its destiny is the Clip
-                self /= self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+            
+            case od.ClipParameter():
+                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                        self._position_beats /= self._staff.convertToBeats(operand)._rational
+
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data /= operand
@@ -939,7 +965,7 @@ class Song(Container):
                     self << single_operand
             case _:
                 for single_datasource in self._datasource_list: 
-                    single_datasource._data << od.FromSong(operand)
+                    single_datasource._data << operand
         return self
 
     # operand is the pusher >> (NO COPIES!)
@@ -976,7 +1002,7 @@ class Song(Container):
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
             case _:
                 for single_datasource in self._datasource_list: 
-                    single_datasource._data += od.FromSong(operand)
+                    single_datasource._data += operand
         return self
 
     def __sub__(self, operand: any) -> 'Song':
@@ -994,7 +1020,7 @@ class Song(Container):
                 ]
             case _:
                 for single_datasource in self._datasource_list: 
-                    single_datasource._data -= od.FromSong(operand)
+                    single_datasource._data -= operand
         return self
 
     def __mul__(self, operand: any) -> 'Song':
@@ -1002,7 +1028,7 @@ class Song(Container):
             
     def __imul__(self, operand: any) -> 'Song':
         for single_datasource in self._datasource_list: 
-            single_datasource._data *= od.FromSong(operand)
+            single_datasource._data *= operand
         return self
 
     def __truediv__(self, operand: any) -> 'Song':
@@ -1010,6 +1036,6 @@ class Song(Container):
             
     def __itruediv__(self, operand: any) -> 'Song':
         for single_datasource in self._datasource_list: 
-            single_datasource._data /= od.FromSong(operand)
+            single_datasource._data /= operand
         return self
 

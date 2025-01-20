@@ -188,11 +188,6 @@ class SongParameter(Data):   # Just a data wrapper
         super().__init__()
         self._data = operand
 
-class FromSong(Data):   # Just a data wrapper
-    def __init__(self, operand: any = None):
-        super().__init__()
-        self._data = operand
-
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
         super().__init__()
