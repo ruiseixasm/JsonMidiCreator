@@ -470,7 +470,7 @@ class Pitch(Generic):
 
             case ou.DrumKit():
                 self << ou.Degree()         # Makes sure no Degree different of Tonic is in use
-                self << operand // float()
+                self << operand // float()  # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
                 if max(0, self._sharp) != operand._unit:
                     self._sharp = operand._unit % 2
