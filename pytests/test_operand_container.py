@@ -484,6 +484,16 @@ def test_clip_content():
         assert isinstance(item, Element)
 
 
+def test_tied_notes():
+
+    tied_notes: Clip = Note(Tied()) * 2
+    clip_elements: list[Element] = tied_notes.get_clip_elements()
+
+    assert len(clip_elements) == 1 # Two tied notes become a long single one
+
+test_tied_notes()
+
+
 def test_song_operations():
 
     clip_1: Clip = Clip([Clock()])

@@ -27,6 +27,7 @@ defaults << Tempo(115)
 
 # https://youtu.be/ZROR_E5bFEI?si=NQIu7Gyr9CPfIx-u
 
-
+son_clave: Clip = Note(dotted_quarter) + Nt(eight, Tied()) + Nt(quarter, Tied()) + Nt(quarter) + Rest() + Nt(quarter) * 2 + Rest() >> Stack()
+son_clave >> P
 
 

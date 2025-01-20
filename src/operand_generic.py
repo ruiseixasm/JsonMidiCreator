@@ -514,7 +514,10 @@ class Pitch(Generic):
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int())
                 self.apply_key_offset(key_offset)
-            case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
+            case Fraction():
+                key_offset: int = int(operand)
+                self.apply_key_offset(key_offset)
+            case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
                 self.apply_key_offset(key_offset)
             case int() | ou.Unit():
@@ -538,7 +541,10 @@ class Pitch(Generic):
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int()) * -1
                 self.apply_key_offset(key_offset)
-            case Fraction() | ra.Rational() | ou.Key() | ou.Semitone():
+            case Fraction():
+                key_offset: int = int(operand) * -1
+                self.apply_key_offset(key_offset)
+            case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
                 self.apply_key_offset(key_offset)
             case int() | ou.Unit():
