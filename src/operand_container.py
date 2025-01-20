@@ -459,23 +459,24 @@ class Clip(Container):  # Just a container of Elements
 
     def get_clip_elements(self) -> list['Element']: # Helper method
         clip_elements: list[oe.Element] = []
-        tied_notes: list[oe.Tiable] = []
+        tied_notes: list[oe.Note] = []
         for single_datasource in self._datasource_list:   # Read only (extracts the play list)
             if isinstance(single_datasource._data, oe.Element):
-                if isinstance(single_datasource._data, oe.Tiable) and single_datasource._data._tied:
+                if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
                     tied_notes.append(single_datasource._data.copy())
                 else:
                     clip_elements.append(single_datasource._data)
-        if len(tied_notes) > 0: # Extends the root Tiable to accommodate all following Tiables durations
-            first_tied_note: oe.Tiable = tied_notes[0]
+        if len(tied_notes) > 0: # Extends the root Note to accommodate all following Notes durations
+            first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
                 # Must be in clip to be tied (FS - Finish to Start)!
                 next_note_position: Fraction = first_tied_note._position_beats \
-                    + (first_tied_note % ra.Length())._rational
+                    + first_tied_note % ra.Length() // Fraction()
                 if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
                     and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
                     and tied_notes[next_tied_note_i]._position_beats == next_note_position:
-                    first_tied_note += tied_notes[next_tied_note_i]._duration_notevalue
+
+                    first_tied_note._duration_notevalue += tied_notes[next_tied_note_i]._duration_notevalue
                     if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
                         clip_elements.append(first_tied_note)
                 else:

@@ -27,7 +27,11 @@ defaults << Tempo(115)
 
 # https://youtu.be/ZROR_E5bFEI?si=NQIu7Gyr9CPfIx-u
 
-son_clave: Clip = Note(dotted_quarter) + Nt(eight, Tied()) + Nt(quarter, Tied()) + Nt(quarter) + Rest() + Nt(quarter) * 2 + Rest() >> Stack()
-son_clave >> P
+son_clave: Clip = Note(dotted_quarter) + Nt(eight, Tied()) + Nt(quarter, Tied()) + Nt(quarter) + Rest() + Nt(quarter) * 2 + Rest() >> Stack() << DrumKit("Wood")
+son_clave % Length() >> Print()
+son_clave * 2 >> P
 
+son_clave_flipped: Clip = son_clave.copy().reverse()
+son_clave_flipped % Length() >> Print()
+son_clave_flipped * 2 >> P
 

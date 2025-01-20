@@ -508,14 +508,11 @@ class Pitch(Generic):
                 self += operand % float()
             case ou.Octave():
                 self._octave += operand._unit
-            case float():
+            case float() | Fraction():
                 key_offset: int = int(operand)
                 self.apply_key_offset(key_offset)
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int())
-                self.apply_key_offset(key_offset)
-            case Fraction():
-                key_offset: int = int(operand)
                 self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
@@ -535,14 +532,11 @@ class Pitch(Generic):
                 self -= operand % float()
             case ou.Octave():
                 self._octave -= operand._unit
-            case float():
+            case float() | Fraction():
                 key_offset: int = int(operand) * -1
                 self.apply_key_offset(key_offset)
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int()) * -1
-                self.apply_key_offset(key_offset)
-            case Fraction():
-                key_offset: int = int(operand) * -1
                 self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
