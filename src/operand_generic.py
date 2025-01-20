@@ -1359,7 +1359,7 @@ class Defaults(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case Staff():               return self._staff
-                    case ra.StaffData() | ou.KeySignature() | TimeSignature() \
+                    case ra.StaffParameters() | ou.KeySignature() | TimeSignature() \
                         | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
                                                 return self._staff // operand._data
@@ -1372,7 +1372,7 @@ class Defaults(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand._data)
             case Staff():               return self._staff.copy()
-            case ra.StaffData() | ou.KeySignature() | TimeSignature() \
+            case ra.StaffParameters() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
@@ -1452,7 +1452,7 @@ class Defaults(Generic):
                     case od.Device():           self._device = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.StaffData() | ou.KeySignature() | TimeSignature() \
+            case ra.StaffParameters() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand

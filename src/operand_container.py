@@ -553,7 +553,7 @@ class Clip(Container):  # Just a container of Elements
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
 
-            case og.Staff() | ra.StaffData():
+            case og.Staff() | ra.StaffParameters():
                 self._staff << operand
             case ou.MidiTrack():
                 self._midi_track << operand

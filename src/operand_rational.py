@@ -325,10 +325,10 @@ class RationalDefault(Rational):
 
 
 
-class StaffData(Rational):
+class StaffParameters(Rational):
     pass
 
-class TimeSignatureData(StaffData):
+class TimeSignatureData(StaffParameters):
     pass
 
 class BeatsPerMeasure(TimeSignatureData):
@@ -387,7 +387,7 @@ class StepsPerNote(TimeSignatureData):
     """
     pass
 
-class Tempo(StaffData):
+class Tempo(StaffParameters):
     """
     Tempo() represents the Beats per Minute (BPM).
     
@@ -436,7 +436,7 @@ class Tempo(StaffData):
         self._rational = max(Fraction(1), self._rational)
         return self
 
-class Quantization(StaffData):
+class Quantization(StaffParameters):
     pass
 
 
