@@ -140,9 +140,6 @@ class Pitch(Generic):
         return self
 
 
-    def key_signature(self, sharps_flats: int = 0, major: bool = True) -> 'Pitch':
-        return self << ou.KeySignature(sharps_flats, ou.Major(major))
-
     def sharp(self, unit: bool = True) -> 'Pitch':
         return self << ou.Sharp(unit)
 
@@ -154,9 +151,6 @@ class Pitch(Generic):
 
     def degree(self, unit: int = 1) -> 'Pitch':
         return self << ou.Degree(unit)
-
-    def scale(self, scale: list[int] | str = []) -> 'Pitch':
-        return self << Scale(scale)
 
 
     # IGNORES THE KEY SIGNATURE (CHROMATIC)

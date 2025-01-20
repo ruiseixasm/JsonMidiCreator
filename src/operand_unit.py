@@ -607,6 +607,49 @@ class Step(TimeUnit):
         return self
 
 
+class Sharps(Unit):  # Sharps (###)
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Sharps':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if len(operand) == 0:
+                    self._unit = 0
+                else:
+                    total_sharps = len(re.findall(r"#", operand))
+                    if total_sharps > 0:
+                        self._unit = total_sharps
+            case _:
+                super().__lshift__(operand)
+        return self
+
+class Flats(Unit):   # Flats (bbb)
+    def __init__(self, *parameters):
+        super().__init__(1)
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> 'Flats':
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case str():
+                if len(operand) == 0:
+                    self._unit = 0
+                else:
+                    total_flats = len(re.findall(r"b", operand))
+                    if total_flats > 0:
+                        self._unit = total_flats
+            case _:
+                super().__lshift__(operand)
+        return self
+
+
 class PitchParameter(Unit):
     pass
 
@@ -977,7 +1020,7 @@ class Degree(PitchParameter):
             case "vi"  | "submediant":              self._unit = 6
             case "vii" | "leading tone":            self._unit = 7
 
-class Sharps(PitchParameter):  # Sharps (###)
+class Sharp(PitchParameter):  # Sharp (#)
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -992,14 +1035,13 @@ class Sharps(PitchParameter):  # Sharps (###)
                 else:
                     total_sharps = len(re.findall(r"#", operand))
                     if total_sharps > 0:
-                        self._unit = total_sharps
-            case _: super().__lshift__(operand)
+                        self._unit = 1
+            case _:
+                super().__lshift__(operand)
         return self
 
-class Sharp(Sharps):  # Sharp (#)
-    pass
 
-class Flats(PitchParameter):   # Flats (bbb)
+class Flat(PitchParameter):   # Flat (b)
     def __init__(self, *parameters):
         super().__init__(1)
         for single_parameter in parameters: # Faster than passing a tuple
@@ -1016,12 +1058,11 @@ class Flats(PitchParameter):   # Flats (bbb)
                 else:
                     total_flats = len(re.findall(r"b", operand))
                     if total_flats > 0:
-                        self._unit = total_flats
-            case _: super().__lshift__(operand)
+                        self._unit = 1
+            case _:
+                super().__lshift__(operand)
         return self
 
-class Flat(Flats):   # Flat (b)
-    pass
 
 class DrumKit(PitchParameter):
     def __init__(self, *parameters):

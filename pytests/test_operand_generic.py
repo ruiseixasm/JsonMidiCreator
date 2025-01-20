@@ -111,11 +111,14 @@ def test_scale_mod():
 
 def test_pitch_set():
 
-    pitch_1 = Pitch(Sharp(), Degree(2), Scale("minor"))
+    defaults << Scale("minor")
+
+    pitch_1 = Pitch(Sharp(), Degree(2))
     pitch_2 = Pitch()
-    pitch_2.sharp().degree(2).scale("minor")
+    pitch_2.sharp().degree(2)
     assert pitch_1 == pitch_2
 
+    defaults << Scale([])
 
 
 def test_pitch_key_signature():

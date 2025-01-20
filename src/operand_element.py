@@ -727,8 +727,7 @@ class Note(Tiable):
                     case _:                 return super().__mod__(operand)
             case og.Pitch():        return self._pitch.copy()
             case int():             return self._pitch._degree
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() | ou.Tone() | ou.Semitone() \
-                | str() | ou.Key() | ou.Octave() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | list():
+            case ou.PitchParameter() | str():
                                     return self._pitch % operand
             case _:                 return super().__mod__(operand)
 
@@ -809,9 +808,7 @@ class Note(Tiable):
                 match operand._data:
                     case og.Pitch():        self._pitch     = operand._data
                     case _:                 super().__lshift__(operand)
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
-                | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
+            case og.Pitch() | ou.PitchParameter() | int() | str() | None:
                                     self._pitch << operand
             case ou.DrumKit():
                                     self << od.DataSource( ou.Channel(10) )
