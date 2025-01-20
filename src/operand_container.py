@@ -877,14 +877,14 @@ class Clip(Container):  # Just a container of Elements
     
     def tie(self, tied: bool = True) -> 'Clip':
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Tiable):
+            if isinstance(single_datasource._data, oe.Note):
                 single_datasource._data << ou.Tied(tied)
         return self
     
     def slur(self, gate: float = 1.05) -> 'Clip':
         last_element = None
         for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Tiable):
+            if isinstance(single_datasource._data, oe.Note):
                 if last_element is not None:
                     last_element << ra.Gate(gate)
                 last_element = single_datasource._data
