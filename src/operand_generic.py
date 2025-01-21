@@ -237,10 +237,13 @@ class Pitch(Generic):
     
     def apply_key_offset(self, key_offset: int | float) -> 'Pitch':
         
+        expected_pitch: float = self % float() + key_offset
         octave_offset, key_offset = self.octave_key_offset(key_offset)
         self._octave += octave_offset
         self._key += key_offset
         self._key %= 24   # Removes key from Key Signature specificity
+        # if self % float() != expected_pitch:
+        #     self._natural = True
 
         return self
     
@@ -508,16 +511,18 @@ class Pitch(Generic):
                 self += operand % float()
             case ou.Octave():
                 self._octave += operand._unit
+            case int():
+                self._degree += operand
+            case ou.Degree():
+                self._degree += operand._unit
+            case ou.Tone():
+                key_offset: int = self.move_semitones(operand % int())
+                self.apply_key_offset(key_offset)
             case float() | Fraction():
                 key_offset: int = int(operand)
                 self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
-                self.apply_key_offset(key_offset)
-            case int() | ou.Unit():
-                self._degree = (self // ou.Degree() + operand)._unit
-            case ou.Tone():
-                key_offset: int = self.move_semitones(operand % int())
                 self.apply_key_offset(key_offset)
         return self
     
@@ -532,17 +537,19 @@ class Pitch(Generic):
                 self -= operand % float()
             case ou.Octave():
                 self._octave -= operand._unit
-            case float() | Fraction():
-                key_offset: int = int(operand) * -1
-                self.apply_key_offset(key_offset)
+            case int():
+                self._degree -= operand
+            case ou.Degree():
+                self._degree -= operand._unit
             case ou.Tone():
                 key_offset: int = self.move_semitones(operand % int()) * -1
+                self.apply_key_offset(key_offset)
+            case float() | Fraction():
+                key_offset: int = int(operand) * -1
                 self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int() * -1
                 self.apply_key_offset(key_offset)
-            case int() | ou.Unit():
-                self._degree = (self // ou.Degree() - operand)._unit
         return self
 
     def __mul__(self, operand) -> 'Pitch':
