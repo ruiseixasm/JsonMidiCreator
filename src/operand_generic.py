@@ -253,13 +253,14 @@ class Pitch(Generic):
         self._key %= 24   # Removes key from Key Signature specificity
         offset_pitch: int = int(self % float())
         if offset_pitch != expected_pitch:
-            self._natural = False
             if self._major_scale[offset_pitch % 12] == 0:   # Black key
                 self._natural = True
-            elif offset_pitch > expected_pitch:             # White key
-                self._sharp = -1
-            else:
-                self._sharp = +1
+            else:                                           # White key
+                self._natural = False
+                if offset_pitch > expected_pitch:
+                    self._sharp = -1
+                else:
+                    self._sharp = +1
 
         return self
     
