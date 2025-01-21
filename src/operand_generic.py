@@ -251,8 +251,15 @@ class Pitch(Generic):
         self._octave += octave_offset_int
         self._key += key_offset_int
         self._key %= 24   # Removes key from Key Signature specificity
-        if self % float() != expected_pitch:
-            self._natural = not self._natural
+        offset_pitch: int = int(self % float())
+        if offset_pitch != expected_pitch:
+            self._natural = False
+            if self._major_scale[offset_pitch % 12] == 0:   # Black key
+                self._natural = True
+            elif offset_pitch > expected_pitch:             # White key
+                self._sharp = -1
+            else:
+                self._sharp = +1
 
         return self
     
@@ -473,6 +480,9 @@ class Pitch(Generic):
 
             case float() | Fraction() | ou.Semitone():
 
+                # Imposing a new Chromatic Key
+                # self._natural = False
+                # Ignore Staff Key Signature and Scale
                 if isinstance(operand, ou.Semitone):
                     key_offset: float = operand._unit - self % float()
                 else:

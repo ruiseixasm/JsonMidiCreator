@@ -278,53 +278,50 @@ def test_pitch_add():
     assert pitch_4 % str() == "C"
     assert pitch_4 % float() == 60.0
 
+    # Test all semitones from 0 to 11
+    chromatic_pitches: list[float] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
+
     for sharps in range(8): # 8 is excluded
 
         defaults << KeySignature(sharps)
-        print("------------")
+        pitch_4 << 60.0 # Middle C (60)
+        print(f"------------ {sharps} ------------")
         print("--UP--")
-        # Test all semitones from 0 to 11
-        expected_pitches_float: list[str] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
         for key_i in range(12):
             (pitch_4 + Semitone(key_i)) % float() >> Print()
-            assert (pitch_4 + Semitone(key_i)) % float() == expected_pitches_float[key_i]
+            assert (pitch_4 + Semitone(key_i)) % float() == chromatic_pitches[key_i]
         pitch_4 << 71.0
         print("-DOWN-")
         for key_i in range(12):
             pitch_4 % float() >> Print()
-            assert pitch_4 % float() == expected_pitches_float[11 - key_i]
+            assert pitch_4 % float() == chromatic_pitches[11 - key_i]
             pitch_4 -= 1.0
-        pitch_4 += 1.0
 
     for flats in range(0, -8, -1): # -8 is excluded
 
         defaults << KeySignature(flats)
-        print("------------")
+        pitch_4 << 60.0 # Middle C (60)
+        print(f"------------ {flats} ------------")
         print("--UP--")
-        # Test all semitones from 0 to 11
-        expected_pitches_float: list[str] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
         for key_i in range(12):
             (pitch_4 + Semitone(key_i)) % float() >> Print()
-            assert (pitch_4 + Semitone(key_i)) % float() == expected_pitches_float[key_i]
+            assert (pitch_4 + Semitone(key_i)) % float() == chromatic_pitches[key_i]
         pitch_4 << 71.0
         print("-DOWN-")
         for key_i in range(12):
             pitch_4 % float() >> Print()
-            assert pitch_4 % float() == expected_pitches_float[11 - key_i]
+            assert pitch_4 % float() == chromatic_pitches[11 - key_i]
             pitch_4 -= 1.0
-        pitch_4 += 1.0
 
-    defaults << KeySignature()
+    # defaults << KeySignature()
 
     print("------")
-    # Test all semitones from 0 to 11
-    expected_pitches_float: list[str] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
     for key_i in range(12):
         (pitch_4 + Semitone(key_i)) % float() >> Print()
-        assert (pitch_4 + Semitone(key_i)) % float() == expected_pitches_float[key_i]
+        assert (pitch_4 + Semitone(key_i)) % float() == chromatic_pitches[key_i]
 
     print("------")
-    white_pitches: list = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
+    white_pitches: list[float] = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
     for degree in range(7):
         (pitch_4 << Degree(degree + 1)) % float() >> Print()
         assert (pitch_4 << Degree(degree + 1)) % float() == white_pitches[degree]
