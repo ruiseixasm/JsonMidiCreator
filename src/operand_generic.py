@@ -242,8 +242,8 @@ class Pitch(Generic):
         self._octave += octave_offset
         self._key += key_offset
         self._key %= 24   # Removes key from Key Signature specificity
-        # if self % float() != expected_pitch:
-        #     self._natural = True
+        if self % float() != expected_pitch:
+            self._natural = not self._natural
 
         return self
     
