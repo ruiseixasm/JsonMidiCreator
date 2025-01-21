@@ -550,6 +550,6 @@ def test_chord_element():
         triad_notes[key] % str() >> Print()
         assert triad_notes[key] % str() == expected_keys[key]
 
-test_chord_element()
+# test_chord_element()
 
 
