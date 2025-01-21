@@ -30,6 +30,7 @@ else:
 if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
 
+T = TypeVar('T')
 TypeOperand = TypeVar('TypeOperand', bound='Operand')  # TypeOperand represents any subclass of Operand
 
 
@@ -226,7 +227,7 @@ class Operand:
             case _:
                 return ol.Null()
 
-    def __floordiv__(self, operand: any) -> any:
+    def __floordiv__(self, operand: T) -> T:
         import operand_data as od
         return self.__mod__( od.DataSource( operand ) )
 

@@ -245,7 +245,7 @@ class Pitch(Generic):
         return self
     
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
         those Parameters are the Key and the Octave.
@@ -511,14 +511,14 @@ class Pitch(Generic):
             case float() | Fraction():
                 key_offset: int = int(operand)
                 self.apply_key_offset(key_offset)
-            case ou.Tone():
-                key_offset: int = self.move_semitones(operand % int())
-                self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: int = operand % int()
                 self.apply_key_offset(key_offset)
             case int() | ou.Unit():
                 self._degree = (self // ou.Degree() + operand)._unit
+            case ou.Tone():
+                key_offset: int = self.move_semitones(operand % int())
+                self.apply_key_offset(key_offset)
         return self
     
     def __sub__(self, operand: any) -> 'Pitch':

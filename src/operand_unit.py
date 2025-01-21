@@ -181,11 +181,11 @@ class Unit(o.Operand):
                     self << single_operand
         return self
 
-    def __add__(self, operand: any) -> 'Unit':
+    def __add__(self: TypeUnit, operand: any) -> TypeUnit:
         self_copy: Unit = self.copy()
         return self_copy.__iadd__(operand)
     
-    def __iadd__(self, number: any) -> 'Unit':
+    def __iadd__(self: TypeUnit, number: any) -> TypeUnit:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -196,11 +196,11 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __sub__(self, operand: any) -> 'Unit':
+    def __sub__(self: TypeUnit, operand: any) -> TypeUnit:
         self_copy: Unit = self.copy()
         return self_copy.__isub__(operand)
     
-    def __isub__(self, number: any) -> 'Unit':
+    def __isub__(self: TypeUnit, number: any) -> TypeUnit:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -211,11 +211,11 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __mul__(self, operand: any) -> 'Unit':
+    def __mul__(self: TypeUnit, operand: any) -> TypeUnit:
         self_copy: Unit = self.copy()
         return self_copy.__imul__(operand)
     
-    def __imul__(self, number: any) -> 'Unit':
+    def __imul__(self: TypeUnit, number: any) -> TypeUnit:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -226,11 +226,11 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __truediv__(self, operand: any) -> 'Unit':
+    def __truediv__(self: TypeUnit, operand: any) -> TypeUnit:
         self_copy: Unit = self.copy()
         return self_copy.__itruediv__(operand)
     
-    def __itruediv__(self, number: any) -> 'Unit':
+    def __itruediv__(self: TypeUnit, number: any) -> TypeUnit:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:

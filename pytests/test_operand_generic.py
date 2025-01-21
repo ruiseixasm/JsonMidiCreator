@@ -274,8 +274,47 @@ def test_pitch_add():
         (pitch_3 << Degree(degree + 1)) % str() >> Print()
         assert pitch_3 << Degree(degree + 1) == keys[degree]
 
-    pitch_4: Pitch = Pitch()
+    pitch_4: Pitch = Pitch(60.0)    # Middle C (60)
     assert pitch_4 % str() == "C"
+    assert pitch_4 % float() == 60.0
+
+    for sharps in range(8): # 8 is excluded
+
+        defaults << KeySignature(sharps)
+        print("------------")
+        print("--UP--")
+        # Test all semitones from 0 to 11
+        expected_pitches_float: list[str] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
+        for key_i in range(12):
+            (pitch_4 + Semitone(key_i)) % float() >> Print()
+            assert (pitch_4 + Semitone(key_i)) % float() == expected_pitches_float[key_i]
+        pitch_4 << 71.0
+        print("-DOWN-")
+        for key_i in range(12):
+            pitch_4 % float() >> Print()
+            assert pitch_4 % float() == expected_pitches_float[11 - key_i]
+            pitch_4 -= 1.0
+        pitch_4 += 1.0
+
+    for flats in range(0, -8, -1): # -8 is excluded
+
+        defaults << KeySignature(flats)
+        print("------------")
+        print("--UP--")
+        # Test all semitones from 0 to 11
+        expected_pitches_float: list[str] = [60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0, 70.0, 71.0]
+        for key_i in range(12):
+            (pitch_4 + Semitone(key_i)) % float() >> Print()
+            assert (pitch_4 + Semitone(key_i)) % float() == expected_pitches_float[key_i]
+        pitch_4 << 71.0
+        print("-DOWN-")
+        for key_i in range(12):
+            pitch_4 % float() >> Print()
+            assert pitch_4 % float() == expected_pitches_float[11 - key_i]
+            pitch_4 -= 1.0
+        pitch_4 += 1.0
+
+    defaults << KeySignature()
 
     print("------")
     # Test all semitones from 0 to 11
@@ -302,10 +341,14 @@ def test_pitch_add():
     (pitch_5 + 1.0) % str() >> Print()
     assert pitch_5 + 1.0 == Key("D#")
 
+    defaults << KeySignature() << Scale([])
+
 # test_pitch_add()
 
 
 def test_drum_kit():
+
+    defaults << KeySignature() << Scale([])
 
     pitch: Pitch = Pitch()
 
