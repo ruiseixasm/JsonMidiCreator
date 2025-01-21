@@ -473,11 +473,10 @@ class Pitch(Generic):
 
             case float() | Fraction() | ou.Semitone():
 
-                # It doesn't take into consideration the Key Signature (int not flat)
                 if isinstance(operand, ou.Semitone):
-                    key_offset: int = operand._unit - self % int()
+                    key_offset: float = operand._unit - self % float()
                 else:
-                    key_offset: int = operand - self % int()
+                    key_offset: float = operand - self % float()
                 self.apply_chromatic_offset(key_offset)
 
             case ou.DrumKit():
