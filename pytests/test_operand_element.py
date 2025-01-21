@@ -530,7 +530,7 @@ def test_chord_element():
 
     # WITH DEGREE
     print("------")
-    triad << Degree("ii")
+    triad << Degree("ii") << Scale([])  # Uses the Staff signature (Major Scale)
     assert Note(triad) % str() == "D"
     triad_notes = triad.get_chord_notes()
     #                      +3   +4
@@ -541,7 +541,7 @@ def test_chord_element():
 
     # WITH ROOT NOTE
     print("------")
-    triad << Degree("I") << "D"
+    triad << Degree("I") << "D" << Scale("Major")
     assert Note(triad) % str() == "D"
     triad_notes = triad.get_chord_notes()
     #                      +4   +3
@@ -550,6 +550,6 @@ def test_chord_element():
         triad_notes[key] % str() >> Print()
         assert triad_notes[key] % str() == expected_keys[key]
 
-# test_chord_element()
+test_chord_element()
 
 

@@ -1090,14 +1090,10 @@ class Chord(KeyScale):
     
     def get_chord_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
-        max_size = self._scale.keys()
-        if max_size % 2 == 0:
-            max_size //= 2
-        max_size = min(self._size, max_size)
         # Sets Scale to be used
         if self._scale.hasScale():
             # modulated_scale: og.Scale = self._scale.copy().modulate(self._mode)
-            for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
+            for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_degree: int = note_i * 2 + 1    # all odd numbers, 1, 3, 5, ...
                 if key_degree == 3:   # Third
                     if self._sus2:
@@ -1116,7 +1112,7 @@ class Chord(KeyScale):
                 chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
             # modulated_scale: og.Scale = og.defaults % og.Scale(self._mode) # already modulated
-            for note_i in range(max_size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
+            for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
                 key_step: int = note_i * 2
                 if key_step == 3:   # Third
                     if self._sus2:
