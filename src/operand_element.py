@@ -800,7 +800,7 @@ class Cluster(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._degrees  == other._degrees
+                    and self._degrees == other._degrees
             case _:
                 return super().__eq__(other)
     
@@ -842,49 +842,21 @@ class Cluster(Note):
         match operand:
             case Cluster():
                 super().__lshift__(operand)
-                self._degrees  = operand._degrees.copy()
+                self._degrees = operand._degrees.copy()
             case od.DataSource():
                 match operand._data:
                     case list():
                         if all(isinstance(single_degree, int) for single_degree in operand._data):
                             self._degrees = operand._data
-                    case _:                     super().__lshift__(operand)
+                    case _:
+                        super().__lshift__(operand)
             case list():
                 if all(isinstance(single_degree, int) for single_degree in operand):
                     self._degrees = operand.copy()
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                | og.Pitch() | ou.Key() | ou.Octave() | ou.Tone() | ou.Semitone() \
-                | ou.Semitone() | ou.Natural() | ou.Degree() | og.Scale() | ou.Mode() | int() | str() | None:
-                for single_pitch in self._degrees:
-                    single_pitch << operand
-            case ou.DrumKit():
-                self << od.DataSource( ou.Channel(10) )
-                for single_pitch in self._degrees:
-                    single_pitch << operand
             case _:
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'Cluster':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                for single_pitch in self._degrees:
-                    single_pitch << od.DataSource( single_pitch + operand ) # Specific and compounded parameter
-                return self
-            case _:
-                return super().__iadd__(operand)
-
-    def __isub__(self, operand: any) -> 'Cluster':
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case og.Pitch() | ou.Key() | ou.Tone() | ou.Semitone() | ou.Degree() | int() | float() | Fraction():
-                for single_pitch in self._degrees:
-                    single_pitch << od.DataSource( single_pitch - operand ) # Specific and compounded parameter
-                return self
-            case _:
-                return super().__isub__(operand)
-    
 class Dyad(Cluster):
     # In music, a dyad is a set of two notes or pitches.
     ...
