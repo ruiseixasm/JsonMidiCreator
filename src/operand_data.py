@@ -759,6 +759,14 @@ class Reverse(Operation):
         else:
             return super().__rrshift__(operand)
 
+class Flip(Operation):
+    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.flip()
+        else:
+            return super().__rrshift__(operand)
+
 class Extend(Operation):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
