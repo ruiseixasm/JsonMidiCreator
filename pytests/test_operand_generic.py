@@ -314,6 +314,7 @@ def test_pitch_add():
             pitch_4 -= 1.0
 
     defaults << KeySignature()
+    pitch_4 << Pitch(60.0)    # Middle C (60)
 
     print(f"------------ DEGREES ------------")
     print("------")
