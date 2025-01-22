@@ -575,14 +575,14 @@ class Pitch(Generic):
             case ou.Degree():
                 self._degree -= operand._unit
             case ou.Tone():
-                key_offset: int = self.move_semitones(operand % int()) * -1
-                self.apply_key_offset(key_offset)
+                new_pitch: float = self % float() - self.move_semitones(operand % int())
+                self.set_chromatic_pitch(new_pitch)
             case float() | Fraction():
-                key_offset: float = float(operand) * -1
-                self.apply_key_offset(key_offset)
+                new_pitch: float = self % float() - float(operand)
+                self.set_chromatic_pitch(new_pitch)
             case ra.Rational() | ou.Key() | ou.Semitone():
-                key_offset: float = operand % float() * -1
-                self.apply_key_offset(key_offset)
+                new_pitch: float = self % float() - operand % float()
+                self.set_chromatic_pitch(new_pitch)
         return self
 
     def __mul__(self, operand) -> 'Pitch':
