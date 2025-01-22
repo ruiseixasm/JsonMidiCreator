@@ -499,16 +499,10 @@ class Pitch(Generic):
             case ou.Degree():
                 self << operand._unit
 
-            case float() | Fraction() | ou.Semitone():
-
-                # Imposing a new Chromatic Key
-                # self._natural = False
-                # Ignore Staff Key Signature and Scale
-                if isinstance(operand, ou.Semitone):
-                    key_offset: float = operand._unit - self % float()
-                else:
-                    key_offset: float = operand - self % float()
-                self.apply_key_offset(key_offset)
+            case float() | Fraction():
+                self.set_chromatic_pitch(int(operand))
+            case ou.Semitone():
+                self.set_chromatic_pitch(operand._unit)
 
             case ou.DrumKit():
                 self._natural = False
