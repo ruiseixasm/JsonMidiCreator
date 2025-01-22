@@ -27,7 +27,7 @@ from JsonMidiCreator import *
 # Run the tests with 'pytest tests/python_functions.py' on linux
 
 from io import StringIO
-import pytest
+import pytest     # pip install pytest
 import sys
 from typing import Type
 
