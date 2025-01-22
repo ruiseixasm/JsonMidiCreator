@@ -136,9 +136,9 @@ chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> 
 # Global Staff setting up
 defaults << Tempo(120) << Measures(7)
 
-(Chord() * 7 << Size("7th")) << Iterate()**Add(1)**Degree() \
+(Chord() * 7 << Size("7th") << Scale([])) << Iterate()**Add(1)**Degree() \
     >> Save("json/testing/_Save_Play_p.11_first_note.json") >> Export("json/testing/_Export_Play_p.11_sequence.json")
-(Chord("A") << Scale("minor") << Octave(3)) * 7 << Iterate()**Add()**Degree() \
+(Chord("A") << Scale("minor") << Octave(3) << Scale([])) * 7 << Iterate()**Add()**Degree() \
     >> Save("json/testing/_Save_Play_p.12_first_note.json") >> Export("json/testing/_Export_Play_p.12_sequence.json") \
         << Inversion(1) >> Save("json/testing/_Save_Play_p.13_first_note.json") >> Export("json/testing/_Export_Play_p.13_sequence.json")
 
@@ -153,9 +153,9 @@ Chord("G") << Size("13th") << Scale("5th") << Duration(8) << Octave(3) \
 # Global Staff setting up
 defaults << Tempo(120) << Measures(7)
 
-(Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() \
+(Chord(1/4) * 7 << Size("7th") << Scale([])) << Even()**Iterate()**Add(2)**Degree() \
     >> Save("json/testing/_Save_Play_p.14_first_note.json") >> Export("json/testing/_Export_Play_p.14_sequence.json")
-(Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() \
+(Chord(1/4) * 7 << Size("7th") << Scale([])) << Iterate()**Even()**Add()**Degree() \
     >> Save("json/testing/_Save_Play_p.15_first_note.json") >> Export("json/testing/_Export_Play_p.15_sequence.json")
 
 all_chords = (Chord(1/4) * 7 << Size("7th"))

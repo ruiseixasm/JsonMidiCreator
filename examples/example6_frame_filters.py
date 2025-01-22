@@ -23,10 +23,10 @@ from JsonMidiCreator import *
 
 
 # Global Staff setting up
-defaults << Measures(7)
+defaults << Measures(7) << Tempo(30)
 
-(Chord(1/4) * 7 << Size("7th")) << Even()**Iterate()**Add(2)**Degree() >> Print() >> Play(True)
-(Chord(1/4) * 7 << Size("7th")) << Iterate()**Even()**Add()**Degree() >> Print() >> Play(True)
+(Chord(1/4) * 7 << Size("7th") << Scale([])) << Even()**Iterate()**Add(2)**Degree() >> Print() >> Play(True)
+(Chord(1/4) * 7 << Size("7th") << Scale([])) << Iterate()**Even()**Add()**Degree() >> Print() >> Play(True)
 
 all_chords = (Chord(1/4) * 7 << Size("7th"))
 first_chords = all_chords | Beat(0)
