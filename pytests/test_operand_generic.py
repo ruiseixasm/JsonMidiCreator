@@ -230,10 +230,14 @@ def test_set_chromatic_pitch():
 
     pitch: Pitch = Pitch()
 
-    for pitch_int in range(128):
-        pitch_float: float = float(pitch_int)
-        pitch.set_chromatic_pitch(pitch_float)
-        assert pitch == pitch_float
+    for degree in range(1, 8):
+        print(f"------------ {degree} ------------")
+        pitch << degree
+        for pitch_int in range(128):
+            pitch_float: float = float(pitch_int)
+            pitch.set_chromatic_pitch(pitch_float)
+            pitch % float() >> Print()
+            assert pitch == pitch_float
 
     for sharps in range(1, 8): # 8 is excluded
         print(f"------------ {sharps} ------------")
@@ -254,7 +258,6 @@ def test_set_chromatic_pitch():
             assert pitch == pitch_float
 
     defaults << KeySignature()
-
 
 # test_set_chromatic_pitch()
 

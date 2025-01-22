@@ -247,6 +247,7 @@ class Pitch(Generic):
     def set_chromatic_pitch(self, pitch: int | float) -> 'Pitch':
         
         # Reset decorative parameters
+        self._degree = 1
         self._sharp = 0
         self._natural = False
 
