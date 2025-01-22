@@ -250,7 +250,8 @@ class Pitch(Generic):
         self._sharp = 0
         self._natural = False
 
-        offset_pitch: float = pitch - self % float()
+        # % int() excludes the effect of the Key Signature
+        offset_pitch: int = pitch - self % int()
         self.apply_key_offset(offset_pitch)
         
         if not self._staff_reference._scale.hasScale():
@@ -260,7 +261,7 @@ class Pitch(Generic):
             sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
 
             # Avoid Key Signature offsetting with natural setting
-            if sharps_flats[int(self % float) % 12] != 0:
+            if sharps_flats[self._key % 12] != 0:
                 self._natural = True
 
         return self

@@ -226,16 +226,37 @@ def test_pitch_scales():
 # test_pitch_scales()
 
 
-def test_set_pitch():
+def test_set_chromatic_pitch():
 
     pitch: Pitch = Pitch()
 
     for pitch_int in range(128):
         pitch_float: float = float(pitch_int)
-        pitch << pitch_float
+        pitch.set_chromatic_pitch(pitch_float)
         assert pitch == pitch_float
 
-# test_set_pitch()
+    for sharps in range(1, 8): # 8 is excluded
+        print(f"------------ {sharps} ------------")
+        defaults << KeySignature(sharps)
+        for pitch_int in range(128):
+            pitch_float: float = float(pitch_int)
+            pitch.set_chromatic_pitch(pitch_float)
+            pitch % float() >> Print()
+            assert pitch == pitch_float
+
+    for flats in range(-1, -8, -1): # 8 is excluded
+        print(f"------------ {flats} ------------")
+        defaults << KeySignature(flats)
+        for pitch_int in range(128):
+            pitch_float: float = float(pitch_int)
+            pitch.set_chromatic_pitch(pitch_float)
+            pitch % float() >> Print()
+            assert pitch == pitch_float
+
+    defaults << KeySignature()
+
+
+# test_set_chromatic_pitch()
 
 
 def test_pitch_add():
