@@ -482,6 +482,28 @@ def test_clip_operations():
 # test_clip_operations()
 
 
+def test_flip_operation():
+
+    four_notes: Clip = Note() * 4
+    four_notes << Iterate(2.0)**Add(60.0)**Semitone()
+
+    actual_pitch: float = 60.0
+    for single_note in four_notes:
+        single_note // Pitch() % float() >> Print()
+        assert single_note // Pitch() == actual_pitch
+        actual_pitch += 2.0
+    
+    four_notes.flip()
+
+    print("------")
+    for single_note in four_notes:
+        actual_pitch -= 2.0
+        single_note // Pitch() % float() >> Print()
+        assert single_note // Pitch() == actual_pitch
+
+# test_flip_operation()
+
+
 def test_clip_content():
 
     clip_elements: Clip = Note() * 4

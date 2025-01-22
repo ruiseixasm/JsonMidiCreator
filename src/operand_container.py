@@ -817,6 +817,33 @@ class Clip(Container):  # Just a container of Elements
                 single_element._position_beats = length_beats - (single_element._position_beats + duration_beats)
         return super().reverse()    # Reverses the list
 
+    def flip(self) -> 'Clip':
+        higher_pitch: og.Pitch = None
+        lower_pitch: og.Pitch = None
+        
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Note):
+                element_pitch: og.Pitch = single_datasource._data._pitch
+                if higher_pitch is None:
+                    higher_pitch = element_pitch
+                    lower_pitch = element_pitch
+                elif element_pitch > higher_pitch:
+                    higher_pitch = element_pitch
+                elif element_pitch < lower_pitch:
+                    lower_pitch = element_pitch
+
+        top_pitch: float = higher_pitch % float()
+        bottom_pitch: float = lower_pitch % float()
+
+        for single_datasource in self._datasource_list:
+            if isinstance(single_datasource._data, oe.Note):
+                element_pitch: og.Pitch = single_datasource._data._pitch
+                note_pitch: float = element_pitch % float()
+                new_pitch: float = top_pitch - (note_pitch - bottom_pitch)
+                element_pitch << new_pitch
+                
+        return self
+
 
     def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Clip':
         extended_clip: Clip = self.copy() << od.DataSource( self._datasource_list )

@@ -502,7 +502,7 @@ class Pitch(Generic):
 
             case float() | Fraction():
                 self.set_chromatic_pitch(int(operand))
-            case ou.Semitone():
+            case ou.Semitone() | ou.Tone():
                 self.set_chromatic_pitch(operand._unit)
 
             case ou.DrumKit():
