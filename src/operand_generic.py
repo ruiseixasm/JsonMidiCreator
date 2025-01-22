@@ -244,6 +244,28 @@ class Pitch(Generic):
 
         return self
     
+    def set_chromatic_pitch(self, pitch: int | float) -> 'Pitch':
+        
+        # Reset decorative parameters
+        self._sharp = 0
+        self._natural = False
+
+        offset_pitch: float = pitch - self % float()
+        self.apply_key_offset(offset_pitch)
+        
+        if not self._staff_reference._scale.hasScale():
+
+            # Key Signature | Circle of Fifths
+            accidentals_int: int = self._staff_reference._key_signature._unit
+            sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+
+            # Avoid Key Signature offsetting with natural setting
+            if sharps_flats[int(self % float) % 12] != 0:
+                self._natural = True
+
+        return self
+
+
     def apply_chromatic_offset(self, key_offset: int | float) -> 'Pitch':
         
         expected_pitch: float = self % float() + key_offset

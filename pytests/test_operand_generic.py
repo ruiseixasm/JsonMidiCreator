@@ -226,6 +226,18 @@ def test_pitch_scales():
 # test_pitch_scales()
 
 
+def test_set_pitch():
+
+    pitch: Pitch = Pitch()
+
+    for pitch_int in range(128):
+        pitch_float: float = float(pitch_int)
+        pitch << pitch_float
+        assert pitch == pitch_float
+
+# test_set_pitch()
+
+
 def test_pitch_add():
 
     defaults << KeySignature()
