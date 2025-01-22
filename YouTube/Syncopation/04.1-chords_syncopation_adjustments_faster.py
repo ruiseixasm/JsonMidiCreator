@@ -65,7 +65,7 @@ syncopation_1: Clip = no_syncopation + base_line
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
 
-chords: Clip = Chord() * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
+chords: Clip = Chord([]) * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
 chords -= NotEqual(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
