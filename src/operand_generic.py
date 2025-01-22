@@ -485,7 +485,7 @@ class Pitch(Generic):
                     key_offset: float = operand._unit - self % float()
                 else:
                     key_offset: float = operand - self % float()
-                self.apply_chromatic_offset(key_offset)
+                self.apply_key_offset(key_offset)
 
             case ou.DrumKit():
                 self._natural = False
@@ -536,10 +536,10 @@ class Pitch(Generic):
                 self.apply_key_offset(key_offset)
             case float() | Fraction():
                 key_offset: float = float(operand)
-                self.apply_chromatic_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: float = operand % float()
-                self.apply_chromatic_offset(key_offset)
+                self.apply_key_offset(key_offset)
         return self
     
     def __sub__(self, operand: any) -> 'Pitch':
@@ -562,10 +562,10 @@ class Pitch(Generic):
                 self.apply_key_offset(key_offset)
             case float() | Fraction():
                 key_offset: float = float(operand) * -1
-                self.apply_chromatic_offset(key_offset)
+                self.apply_key_offset(key_offset)
             case ra.Rational() | ou.Key() | ou.Semitone():
                 key_offset: float = operand % float() * -1
-                self.apply_chromatic_offset(key_offset)
+                self.apply_key_offset(key_offset)
         return self
 
     def __mul__(self, operand) -> 'Pitch':
