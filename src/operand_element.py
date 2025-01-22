@@ -753,7 +753,10 @@ class Note(Element):
             case ou.Velocity():     self._velocity = operand._unit
             case ra.Gate():         self._gate = operand._rational
             case ou.Tied():         self._tied = operand // bool()
-            case og.Pitch() | ou.PitchParameter() | int() | str() | None:
+            case og.Pitch():
+                self._pitch << operand
+                self._pitch.set_staff_reference(self._staff_reference)
+            case ou.PitchParameter() | int() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
                 self._channel = 10
