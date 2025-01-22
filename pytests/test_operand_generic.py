@@ -313,8 +313,9 @@ def test_pitch_add():
             assert pitch_4 % float() == chromatic_pitches[11 - key_i]
             pitch_4 -= 1.0
 
-    # defaults << KeySignature()
+    defaults << KeySignature()
 
+    print(f"------------ DEGREES ------------")
     print("------")
     for key_i in range(12):
         (pitch_4 + Semitone(key_i)) % float() >> Print()

@@ -247,10 +247,7 @@ class Pitch(Generic):
     def apply_chromatic_offset(self, key_offset: int | float) -> 'Pitch':
         
         expected_pitch: float = self % float() + key_offset
-        octave_offset_int, key_offset_int = self.octave_key_offset(key_offset)
-        self._octave += octave_offset_int
-        self._key += key_offset_int
-        self._key %= 24   # Removes key from Key Signature specificity
+        self.apply_key_offset(key_offset)
         offset_pitch: int = int(self % float())
         if offset_pitch != expected_pitch:
             if self._major_scale[offset_pitch % 12] == 0:   # Black key
