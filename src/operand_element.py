@@ -622,7 +622,7 @@ class Note(Element):
         return self
 
     def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
-        self._pitch = og.Pitch(key, octave)
+        self._pitch = og.Pitch(key, octave).set_staff_reference(self._staff_reference)
         return self
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
