@@ -251,7 +251,7 @@ class Container(o.Operand):
             case Container():
                 for single_datasource in operand._datasource_list:
                     self._datasource_list.append(self.deep_copy(single_datasource))
-                    
+
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -754,6 +754,11 @@ class Clip(Container):  # Just a container of Elements
                     operand_length: Fraction = operand._rational
                     self_repeating: float = float( operand_length / self_length )
                 self *= self_repeating
+            case oe.Element():
+                next_position: ra.Position = self.finish()
+                self._datasource_list.append(
+                    od.DataSource( operand.copy().set_staff_reference(self._staff) << next_position )
+                )
 
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists

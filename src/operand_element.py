@@ -365,6 +365,11 @@ class Element(o.Operand):
     def __imul__(self, operand: any) -> Union['Element', 'Clip']:
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
+            case Element():
+                extended_clip: Clip = self + operand
+                next_position: ra.Position = ra.Position( self % ra.Length() )
+                extended_clip[1] << next_position   # Two elements Clip
+                return extended_clip
             case int() | float():
                 new_clip: oc.Clip = oc.Clip()
                 multiplier: int = int(operand)
