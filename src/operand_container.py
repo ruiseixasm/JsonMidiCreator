@@ -251,6 +251,10 @@ class Container(o.Operand):
             case Container():
                 for single_datasource in operand._datasource_list:
                     self._datasource_list.append(self.deep_copy(single_datasource))
+                    
+            case tuple():
+                for single_operand in operand:
+                    self += single_operand
             case _:
                 if isinstance(operand, od.DataSource):
                     self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
@@ -273,6 +277,10 @@ class Container(o.Operand):
                     ]
             case o.Operand():
                 self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data != operand]
+
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
             case int(): # repeat n times the last argument if any
                 if len(self._datasource_list) > 0:
                     while operand > 0 and len(self._datasource_list) > 0:
@@ -300,6 +308,10 @@ class Container(o.Operand):
                     self._datasource_list.extend( data_list_copy )
                 elif operand == 0:
                     self._datasource_list = []
+
+            case tuple():
+                for single_operand in operand:
+                    self *= single_operand
         return self
     
     def __itruediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
@@ -326,9 +338,9 @@ class Container(o.Operand):
             case ch.Chaos():
                 return self.shuffle(operand)
             
-            case _:
-                for single_datasource in self._datasource_list:
-                    single_datasource._data /= operand
+            case tuple():
+                for single_operand in operand:
+                    self /= single_operand
         return self
 
 
@@ -1036,6 +1048,10 @@ class Song(Container):
                 )
             case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
+
+            case tuple():
+                for single_operand in operand:
+                    self += single_operand
             case _:
                 for single_datasource in self._datasource_list: 
                     single_datasource._data += operand
@@ -1051,18 +1067,32 @@ class Song(Container):
                 self._datasource_list = [
                     data_clip for data_clip in self._datasource_list if data_clip._data != operand
                 ]
+                
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
             case _:
                 for single_datasource in self._datasource_list: 
                     single_datasource._data -= operand
         return self
 
     def __imul__(self, operand: any) -> 'Song':
-        for single_datasource in self._datasource_list: 
-            single_datasource._data *= operand
+        match operand:
+            case tuple():
+                for single_operand in operand:
+                    self *= single_operand
+            case _:
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data *= operand
         return self
 
     def __itruediv__(self, operand: any) -> 'Song':
-        for single_datasource in self._datasource_list: 
-            single_datasource._data /= operand
+        match operand:
+            case tuple():
+                for single_operand in operand:
+                    self /= single_operand
+            case _:
+                for single_datasource in self._datasource_list: 
+                    single_datasource._data /= operand
         return self
 
