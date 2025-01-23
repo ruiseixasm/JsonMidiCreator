@@ -776,10 +776,15 @@ class Flip(Operation):
             return super().__rrshift__(operand)
 
 class Snap(Operation):
+    def __init__(self, up: bool = False):
+        super().__init__(up)
+
+    # CHAINABLE OPERATIONS
+
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
-            return operand.snap()
+            return operand.snap(self._data)
         else:
             return super().__rrshift__(operand)
 

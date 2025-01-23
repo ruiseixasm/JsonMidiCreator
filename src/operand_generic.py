@@ -654,14 +654,18 @@ class Pitch(Generic):
             "b": 11
          }
 
-    def snap(self) -> 'Pitch':
+    def snap(self, up: bool = False) -> 'Pitch':
         scale_list: list[int] = self._staff_reference % list()
         self_pitch: float = self % float()
         pitch_offset: float = 0.0
-        while scale_list[int(self_pitch - pitch_offset)] == 0:
-            pitch_offset += 1.0
+        if up:
+            pitch_step: float = 1.0
+        else:
+            pitch_step: float = -1.0
+        while scale_list[int(self_pitch + pitch_offset)] == 0:
+            pitch_offset += pitch_step
         if pitch_offset > 0.0:
-            self -= pitch_offset
+            self += pitch_offset
         return self
 
 class Controller(Generic):
