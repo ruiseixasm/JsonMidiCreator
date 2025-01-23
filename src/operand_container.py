@@ -231,7 +231,7 @@ class Container(o.Operand):
             self._datasource_list[operand_i]._data = tail_operand
         return self
     
-    def rotate(self, offset: int = 1, parameter: any = ra.Position()) -> 'Container':
+    def rotate(self, offset: int = 1, parameter: any = ra.Duration()) -> 'Container':
         parameters: list = []
         for operand in self:
             if isinstance(operand, o.Operand):
