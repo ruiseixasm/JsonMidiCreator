@@ -654,6 +654,15 @@ class Pitch(Generic):
             "b": 11
          }
 
+    def snap(self) -> 'Pitch':
+        scale_list: list[int] = self._staff_reference % list()
+        self_pitch: float = self % float()
+        pitch_offset: float = 0.0
+        while scale_list[int(self_pitch - pitch_offset)] == 0:
+            pitch_offset += 1.0
+        if pitch_offset > 0.0:
+            self -= pitch_offset
+        return self
 
 class Controller(Generic):
     def __init__(self, *parameters):
@@ -918,7 +927,7 @@ class Scale(Generic):
                 if len(self_scale) == 12:
                     self._scale_list = self_scale.copy()
             case list():
-                if len(operand) == 12 and all(x in {0, 1} for x in operand):
+                if len(operand) == 12 and all(x in {0, 1} for x in operand) and any(x == 1 for x in operand):
                     self._scale_list = operand.copy()
                 elif operand == []:
                     self._scale_list = []
@@ -1128,6 +1137,10 @@ class Staff(Generic):
                 if self._scale.hasScale():
                     return self._scale % ou.Key()
                 return self._key_signature % ou.Key()
+            case list():
+                if self._scale.hasScale():
+                    return self._scale % list()
+                return self._key_signature % list()
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():
