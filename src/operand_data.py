@@ -734,8 +734,6 @@ class Print(Operation):
         return operand
 
 class Link(Operation):
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -760,10 +758,18 @@ class Reverse(Operation):
             return super().__rrshift__(operand)
 
 class Rotate(Operation):
+    
+    from operand_rational import Duration
+
+    def __init__(self, offset: int = 1, parameter: type = Duration):
+        super().__init__((offset, parameter))
+
+    # CHAINABLE OPERATIONS
+
     def __rrshift__(self, operand: o.Operand) -> o.Operand:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.rotate()
+            return operand.rotate(*self._data)
         else:
             return super().__rrshift__(operand)
 
