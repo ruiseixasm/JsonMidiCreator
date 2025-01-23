@@ -371,21 +371,21 @@ class Container(o.Operand):
         return self
 
     def __or__(self: TypeContainer, operand: any) -> TypeContainer:
+        return self.shallow_copy().__ior__(operand)
+
+    def __ior__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Container():
-                new_container: Container = self.__class__()
-                new_container._datasource_list.extend(self._datasource_list)
-                new_container._datasource_list.extend(operand._datasource_list)
-                return new_container
-            
-            # Returns an altered Container with less info (truncated info)
+                self._datasource_list.extend(
+                    od.DataSource( item ) for item in operand
+                )
             case od.Getter() | od.Operation():
-                return self.shallow_copy() >> operand
+                self >>= operand
             case ch.Chaos():
-                return self.shallow_copy().shuffle(operand)
-            
+                self.shuffle(operand)
             case _:
-                return self.filter(operand)
+                self.filter(operand)
+        return self
 
     def __ror__(self: TypeContainer, operand: any) -> TypeContainer:
         return self.__or__(operand)
