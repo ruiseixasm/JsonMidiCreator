@@ -664,6 +664,9 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats += self._staff.convertToBeats(operand)._rational
 
+            case tuple():
+                for single_operand in operand:
+                    self += single_operand
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data += operand
@@ -683,6 +686,9 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats -= self._staff.convertToBeats(operand)._rational
 
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data -= operand
@@ -743,6 +749,9 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats *= self._staff.convertToBeats(operand)._rational
 
+            case tuple():
+                for single_operand in operand:
+                    self *= single_operand
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data *= operand
@@ -768,6 +777,9 @@ class Clip(Container):  # Just a container of Elements
             case ch.Chaos():
                 return self.shuffle(operand)
             
+            case tuple():
+                for single_operand in operand:
+                    self /= single_operand
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data /= operand
