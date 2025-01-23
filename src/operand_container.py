@@ -855,6 +855,11 @@ class Clip(Container):  # Just a container of Elements
                 
         return self
 
+    def snap(self) -> 'Clip':
+        for single_note in self:
+            if isinstance(single_note, oe.Note):
+                single_note._pitch.snap()
+        return self
 
     def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Clip':
         extended_clip: Clip = self.copy() << od.DataSource( self._datasource_list )
