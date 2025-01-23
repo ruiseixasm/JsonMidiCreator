@@ -230,6 +230,17 @@ class Container(o.Operand):
             self._datasource_list[self_len - 1 - operand_i]._data = self._datasource_list[operand_i]._data
             self._datasource_list[operand_i]._data = tail_operand
         return self
+    
+    def rotate(self, offset: int = 1, parameter: any = ra.Position()) -> 'Container':
+        parameters: list = []
+        for operand in self:
+            if isinstance(operand, o.Operand):
+                parameters.append( operand % parameter )
+        for operand in self:
+            if isinstance(operand, o.Operand):
+                operand << parameters[ offset % len(parameters) ]
+                offset += 1
+        return self
 
     def filter(self, criteria: any) -> 'Container':
         new_container: Container = self.__class__()
