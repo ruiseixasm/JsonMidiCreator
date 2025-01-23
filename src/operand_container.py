@@ -261,11 +261,11 @@ class Container(o.Operand):
                     self._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
         return self
 
-
     def __radd__(self: TypeContainer, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
         self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
+
 
     def __sub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         return self.copy().__isub__(operand)
@@ -287,21 +287,33 @@ class Container(o.Operand):
                         operand -= 1
         return self
 
-    # multiply with a scalar 
+
     def __mul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
+        return self.copy().__imul__(operand)
+
+    # multiply with a scalar 
+    def __imul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 pass
             case o.Operand():
                 pass
             case int(): # repeat n times the self content if any
-                many_operands = self.__class__()    # with an empty list
-                while operand > 0:
-                    many_operands += self
-                    operand -= 1
-                return many_operands
-        return self.copy()
+                if operand > 1:
+                    data_list_copy: list[od.DataSource] = [
+                        self.deep_copy( data ) for data in self._datasource_list
+                    ]
+                    while operand > 2:
+                        self._datasource_list.extend(
+                            self.deep_copy( data ) for data in data_list_copy
+                        )
+                        operand -= 1
+                    self._datasource_list.extend( data_list_copy )
+                elif operand == 0:
+                    self._datasource_list = []
+        return self
     
+
     def __truediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         return self.copy().__itruediv__(operand)
 
@@ -334,11 +346,13 @@ class Container(o.Operand):
                     single_datasource._data /= operand
         return self
 
+
     def __pow__(self: TypeContainer, operand: 'o.Operand') -> TypeContainer:
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, o.Operand):
                 single_datasource._data.__pow__(operand)
         return self
+
 
     def __or__(self: TypeContainer, operand: any) -> TypeContainer:
         return self.shallow_copy().__ior__(operand)
@@ -359,6 +373,8 @@ class Container(o.Operand):
 
     def __ror__(self: TypeContainer, operand: any) -> TypeContainer:
         return self.__or__(operand)
+
+
 
 class Clip(Container):  # Just a container of Elements
     def __init__(self, *operands):
