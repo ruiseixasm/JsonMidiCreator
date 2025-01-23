@@ -370,6 +370,12 @@ class Element(o.Operand):
                 next_position: ra.Position = ra.Position( extended_clip[0] % ra.Length() )
                 extended_clip[1] << next_position   # Two elements Clip
                 return extended_clip
+            case oc.Clip():
+                self_clip: oc.Clip = operand.empty_copy()
+                self_clip += self
+                operand += ra.Position( self_clip[0] % ra.Length() )
+                self_clip += operand
+                return self_clip
             case int() | float():
                 new_clip: oc.Clip = oc.Clip()
                 multiplier: int = int(operand)
