@@ -326,7 +326,7 @@ class Element(o.Operand):
                 return super().__rrshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'Element':
+    def __iadd__(self: o.T, operand: any) -> Union[o.T, 'Clip']:
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -362,7 +362,7 @@ class Element(o.Operand):
                 return self << self_operand
         return self
 
-    def __imul__(self, operand: any) -> Union['Element', 'Clip']:
+    def __imul__(self: o.T, operand: any) -> Union[o.T, 'Clip']:
         import operand_container as oc
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
