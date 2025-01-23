@@ -246,21 +246,7 @@ class Container(o.Operand):
         return self
 
     def __add__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        match operand:
-            case Container():
-                self_copy: Container = self.__class__()
-                for single_datasource in self._datasource_list:
-                    self_copy._datasource_list.append(self.deep_copy(single_datasource))
-                for single_datasource in operand._datasource_list:
-                    self_copy._datasource_list.append(self.deep_copy(single_datasource))
-                return self_copy
-            case _:
-                if isinstance(operand, od.DataSource):
-                    self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
-                    return self
-                self_copy = self.copy()
-                self_copy._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
-                return self_copy
+        return self.copy().__iadd__(operand)
     
     # Avoids the costly copy of Container self doing +=
     def __iadd__(self: TypeContainer, operand: any) -> TypeContainer:
