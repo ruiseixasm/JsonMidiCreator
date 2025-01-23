@@ -32,8 +32,8 @@ motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
 # motif >> P
 
 # The Transposition
-transformed_motif: Clip = motif + Semitone(4) + Steps(4)
+transformed_motif: Clip = motif + (Semitone(4), Steps(4))   # Makes just one implicit copy with a tuple
 
-motif * transformed_motif % Length() % float() >> Print()
-motif * transformed_motif * 4 >> P
+(motif + transformed_motif) % Length() % Steps() % Fraction() >> Print()
+(motif + transformed_motif) * 4 >> P
 
