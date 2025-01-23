@@ -786,16 +786,16 @@ class Note(Element):
 
 class Cluster(Note):
     def __init__(self, *parameters):
-        self._degrees: list[int] = [1, 3, 5]
+        self._sets: list[int | float] = [1, 3, 5]
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case list():            return self._degrees
+                    case list():            return self._sets
                     case _:                 return super().__mod__(operand)
-            case list():            return self._degrees.copy()
+            case list():            return self._sets.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -803,14 +803,20 @@ class Cluster(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._degrees == other._degrees
+                    and self._sets == other._sets
             case _:
                 return super().__eq__(other)
     
     def get_cluster_notes(self) -> list[Note]:
         cluster_notes: list[Note] = []
-        for single_degree in self._degrees:
-            cluster_notes.append( Note(self, single_degree) )
+        for single_set in self._sets:
+            single_note: Note = Note(self)
+            match single_set:
+                case int():
+                    single_note._pitch << single_set
+                case float():
+                    single_note._pitch += single_set
+            cluster_notes.append( single_note )
         return cluster_notes
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
@@ -827,17 +833,17 @@ class Cluster(Note):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["degrees"] = self.serialize( self._degrees )
+        serialization["parameters"]["sets"] = self.serialize( self._sets )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'Cluster':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "degrees" in serialization["parameters"]):
+            "sets" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._degrees  = self.deserialize( serialization["parameters"]["degrees"] )
+            self._sets  = self.deserialize( serialization["parameters"]["sets"] )
         return self
 
     def __lshift__(self, operand: o.Operand) -> 'Cluster':
@@ -845,17 +851,17 @@ class Cluster(Note):
         match operand:
             case Cluster():
                 super().__lshift__(operand)
-                self._degrees = operand._degrees.copy()
+                self._sets = operand._sets.copy()
             case od.DataSource():
                 match operand._data:
                     case list():
-                        if all(isinstance(single_degree, int) for single_degree in operand._data):
-                            self._degrees = operand._data
+                        if all(isinstance(single_degree, (int, float)) for single_degree in operand._data):
+                            self._sets = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
                 if all(isinstance(single_degree, int) for single_degree in operand):
-                    self._degrees = operand.copy()
+                    self._sets = operand.copy()
             case _:
                 super().__lshift__(operand)
         return self
