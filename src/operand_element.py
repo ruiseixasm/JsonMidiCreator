@@ -367,7 +367,7 @@ class Element(o.Operand):
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
                 extended_clip: Clip = self + operand
-                next_position: ra.Position = ra.Position( self % ra.Length() )
+                next_position: ra.Position = ra.Position( extended_clip[0] % ra.Length() )
                 extended_clip[1] << next_position   # Two elements Clip
                 return extended_clip
             case int() | float():
