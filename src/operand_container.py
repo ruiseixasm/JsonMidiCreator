@@ -57,7 +57,7 @@ class Container(o.Operand):
             self._datasource_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Container has
         only one type of Parameters it should be used in conjugation with list()
@@ -75,10 +75,6 @@ class Container(o.Operand):
                 match operand._data:
                     case Container():
                         return self
-                    case od.Getter() | od.Operation():
-                        return self >> operand
-                    case ch.Chaos():
-                        return self.shuffle(operand)
                     case list():
                         return [
                             single_datasource._data
@@ -88,10 +84,6 @@ class Container(o.Operand):
                         return super().__mod__(operand)
             case Container():
                 return self.copy()
-            case od.Getter() | od.Operation():
-                return self.copy() >> operand
-            case ch.Chaos():
-                return self.copy().shuffle(operand)
             case list():
                 return [
                     self.deep_copy(single_datasource._data)
@@ -112,8 +104,6 @@ class Container(o.Operand):
                 self._index %= len(self._datasource_list)
                 single_datasource_data: any = self._datasource_list[self._index]._data
                 return single_datasource_data
-            case of.Frame():
-                return self.filter(operand)
             case _:
                 return super().__mod__(operand)
 
@@ -201,6 +191,15 @@ class Container(o.Operand):
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
+
+    def shallow_copy(self, *parameters) -> 'Container':
+        shallow_copy: Container = self.empty_copy()
+        shallow_copy._datasource_list = [
+            od.DataSource( item ) for item in self
+        ]
+        for single_parameter in parameters:
+            shallow_copy << single_parameter
+        return shallow_copy
     
     def clear(self, *parameters) -> 'Container':
         self._datasource_list = []
@@ -243,9 +242,8 @@ class Container(o.Operand):
         return self
 
     def filter(self, criteria: any) -> 'Container':
-        new_container: Container = self.__class__()
-        new_container._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
-        return new_container
+        self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+        return self
 
     def __add__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
@@ -354,6 +352,16 @@ class Container(o.Operand):
                             ))
                         nth_item -= 1
                     return many_operands
+
+            # Returns an altered Container with less info (truncated info)
+            case od.Getter() | od.Operation():
+                return self >> operand
+            case ch.Chaos():
+                return self.shuffle(operand)
+            
+            case _:
+                for single_datasource in self._datasource_list:
+                    single_datasource._data /= operand
         return self
 
     def __pow__(self: TypeContainer, operand: 'o.Operand') -> TypeContainer:
@@ -415,7 +423,7 @@ class Clip(Container):  # Just a container of Elements
         return True
 
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Container has
         only one type of Parameters it should be used in conjugation with list()
@@ -792,6 +800,12 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats /= self._staff.convertToBeats(operand)._rational
 
+            # Returns an altered Clip with less info (truncated info)
+            case od.Getter() | od.Operation():
+                return self >> operand
+            case ch.Chaos():
+                return self.shuffle(operand)
+            
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data /= operand
@@ -808,15 +822,11 @@ class Clip(Container):  # Just a container of Elements
                 new_clip._staff             << self._staff
                 return new_clip
             case _:
-                return self.filter(operand)
+                return self.shallow_copy().filter(operand)
 
     def filter(self, criteria: any) -> 'Clip':
-        filtered_clip: Clip = self.__class__()
-        filtered_clip._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
-        filtered_clip._midi_track       << self._midi_track
-        filtered_clip._position_beats   = self._position_beats
-        filtered_clip._staff            = self._staff.copy()
-        return filtered_clip
+        self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+        return self
 
     def reverse(self) -> 'Clip':
         length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure

@@ -32,7 +32,7 @@ motif += Foreach(0, 3, 10, 7, 2, -4, -5, -2, 0, 3, 7, -7)**Semitone()
 # motif >> P
 
 # The +3 Rotation (Pitch)
-rotated_motif: Clip = motif % Rotate(3, Pitch)
+rotated_motif: Clip = motif / Rotate(3, Pitch)
 
 motif * rotated_motif % Length() % float() >> Print()
 motif * rotated_motif * 4 >> P

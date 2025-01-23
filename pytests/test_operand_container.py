@@ -199,8 +199,8 @@ def test_sub_clip():
 
     single_note: Element = Note()
     four_notes: Clip = Note() * 4
-    notes_to_remove: Clip = four_notes % Nth(1, 3)
-    remaining_notes: Clip = four_notes % Nth(2, 4)
+    notes_to_remove: Clip = four_notes | Nth(1, 3)
+    remaining_notes: Clip = four_notes | Nth(2, 4)
 
     assert notes_to_remove.len() < four_notes.len()
     assert notes_to_remove.len() == remaining_notes.len()
@@ -316,12 +316,12 @@ def test_clip_composition():
 def test_element_stacking():
 
     two_notes: Clip = Note() * 2
-    assert two_notes % Last() % Beats() == Beats(1)
+    assert two_notes / Last() % Beats() == Beats(1)
 
     two_notes << 1/8    # Stacking is NOT included!
-    assert two_notes % Last() % Beats() == Beats(1)
+    assert two_notes / Last() % Beats() == Beats(1)
     two_notes >> Stack()
-    assert two_notes % Last() % Beats() == Beats(1/2)
+    assert two_notes / Last() % Beats() == Beats(1/2)
     
 # test_element_stacking()
 
@@ -388,15 +388,15 @@ def test_clip_selectors():
 
     four_notes: Clip = Note() * 4
     four_notes += All()**Beat(1)
-    assert four_notes % First() % Beats() == 1
-    assert four_notes % Middle(3) % Beats() == 3    # Middle uses nth, so, 3 means the 3rd element
-    assert four_notes % Last() % Beats() == 4
+    assert four_notes / First() % Beats() == 1
+    assert four_notes / Middle(3) % Beats() == 3    # Middle uses nth, so, 3 means the 3rd element
+    assert four_notes / Last() % Beats() == 4
 
     # Test for bad input
     empty_clip: Clip = Clip()
-    assert empty_clip % First() == Null()
-    assert empty_clip % Middle(3) == Null()
-    assert empty_clip % Last() == Null()
+    assert empty_clip / First() == Null()
+    assert empty_clip / Middle(3) == Null()
+    assert empty_clip / Last() == Null()
 
 # test_clip_selectors()
 
@@ -425,17 +425,17 @@ def test_position_shift():
     Beats(-2) >> four_notes_1
     assert four_notes_1 % Position() == Beats(0)
 
-    print(four_notes_2 % First() % Beats() % int())
-    assert four_notes_2 % First() % Beats() == 0
+    print(four_notes_2 / First() % Beats() % int())
+    assert four_notes_2 / First() % Beats() == 0
 
     eight_notes = four_notes_1 * four_notes_2  # * Moves four_notes_2 to the next Measure
-    print(eight_notes % First() % Beats() % int())
-    assert eight_notes % First() % Beats() == 0
-    print(eight_notes % Middle(5) % Beats() % int())
-    assert eight_notes % Middle(5) % Beats() == 4
+    print(eight_notes / First() % Beats() % int())
+    assert eight_notes / First() % Beats() == 0
+    print(eight_notes / Middle(5) % Beats() % int())
+    assert eight_notes / Middle(5) % Beats() == 4
 
-    print(four_notes_2 % First() % Beats() % int())
-    assert four_notes_2 % First() % Beats() == 0
+    print(four_notes_2 / First() % Beats() % int())
+    assert four_notes_2 / First() % Beats() == 0
 
     assert four_notes_1 % Length() == 3 * Beats(1) + Beats(1/2)
     assert (Measures(1) >> four_notes_1) % Position() == Beats(4)
