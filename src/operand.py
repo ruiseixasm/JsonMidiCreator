@@ -369,8 +369,7 @@ class Operand:
     
 
     def __add__(self: TypeOperand, operand: any) -> TypeOperand:
-        self_copy: Operand = self.copy()
-        return self_copy.__iadd__(operand)
+        return self.copy().__iadd__(operand)
     
     def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
@@ -380,8 +379,7 @@ class Operand:
 
 
     def __sub__(self: TypeOperand, operand: any) -> TypeOperand:
-        self_copy: Operand = self.copy()
-        return self_copy.__isub__(operand)
+        return self.copy().__isub__(operand)
     
     def __isub__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
@@ -391,8 +389,7 @@ class Operand:
 
 
     def __mul__(self: TypeOperand, operand: any) -> TypeOperand:
-        self_copy: Operand = self.copy()
-        return self_copy.__imul__(operand)
+        return self.copy().__imul__(operand)
     
     def __imul__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
@@ -402,8 +399,7 @@ class Operand:
 
 
     def __truediv__(self: TypeOperand, operand: any) -> TypeOperand:
-        self_copy: Operand = self.copy()
-        return self_copy.__itruediv__(operand)
+        return self.copy().__itruediv__(operand)
     
     def __itruediv__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
