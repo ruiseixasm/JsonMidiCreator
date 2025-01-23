@@ -282,22 +282,7 @@ class Container(o.Operand):
         return self_copy
 
     def __sub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        self_copy: Container = self.copy()
-        match operand:
-            case Container():
-                # Exclude items based on equality (==) comparison
-                self_copy._datasource_list = [
-                        self_datasource.copy() for self_datasource in self._datasource_list
-                        if all(self_datasource != operand_datasource for operand_datasource in operand._datasource_list)
-                    ]
-            case o.Operand():
-                self_copy._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data != operand]
-            case int(): # repeat n times the last argument if any
-                if len(self._datasource_list) > 0:
-                    while operand > 0 and len(self_copy._datasource_list) > 0:
-                        self_copy._datasource_list.pop()
-                        operand -= 1
-        return self_copy
+        return self.copy().__isub__(operand)
 
     def __isub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
@@ -332,8 +317,7 @@ class Container(o.Operand):
         return self.copy()
     
     def __truediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        self_copy: Container = self.copy()
-        return self_copy.__itruediv__(operand)
+        return self.copy().__itruediv__(operand)
 
     def __itruediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
