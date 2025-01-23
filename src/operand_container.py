@@ -377,6 +377,13 @@ class Container(o.Operand):
                 new_container._datasource_list.extend(self._datasource_list)
                 new_container._datasource_list.extend(operand._datasource_list)
                 return new_container
+            
+            # Returns an altered Container with less info (truncated info)
+            case od.Getter() | od.Operation():
+                return self.shallow_copy() >> operand
+            case ch.Chaos():
+                return self.shallow_copy().shuffle(operand)
+            
             case _:
                 return self.filter(operand)
 
