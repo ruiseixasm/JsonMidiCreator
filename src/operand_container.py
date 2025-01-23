@@ -245,9 +245,6 @@ class Container(o.Operand):
         self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         return self
 
-    def __add__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        return self.copy().__iadd__(operand)
-    
     # Avoids the costly copy of Container self doing +=
     def __iadd__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
@@ -266,10 +263,6 @@ class Container(o.Operand):
         self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
 
-
-    def __sub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        return self.copy().__isub__(operand)
-
     def __isub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
@@ -286,10 +279,6 @@ class Container(o.Operand):
                         self._datasource_list.pop()
                         operand -= 1
         return self
-
-
-    def __mul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        return self.copy().__imul__(operand)
 
     # multiply with a scalar 
     def __imul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
@@ -313,10 +302,6 @@ class Container(o.Operand):
                     self._datasource_list = []
         return self
     
-
-    def __truediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
-        return self.copy().__itruediv__(operand)
-
     def __itruediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
@@ -644,10 +629,7 @@ class Clip(Container):  # Just a container of Elements
                 return super().__rrshift__(operand)
         return self
 
-    def __add__(self, operand: any) -> 'Clip':
-        self_copy: Clip = self.copy()
-        return self_copy.__iadd__(operand)
-            
+
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> 'Clip':
         match operand:
@@ -687,10 +669,6 @@ class Clip(Container):  # Just a container of Elements
                     single_datasource._data += operand
         return self
 
-    def __sub__(self, operand: any) -> 'Clip':
-        self_copy: Clip = self.copy()
-        return self_copy.__isub__(operand)
-
     def __isub__(self, operand: any) -> 'Clip':
         match operand:
             case Song():
@@ -710,11 +688,6 @@ class Clip(Container):  # Just a container of Elements
                     single_datasource._data -= operand
         return self
 
-    # multiply with a scalar
-    def __mul__(self, operand: o.Operand) -> 'Clip':
-        self_copy: Clip = self.copy()
-        return self_copy.__imul__(operand)
-    
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: o.Operand) -> 'Clip':
         match operand:
@@ -778,10 +751,6 @@ class Clip(Container):  # Just a container of Elements
     def __rmul__(self, operand: any) -> 'Clip':
         return self.__mul__(operand)
     
-    def __truediv__(self, operand: o.Operand) -> 'Clip':
-        self_copy: Clip = self.copy()
-        return self_copy.__itruediv__(operand)
-
     def __itruediv__(self, operand: o.Operand) -> 'Clip':
         match operand:
             case int():
@@ -1046,9 +1015,7 @@ class Song(Container):
                 return wrapper_song
         return self
 
-    def __add__(self, operand: any) -> 'Song':
-        return self.copy().__iadd__(operand)
-            
+
     def __iadd__(self, operand: any) -> 'Song':
         match operand:
             case Song():
@@ -1062,9 +1029,6 @@ class Song(Container):
                     single_datasource._data += operand
         return self
 
-    def __sub__(self, operand: any) -> 'Song':
-        return self.copy().__isub__(operand)
-            
     def __isub__(self, operand: any) -> 'Song':
         match operand:
             case Song():
@@ -1080,17 +1044,11 @@ class Song(Container):
                     single_datasource._data -= operand
         return self
 
-    def __mul__(self, operand: any) -> 'Song':
-        return self.copy().__imul__(operand)
-            
     def __imul__(self, operand: any) -> 'Song':
         for single_datasource in self._datasource_list: 
             single_datasource._data *= operand
         return self
 
-    def __truediv__(self, operand: any) -> 'Song':
-        return self.copy().__itruediv__(operand)
-            
     def __itruediv__(self, operand: any) -> 'Song':
         for single_datasource in self._datasource_list: 
             single_datasource._data /= operand
