@@ -101,6 +101,18 @@ def test_staff_reference():
 # test_staff_reference()
 
 
+def test_time_signature():
+
+    four_notes: Note = Note() * 4
+    print(four_notes[2] % Position() % float())
+    assert four_notes[2] % Position() == 0.5    # Measures
+    four_notes << TimeSignature(2, 4)
+    print(four_notes[2] % Position() % float())
+    assert four_notes[2] % Position() == 1.0    # Measures
+
+# test_time_signature()
+
+
 def test_rrshift_clip():
 
     two_notes: Clip = Note() * 2
