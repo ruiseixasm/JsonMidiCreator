@@ -736,7 +736,8 @@ class Clip(Container):  # Just a container of Elements
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
                     self._datasource_list.extend(
-                        single_data_element for single_data_element in self_copy._datasource_list
+                        od.DataSource( single_element.set_staff_reference(self._staff) ) for single_element in self_copy
+                        if isinstance(single_element, oe.Element)
                     )
                 elif operand == 0:   # Must be empty
                     self._datasource_list = []  # Just to keep the self object
