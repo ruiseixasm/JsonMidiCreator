@@ -341,6 +341,12 @@ def test_clip_lshift():
     print(f"Length: {base_line % Length() % float()}")
     assert base_line % Length() == 3/16 * 21 - 1/8 # 3.8125 measures
 
+    two_measures: Clip = Note() * 8
+    two_measures << All()**Beat(0)
+    assert two_measures.len() == 8
+    one_measure: Clip = two_measures | Less(Measures(1))
+    assert one_measure.len() == 4
+
 # test_clip_lshift()
 
 
