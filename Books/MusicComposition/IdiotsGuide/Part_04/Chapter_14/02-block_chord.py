@@ -39,5 +39,5 @@ bass_line *= 4
 block_chord: Clip = chords + bass_line << Channel(2) << MidiTrack("Block Chord") << Velocity(70)
 # block_chord >> Play()
 
-composition: Song = Song(block_chord) + melody_playlist
+composition: Part = Part(block_chord) + melody_playlist
 composition >> Play()

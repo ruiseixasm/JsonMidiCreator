@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 # Global Staff setting up
 defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
-composition: Song = Song(single_clock)
+composition: Part = Part(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Play()
 note_transposed = single_note + 5.0 >> Play()

@@ -381,7 +381,7 @@ class Playlist(Data):
                         self._data = operand._data
                     case _:
                         super().__lshift__(operand)
-            case oc.Song() | oc.Clip() | oe.Element() | Playlist():
+            case oc.Part() | oc.Clip() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
             case ou.MidiTrack():
                 self._midi_track    << operand

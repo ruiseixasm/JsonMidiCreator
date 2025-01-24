@@ -615,15 +615,15 @@ class Clip(Container):  # Just a container of Elements
     # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.Operand) -> 'Clip':
         match operand:
-            case Song():
-                wrapper_song: Song = Song()
+            case Part():
+                wrapper_song: Part = Part()
                 wrapper_song._datasource_list = [
                     data_clip for data_clip in operand._datasource_list
                 ]
                 wrapper_song._datasource_list.append( od.DataSource( self ) )
                 return wrapper_song
             case Clip():
-                wrapper_song: Song = Song()
+                wrapper_song: Part = Part()
                 wrapper_song._datasource_list = [ od.DataSource( operand ), od.DataSource( self ) ]
                 return wrapper_song
             case oe.Element():
@@ -645,9 +645,9 @@ class Clip(Container):  # Just a container of Elements
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> 'Clip':
         match operand:
-            case Song():
+            case Part():
                 # Song at the right must be a copy
-                new_song: Song = operand.copy()
+                new_song: Part = operand.copy()
                 # Inserts self content at the beginning of the Song
                 new_song._datasource_list.insert(0, od.DataSource( self ))
                 return new_song # Operand Song replaces self Clip
@@ -686,7 +686,7 @@ class Clip(Container):  # Just a container of Elements
 
     def __isub__(self, operand: any) -> 'Clip':
         match operand:
-            case Song():
+            case Part():
                 operand -= self # Order is irrelevant in Song
                 return operand 
             case oe.Element() | Container():
@@ -964,7 +964,7 @@ class Clip(Container):  # Just a container of Elements
         self_right: Clip    = self.filter(of.GreaterEqual(position))
         return self_left, self_right
 
-class Song(Container):
+class Part(Container):
 
     def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
@@ -1002,9 +1002,9 @@ class Song(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Song':
+    def __lshift__(self, operand: o.Operand) -> 'Part':
         match operand:
-            case Song():
+            case Part():
                 super().__lshift__(operand)
             case Clip():
                 self._datasource_list.append( od.DataSource( operand.copy() ) )
@@ -1024,10 +1024,10 @@ class Song(Container):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: o.Operand) -> 'Song':
+    def __rrshift__(self, operand: o.Operand) -> 'Part':
         match operand:
-            case Song():
-                wrapper_song: Song = Song()
+            case Part():
+                wrapper_song: Part = Part()
                 wrapper_song._datasource_list = [
                     data_clip for data_clip in operand._datasource_list
                 ]
@@ -1036,7 +1036,7 @@ class Song(Container):
                 )
                 return wrapper_song
             case Clip():
-                wrapper_song: Song = Song()
+                wrapper_song: Part = Part()
                 wrapper_song._datasource_list = [ od.DataSource( operand ) ]
                 wrapper_song._datasource_list.extend(
                     data_clip for data_clip in self._datasource_list
@@ -1045,9 +1045,9 @@ class Song(Container):
         return self
 
 
-    def __iadd__(self, operand: any) -> 'Song':
+    def __iadd__(self, operand: any) -> 'Part':
         match operand:
-            case Song():
+            case Part():
                 self._datasource_list.extend(
                     data_clip.copy() for data_clip in operand._datasource_list
                 )
@@ -1062,9 +1062,9 @@ class Song(Container):
                     single_datasource._data += operand
         return self
 
-    def __isub__(self, operand: any) -> 'Song':
+    def __isub__(self, operand: any) -> 'Part':
         match operand:
-            case Song():
+            case Part():
                 self._datasource_list = [
                     data_clip for data_clip in self._datasource_list if data_clip not in operand._datasource_list
                 ]
@@ -1081,7 +1081,7 @@ class Song(Container):
                     single_datasource._data -= operand
         return self
 
-    def __imul__(self, operand: any) -> 'Song':
+    def __imul__(self, operand: any) -> 'Part':
         match operand:
             case tuple():
                 for single_operand in operand:
@@ -1091,7 +1091,7 @@ class Song(Container):
                     single_datasource._data *= operand
         return self
 
-    def __itruediv__(self, operand: any) -> 'Song':
+    def __itruediv__(self, operand: any) -> 'Part':
         match operand:
             case tuple():
                 for single_operand in operand:

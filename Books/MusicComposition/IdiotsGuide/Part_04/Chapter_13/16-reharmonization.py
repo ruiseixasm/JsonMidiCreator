@@ -32,5 +32,5 @@ chords: Clip = Chord() * 6 << Foreach(half, half, whole, half, half, whole) >> S
 chords << Foreach("Em", "Bm", "Em", "Am", "G", "Em") << MidiTrack("Harmony")
 chords - Octave()
 
-song: Song = melody + chords
+song: Part = melody + chords
 song >> Play()

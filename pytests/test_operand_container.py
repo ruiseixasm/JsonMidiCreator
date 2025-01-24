@@ -537,8 +537,8 @@ def test_song_operations():
     clip_1: Clip = Clip([Clock()])
     clip_2: Clip = Clip([Note()])
 
-    song_1: Song = Song([clip_1, clip_2])
-    song_2: Song = Song([clip_2, clip_1])
+    song_1: Part = Part([clip_1, clip_2])
+    song_2: Part = Part([clip_2, clip_1])
 
     assert song_1.len() == 2
     assert song_2.len() == 2

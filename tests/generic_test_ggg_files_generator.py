@@ -54,7 +54,7 @@ second_sequence >> Save("json/testing/_Save_1.5_second_sequence.json")
 first_sequence = Rest(2/1, Channel(10)) >> first_sequence
 
 # Creations, aggregation of both Sequences in a Track element and respective Play
-all_elements = Song(first_sequence) + second_sequence
+all_elements = Part(first_sequence) + second_sequence
 all_elements += (Length( Beats(2) ) >> first_note) + single_clock
 all_elements >> Save("json/testing/_Save_Play_p.4_first_note.json") >> Export("json/testing/_Export_Play_p.4_sequence.json") >> Export("json/testing/_Export_1.2_all_elements.json")
 
@@ -91,7 +91,7 @@ load_0 >> load_1 >> load_2 >> load_3 >> Save ("json/testing/_Save_2.2_sequence_n
 # Global Staff setting up
 defaults << Tempo(120) << Measures(1)
 single_clock = Clock() * 1 << MidiTrack(0, "Clock Track")
-composition: Song = Song(single_clock)
+composition: Part = Part(single_clock)
 
 single_note = Note() << (NoteValue() << Measures(2)) >> Save("json/testing/_Save_Play_p.7.2_first_note.json") >> Export("json/testing/_Export_Play_p.7.2_sequence.json")
 note_transposed = single_note + Semitone(5) >> Save("json/testing/_Save_Play_p.7.3_first_note.json") >> Export("json/testing/_Export_Play_p.7.3_sequence.json")
