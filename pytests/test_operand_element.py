@@ -153,11 +153,13 @@ def test_note_lshift():
     assert note % Position() == 1.0
     note += Beats(2)
     assert note % Position() == 1.5
+    assert note % Beat() == 2
     note << Beat(0)
     print(note % Position() % float())
     assert note % Position() == 1.0
+    assert note % Beat() == 0
 
-test_note_lshift()
+# test_note_lshift()
 
 
 def test_note_length():
