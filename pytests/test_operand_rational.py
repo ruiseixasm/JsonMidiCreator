@@ -57,6 +57,20 @@ def test_dotted_mod():
 # test_dotted_mod()
 
 
+def test_position_lshift():
+
+    position: Position = Position()
+
+    assert position == 0.0
+    position += Measures(1)
+    assert position == 1.0
+    position += Beats(2)
+    assert position == 1.5
+    position << Beat(0)
+    assert position == 1.0
+
+# test_position_lshift()
+
 def test_position_default():
 
     position_measures = Position(1.5)

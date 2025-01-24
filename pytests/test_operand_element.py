@@ -144,6 +144,22 @@ def test_note_mod():
 # test_note_mod()
 
 
+def test_note_lshift():
+    
+    note: Note = Note()
+
+    assert note % Position() == 0.0
+    note += Measures(1)
+    assert note % Position() == 1.0
+    note += Beats(2)
+    assert note % Position() == 1.5
+    note << Beat(0)
+    print(note % Position() % float())
+    assert note % Position() == 1.0
+
+test_note_lshift()
+
+
 def test_note_length():
 
     note: Note = Note()

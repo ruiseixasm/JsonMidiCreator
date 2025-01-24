@@ -282,27 +282,30 @@ class Element(o.Operand):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Duration():
-                self._duration_notevalue      = operand._rational
-            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                self._position_beats      = self._staff_reference.convertToBeats(operand)._rational
+                self._duration_notevalue    = operand._rational
+            case ra.Position() | ra.TimeValue():
+                self._position_beats        = self._staff_reference.convertToBeats(operand)._rational
+            case ou.TimeUnit():
+                self_position: ra.Position  = ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) << operand
+                self._position_beats        = self_position._rational
             case Fraction():
-                self._duration_notevalue      = operand
+                self._duration_notevalue    = operand
             case float():
-                self._duration_notevalue      = ra.Duration(operand)._rational
+                self._duration_notevalue    = ra.Duration(operand)._rational
             case ra.Length():
-                self._duration_notevalue      = self._staff_reference.convertToDuration(operand)._rational
+                self._duration_notevalue    = self._staff_reference.convertToDuration(operand)._rational
             case int():
-                self._position_beats      = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
+                self._position_beats        = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
             case ou.Stackable():
-                self._stackable     = operand // bool()
+                self._stackable             = operand // bool()
             case ou.Channel():
-                self._channel       = operand._unit
+                self._channel               = operand._unit
             case od.Device():
-                self._device        = operand._data
+                self._device                = operand._data
             case ou.Enable():
-                self._enabled       = operand._unit != 0
+                self._enabled               = operand._unit != 0
             case ou.Disable():
-                self._enabled       = operand._unit == 0
+                self._enabled               = operand._unit == 0
             case tuple():
                 for single_operand in operand:
                     self << single_operand
