@@ -230,7 +230,7 @@ class Container(o.Operand):
             self._datasource_list[operand_i]._data = tail_operand
         return self
     
-    def rotate(self, offset: int = 1, parameter: type = ra.Duration) -> 'Container':
+    def rotate(self: TypeContainer, offset: int = 1, parameter: type = ra.Duration) -> TypeContainer:
         parameters: list = []
         for operand in self:
             if isinstance(operand, o.Operand):
@@ -241,8 +241,8 @@ class Container(o.Operand):
                 offset += 1
         return self
 
-    def filter(self, criteria: any) -> 'Container':
-        self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
+    def filter(self: TypeContainer, criteria: any) -> TypeContainer:
+        self._datasource_list = [datasource for datasource in self._datasource_list if datasource._data == criteria]
         return self
 
     # Avoids the costly copy of Container self doing +=
@@ -800,23 +800,6 @@ class Clip(Container):  # Just a container of Elements
             case _:
                 for single_datasource in self._datasource_list:
                     single_datasource._data /= operand
-        return self
-
-    def __or__(self, operand: any) -> 'Clip':
-        match operand:
-            case Clip():
-                new_clip: Clip = self.__class__()
-                new_clip._datasource_list.extend(self._datasource_list)
-                new_clip._datasource_list.extend(operand._datasource_list)
-                new_clip._midi_track        << self._midi_track
-                new_clip._position_beats    = self._position_beats
-                new_clip._staff             << self._staff
-                return new_clip
-            case _:
-                return self.shallow_copy().filter(operand)
-
-    def filter(self, criteria: any) -> 'Clip':
-        self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data == criteria]
         return self
 
     def reverse(self) -> 'Clip':
