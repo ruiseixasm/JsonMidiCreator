@@ -285,10 +285,13 @@ def test_mul_clip():
 
     hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
+    assert hi_hat.test_staff_reference()
     hi_hat |= Nth(2, 4)
     assert hi_hat.len() == 2
+    assert hi_hat.test_staff_reference()
     hi_hat *= 2
     assert hi_hat.len() == 4
+    assert hi_hat.test_staff_reference()
     hi_hat[0] % Position() % Steps() % float() >> Print()
     assert hi_hat[0] % Position() % Steps() == 2.0
     hi_hat[1] % Position() % Steps() % float() >> Print()
