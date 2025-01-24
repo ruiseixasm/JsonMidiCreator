@@ -30,3 +30,8 @@ hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(2)**Steps() << TimeS
 
 (tresillo >> snare >> hi_hat) * 16 >> P
 
+snare << TimeSignature(4, 4) << Beats(2) # Base 0 NOT base 1
+hi_hat |= Step(2)
+
+(tresillo >> hi_hat) * 16 >> snare * 8 >> P
+
