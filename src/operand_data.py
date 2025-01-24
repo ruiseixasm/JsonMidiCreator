@@ -183,7 +183,7 @@ class ClipParameter(Data):   # Just a data wrapper
         super().__init__()
         self._data = operand
 
-class SongParameter(Data):   # Just a data wrapper
+class PartParameter(Data):   # Just a data wrapper
     def __init__(self, operand: any = None):
         super().__init__()
         self._data = operand

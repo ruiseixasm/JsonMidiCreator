@@ -46,8 +46,8 @@ else:  # Assume Linux/Unix
 N = Nt = Note
 Ch = Channel
 DS = Src = DataSource
-CPar = ClipPar = ClipParameter
-SPar = SongPar = SongParameter
+CPar = CParameter = ClipPar = ClipParameter
+PPar = PParameter = PartPar = PartParameter
 Meas = Measures
 Bts = Beats
 Pt = Pitch

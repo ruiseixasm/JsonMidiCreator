@@ -964,6 +964,8 @@ class Clip(Container):  # Just a container of Elements
         self_right: Clip    = self.filter(of.GreaterEqual(position))
         return self_left, self_right
 
+
+
 class Part(Container):
 
     def __getitem__(self, key: str | int) -> Clip:
