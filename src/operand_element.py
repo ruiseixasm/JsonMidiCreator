@@ -153,8 +153,10 @@ class Element(o.Operand):
                 return self.eq_time(other) and self.eq_midi(other)
             case ra.Duration():
                 return self._duration_notevalue == other._rational
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue():
                 return ra.Beats(self._position_beats) == other
+            case ou.TimeUnit():
+                return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -169,8 +171,10 @@ class Element(o.Operand):
                 return  False
             case ra.Duration():
                 return self._duration_notevalue < other._rational
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue():
                 return ra.Beats(self._position_beats) < other
+            case ou.TimeUnit():
+                return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) < other
             case _:
                 return self % od.DataSource( other ) < other
     
@@ -181,8 +185,10 @@ class Element(o.Operand):
                 return  False
             case ra.Duration():
                 return self._duration_notevalue > other._rational
-            case ra.TimeValue() | ou.TimeUnit():
+            case ra.TimeValue():
                 return ra.Beats(self._position_beats) > other
+            case ou.TimeUnit():
+                return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) > other
             case _:
                 return self % od.DataSource( other ) > other
     

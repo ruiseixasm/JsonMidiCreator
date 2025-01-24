@@ -113,6 +113,19 @@ def test_time_signature():
 # test_time_signature()
 
 
+def test_or_clip():
+
+    # A Clip with a Measure of only 2 Beats
+    four_notes: Clip = Note(1/8) * 4 << TimeSignature(2, 4)
+
+    assert four_notes.len() == 4
+    four_notes |= Equal(Step(2), Step(4))
+    print(four_notes.len())
+    assert four_notes.len() == 2
+
+# test_or_clip()
+
+
 def test_rrshift_clip():
 
     two_notes: Clip = Note() * 2
@@ -270,6 +283,20 @@ def test_mul_clip():
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Length() == 1.5 # Measures
 
+    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(2)**Steps() << TimeSignature(2, 4)
+    assert hi_hat.len() == 4
+    hi_hat |= Nth(2, 4)
+    assert hi_hat.len() == 2
+    hi_hat *= 2
+    assert hi_hat.len() == 4
+    hi_hat[0] % Position() % Steps() % float() >> Print()
+    assert hi_hat[0] % Position() % Steps() == 2.0
+    hi_hat[1] % Position() % Steps() % float() >> Print()
+    assert hi_hat[1] % Position() % Steps() == 6.0
+    hi_hat[2] % Position() % Steps() % float() >> Print()
+    assert hi_hat[2] % Position() % Steps() == 10.0
+    hi_hat[3] % Position() % Steps() % float() >> Print()
+    assert hi_hat[3] % Position() % Steps() == 14.0
 
 # test_mul_clip()
 
