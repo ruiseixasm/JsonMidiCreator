@@ -796,7 +796,8 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
 
 class Key(PitchParameter):
     """
-    A Key() is an integer from 0 to 11 that describes the 12 keys of an octave.
+    A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
+    the 12 keys of an octave.
     
     Parameters
     ----------
@@ -1016,6 +1017,14 @@ class Degree(PitchParameter):
             case "vii" | "leading tone":            self._unit = 7
 
 class Sharp(PitchParameter):  # Sharp (#)
+    """
+    A Sharp() sets a given Pitch as Sharped or not.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a boolean or a numeral (0 or 1) to set Sharp as true or false
+    """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
@@ -1037,6 +1046,14 @@ class Sharp(PitchParameter):  # Sharp (#)
 
 
 class Flat(PitchParameter):   # Flat (b)
+    """
+    A Flat() sets a given Pitch as Flatten or not.
+    
+    Parameters
+    ----------
+    first : integer_like
+        Accepts a boolean or a numeral (0 or 1) to set Flat as true or false
+    """
     def __init__(self, *parameters):
         super().__init__(1)
         for single_parameter in parameters: # Faster than passing a tuple
@@ -1060,6 +1077,14 @@ class Flat(PitchParameter):   # Flat (b)
 
 
 class DrumKit(Unit):
+    """
+    Auxiliary object that represents the standard Midi Drum Kit.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        Accepts a numeral (35 to 82) or a String like "Drum"
+    """
     def __init__(self, *parameters):
         super().__init__(35, *parameters)
 
@@ -1181,15 +1206,47 @@ class Stackable(Boolean):
     pass
 
 class Tied(Boolean):
+    """
+    Sets the respective Notes or descendent Elements as Tied.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set Tied as true or false
+    """
     pass
 
 class Major(Boolean):
+    """
+    Sets the respective Key Signature as Major, the default.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Major the Key Signature
+    """
     pass
 
 class Minor(Boolean):
+    """
+    Sets the respective Key Signature as minor.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as minor the Key Signature
+    """
     pass
 
 class Natural(Boolean):     # Natural (n)
+    """
+    Sets the respective Pitch as Natural, in which case sharps and flats aren't applied.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Natural the Pitch
+    """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Natural':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1203,6 +1260,14 @@ class Natural(Boolean):     # Natural (n)
         return self
 
 class Dominant(Boolean):    # Flats the seventh
+    """
+    Sets the respective Chord configuration by flatting the seventh key.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Dominant the Chord
+    """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Diminished':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1217,6 +1282,14 @@ class Dominant(Boolean):    # Flats the seventh
         return self
 
 class Diminished(Boolean):  # Flats the third and the fifth
+    """
+    Sets the respective Chord configuration by flatting the third and the fifth key.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Diminished the Chord
+    """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Diminished':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1229,6 +1302,14 @@ class Diminished(Boolean):  # Flats the third and the fifth
         return self
 
 class Augmented(Boolean):   # Sharps the fifth
+    """
+    Sets the respective Chord configuration by sharping the fifth key.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Augmented the Chord
+    """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Augmented':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1241,6 +1322,14 @@ class Augmented(Boolean):   # Sharps the fifth
         return self
 
 class Sus2(Boolean):        # Second instead of the third
+    """
+    Sets the respective Chord configuration by replacing the third with the second degree.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Sus2 the Chord
+    """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Sus2':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1253,6 +1342,14 @@ class Sus2(Boolean):        # Second instead of the third
         return self
 
 class Sus4(Boolean):        # Fourth instead of the third
+    """
+    Sets the respective Chord configuration by replacing the third with the fourth degree.
+    
+    Parameters
+    ----------
+    first : bool_like, integer_like
+        Accepts a boolean or a numeral (0 or 1) to set as Sus4 the Chord
+    """
     # CHAINABLE OPERATIONS
     def __lshift__(self, operand: any) -> 'Sus4':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1320,7 +1417,8 @@ class Mode(Unit):
 
 class Size(Unit):
     """
-    Size() represents the size of the Chord, like "7th", "9th", etc.
+    Size() represents the size of the Chord, like "7th", "9th", etc, or
+    as the total number of keys, like integer 3, representing a triad, the default.
     
     Parameters
     ----------
@@ -1477,7 +1575,9 @@ class MidiTrack(Midi):
     Parameters
     ----------
     first : integer_like
-        For a given track concerning a composition, there default is 0.
+        For a given track concerning a composition, there default is 1.
+    second : string_like
+        The name of the Track, there default is "Track 1".
     """
     def __init__(self, *parameters):
         self._name: str = "Track 1"
@@ -1583,10 +1683,9 @@ class Program(Midi):
     
     Parameters
     ----------
-    first : integer_like
-        A Program Number varies from 0 to 127
+    first : integer_like or string_like
+        A Program Number varies from 0 to 127 or it's known name like "Piano"
     """
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():
@@ -1808,7 +1907,6 @@ class Number(Midi):
     first : integer_like and string_like
         Allows the direct set with a number or in alternative with a name relative to the Controller
     """
-
     def __mod__(self, operand: o.Operand) -> o.Operand:
         match operand:
             case od.DataSource():       return super().__mod__(operand)
