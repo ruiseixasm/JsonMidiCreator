@@ -231,6 +231,18 @@ class Container(o.Operand):
         return self
     
     def rotate(self: TypeContainer, offset: int = 1, parameter: type = ra.Duration) -> TypeContainer:
+        """
+        Rotates a given parameter by a given offset, by other words,
+        does a displacement for each Element in the Container list of
+        a chosen parameter by the offset amount.
+
+        Args:
+            a (int): The offset amount of the list index, displacement.
+            b (type): The type of parameter being displaced, rotated.
+
+        Returns:
+            Container: The self object with the chosen parameter displaced.
+        """
         parameters: list = []
         for operand in self:
             if isinstance(operand, o.Operand):
@@ -374,6 +386,15 @@ class Container(o.Operand):
 
 
 class Clip(Container):  # Just a container of Elements
+    """
+    This type of Operand aggregates Elements having itself a Position
+    that propagates to them.
+
+    Parameters
+    ----------
+    first : list_like, operand_like
+        To set it with a group of Elements wrap them in a list to pass them
+    """
     def __init__(self, *operands):
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
@@ -443,6 +464,17 @@ class Clip(Container):  # Just a container of Elements
             case _:                 return super().__mod__(operand)
 
     def start(self) -> ra.Position:
+        """
+        Gets the starting position of all its Elements.
+        This is the same as the minimum Position of all
+        Element positions.
+
+        Args:
+            None
+
+        Returns:
+            Position: The minimum Position of all Elements.
+        """
         start_beats: Fraction = None
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, oe.Element):
