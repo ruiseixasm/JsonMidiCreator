@@ -552,6 +552,26 @@ class Beat(TimeUnit):
 
 
 class Step(TimeUnit):
+    """
+    A Step() represents an unit of Quantization (Ex 1/16) as an integer without decimal places.
+    For Length and Position objects it represents it's rounded part accordingly.
+        Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 0 Steps.
+    
+    Examples
+    --------
+    Creating a Step with a single value:
+    >>> step = Step(1.5)
+    
+    Creating a Step with multiple values (the last will determine the amount of Steps):
+    >>> step = Step(1, 0.5, Fraction(1, 4))
+
+    Default Step (0):
+    >>> step = Step()
+    """
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Step':
@@ -611,6 +631,14 @@ class Accidentals(Unit):
         super().__init__(1, *parameters)
 
 class Sharps(Accidentals):  # Sharps (###)
+    """
+    Sharps() is intended to be used with KeySignature to set its amount of Sharps.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A number from 0 to 7 or a string like "###" with the default as 1 ("#").
+    """
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Sharps':
@@ -628,6 +656,14 @@ class Sharps(Accidentals):  # Sharps (###)
         return self
 
 class Flats(Accidentals):   # Flats (bbb)
+    """
+    Flats() is intended to be used with KeySignature to set its amount of Flats.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A number from 0 to 7 or a string like "bbb" with the default as 1 ("b").
+    """
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Flats':
@@ -655,6 +691,15 @@ class Semitone(PitchParameter):
     pass
 
 class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
+    """
+    A KeySignature() consists in an integer from -7 to 7 describing the amount
+    of Sharps for positive values and the amount of Flats for negative values.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A number from -7 to 7 or a string like "bbb" with the default as 0 ("").
+    """
     def __init__(self, *parameters):
         self._major: bool = True
         super().__init__(*parameters)
@@ -804,7 +849,6 @@ class Key(PitchParameter):
     first : integer_like or string_like
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
-
     def key_signature(self: 'Key', key_signature: 'KeySignature' = None) -> 'Key':
         self._key_signature = key_signature
         return self
