@@ -325,13 +325,13 @@ class RationalDefault(Rational):
 
 
 
-class StaffParameters(Rational):
+class StaffParameter(Rational):
     pass
 
-class TimeSignatureData(StaffParameters):
+class TimeSignatureParameter(StaffParameter):
     pass
 
-class BeatsPerMeasure(TimeSignatureData):
+class BeatsPerMeasure(TimeSignatureParameter):
     """
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
     The default is 4, 4 Beats per Measure.
@@ -354,7 +354,7 @@ class BeatsPerMeasure(TimeSignatureData):
     def __init__(self, *parameters):
         super().__init__(4, *parameters)
 
-class BeatNoteValue(TimeSignatureData):
+class BeatNoteValue(TimeSignatureParameter):
     """
     BeatNoteValue() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     The default is 1/4, 1/4 NoteValue for each Beat.
@@ -377,7 +377,7 @@ class BeatNoteValue(TimeSignatureData):
     def __init__(self, *parameters):
         super().__init__(1/4, *parameters)
 
-class NotesPerMeasure(TimeSignatureData):
+class NotesPerMeasure(TimeSignatureParameter):
     """
     NotesPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature 3/4 is the Measure Note Value.
     The default is 1, 1 NoteValue for each Measure. This is just an output parameter and not a setting one.
@@ -411,7 +411,7 @@ class NotesPerMeasure(TimeSignatureData):
         Represents 1 Note for a time signature of 4/4 and 1/2 Note for a time signature of 4/8 
     """
 
-class StepsPerMeasure(StaffParameters):
+class StepsPerMeasure(StaffParameter):
     """
     StepsPerMeasure() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     The default is 1/4, 1/4 NoteValue for each Beat.
@@ -445,7 +445,7 @@ class StepsPerMeasure(StaffParameters):
     """
     pass
 
-class StepsPerNote(StaffParameters):
+class StepsPerNote(StaffParameter):
     """
     StepsPerNote() is simply the inverse value of the Quantization, like, 16 for 1/16.
     
@@ -456,7 +456,7 @@ class StepsPerNote(StaffParameters):
     """
     pass
 
-class Tempo(StaffParameters):
+class Tempo(StaffParameter):
     """
     Tempo() represents the Beats per Minute (BPM).
     
@@ -505,7 +505,7 @@ class Tempo(StaffParameters):
         self._rational = max(Fraction(1), self._rational)
         return self
 
-class Quantization(StaffParameters):
+class Quantization(StaffParameter):
     pass
 
 

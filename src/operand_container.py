@@ -458,7 +458,7 @@ class Clip(Container):  # Just a container of Elements
             case ra.Position():     return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():       return self.length()
             case ra.Duration():     return self.duration()
-            case ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+            case ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                 | int() | float() | Fraction() | str():
                                     return self._staff % operand
             case _:                 return super().__mod__(operand)
@@ -605,7 +605,7 @@ class Clip(Container):  # Just a container of Elements
 
             case ou.MidiTrack():
                 self._midi_track << operand
-            case og.Staff() | og.TimeSignature() | ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor():
+            case og.Staff() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
@@ -626,7 +626,7 @@ class Clip(Container):  # Just a container of Elements
                         self._position_beats = self._staff.convertToBeats(operand)._rational
                     case ou.MidiTrack():
                         self._midi_track << operand
-                    case og.Staff() | og.TimeSignature() | ra.StaffParameters() | ou.Accidentals() | ou.Major() | ou.Minor() \
+                    case og.Staff() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
                             | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction() | str():
                         self._staff << operand
 

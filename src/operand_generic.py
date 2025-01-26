@@ -1369,13 +1369,13 @@ class Staff(Generic):
                     case ra.Quantization():     self._quantization = operand._data._rational
                     case ou.KeySignature():     self._key_signature = operand._data
                     case Scale():               self._scale = operand._data
-                    case ra.TimeSignatureData():
+                    case ra.TimeSignatureParameter():
                                                 self._time_signature << od.DataSource( operand._data )
                     case ra.Measures():         self._measures = operand._data // int()
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ra.Tempo():            self._tempo = operand._rational
-            case TimeSignature() | ra.TimeSignatureData():
+            case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
             case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
@@ -1421,7 +1421,7 @@ class Defaults(Generic):
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case Staff():               return self._staff
-                    case ra.StaffParameters() | ou.KeySignature() | TimeSignature() \
+                    case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                         | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                         | int() | float() | Fraction() | str():
                                                 return self._staff // operand._data
@@ -1434,7 +1434,7 @@ class Defaults(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand._data)
             case Staff():               return self._staff.copy()
-            case ra.StaffParameters() | ou.KeySignature() | TimeSignature() \
+            case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         return self._staff % operand
@@ -1514,7 +1514,7 @@ class Defaults(Generic):
                     case od.Device():           self._device = operand._data._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.StaffParameters() | ou.KeySignature() | TimeSignature() \
+            case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
                 | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
                 | int() | float() | Fraction() | str():
                                         self._staff << operand
