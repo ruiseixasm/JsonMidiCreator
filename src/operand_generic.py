@@ -1385,7 +1385,7 @@ class Staff(Generic):
                                         self._measures = operand // int()
             # Calculated Values
             case ra.StepsPerMeasure():
-                self._quantization = (self % ra.NotesPerMeasure()) / (operand % Fraction())
+                self._quantization = self % ra.NotesPerMeasure() / operand % Fraction()
             case ra.StepsPerNote():
                 self._quantization = 1 / (operand % Fraction())
             case int() | float():

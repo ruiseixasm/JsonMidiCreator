@@ -406,7 +406,7 @@ class StepsPerMeasure(StaffParameter):
     """
     StepsPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature with 
     a Quantization of 1/16 you get 12 Steps per each Measure.
-    The default is 16, 16 Steps for each Measure. This is just an output parameter and not a setting one.
+    The default is 16, 16 Steps for each Measure. This concerns Staff objects Quantization.
 
     Parameters
     ----------
@@ -416,7 +416,7 @@ class StepsPerMeasure(StaffParameter):
     
     Examples
     --------
-    Gets the TimeSignature NoteValue per Measure:
+    Gets the Staff Steps per Measure:
     >>> staff = Staff()
     >>> staff << TimeSignature(3, 4)
     >>> steps_per_measure = staff % StepsPerMeasure()
@@ -424,7 +424,10 @@ class StepsPerMeasure(StaffParameter):
     12
 
     Default StepsPerMeasure (16):
-    >>> steps_per_measure = StepsPerMeasure()
+    >>> staff << TimeSignature(4, 4)
+    >>> steps_per_measure = staff % StepsPerMeasure()
+    >>> steps_per_measure % Fraction() >> Print()
+    16
     """
     def __init__(self, *parameters):
         super().__init__(16, *parameters)

@@ -480,6 +480,38 @@ def test_full_conversions():
 # test_full_conversions()
 
 
+def test_staff_output():
+
+    staff = Staff()
+    staff << TimeSignature(3, 4)
+    steps_per_measure = staff % StepsPerMeasure()
+    steps_per_measure % Fraction() >> Print()
+    assert steps_per_measure == 12.0
+
+    staff << TimeSignature(4, 4)
+    steps_per_measure = staff % StepsPerMeasure()
+    steps_per_measure % Fraction() >> Print()
+    assert steps_per_measure == 16.0
+
+    staff << StepsPerMeasure(12)
+    steps_per_measure = staff % StepsPerMeasure()
+    steps_per_measure % Fraction() >> Print()
+    assert steps_per_measure == 12.0
+
+
+# test_staff_output()
+
+
+
+
+
+
+
+
+
+
+
+
 # def test_multi_testing():
 
 #     position = Position(10.5)
