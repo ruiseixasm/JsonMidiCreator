@@ -521,8 +521,24 @@ class Tempo(StaffParameter):
         return self
 
 class Quantization(StaffParameter):
-    pass
+    """
+    Quantization() represents the Note Value of each Step. The default is 1/16.
 
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 1/16 NoteValue of Quantization.
+    
+    Examples
+    --------
+    Gets the Staff Steps per Measure:
+    >>> staff = Staff() << Quantization(1/8)
+    >>> staff % Quantization() % Fraction() >> Print()
+    1/8
+    """
+    def __init__(self, *parameters):
+        super().__init__(1/16, *parameters)
 
 
 class Convertible(Rational):
@@ -758,6 +774,26 @@ class Convertible(Rational):
 
 
 class Length(Convertible):
+    """
+    Length() is a Parameter applicable to Element and Clip objects. The input and output
+    is given in Measures and their TimeUnit returns are rounded up to the next one.
+    Internally though, the values are in Beats and can be directly accessed with the "//" operator.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 0 of Length.
+    
+    Examples
+    --------
+    Gets the Note default Length from 1/4 NoteValue:
+    >>> note = Note()
+    >>> note % Length() % float() >> Print()
+    0.25
+    >>> note % Length() // float() >> Print()
+    1.0
+    """
 
     def position(self: 'Length', beats: float = None) -> 'Length':
         return self << od.DataSource( beats )
