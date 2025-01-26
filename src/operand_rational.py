@@ -397,53 +397,37 @@ class NotesPerMeasure(TimeSignatureParameter):
     3/4
 
     Default NotesPerMeasure (1):
-    >>> notes_per_beat = NotesPerMeasure()
+    >>> notes_per_measure = NotesPerMeasure()
     """
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-    """
-    NotesPerMeasure() gets how many notes in a Measure and sets the Note Value of a Beat.
-    
-    Parameters
-    ----------
-    first : float_like
-        Represents 1 Note for a time signature of 4/4 and 1/2 Note for a time signature of 4/8 
-    """
-
 class StepsPerMeasure(StaffParameter):
     """
-    StepsPerMeasure() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
-    The default is 1/4, 1/4 NoteValue for each Beat.
+    StepsPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature with 
+    a Quantization of 1/16 you get 12 Steps per each Measure.
+    The default is 16, 16 Steps for each Measure. This is just an output parameter and not a setting one.
 
     Parameters
     ----------
     *args : integer_like, float_like, Fraction_like
         The last passed argument is the one being considered. If no parameters are provided,
-        the default is 1/4 StepsPerMeasure.
+        the default is 16 StepsPerMeasure.
     
     Examples
     --------
-    Sets the TimeSignature as 1/2 NoteValue per Beat:
-    >>> time_signature = TimeSignature()
-    >>> time_signature << StepsPerMeasure(2)
+    Gets the TimeSignature NoteValue per Measure:
+    >>> staff = Staff()
+    >>> staff << TimeSignature(3, 4)
+    >>> steps_per_measure = staff % StepsPerMeasure()
+    >>> steps_per_measure % Fraction() >> Print()
+    12
 
-    Default StepsPerMeasure (1/4):
-    >>> notes_per_beat = StepsPerMeasure()
+    Default StepsPerMeasure (16):
+    >>> steps_per_measure = StepsPerMeasure()
     """
     def __init__(self, *parameters):
         super().__init__(16, *parameters)
-
-    """
-    StepsPerMeasure() is another way of getting and setting the Quantization.
-    16 Steps per Measure means a Quantization of 1/16 in a Time Signature of 4/4.
-    
-    Parameters
-    ----------
-    first : float_like
-        How many Steps in a Measure
-    """
-    pass
 
 class StepsPerNote(StaffParameter):
     """
