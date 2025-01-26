@@ -434,24 +434,52 @@ class StepsPerMeasure(StaffParameter):
 
 class StepsPerNote(StaffParameter):
     """
-    StepsPerNote() is simply the inverse value of the Quantization, like, 16 for 1/16.
-    
+    StepsPerNote() represents the inversion of the Quantization, for a Quantization of 1/16 
+    you will get 16 Notes per Step.
+    The default is 16, 16 Steps for each Note. This concerns Staff objects Quantization.
+
     Parameters
     ----------
-    first : float_like
-        The inverse of the Quantization value
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 16 StepsPerNote.
+    
+    Examples
+    --------
+    Gets the Staff Steps per Measure:
+    >>> staff = Staff()
+    >>> staff << TimeSignature(3, 4)
+    >>> steps_per_note = staff % StepsPerNote()
+    >>> steps_per_note % Fraction() >> Print()
+    16
+
+    Gets the Staff Quantization:
+    >>> staff << StepsPerNote(32)
+    >>> staff % Quantization() % Fraction() >> Print()
+    1/32
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(16, *parameters)
 
 class Tempo(StaffParameter):
     """
-    Tempo() represents the Beats per Minute (BPM).
-    
+    Tempo() represents the Staff Beats per Minute (BPM). The default is 120 BPM.
+
     Parameters
     ----------
-    first : float_like
-        Beats per Minute
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 120 BPM of Tempo.
+    
+    Examples
+    --------
+    Gets the Staff Steps per Measure:
+    >>> staff = Staff(Tempo(110))
+    >>> staff % Tempo() % Fraction() >> Print()
+    110
     """
+    def __init__(self, *parameters):
+        super().__init__(120, *parameters)
 
     # CHAINABLE OPERATIONS
 
