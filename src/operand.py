@@ -207,8 +207,8 @@ class Operand:
             case od.Playlist():
                 position = operand % ra.Position()
                 if isinstance(position, ra.Position):
-                    return self.getPlaylist(position)
-                return self.getPlaylist()
+                    return od.Playlist() << od.DataSource( self.getPlaylist(position) )
+                return od.Playlist() << od.DataSource( self.getPlaylist() )
             case od.Serialization():
                 return od.Serialization(self)
             case dict():
