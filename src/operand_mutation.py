@@ -52,7 +52,7 @@ class Mutation(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -193,7 +193,7 @@ class Translocation(Mutation):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -305,7 +305,7 @@ class Crossover(Mutation):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:

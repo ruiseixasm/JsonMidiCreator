@@ -993,7 +993,7 @@ class Part(Container):
             return ol.Null()
         return self._datasource_list[key]._data
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case ou.MidiTrack():
                 for single_clip in self:

@@ -33,7 +33,7 @@ class Data(o.Operand):
         super().__init__()
         self._data = self.deep_copy(data)
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Data has
         only one type of Parameters that's a generic type of Parameter
@@ -210,7 +210,7 @@ class Serialization(Data):
             case _:
                 self._data = ol.Null()  # Contrary to None, ol.Null allows .copy() of itself
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, for the case a Serialization(),
         those Operands are pass right away to the self Data Operand, with the
@@ -337,7 +337,7 @@ class Playlist(Data):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, for the case a Playlist(),
         there is only one data to be extracted, a Play List, the only and always

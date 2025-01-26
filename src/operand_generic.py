@@ -45,7 +45,7 @@ class TimeSignature(Generic):
             not (isinstance(bottom, int) and bottom > 0) else int(math.pow(2, int(max(0, math.log2(  bottom  )))))
         super().__init__()
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -677,7 +677,7 @@ class Controller(Generic):
         self._value: int        = ou.Number.getDefault(self._number)
         super().__init__(*parameters)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Controller,
         those Parameters are the Controller Number and Value.
@@ -804,7 +804,7 @@ class Scale(Generic):
         self._mode: int             = 1
         super().__init__(*parameters)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, a Scale has many extraction modes
         one type of extraction is its list() type of Parameter representing a scale
@@ -1088,7 +1088,7 @@ class Staff(Generic):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Staff,
         those Parameters are the ones that define a Staff as global defaults,
@@ -1415,7 +1415,7 @@ class Defaults(Generic):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:

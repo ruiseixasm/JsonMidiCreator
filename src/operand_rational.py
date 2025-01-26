@@ -53,7 +53,7 @@ class Rational(o.Operand):
         self._rational: Fraction = Fraction(0)
         super().__init__(*parameters)
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract the Rational, because a Rational is an Fraction
         it should be used in conjugation with a float(). If used with an int() it
@@ -289,7 +289,7 @@ class Negative(Rational):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Fraction():        return self._rational * -1
             case float():           return float(self._rational * -1)
@@ -564,7 +564,7 @@ class Convertible(Rational):
         self._staff_reference = og.defaults._staff
         return self
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case Beats():               return self._staff_reference.convertToBeats(self)
             case Measures():            return self._staff_reference.convertToMeasures(self)
@@ -798,7 +798,7 @@ class Length(Convertible):
     def position(self: 'Length', beats: float = None) -> 'Length':
         return self << od.DataSource( beats )
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Time,
         those Parameters are the respective time unit, like Measure and NoteValue,
@@ -1232,7 +1232,7 @@ class Dotted(Duration):
         Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Dotted Note,
         those Parameters are the Dotted length as a Fraction(), a float() an int()

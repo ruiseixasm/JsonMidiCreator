@@ -47,7 +47,7 @@ class Unit(o.Operand):
     def unit(self: TypeUnit, number: int = None) -> TypeUnit:
         return self << od.DataSource( number )
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract the Unit, because a Unit is an Integer
         it should be used in conjugation with int(). If used with a float() it
@@ -774,7 +774,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             zero_key_int = 9   # A (minor)
         return (zero_key_int + circle_fifths_position * 7) % 12
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
         match operand:
             case od.DataSource():
@@ -932,7 +932,7 @@ class Key(PitchParameter):
         import operand_generic as og
         return self << od.DataSource( og.Scale(scale) )
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
         match operand:
             case od.DataSource():
@@ -1068,7 +1068,7 @@ class Degree(PitchParameter):
 
     _degree = ("I", "ii", "iii", "IV", "V", "vi", "viiº")
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case str():
                 adjusted_degree: int = self._unit
@@ -1196,7 +1196,7 @@ class DrumKit(Unit):
     def __init__(self, *parameters):
         super().__init__(35, *parameters)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1482,7 +1482,7 @@ class Mode(Unit):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)         # By default the mode is 1 (1st)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case str():         return __class__.numberToString(self._unit)
             case _:             return super().__mod__(operand)
@@ -1536,7 +1536,7 @@ class Size(Unit):
     def __init__(self, *parameters):
         super().__init__(3, *parameters)         # Default Size is 3
             
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case str():         return __class__.numberToString(self._unit)
             case _:             return super().__mod__(operand)
@@ -1691,7 +1691,7 @@ class MidiTrack(Midi):
         self._name: str = "Track 1"
         super().__init__(1, *parameters)
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1794,7 +1794,7 @@ class Program(Midi):
     first : integer_like or string_like
         A Program Number varies from 0 to 127 or it's known name like "Piano"
     """
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -2015,7 +2015,7 @@ class Number(Midi):
     first : integer_like and string_like
         Allows the direct set with a number or in alternative with a name relative to the Controller
     """
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():       return super().__mod__(operand)
             case str():                 return Number.numberToName(self._unit)

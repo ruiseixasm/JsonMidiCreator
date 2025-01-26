@@ -60,7 +60,7 @@ class Frame(o.Operand):
         self._next_operand = operand
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Frame,
         those Parameters are the ones present in the Frame tail of operands,

@@ -84,7 +84,7 @@ class Element(o.Operand):
         self._device = device
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of an Element,
         those Parameters can be Position, Duration, midi Channel and midi Device
@@ -443,7 +443,7 @@ class Clock(Element):
         self._pulses_per_quarternote = ppqn
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Clock,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -629,7 +629,7 @@ class Note(Element):
         self._pitch = og.Pitch(key, octave).set_staff_reference(self._staff_reference)
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Note,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -793,7 +793,7 @@ class Cluster(Note):
         self._sets: list[int | float] = [1, 3, 5]
         super().__init__( *parameters )
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -886,7 +886,7 @@ class KeyScale(Note):
         self._scale = og.Scale(scale)
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a KeyScale,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1025,7 +1025,7 @@ class Chord(KeyScale):
         self._sus4 = sus4
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Chord,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1248,7 +1248,7 @@ class Retrigger(Note):
         self._swing = Fraction(swing)
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Retrigger,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1405,7 +1405,7 @@ class Tuplet(Element):
             for single_element in self._elements:
                 single_element << ra.Duration( elements_duration )
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Tuplet,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1549,7 +1549,7 @@ class ControlChange(Automation):
             )
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a ControlChange,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1667,7 +1667,7 @@ class PitchBend(Automation):
         self._bend = bend
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a PitchBend,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1776,7 +1776,7 @@ class Aftertouch(Automation):
         self._pressure = pressure
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Aftertouch,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1889,7 +1889,7 @@ class PolyAftertouch(Aftertouch):
         self._pitch = og.Pitch(key, octave)
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a PolyAftertouch,
         those Parameters are the ones of the Element, like Position and Duration,
@@ -1998,7 +1998,7 @@ class ProgramChange(Automation):
         self._program = ou.Program(program)._unit
         return self
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a ProgramChange,
         those Parameters are the ones of the Element, like Position and Duration,

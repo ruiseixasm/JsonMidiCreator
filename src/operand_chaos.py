@@ -41,7 +41,7 @@ class Chaos(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -151,7 +151,7 @@ class Modulus(Chaos):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -226,7 +226,7 @@ class Flipper(Modulus):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -293,7 +293,7 @@ class Bouncer(Chaos):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -432,7 +432,7 @@ class SinX(Chaos):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:

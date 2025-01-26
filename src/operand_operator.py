@@ -44,7 +44,7 @@ class Operator(o.Operand):
         self._operator_list: list[Operator] = []
         super().__init__()
 
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Operator,
         those Parameters are the Operator's Operand and the list of chained Operators.
@@ -154,8 +154,8 @@ class Oscillator(Operator):
         self._amplitude: Fraction       = Fraction(0)
         self._offset: Fraction          = Fraction(0)
         super().__init__(operand)
-        
-    def __mod__(self, operand: o.Operand) -> o.Operand:
+
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Oscillator,
         those Parameters are the Oscillator's Operand and the list of chained Operators.
