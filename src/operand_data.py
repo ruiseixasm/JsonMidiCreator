@@ -164,7 +164,9 @@ class DataSource(Data):
         >>> dotted_note % DataSource( float() ) >> Print()
         0.375
         """
-        return self._data
+        match operand:
+            case DataSource():              return self._data
+            case _:                         return self._data % operand
     
     # CHAINABLE OPERATIONS
 
