@@ -440,6 +440,28 @@ class TimeUnit(Unit):
 
 
 class Measure(TimeUnit):
+    """
+    A Measure() represents the basic unit of a Staff division by witch Clips are multiplied,
+    and is set as an integer without decimal places.
+    Its return from Length and Position objects represents their rounded value accordingly.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 0 Measures.
+    
+    Examples
+    --------
+    Creating a Measure with a single value:
+    >>> measure = Measure(1.5)
+    
+    Creating a Measure with multiple values (the last will determine the amount of Measures):
+    >>> measure = Measure(1, 0.5, Fraction(1, 4))
+
+    Default Measure (0):
+    >>> measure = Measure()
+    """
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Measure':
@@ -496,6 +518,28 @@ class Measure(TimeUnit):
 
 
 class Beat(TimeUnit):
+    """
+    A Beat() represents the basic unit of a TimeSignature in relation to Measures (Ex 4 per Measure),
+    and is set as an integer without decimal places.
+    Its return from Length and Position objects represents their rounded value accordingly.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 0 Beats.
+    
+    Examples
+    --------
+    Creating a Beat with a single value:
+    >>> beat = Beat(1.5)
+    
+    Creating a Beat with multiple values (the last will determine the amount of Beats):
+    >>> beat = Beat(1, 0.5, Fraction(1, 4))
+
+    Default Beat (0):
+    >>> beat = Beat()
+    """
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> 'Beat':
@@ -554,8 +598,9 @@ class Beat(TimeUnit):
 class Step(TimeUnit):
     """
     A Step() represents an unit of Quantization (Ex 1/16) as an integer without decimal places.
-    For Length and Position objects it represents it's rounded part accordingly.
-        Parameters
+    Its return from Length and Position objects represents their rounded value accordingly.
+
+    Parameters
     ----------
     *args : integer_like, float_like, Fraction_like, Convertible_like, or TimeUnit_like
         The last passed argument is the one being considered. If no parameters are provided,
@@ -685,9 +730,27 @@ class PitchParameter(Unit):
     pass
 
 class Tone(PitchParameter):
+    """
+    A Tone() represents a Key change in a given KeySignature or Scale, AKA whole-step.
+    The default is 0.
+    
+    Parameters
+    ----------
+    first : integer_like
+        An Integer representing the amount of whole-steps, from 0 to higher.
+    """
     pass
 
 class Semitone(PitchParameter):
+    """
+    A Semitone() represents a pitch in a Chromatic scale, AKA half-step.
+    The default is 0.
+    
+    Parameters
+    ----------
+    first : integer_like
+        An Integer representing the amount of Chromatic steps, from 0 to 127.
+    """
     pass
 
 class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
@@ -980,6 +1043,7 @@ class Tonic(Key):
 class Octave(PitchParameter):
     """
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
+    The default value is 1 octave.
     
     Parameters
     ----------
