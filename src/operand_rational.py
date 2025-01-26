@@ -334,26 +334,74 @@ class TimeSignatureData(StaffParameters):
 class BeatsPerMeasure(TimeSignatureData):
     """
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
-    
+    The default is 4, 4 Beats per Measure.
+
     Parameters
     ----------
-    first : float_like
-        Time signature Beats per Measure, 3 for 3/4 or 4 for 4/4 
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 4 BeatsPerMeasure.
+    
+    Examples
+    --------
+    Sets the TimeSignature as 3 Beats per Measure:
+    >>> time_signature = TimeSignature()
+    >>> time_signature << BeatsPerMeasure(3)
+
+    Default BeatsPerMeasure (4):
+    >>> beats_per_measure = BeatsPerMeasure()
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(4, *parameters)
 
 class BeatNoteValue(TimeSignatureData):
     """
-    BeatNoteValue() sets the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
-    
+    BeatNoteValue() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
+    The default is 1/4, 1/4 NoteValue for each Beat.
+
     Parameters
     ----------
-    first : float_like
-        Time signature Beat Note Value, 1/4 for 3/4 or 1/8 for 4/8 
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 1/4 BeatNoteValue.
+    
+    Examples
+    --------
+    Sets the TimeSignature as 1/2 NoteValue per Beat:
+    >>> time_signature = TimeSignature()
+    >>> time_signature << BeatNoteValue(2)
+
+    Default BeatNoteValue (1/4):
+    >>> notes_per_beat = BeatNoteValue()
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(1/4, *parameters)
 
 class NotesPerMeasure(TimeSignatureData):
+    """
+    NotesPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature 3/4 is the Measure Note Value.
+    The default is 1, 1 NoteValue for each Measure. This is just an output parameter and not a setting one.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 1/4 NotesPerMeasure.
+    
+    Examples
+    --------
+    Gets the TimeSignature NoteValue per Measure:
+    >>> time_signature = TimeSignature(3, 4)
+    >>> notes_per_measure = time_signature % NotesPerMeasure()
+    >>> notes_per_measure % Fraction() >> Print()
+    3/4
+
+    Default NotesPerMeasure (1):
+    >>> notes_per_beat = NotesPerMeasure()
+    """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)
+
     """
     NotesPerMeasure() gets how many notes in a Measure and sets the Note Value of a Beat.
     
@@ -362,9 +410,30 @@ class NotesPerMeasure(TimeSignatureData):
     first : float_like
         Represents 1 Note for a time signature of 4/4 and 1/2 Note for a time signature of 4/8 
     """
-    pass
 
-class StepsPerMeasure(TimeSignatureData):
+class StepsPerMeasure(StaffParameters):
+    """
+    StepsPerMeasure() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
+    The default is 1/4, 1/4 NoteValue for each Beat.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 1/4 StepsPerMeasure.
+    
+    Examples
+    --------
+    Sets the TimeSignature as 1/2 NoteValue per Beat:
+    >>> time_signature = TimeSignature()
+    >>> time_signature << StepsPerMeasure(2)
+
+    Default StepsPerMeasure (1/4):
+    >>> notes_per_beat = StepsPerMeasure()
+    """
+    def __init__(self, *parameters):
+        super().__init__(16, *parameters)
+
     """
     StepsPerMeasure() is another way of getting and setting the Quantization.
     16 Steps per Measure means a Quantization of 1/16 in a Time Signature of 4/4.
@@ -376,7 +445,7 @@ class StepsPerMeasure(TimeSignatureData):
     """
     pass
 
-class StepsPerNote(TimeSignatureData):
+class StepsPerNote(StaffParameters):
     """
     StepsPerNote() is simply the inverse value of the Quantization, like, 16 for 1/16.
     
