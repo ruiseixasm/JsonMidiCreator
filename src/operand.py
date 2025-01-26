@@ -210,7 +210,7 @@ class Operand:
                     return self.getPlaylist(position)
                 return self.getPlaylist()
             case od.Serialization():
-                return self.getSerialization()
+                return od.Serialization(self)
             case dict():
                 serialization: dict = self.getSerialization()
                 if len(operand) > 0:
