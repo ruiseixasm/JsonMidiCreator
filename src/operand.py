@@ -176,7 +176,7 @@ class Operand:
             list_size += 1
         return list_size
 
-    def __pow__(self, operand: 'Operand') -> 'Operand':
+    def __pow__(self: TypeOperand, operand: 'Operand') -> TypeOperand:
         match operand:
             case Operand():     self._next_operand = operand
             case _:             self._next_operand = None
