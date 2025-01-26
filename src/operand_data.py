@@ -165,7 +165,8 @@ class DataSource(Data):
         0.375
         """
         match operand:
-            case DataSource():              return self._data
+            case DataSource():
+                return self._data
             case _:
                 if isinstance(self._data, o.Operand):
                     return self._data % operand
@@ -173,13 +174,18 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> 'Data':
+    def __lshift__(self, operand: any) -> 'DataSource':
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        if isinstance(operand, tuple) and isinstance(self._data, o.Operand):
-            for single_operand in operand:
-                self << single_operand
-        else:
-            super().__lshift__(operand)
+        match operand:
+            case DataSource():
+                self._data = self.deep_copy(operand._data)
+            case tuple():
+                if isinstance(self._data, o.Operand):
+                    for single_operand in operand:
+                        self._data << single_operand
+            case _:
+                if isinstance(self._data, o.Operand):
+                    self._data << operand
         return self
 
 
