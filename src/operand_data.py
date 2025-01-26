@@ -169,7 +169,7 @@ class DataSource(Data):
             case _:
                 if isinstance(self._data, o.Operand):
                     return self._data % operand
-                return operand
+                return self.deep_copy(operand)
     
     # CHAINABLE OPERATIONS
 

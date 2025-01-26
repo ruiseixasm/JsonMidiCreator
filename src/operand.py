@@ -182,7 +182,7 @@ class Operand:
             case _:             self._next_operand = None
         return self
 
-    def __mod__(self, operand: any) -> any:
+    def __mod__(self, operand: T) -> T:
         """
         The % symbol is used to extract a Parameter, each Operand
         has different types of Parameters, as an example, the
@@ -222,10 +222,8 @@ class Operand:
                 return self.name()
             case ra.Index():
                 return ra.Index(self._index)
-            case self.__class__():
-                return self.copy()
             case _:
-                return ol.Null()
+                return self.deep_copy(operand)
 
     def __floordiv__(self, operand: T) -> T:
         import operand_data as od
@@ -484,7 +482,7 @@ class Operand:
                 return data
 
     @staticmethod
-    def deep_copy(data: TypeOperand) -> TypeOperand:
+    def deep_copy(data: T) -> T:
         match data:
             case Operand():
                 return data.copy() # Only Operand has copy method
