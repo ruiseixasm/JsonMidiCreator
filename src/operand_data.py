@@ -827,7 +827,13 @@ if TYPE_CHECKING:
     from operand_container import Container
 
 class Getter(Data):
-    pass
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case str():
+                return self._data == other
+            case _:
+                return super().__eq__(other)
 
 class Len(Getter):
     def __rrshift__(self, operand: o.Operand) -> o.Operand:

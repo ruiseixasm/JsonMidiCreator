@@ -217,9 +217,9 @@ class Operand:
                     return get_pair_key_data(operand, serialization)
                 return serialization
             case od.Len():
-                return self.len()
+                return od.Len( self.len() )
             case od.Name():
-                return self.name()
+                return od.Name( self.name() )
             case ra.Index():
                 return ra.Index(self._index)
             case _:
