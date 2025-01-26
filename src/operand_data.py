@@ -152,7 +152,7 @@ class DataSource(Data):
         super().__init__()
         self._data: any = o.Operand() if operand is None else operand
 
-    def __mod__(self, operand: o.Operand):
+    def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol will extract the data source value.
 
@@ -166,7 +166,10 @@ class DataSource(Data):
         """
         match operand:
             case DataSource():              return self._data
-            case _:                         return self._data % operand
+            case _:
+                if isinstance(self._data, o.Operand):
+                    return self._data % operand
+                return operand
     
     # CHAINABLE OPERATIONS
 
