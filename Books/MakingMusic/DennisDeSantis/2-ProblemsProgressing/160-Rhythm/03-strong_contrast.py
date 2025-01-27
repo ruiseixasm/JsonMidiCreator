@@ -33,6 +33,3 @@ strong_contrast % Length() % Steps() % float() >> Print()
 
 strong_contrast * 8 >> P
 
-
-another_clip = tresillo + clap
-

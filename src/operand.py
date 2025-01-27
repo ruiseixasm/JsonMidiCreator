@@ -312,7 +312,7 @@ class Operand:
         return self.__lshift__( od.DataSource( operand ) )
 
     def copy(self, *parameters) -> Self:
-        self_copy: TypeOperand = type(self)() << self
+        self_copy = type(self)() << self
         if logging.getLogger().getEffectiveLevel() <= logging.DEBUG and not self_copy == self:   # CONSUMES TOO MUCH RESOURCES !!
             logging.error(f"Copied object {self.__class__.__name__} not identical!")
         for single_parameter in parameters: # Safe for Data class
