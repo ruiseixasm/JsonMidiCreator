@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any
+from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any, Self
 from fractions import Fraction
 import json
 import enum
@@ -594,7 +594,7 @@ class Clip(Container):  # Just a container of Elements
             self._position_beats      = self.deserialize(serialization["parameters"]["position"])
         return self
 
-    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __lshift__(self, operand: any) -> Self:
         match operand:
             case Clip():
                 self._midi_track        << operand._midi_track
