@@ -176,7 +176,7 @@ class Operand:
             list_size += 1
         return list_size
 
-    def __pow__(self: TypeOperand, operand: 'Operand') -> TypeOperand:
+    def __pow__(self, operand: 'Operand') -> Self:
         match operand:
             case Operand():     self._next_operand = operand
             case _:             self._next_operand = None
@@ -277,7 +277,7 @@ class Operand:
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self: TypeOperand, serialization: dict) -> TypeOperand:
+    def loadSerialization(self, serialization: dict) -> Self:
         if type(self) == Operand:   # Means unknown instantiation from random dict class name
             if not isinstance(serialization, dict): # Non serializable data shall be returned as is
                 return serialization
@@ -297,7 +297,7 @@ class Operand:
         
         return self
        
-    def __lshift__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, type(self)):
             self._initiated = operand._initiated
@@ -307,11 +307,11 @@ class Operand:
             self._next_operand = self.deep_copy(operand._next_operand)
         return self
 
-    def __xor__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __xor__(self, operand: any) -> Self:
         import operand_data as od
         return self.__lshift__( od.DataSource( operand ) )
 
-    def copy(self: TypeOperand, *parameters) -> TypeOperand:
+    def copy(self, *parameters) -> Self:
         self_copy: TypeOperand = type(self)() << self
         if logging.getLogger().getEffectiveLevel() <= logging.DEBUG and not self_copy == self:   # CONSUMES TOO MUCH RESOURCES !!
             logging.error(f"Copied object {self.__class__.__name__} not identical!")
@@ -321,7 +321,7 @@ class Operand:
         # return type(self)() << self << parameters
         return self_copy
     
-    def reset(self: TypeOperand, *parameters) -> TypeOperand:
+    def reset(self, *parameters) -> Self:
         # RESET THE SELF OPERANDS RECURSIVELY
         if self._next_operand is not None:
             self._next_operand.reset()
@@ -330,15 +330,15 @@ class Operand:
         self._index         = 0
         return self << parameters
     
-    def clear(self: TypeOperand, *parameters) -> TypeOperand:
+    def clear(self, *parameters) -> Self:
         self._next_operand = None
         return self.reset() << self.__class__() << parameters
     
-    def __ilshift__(self: TypeOperand, other) -> TypeOperand:
+    def __ilshift__(self, other) -> Self:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self: TypeOperand, operand: TypeOperand) -> TypeOperand:
+    def __rshift__(self, operand: TypeOperand) -> Self:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
@@ -348,7 +348,7 @@ class Operand:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __rrshift__(self, operand: any) -> Self:
         match operand:
             case tuple():
                 rshift_operands = None
@@ -361,44 +361,44 @@ class Operand:
                 return rshift_operands >> self
         return operand
 
-    def __irshift__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __irshift__(self, operand: any) -> Self:
         # Simply delegate to the __rshift__ method
         return self.__rshift__(operand)
     
 
-    def __add__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
     
-    def __sub__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __sub__(self, operand: any) -> Self:
         return self.copy().__isub__(operand)
     
-    def __mul__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __mul__(self, operand: any) -> Self:
         return self.copy().__imul__(operand)
     
-    def __truediv__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __truediv__(self, operand: any) -> Self:
         return self.copy().__itruediv__(operand)
     
 
-    def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __iadd__(self, operand: any) -> Self:
         return self
     
-    def __imul__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __imul__(self, operand: any) -> Self:
         return self
     
-    def __itruediv__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __itruediv__(self, operand: any) -> Self:
         return self
     
-    def __isub__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __isub__(self, operand: any) -> Self:
         return self
 
 
-    def __radd__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __radd__(self, operand: any) -> Self:
         return self.__add__(operand)
 
-    def __rsub__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __rsub__(self, operand: any) -> Self:
         return self.__mul__(-1).__add__(operand)
 
-    def __rmul__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
 
     

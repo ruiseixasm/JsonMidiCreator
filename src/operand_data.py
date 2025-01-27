@@ -111,7 +111,7 @@ class Data(o.Operand):
             self._data = self.deserialize(serialization["parameters"]["data"])
         return self
 
-    def __lshift__(self: TypeData, operand: any) -> TypeData:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():  # Particular case Data restrict self copy to self, no wrapping possible!
@@ -174,7 +174,7 @@ class DataSource(Data):
     
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeData, operand: any) -> TypeData:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case DataSource():
@@ -294,7 +294,7 @@ class Serialization(Data):
         self._data = o.Operand().loadSerialization(serialization)
         return self
 
-    def __lshift__(self: TypeData, operand: any) -> TypeData:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Serialization():
@@ -377,7 +377,7 @@ class Playlist(Data):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeData, operand: any) -> TypeData:
+    def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
         import operand_element as oe
         match operand:
@@ -403,7 +403,7 @@ class Playlist(Data):
                     self << single_operand
         return self
 
-    def __rrshift__(self: TypeData, operand: any) -> TypeData:
+    def __rrshift__(self, operand: any) -> Self:
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
@@ -454,7 +454,7 @@ class Playlist(Data):
                 return super().__rrshift__(operand)
 
 
-    def __add__(self: TypeData, operand: any) -> TypeData:
+    def __add__(self, operand: any) -> Self:
         import operand_rational as ra
         match operand:
             case ra.Length():

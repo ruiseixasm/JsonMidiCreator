@@ -28,7 +28,7 @@ TypeLabel = TypeVar('TypeLabel', bound='Label')  # TypeLabel represents any subc
 
 class Label(o.Operand):
     # By default a Label has no copies as it caries no data
-    def copy(self: T, *parameters) -> T:
+    def copy(self, *parameters) -> Self:
         return self
 
     def __eq__(self, other: 'Label') -> bool:

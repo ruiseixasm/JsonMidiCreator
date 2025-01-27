@@ -64,23 +64,23 @@ class Element(o.Operand):
         return self
 
 
-    def position(self: TypeElement, position_measures: float = None) -> TypeElement:
+    def position(self, position_measures: float = None) -> Self:
         self._position_beats = self._staff_reference.convertToPosition(ra.Measures(position_measures))._rational
         return self
 
-    def duration(self: 'TypeElement', duration: float = None) -> 'TypeElement':
+    def duration(self, duration: float = None) -> Self:
         self._duration_notevalue = ra.Duration(duration)._rational
         return self
 
-    def stackable(self: 'TypeElement', stackable: bool = None) -> 'TypeElement':
+    def stackable(self, stackable: bool = None) -> Self:
         self._stackable = stackable
         return self
 
-    def channel(self: TypeElement, channel: int = None) -> TypeElement:
+    def channel(self, channel: int = None) -> Self:
         self._channel = channel
         return self
 
-    def device(self: 'TypeElement', device: list[str] = None) -> 'TypeElement':
+    def device(self, device: list[str] = None) -> Self:
         self._device = device
         return self
 
@@ -264,7 +264,7 @@ class Element(o.Operand):
 
         return self
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
@@ -318,7 +318,7 @@ class Element(o.Operand):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __rrshift__(self, operand: any) -> Self:
         import operand_container as oc
         match operand:
             case ra.Position():
@@ -417,7 +417,7 @@ class Element(o.Operand):
         self_operand *= operand
         return self << self_operand
 
-    def __itruediv__(self: TypeElement, operand: any) -> TypeElement:
+    def __itruediv__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if operand != 0:
             self_operand: any = self % operand
@@ -452,7 +452,7 @@ class Clock(Element):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def ppqn(self: 'Clock', ppqn: int = None) -> 'Clock':
+    def ppqn(self, ppqn: int = None) -> Self:
         self._pulses_per_quarternote = ppqn
         return self
 
@@ -555,7 +555,7 @@ class Clock(Element):
             self._pulses_per_quarternote    = self.deserialize( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Clock():
@@ -626,19 +626,19 @@ class Note(Element):
         return self
 
 
-    def velocity(self: 'Note', velocity: int = 100) -> 'Note':
+    def velocity(self, velocity: int = 100) -> Self:
         self._velocity = velocity
         return self
 
-    def gate(self: 'Note', gate: float = None) -> 'Note':
+    def gate(self, gate: float = None) -> Self:
         self._gate = ra.Gate(gate)._rational
         return self
 
-    def tied(self: 'Note', tied: bool = True) -> 'Note':
+    def tied(self, tied: bool = True) -> Self:
         self._tied = tied
         return self
 
-    def pitch(self: 'Note', key: Optional[ou.Key] = None, octave: Optional[int] = None) -> 'Note':
+    def pitch(self, octave: Optional[int] = None) -> Self:
         self._pitch = og.Pitch(key, octave).set_staff_reference(self._staff_reference)
         return self
 
@@ -751,7 +751,7 @@ class Note(Element):
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
         return self
       
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Note():
@@ -863,7 +863,7 @@ class Cluster(Note):
             self._sets  = self.deserialize( serialization["parameters"]["sets"] )
         return self
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Cluster():
@@ -895,7 +895,7 @@ class KeyScale(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def scale(self: 'KeyScale', scale: list[int] | str = None) -> 'KeyScale':
+    def scale(self, scale: list[int] | str = None) -> Self:
         self._scale = og.Scale(scale)
         return self
 
@@ -980,7 +980,7 @@ class KeyScale(Note):
             self._scale = self.deserialize( serialization["parameters"]["self_scale"] )
         return self
         
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyScale():
@@ -1010,31 +1010,31 @@ class Chord(KeyScale):
         self._sus4: bool            = False
         super().__init__(*parameters)
 
-    def size(self: 'Chord', size: int = 3) -> 'Chord':
+    def size(self, size: int = 3) -> Self:
         self._size = size
         return self
 
-    def inversion(self: 'Chord', inversion: int = 1) -> 'Chord':
+    def inversion(self, inversion: int = 1) -> Self:
         self._inversion = inversion
         return self
 
-    def dominant(self: 'Chord', dominant: bool = True) -> 'Chord':
+    def dominant(self, dominant: bool = True) -> Self:
         self._dominant = dominant
         return self
 
-    def diminished(self: 'Chord', diminished: bool = True) -> 'Chord':
+    def diminished(self, diminished: bool = True) -> Self:
         self._diminished = diminished
         return self
 
-    def augmented(self: 'Chord', augmented: bool = True) -> 'Chord':
+    def augmented(self, augmented: bool = True) -> Self:
         self._augmented = augmented
         return self
 
-    def sus2(self: 'Chord', sus2: bool = True) -> 'Chord':
+    def sus2(self, sus2: bool = True) -> Self:
         self._sus2 = sus2
         return self
 
-    def sus4(self: 'Chord', sus4: bool = True) -> 'Chord':
+    def sus4(self, sus4: bool = True) -> Self:
         self._sus4 = sus4
         return self
 
@@ -1176,7 +1176,7 @@ class Chord(KeyScale):
             self._sus4          = self.deserialize( serialization["parameters"]["sus4"] )
         return self
       
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chord():
@@ -1253,11 +1253,11 @@ class Retrigger(Note):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def division(self: 'Retrigger', division: int = 16) -> 'Retrigger':
+    def division(self, division: int = 16) -> Self:
         self._division = division
         return self
 
-    def swing(self: 'Retrigger', swing: float = 0.5) -> 'Retrigger':
+    def swing(self, swing: float = 0.5) -> Self:
         self._swing = Fraction(swing)
         return self
 
@@ -1331,7 +1331,7 @@ class Retrigger(Note):
             self._swing     = self.deserialize( serialization["parameters"]["swing"] )
         return self
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Retrigger():
@@ -1381,7 +1381,7 @@ class Note3(Retrigger):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Division() | int():
@@ -1399,11 +1399,11 @@ class Tuplet(Element):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def swing(self: 'Tuplet', swing: float = 0.5) -> 'Tuplet':
+    def swing(self, swing: float = 0.5) -> Self:
         self._swing = Fraction(swing)
         return self
 
-    def elements(self: 'Tuplet', elements: Optional[List['Element']] = None) -> 'Tuplet':
+    def elements(self, elements: Optional[List['Element']] = None) -> Self:
         if isinstance(elements, list) and all(isinstance(element, Element) for element in elements):
             self._elements = elements
         return self
@@ -1496,7 +1496,7 @@ class Tuplet(Element):
             self._elements  = self.deserialize( serialization["parameters"]["elements"] )
         return self
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if not isinstance(operand, tuple):
             for single_element in self._elements:
@@ -1532,7 +1532,7 @@ class Tuplet(Element):
 class Triplet(Tuplet):
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case list():
@@ -1556,7 +1556,7 @@ class ControlChange(Automation):
         self._controller: og.Controller = og.defaults % og.Controller()
         super().__init__(*parameters)
 
-    def controller(self: 'ControlChange', number: Optional[int] = None, value: Optional[int] = None) -> 'ControlChange':
+    def controller(self, value: Optional[int] = None) -> Self:
         self._controller = og.Controller(
                 ou.Number(number), ou.Value(value)
             )
@@ -1638,7 +1638,7 @@ class ControlChange(Automation):
             self._controller = self.deserialize( serialization["parameters"]["controller"] )
         return self
 
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ControlChange():
@@ -1676,7 +1676,7 @@ class PitchBend(Automation):
         self._bend: int = 0
         super().__init__(*parameters)
 
-    def bend(self: 'PitchBend', bend: int = 0) -> 'PitchBend':
+    def bend(self, bend: int = 0) -> Self:
         self._bend = bend
         return self
 
@@ -1760,7 +1760,7 @@ class PitchBend(Automation):
             self._bend = self.deserialize( serialization["parameters"]["bend"] )
         return self
       
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case PitchBend():
@@ -1785,7 +1785,7 @@ class Aftertouch(Automation):
         self._pressure: int = 0
         super().__init__(*parameters)
 
-    def pressure(self: 'Aftertouch', pressure: int = 0) -> 'Aftertouch':
+    def pressure(self, pressure: int = 0) -> Self:
         self._pressure = pressure
         return self
 
@@ -1861,7 +1861,7 @@ class Aftertouch(Automation):
             self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
         return self
       
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Aftertouch():
@@ -1898,7 +1898,7 @@ class PolyAftertouch(Aftertouch):
         return self
 
 
-    def pitch(self: 'PolyAftertouch', key: Optional[ou.Key] = ou.Key("C"), octave: Optional[int] = ou.Octave(4)) -> 'PolyAftertouch':
+    def pitch(self, octave: Optional[int] = ou.Octave(4)) -> Self:
         self._pitch = og.Pitch(key, octave)
         return self
 
@@ -1969,7 +1969,7 @@ class PolyAftertouch(Aftertouch):
             self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
         return self
       
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case PolyAftertouch():
@@ -2007,7 +2007,7 @@ class ProgramChange(Automation):
         self._program: int = ou.Program("Piano")._unit
         super().__init__(*parameters)
 
-    def program(self: 'ProgramChange', program: int | str = "Piano") -> 'ProgramChange':
+    def program(self, program: int | str = "Piano") -> Self:
         self._program = ou.Program(program)._unit
         return self
 
@@ -2083,7 +2083,7 @@ class ProgramChange(Automation):
             self._program = self.deserialize( serialization["parameters"]["program"] )
         return self
       
-    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ProgramChange():

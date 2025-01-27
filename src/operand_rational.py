@@ -144,7 +144,7 @@ class Rational(o.Operand):
                 self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Rational():
@@ -302,7 +302,7 @@ class Negative(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Negative():
@@ -483,7 +483,7 @@ class Tempo(StaffParameter):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -761,7 +761,7 @@ class Convertible(Rational):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -795,7 +795,7 @@ class Length(Convertible):
     1.0
     """
 
-    def position(self: 'Length', beats: float = None) -> 'Length':
+    def position(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -852,7 +852,7 @@ class Length(Convertible):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Length():
@@ -951,7 +951,7 @@ class Measures(TimeValue):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -962,7 +962,7 @@ class Measures(TimeValue):
                 super().__lshift__(operand)
         return self
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1022,7 +1022,7 @@ class Beats(TimeValue):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1034,7 +1034,7 @@ class Beats(TimeValue):
                 super().__lshift__(operand)
         return self
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -1093,7 +1093,7 @@ class Steps(TimeValue):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -1104,7 +1104,7 @@ class Steps(TimeValue):
                 super().__lshift__(operand)
         return self
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1164,7 +1164,7 @@ class Duration(Convertible):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -1264,7 +1264,7 @@ class Dotted(Duration):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeRational, operand: any) -> TypeRational:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource() | Duration() | od.Serialization():

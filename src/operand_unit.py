@@ -44,7 +44,7 @@ class Unit(o.Operand):
         self._unit: int = 0
         super().__init__(*parameters)
 
-    def unit(self: TypeUnit, number: int = None) -> TypeUnit:
+    def unit(self, number: int = None) -> Self:
         return self << od.DataSource( number )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -155,7 +155,7 @@ class Unit(o.Operand):
             self._unit = serialization["parameters"]["unit"]
         return self
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -181,11 +181,11 @@ class Unit(o.Operand):
                     self << single_operand
         return self
 
-    def __add__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __add__(self, operand: any) -> Self:
         self_copy: Unit = self.copy()
         return self_copy.__iadd__(operand)
     
-    def __iadd__(self: TypeUnit, number: any) -> TypeUnit:
+    def __iadd__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -196,11 +196,11 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __sub__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __sub__(self, operand: any) -> Self:
         self_copy: Unit = self.copy()
         return self_copy.__isub__(operand)
     
-    def __isub__(self: TypeUnit, number: any) -> TypeUnit:
+    def __isub__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -211,11 +211,11 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __mul__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __mul__(self, operand: any) -> Self:
         self_copy: Unit = self.copy()
         return self_copy.__imul__(operand)
     
-    def __imul__(self: TypeUnit, number: any) -> TypeUnit:
+    def __imul__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -226,11 +226,11 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __truediv__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __truediv__(self, operand: any) -> Self:
         self_copy: Unit = self.copy()
         return self_copy.__itruediv__(operand)
     
-    def __itruediv__(self: TypeUnit, number: any) -> TypeUnit:
+    def __itruediv__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
@@ -428,7 +428,7 @@ class TimeUnit(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case self.__class__():
@@ -464,7 +464,7 @@ class Measure(TimeUnit):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -542,7 +542,7 @@ class Beat(TimeUnit):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -619,7 +619,7 @@ class Step(TimeUnit):
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -686,7 +686,7 @@ class Sharps(Accidentals):  # Sharps (###)
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -711,7 +711,7 @@ class Flats(Accidentals):   # Flats (bbb)
     """
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -849,7 +849,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             self._major         = self.deserialize( serialization["parameters"]["major"] )
         return self
       
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeySignature():
@@ -912,23 +912,23 @@ class Key(PitchParameter):
     first : integer_like or string_like
         A number from 0 to 11 with 0 as default or the equivalent string key "C"
     """
-    def key_signature(self: 'Key', key_signature: 'KeySignature' = None) -> 'Key':
+    def key_signature(self, key_signature: 'KeySignature' = None) -> Self:
         self._key_signature = key_signature
         return self
 
-    def sharp(self: 'Key', unit: int = None) -> 'Key':
+    def sharp(self, unit: int = None) -> Self:
         return self << od.DataSource( Sharp(unit) )
 
-    def flat(self: 'Key', unit: int = None) -> 'Key':
+    def flat(self, unit: int = None) -> Self:
         return self << od.DataSource( Flat(unit) )
 
-    def natural(self: 'Key', unit: int = None) -> 'Key':
+    def natural(self, unit: int = None) -> Self:
         return self << od.DataSource( Natural(unit) )
 
-    def degree(self: 'Key', unit: int = None) -> 'Key':
+    def degree(self, unit: int = None) -> Self:
         return self << od.DataSource( Degree(unit) )
 
-    def scale(self: 'Key', scale: list[int] | str = None) -> 'Key':
+    def scale(self, scale: list[int] | str = None) -> Self:
         import operand_generic as og
         return self << od.DataSource( og.Scale(scale) )
 
@@ -979,7 +979,7 @@ class Key(PitchParameter):
     
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         import operand_generic as og
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1080,7 +1080,7 @@ class Degree(PitchParameter):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -1138,7 +1138,7 @@ class Sharp(PitchParameter):  # Sharp (#)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1169,7 +1169,7 @@ class Flat(PitchParameter):   # Flat (b)
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1207,7 +1207,7 @@ class DrumKit(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1356,7 +1356,7 @@ class Natural(Boolean):     # Natural (n)
         Accepts a boolean or a numeral (0 or 1) to set as Natural the Pitch
     """
     # CHAINABLE OPERATIONS
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1377,7 +1377,7 @@ class Dominant(Boolean):    # Flats the seventh
         Accepts a boolean or a numeral (0 or 1) to set as Dominant the Chord
     """
     # CHAINABLE OPERATIONS
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1399,7 +1399,7 @@ class Diminished(Boolean):  # Flats the third and the fifth
         Accepts a boolean or a numeral (0 or 1) to set as Diminished the Chord
     """
     # CHAINABLE OPERATIONS
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1419,7 +1419,7 @@ class Augmented(Boolean):   # Sharps the fifth
         Accepts a boolean or a numeral (0 or 1) to set as Augmented the Chord
     """
     # CHAINABLE OPERATIONS
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1439,7 +1439,7 @@ class Sus2(Boolean):        # Second instead of the third
         Accepts a boolean or a numeral (0 or 1) to set as Sus2 the Chord
     """
     # CHAINABLE OPERATIONS
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1459,7 +1459,7 @@ class Sus4(Boolean):        # Fourth instead of the third
         Accepts a boolean or a numeral (0 or 1) to set as Sus4 the Chord
     """
     # CHAINABLE OPERATIONS
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case str():
@@ -1489,7 +1489,7 @@ class Mode(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case od.DataSource():
@@ -1543,7 +1543,7 @@ class Size(Unit):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -1726,7 +1726,7 @@ class MidiTrack(Midi):
             self._name = serialization["parameters"]["name"]    # It's a string already
         return self
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case MidiTrack():
@@ -1805,7 +1805,7 @@ class Program(Midi):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -2023,7 +2023,7 @@ class Number(Midi):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeUnit, operand: any) -> TypeUnit:
+    def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:

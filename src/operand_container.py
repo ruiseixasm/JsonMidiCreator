@@ -156,7 +156,7 @@ class Container(o.Operand):
             self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
 
-    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __lshift__(self, operand: any) -> Self:
         match operand:
             case Container():
                 super().__lshift__(operand)
@@ -230,7 +230,7 @@ class Container(o.Operand):
             self._datasource_list[operand_i]._data = tail_operand
         return self
     
-    def rotate(self: TypeContainer, offset: int = 1, parameter: type = ra.Duration) -> TypeContainer:
+    def rotate(self, parameter: type = ra.Duration) -> Self:
         """
         Rotates a given parameter by a given offset, by other words,
         does a displacement for each Element in the Container list of
@@ -253,24 +253,24 @@ class Container(o.Operand):
                 offset += 1
         return self
 
-    def filter(self: TypeContainer, criteria: any) -> TypeContainer:
+    def filter(self, criteria: any) -> Self:
         self._datasource_list = [datasource for datasource in self._datasource_list if datasource._data == criteria]
         return self
 
-    def __add__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
     
-    def __sub__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __sub__(self, operand: any) -> Self:
         return self.copy().__isub__(operand)
     
-    def __mul__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __mul__(self, operand: any) -> Self:
         return self.copy().__imul__(operand)
     
-    def __truediv__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __truediv__(self, operand: any) -> Self:
         return self.copy().__itruediv__(operand)
     
     # Avoids the costly copy of Container self doing +=
-    def __iadd__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __iadd__(self, operand: any) -> Self:
         match operand:
             case Container():
                 for single_datasource in operand._datasource_list:
@@ -286,12 +286,12 @@ class Container(o.Operand):
                     self._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
         return self
 
-    def __radd__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __radd__(self, operand: any) -> Self:
         self_copy: Container = self.copy()
         self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
 
-    def __isub__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __isub__(self, operand: any) -> Self:
         match operand:
             case Container():
                 # Exclude items based on equality (==) comparison
@@ -313,7 +313,7 @@ class Container(o.Operand):
         return self
 
     # multiply with a scalar 
-    def __imul__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __imul__(self, operand: any) -> Self:
         match operand:
             case Container():
                 pass
@@ -338,7 +338,7 @@ class Container(o.Operand):
                     self *= single_operand
         return self
     
-    def __itruediv__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Container():
                 pass
@@ -368,17 +368,17 @@ class Container(o.Operand):
         return self
 
 
-    def __pow__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __pow__(self, operand: any) -> Self:
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, o.Operand):
                 single_datasource._data.__pow__(operand)
         return self
 
 
-    def __or__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __or__(self, operand: any) -> Self:
         return self.shallow_copy().__ior__(operand)
 
-    def __ior__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __ior__(self, operand: any) -> Self:
         match operand:
             case Container():
                 self._datasource_list.extend(
@@ -392,7 +392,7 @@ class Container(o.Operand):
                 self.filter(operand)
         return self
 
-    def __ror__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __ror__(self, operand: any) -> Self:
         return self.__or__(operand)
 
 
@@ -751,7 +751,7 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     # in-place multiply (NO COPY!)
-    def __imul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
+    def __imul__(self, operand: o.Operand) -> Self:
         match operand:
             case Clip():
                 left_end_position: ra.Position = self.finish()
@@ -1032,7 +1032,7 @@ class Part(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __lshift__(self, operand: any) -> Self:
         match operand:
             case Part():
                 super().__lshift__(operand)
