@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import logging
 from functools import cache
-from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any, Self, Generic
+from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Self, Generic
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
