@@ -335,6 +335,9 @@ class Element(o.Operand):
                 return super().__rrshift__(operand)
         return self
 
+    def __mul__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.copy().__imul__(operand)
+    
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
