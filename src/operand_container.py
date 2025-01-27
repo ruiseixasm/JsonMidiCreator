@@ -14,7 +14,13 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Self, Generic
+from typing import Union, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
+try:
+    from typing import Self
+except ImportError:
+    from typing import TypeVar
+    Self = TypeVar('Self', bound='Container')  # Define Self manually
+
 from fractions import Fraction
 import json
 import enum
@@ -782,7 +788,7 @@ class Clip(Container):  # Just a container of Elements
                 if self._length_beats < 0:
                     left_end_position: ra.Position = self.finish()
                 else:
-                    left_end_position: ra.Position = (self % ra.Length()).convertToPosition()
+                    left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
                 right_start_position: ra.Position = operand.start()
                 length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
                 # Convert Length to Position

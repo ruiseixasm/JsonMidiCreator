@@ -14,7 +14,13 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Self, Generic
+from typing import Union, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
+try:
+    from typing import Self
+except ImportError:
+    from typing import TypeVar
+    Self = TypeVar('Self', bound='Chaos')  # Define Self manually
+
 from fractions import Fraction
 import json
 import enum
