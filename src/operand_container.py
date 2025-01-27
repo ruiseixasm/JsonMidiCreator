@@ -788,10 +788,11 @@ class Clip(Container):  # Just a container of Elements
                 ]
                 self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
             case int() | float():
-                self_length: ra.Length = self % ra.Length()
                 if isinstance(operand, int):
-                    self_length = self_length.roundMeasures()  # Length is NOT a Position
-                operand = int(operand)
+                    self_length: ra.Length = (self % ra.Length()).roundMeasures()
+                else:
+                    self_length: ra.Length = self.length()
+                    operand = int(operand)
                 if operand > 1:
                     # Convert self_length to a Position
                     add_position: ra.Position = ra.Position(self_length)
@@ -810,13 +811,15 @@ class Clip(Container):  # Just a container of Elements
             case ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
-                self_beats: Fraction = self.length().roundMeasures()._rational  # Beats default unit
+                self_length: ra.Length = self % ra.Length()
+                self_beats: Fraction = self_length.roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
                 self *= self_repeating
             case ra.TimeValue():
                 self_repeating: float = 0.0
-                length_value: Fraction = self.length() % operand % Fraction()
+                self_length: ra.Length = self % ra.Length()
+                length_value: Fraction = self_length % operand % Fraction()
                 if length_value > 0:
                     operand_value: Fraction = operand._rational
                     self_repeating: float = float( operand_value / length_value )
