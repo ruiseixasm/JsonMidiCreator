@@ -24,8 +24,6 @@ import operand_unit as ou
 import operand_frame as of
 import operand_label as ol
 
-TypeData = TypeVar('TypeData', bound='Data')  # TypeData represents any subclass of Operand
-
 
 class Data(o.Operand):
 

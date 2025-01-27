@@ -26,8 +26,6 @@ import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
-TypeRational = TypeVar('TypeRational', bound='Rational')  # TypeRational represents any subclass of Operand
-
 
 # Fraction objects are immutable, so modifications create new objects rather than changing existing ones.
 # Assignments and passing around fractions involve copying references, not duplicating the actual object data.

@@ -34,8 +34,6 @@ import operand_frame as of
 import operand_container as oc
 import operand_chaos as ch
 
-TypeMutation = TypeVar('TypeMutation', bound='Mutation')  # TypeMutation represents any subclass of Operand
-
 
 class Mutation(o.Operand):
     def __init__(self, *parameters):

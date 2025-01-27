@@ -29,12 +29,9 @@ import operand_frame as of
 import operand_label as ol
 import operand_chaos as ch
 
-TypeGeneric = TypeVar('TypeGeneric', bound='Generic')  # TypeGeneric represents any subclass of Operand
-
 
 class Generic(o.Operand):
     pass
-
 
 
 class TimeSignature(Generic):

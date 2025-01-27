@@ -26,8 +26,6 @@ import operand_data as od
 import operand_frame as of
 import operand_label as ol
 
-TypeUnit = TypeVar('TypeUnit', bound='Unit')  # TypeUnit represents any subclass of Operand
-
 
 # Units have never None values and are also const, with no setters
 class Unit(o.Operand):

@@ -27,8 +27,6 @@ import operand_frame as of
 import operand_container as oc
 import operand_element as oe
 
-TypeOperator = TypeVar('TypeOperator', bound='Operator')  # TypeOperator represents any subclass of Operand
-
 
 class Operator(o.Operand):
     """

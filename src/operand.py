@@ -31,7 +31,6 @@ if TYPE_CHECKING:
     from operand import Operand  # Replace with the actual module name
 
 T = TypeVar('T')
-TypeOperand = TypeVar('TypeOperand', bound='Operand')  # TypeOperand represents any subclass of Operand
 
 
 # GLOBAL FUNCTIONS
@@ -338,7 +337,7 @@ class Operand:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self, operand: TypeOperand) -> Self:
+    def __rshift__(self, operand: any) -> Self:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:

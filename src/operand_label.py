@@ -17,13 +17,11 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Self, Generic
 from fractions import Fraction
 import json
-T = TypeVar('T')  # T can represent any type, including user-defined classes
+
 # Json Midi Creator Libraries
 import creator as c
 import operand as o
 import operand_frame as of
-
-TypeLabel = TypeVar('TypeLabel', bound='Label')  # TypeLabel represents any subclass of Operand
 
 
 class Label(o.Operand):
