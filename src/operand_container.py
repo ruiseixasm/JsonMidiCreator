@@ -409,6 +409,7 @@ class Clip(Container):  # Just a container of Elements
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._position_beats: Fraction  = Fraction(0)   # in Beats
+        self._length_beats: Fraction    = Fraction(-1)  # in Beats where -1 means isn't set
         super().__init__(*operands)
 
 
@@ -461,12 +462,19 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():     return operand << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                    case ra.Position():
+                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                    case ra.Length():
+                        return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
-            case ra.Position():     return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
-            case ra.Length():       return self.length()
+            case ra.Position():
+                return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
+            case ra.Length():
+                if self._length_beats >= 0:
+                    return operand.copy() << self._staff.convertToLength(ra.Beats(self._length_beats))
+                return self.length()
             case ra.Duration():     return self.duration()
             case ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                 | int() | float() | Fraction() | str():
