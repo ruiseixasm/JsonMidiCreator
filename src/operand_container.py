@@ -680,7 +680,7 @@ class Clip(Container):  # Just a container of Elements
         return shallow_copy
     
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: o.Operand) -> 'Clip':
+    def __rrshift__(self, operand: any) -> 'Clip':
         match operand:
             case Part():
                 wrapper_song: Part = Part()
@@ -774,7 +774,7 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     # in-place multiply (NO COPY!)
-    def __imul__(self, operand: o.Operand) -> Self:
+    def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
                 left_end_position: ra.Position = self.finish()
@@ -788,11 +788,10 @@ class Clip(Container):  # Just a container of Elements
                 ]
                 self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
             case int() | float():
+                self_length: ra.Length = self % ra.Length()
                 if isinstance(operand, int):
-                    self_length: ra.Length = self.length().roundMeasures()  # Length is NOT a Position
-                else:
-                    self_length: ra.Length = self.length()                  # Length is NOT a Position
-                    operand = int(operand)
+                    self_length = self_length.roundMeasures()  # Length is NOT a Position
+                operand = int(operand)
                 if operand > 1:
                     # Convert self_length to a Position
                     add_position: ra.Position = ra.Position(self_length)
@@ -845,7 +844,7 @@ class Clip(Container):  # Just a container of Elements
     def __rmul__(self, operand: any) -> 'Clip':
         return self.__mul__(operand)
     
-    def __itruediv__(self, operand: o.Operand) -> 'Clip':
+    def __itruediv__(self, operand: any) -> 'Clip':
         match operand:
             case int():
                 return super().__itruediv__(operand)
@@ -1077,7 +1076,7 @@ class Part(Container):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: o.Operand) -> 'Part':
+    def __rrshift__(self, operand: any) -> 'Part':
         match operand:
             case Part():
                 wrapper_song: Part = Part()

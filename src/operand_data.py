@@ -319,13 +319,13 @@ class Serialization(Data):
     def __add__(self, operand: 'o.Operand') -> 'o.Operand':
         return self._data + operand
 
-    def __sub__(self, operand: o.Operand) -> 'o.Operand':
+    def __sub__(self, operand: any) -> 'o.Operand':
         return self._data - operand
 
-    def __mul__(self, operand: o.Operand) -> 'o.Operand':
+    def __mul__(self, operand: any) -> 'o.Operand':
         return self._data * operand
 
-    def __truediv__(self, operand: o.Operand) -> 'o.Operand':
+    def __truediv__(self, operand: any) -> 'o.Operand':
         return self._data / operand
 
 class Playlist(Data):
@@ -664,7 +664,7 @@ class Tie(Operation):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
-    def __rrshift__(self, operand: o.Operand) -> 'Clip':
+    def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.tie(self._data)
@@ -675,7 +675,7 @@ class Slur(Operation):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
-    def __rrshift__(self, operand: o.Operand) -> 'Clip':
+    def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.slur(self._data)
@@ -683,7 +683,7 @@ class Slur(Operation):
             return super().__rrshift__(operand)
 
 class Smooth(Operation):
-    def __rrshift__(self, operand: o.Operand) -> 'Clip':
+    def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.smooth()
@@ -893,7 +893,7 @@ class End(Getter):
         return ol.Null()
 
 class Name(Getter):
-    def __rrshift__(self, operand: o.Operand) -> str:
+    def __rrshift__(self, operand: any) -> str:
         import operand_container as oc
         if isinstance(operand, o.Operand):
             return operand.__class__.__name__

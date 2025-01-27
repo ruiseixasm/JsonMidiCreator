@@ -134,7 +134,7 @@ class Operator(o.Operand):
                 # self._operator_list = []    # Saved operators are used only once
         return operand
 
-    def __ror__(self, operand: o.Operand) -> o.Operand:
+    def __ror__(self, operand: any) -> o.Operand:
         return self.__or__(operand)
 
 class Oscillator(Operator):

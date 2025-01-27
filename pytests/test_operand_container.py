@@ -301,7 +301,7 @@ def test_mul_clip():
     hi_hat[3] % Position() % Steps() % float() >> Print()
     assert hi_hat[3] % Position() % Steps() == 14.0
 
-# test_mul_clip()
+test_mul_clip()
 
 
 def test_clip_composition():
