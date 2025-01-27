@@ -178,10 +178,6 @@ class Rational(o.Operand):
             self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
-    def __add__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        self_copy = self.copy()
-        return self_copy.__iadd__(value)
-    
     def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
@@ -190,12 +186,11 @@ class Rational(o.Operand):
             case Fraction() | int():
                 self._rational += value
             case float():
-                self._rational += Fraction(value)
+                if self._limit_denominator > 0:
+                    self._rational += Fraction(value).limit_denominator(self._limit_denominator)
+                else:
+                    self._rational += Fraction(value)
         return self
-    
-    def __sub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        self_copy = self.copy()
-        return self_copy.__isub__(value)
     
     def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
@@ -205,12 +200,11 @@ class Rational(o.Operand):
             case Fraction() | int():
                 self._rational -= value
             case float():
-                self._rational -= Fraction(value)
+                if self._limit_denominator > 0:
+                    self._rational -= Fraction(value).limit_denominator(self._limit_denominator)
+                else:
+                    self._rational -= Fraction(value)
         return self
-    
-    def __mul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        self_copy = self.copy()
-        return self_copy.__imul__(value)
     
     def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
@@ -220,12 +214,11 @@ class Rational(o.Operand):
             case Fraction() | int():
                 self._rational *= value
             case float():
-                self._rational *= Fraction(value)
+                if self._limit_denominator > 0:
+                    self._rational *= Fraction(value).limit_denominator(self._limit_denominator)
+                else:
+                    self._rational *= Fraction(value)
         return self
-    
-    def __truediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
-        self_copy = self.copy()
-        return self_copy.__itruediv__(value)
     
     def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
@@ -237,7 +230,10 @@ class Rational(o.Operand):
                     self._rational /= value
             case float():
                 if value != 0:
-                    self._rational /= Fraction(value)
+                    if self._limit_denominator > 0:
+                        self._rational /= Fraction(value).limit_denominator(self._limit_denominator)
+                    else:
+                        self._rational /= Fraction(value)
         return self
 
 class HiPrecision(Rational):
@@ -1043,7 +1039,7 @@ class Beats(TimeValue):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'Beats':
+    def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1052,7 +1048,7 @@ class Beats(TimeValue):
                 super().__iadd__(operand)
         return self
     
-    def __isub__(self, operand: any) -> 'Beats':
+    def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1061,7 +1057,7 @@ class Beats(TimeValue):
                 super().__isub__(operand)
         return self
     
-    def __imul__(self, operand: any) -> 'Beats':
+    def __imul__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1070,7 +1066,7 @@ class Beats(TimeValue):
                 super().__imul__(operand)
         return self
     
-    def __itruediv__(self, operand: any) -> 'Beats':
+    def __itruediv__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1114,7 +1110,7 @@ class Steps(TimeValue):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'Steps':
+    def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1123,7 +1119,7 @@ class Steps(TimeValue):
                 super().__iadd__(operand)
         return self
     
-    def __isub__(self, operand: any) -> 'Steps':
+    def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1132,7 +1128,7 @@ class Steps(TimeValue):
                 super().__isub__(operand)
         return self
     
-    def __imul__(self, operand: any) -> 'Steps':
+    def __imul__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1141,7 +1137,7 @@ class Steps(TimeValue):
                 super().__imul__(operand)
         return self
     
-    def __itruediv__(self, operand: any) -> 'Steps':
+    def __itruediv__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1173,7 +1169,7 @@ class Duration(Convertible):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'Duration':
+    def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1182,7 +1178,7 @@ class Duration(Convertible):
                 super().__iadd__(operand)
         return self
     
-    def __isub__(self, operand: any) -> 'Duration':
+    def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1191,7 +1187,7 @@ class Duration(Convertible):
                 super().__isub__(operand)
         return self
     
-    def __imul__(self, operand: any) -> 'Duration':
+    def __imul__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
@@ -1200,7 +1196,7 @@ class Duration(Convertible):
                 super().__imul__(operand)
         return self
     
-    def __itruediv__(self, operand: any) -> 'Duration':
+    def __itruediv__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Convertible() | ou.TimeUnit():
