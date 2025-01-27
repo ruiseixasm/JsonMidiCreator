@@ -91,7 +91,7 @@ class TimeSignature(Generic):
             self._bottom        = self.deserialize( serialization["parameters"]["bottom"] )
         return self
         
-    def __lshift__(self, operand: any) -> TypeGeneric:
+    def __lshift__(self: TypeGeneric, operand: any) -> TypeGeneric:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case TimeSignature():
@@ -441,7 +441,7 @@ class Pitch(Generic):
             self._natural       = self.deserialize( serialization["parameters"]["natural"] )
         return self
 
-    def __lshift__(self, operand: any) -> TypeGeneric:
+    def __lshift__(self: TypeGeneric, operand: any) -> TypeGeneric:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
@@ -731,7 +731,7 @@ class Controller(Generic):
             self._value     = self.deserialize( serialization["parameters"]["value"] )
         return self
         
-    def __lshift__(self, operand: any) -> TypeGeneric:
+    def __lshift__(self: TypeGeneric, operand: any) -> TypeGeneric:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Controller():
@@ -912,7 +912,7 @@ class Scale(Generic):
         self._scale_list = self.modulation(mode)
         return self
 
-    def __lshift__(self, operand: any) -> TypeGeneric:
+    def __lshift__(self: TypeGeneric, operand: any) -> TypeGeneric:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Scale():
@@ -1351,7 +1351,7 @@ class Staff(Generic):
             self._measures          = self.deserialize( serialization["parameters"]["measures"] )
         return self
     
-    def __lshift__(self, operand: any) -> TypeGeneric:
+    def __lshift__(self: TypeGeneric, operand: any) -> TypeGeneric:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Staff():
@@ -1491,7 +1491,7 @@ class Defaults(Generic):
             self._device            = self.deserialize( serialization["parameters"]["device"] )
         return self
     
-    def __lshift__(self, operand: any) -> TypeGeneric:
+    def __lshift__(self: TypeGeneric, operand: any) -> TypeGeneric:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Defaults():

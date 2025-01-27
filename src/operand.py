@@ -297,7 +297,7 @@ class Operand:
         
         return self
        
-    def __lshift__(self, operand: any) -> TypeOperand:
+    def __lshift__(self: TypeOperand, operand: any) -> TypeOperand:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, type(self)):
             self._initiated = operand._initiated
@@ -307,7 +307,7 @@ class Operand:
             self._next_operand = self.deep_copy(operand._next_operand)
         return self
 
-    def __xor__(self, operand: any) -> TypeOperand:
+    def __xor__(self: TypeOperand, operand: any) -> TypeOperand:
         import operand_data as od
         return self.__lshift__( od.DataSource( operand ) )
 
@@ -338,7 +338,7 @@ class Operand:
         return self.__lshift__(other)
     
     # self is the pusher
-    def __rshift__(self, operand: TypeOperand) -> TypeOperand:
+    def __rshift__(self: TypeOperand, operand: TypeOperand) -> TypeOperand:
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
@@ -348,7 +348,7 @@ class Operand:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self, operand: any) -> TypeOperand:
+    def __rrshift__(self: TypeOperand, operand: any) -> TypeOperand:
         match operand:
             case tuple():
                 rshift_operands = None

@@ -264,7 +264,7 @@ class Element(o.Operand):
 
         return self
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
@@ -318,7 +318,7 @@ class Element(o.Operand):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: any) -> TypeElement:
+    def __rrshift__(self: TypeElement, operand: any) -> TypeElement:
         import operand_container as oc
         match operand:
             case ra.Position():
@@ -417,7 +417,7 @@ class Element(o.Operand):
         self_operand *= operand
         return self << self_operand
 
-    def __itruediv__(self, operand: any) -> TypeElement:
+    def __itruediv__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if operand != 0:
             self_operand: any = self % operand
@@ -555,7 +555,7 @@ class Clock(Element):
             self._pulses_per_quarternote    = self.deserialize( serialization["parameters"]["pulses_per_quarternote"] )
         return self
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Clock():
@@ -751,7 +751,7 @@ class Note(Element):
             self._pitch     = self.deserialize( serialization["parameters"]["pitch"] )
         return self
       
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Note():
@@ -863,7 +863,7 @@ class Cluster(Note):
             self._sets  = self.deserialize( serialization["parameters"]["sets"] )
         return self
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Cluster():
@@ -980,7 +980,7 @@ class KeyScale(Note):
             self._scale = self.deserialize( serialization["parameters"]["self_scale"] )
         return self
         
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case KeyScale():
@@ -1176,7 +1176,7 @@ class Chord(KeyScale):
             self._sus4          = self.deserialize( serialization["parameters"]["sus4"] )
         return self
       
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chord():
@@ -1331,7 +1331,7 @@ class Retrigger(Note):
             self._swing     = self.deserialize( serialization["parameters"]["swing"] )
         return self
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Retrigger():
@@ -1381,7 +1381,7 @@ class Note3(Retrigger):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ou.Division() | int():
@@ -1496,7 +1496,7 @@ class Tuplet(Element):
             self._elements  = self.deserialize( serialization["parameters"]["elements"] )
         return self
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if not isinstance(operand, tuple):
             for single_element in self._elements:
@@ -1532,7 +1532,7 @@ class Tuplet(Element):
 class Triplet(Tuplet):
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case list():
@@ -1638,7 +1638,7 @@ class ControlChange(Automation):
             self._controller = self.deserialize( serialization["parameters"]["controller"] )
         return self
 
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ControlChange():
@@ -1760,7 +1760,7 @@ class PitchBend(Automation):
             self._bend = self.deserialize( serialization["parameters"]["bend"] )
         return self
       
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case PitchBend():
@@ -1861,7 +1861,7 @@ class Aftertouch(Automation):
             self._pressure = self.deserialize( serialization["parameters"]["pressure"] )
         return self
       
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Aftertouch():
@@ -1969,7 +1969,7 @@ class PolyAftertouch(Aftertouch):
             self._pitch = self.deserialize( serialization["parameters"]["pitch"] )
         return self
       
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case PolyAftertouch():
@@ -2083,7 +2083,7 @@ class ProgramChange(Automation):
             self._program = self.deserialize( serialization["parameters"]["program"] )
         return self
       
-    def __lshift__(self, operand: any) -> TypeElement:
+    def __lshift__(self: TypeElement, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case ProgramChange():

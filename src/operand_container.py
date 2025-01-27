@@ -156,7 +156,7 @@ class Container(o.Operand):
             self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
 
-    def __lshift__(self, operand: any) -> TypeContainer:
+    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 super().__lshift__(operand)
@@ -1032,7 +1032,7 @@ class Part(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: any) -> TypeContainer:
+    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Part():
                 super().__lshift__(operand)
