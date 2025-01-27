@@ -777,10 +777,10 @@ class Clip(Container):  # Just a container of Elements
     def __imul__(self, operand: any) -> Self:
         match operand:
             case Clip():
-                left_end_position: ra.Position = self.finish()
-                self_length: ra.Length = self % ra.Length()
-                if left_end_position > self_length:
-                    left_end_position = self_length.convertToPosition()
+                if self._length_beats < 0:
+                    left_end_position: ra.Position = self.finish()
+                else:
+                    left_end_position: ra.Position = (self % ra.Length()).convertToPosition()
                 right_start_position: ra.Position = operand.start()
                 length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
                 # Convert Length to Position
