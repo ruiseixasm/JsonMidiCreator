@@ -816,10 +816,10 @@ class Clip(Container):  # Just a container of Elements
                 self *= self_repeating
             case ra.TimeValue():
                 self_repeating: float = 0.0
-                self_length: Fraction = self.length() % operand % Fraction()
-                if self_length > 0:
-                    operand_length: Fraction = operand._rational
-                    self_repeating: float = float( operand_length / self_length )
+                length_value: Fraction = self.length() % operand % Fraction()
+                if length_value > 0:
+                    operand_value: Fraction = operand._rational
+                    self_repeating: float = float( operand_value / length_value )
                 self *= self_repeating
             case oe.Element():
                 next_position: ra.Position = self.finish()
