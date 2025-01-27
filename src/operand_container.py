@@ -645,14 +645,16 @@ class Clip(Container):  # Just a container of Elements
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats = self._staff.convertToBeats(operand)._rational
+                        self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case ra.Length() | ra.Duration():
-                        self._length_beats = self._staff.convertToBeats(operand)._rational
+                        self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case ou.MidiTrack():
-                        self._midi_track << operand
+                        self._midi_track << operand._data
                     case og.Staff() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
                             | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction() | str():
-                        self._staff << operand
+                        self._staff << operand._data
+                    case None:
+                        self._length_beats = Fraction(-1)
 
             case _: # Works for Frame too
                 for single_datasource in self._datasource_list:

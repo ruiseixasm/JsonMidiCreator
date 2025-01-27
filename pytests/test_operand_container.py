@@ -301,7 +301,16 @@ def test_mul_clip():
     hi_hat[3] % Position() % Steps() % float() >> Print()
     assert hi_hat[3] % Position() % Steps() == 14.0
 
-# test_mul_clip()
+    print("------")
+    six_notes = 6 * Note()
+    print(f"Length: {six_notes % Length() % float()}")
+    assert six_notes % Length() == 1.5  # Measures
+    six_notes << CParameter(Length(1.0))
+    print(f"Length: {six_notes % Length() % float()}")
+    assert six_notes % Length() == 1.0  # Measures
+
+
+test_mul_clip()
 
 
 def test_clip_composition():
