@@ -18,7 +18,6 @@ from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, O
 try:
     from typing import Self
 except ImportError:
-    from typing import TypeVar
     Self = TypeVar('Self', bound='Frame')  # Define Self manually
 
 from fractions import Fraction
