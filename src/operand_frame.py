@@ -128,7 +128,7 @@ class Frame(o.Operand):
             self._multi_data = self.deserialize(serialization["parameters"]["multi_data"])
         return self
     
-    def __lshift__(self, operand: 'o.Operand') -> 'Frame':
+    def __lshift__(self: TypeFrame, operand: any) -> TypeFrame:
         if isinstance(operand, Frame):
             self._multi_data = self.deep_copy(operand._multi_data)
             self._initiated = operand._initiated

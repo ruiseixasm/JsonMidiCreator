@@ -156,7 +156,7 @@ class Container(o.Operand):
             self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Container':
+    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 super().__lshift__(operand)
@@ -582,7 +582,7 @@ class Clip(Container):  # Just a container of Elements
             self._position_beats      = self.deserialize(serialization["parameters"]["position"])
         return self
 
-    def __lshift__(self, operand: o.Operand) -> 'Clip':
+    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Clip():
                 self._midi_track        << operand._midi_track
@@ -1020,7 +1020,7 @@ class Part(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self, operand: o.Operand) -> 'Part':
+    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
         match operand:
             case Part():
                 super().__lshift__(operand)

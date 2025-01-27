@@ -87,7 +87,7 @@ class Chaos(o.Operand):
             self._x0    = self.deserialize( serialization["parameters"]["x0"] )
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'Chaos':
+    def __lshift__(self: TypeChaos, operand: any) -> TypeChaos:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chaos():
@@ -188,7 +188,7 @@ class Modulus(Chaos):
             self._steps              = self.deserialize( serialization["parameters"]["steps"] )
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'Modulus':
+    def __lshift__(self: TypeChaos, operand: any) -> TypeChaos:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Modulus():
@@ -266,7 +266,7 @@ class Flipper(Modulus):
             self._split = self.deserialize( serialization["parameters"]["split"] )
         return self
       
-    def __lshift__(self, operand: o.Operand) -> 'Modulus':
+    def __lshift__(self: TypeChaos, operand: any) -> TypeChaos:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Flipper():
@@ -361,7 +361,7 @@ class Bouncer(Chaos):
             self._set_xy            = tuple(self.deserialize( serialization["parameters"]["set_xy"] ))
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'Bouncer':
+    def __lshift__(self: TypeChaos, operand: any) -> TypeChaos:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Bouncer():
@@ -464,7 +464,7 @@ class SinX(Chaos):
             self._lambda            = self.deserialize( serialization["parameters"]["lambda"] )
         return self
         
-    def __lshift__(self, operand: o.Operand) -> 'SinX':
+    def __lshift__(self: TypeChaos, operand: any) -> TypeChaos:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case SinX():
