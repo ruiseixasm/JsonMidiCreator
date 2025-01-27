@@ -586,18 +586,21 @@ class Clip(Container):  # Just a container of Elements
         serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
+        serialization["parameters"]["length"]       = self.serialize(self._length_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"] and "position" in serialization["parameters"]):
+            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"]
+            and "position" in serialization["parameters"] and "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff         = self.deserialize(serialization["parameters"]["staff"])
-            self._midi_track    = self.deserialize(serialization["parameters"]["midi_track"])
-            self._position_beats      = self.deserialize(serialization["parameters"]["position"])
+            self._staff             = self.deserialize(serialization["parameters"]["staff"])
+            self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
+            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+            self._length_beats      = self.deserialize(serialization["parameters"]["length"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -605,6 +608,7 @@ class Clip(Container):  # Just a container of Elements
             case Clip():
                 self._midi_track        << operand._midi_track
                 self._position_beats    = operand._position_beats
+                self._length_beats      = operand._length_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
                 self._datasource_list   = self.deep_copy( operand._datasource_list )
@@ -655,14 +659,25 @@ class Clip(Container):  # Just a container of Elements
                     single_datasource._data << operand
         return self
 
-    def empty_copy(self, *parameters) -> 'Clip':
-        empty_copy: Clip = super().empty_copy()
-        empty_copy._midi_track      << self._midi_track
-        empty_copy._position_beats  = self._position_beats
-        empty_copy._staff           << self._staff
+    def empty_copy(self, *parameters) -> Self:
+        empty_copy: Clip                = super().empty_copy()
+        empty_copy._staff               << self._staff
+        empty_copy._midi_track          << self._midi_track
+        empty_copy._position_beats      = self._position_beats
+        empty_copy._length_beats        = self._length_beats
         for single_parameter in parameters:
             empty_copy << single_parameter
         return empty_copy
+    
+    def shallow_copy(self, *parameters) -> Self:
+        shallow_copy: Clip              = super().shallow_copy()
+        shallow_copy._staff             << self._staff
+        shallow_copy._midi_track        << self._midi_track
+        shallow_copy._position_beats    = self._position_beats
+        shallow_copy._length_beats      = self._length_beats
+        for single_parameter in parameters:
+            shallow_copy << single_parameter
+        return shallow_copy
     
     # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.Operand) -> 'Clip':
