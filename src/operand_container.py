@@ -156,7 +156,7 @@ class Container(o.Operand):
             self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
 
-    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __lshift__(self, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 super().__lshift__(operand)
@@ -258,7 +258,7 @@ class Container(o.Operand):
         return self
 
     # Avoids the costly copy of Container self doing +=
-    def __iadd__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __iadd__(self, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 for single_datasource in operand._datasource_list:
@@ -274,12 +274,12 @@ class Container(o.Operand):
                     self._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
         return self
 
-    def __radd__(self: TypeContainer, operand: o.Operand) -> o.Operand:
+    def __radd__(self, operand: o.Operand) -> o.Operand:
         self_copy: Container = self.copy()
         self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
         return self_copy
 
-    def __isub__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
+    def __isub__(self, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 # Exclude items based on equality (==) comparison
@@ -301,7 +301,7 @@ class Container(o.Operand):
         return self
 
     # multiply with a scalar 
-    def __imul__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
+    def __imul__(self, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 pass
@@ -326,7 +326,7 @@ class Container(o.Operand):
                     self *= single_operand
         return self
     
-    def __itruediv__(self: TypeContainer, operand: o.Operand) -> TypeContainer:
+    def __itruediv__(self, operand: o.Operand) -> TypeContainer:
         match operand:
             case Container():
                 pass
@@ -356,17 +356,17 @@ class Container(o.Operand):
         return self
 
 
-    def __pow__(self: TypeContainer, operand: 'o.Operand') -> TypeContainer:
+    def __pow__(self, operand: 'o.Operand') -> TypeContainer:
         for single_datasource in self._datasource_list:
             if isinstance(single_datasource._data, o.Operand):
                 single_datasource._data.__pow__(operand)
         return self
 
 
-    def __or__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __or__(self, operand: any) -> TypeContainer:
         return self.shallow_copy().__ior__(operand)
 
-    def __ior__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __ior__(self, operand: any) -> TypeContainer:
         match operand:
             case Container():
                 self._datasource_list.extend(
@@ -380,7 +380,7 @@ class Container(o.Operand):
                 self.filter(operand)
         return self
 
-    def __ror__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __ror__(self, operand: any) -> TypeContainer:
         return self.__or__(operand)
 
 
@@ -582,7 +582,7 @@ class Clip(Container):  # Just a container of Elements
             self._position_beats      = self.deserialize(serialization["parameters"]["position"])
         return self
 
-    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __lshift__(self, operand: any) -> TypeContainer:
         match operand:
             case Clip():
                 self._midi_track        << operand._midi_track
@@ -1020,7 +1020,7 @@ class Part(Container):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeContainer, operand: any) -> TypeContainer:
+    def __lshift__(self, operand: any) -> TypeContainer:
         match operand:
             case Part():
                 super().__lshift__(operand)

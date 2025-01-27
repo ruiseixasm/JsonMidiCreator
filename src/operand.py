@@ -176,7 +176,7 @@ class Operand:
             list_size += 1
         return list_size
 
-    def __pow__(self: TypeOperand, operand: 'Operand') -> TypeOperand:
+    def __pow__(self, operand: 'Operand') -> TypeOperand:
         match operand:
             case Operand():     self._next_operand = operand
             case _:             self._next_operand = None
@@ -297,7 +297,7 @@ class Operand:
         
         return self
        
-    def __lshift__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __lshift__(self, operand: any) -> TypeOperand:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(operand, type(self)):
             self._initiated = operand._initiated
@@ -307,7 +307,7 @@ class Operand:
             self._next_operand = self.deep_copy(operand._next_operand)
         return self
 
-    def __xor__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __xor__(self, operand: any) -> TypeOperand:
         import operand_data as od
         return self.__lshift__( od.DataSource( operand ) )
 
@@ -348,7 +348,7 @@ class Operand:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __rrshift__(self, operand: any) -> TypeOperand:
         match operand:
             case tuple():
                 rshift_operands = None
@@ -361,45 +361,45 @@ class Operand:
                 return rshift_operands >> self
         return operand
 
-    def __irshift__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __irshift__(self, operand: any) -> TypeOperand:
         # Simply delegate to the __rshift__ method
         return self.__rshift__(operand)
     
 
-    def __add__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __add__(self, operand: any) -> TypeOperand:
         return self.copy().__iadd__(operand)
     
-    def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __iadd__(self, operand: any) -> TypeOperand:
         return self
     
-    def __radd__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __radd__(self, operand: any) -> TypeOperand:
         return self.__add__(operand)
 
 
-    def __sub__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __sub__(self, operand: any) -> TypeOperand:
         return self.copy().__isub__(operand)
     
-    def __isub__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __isub__(self, operand: any) -> TypeOperand:
         return self
 
-    def __rsub__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __rsub__(self, operand: any) -> TypeOperand:
         return self.__mul__(-1).__add__(operand)
 
 
-    def __mul__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __mul__(self, operand: any) -> TypeOperand:
         return self.copy().__imul__(operand)
     
-    def __imul__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __imul__(self, operand: any) -> TypeOperand:
         return self
     
-    def __rmul__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __rmul__(self, operand: any) -> TypeOperand:
         return self.__mul__(operand)
 
 
-    def __truediv__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __truediv__(self, operand: any) -> TypeOperand:
         return self.copy().__itruediv__(operand)
     
-    def __itruediv__(self: TypeOperand, operand: any) -> TypeOperand:
+    def __itruediv__(self, operand: any) -> TypeOperand:
         return self
     
     

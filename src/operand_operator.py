@@ -97,7 +97,7 @@ class Operator(o.Operand):
             self._operator_list = self.deserialize(serialization["parameters"]["operator_list"])
         return self
   
-    def __lshift__(self: TypeOperator, operand: any) -> TypeOperator:
+    def __lshift__(self, operand: any) -> TypeOperator:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Operator():
@@ -213,7 +213,7 @@ class Oscillator(Operator):
             self._offset    = self.deserialize( serialization["parameters"]["offset"] )
         return self
       
-    def __lshift__(self: TypeOperator, operand: any) -> TypeOperator:
+    def __lshift__(self, operand: any) -> TypeOperator:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Oscillator():

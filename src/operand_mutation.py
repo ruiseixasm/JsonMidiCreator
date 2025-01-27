@@ -102,7 +102,7 @@ class Mutation(o.Operand):
             self._operator          = self.deserialize(serialization["parameters"]["operator"])
         return self
         
-    def __lshift__(self: TypeMutation, operand: any) -> TypeMutation:
+    def __lshift__(self, operand: any) -> TypeMutation:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Mutation():
@@ -225,7 +225,7 @@ class Translocation(Mutation):
             self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
         return self
 
-    def __lshift__(self: TypeMutation, operand: any) -> TypeMutation:
+    def __lshift__(self, operand: any) -> TypeMutation:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Translocation():
@@ -276,7 +276,7 @@ class TranslocateRhythm(Translocation):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeMutation, operand: any) -> TypeMutation:
+    def __lshift__(self, operand: any) -> TypeMutation:
         super().__lshift__(operand)
         self._parameters        = od.Parameters(ra.NoteValue())  # Can't change targeted parameter
         return self
@@ -290,7 +290,7 @@ class TranslocatePitch(Translocation):
 
     # CHAINABLE OPERATIONS
 
-    def __lshift__(self: TypeMutation, operand: any) -> TypeMutation:
+    def __lshift__(self, operand: any) -> TypeMutation:
         super().__lshift__(operand)
         self._parameters        = od.Parameters(og.Pitch())     # Can't change targeted parameter
         return self
@@ -341,7 +341,7 @@ class Crossover(Mutation):
             self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
         return self
 
-    def __lshift__(self: TypeMutation, operand: any) -> TypeMutation:
+    def __lshift__(self, operand: any) -> TypeMutation:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Crossover():
