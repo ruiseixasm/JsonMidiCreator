@@ -310,7 +310,7 @@ def test_mul_clip():
     assert six_notes % Length() == 1.0  # Measures
 
 
-test_mul_clip()
+# test_mul_clip()
 
 
 def test_clip_composition():
