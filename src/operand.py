@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import logging
 from functools import cache
-from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any, Generic
+from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Any, Self, Generic
 from fractions import Fraction
 # Json Midi Creator Libraries
 import creator as c
@@ -176,7 +176,7 @@ class Operand:
             list_size += 1
         return list_size
 
-    def __pow__(self, operand: 'Operand') -> TypeOperand:
+    def __pow__(self: TypeOperand, operand: 'Operand') -> TypeOperand:
         match operand:
             case Operand():     self._next_operand = operand
             case _:             self._next_operand = None
@@ -361,44 +361,44 @@ class Operand:
                 return rshift_operands >> self
         return operand
 
-    def __irshift__(self, operand: any) -> TypeOperand:
+    def __irshift__(self: TypeOperand, operand: any) -> TypeOperand:
         # Simply delegate to the __rshift__ method
         return self.__rshift__(operand)
     
 
-    def __add__(self, operand: any) -> TypeOperand:
+    def __add__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.copy().__iadd__(operand)
     
-    def __sub__(self, operand: any) -> TypeOperand:
+    def __sub__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.copy().__isub__(operand)
     
-    def __mul__(self, operand: any) -> TypeOperand:
+    def __mul__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.copy().__imul__(operand)
     
-    def __truediv__(self, operand: any) -> TypeOperand:
+    def __truediv__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.copy().__itruediv__(operand)
     
 
-    def __iadd__(self, operand: any) -> TypeOperand:
+    def __iadd__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
     
-    def __imul__(self, operand: any) -> TypeOperand:
+    def __imul__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
     
-    def __itruediv__(self, operand: any) -> TypeOperand:
+    def __itruediv__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
     
-    def __isub__(self, operand: any) -> TypeOperand:
+    def __isub__(self: TypeOperand, operand: any) -> TypeOperand:
         return self
 
 
-    def __radd__(self, operand: any) -> TypeOperand:
+    def __radd__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__add__(operand)
 
-    def __rsub__(self, operand: any) -> TypeOperand:
+    def __rsub__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__mul__(-1).__add__(operand)
 
-    def __rmul__(self, operand: any) -> TypeOperand:
+    def __rmul__(self: TypeOperand, operand: any) -> TypeOperand:
         return self.__mul__(operand)
 
     
