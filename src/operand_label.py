@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonMidiCreator
 https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
-from typing import Union, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
+from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
 try:
     from typing import Self
 except ImportError:
