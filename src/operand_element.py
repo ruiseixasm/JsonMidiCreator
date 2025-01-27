@@ -638,8 +638,8 @@ class Note(Element):
         self._tied = tied
         return self
 
-    def pitch(self, octave: Optional[int] = None) -> Self:
-        self._pitch = og.Pitch(key, octave).set_staff_reference(self._staff_reference)
+    def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
+        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave)).set_staff_reference(self._staff_reference)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1284,7 +1284,7 @@ class Retrigger(Note):
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue / 2 )
-            case list():            return get_retrigger_notes()
+            case list():            return self.get_retrigger_notes()
             case _:                 return super().__mod__(operand)
 
     def get_retrigger_notes(self) -> list[Note]:
@@ -1440,7 +1440,7 @@ class Tuplet(Element):
             case ou.Division():     return ou.Division() << len(self._elements)
             case int():             return len(self._elements)
             case ra.Duration():     return operand << od.DataSource( self._duration_notevalue / 2 )
-            case list():            return get_tuplet_elements()
+            case list():            return self.get_tuplet_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1556,7 +1556,7 @@ class ControlChange(Automation):
         self._controller: og.Controller = og.defaults % og.Controller()
         super().__init__(*parameters)
 
-    def controller(self, value: Optional[int] = None) -> Self:
+    def controller(self, number: Optional[int] = None, value: Optional[int] = None) -> Self:
         self._controller = og.Controller(
                 ou.Number(number), ou.Value(value)
             )
@@ -1898,8 +1898,8 @@ class PolyAftertouch(Aftertouch):
         return self
 
 
-    def pitch(self, octave: Optional[int] = ou.Octave(4)) -> Self:
-        self._pitch = og.Pitch(key, octave)
+    def pitch(self, key: Optional[int] = 0, octave: Optional[int] = 4) -> Self:
+        self._pitch = og.Pitch(ou.Key(key), ou.Octave(octave)).set_staff_reference(self._staff_reference)
         return self
 
     def __mod__(self, operand: o.T) -> o.T:
