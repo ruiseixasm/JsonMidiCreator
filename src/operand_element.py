@@ -318,7 +318,7 @@ class Element(o.Operand):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: o.Operand) -> TypeElement:
+    def __rrshift__(self, operand: any) -> TypeElement:
         import operand_container as oc
         match operand:
             case ra.Position():
@@ -417,7 +417,7 @@ class Element(o.Operand):
         self_operand *= operand
         return self << self_operand
 
-    def __itruediv__(self, operand: o.Operand) -> TypeElement:
+    def __itruediv__(self, operand: any) -> TypeElement:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         if operand != 0:
             self_operand: any = self % operand

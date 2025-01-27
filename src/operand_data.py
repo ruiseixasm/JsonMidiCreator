@@ -403,7 +403,7 @@ class Playlist(Data):
                     self << single_operand
         return self
 
-    def __rrshift__(self, operand: o.Operand) -> TypeData:
+    def __rrshift__(self, operand: any) -> TypeData:
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
@@ -454,7 +454,7 @@ class Playlist(Data):
                 return super().__rrshift__(operand)
 
 
-    def __add__(self, operand: o.Operand) -> TypeData:
+    def __add__(self, operand: any) -> TypeData:
         import operand_rational as ra
         match operand:
             case ra.Length():
