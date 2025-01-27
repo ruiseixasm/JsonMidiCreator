@@ -335,9 +335,19 @@ class Element(o.Operand):
                 return super().__rrshift__(operand)
         return self
 
+    def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.copy().__iadd__(operand)
+    
+    def __sub__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.copy().__isub__(operand)
+    
     def __mul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__imul__(operand)
     
+    def __truediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.copy().__itruediv__(operand)
+    
+
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -360,7 +370,7 @@ class Element(o.Operand):
                 return self << self_operand
         return self
 
-    def __isub__(self, operand: any) -> TypeElement:
+    def __isub__(self, operand: any) -> Union[TypeElement, 'Clip']:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             # For efficient reasons
