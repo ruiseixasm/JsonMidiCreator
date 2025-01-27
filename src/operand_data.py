@@ -403,7 +403,7 @@ class Playlist(Data):
                     self << single_operand
         return self
 
-    def __rrshift__(self, operand: o.Operand) -> 'Playlist':
+    def __rrshift__(self, operand: o.Operand) -> TypeData:
         import operand_rational as ra
         import operand_element as oe
         import operand_container as oc
@@ -454,7 +454,7 @@ class Playlist(Data):
                 return super().__rrshift__(operand)
 
 
-    def __add__(self, operand: o.Operand) -> 'Playlist':
+    def __add__(self, operand: o.Operand) -> TypeData:
         import operand_rational as ra
         match operand:
             case ra.Length():
@@ -503,7 +503,7 @@ class SideEffects(Data):
 
 class LeftShift(SideEffects):
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
             self._data << operand
             return operand
@@ -512,7 +512,7 @@ class LeftShift(SideEffects):
 
 class RightShift(SideEffects):
     # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(self._data, o.Operand):
             operand >> self._data
             return operand
@@ -555,7 +555,7 @@ class Save(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             c.saveJsonMidiCreator(operand.getSerialization(), self._data)
             return operand
@@ -568,7 +568,7 @@ class Export(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             c.saveJsonMidiPlay(operand.getPlaylist(), self._data)
             return operand
@@ -581,7 +581,7 @@ class MidiExport(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             c.saveMidiFile(operand.getMidilist(), self._data)
             return operand
@@ -592,7 +592,7 @@ class Sort(Operation):
     def __init__(self, compare: o.Operand = None):
         super().__init__(compare)
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.sort()
@@ -605,7 +605,7 @@ class Filter(Operation):
         
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.filter(self._data)
@@ -619,7 +619,7 @@ class Copy(Operation):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.copy(*self._data)
         else:
@@ -632,7 +632,7 @@ class Reset(Operation):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.reset(*self._data)
         else:
@@ -645,7 +645,7 @@ class Clear(Operation):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             return operand.clear(*self._data)
         else:
@@ -706,7 +706,7 @@ class Play(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case o.Operand():
                 c.jsonMidiPlay(operand.getPlaylist(), False if self._data == 0 else True )
@@ -728,7 +728,7 @@ class Print(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case o.Operand():
                 operand_serialization = operand.getSerialization()
@@ -745,7 +745,7 @@ class Print(Operation):
         return operand
 
 class Link(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.link()
@@ -753,7 +753,7 @@ class Link(Operation):
             return super().__rrshift__(operand)
 
 class Shuffle(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.shuffle()
@@ -761,7 +761,7 @@ class Shuffle(Operation):
             return super().__rrshift__(operand)
 
 class Reverse(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.reverse()
@@ -777,7 +777,7 @@ class Rotate(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.rotate(*self._data)
@@ -785,7 +785,7 @@ class Rotate(Operation):
             return super().__rrshift__(operand)
 
 class Flip(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.flip()
@@ -798,7 +798,7 @@ class Snap(Operation):
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.snap(self._data)
@@ -806,7 +806,7 @@ class Snap(Operation):
             return super().__rrshift__(operand)
 
 class Extend(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.extend(self._data)
@@ -814,7 +814,7 @@ class Extend(Operation):
             return super().__rrshift__(operand)
 
 class Trim(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.trim(self._data)
@@ -822,7 +822,7 @@ class Trim(Operation):
             return super().__rrshift__(operand)
 
 class Fill(Operation):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.fill()
@@ -842,21 +842,21 @@ class Getter(Data):
                 return super().__eq__(other)
 
 class Len(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.len()
         return ol.Null()
 
 class First(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.first()
         return ol.Null()
 
 class Last(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.last()
@@ -874,21 +874,21 @@ class Middle(Getter):
     def __init__(self, nth: int = None):
         super().__init__( 1 if nth is None else nth )
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.middle(self._data)
         return ol.Null()
 
 class Start(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.start()
         return ol.Null()
 
 class End(Getter):
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.finish()

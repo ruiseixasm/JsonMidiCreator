@@ -1628,7 +1628,7 @@ class Modulate(ScaleOperation):    # Modal Modulation
 
     # CHAINABLE OPERATIONS
 
-    def __rrshift__(self, operand: o.Operand) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_generic as og
         if isinstance(operand, og.Scale):
             operand = operand.copy().modulate(self._unit)
