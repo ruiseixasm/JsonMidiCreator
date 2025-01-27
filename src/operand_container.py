@@ -642,6 +642,8 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats = self._staff.convertToBeats(operand)._rational
+                    case ra.Length() | ra.Duration():
+                        self._length_beats = self._staff.convertToBeats(operand)._rational
                     case ou.MidiTrack():
                         self._midi_track << operand
                     case og.Staff() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
