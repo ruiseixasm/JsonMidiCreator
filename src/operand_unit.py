@@ -182,45 +182,51 @@ class Unit(o.Operand):
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ra.Rational():
-                self._unit += number % od.DataSource( int() )
             case int() | Fraction() | float():
-                self._unit += number
-                self._unit = int(self._unit)
+                self._unit = int( self._unit + number )
+            case Unit():
+                self._unit += number._unit
+            case ra.Rational():
+                self._unit = int( self._unit + number._rational )
         return self
     
     def __isub__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ra.Rational():
-                self._unit -= number % od.DataSource( int() )
             case int() | Fraction() | float():
-                self._unit -= number
-                self._unit = int(self._unit)
+                self._unit = int( self._unit - number )
+            case Unit():
+                self._unit -= number._unit
+            case ra.Rational():
+                self._unit = int( self._unit - number._rational )
         return self
     
     def __imul__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ra.Rational():
-                self *= number % od.DataSource( Fraction() )
             case int() | Fraction() | float():
-                self._unit *= number
-                self._unit = int(self._unit)
+                self._unit = int( self._unit * number )
+            case Unit():
+                self._unit *= number._unit
+            case ra.Rational():
+                self._unit = int( self._unit * number._rational )
         return self
     
     def __itruediv__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
         match number:
-            case Unit() | ra.Rational():
-                self /= number % od.DataSource( Fraction() )
             case int() | Fraction() | float():
                 if number != 0:
-                    self._unit /= number
-                    self._unit = int(self._unit)
+                    self._unit = int( self._unit / number )
+            case Unit():
+                if number._unit != 0:
+                    self._unit = int( self._unit / number._unit )
+            case ra.Rational():
+                if number._rational != 0:
+                    self._unit = int( self._unit / number._rational )
         return self
 
 class Next(Unit):
