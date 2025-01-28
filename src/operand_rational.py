@@ -52,6 +52,11 @@ class Rational(o.Operand):
     
     _limit_denominator: int = 1000000  # default value of limit_denominator
 
+    def check_denominator(self, rational: Fraction) -> Fraction:
+        if self._limit_denominator > 0:
+            rational = rational.limit_denominator(self._limit_denominator)
+        return rational
+
     def __init__(self, *parameters):
         self._rational: Fraction = Fraction(0)
         super().__init__(*parameters)
@@ -159,7 +164,7 @@ class Rational(o.Operand):
             super().loadSerialization(serialization)
             self._rational = Fraction( serialization["parameters"]["fraction"] )
             if self._limit_denominator > 0:
-                self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
+                self._rational = self._rational.limit_denominator(self._limit_denominator)
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -172,8 +177,10 @@ class Rational(o.Operand):
                 match operand._data:
                     case Fraction():
                         self._rational = operand._data
-                    case float() | int():
+                    case int():
                         self._rational = Fraction(operand._data)
+                    case float():
+                        self._rational = self.check_denominator( Fraction(operand._data) )
                     case str():
                         try:
                             self._rational = Fraction(operand._data)
