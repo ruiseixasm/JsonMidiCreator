@@ -159,9 +159,7 @@ class Rational(o.Operand):
             "fraction" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._rational = Fraction( serialization["parameters"]["fraction"] )
-            if self._limit_denominator > 0:
-                self._rational = self._rational.limit_denominator(self._limit_denominator)
+            self._rational = self.check_denominator( Fraction( serialization["parameters"]["fraction"] ) )
         return self
 
     def __lshift__(self, operand: any) -> Self:
