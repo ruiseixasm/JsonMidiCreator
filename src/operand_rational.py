@@ -208,29 +208,31 @@ class Rational(o.Operand):
     def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Rational() | ou.Unit():
-                self += value % od.DataSource( Fraction() )
-            case Fraction() | int():
+            case int():
                 self._rational += value
             case float():
-                if self._limit_denominator > 0:
-                    self._rational += Fraction(value).limit_denominator(self._limit_denominator)
-                else:
-                    self._rational += Fraction(value)
+                self._rational += self.check_denominator( Fraction(value) )
+            case Fraction():
+                self._rational += self.check_denominator( value )
+            case Rational():
+                self._rational += self.check_denominator( value._rational )
+            case ou.Unit():
+                self._rational += value._unit
         return self
     
     def __isub__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Rational() | ou.Unit():
-                self -= value % od.DataSource( Fraction() )
-            case Fraction() | int():
+            case int():
                 self._rational -= value
             case float():
-                if self._limit_denominator > 0:
-                    self._rational -= Fraction(value).limit_denominator(self._limit_denominator)
-                else:
-                    self._rational -= Fraction(value)
+                self._rational -= self.check_denominator( Fraction(value) )
+            case Fraction():
+                self._rational -= self.check_denominator( value )
+            case Rational():
+                self._rational -= self.check_denominator( value._rational )
+            case ou.Unit():
+                self._rational -= value._unit
         return self
     
     def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
