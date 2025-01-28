@@ -97,7 +97,7 @@ class Unit(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
-                return self._unit == int( other )
+                return self._unit == other
             case Unit():
                 return self._unit == other._unit
             case ra.Rational():
@@ -112,7 +112,7 @@ class Unit(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
-                return self._unit < int( other )
+                return self._unit < other
             case Unit():
                 return self._unit < other._unit
             case ra.Rational():
@@ -124,7 +124,7 @@ class Unit(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
-                return self._unit > int( other )
+                return self._unit > other
             case Unit():
                 return self._unit > other._unit
             case ra.Rational():
