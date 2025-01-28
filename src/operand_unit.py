@@ -96,13 +96,13 @@ class Unit(o.Operand):
         import operand_rational as ra
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
+            case int() | float() | Fraction():
+                return self._unit == other
             case Unit():
                 return self._unit == other._unit
             case ra.Rational():
                 self_rational = Fraction( self._unit )
                 return self_rational == other % od.DataSource( Fraction() )
-            case int() | float() | Fraction():
-                return self._unit == other
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -112,33 +112,27 @@ class Unit(o.Operand):
         import operand_rational as ra
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
+            case int() | float() | Fraction():
+                return self._unit < other
             case Unit():
                 return self._unit < other._unit
             case ra.Rational():
                 self_rational = Fraction( self._unit )
                 return self_rational < other % od.DataSource( Fraction() )
-            case int() | float() | Fraction():
-                return self._unit < other
         return False
     
     def __gt__(self, other: any) -> bool:
         import operand_rational as ra
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
+            case int() | float() | Fraction():
+                return self._unit > other
             case Unit():
                 return self._unit > other._unit
             case ra.Rational():
                 self_rational = Fraction( self._unit )
                 return self_rational > other % od.DataSource( Fraction() )
-            case int() | float() | Fraction():
-                return self._unit > other
         return False
-    
-    def __le__(self, other: any) -> bool:
-        return self == other or self < other
-    
-    def __ge__(self, other: any) -> bool:
-        return self == other or self > other
     
     def __str__(self):
         return f'{self._unit}'
@@ -184,10 +178,6 @@ class Unit(o.Operand):
                     self << single_operand
         return self
 
-    def __add__(self, operand: any) -> Self:
-        self_copy: Unit = self.copy()
-        return self_copy.__iadd__(operand)
-    
     def __iadd__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
@@ -198,10 +188,6 @@ class Unit(o.Operand):
                 self._unit += number
                 self._unit = int(self._unit)
         return self
-    
-    def __sub__(self, operand: any) -> Self:
-        self_copy: Unit = self.copy()
-        return self_copy.__isub__(operand)
     
     def __isub__(self, number: any) -> Self:
         import operand_rational as ra
@@ -214,10 +200,6 @@ class Unit(o.Operand):
                 self._unit = int(self._unit)
         return self
     
-    def __mul__(self, operand: any) -> Self:
-        self_copy: Unit = self.copy()
-        return self_copy.__imul__(operand)
-    
     def __imul__(self, number: any) -> Self:
         import operand_rational as ra
         number = self & number      # Processes the tailed self operands or the Frame operand if any exists
@@ -228,10 +210,6 @@ class Unit(o.Operand):
                 self._unit *= number
                 self._unit = int(self._unit)
         return self
-    
-    def __truediv__(self, operand: any) -> Self:
-        self_copy: Unit = self.copy()
-        return self_copy.__itruediv__(operand)
     
     def __itruediv__(self, number: any) -> Self:
         import operand_rational as ra
