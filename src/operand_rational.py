@@ -172,39 +172,39 @@ class Rational(o.Operand):
         match operand:
             case Rational():
                 super().__lshift__(operand)
-                self._rational = operand._rational
+                self._rational = self.check_denominator( operand._rational )
             case od.DataSource():
                 match operand._data:
-                    case Fraction():
-                        self._rational = operand._data
                     case int():
                         self._rational = Fraction(operand._data)
                     case float():
                         self._rational = self.check_denominator( Fraction(operand._data) )
+                    case Fraction():
+                        self._rational = self.check_denominator( operand._data )
                     case Rational():
                         self._rational = self.check_denominator( operand._data._rational )
                     case ou.Unit():
-                        self._rational = Fraction( operand._data._unit )
+                        self._rational = Fraction(operand._data._unit)
                     case str():
                         try:
                             self._rational = Fraction(operand._data)
                         except ValueError as e:
                             print(f"Error: {e}, '{operand._data}' is not a number!")
-            case Fraction():
-                self._rational = operand
-            case float() | int():
+            case int():
                 self._rational = Fraction(operand)
+            case float():
+                self._rational = self.check_denominator( Fraction(operand) )
+            case Fraction():
+                self._rational = self.check_denominator( operand )
             case str():
                 self << od.DataSource( operand )
             case ou.Unit():
-                self._rational = operand % Fraction()
+                self._rational = Fraction(operand._unit)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-        if self._limit_denominator > 0 and not isinstance(operand, tuple):
-            self._rational = Fraction(self._rational).limit_denominator(self._limit_denominator)
         return self
 
     def __iadd__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
