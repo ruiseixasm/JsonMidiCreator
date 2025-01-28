@@ -107,7 +107,7 @@ class Rational(o.Operand):
             case Rational():
                 return self._rational == self.check_denominator( other._rational )
             case ou.Unit():
-                return self._rational == other._unit
+                return int( self._rational ) == other._unit
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -125,7 +125,7 @@ class Rational(o.Operand):
             case Rational():
                 return self._rational < self.check_denominator( other._rational )
             case ou.Unit():
-                return self._rational < other._unit
+                return int( self._rational ) < other._unit
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -140,7 +140,7 @@ class Rational(o.Operand):
             case Rational():
                 return self._rational > self.check_denominator( other._rational )
             case ou.Unit():
-                return self._rational > other._unit
+                return int( self._rational ) > other._unit
         return False
     
     def __str__(self):
