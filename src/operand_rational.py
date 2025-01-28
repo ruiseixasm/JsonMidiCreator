@@ -98,17 +98,16 @@ class Rational(o.Operand):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Rational():
-                return self._rational == other._rational
             case int():
                 return self._rational == other
+            case float():
+                return self._rational == self.check_denominator( Fraction(other) )
+            case Fraction():
+                return self._rational == self.check_denominator( other )
+            case Rational():
+                return self._rational == self.check_denominator( other._rational )
             case ou.Unit():
                 return self._rational == other._unit
-            case float():
-                other_rational: Fraction = Fraction(other)
-                if self._limit_denominator > 0:
-                    other_rational = other_rational.limit_denominator(self._limit_denominator)
-                return self._rational == other_rational
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -117,33 +116,31 @@ class Rational(o.Operand):
     def __lt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Rational():
-                return self._rational < other._rational
             case int():
                 return self._rational < other
+            case float():
+                return self._rational < self.check_denominator( Fraction(other) )
+            case Fraction():
+                return self._rational < self.check_denominator( other )
+            case Rational():
+                return self._rational < self.check_denominator( other._rational )
             case ou.Unit():
                 return self._rational < other._unit
-            case float():
-                other_rational: Fraction = Fraction(other)
-                if self._limit_denominator > 0:
-                    other_rational = other_rational.limit_denominator(self._limit_denominator)
-                return self._rational < other_rational
         return False
     
     def __gt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Rational():
-                return self._rational > other._rational
             case int():
                 return self._rational > other
+            case float():
+                return self._rational > self.check_denominator( Fraction(other) )
+            case Fraction():
+                return self._rational > self.check_denominator( other )
+            case Rational():
+                return self._rational > self.check_denominator( other._rational )
             case ou.Unit():
                 return self._rational > other._unit
-            case float():
-                other_rational: Fraction = Fraction(other)
-                if self._limit_denominator > 0:
-                    other_rational = other_rational.limit_denominator(self._limit_denominator)
-                return self._rational > other_rational
         return False
     
     def __str__(self):
@@ -172,7 +169,10 @@ class Rational(o.Operand):
         match operand:
             case Rational():
                 super().__lshift__(operand)
-                self._rational = self.check_denominator( operand._rational )
+                if self._limit_denominator != operand._limit_denominator:
+                    self._rational = self.check_denominator( operand._rational )
+                else:
+                    self._rational = operand._rational
             case od.DataSource():
                 match operand._data:
                     case int():
@@ -196,10 +196,10 @@ class Rational(o.Operand):
                 self._rational = self.check_denominator( Fraction(operand) )
             case Fraction():
                 self._rational = self.check_denominator( operand )
-            case str():
-                self << od.DataSource( operand )
             case ou.Unit():
                 self._rational = Fraction(operand._unit)
+            case str():
+                self << od.DataSource( operand )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case tuple():
