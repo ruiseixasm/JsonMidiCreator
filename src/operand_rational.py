@@ -95,8 +95,15 @@ class Rational(o.Operand):
         match other:
             case Rational():
                 return self._rational == other._rational
-            case int() | float() | ou.Unit():
-                return self % od.DataSource( other ) == other
+            case int():
+                return self._rational == other
+            case ou.Unit():
+                return self._rational == other._unit
+            case float():
+                other_rational: Fraction = Fraction(other)
+                if self._limit_denominator > 0:
+                    other_rational = other_rational.limit_denominator(self._limit_denominator)
+                return self._rational == other_rational
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -107,8 +114,15 @@ class Rational(o.Operand):
         match other:
             case Rational():
                 return self._rational < other._rational
-            case int() | float() | ou.Unit():
-                return self % od.DataSource( other ) < other
+            case int():
+                return self._rational < other
+            case ou.Unit():
+                return self._rational < other._unit
+            case float():
+                other_rational: Fraction = Fraction(other)
+                if self._limit_denominator > 0:
+                    other_rational = other_rational.limit_denominator(self._limit_denominator)
+                return self._rational < other_rational
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -116,15 +130,16 @@ class Rational(o.Operand):
         match other:
             case Rational():
                 return self._rational > other._rational
-            case int() | float() | ou.Unit():
-                return self % od.DataSource( other ) > other
+            case int():
+                return self._rational > other
+            case ou.Unit():
+                return self._rational > other._unit
+            case float():
+                other_rational: Fraction = Fraction(other)
+                if self._limit_denominator > 0:
+                    other_rational = other_rational.limit_denominator(self._limit_denominator)
+                return self._rational > other_rational
         return False
-    
-    def __le__(self, other: any) -> bool:
-        return self == other or self < other
-    
-    def __ge__(self, other: any) -> bool:
-        return self == other or self > other
     
     def __str__(self):
         return f'{self._rational}'
