@@ -97,12 +97,11 @@ class Unit(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
-                return self._unit == other
+                return self._unit == int( other )
             case Unit():
                 return self._unit == other._unit
             case ra.Rational():
-                self_rational = Fraction( self._unit )
-                return self_rational == other % od.DataSource( Fraction() )
+                return self._unit == int( other._rational )
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -113,12 +112,11 @@ class Unit(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
-                return self._unit < other
+                return self._unit < int( other )
             case Unit():
                 return self._unit < other._unit
             case ra.Rational():
-                self_rational = Fraction( self._unit )
-                return self_rational < other % od.DataSource( Fraction() )
+                return self._unit < int( other._rational )
         return False
     
     def __gt__(self, other: any) -> bool:
@@ -126,12 +124,11 @@ class Unit(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case int() | float() | Fraction():
-                return self._unit > other
+                return self._unit > int( other )
             case Unit():
                 return self._unit > other._unit
             case ra.Rational():
-                self_rational = Fraction( self._unit )
-                return self_rational > other % od.DataSource( Fraction() )
+                return self._unit > int( other._rational )
         return False
     
     def __str__(self):
