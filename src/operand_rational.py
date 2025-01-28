@@ -181,13 +181,15 @@ class Rational(o.Operand):
                         self._rational = Fraction(operand._data)
                     case float():
                         self._rational = self.check_denominator( Fraction(operand._data) )
+                    case Rational():
+                        self._rational = self.check_denominator( operand._data._rational )
+                    case ou.Unit():
+                        self._rational = Fraction( operand._data._unit )
                     case str():
                         try:
                             self._rational = Fraction(operand._data)
                         except ValueError as e:
                             print(f"Error: {e}, '{operand._data}' is not a number!")
-                    case Rational() | ou.Unit():
-                        self._rational = operand._data % od.DataSource( Fraction() )
             case Fraction():
                 self._rational = operand
             case float() | int():
