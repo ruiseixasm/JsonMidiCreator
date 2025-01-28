@@ -238,31 +238,39 @@ class Rational(o.Operand):
     def __imul__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Rational() | ou.Unit():
-                self *= value % od.DataSource( Fraction() )
-            case Fraction() | int():
+            case int():
                 self._rational *= value
             case float():
-                if self._limit_denominator > 0:
-                    self._rational *= Fraction(value).limit_denominator(self._limit_denominator)
-                else:
-                    self._rational *= Fraction(value)
+                self._rational *= self.check_denominator( Fraction(value) )
+            case Fraction():
+                self._rational *= self.check_denominator( value )
+            case Rational():
+                self._rational *= self.check_denominator( value._rational )
+            case ou.Unit():
+                self._rational *= value._unit
         return self
     
     def __itruediv__(self, value: Union['Rational', 'ou.Unit', Fraction, float, int]) -> 'Rational':
         value = self & value    # Processes the tailed self operands or the Frame operand if any exists
         match value:
-            case Rational() | ou.Unit():
-                self /= value % od.DataSource( Fraction() )
-            case Fraction() | int():
+            case int():
                 if value != 0:
                     self._rational /= value
             case float():
-                if value != 0:
-                    if self._limit_denominator > 0:
-                        self._rational /= Fraction(value).limit_denominator(self._limit_denominator)
-                    else:
-                        self._rational /= Fraction(value)
+                value_rational: Fraction = self.check_denominator( Fraction(value) )
+                if value_rational != 0:
+                    self._rational /= value_rational
+            case Fraction():
+                value_rational: Fraction = self.check_denominator( value )
+                if value_rational != 0:
+                    self._rational /= value_rational
+            case Rational():
+                value_rational: Fraction = self.check_denominator( value._rational )
+                if value_rational != 0:
+                    self._rational /= value_rational
+            case ou.Unit():
+                if value._unit != 0:
+                    self._rational /= value._unit
         return self
 
 class HiPrecision(Rational):
