@@ -507,8 +507,8 @@ class Pitch(Generic):
             case ou.Semitone():
                 self.set_chromatic_pitch(operand._unit)
             case ou.Tone():
-                self.set_chromatic_pitch(operand._unit)
-                self._natural = False   # Respects the KeySignature
+                self._key = operand._unit % 12
+                self._octave = operand._unit // 12 - 1
 
             case ou.DrumKit():
                 self._natural = False
