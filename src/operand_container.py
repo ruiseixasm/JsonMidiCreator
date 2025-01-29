@@ -486,6 +486,69 @@ class Clip(Container):  # Just a container of Elements
                                     return self._staff % operand
             case _:                 return super().__mod__(operand)
 
+    #######################################################################
+    # Conversion (Simple, One-way) | Only destination Staff is considered #
+    #######################################################################
+
+    def convertToBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Beats':
+        return self._staff.convertToBeats(time)
+
+    def convertToMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Measures':
+        return self._staff.convertToMeasures(time)
+        
+    def convertToSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Steps':
+        return self._staff.convertToSteps(time)
+
+    def convertToDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Duration':
+        return self._staff.convertToDuration(time)
+
+    def convertToMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Measure':
+        return self._staff.convertToMeasure(time)
+
+    def convertToBeat(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Beat':
+        return self._staff.convertToBeat(time)
+
+    def convertToStep(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Step':
+        return self._staff.convertToStep(time)
+
+    def convertToLength(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Length':
+        return self._staff.convertToLength(time)
+
+    def convertToPosition(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Position':
+        return self._staff.convertToPosition(time)
+
+    ################################################################################################################
+    # Transformation (Two-way, Context-Dependent) | Both Staffs are considered, the source and the destination one #
+    ################################################################################################################
+
+    def transformBeats(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Beats':
+        return self._staff.transformBeats(time)
+
+    def transformMeasures(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Measures':
+        return self._staff.transformMeasures(time)
+
+    def transformSteps(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Steps':
+        return self._staff.transformSteps(time)
+
+    def transformDuration(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Duration':
+        return self._staff.transformDuration(time)
+
+    def transformMeasure(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Measure':
+        return self._staff.transformMeasure(time)
+
+    def transformBeat(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Beat':
+        return self._staff.transformBeat(time)
+
+    def transformStep(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ou.Step':
+        return self._staff.transformStep(time)
+
+    def transformLength(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Length':
+        return self._staff.transformLength(time)
+
+    def transformPosition(self, time: Union['ra.Convertible', 'ou.TimeUnit']) -> 'ra.Position':
+        return self._staff.transformPosition(time)
+
+
     def start(self) -> ra.Position:
         """
         Gets the starting position of all its Elements.
