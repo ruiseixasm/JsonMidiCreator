@@ -51,7 +51,7 @@ time.sleep(0.5)
 
 anticipation << Quantization(1/32)
 anticipation += Steps(1/2)
-anticipation << anticipation.convertToDuration(Steps(0.40))
+anticipation << Duration(0.40 * 1/32)
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
 backbeats * 8 >> P
