@@ -353,6 +353,16 @@ class Element(o.Operand):
         return self.copy().__itruediv__(operand)
     
 
+    def __radd__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.__add__(operand)
+
+    def __rsub__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.__mul__(-1).__add__(operand)
+
+    def __rmul__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        return self.__mul__(operand)
+
+
     def __iadd__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists

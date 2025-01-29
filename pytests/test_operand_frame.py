@@ -92,7 +92,12 @@ def test_conditional_note():
     assert four_notes[0] % Octave() == 4
     assert four_notes[1] % Octave() == 4
 
-
-
-
 # test_conditional_note()
+
+def test_even_odd():
+
+    two_notes = 2 * Note()
+    four_notes = Note() * 4
+
+
+test_even_odd()

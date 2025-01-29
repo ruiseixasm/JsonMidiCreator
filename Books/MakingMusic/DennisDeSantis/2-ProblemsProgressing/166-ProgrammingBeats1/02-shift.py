@@ -30,9 +30,12 @@ drum = Note(DrumKit("Drum"), 1/16) * 4 << Foreach(0, 6, 8, 15)**Step()
 
 # (hi_hat + snare + drum) * 8 >> P
 
-hi_hat += 1/10 * Steps(1)
+hi_hat += 1/10 * Steps(1)   # shifts by 10%
 hi_hat << CParameter(Length(1.0))
 
 # First clip sets the common parameters (hi-hat)
 (hi_hat + snare + drum) * 8 >> P
 
+hi_hat += 8/10 * Steps(1)   # shifts by more 80% (total 90%)
+hi_hat << Velocity(100) << Odd()**Velocity(40)  # alternates lower velocity
+(hi_hat + snare + drum) * 8 >> P
