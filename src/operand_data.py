@@ -755,11 +755,12 @@ class Link(Operation):
         else:
             return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_chaos import Chaos
+
 class Shuffle(Operation):
 
-    # from operand_chaos import Chaos
-
-    def __init__(self, shuffler = None, parameter: type = 'DataSource'):
+    def __init__(self, shuffler: 'Chaos' = None, parameter: type = DataSource):
         super().__init__((shuffler, parameter))
 
     # CHAINABLE OPERATIONS
