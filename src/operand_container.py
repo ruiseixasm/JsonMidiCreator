@@ -213,7 +213,7 @@ class Container(o.Operand):
         self._datasource_list.sort(key=lambda x: x._data % compare)
         return self
 
-    def shuffle(self, shuffler: ch.Chaos = None) -> 'Container':
+    def shuffle(self, shuffler: ch.Chaos = None, parameter: type = od.DataSource) -> 'Container':
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
         container_data: list = []

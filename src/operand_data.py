@@ -756,10 +756,18 @@ class Link(Operation):
             return super().__rrshift__(operand)
 
 class Shuffle(Operation):
+
+    # from operand_chaos import Chaos
+
+    def __init__(self, shuffler = None, parameter: type = 'DataSource'):
+        super().__init__((shuffler, parameter))
+
+    # CHAINABLE OPERATIONS
+
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.shuffle()
+            return operand.shuffle(*self._data)
         else:
             return super().__rrshift__(operand)
 
