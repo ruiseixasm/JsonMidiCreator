@@ -40,24 +40,24 @@ import operand_chaos as ch
 class Container(o.Operand):
     def __init__(self, *operands):
         super().__init__()
-        self._datasource_list: list[Type[od.DataSource]] = []
-        self._datasource_iterator: int = 0
+        self._items: list = []
+        self._items_iterator: int = 0
         for single_operand in operands:
             self << single_operand
         
     def __getitem__(self, index: int) -> any:
-        return self._datasource_list[index]._data
+        return self._items[index]
 
     def __iter__(self):
         return self
     
     def __next__(self):
-        if self._datasource_iterator < len(self._datasource_list):
-            single_datasource = self._datasource_list[self._datasource_iterator]
-            self._datasource_iterator += 1
-            return single_datasource._data  # It's the data that should be returned
+        if self._items_iterator < len(self._items):
+            item = self._items[self._items_iterator]
+            self._items_iterator += 1
+            return item  # It's the data that should be returned
         else:
-            self._datasource_iterator = 0   # Reset to 0 when limit is reached
+            self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -80,8 +80,7 @@ class Container(o.Operand):
                         return self
                     case list():
                         return [
-                            single_datasource._data
-                                for single_datasource in self._datasource_list
+                            item for item in self._items
                         ]
                     case _:
                         return super().__mod__(operand)
@@ -89,8 +88,7 @@ class Container(o.Operand):
                 return self.copy()
             case list():
                 return [
-                    self.deep_copy(single_datasource._data)
-                        for single_datasource in self._datasource_list
+                    self.deep_copy(item) for item in self._items
                 ]
             case int():
                 if operand >= 0 and operand < self.len():
@@ -98,24 +96,24 @@ class Container(o.Operand):
                 return ol.Null()
             case ou.Next():
                 self._index += operand % int() - 1
-                single_datasource_data: any = self._datasource_list[self._index % len(self._datasource_list)]._data
+                item: any = self._items[self._index % len(self._items)]
                 self._index += 1
-                self._index %= len(self._datasource_list)
-                return single_datasource_data
+                self._index %= len(self._items)
+                return item
             case ou.Previous():
                 self._index -= operand % int()
-                self._index %= len(self._datasource_list)
-                single_datasource_data: any = self._datasource_list[self._index]._data
-                return single_datasource_data
+                self._index %= len(self._items)
+                item: any = self._items[self._index]
+                return item
             case _:
                 return super().__mod__(operand)
 
     def len(self) -> int:
-        return len(self._datasource_list)
+        return len(self._items)
 
     def __eq__(self, other: 'Container') -> bool:
         if isinstance(other, Container):
-            return self._datasource_list == other._datasource_list
+            return self._items == other._items
         if not isinstance(other, ol.Null):
             return self % other == other
         # if type(self) == type(other):
@@ -129,24 +127,24 @@ class Container(o.Operand):
         return False
     
     def first(self) -> o.Operand:
-        if len(self._datasource_list) > 0:
-            return self._datasource_list[0]._data
+        if len(self._items) > 0:
+            return self._items[0]
         return ol.Null()
 
     def last(self) -> o.Operand:
-        if len(self._datasource_list) > 0:
-            return self._datasource_list[len(self._datasource_list) - 1]._data
+        if len(self._items) > 0:
+            return self._items[len(self._items) - 1]
         return ol.Null()
 
     def middle(self, nth: int) -> o.Operand:
-        if isinstance(nth, int) and nth > 0 and nth <= len(self._datasource_list):
-            return self._datasource_list[nth - 1]._data
+        if isinstance(nth, int) and nth > 0 and nth <= len(self._items):
+            return self._items[nth - 1]
         return ol.Null()
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["datasource_list"] = self.serialize(self._datasource_list)
+        serialization["parameters"]["datasource_list"] = self.serialize(self._items)
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -156,34 +154,33 @@ class Container(o.Operand):
             "datasource_list" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._datasource_list = self.deserialize(serialization["parameters"]["datasource_list"])
+            self._items = self.deserialize(serialization["parameters"]["datasource_list"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
             case Container():
                 super().__lshift__(operand)
-                self._datasource_list = self.deep_copy( operand._datasource_list )
+                self._items = self.deep_copy( operand._items )
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand = self.deep_copy(operand._next_operand)
             case od.DataSource():
                 match operand._data:
                     case list():
-                        for single_item in operand._data:
-                            self._datasource_list.append(od.DataSource( single_item ))
+                        for item in operand._data:
+                            self._items.append( item )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._datasource_list = [
-                    od.DataSource( self.deep_copy(single_operand) )
-                        for single_operand in operand
+                self._items = [
+                    self.deep_copy(item) for item in operand
                 ]
             case tuple():
                 for single_operand in operand:
                     self << single_operand
             case _: # Works for Frame too
-                for single_datasource in self._datasource_list:
-                    single_datasource._data << operand
+                for item in self._items:
+                    item << operand
         return self
 
     def empty_copy(self, *parameters) -> Self:
@@ -197,20 +194,20 @@ class Container(o.Operand):
 
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
-        shallow_copy._datasource_list = [
-            od.DataSource( item ) for item in self
+        shallow_copy._items = [
+             item  for item in self
         ]
         for single_parameter in parameters:
             shallow_copy << single_parameter
         return shallow_copy
     
     def clear(self, *parameters) -> Self:
-        self._datasource_list = []
+        self._items = []
         return super().clear(parameters)
     
     def sort(self, compare: o.Operand = None) -> Self:
         compare = ra.Position() if compare is None else compare
-        self._datasource_list.sort(key=lambda x: x._data % compare)
+        self._items.sort(key=lambda x: x % compare)
         return self
 
     def shuffle(self, shuffler: ch.Chaos = None, parameter: type = od.DataSource) -> Self:
@@ -219,26 +216,26 @@ class Container(o.Operand):
         container_data: list = []
         parameter_instance = parameter()
         if isinstance(parameter_instance, od.DataSource):
-            for _ in range(len(self._datasource_list)):
+            for _ in range(len(self._items)):
                 data_index: int = shuffler * 1 % int() % len(container_data)
-                container_data.append(self._datasource_list[data_index])   # No need to copy
-                del self._datasource_list[data_index] # Like picking up colored balls, pop out
-            self._datasource_list = container_data
+                container_data.append(self._items[data_index])   # No need to copy
+                del self._items[data_index] # Like picking up colored balls, pop out
+            self._items = container_data
         else:
-            for single_datasource in self._datasource_list:
-                container_data.append(single_datasource._data % parameter_instance)   # No need to copy
-            for single_datasource in self._datasource_list:
+            for item in self._items:
+                container_data.append(item % parameter_instance)   # No need to copy
+            for item in self._items:
                 data_index: int = shuffler * 1 % int() % len(container_data)
-                single_datasource._data << container_data[data_index]
+                item << container_data[data_index]
                 del container_data[data_index] # Like picking up colored balls, pop out
         return self
 
     def reverse(self) -> Self:
         self_len: int = self.len()
         for operand_i in range(self_len // 2):
-            tail_operand = self._datasource_list[self_len - 1 - operand_i]._data
-            self._datasource_list[self_len - 1 - operand_i]._data = self._datasource_list[operand_i]._data
-            self._datasource_list[operand_i]._data = tail_operand
+            tail_operand = self._items[self_len - 1 - operand_i]
+            self._items[self_len - 1 - operand_i] = self._items[operand_i]
+            self._items[operand_i] = tail_operand
         return self
     
     def rotate(self, offset: int = 1, parameter: type = ra.Duration) -> Self:
@@ -265,7 +262,7 @@ class Container(o.Operand):
         return self
 
     def filter(self, criteria: any) -> Self:
-        self._datasource_list = [datasource for datasource in self._datasource_list if datasource._data == criteria]
+        self._items = [item for item in self._items if item == criteria]
         return self
 
     def __add__(self, operand: any) -> Self:
@@ -284,42 +281,39 @@ class Container(o.Operand):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Container():
-                for single_datasource in operand._datasource_list:
-                    self._datasource_list.append(self.deep_copy(single_datasource))
+                for item in operand._items:
+                    self._items.append(self.deep_copy(item))
 
             case tuple():
                 for single_operand in operand:
                     self += single_operand
             case _:
-                if isinstance(operand, od.DataSource):
-                    self._datasource_list.append(od.DataSource( self.deep_copy( operand._data ) ))
-                else:
-                    self._datasource_list.append(od.DataSource( self.deep_copy( operand ) ))
+                self._items.append(self.deep_copy( operand ))
         return self
 
     def __radd__(self, operand: any) -> Self:
         self_copy: Container = self.copy()
-        self_copy._datasource_list.insert(0, od.DataSource( self.deep_copy( operand ) ))
+        self_copy._items.insert(0, self.deep_copy( operand ))
         return self_copy
 
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Container():
                 # Exclude items based on equality (==) comparison
-                self._datasource_list = [
-                        self_datasource.copy() for self_datasource in self._datasource_list
-                        if all(self_datasource != operand_datasource for operand_datasource in operand._datasource_list)
+                self._items = [
+                        self_datasource.copy() for self_datasource in self._items
+                        if all(self_datasource != operand_datasource for operand_datasource in operand._items)
                     ]
             case o.Operand():
-                self._datasource_list = [self_datasource for self_datasource in self._datasource_list if self_datasource._data != operand]
+                self._items = [self_datasource for self_datasource in self._items if self_datasource != operand]
 
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
             case int(): # repeat n times the last argument if any
-                if len(self._datasource_list) > 0:
-                    while operand > 0 and len(self._datasource_list) > 0:
-                        self._datasource_list.pop()
+                if len(self._items) > 0:
+                    while operand > 0 and len(self._items) > 0:
+                        self._items.pop()
                         operand -= 1
         return self
 
@@ -332,17 +326,17 @@ class Container(o.Operand):
                 pass
             case int(): # repeat n times the self content if any
                 if operand > 1:
-                    data_list_copy: list[od.DataSource] = [
-                        self.deep_copy( data ) for data in self._datasource_list
+                    items_copy: list = [
+                        self.deep_copy( data ) for data in self._items
                     ]
                     while operand > 2:
-                        self._datasource_list.extend(
-                            self.deep_copy( data ) for data in data_list_copy
+                        self._items.extend(
+                            self.deep_copy( data ) for data in items_copy
                         )
                         operand -= 1
-                    self._datasource_list.extend( data_list_copy )
+                    self._items.extend( items_copy )
                 elif operand == 0:
-                    self._datasource_list = []
+                    self._items = []
 
             case tuple():
                 for single_operand in operand:
@@ -361,9 +355,9 @@ class Container(o.Operand):
                     cut_len: int = self.len() // operand
                     nth_item: int = cut_len
                     while nth_item > 0:
-                        many_operands._datasource_list.append(od.DataSource(
-                                self.deep_copy( self._datasource_list[cut_len - nth_item]._data )
-                            ))
+                        many_operands._items.append(
+                                self.deep_copy( self._items[cut_len - nth_item] )
+                            )
                         nth_item -= 1
                     return many_operands
 
@@ -380,9 +374,9 @@ class Container(o.Operand):
 
 
     def __pow__(self, operand: any) -> Self:
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, o.Operand):
-                single_datasource._data.__pow__(operand)
+        for item in self._items:
+            if isinstance(item, o.Operand):
+                item.__pow__(operand)
         return self
 
 
@@ -392,9 +386,7 @@ class Container(o.Operand):
     def __ior__(self, operand: any) -> Self:
         match operand:
             case Container():
-                self._datasource_list.extend(
-                    od.DataSource( item ) for item in operand
-                )
+                self._items.extend( item for item in operand )
             case od.Getter() | od.Operation():
                 self >>= operand
             case ch.Chaos():
@@ -427,7 +419,7 @@ class Clip(Container):  # Just a container of Elements
 
 
     def __getitem__(self, index: int) -> oe.Element:
-        return self._datasource_list[index]._data
+        return self._items[index]
 
 
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
@@ -570,9 +562,9 @@ class Clip(Container):  # Just a container of Elements
             Position: The minimum Position of all Elements.
         """
         start_beats: Fraction = None
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                position_beats: Fraction = single_datasource._data._position_beats
+        for item in self._items:
+            if isinstance(item, oe.Element):
+                position_beats: Fraction = item._position_beats
                 if start_beats is None or position_beats < start_beats:   # Implicit conversion
                     start_beats = position_beats
         if start_beats:
@@ -581,9 +573,9 @@ class Clip(Container):  # Just a container of Elements
 
     def finish(self) -> ra.Position:
         finish_beats: Fraction = Fraction(0)
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                single_element: oe.Element = single_datasource._data
+        for item in self._items:
+            if isinstance(item, oe.Element):
+                single_element: oe.Element = item
                 element_finish: Fraction = single_element._position_beats \
                     + (single_element % ra.Length())._rational
                 if element_finish > finish_beats:
@@ -604,12 +596,12 @@ class Clip(Container):  # Just a container of Elements
     def get_clip_elements(self) -> list['Element']: # Helper method
         clip_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
-        for single_datasource in self._datasource_list:   # Read only (extracts the play list)
-            if isinstance(single_datasource._data, oe.Element):
-                if isinstance(single_datasource._data, oe.Note) and single_datasource._data._tied:
-                    tied_notes.append(single_datasource._data.copy())
+        for item in self._items:   # Read only (extracts the play list)
+            if isinstance(item, oe.Element):
+                if isinstance(item, oe.Note) and item._tied:
+                    tied_notes.append(item.copy())
                 else:
-                    clip_elements.append(single_datasource._data)
+                    clip_elements.append(item)
         if len(tied_notes) > 0: # Extends the root Note to accommodate all following Notes durations
             first_tied_note: oe.Note = tied_notes[0]
             for next_tied_note_i in range(1, len(tied_notes)):
@@ -687,7 +679,7 @@ class Clip(Container):  # Just a container of Elements
                 self._length_beats      = operand._length_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
-                self._datasource_list   = self.deep_copy( operand._datasource_list )
+                self._items   = self.deep_copy( operand._items )
                 # COPY THE SELF OPERANDS RECURSIVELY
                 self._next_operand  = self.deep_copy(operand._next_operand)
                 self.set_staff_reference(operand._staff)
@@ -700,7 +692,7 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case _:
                         super().__lshift__(operand)
-                        self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
+                        self._items = o.filter_list(self._items, lambda item: isinstance(item, oe.Element))
 
             case ou.MidiTrack():
                 self._midi_track << operand
@@ -710,9 +702,8 @@ class Clip(Container):  # Just a container of Elements
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._datasource_list = [
-                    od.DataSource( self.deep_copy(single_operand) )
-                        for single_operand in operand if isinstance(single_operand, oe.Element)
+                self._items = [
+                    self.deep_copy(item) for item in operand if isinstance(item, oe.Element)
                 ]
             case tuple():
                 for single_operand in operand:
@@ -734,8 +725,8 @@ class Clip(Container):  # Just a container of Elements
                         self._length_beats = Fraction(-1)
 
             case _: # Works for Frame too
-                for single_datasource in self._datasource_list:
-                    single_datasource._data << operand
+                for item in self._items:
+                    item << operand
         return self
 
     def empty_copy(self, *parameters) -> Self:
@@ -763,21 +754,21 @@ class Clip(Container):  # Just a container of Elements
         match operand:
             case Part():
                 wrapper_song: Part = Part()
-                wrapper_song._datasource_list = [
-                    data_clip for data_clip in operand._datasource_list
+                wrapper_song._items = [
+                    data_clip for data_clip in operand._items
                 ]
-                wrapper_song._datasource_list.append( od.DataSource( self ) )
+                wrapper_song._items.append( self )
                 return wrapper_song
             case Clip():
                 wrapper_song: Part = Part()
-                wrapper_song._datasource_list = [ od.DataSource( operand ), od.DataSource( self ) ]
+                wrapper_song._items = [ operand, self ]
                 return wrapper_song
             case oe.Element():
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(element_length)
                 self += add_position  # No copy!
-                self._datasource_list.insert(0, od.DataSource( operand.set_staff_reference(self._staff) ))
+                self._items.insert(0, operand.set_staff_reference(self._staff))
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
                 return self
@@ -795,12 +786,12 @@ class Clip(Container):  # Just a container of Elements
                 # Song at the right must be a copy
                 new_song: Part = operand.copy()
                 # Inserts self content at the beginning of the Song
-                new_song._datasource_list.insert(0, od.DataSource( self ))
+                new_song._items.insert(0, self)
                 return new_song # Operand Song replaces self Clip
             case Clip():
                 operand_elements = [
-                    single_data._data.copy().set_staff_reference(self._staff) for single_data in operand._datasource_list
-                        if isinstance(single_data._data, oe.Element)
+                    single_data.copy().set_staff_reference(self._staff) for single_data in operand._items
+                        if isinstance(single_data, oe.Element)
                 ]
                 if operand._position_beats > self._position_beats:
                     for single_element in operand_elements:
@@ -808,13 +799,13 @@ class Clip(Container):  # Just a container of Elements
                 elif operand._position_beats < self._position_beats:
                     self += ra.Beats(self._position_beats - operand._position_beats) # NO IMPLICIT COPY
                     self._position_beats = operand._position_beats
-                self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
+                self._items.extend( single_element for single_element in operand_elements )
             case oe.Element():
                 return super().__iadd__(operand).set_staff_reference()
             case list():
-                for single_element in operand:
-                    if isinstance(single_element, oe.Element):
-                        self._datasource_list.append(od.DataSource( single_element.copy() ))
+                for item in operand:
+                    if isinstance(item, oe.Element):
+                        self._items.append( item.copy() )
                         
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
@@ -826,8 +817,8 @@ class Clip(Container):  # Just a container of Elements
                 for single_operand in operand:
                     self += single_operand
             case _:
-                for single_datasource in self._datasource_list:
-                    single_datasource._data += operand
+                for item in self._items:
+                    item += operand
         return self
 
     def __isub__(self, operand: any) -> 'Clip':
@@ -848,8 +839,8 @@ class Clip(Container):  # Just a container of Elements
                 for single_operand in operand:
                     self -= single_operand
             case _:
-                for single_datasource in self._datasource_list:
-                    single_datasource._data -= operand
+                for item in self._items:
+                    item -= operand
         return self
 
     # in-place multiply (NO COPY!)
@@ -866,10 +857,10 @@ class Clip(Container):  # Just a container of Elements
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(length_shift)
                 operand_elements = [
-                    (single_data._data + add_position).set_staff_reference(self._staff) for single_data in operand._datasource_list
-                        if isinstance(single_data._data, oe.Element)
+                    (single_data + add_position).set_staff_reference(self._staff) for single_data in operand._items
+                        if isinstance(single_data, oe.Element)
                 ]
-                self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
+                self._items.extend( single_element for single_element in operand_elements )
             case int() | float():
                 if self._length_beats >= 0:
                     add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
@@ -887,12 +878,12 @@ class Clip(Container):  # Just a container of Elements
                         self += self_copy   # implicit copy of self_copy
                     # Uses the last self_copy for the last iteration
                     self_copy += add_position
-                    self._datasource_list.extend(
-                        od.DataSource( single_element.set_staff_reference(self._staff) ) for single_element in self_copy
+                    self._items.extend(
+                        single_element.set_staff_reference(self._staff) for single_element in self_copy
                         if isinstance(single_element, oe.Element)
                     )
                 elif operand == 0:   # Must be empty
-                    self._datasource_list = []  # Just to keep the self object
+                    self._items = []  # Just to keep the self object
             case ou.TimeUnit():
                 self_repeating: int = 0
                 operand_beats: Fraction = self._staff.convertToBeats(operand)._rational
@@ -911,8 +902,8 @@ class Clip(Container):  # Just a container of Elements
                 self *= self_repeating
             case oe.Element():
                 next_position: ra.Position = self.finish()
-                self._datasource_list.append(
-                    od.DataSource( operand.copy().set_staff_reference(self._staff) << next_position )
+                self._items.append(
+                    operand.copy().set_staff_reference(self._staff) << next_position
                 )
 
             case od.ClipParameter():
@@ -925,8 +916,8 @@ class Clip(Container):  # Just a container of Elements
                 for single_operand in operand:
                     self *= single_operand
             case _:
-                for single_datasource in self._datasource_list:
-                    single_datasource._data *= operand
+                for item in self._items:
+                    item *= operand
         return self
 
     def __rmul__(self, operand: any) -> 'Clip':
@@ -953,15 +944,15 @@ class Clip(Container):  # Just a container of Elements
                 for single_operand in operand:
                     self /= single_operand
             case _:
-                for single_datasource in self._datasource_list:
-                    single_datasource._data /= operand
+                for item in self._items:
+                    item /= operand
         return self
 
     def reverse(self) -> 'Clip':
         length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Element):
-                single_element: oe.Element = single_datasource._data
+        for item in self._items:
+            if isinstance(item, oe.Element):
+                single_element: oe.Element = item
                 duration_beats: Fraction = single_element % ra.Length() // Fraction()
                 # Only changes Positions
                 single_element._position_beats = length_beats - (single_element._position_beats + duration_beats)
@@ -971,9 +962,9 @@ class Clip(Container):  # Just a container of Elements
         higher_pitch: og.Pitch = None
         lower_pitch: og.Pitch = None
         
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
-                element_pitch: og.Pitch = single_datasource._data._pitch
+        for item in self._items:
+            if isinstance(item, oe.Note):
+                element_pitch: og.Pitch = item._pitch
                 if higher_pitch is None:
                     higher_pitch = element_pitch
                     lower_pitch = element_pitch
@@ -985,9 +976,9 @@ class Clip(Container):  # Just a container of Elements
         top_pitch: float = higher_pitch % float()
         bottom_pitch: float = lower_pitch % float()
 
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
-                element_pitch: og.Pitch = single_datasource._data._pitch
+        for item in self._items:
+            if isinstance(item, oe.Note):
+                element_pitch: og.Pitch = item._pitch
                 note_pitch: float = element_pitch % float()
                 new_pitch: float = top_pitch - (note_pitch - bottom_pitch)
                 element_pitch << new_pitch
@@ -1001,10 +992,10 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Clip':
-        extended_clip: Clip = self.copy() << od.DataSource( self._datasource_list )
+        extended_clip: Clip = self.copy() << od.DataSource( self._items )
         while (extended_clip >> self).length() <= time_value:
             extended_clip >>= self
-        self._datasource_list = extended_clip._datasource_list
+        self._items = extended_clip._items
         return self
 
     def trim(self, length: ra.Length = ra.Length(1.0)) -> 'Clip':
@@ -1012,9 +1003,9 @@ class Clip(Container):  # Just a container of Elements
             length_beats: Fraction = length._rational
         else:
             length_beats: Fraction = self._staff.convertToBeats(ra.Measures(1))._rational
-        self._datasource_list = [
-            single_datasource for single_datasource in self._datasource_list
-            if isinstance(single_datasource._data, oe.Element) and single_datasource._data._position_beats < length_beats
+        self._items = [
+            item for item in self._items
+            if isinstance(item, oe.Element) and item._position_beats < length_beats
         ]
         if self._length_beats >= 0:
             self._length_beats = min(self._length_beats, length_beats)
@@ -1039,20 +1030,20 @@ class Clip(Container):  # Just a container of Elements
         element_index: int = 0
         first_element_index: int = None
         last_element: oe.Element = None
-        for single_data in self._datasource_list:
-            if isinstance(single_data._data, oe.Element) and single_data._data._stackable:
+        for single_data in self._items:
+            if isinstance(single_data, oe.Element) and single_data._stackable:
                 if last_element is not None:
-                    last_element << self._staff.convertToDuration(ra.Beats(single_data._data._position_beats - last_element._position_beats))
+                    last_element << self._staff.convertToDuration(ra.Beats(single_data._position_beats - last_element._position_beats))
                 else:
                     first_element_index = element_index
-                last_element = single_data._data
+                last_element = single_data
             element_index += 1
         # Add a Rest in the beginning if necessary
         if first_element_index is not None:
-            first_element: oe.Element = self._datasource_list[first_element_index]._data
+            first_element: oe.Element = self._items[first_element_index]
             if first_element._position_beats != 0:  # Not the first position
                 rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
-                self._datasource_list.insert(first_element_index, od.DataSource( oe.Rest(rest_duration) ))
+                self._items.insert(first_element_index, oe.Rest(rest_duration))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:    # LAST ELEMENT ONLY!
             remaining_beats: Fraction = self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational - last_element._position_beats
@@ -1063,9 +1054,9 @@ class Clip(Container):  # Just a container of Elements
 
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Element] = [
-                single_data._data
-                for single_data in self._datasource_list
-                if isinstance(single_data._data, oe.Element) and single_data._data._stackable
+                single_data
+                for single_data in self._items
+                if isinstance(single_data, oe.Element) and single_data._stackable
             ]
         for index, single_element in enumerate(stackable_elements):
             if index > 0:
@@ -1077,26 +1068,26 @@ class Clip(Container):  # Just a container of Elements
         return self
     
     def tie(self, tied: bool = True) -> 'Clip':
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
-                single_datasource._data << ou.Tied(tied)
+        for item in self._items:
+            if isinstance(item, oe.Note):
+                item << ou.Tied(tied)
         return self
     
     def slur(self, gate: float = 1.05) -> 'Clip':
         last_element = None
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):
+        for item in self._items:
+            if isinstance(item, oe.Note):
                 if last_element is not None:
                     last_element << ra.Gate(gate)
-                last_element = single_datasource._data
+                last_element = item
         return self
     
     def smooth(self) -> 'Clip':
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
-        for single_datasource in self._datasource_list:
-            if isinstance(single_datasource._data, oe.Note):    # Only Note has single Pitch
-                actual_note = single_datasource._data
+        for item in self._items:
+            if isinstance(item, oe.Note):    # Only Note has single Pitch
+                actual_note = item
                 if last_note is not None:
                     while actual_note._pitch > last_note._pitch:
                         actual_note._pitch -= ou.Octave(1)
@@ -1123,7 +1114,7 @@ class Part(Container):
                     if single_clip._midi_track._name == key:
                         return single_clip
             return ol.Null()
-        return self._datasource_list[key]._data
+        return self._items[key]
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -1157,20 +1148,19 @@ class Part(Container):
             case Part():
                 super().__lshift__(operand)
             case Clip():
-                self._datasource_list.append( od.DataSource( operand.copy() ) )
+                self._items.append( operand.copy() )
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
-                self._datasource_list = [
-                    od.DataSource( self.deep_copy(single_operand) )
-                        for single_operand in operand if isinstance(single_operand, (Clip, od.Playlist))
+                self._items = [
+                    self.deep_copy(item) for item in operand if isinstance(item, (Clip, od.Playlist))
                 ]
             case tuple():
                 for single_operand in operand:
                     self << single_operand
             case _:
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data << operand
+                for item in self._items: 
+                    item << operand
         return self
 
     # operand is the pusher >> (NO COPIES!)
@@ -1178,18 +1168,18 @@ class Part(Container):
         match operand:
             case Part():
                 wrapper_song: Part = Part()
-                wrapper_song._datasource_list = [
-                    data_clip for data_clip in operand._datasource_list
+                wrapper_song._items = [
+                    data_clip for data_clip in operand._items
                 ]
-                wrapper_song._datasource_list.extend(
-                    data_clip for data_clip in self._datasource_list
+                wrapper_song._items.extend(
+                    data_clip for data_clip in self._items
                 )
                 return wrapper_song
             case Clip():
                 wrapper_song: Part = Part()
-                wrapper_song._datasource_list = [ od.DataSource( operand ) ]
-                wrapper_song._datasource_list.extend(
-                    data_clip for data_clip in self._datasource_list
+                wrapper_song._items = [ operand ]
+                wrapper_song._items.extend(
+                    data_clip for data_clip in self._items
                 )
                 return wrapper_song
         return self
@@ -1198,37 +1188,37 @@ class Part(Container):
     def __iadd__(self, operand: any) -> 'Part':
         match operand:
             case Part():
-                self._datasource_list.extend(
-                    data_clip.copy() for data_clip in operand._datasource_list
+                self._items.extend(
+                    data_clip.copy() for data_clip in operand._items
                 )
             case Clip():
-                self._datasource_list.append( od.DataSource( operand.copy() ) )
+                self._items.append( operand.copy() )
 
             case tuple():
                 for single_operand in operand:
                     self += single_operand
             case _:
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data += operand
+                for item in self._items: 
+                    item += operand
         return self
 
     def __isub__(self, operand: any) -> 'Part':
         match operand:
             case Part():
-                self._datasource_list = [
-                    data_clip for data_clip in self._datasource_list if data_clip not in operand._datasource_list
+                self._items = [
+                    data_clip for data_clip in self._items if data_clip not in operand._items
                 ]
             case Clip():
-                self._datasource_list = [
-                    data_clip for data_clip in self._datasource_list if data_clip._data != operand
+                self._items = [
+                    data_clip for data_clip in self._items if data_clip != operand
                 ]
                 
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
             case _:
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data -= operand
+                for item in self._items: 
+                    item -= operand
         return self
 
     def __imul__(self, operand: any) -> 'Part':
@@ -1237,8 +1227,8 @@ class Part(Container):
                 for single_operand in operand:
                     self *= single_operand
             case _:
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data *= operand
+                for item in self._items: 
+                    item *= operand
         return self
 
     def __itruediv__(self, operand: any) -> 'Part':
@@ -1247,7 +1237,7 @@ class Part(Container):
                 for single_operand in operand:
                     self /= single_operand
             case _:
-                for single_datasource in self._datasource_list: 
-                    single_datasource._data /= operand
+                for item in self._items: 
+                    item /= operand
         return self
 

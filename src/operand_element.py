@@ -417,9 +417,9 @@ class Element(o.Operand):
                 new_clip: oc.Clip = oc.Clip()
                 multiplier: int = int(operand)
                 if multiplier > 0:
-                    new_clip._datasource_list.append(od.DataSource( self ))
+                    new_clip._items.append( self )
                     for _ in range(multiplier - 1):
-                        new_clip._datasource_list.append(od.DataSource( self.copy() ))
+                        new_clip._items.append( self.copy() )
                 return new_clip.stack().set_staff_reference()
             case ra.TimeValue() | ou.TimeUnit():
                 self_repeating: int = 0
