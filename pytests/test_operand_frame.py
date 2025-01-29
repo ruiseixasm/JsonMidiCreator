@@ -105,4 +105,12 @@ def test_even_odd():
     print(two_notes[0] % Velocity() % int())
     assert two_notes[0] % Velocity() == 90
 
+    four_notes = 4 * Note()
+
+    assert four_notes.len() == 4
+    four_notes |= Even()
+    assert four_notes.len() == 2
+    four_notes /= Filter(Odd())
+    assert four_notes.len() == 1
+
 # test_even_odd()
