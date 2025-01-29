@@ -626,6 +626,7 @@ class Clip(Container):  # Just a container of Elements
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
+                    case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case _:
                         super().__lshift__(operand)
                         self._datasource_list = o.filter_list(self._datasource_list, lambda data_source: isinstance(data_source._data, oe.Element))
@@ -788,6 +789,7 @@ class Clip(Container):  # Just a container of Elements
                     left_end_position: ra.Position = self.finish()
                 else:
                     left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
+                    self._length_beats += (operand % ra.Length())._rational
                 right_start_position: ra.Position = operand.start()
                 length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
                 # Convert Length to Position
@@ -804,6 +806,7 @@ class Clip(Container):  # Just a container of Elements
                     self_length: ra.Length = self.length()
                     operand = int(operand)
                 if operand > 1:
+                    self._length_beats *= 2
                     # Convert self_length to a Position
                     add_position: ra.Position = ra.Position(self_length)
                     self_copy: Clip = self.copy()
@@ -932,7 +935,15 @@ class Clip(Container):  # Just a container of Elements
         self._datasource_list = extended_clip._datasource_list
         return self
 
-    def trim(self, length: ra.Length) -> 'Clip':
+    def trim(self, length: ra.Length = ra.Length(1.0)) -> 'Clip':
+        if isinstance(length, ra.Length):
+            length_beats: Fraction = length._rational
+        else:
+            length_beats: Fraction = self._staff.convertToBeats(ra.Measures(1))._rational
+        self._datasource_list = [
+            single_datasource for single_datasource in self._datasource_list
+            if isinstance(single_datasource._data, oe.Element) and single_datasource._data._position_beats < length_beats
+        ]
         return self
 
     def fill(self) -> 'Clip':

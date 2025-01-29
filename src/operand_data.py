@@ -816,7 +816,15 @@ class Extend(Operation):
         else:
             return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_rational import Length
+
 class Trim(Operation):
+    def __init__(self, length: 'Length' = None):
+        super().__init__( length )
+        
+    # CHAINABLE OPERATIONS
+
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -831,9 +839,6 @@ class Fill(Operation):
             return operand.fill()
         else:
             return super().__rrshift__(operand)
-
-if TYPE_CHECKING:
-    from operand_container import Container
 
 class Getter(Data):
     def __eq__(self, other: o.Operand) -> bool:
