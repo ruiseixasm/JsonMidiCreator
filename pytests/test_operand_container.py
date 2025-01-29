@@ -398,6 +398,12 @@ def test_clip_lshift():
     one_measure: Clip = two_measures | Less(Measures(1))
     assert one_measure.len() == 4
 
+    assert two_measures[0] % Pitch() == 60.0
+    two_measures << Semitone(30)
+    assert two_measures[0] % Pitch() == 30.0
+    two_measures << Pitch()
+    assert two_measures[0] % Pitch() == 60.0
+
 # test_clip_lshift()
 
 
