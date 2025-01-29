@@ -264,7 +264,7 @@ class Container(o.Operand):
                 if isinstance(operand, o.Operand):
                     parameters.append( operand % parameter_instance )
                 else:
-                    parameters.append( parameter_instance )
+                    parameters.append( ol.Null() )
             for operand in self:
                 if isinstance(operand, o.Operand):
                     operand << parameters[ offset % len(parameters) ]
