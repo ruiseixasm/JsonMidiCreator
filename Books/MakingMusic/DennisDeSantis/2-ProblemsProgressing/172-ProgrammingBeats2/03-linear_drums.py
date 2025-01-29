@@ -29,7 +29,7 @@ hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 3 << Foreach(2, 8, 14)**Step()
 snare = Note(DrumKit("Snare"), 1/16) * 2 << Foreach(4, 10)**Step()
 drum = Note(DrumKit("Drum"), 1/16) * 3 << Foreach(0, 6, 12)**Step()
 
-# (hi_hat + snare + drum) * 8 >> P
+(hi_hat + snare + drum) * 8 >> P
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)

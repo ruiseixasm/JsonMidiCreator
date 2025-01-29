@@ -619,6 +619,7 @@ def test_clip_length():
 
     assert two_notes * 2 % Length() == Beats(4 * 2)
     assert two_notes * two_notes % Length() == Beats(4 * 2)
-
+    assert two_notes * 3 % Length() == Beats(4 * 3)
+    assert two_notes * two_notes * two_notes % Length() == Beats(4 * 3)
 
 # test_clip_length()

@@ -945,6 +945,8 @@ class Clip(Container):  # Just a container of Elements
             single_datasource for single_datasource in self._datasource_list
             if isinstance(single_datasource._data, oe.Element) and single_datasource._data._position_beats < length_beats
         ]
+        if self._length_beats >= 0:
+            self._length_beats = min(self._length_beats, length_beats)
         return self
 
     def fill(self) -> 'Clip':
