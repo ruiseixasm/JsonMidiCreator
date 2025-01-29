@@ -233,7 +233,7 @@ class Container(o.Operand):
             self._datasource_list[operand_i]._data = tail_operand
         return self
     
-    def rotate(self, parameter: type = ra.Duration) -> Self:
+    def rotate(self, offset: int = 1, parameter: type = ra.Duration) -> Self:
         """
         Rotates a given parameter by a given offset, by other words,
         does a displacement for each Element in the Container list of
