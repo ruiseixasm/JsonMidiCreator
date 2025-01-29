@@ -97,7 +97,12 @@ def test_conditional_note():
 def test_even_odd():
 
     two_notes = 2 * Note()
-    four_notes = Note() * 4
 
+    two_notes << Even()**Velocity(40)
+    print(two_notes[1] % Velocity() % int())
+    assert two_notes[1] % Velocity() == 40
+    two_notes << Odd()**Velocity(90)
+    print(two_notes[0] % Velocity() % int())
+    assert two_notes[0] % Velocity() == 90
 
-test_even_odd()
+# test_even_odd()

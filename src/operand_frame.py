@@ -439,7 +439,9 @@ class Odd(Selector):
     def __and__(self, subject: o.Operand) -> o.Operand:
         self._multi_data['operand'] += 1
         if self._multi_data['operand'] % 2 == 1:
-            return self._next_operand & subject
+            if isinstance(self._next_operand, Frame):
+                return self._next_operand & subject
+            return self._next_operand
         else:
             return ol.Null()
 
