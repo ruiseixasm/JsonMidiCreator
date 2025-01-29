@@ -186,7 +186,7 @@ class Container(o.Operand):
                     single_datasource._data << operand
         return self
 
-    def empty_copy(self, *parameters) -> 'Container':
+    def empty_copy(self, *parameters) -> Self:
         empty_copy: Container = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
@@ -195,7 +195,7 @@ class Container(o.Operand):
             empty_copy << single_parameter
         return empty_copy
 
-    def shallow_copy(self, *parameters) -> 'Container':
+    def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
         shallow_copy._datasource_list = [
             od.DataSource( item ) for item in self
@@ -204,28 +204,28 @@ class Container(o.Operand):
             shallow_copy << single_parameter
         return shallow_copy
     
-    def clear(self, *parameters) -> 'Container':
+    def clear(self, *parameters) -> Self:
         self._datasource_list = []
         return super().clear(parameters)
     
-    def sort(self, compare: o.Operand = None) -> 'Container':
+    def sort(self, compare: o.Operand = None) -> Self:
         compare = ra.Position() if compare is None else compare
         self._datasource_list.sort(key=lambda x: x._data % compare)
         return self
 
-    def shuffle(self, shuffler: ch.Chaos = None, parameter: type = od.DataSource) -> 'Container':
+    def shuffle(self, shuffler: ch.Chaos = None, parameter: type = od.DataSource) -> Self:
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
         container_data: list = []
         for single_datasource in self._datasource_list:
-            container_data.append(single_datasource._data)   # No need to copy
+            container_data.append(single_datasource % parameter())   # No need to copy
         for single_datasource in self._datasource_list:
             data_to_extract: int = shuffler * 1 % int() % len(container_data)
-            single_datasource._data = container_data[data_to_extract]
-            del container_data[data_to_extract]
+            single_datasource._data << container_data[data_to_extract]
+            del container_data[data_to_extract] # Like picking up colored balls, pop out
         return self
 
-    def reverse(self) -> 'Container':
+    def reverse(self) -> Self:
         self_len: int = self.len()
         for operand_i in range(self_len // 2):
             tail_operand = self._datasource_list[self_len - 1 - operand_i]._data
