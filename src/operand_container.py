@@ -195,7 +195,7 @@ class Container(o.Operand):
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
         shallow_copy._items = [
-             item  for item in self
+            item for item in self
         ]
         for single_parameter in parameters:
             shallow_copy << single_parameter
