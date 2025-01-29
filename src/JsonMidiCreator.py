@@ -48,7 +48,8 @@ Ch = Channel
 DS = Src = DataSource
 CPar = CParameter = ClipPar = ClipParameter
 PPar = PParameter = PartPar = PartParameter
-Meas = Measures
+Bars = Meas = Measures
+Bar = Mea = Measure
 Bts = Beats
 Pt = Pitch
 Vel = Velocity
