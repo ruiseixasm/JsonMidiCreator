@@ -800,14 +800,16 @@ class Clip(Container):  # Just a container of Elements
                 ]
                 self._datasource_list.extend( od.DataSource( single_element ) for single_element in operand_elements )
             case int() | float():
-                if isinstance(operand, int):
-                    self_length: ra.Length = (self % ra.Length()).roundMeasures()
+                if self._length_beats >= 0:
+                    add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
+                    operand = int(operand)
+                    self._length_beats *= operand
+                elif isinstance(operand, int):
+                    add_position: ra.Position = ra.Position((self % ra.Length()).roundMeasures())
                 else:
-                    self_length: ra.Length = self.length()
+                    add_position: ra.Position = ra.Position(self.length())
                     operand = int(operand)
                 if operand > 1:
-                    # Convert self_length to a Position
-                    add_position: ra.Position = ra.Position(self_length)
                     self_copy: Clip = self.copy()
                     for _ in range(operand - 2):
                         self_copy += add_position
@@ -818,8 +820,6 @@ class Clip(Container):  # Just a container of Elements
                         od.DataSource( single_element.set_staff_reference(self._staff) ) for single_element in self_copy
                         if isinstance(single_element, oe.Element)
                     )
-                    if self._length_beats >= 0:
-                        self._length_beats += self_copy._length_beats
                 elif operand == 0:   # Must be empty
                     self._datasource_list = []  # Just to keep the self object
             case ou.TimeUnit():
