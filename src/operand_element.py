@@ -685,6 +685,10 @@ class Note(Element):
             case int():             return self._pitch._degree
             case ou.PitchParameter() | str():
                                     return self._pitch % operand
+            case ou.DrumKit():
+                if self._channel == 10:
+                    return ou.DrumKit(self._pitch % float())
+                return ol.Null()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
