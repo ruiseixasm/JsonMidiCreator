@@ -213,21 +213,21 @@ class Container(o.Operand):
     def shuffle(self, shuffler: ch.Chaos = None, parameter: type = od.DataSource) -> Self:
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
-        container_data: list = []
+        parameters: list = []
         parameter_instance = parameter()
         if isinstance(parameter_instance, od.DataSource):
             for _ in range(len(self._items)):
-                data_index: int = shuffler * 1 % int() % len(container_data)
-                container_data.append(self._items[data_index])   # No need to copy
+                data_index: int = shuffler * 1 % int() % len(parameters)
+                parameters.append(self._items[data_index])   # No need to copy
                 del self._items[data_index] # Like picking up colored balls, pop out
-            self._items = container_data
+            self._items = parameters
         else:
             for item in self._items:
-                container_data.append(item % parameter_instance)   # No need to copy
+                parameters.append(item % parameter_instance)   # No need to copy
             for item in self._items:
-                data_index: int = shuffler * 1 % int() % len(container_data)
-                item << container_data[data_index]
-                del container_data[data_index] # Like picking up colored balls, pop out
+                data_index: int = shuffler * 1 % int() % len(parameters)
+                item << parameters[data_index]
+                del parameters[data_index] # Like picking up colored balls, pop out
         return self
 
     def reverse(self) -> Self:
@@ -252,12 +252,22 @@ class Container(o.Operand):
             Container: The self object with the chosen parameter displaced.
         """
         parameters: list = []
-        for operand in self:
-            if isinstance(operand, o.Operand):
-                parameters.append( operand % parameter() )
-        for operand in self:
-            if isinstance(operand, o.Operand):
-                operand << parameters[ offset % len(parameters) ]
+        parameter_instance = parameter()
+        if isinstance(parameter_instance, od.DataSource):
+            for _ in len(self._items):
+                data_index: int = offset % len(self._items)
+                parameters.append(self._items[data_index])   # No need to copy
+                offset += 1
+            self._items = parameters
+        else:
+            for operand in self:
+                if isinstance(operand, o.Operand):
+                    parameters.append( operand % parameter_instance )
+                else:
+                    parameters.append( parameter_instance )
+            for operand in self:
+                if isinstance(operand, o.Operand):
+                    operand << parameters[ offset % len(parameters) ]
                 offset += 1
         return self
 
