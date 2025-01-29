@@ -522,6 +522,9 @@ def test_note_pitch():
     print(note // Pitch() // float())
     assert note // Pitch() // float() == 39.0  # Black Key
 
+    note << Pitch()
+    assert note % Pitch() == 60.0   # Middle C
+
     note.clear()
 
     assert note % Octave() == 4
