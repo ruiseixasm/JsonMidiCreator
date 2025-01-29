@@ -230,6 +230,8 @@ def test_set_chromatic_pitch():
 
     pitch: Pitch = Pitch()
 
+    assert pitch % float() == 60.0
+
     for degree in range(1, 8):
         print(f"------------ {degree} ------------")
         pitch << degree
