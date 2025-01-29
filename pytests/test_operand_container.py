@@ -608,3 +608,17 @@ def test_song_operations():
     assert (song_1 >> song_2).len() == 4
 
 # test_song_operations()
+
+
+def test_clip_length():
+
+    two_notes = Note() * 2
+    assert two_notes % Length() == Beats(2)
+    two_notes << ClipParameter(Length(1.0))
+    assert two_notes % Length() == Beats(4)
+
+    two_notes *= 2
+    assert two_notes % Length() == Beats(4 * 2)
+
+
+# test_clip_length()

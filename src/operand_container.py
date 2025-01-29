@@ -806,7 +806,8 @@ class Clip(Container):  # Just a container of Elements
                     self_length: ra.Length = self.length()
                     operand = int(operand)
                 if operand > 1:
-                    self._length_beats *= 2
+                    if self._length_beats >= 0:
+                        self._length_beats *= 2
                     # Convert self_length to a Position
                     add_position: ra.Position = ra.Position(self_length)
                     self_copy: Clip = self.copy()
