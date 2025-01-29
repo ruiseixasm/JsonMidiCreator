@@ -217,12 +217,20 @@ class Container(o.Operand):
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
         container_data: list = []
-        for single_datasource in self._datasource_list:
-            container_data.append(single_datasource % parameter())   # No need to copy
-        for single_datasource in self._datasource_list:
-            data_to_extract: int = shuffler * 1 % int() % len(container_data)
-            single_datasource._data << container_data[data_to_extract]
-            del container_data[data_to_extract] # Like picking up colored balls, pop out
+        parameter_instance = parameter()
+        if isinstance(parameter_instance, od.DataSource):
+            for _ in range(len(self._datasource_list)):
+                data_index: int = shuffler * 1 % int() % len(container_data)
+                container_data.append(self._datasource_list[data_index])   # No need to copy
+                del self._datasource_list[data_index] # Like picking up colored balls, pop out
+            self._datasource_list = container_data
+        else:
+            for single_datasource in self._datasource_list:
+                container_data.append(single_datasource._data % parameter_instance)   # No need to copy
+            for single_datasource in self._datasource_list:
+                data_index: int = shuffler * 1 % int() % len(container_data)
+                single_datasource._data << container_data[data_index]
+                del container_data[data_index] # Like picking up colored balls, pop out
         return self
 
     def reverse(self) -> Self:
