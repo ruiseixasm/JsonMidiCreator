@@ -806,8 +806,6 @@ class Clip(Container):  # Just a container of Elements
                     self_length: ra.Length = self.length()
                     operand = int(operand)
                 if operand > 1:
-                    if self._length_beats >= 0:
-                        self._length_beats *= 2
                     # Convert self_length to a Position
                     add_position: ra.Position = ra.Position(self_length)
                     self_copy: Clip = self.copy()
@@ -820,6 +818,8 @@ class Clip(Container):  # Just a container of Elements
                         od.DataSource( single_element.set_staff_reference(self._staff) ) for single_element in self_copy
                         if isinstance(single_element, oe.Element)
                     )
+                    if self._length_beats >= 0:
+                        self._length_beats += self_copy._length_beats
                 elif operand == 0:   # Must be empty
                     self._datasource_list = []  # Just to keep the self object
             case ou.TimeUnit():
