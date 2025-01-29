@@ -144,17 +144,17 @@ class Container(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["datasource_list"] = self.serialize(self._items)
+        serialization["parameters"]["items"] = self.serialize(self._items)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict):
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "datasource_list" in serialization["parameters"]):
+            "items" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._items = self.deserialize(serialization["parameters"]["datasource_list"])
+            self._items = self.deserialize(serialization["parameters"]["items"])
         return self
 
     def __lshift__(self, operand: any) -> Self:

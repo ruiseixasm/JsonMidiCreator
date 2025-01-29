@@ -79,5 +79,3 @@ syncopation_2 >> MidiExport("YouTube/Syncopation/save_chords_syncopation.mid")
 syncopation_2 >> Play()
 
 
-
-
