@@ -945,7 +945,7 @@ class Key(PitchParameter):
             case Flat():
                 self_unit: int = self._unit % 48
                 if self_unit >= 32 or (self_unit >= 12 and self_unit < 24): 
-                    return Flat(self._accidentals[self_unit])
+                    return Flat(self._accidentals[self_unit] * -1)
                 return Flat(0)
 
             case _:                 return super().__mod__(operand)
@@ -1006,10 +1006,10 @@ class Key(PitchParameter):
     ]
 
     _accidentals: list[int] = [
-         0,     1,    0,     1,    0,     0,     1,    0,     1,    0,     1,    0,     # Black Sharps
-         0,     1,    0,     1,    0,     0,     1,    0,     1,    0,     1,    0,     # Black Flats
-         1,     1,    2,     1,    2,     1,     1,    2,     1,    2,     1,    2,     # All Sharps
-         2,     1,    2,     1,    1,     2,     1,    2,     1,    2,     1,    1      # All Flats
+         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
+         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
+        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
+        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
     ]
     
     def getStringToNumber(self, key: str = "C") -> int:
