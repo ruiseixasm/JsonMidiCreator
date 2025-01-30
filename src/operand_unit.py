@@ -1006,10 +1006,10 @@ class Key(PitchParameter):
     ]
 
     _accidentals: list[int] = [
-        0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Sharps
-        0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Flats
-        1,    1,    0,   1,    0,    1,    1,    0,   1,    0,   1,    0,       # All Sharps
-        0,    1,    0,   1,    1,    0,    1,    0,   1,    0,   1,    1        # All Flats
+         0,     1,    0,     1,    0,     0,     1,    0,     1,    0,     1,    0,     # Black Sharps
+         0,     1,    0,     1,    0,     0,     1,    0,     1,    0,     1,    0,     # Black Flats
+         1,     1,    2,     1,    2,     1,     1,    2,     1,    2,     1,    2,     # All Sharps
+         2,     1,    2,     1,    1,     2,     1,    2,     1,    2,     1,    1      # All Flats
     ]
     
     def getStringToNumber(self, key: str = "C") -> int:

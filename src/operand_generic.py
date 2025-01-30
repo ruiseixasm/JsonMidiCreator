@@ -466,9 +466,9 @@ class Pitch(Generic):
                     case ou.Semitone():
                         self._unit = operand._data._unit
                     case ou.Sharp():
-                        self._sharp = operand._data._unit % 2
+                        self._sharp = operand._data._unit
                     case ou.Flat():
-                        self._sharp = operand._data._unit % 2 * -1
+                        self._sharp = operand._data._unit * -1
                     case ou.Natural():
                         self._natural = operand._data // bool()
                     case ou.Degree():
@@ -516,10 +516,10 @@ class Pitch(Generic):
                 self << operand // float()  # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
                 if max(0, self._sharp) != operand._unit:
-                    self._sharp = operand._unit
+                    self._sharp = operand._unit % 3
             case ou.Flat():
                 if max(0, self._sharp * -1) != operand._unit:
-                    self._sharp = operand._unit * -1
+                    self._sharp = operand._unit % 3 * -1
             case ou.Natural():
                 self._natural = operand // bool()
             case str():
