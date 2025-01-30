@@ -220,12 +220,22 @@ class Pitch(Generic):
 
                 semitone_int: int = self.get_key_int()
 
-                accidentals_int = self._staff_reference._key_signature._unit
                 # Circle of Fifths
+                accidentals_int = self._staff_reference._key_signature._unit
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                 semitone_transpose = sharps_flats[semitone_int % 12]
 
                 return float(semitone_int + semitone_transpose)
+
+        else:
+             
+            # Circle of Fifths
+            accidentals_int = self._staff_reference._key_signature._unit
+            sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+            semitone_transpose = sharps_flats[self._key % 12]
+
+            if semitone_transpose != 0: # Tonic Key must be LOCKED
+                self._key = self._key % 24 + 24
         
         return float(self.get_key_int())
 
