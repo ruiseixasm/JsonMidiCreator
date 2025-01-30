@@ -142,8 +142,8 @@ def test_pitch_degrees():
         print(f"Key: {sharp_pitch % float()}")
         assert sharp_pitch % float() == major_keys[degree - 1] + 1
 
-    for scale_mode in range(1, 7):         # For Sharps
-        ...
+    for scale_mode in range(1, 7):         # For Sharps, shall be 8 (excluded)
+        key_signature: KeySignature = KeySignature(scale_mode)
 
 
 # test_pitch_degrees()
