@@ -371,8 +371,16 @@ class Pitch(Generic):
             case ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
                 return self._staff_reference._key_signature % operand
             case ou.Key():
-                key_unit: int = int(self % float()) % 12
-                return ou.Key( key_unit )
+                key_note: int = int(self % float()) % 12
+                key_line: int = self._key % 48 // 12
+
+                if key_line < 2:
+                    if self._staff_reference._key_signature._unit > 0:
+                        key_line = 0
+                    elif self._staff_reference._key_signature._unit < 0:
+                        key_line = 1
+
+                return ou.Key( key_note + key_line * 12 )
             
             case ou.Degree():
                 return ou.Degree() << od.DataSource(self._degree)
