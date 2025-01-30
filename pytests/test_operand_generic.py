@@ -142,8 +142,23 @@ def test_pitch_degrees():
         print(f"Key: {sharp_pitch % float()}")
         assert sharp_pitch % float() == major_keys[degree - 1] + 1
 
-    for scale_mode in range(1, 7):         # For Sharps, shall be 8 (excluded)
-        key_signature: KeySignature = KeySignature(scale_mode)
+    print("------")
+    for key_sharps in range(1):         # For Sharps, shall be 8 (excluded)
+        defaults << KeySignature(key_sharps)
+        key_pitch = Pitch()
+
+        reference_keys: list[float] = []
+        for degree in range(1, 8):
+            key_pitch << degree
+            reference_keys.append( key_pitch % float() )
+
+        for pitch_int in range(60, 72):
+            print("---")
+            key_pitch << float(pitch_int)
+            for degree in range(1, 8):
+                key_pitch << degree
+                print(f"Key: {key_pitch % float()}")
+                # assert key_pitch % float() == reference_keys[degree - 1] + (pitch_int - 60)
 
 
 # test_pitch_degrees()
