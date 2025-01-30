@@ -213,17 +213,19 @@ class Pitch(Generic):
     # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
     def get_key_float(self) -> float:
 
-        # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
-        if self._key < 24 and not (self._staff_reference._scale.hasScale() or self._natural):
-            
-            semitone_int: int = self.get_key_int()
+        if self._major_scale[self._key % 12] == 1:  # Tonic key is a White Key
 
-            accidentals_int = self._staff_reference._key_signature._unit
-            # Circle of Fifths
-            sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-            semitone_transpose = sharps_flats[semitone_int % 12]
+            # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
+            if self._key < 24 and not (self._staff_reference._scale.hasScale() or self._natural):
 
-            return float(semitone_int + semitone_transpose)
+                semitone_int: int = self.get_key_int()
+
+                accidentals_int = self._staff_reference._key_signature._unit
+                # Circle of Fifths
+                sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+                semitone_transpose = sharps_flats[semitone_int % 12]
+
+                return float(semitone_int + semitone_transpose)
         
         return float(self.get_key_int())
 
