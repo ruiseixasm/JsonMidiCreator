@@ -998,15 +998,19 @@ class Key(PitchParameter):
                 super().__lshift__(operand)
         return self
 
-    _keys: list[str]            = ["C",  "C#", "D", "D#", "E",  "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
-                                   "C",  "Db", "D", "Eb", "E",  "F",  "Gb", "G", "Ab", "A", "Bb", "B",      # Black Flats
-                                   "B#", "C#", "D", "D#", "E",  "E#", "F#", "G", "G#", "A", "A#", "B",      # All Sharps
-                                   "C",  "Db", "D", "Eb", "Fb", "F",  "Gb", "G", "Ab", "A", "Bb", "Cb"]     # All Flats
+    _keys: list[str] = [
+            "C",  "C#", "D",   "D#", "E",    "F",  "F#", "G", "G#", "A", "A#", "B",      # Black Sharps
+            "C",  "Db", "D",   "Eb", "E",    "F",  "Gb", "G", "Ab", "A", "Bb", "B",      # Black Flats
+            "B#", "C#", "C##", "D#", "D##",  "E#", "F#", "G", "G#", "A", "A#", "B",  # All Sharps
+            "C",  "Db", "D", "Eb", "Fb", "F",  "Gb", "G", "Ab", "A", "Bb", "Cb"      # All Flats
+        ]
 
-    _accidentals: list[int]     = [ 0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Sharps
-                                    0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Flats
-                                    1,    1,    0,   1,    0,    1,    1,    0,   1,    0,   1,    0,       # All Sharps
-                                    0,    1,    0,   1,    1,    0,    1,    0,   1,    0,   1,    1]       # All Flats
+    _accidentals: list[int] = [
+            0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Sharps
+            0,    1,    0,   1,    0,    0,    1,    0,   1,    0,   1,    0,       # Black Flats
+            1,    1,    0,   1,    0,    1,    1,    0,   1,    0,   1,    0,       # All Sharps
+            0,    1,    0,   1,    1,    0,    1,    0,   1,    0,   1,    1        # All Flats
+        ]
     
     def getStringToNumber(self, key: str = "C") -> int:
         key_to_find: str = key.strip().lower()
