@@ -165,7 +165,7 @@ class Pitch(Generic):
         degree_transpose: int   = 0
         if self._degree > 0:
             degree_transpose    = self._degree - 1
-        if self._degree < 0:
+        elif self._degree < 0:
             degree_transpose    = self._degree + 1
 
         # strips existent accidentals
@@ -196,7 +196,7 @@ class Pitch(Generic):
 
         key_int += semitone_transpose
 
-        if staff_white_keys[(key_int + semitone_transpose) % 12] == 0:  # Black key
+        if staff_white_keys[key_int % 12] == 0:  # Black key
             if self._natural:
                 if accidentals_int < 0:
                     key_int += 1

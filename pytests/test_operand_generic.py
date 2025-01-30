@@ -121,6 +121,27 @@ def test_pitch_set():
     defaults << Scale([])
 
 
+def test_pitch_degrees():
+
+    major_keys: list[int] = [
+        60, 62, 64, 65, 67, 69, 71
+    ]
+    sharp_pitch = Pitch()
+    for degree in range(1, 8):
+        sharp_pitch << degree
+        print(f"Key: {sharp_pitch % float()}")
+        assert sharp_pitch % float() == major_keys[degree - 1]
+
+    print("------")
+    sharp_pitch << 61.0
+    for degree in range(1, 8):
+        sharp_pitch << degree
+        print(f"Key: {sharp_pitch % float()}")
+        assert sharp_pitch % float() == major_keys[degree - 1] + 1
+
+# test_pitch_degrees()
+
+
 def test_pitch_key_signature():
 
     major_keys_signatures: list[str] = [
