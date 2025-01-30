@@ -196,12 +196,13 @@ class Pitch(Generic):
         key_int += semitone_transpose
 
         if self._major_scale[key_int % 12] == 0:  # Black key
-            if self._natural:
+            if self._natural:   # Has to process the Natural
                 if accidentals_int < 0:
                     key_int += 1
                 else:
                     key_int -= 1
-        elif not self._natural:
+        elif not self._natural: # The only case where Sharp and Flat is processed
+            
             key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
             if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
                 key_int += self._sharp  # applies Pitch self accidentals
