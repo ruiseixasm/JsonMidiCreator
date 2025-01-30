@@ -910,7 +910,7 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale  = og.Scale( og.defaults._staff._key_signature % list() ) # Sets the default Scale based on the Staff Key Signature
+        self._scale: og.Scale  = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1014,6 +1014,11 @@ class KeyScale(Note):
             case ou.KeySignature():
                 super().__lshift__(operand)
                 self._scale << operand % list()
+            case str():
+                operand = operand.strip()
+                # Set root note and Scale
+                self._pitch << operand
+                self._scale << operand
             case _:
                 super().__lshift__(operand)
         return self

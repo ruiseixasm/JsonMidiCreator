@@ -448,7 +448,7 @@ results_list.append({
 original_save       = Load("json/testing/_Save_Play_p.18_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.18_sequence.json")
 start_time = time.time()
-((Chord() << NoteValue(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) \
+((Chord("Major") << NoteValue(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -467,7 +467,7 @@ defaults << Tempo(120) << Measures(7)
 original_save       = Load("json/testing/_Save_Play_p.19_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.19_sequence.json")
 start_time = time.time()
-chord_play = (Chord() << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
+chord_play = (Chord("Major") << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) << Even()**Velocity(50)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,

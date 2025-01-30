@@ -234,7 +234,7 @@ def test_note_scale():
 def test_keyscale_mod():
 
     # Perform the operation
-    key_scale = KeyScale()
+    key_scale = KeyScale("Major")
     key_scale_string = key_scale % Scale() % str()
 
     assert key_scale_string == "Major"

@@ -179,7 +179,7 @@ defaults << Tempo(120)
     >> Save("json/testing/_Save_Play_p.17_first_note.json") >> Export("json/testing/_Export_Play_p.17_sequence.json")
 
 
-((Chord() << NoteValue(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) \
+((Chord("Major") << NoteValue(1)) * 4 << Size("7th") << Sus2() << Gate(1)) + Iterate()**Inversion() << Duration(1) \
     >> Save("json/testing/_Save_Play_p.18_first_note.json") >> Export("json/testing/_Export_Play_p.18_sequence.json")
 
 
@@ -189,7 +189,7 @@ defaults << Tempo(120)
 # Global Staff setting up
 defaults << Tempo(120) << Measures(7)
 
-(Chord() << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
+(Chord("Major") << NoteValue(1/8)) * 13 + Iterate()**Semitone() << Duration(1/8) \
     >> Save("json/testing/_Save_Play_p.19_first_note.json") >> Export("json/testing/_Export_Play_p.19_sequence.json") << Even()**Velocity(50) \
         >> Save("json/testing/_Save_Play_p.20_first_note.json") >> Export("json/testing/_Export_Play_p.20_sequence.json")
 
