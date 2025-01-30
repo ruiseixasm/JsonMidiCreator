@@ -517,10 +517,10 @@ class Pitch(Generic):
                 self << operand // float()  # Sets the key number regardless KeySignature or Scale!
             case ou.Sharp():
                 if max(0, self._sharp) != operand._unit:
-                    self._sharp = operand._unit % 2
+                    self._sharp = operand._unit
             case ou.Flat():
                 if max(0, self._sharp * -1) != operand._unit:
-                    self._sharp = operand._unit % 2 * -1
+                    self._sharp = operand._unit * -1
             case ou.Natural():
                 self._natural = operand // bool()
             case str():
