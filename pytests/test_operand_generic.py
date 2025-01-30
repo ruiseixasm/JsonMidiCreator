@@ -126,18 +126,25 @@ def test_pitch_degrees():
     major_keys: list[int] = [
         60, 62, 64, 65, 67, 69, 71
     ]
+
+    # White Tonic Key
     sharp_pitch = Pitch()
     for degree in range(1, 8):
         sharp_pitch << degree
         print(f"Key: {sharp_pitch % float()}")
         assert sharp_pitch % float() == major_keys[degree - 1]
 
+    # Black Tonic Key
     print("------")
     sharp_pitch << 61.0
     for degree in range(1, 8):
         sharp_pitch << degree
         print(f"Key: {sharp_pitch % float()}")
         assert sharp_pitch % float() == major_keys[degree - 1] + 1
+
+    for scale_mode in range(1, 7):         # For Sharps
+        ...
+
 
 # test_pitch_degrees()
 
@@ -174,7 +181,7 @@ def test_pitch_key_signature():
 
     c_major_scale: Scale = Scale()
 
-    for scale_mode in range(7):         # For Sharps
+    for scale_mode in range(7):         # For Sharps, shall be 8 (excluded)
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
         pitch_key: Key = key_signature % Key()
@@ -185,7 +192,7 @@ def test_pitch_key_signature():
         print(scale_mode_list)
         assert key_signature_list == scale_mode_list
 
-    for scale_mode in range(0, -7, -1): # For Flats
+    for scale_mode in range(0, -7, -1): # For Flats, shall be -8 (excluded)
         key_signature: KeySignature = KeySignature(scale_mode)
         key_signature_list: list = key_signature % list()
         pitch_key: Key = key_signature % Key()
