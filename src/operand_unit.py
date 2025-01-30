@@ -985,7 +985,7 @@ class Key(PitchParameter):
           
 
             case int():
-                self._unit = operand % 12
+                self._unit = operand % 24
             case float():
                 self._unit = int(operand) % 48
 
