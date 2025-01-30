@@ -158,7 +158,6 @@ class Pitch(Generic):
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
 
-        staff_white_keys: tuple = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)  # Major scale
         accidentals_int: int    = self._staff_reference._key_signature._unit
         key_sharp: int          = 0
         key_int: int            = self._key % 12
@@ -169,7 +168,7 @@ class Pitch(Generic):
             degree_transpose    = self._degree + 1
 
         # strips existent accidentals
-        if staff_white_keys[key_int] == 0: # Black key
+        if self._major_scale[key_int] == 0: # Black key
             if self._key % 24 < 12: # sharps
                 key_sharp = 1
                 key_int -= 1
@@ -181,7 +180,7 @@ class Pitch(Generic):
             key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
             root_key: int = 0
         else:
-            key_scale: list[int] = staff_white_keys     # Major scale
+            key_scale: list[int] = self._major_scale     # Major scale
             root_key: int = key_int
 
         semitone_transpose: int = 0
@@ -196,7 +195,7 @@ class Pitch(Generic):
 
         key_int += semitone_transpose
 
-        if staff_white_keys[key_int % 12] == 0:  # Black key
+        if self._major_scale[key_int % 12] == 0:  # Black key
             if self._natural:
                 if accidentals_int < 0:
                     key_int += 1
@@ -204,7 +203,7 @@ class Pitch(Generic):
                     key_int -= 1
         elif not self._natural:
             key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
-            if staff_white_keys[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
+            if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
                 key_int += self._sharp  # applies Pitch self accidentals
 
         return key_int
@@ -647,7 +646,7 @@ class Pitch(Generic):
                 move_tones += 1
         return move_semitones
     
-    _major_scale = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]    # Major scale for the default staff
+    _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
 
     _white_keys: dict = {
             "c": 0,
