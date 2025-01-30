@@ -268,8 +268,8 @@ class Pitch(Generic):
         self._sharp = 0
         self._natural = False
 
-        # % int() excludes the effect of the Key Signature
-        offset_pitch: int = pitch - self % int()
+        # Excludes the effect of the decorative parameters
+        offset_pitch: int = pitch - ( 12 * (self._octave + 1) + self._key % 12 )
         self.apply_key_offset(offset_pitch)
         
         if not self._staff_reference._scale.hasScale():
