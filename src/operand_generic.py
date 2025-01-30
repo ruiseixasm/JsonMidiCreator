@@ -201,8 +201,8 @@ class Pitch(Generic):
                     key_int += 1
                 else:
                     key_int -= 1
-        elif not self._natural: # The only case where Sharp and Flat is processed
-            
+        elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+
             key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
             if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
                 key_int += self._sharp  # applies Pitch self accidentals
@@ -215,6 +215,7 @@ class Pitch(Generic):
 
         # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
         if self._key < 24 and not (self._staff_reference._scale.hasScale() or self._natural):
+            
             semitone_int: int = self.get_key_int()
 
             accidentals_int = self._staff_reference._key_signature._unit
