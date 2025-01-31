@@ -158,56 +158,91 @@ class Pitch(Generic):
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
 
-        accidentals_int: int    = self._staff_reference._key_signature._unit
-        key_sharp: int          = 0
-        key_int: int            = self._key % 12
-        degree_transpose: int   = 0
-        if self._degree > 0:
-            degree_transpose    = self._degree - 1
-        elif self._degree < 0:
-            degree_transpose    = self._degree + 1
-
-        # strips existent accidentals
-        if self._major_scale[key_int] == 0: # Black key
-            if self._key % 24 < 12: # sharps
-                key_sharp = 1
-                key_int -= 1
-            else:                   # flats
-                key_sharp = -1
-                key_int += 1
-
         if self._staff_reference._scale.hasScale():
-            key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
-            root_key: int = 0
-        else:
-            key_scale: list[int] = self._major_scale     # Major scale
-            root_key: int = key_int
+             
+            key_sharp: int          = 0
+            key_int: int            = self._key % 12
+            degree_0: int   = 0
+            if self._degree > 0:
+                degree_0    = self._degree - 1
+            elif self._degree < 0:
+                degree_0    = self._degree + 1
 
-        semitone_transpose: int = 0
-        while degree_transpose > 0:
-            semitone_transpose += 1
-            if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
-                degree_transpose -= 1
-        while degree_transpose < 0:
-            semitone_transpose -= 1
-            if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
-                degree_transpose += 1
-
-        key_int += semitone_transpose
-
-        if self._major_scale[key_int % 12] == 0:  # Black key
-            if self._natural:   # Has to process the Natural
-                if accidentals_int < 0:
-                    key_int += 1
-                else:
+            # strips existent accidentals
+            if self._major_scale[key_int] == 0: # Black key
+                if self._key % 24 < 12: # sharps
+                    key_sharp = 1
                     key_int -= 1
-        elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+                else:                   # flats
+                    key_sharp = -1
+                    key_int += 1
 
-            key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
-            if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
-                key_int += self._sharp  # applies Pitch self accidentals
+            key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
-        return key_int
+            degree_transpose: int = 0
+            while degree_0 > 0:
+                degree_transpose += 1
+                if key_scale[degree_transpose % 12]:          # Scale key
+                    degree_0 -= 1
+            while degree_0 < 0:
+                degree_transpose -= 1
+                if key_scale[degree_transpose % 12]:          # Scale key
+                    degree_0 += 1
+
+            key_int += degree_transpose
+
+            # Final parameter decorators like Sharp and Natural
+            if self._major_scale[key_int % 12] == 0:  # Black key
+                accidentals_int: int = self._staff_reference._key_signature._unit
+                if self._natural:   # Has to process the Natural
+                    if accidentals_int < 0:
+                        key_int += 1
+                    else:
+                        key_int -= 1
+            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+
+                key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
+                if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
+                    key_int += self._sharp  # applies Pitch self accidentals
+
+            return key_int
+
+
+        else:
+        
+            signature_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
+
+            accidentals_int: int = self._staff_reference._key_signature._unit
+            degree_0: int   = 0
+            if self._degree > 0:
+                degree_0    = self._degree - 1
+            elif self._degree < 0:
+                degree_0    = self._degree + 1
+
+            degree_0_new: int = degree_0
+            signature_scale_transpose: int = 0
+            while degree_0_new > 0:
+                signature_scale_transpose += 1
+                if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
+                    degree_0_new -= 1
+            while degree_0_new < 0:
+                signature_scale_transpose -= 1
+                if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
+                    degree_0_new += 1
+
+            key_int_new: int = self._key % 12 + signature_scale_transpose
+
+            # Final parameter decorators like Sharp and Natural
+            if self._major_scale[key_int_new % 12] == 0:  # Black key
+                if self._natural:   # Has to process the Natural
+                    if accidentals_int < 0:
+                        key_int_new += 1
+                    else:
+                        key_int_new -= 1
+            elif not self._natural: # Already known to be a White key
+                key_int_new += self._sharp  # applies Pitch self accidentals
+
+            return key_int_new
 
 
     # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
@@ -506,7 +541,7 @@ class Pitch(Generic):
             case float(): # WITH KEY SIGNATURE
 
                 # RESPECTS THE KEY SIGNATURE
-                return 12 * (self._octave + 1) + self.get_key_float()
+                return float( self % int() )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
