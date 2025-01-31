@@ -300,16 +300,6 @@ class Pitch(Generic):
 
             key_int_new += degree_transpose_new + tonic_offset_new
 
-            if self._major_scale[key_int_new % 12] == 0:    # Black key
-                if self._natural is True:
-                    if self._staff_reference._key_signature._unit < 0:
-                        key_int_new += 1
-                    else:
-                        key_int_new -= 1
-            else:                                               # White key
-                if self._natural is False:
-                    key_int_new += self._sharp
-
             # # Key Signature | Circle of Fifths
             # sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
 
