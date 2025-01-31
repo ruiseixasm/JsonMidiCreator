@@ -201,7 +201,7 @@ def test_pitch_key_signature():
 
     for scale_mode in range(7):         # For Sharps, shall be 8 but there is only 7 Diatonic scales to compare with!
         key_signature: KeySignature = KeySignature(scale_mode)
-        key_signature_list: list = key_signature % list()
+        key_signature_list: list = key_signature.get_modulated_scale_list()
         pitch_key: Key = key_signature % Key()
         scale_mode_list: list = c_major_scale % list([pitch_key])
         print(scale_mode)
@@ -212,7 +212,7 @@ def test_pitch_key_signature():
 
     for scale_mode in range(0, -7, -1): # For Flats, shall be -8 but there is only 7 Diatonic scales to compare with!
         key_signature: KeySignature = KeySignature(scale_mode)
-        key_signature_list: list = key_signature % list()
+        key_signature_list: list = key_signature.get_modulated_scale_list()
         pitch_key: Key = key_signature % Key()
         scale_mode_list: list = c_major_scale % list([pitch_key])
         print(scale_mode)

@@ -1081,7 +1081,7 @@ class Staff(Generic):
             case list():
                 if self._scale.hasScale():
                     return self._scale % list()
-                return self._key_signature.get_scale_list()
+                return self._key_signature.get_scale_list() # Faster this way
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():
