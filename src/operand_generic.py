@@ -265,6 +265,7 @@ class Pitch(Generic):
 
         else:
         
+            accidentals_int: int = self._staff_reference._key_signature._unit
             degree_0: int   = 0
             if self._degree > 0:
                 degree_0    = self._degree - 1
@@ -309,9 +310,8 @@ class Pitch(Generic):
                 if self._natural is False:
                     key_int_new += self._sharp
 
-            # Key Signature | Circle of Fifths
-            accidentals_int: int = self._staff_reference._key_signature._unit
-            sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+            # # Key Signature | Circle of Fifths
+            # sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
 
             # # Avoid Key Signature offsetting with natural setting
             # if sharps_flats[key_int_new % 12] != 0:
@@ -333,7 +333,6 @@ class Pitch(Generic):
 
             # OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
 
-            accidentals_int: int    = self._staff_reference._key_signature._unit
             # key_sharp: int          = 0
             key_int: int            = self._key % 12
             tonic_offset: int       = 0
@@ -367,7 +366,6 @@ class Pitch(Generic):
             if self._major_scale[self._key % 12] == 1 and not self._natural and self._key < 24:
 
                 # Circle of Fifths
-                accidentals_int = self._staff_reference._key_signature._unit
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                 semitone_transpose = sharps_flats[key_int % 12]
 
