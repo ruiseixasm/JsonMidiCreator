@@ -275,30 +275,32 @@ class Pitch(Generic):
 
             # NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
 
-            signature_scale: list[int] = self._staff_reference._key_signature % list()
+            signature_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
+            signature_tonic: int = self._staff_reference._key_signature.get_tonic_key()
+            signature_key_offset: int = self._key % 12 - signature_tonic
 
             # Because all Diatonic scales have two active keys surrounded any inactive key,
             # it's possible to decrease just one semitone to increase it afterwards!
 
-            # Check if tonic key doesn't belong to the key signature scale
-            key_int_new: int = self._key % 12
-            tonic_offset_new: int = 0
-            if signature_scale[key_int_new] == 0:
-                tonic_offset_new += 1
-                key_int_new -= tonic_offset_new
+            # # Check if tonic key doesn't belong to the key signature scale
+            # key_int_new: int = self._key % 12
+            # tonic_offset_new: int = 0
+            # if signature_scale[key_int_new] == 0:
+            #     tonic_offset_new += 1
+            #     key_int_new -= tonic_offset_new
 
             degree_0_new: int = degree_0
             degree_transpose_new: int = 0
             while degree_0_new > 0:
                 degree_transpose_new += 1
-                if signature_scale[(key_int_new + degree_transpose_new) % 12]:          # Scale key
+                if signature_scale[degree_transpose_new % 12] == 1: # Scale key
                     degree_0_new -= 1
             while degree_0_new < 0:
                 degree_transpose_new -= 1
-                if signature_scale[(key_int_new + degree_transpose_new) % 12]:          # Scale key
+                if signature_scale[degree_transpose_new % 12] == 1: # Scale key
                     degree_0_new += 1
 
-            key_int_new += degree_transpose_new + tonic_offset_new
+            key_int_new: int = signature_tonic + degree_transpose_new + signature_key_offset
 
             # # Key Signature | Circle of Fifths
             # sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]

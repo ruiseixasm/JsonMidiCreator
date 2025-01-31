@@ -236,7 +236,7 @@ def test_pitch_key_signature():
 
     defaults << KeySignature()
 
-test_pitch_key_signature()
+# test_pitch_key_signature()
 
 
 def test_pitch_scales():
