@@ -264,29 +264,18 @@ class Pitch(Generic):
 
         else:
         
-            accidentals_int: int    = self._staff_reference._key_signature._unit
-            key_sharp: int          = 0
-            key_int: int            = self._key % 12
             degree_0: int   = 0
             if self._degree > 0:
                 degree_0    = self._degree - 1
             elif self._degree < 0:
                 degree_0    = self._degree + 1
 
-            # strips existent accidentals
-            if self._major_scale[key_int] == 0: # Black key
-                if self._key % 24 < 12: # sharps
-                    key_sharp = 1
-                    key_int -= 1
-                else:                   # flats
-                    key_sharp = -1
-                    key_int += 1
 
             # NEW
 
             key_scale: list[int] = self._major_scale     # Major scale
             signature_tonic_key: int = self._staff_reference._key_signature % ou.Key() % int() % 12
-            self_key_offset: int = self._key - signature_tonic_key
+            self_key_offset: int = self._key % 12 - signature_tonic_key
 
             degree_0_0: int = degree_0
             degree_transpose: int = 0
@@ -302,14 +291,31 @@ class Pitch(Generic):
             signature_degree_key: int = signature_tonic_key + degree_transpose
             self_degree_key: int = signature_degree_key + self_key_offset
 
-            if self._major_scale[self_degree_key % 12] == 0 and self._natural is True:  # Black key
-                if self._staff_reference._key_signature._unit < 0:
-                    self_degree_key += 1
-                else:
-                    self_degree_key -= 1
-
+            if self._major_scale[self_degree_key % 12] == 0:    # Black key
+                if self._natural is True:
+                    if self._staff_reference._key_signature._unit < 0:
+                        self_degree_key += 1
+                    else:
+                        self_degree_key -= 1
+            else:                                               # White key
+                if self._natural is False:
+                    self_degree_key += self._sharp
 
             # OLD
+
+            accidentals_int: int    = self._staff_reference._key_signature._unit
+            key_sharp: int          = 0
+            key_int: int            = self._key % 12
+
+            # strips existent accidentals
+            if self._major_scale[key_int] == 0: # Black key
+                if self._key % 24 < 12: # sharps
+                    key_sharp = 1
+                    key_int -= 1
+                else:                   # flats
+                    key_sharp = -1
+                    key_int += 1
+
 
             root_key: int = key_int
             degree_transpose = 0
