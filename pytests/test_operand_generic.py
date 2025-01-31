@@ -79,7 +79,7 @@ def test_pitch_mod():
 
     # Perform the operation
     pitch = Pitch()
-    assert pitch % int() == 60      # middle C
+    assert pitch % int() == 1       # 1st Degree
     assert pitch % float() == 60.0  # middle C
     assert pitch % Key() % str() == "C"
     assert (pitch + Octave()) % float() == 60 + 12
@@ -342,8 +342,8 @@ def test_pitch_add():
     pitch_2 = Pitch() << Degree("iii")  # Become Key B (60.0 + 11.0 = 71.0)
     assert pitch_2 % Octave() == 4
     assert (pitch_2 + 2) % Octave() == 5
-    pitch_2 % int() >> Print()
-    assert pitch_2 % int() == Pitch("B") % int()
+    pitch_2 % float() >> Print()
+    assert pitch_2 % float() == Pitch("B") % float()
     (pitch_2 + 2) % float() >> Print()          # 74.0
     (Pitch("D") + 12.0) % float() >> Print()    # 74.0
     assert pitch_2 + 2 == Pitch("D") + 12.0 # Next octave

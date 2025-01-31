@@ -258,10 +258,10 @@ class Pitch(Generic):
             case Pitch():           return self.copy()
 
             case int():
-                return 12 * (self._octave + 1) + self.get_key_int()
+                return self._degree
              
             case float():
-                return float( self % int() )
+                return float( 12 * (self._octave + 1) + self.get_key_int() )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
