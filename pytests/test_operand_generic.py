@@ -63,7 +63,7 @@ def test_staff_parameters():
 
     assert defaults % KeySignature() == 0
 
-# test_staff_parameters()
+test_staff_parameters()
 
 
 def test_key_offset():

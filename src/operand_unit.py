@@ -796,7 +796,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand._data)
             case KeySignature():        return self.copy()
-            # case int():                 return self.get_tonic_key()
+            case int():                 return self._unit
             case float():
                 tonic_key_int: int = self.get_tonic_key()
                 if self._unit < 0:
@@ -822,13 +822,13 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
             case list():                return self.get_scale_list()
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other_signature: 'KeySignature') -> bool:
-        other_signature = self & other_signature    # Processes the tailed self operands or the Frame operand if any exists
-        if other_signature.__class__ == o.Operand:
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
             return True
-        if isinstance(other_signature, KeySignature):
-            return self._unit == other_signature._unit and self._major == other_signature._major
-        return False
+        if isinstance(other, KeySignature):
+            return self._unit == other._unit and self._major == other._major
+        return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
