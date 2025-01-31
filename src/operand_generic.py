@@ -158,12 +158,6 @@ class Pitch(Generic):
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
 
-        degree_0: int   = 0
-        if self._degree > 0:
-            degree_0    = self._degree - 1
-        elif self._degree < 0:
-            degree_0    = self._degree + 1
-
         if self._staff_reference._scale.hasScale():
              
             staff_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
@@ -172,7 +166,13 @@ class Pitch(Generic):
         else:   # Uses the Key Signature
         
             staff_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
-            
+
+
+        degree_0: int   = 0
+        if self._degree > 0:
+            degree_0    = self._degree - 1
+        elif self._degree < 0:
+            degree_0    = self._degree + 1
 
         degree_transposition: int = 0
         while degree_0 > 0:
