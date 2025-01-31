@@ -52,6 +52,16 @@ def test_staff_mod():
     staff_1 << 110
     assert staff_1 != staff_2
 
+
+def test_staff_parameters():
+
+    assert defaults % Tempo() == 120.0
+    defaults << Tempo(145)
+    assert defaults % Tempo() == 145.0
+    defaults << Tempo(120)
+    assert defaults % Tempo() == 120.0
+
+
 def test_key_offset():
 
     pitch: Pitch = Pitch()  # Pitch 60, Key 0

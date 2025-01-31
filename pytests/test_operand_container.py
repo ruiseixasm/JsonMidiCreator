@@ -30,6 +30,14 @@ import pytest     # pip install pytest
 import sys
 
 
+def test_staff_parameters():
+
+    four_notes = Note() * 4
+    assert four_notes % Tempo() == 120.0
+    four_notes << Tempo(145)
+    assert four_notes % Tempo() == 145.0
+
+
 def test_container_mod():
 
     keys_container: Container = Container([Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch(), Pitch()])
