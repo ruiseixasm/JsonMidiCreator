@@ -320,6 +320,8 @@ class Pitch(Generic):
                     key_int_new += self._sharp  # applies Pitch self accidentals
 
 
+            # return float(key_int_new)
+
 
             # OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
 
@@ -512,14 +514,14 @@ class Pitch(Generic):
                 final_pitch: int = int(self % float())
                 if self._major_scale[final_pitch % 12] == 0:    # Black key
                     if self._staff_reference._key_signature._unit >= 0:
-                        return ou.Sharp(True)
-                return ou.Sharp(False)
+                        return ou.Sharp(1)
+                return ou.Sharp(0)
             case ou.Flat():
                 final_pitch: int = int(self % float())
                 if self._major_scale[final_pitch % 12] == 0:    # Black key
                     if self._staff_reference._key_signature._unit < 0:
-                        return ou.Flat(True)
-                return ou.Flat(False)
+                        return ou.Flat(1)
+                return ou.Flat(0)
             case ou.Natural():
                 return ou.Natural() << od.DataSource(self._natural)
             

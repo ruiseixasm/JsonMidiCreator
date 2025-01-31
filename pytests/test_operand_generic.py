@@ -227,6 +227,7 @@ def test_pitch_key_signature():
     assert E_minor_key % str() == "G"
     B_minor_scale_list: list = ["B", "C#", "D", "E", "F#", "G", "A"]
     # Sharp and Flat shall not be set by Degree
+    print("------")
     for key_degree in range(1, 8):
         print(key_degree)
         E_minor_key << Degree(key_degree)
@@ -235,7 +236,7 @@ def test_pitch_key_signature():
 
     defaults << KeySignature()
 
-# test_pitch_key_signature()
+test_pitch_key_signature()
 
 
 def test_pitch_scales():
@@ -271,8 +272,11 @@ def test_pitch_scales():
 
 def test_set_chromatic_pitch():
 
+    defaults << KeySignature() << Scale([])
+
     pitch: Pitch = Pitch()
 
+    print(f"Pitch: {pitch % float()}")
     assert pitch % float() == 60.0
 
     for degree in range(1, 8):

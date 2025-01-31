@@ -751,12 +751,25 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
         self._major: bool = True
         super().__init__(*parameters)
     
+    _major_scale = (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1)    # Major scale for the default staff
+
     def get_tonic_key(self) -> int:
         circle_fifths_position: int = self._unit
         zero_key_int: int = 0  # C (Major)
         if not self._major:
             zero_key_int = 9   # A (minor)
         return (zero_key_int + circle_fifths_position * 7) % 12
+
+    def get_scale_list(self) -> list[int]:
+        if self._major: #                                       A
+            scale_list: list[int] = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]  # Major scale
+                #                                               |
+        else:   #                    ----------------------------
+                #                    |
+            scale_list: list[int] = [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]  # minor scale
+                #                    A
+        return scale_list
+
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og
