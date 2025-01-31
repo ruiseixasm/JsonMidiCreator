@@ -382,9 +382,11 @@ class Pitch(Generic):
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                 semitone_transpose = sharps_flats[key_int % 12]
 
+                key_int += semitone_transpose + tonic_offset
+
                 # if key_int + semitone_transpose != key_int_new:
                 #     print(f"BLACK - OLD_key: {key_int + semitone_transpose}, NEW_key: {key_int_new}")
-                return float(key_int + semitone_transpose + tonic_offset) # Requires future removal
+                return float(key_int) # Requires future removal
 
             # if key_int != key_int_new:
             #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
