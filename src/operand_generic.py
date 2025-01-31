@@ -233,21 +233,16 @@ class Pitch(Generic):
                     key_sharp = -1
                     key_int += 1
 
-            if self._staff_reference._scale.hasScale():
-                key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
-                root_key: int = 0
-            else:
-                key_scale: list[int] = self._major_scale     # Major scale
-                root_key: int = key_int
+            key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
             semitone_transpose: int = 0
             while degree_transpose > 0:
                 semitone_transpose += 1
-                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
+                if key_scale[semitone_transpose % 12]:          # Scale key
                     degree_transpose -= 1
             while degree_transpose < 0:
                 semitone_transpose -= 1
-                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
+                if key_scale[semitone_transpose % 12]:          # Scale key
                     degree_transpose += 1
 
             key_int += semitone_transpose
@@ -287,12 +282,8 @@ class Pitch(Generic):
                     key_sharp = -1
                     key_int += 1
 
-            if self._staff_reference._scale.hasScale():
-                key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
-                root_key: int = 0
-            else:
-                key_scale: list[int] = self._major_scale     # Major scale
-                root_key: int = key_int
+            key_scale: list[int] = self._major_scale     # Major scale
+            root_key: int = key_int
 
             semitone_transpose: int = 0
             while degree_transpose > 0:
