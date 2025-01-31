@@ -303,7 +303,8 @@ class Pitch(Generic):
             while degree_0_new < 0:
                 signature_scale_transpose -= 1
                 if signature_scale[
-                        (signature_key_offset + signature_scale_transpose - sharp_key_offset) % 12] == 1: # Scale key
+                        (signature_key_offset + signature_scale_transpose - sharp_key_offset) % 12
+                    ] == 1: # Scale key
                     degree_0_new += 1
 
             key_int_new: int = self._key % 12 + signature_scale_transpose
