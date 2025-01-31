@@ -219,30 +219,29 @@ class Pitch(Generic):
             elif self._degree < 0:
                 degree_0    = self._degree + 1
 
-            degree_0_new: int = degree_0
             signature_scale_transpose: int = 0
-            while degree_0_new > 0:
+            while degree_0 > 0:
                 signature_scale_transpose += 1
                 if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
-                    degree_0_new -= 1
-            while degree_0_new < 0:
+                    degree_0 -= 1
+            while degree_0 < 0:
                 signature_scale_transpose -= 1
                 if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
-                    degree_0_new += 1
+                    degree_0 += 1
 
-            key_int_new: int = self._key % 12 + signature_scale_transpose
+            key_int: int = self._key % 12 + signature_scale_transpose
 
             # Final parameter decorators like Sharp and Natural
-            if self._major_scale[key_int_new % 12] == 0:  # Black key
+            if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
                     if accidentals_int < 0:
-                        key_int_new += 1
+                        key_int += 1
                     else:
-                        key_int_new -= 1
+                        key_int -= 1
             elif not self._natural: # Already known to be a White key
-                key_int_new += self._sharp  # applies Pitch self accidentals
+                key_int += self._sharp  # applies Pitch self accidentals
 
-            return key_int_new
+            return key_int
 
 
     def octave_key_offset(self, key_offset: int | float) -> tuple[int, int]:
