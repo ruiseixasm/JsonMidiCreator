@@ -247,6 +247,7 @@ class Pitch(Generic):
 
             key_int += degree_transpose
 
+            # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
                     if accidentals_int < 0:
@@ -317,6 +318,7 @@ class Pitch(Generic):
             #     self._key = self._key % 24 + 24 # Locks the key
 
 
+            # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int_new % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
                     if accidentals_int < 0:
@@ -361,6 +363,7 @@ class Pitch(Generic):
 
             key_int += degree_transpose
 
+            # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
                     if accidentals_int < 0:
@@ -374,16 +377,14 @@ class Pitch(Generic):
             # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
             if self._major_scale[self._key % 12] == 1 and not self._natural and self._key < 24:
 
-                semitone_int: int = key_int
-
                 # Circle of Fifths
                 accidentals_int = self._staff_reference._key_signature._unit
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                semitone_transpose = sharps_flats[semitone_int % 12]
+                semitone_transpose = sharps_flats[key_int % 12]
 
-                # if semitone_int + semitone_transpose != key_int_new:
-                #     print(f"BLACK - OLD_key: {semitone_int + semitone_transpose}, NEW_key: {key_int_new}")
-                return float(semitone_int + semitone_transpose + tonic_offset) # Requires future removal
+                # if key_int + semitone_transpose != key_int_new:
+                #     print(f"BLACK - OLD_key: {key_int + semitone_transpose}, NEW_key: {key_int_new}")
+                return float(key_int + semitone_transpose + tonic_offset) # Requires future removal
 
             # if key_int != key_int_new:
             #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
