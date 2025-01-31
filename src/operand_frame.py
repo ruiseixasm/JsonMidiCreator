@@ -347,6 +347,28 @@ class Formula(Left):
         return super().__and__(self._multi_data['operand'](subject))
     
 class Iterate(Left):
+    """`Frame -> Left -> Iterate`
+
+    Iterate() returns a series of values by the set input amount, where this
+    input defines the type of values too. Intended to be used with Clips.
+    The first values is always zero or equivalent, so you may combine
+    the present operand with Add().
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like, operand_like
+        The default value is 1, but you may set a float like 2.5.
+    
+    Examples
+    --------
+    Gets the Staff Steps per Measure:
+    >>> notes = Note() * 4
+    >>> notes << Iterate()**Add(1)**Degree()
+    >>> notes[0] % Pitch() % int() >> Print()
+    1
+    >>> notes[3] % Pitch() % int() >> Print()
+    4
+    """
     def __init__(self, step = None):
         super().__init__(1 if step is None else step)
         self._value: any = self._multi_data['operand'] * 0
