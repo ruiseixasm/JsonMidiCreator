@@ -155,7 +155,6 @@ class Pitch(Generic):
         return self << ou.Degree(unit)
 
 
-    # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
 
         staff_scale: list[int] = self._staff_reference % list()
@@ -291,13 +290,6 @@ class Pitch(Generic):
             case ou.Key():
                 key_note: int = int(self % float()) % 12
                 key_line: int = self._key % 48 // 12
-
-                # if key_line < 2:
-                #     if self._staff_reference._key_signature._unit > 0:
-                #         key_line = 0
-                #     elif self._staff_reference._key_signature._unit < 0:
-                #         key_line = 1
-
                 return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Degree():
