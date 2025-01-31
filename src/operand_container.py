@@ -491,7 +491,7 @@ class Clip(Container):  # Just a container of Elements
                     return operand.copy() << self._staff.convertToLength(ra.Beats(self._length_beats))
                 return self.length()
             case ra.Duration():     return self.duration()
-            case ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                 | int() | float() | Fraction() | str():
                                     return self._staff % operand
             case _:                 return super().__mod__(operand)
@@ -706,7 +706,7 @@ class Clip(Container):  # Just a container of Elements
 
             case ou.MidiTrack():
                 self._midi_track << operand
-            case og.Staff() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff << operand
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
@@ -728,7 +728,7 @@ class Clip(Container):  # Just a container of Elements
                         self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case ou.MidiTrack():
                         self._midi_track << operand._data
-                    case og.Staff() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
+                    case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
                             | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction() | str():
                         self._staff << operand._data
                     case None:

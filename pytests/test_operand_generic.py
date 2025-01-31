@@ -62,8 +62,11 @@ def test_staff_parameters():
     assert defaults % Tempo() == 120.0
 
     assert defaults % KeySignature() == 0
+    defaults << KeySignature(2)
+    assert defaults % KeySignature() == 2
+    defaults << KeySignature()
 
-test_staff_parameters()
+# test_staff_parameters()
 
 
 def test_key_offset():

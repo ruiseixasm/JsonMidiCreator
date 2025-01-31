@@ -37,6 +37,12 @@ def test_staff_parameters():
     four_notes << Tempo(145)
     assert four_notes % Tempo() == 145.0
 
+    assert four_notes % KeySignature() == 0
+    four_notes << KeySignature(2)
+    assert four_notes % KeySignature() == 2
+
+test_staff_parameters()
+
 
 def test_container_mod():
 
