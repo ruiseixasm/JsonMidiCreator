@@ -687,7 +687,7 @@ class Note(Element):
                                     return self._pitch % operand
             case ou.DrumKit():
                 if self._channel == 10:
-                    return ou.DrumKit(self._pitch % float())
+                    return ou.DrumKit(self._pitch % int())
                 return ol.Null()
             case _:                 return super().__mod__(operand)
 
@@ -710,7 +710,7 @@ class Note(Element):
             return []
         
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
-        pitch_int: int = int(self._pitch % float())
+        pitch_int: int = self._pitch % int()
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -738,7 +738,7 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        pitch_int: int = int(self._pitch % float())
+        pitch_int: int = self._pitch % int()
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
@@ -1963,7 +1963,7 @@ class PolyAftertouch(Aftertouch):
             return []
 
         self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
-        pitch_int: int = int(self._pitch % float())
+        pitch_int: int = self._pitch % int()
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
