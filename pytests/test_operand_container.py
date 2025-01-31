@@ -41,7 +41,7 @@ def test_staff_parameters():
     four_notes << KeySignature(2)
     assert four_notes % KeySignature() == 2
 
-test_staff_parameters()
+# test_staff_parameters()
 
 
 def test_container_mod():
