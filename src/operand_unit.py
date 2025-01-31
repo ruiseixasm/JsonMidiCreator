@@ -796,7 +796,7 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % (operand._data)
             case KeySignature():        return self.copy()
-            case int():                 return self.get_tonic_key()
+            # case int():                 return self.get_tonic_key()
             case float():
                 tonic_key_int: int = self.get_tonic_key()
                 if self._unit < 0:

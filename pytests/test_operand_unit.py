@@ -63,8 +63,8 @@ def test_tonic_key_signature():
     signature: int = -2     # Two flats bb
     key_signature_single: KeySignature = KeySignature(signature)
 
-    print(f"Major Signature: {signature}, returned {key_signature_single % int()}")
-    assert key_signature_single % int() == 10   # Bb is 10
+    print(f"Major Signature: {signature}, returned {int( key_signature_single % float() ) % 12}")
+    assert int( key_signature_single % float() ) % 12 == 10   # Bb is 10
 
     print("------")
     major_tonic_keys_int: list[int] = [
@@ -74,8 +74,8 @@ def test_tonic_key_signature():
     ]
     for signature in range(len(major_tonic_keys_int)): # Major
         key_signature: KeySignature = KeySignature(signature - 7)
-        print(f"Major Signature: {signature - 7}, returned {key_signature % int()}")
-        assert key_signature % int() == major_tonic_keys_int[signature]
+        print(f"Major Signature: {signature - 7}, returned {int( key_signature % float() ) % 12}")
+        assert int( key_signature % float() ) % 12 == major_tonic_keys_int[signature]
 
     print("------")
     minor_tonic_keys_int: list[int] = [
@@ -85,8 +85,8 @@ def test_tonic_key_signature():
     ]
     for signature in range(len(minor_tonic_keys_int)): # minor
         key_signature: KeySignature = KeySignature(signature - 7, Minor())
-        print(f"minor Signature: {signature - 7}, returned {key_signature % int()}")
-        assert key_signature % int() == minor_tonic_keys_int[signature]
+        print(f"minor Signature: {signature - 7}, returned {int( key_signature % float() ) % 12}")
+        assert int( key_signature % float() ) % 12 == minor_tonic_keys_int[signature]
 
 # test_tonic_key_signature()
 
