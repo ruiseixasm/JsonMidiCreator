@@ -359,7 +359,7 @@ class Pitch(Generic):
                 if self._major_scale[(root_key + degree_transpose) % 12]:          # Scale key
                     degree_0 += 1
 
-            key_int += degree_transpose + tonic_offset
+            key_int += degree_transpose
 
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
@@ -383,7 +383,7 @@ class Pitch(Generic):
 
                 # if semitone_int + semitone_transpose != key_int_new:
                 #     print(f"BLACK - OLD_key: {semitone_int + semitone_transpose}, NEW_key: {key_int_new}")
-                return float(semitone_int + semitone_transpose) # Requires future removal
+                return float(semitone_int + semitone_transpose + tonic_offset) # Requires future removal
 
             # if key_int != key_int_new:
             #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
