@@ -317,7 +317,21 @@ class Pitch(Generic):
             #     self._key = self._key % 24 + 24 # Locks the key
 
 
-            # return float(key_int_new)
+            if self._major_scale[key_int_new % 12] == 0:  # Black key
+                if self._natural:   # Has to process the Natural
+                    if accidentals_int < 0:
+                        key_int_new += 1
+                    else:
+                        key_int_new -= 1
+            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+                if self._major_scale[key_int_new % 12] == 1:  # Applies the Sharp or Flat if in a White key
+                    key_int_new += self._sharp  # applies Pitch self accidentals
+
+
+
+
+
+
 
             # OLD
 
@@ -376,7 +390,11 @@ class Pitch(Generic):
 
             if key_int != key_int_new:
                 print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
-            return float(key_int)
+
+                
+            return float(key_int_new)
+
+            # return float(key_int)
         
 
 
