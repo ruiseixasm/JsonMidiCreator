@@ -363,17 +363,6 @@ class Pitch(Generic):
 
             key_int += degree_transpose
 
-            # Final parameter decorators like Sharp and Natural
-            if self._major_scale[key_int % 12] == 0:  # Black key
-                if self._natural:   # Has to process the Natural
-                    if accidentals_int < 0:
-                        key_int += 1
-                    else:
-                        key_int -= 1
-            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
-                if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
-                    key_int += self._sharp  # applies Pitch self accidentals
-
             # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
             if self._major_scale[self._key % 12] == 1 and not self._natural and self._key < 24:
 
@@ -384,12 +373,34 @@ class Pitch(Generic):
 
                 key_int += semitone_transpose + tonic_offset
 
+                # Final parameter decorators like Sharp and Natural
+                if self._major_scale[key_int % 12] == 0:  # Black key
+                    if self._natural:   # Has to process the Natural
+                        if accidentals_int < 0:
+                            key_int += 1
+                        else:
+                            key_int -= 1
+                elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+                    if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
+                        key_int += self._sharp  # applies Pitch self accidentals
+
                 # if key_int + semitone_transpose != key_int_new:
                 #     print(f"BLACK - OLD_key: {key_int + semitone_transpose}, NEW_key: {key_int_new}")
                 return float(key_int) # Requires future removal
 
             # if key_int != key_int_new:
             #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
+
+            # Final parameter decorators like Sharp and Natural
+            if self._major_scale[key_int % 12] == 0:  # Black key
+                if self._natural:   # Has to process the Natural
+                    if accidentals_int < 0:
+                        key_int += 1
+                    else:
+                        key_int -= 1
+            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+                if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
+                    key_int += self._sharp  # applies Pitch self accidentals
 
                 
             return float(key_int_new)
