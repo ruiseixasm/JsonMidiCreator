@@ -208,7 +208,6 @@ def test_note_scale():
 
     defaults << Scale("Major")
     major_note: Note = Note()
-    defaults << Scale([])
 
     assert major_note % Pitch() % Key() == "C"
     major_note << Degree(2)
@@ -220,7 +219,6 @@ def test_note_scale():
 
     defaults << Scale("minor")
     minor_note: Note = Note()
-    defaults << Scale([])
 
     assert minor_note % Pitch() % Key() == "A"
     minor_note << Degree(2)
@@ -229,6 +227,8 @@ def test_note_scale():
     assert minor_note % Pitch() % Key() == "C"
     minor_note += 1 # integers are considered degree by Note
     assert minor_note % Pitch() % Key() == "D"
+
+    defaults << Scale([])
 
 # test_note_scale()
 
@@ -281,8 +281,7 @@ def test_chord_mod():
 
     print("------")
     defaults << KeySignature(1, Minor())    # E minor scale
-    triad_e_minor: Chord = Chord()  
-    defaults << KeySignature()
+    triad_e_minor: Chord = Chord()
 
     three_notes = triad_e_minor.get_chord_notes()
     print(f"Key: {three_notes[0] % str()}")
@@ -295,14 +294,14 @@ def test_chord_mod():
 
     defaults << KeySignature(+1, Minor())  # Sets the default Key Signature configuration as E minor
     triad: Chord = Chord()
-    defaults << KeySignature() # Resets the default Key Scale to Major C
+    defaults << KeySignature() # Resets the default Key Scale to C Major
 
     print("------")
     three_notes = triad.get_chord_notes()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"
     print(f"Key: {three_notes[1] % str()}")
-    assert three_notes[1] == "G"
+    assert three_notes[1] == "G#"   # Because defaults is now using the C Major scale
     print(f"Key: {three_notes[2] % str()}")
     assert three_notes[2] == "B"
 
