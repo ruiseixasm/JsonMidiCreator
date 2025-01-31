@@ -143,13 +143,13 @@ def test_pitch_degrees():
         assert sharp_pitch % float() == major_keys[degree - 1] + 1
 
     print("------")
+    key_pitch = Pitch() # It has a reference to defaults, so, only defaults need to be changed
     for key_sharps in range(1):         # For Sharps, shall be 8 (excluded)
         defaults << KeySignature(key_sharps)
-        key_pitch = Pitch()
 
         reference_keys: list[float] = []
         for degree in range(1, 8):
-            key_pitch << degree
+            key_pitch << degree << 60.0
             reference_keys.append( key_pitch % float() )
 
         for pitch_int in range(60, 72):
