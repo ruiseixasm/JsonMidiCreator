@@ -218,11 +218,11 @@ class Pitch(Generic):
             accidentals_int: int    = self._staff_reference._key_signature._unit
             key_sharp: int          = 0
             key_int: int            = self._key % 12
-            degree_transpose: int   = 0
+            degree_0: int   = 0
             if self._degree > 0:
-                degree_transpose    = self._degree - 1
+                degree_0    = self._degree - 1
             elif self._degree < 0:
-                degree_transpose    = self._degree + 1
+                degree_0    = self._degree + 1
 
             # strips existent accidentals
             if self._major_scale[key_int] == 0: # Black key
@@ -235,17 +235,17 @@ class Pitch(Generic):
 
             key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
-            semitone_transpose: int = 0
-            while degree_transpose > 0:
-                semitone_transpose += 1
-                if key_scale[semitone_transpose % 12]:          # Scale key
-                    degree_transpose -= 1
-            while degree_transpose < 0:
-                semitone_transpose -= 1
-                if key_scale[semitone_transpose % 12]:          # Scale key
-                    degree_transpose += 1
+            degree_transpose: int = 0
+            while degree_0 > 0:
+                degree_transpose += 1
+                if key_scale[degree_transpose % 12]:          # Scale key
+                    degree_0 -= 1
+            while degree_0 < 0:
+                degree_transpose -= 1
+                if key_scale[degree_transpose % 12]:          # Scale key
+                    degree_0 += 1
 
-            key_int += semitone_transpose
+            key_int += degree_transpose
 
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
@@ -267,11 +267,11 @@ class Pitch(Generic):
             accidentals_int: int    = self._staff_reference._key_signature._unit
             key_sharp: int          = 0
             key_int: int            = self._key % 12
-            degree_transpose: int   = 0
+            degree_0: int   = 0
             if self._degree > 0:
-                degree_transpose    = self._degree - 1
+                degree_0    = self._degree - 1
             elif self._degree < 0:
-                degree_transpose    = self._degree + 1
+                degree_0    = self._degree + 1
 
             # strips existent accidentals
             if self._major_scale[key_int] == 0: # Black key
@@ -287,17 +287,18 @@ class Pitch(Generic):
             self_key_offset: int = self._key - signature_tonic_key
             root_key: int = key_int
 
-            semitone_transpose: int = 0
-            while degree_transpose > 0:
-                semitone_transpose += 1
-                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
-                    degree_transpose -= 1
-            while degree_transpose < 0:
-                semitone_transpose -= 1
-                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
-                    degree_transpose += 1
+            degree_transpose: int = 0
+            while degree_0 > 0:
+                degree_transpose += 1
+                if key_scale[(root_key + degree_transpose) % 12]:          # Scale key
+                    degree_0 -= 1
+            while degree_0 < 0:
+                degree_transpose -= 1
+                if key_scale[(root_key + degree_transpose) % 12]:          # Scale key
+                    degree_0 += 1
 
-            key_int += semitone_transpose
+            signature_degree_key: int = signature_tonic_key + degree_transpose
+            key_int += degree_transpose
 
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
