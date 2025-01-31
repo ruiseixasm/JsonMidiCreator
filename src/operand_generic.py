@@ -166,21 +166,19 @@ class Pitch(Generic):
 
         if self._staff_reference._scale.hasScale():
              
-            key_int: int            = self._key % 12
-
-            key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
+            staff_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
             degree_transpose: int = 0
             while degree_0 > 0:
                 degree_transpose += 1
-                if key_scale[degree_transpose % 12]:          # Scale key
+                if staff_scale[degree_transpose % 12]:          # Scale key
                     degree_0 -= 1
             while degree_0 < 0:
                 degree_transpose -= 1
-                if key_scale[degree_transpose % 12]:          # Scale key
+                if staff_scale[degree_transpose % 12]:          # Scale key
                     degree_0 += 1
 
-            key_int += degree_transpose
+            key_int = self._key % 12 + degree_transpose
 
             # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int % 12] == 0:    # Black key
@@ -198,19 +196,19 @@ class Pitch(Generic):
 
         else:   # Uses the Key Signature
         
-            signature_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
+            staff_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
 
-            signature_scale_transpose: int = 0
+            staff_scale_transpose: int = 0
             while degree_0 > 0:
-                signature_scale_transpose += 1
-                if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
+                staff_scale_transpose += 1
+                if staff_scale[ staff_scale_transpose % 12 ] == 1:  # Scale key
                     degree_0 -= 1
             while degree_0 < 0:
-                signature_scale_transpose -= 1
-                if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
+                staff_scale_transpose -= 1
+                if staff_scale[ staff_scale_transpose % 12 ] == 1:  # Scale key
                     degree_0 += 1
 
-            key_int: int = self._key % 12 + signature_scale_transpose
+            key_int: int = self._key % 12 + staff_scale_transpose
 
             # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int % 12] == 0:  # Black key
