@@ -123,6 +123,8 @@ def test_pitch_set():
 
 def test_pitch_degrees():
 
+    defaults << KeySignature() << Scale([])
+    
     major_keys: list[int] = [
         60, 62, 64, 65, 67, 69, 71
     ]
@@ -158,12 +160,14 @@ def test_pitch_degrees():
             for degree in range(1, 8):
                 key_pitch << degree
                 print(f"Key: {key_pitch % float()}")
-                # assert key_pitch % float() == reference_keys[degree - 1] + (pitch_int - 60)
+                assert key_pitch % float() == reference_keys[degree - 1] + (pitch_int - 60)
 
 # test_pitch_degrees()
 
 
 def test_pitch_key_signature():
+
+    defaults << KeySignature() << Scale([])
 
     major_keys_signatures: list[str] = [
         "Cb", "Gb", "Db", "Ab", "Eb", "Bb", "F",
@@ -224,13 +228,14 @@ def test_pitch_key_signature():
     defaults << Sharps(2)   # Changes to B minor (##) but remains the Tonic E
     E_minor_key << Degree(3)
     assert E_minor_key % str() == "G"
-    B_minor_scale_list: list = ["B", "C#", "D", "E", "F#", "G", "A"]
+    E_minor_key << Key("B")
+    E_minor_B_tonic_key: list = ["B", "C#", "D", "E", "F#", "G", "A"]   # Same as B minor
     # Sharp and Flat shall not be set by Degree
     print("------")
     for key_degree in range(1, 8):
         print(key_degree)
         E_minor_key << Degree(key_degree)
-        assert E_minor_key % str() == B_minor_scale_list[(key_degree + 2) % 7]
+        assert E_minor_key % str() == E_minor_B_tonic_key[(key_degree - 1) % 7]
         E_minor_key % Sharp() >> Print(0)
 
     defaults << KeySignature()
@@ -239,6 +244,8 @@ def test_pitch_key_signature():
 
 
 def test_pitch_scales():
+
+    defaults << KeySignature() << Scale([])
 
     major_scale_keys: list[str] = [
         "C", "D", "E", "F", "G", "A", "B"
@@ -312,7 +319,7 @@ def test_set_chromatic_pitch():
 
 def test_pitch_add():
 
-    defaults << KeySignature()
+    defaults << KeySignature() << Scale([])
 
     # Perform the operation
     pitch_b: Pitch = Pitch()    # 60.0
@@ -492,6 +499,8 @@ def test_drum_kit():
 
 def test_full_conversions():
 
+    defaults << KeySignature() << Scale([])
+    
     default_staff: Staff = defaults % Staff()
 
     for time_value in (Position(10.5), Measures(10.5), Beats(10.5 * 4),
@@ -530,6 +539,8 @@ def test_full_conversions():
 
 def test_staff_output():
 
+    defaults << KeySignature() << Scale([])
+    
     staff = Staff()
     staff << TimeSignature(3, 4)
     steps_per_measure = staff % StepsPerMeasure()

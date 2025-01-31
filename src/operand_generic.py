@@ -265,22 +265,13 @@ class Pitch(Generic):
 
         else:
         
-            accidentals_int: int = self._staff_reference._key_signature._unit
-            degree_0: int   = 0
-            if self._degree > 0:
-                degree_0    = self._degree - 1
-            elif self._degree < 0:
-                degree_0    = self._degree + 1
-
 
             # NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
 
             signature_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
-            signature_tonic: int = self._staff_reference._key_signature.get_tonic_key()
-            signature_key_offset: int = self._key % 12 - signature_tonic    # in semitones
-            sharp_key_offset: int = 0   # It has to start on an active key (1)
-            if signature_scale[signature_key_offset % 12] == 0:
-                sharp_key_offset += 1
+            # sharp_key_offset: int = 0   # It has to start on an active key (1)
+            # if signature_scale[signature_key_offset % 12] == 0:
+            #     sharp_key_offset += 1
 
             # Because all Diatonic scales have two active keys surrounded any inactive key,
             # it's possible to decrease just one semitone to increase it afterwards!
@@ -292,21 +283,26 @@ class Pitch(Generic):
             #     tonic_offset_new += 1
             #     key_int_new -= tonic_offset_new
 
+            accidentals_int: int = self._staff_reference._key_signature._unit
+            degree_0: int   = 0
+            if self._degree > 0:
+                degree_0    = self._degree - 1
+            elif self._degree < 0:
+                degree_0    = self._degree + 1
+
             degree_0_new: int = degree_0
             signature_scale_transpose: int = 0
             while degree_0_new > 0:
                 signature_scale_transpose += 1
-                if signature_scale[
-                        (signature_key_offset + signature_scale_transpose - sharp_key_offset) % 12
-                    ] == 1: # Scale key
+                if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
                     degree_0_new -= 1
             while degree_0_new < 0:
                 signature_scale_transpose -= 1
-                if signature_scale[
-                        (signature_key_offset + signature_scale_transpose - sharp_key_offset) % 12
-                    ] == 1: # Scale key
+                if signature_scale[ signature_scale_transpose % 12 ] == 1:  # Scale key
                     degree_0_new += 1
 
+            # signature_tonic: int = self._staff_reference._key_signature.get_tonic_key()
+            # signature_key_offset: int = self._key % 12 - signature_tonic    # in semitones
             key_int_new: int = self._key % 12 + signature_scale_transpose
 
             # # Key Signature | Circle of Fifths
@@ -324,9 +320,8 @@ class Pitch(Generic):
                         key_int_new += 1
                     else:
                         key_int_new -= 1
-            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
-                if self._major_scale[key_int_new % 12] == 1:  # Applies the Sharp or Flat if in a White key
-                    key_int_new += self._sharp  # applies Pitch self accidentals
+            elif not self._natural: # Already known to be a White key
+                key_int_new += self._sharp  # applies Pitch self accidentals
 
 
             return float(key_int_new)
@@ -418,7 +413,7 @@ class Pitch(Generic):
 
         return octave_offset, key_offset
     
-    def apply_key_offset(self, key_offset: int | float) -> 'Pitch':
+    def apply_key_offset(self, key_offset: int | float) -> Self:
         
         octave_offset_int, key_offset_int = self.octave_key_offset(key_offset)
         self._octave += octave_offset_int
@@ -427,7 +422,7 @@ class Pitch(Generic):
 
         return self
     
-    def set_chromatic_pitch(self, pitch: int | float) -> 'Pitch':
+    def set_chromatic_pitch(self, pitch: int | float) -> Self:
         
         # Reset decorative parameters
         self._degree = 1
@@ -438,35 +433,35 @@ class Pitch(Generic):
         offset_pitch: int = pitch - ( 12 * (self._octave + 1) + self._key % 12 )
         self.apply_key_offset(offset_pitch)
         
-        if not self._staff_reference._scale.hasScale():
+        # if not self._staff_reference._scale.hasScale():
 
-            # Key Signature | Circle of Fifths
-            accidentals_int: int = self._staff_reference._key_signature._unit
-            sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+        #     # Key Signature | Circle of Fifths
+        #     accidentals_int: int = self._staff_reference._key_signature._unit
+        #     sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
 
-            # Avoid Key Signature offsetting with natural setting
-            if sharps_flats[self._key % 12] != 0:
-                self._natural = True
+        #     # Avoid Key Signature offsetting with natural setting
+        #     if sharps_flats[self._key % 12] != 0:
+        #         self._natural = True
 
         return self
 
 
-    def apply_chromatic_offset(self, key_offset: int | float) -> 'Pitch':
+    # def apply_chromatic_offset(self, key_offset: int | float) -> Self:
         
-        expected_pitch: float = self % float() + key_offset
-        self.apply_key_offset(key_offset)
-        offset_pitch: int = int(self % float())
-        if offset_pitch != expected_pitch:
-            if self._major_scale[offset_pitch % 12] == 0:   # Black key
-                self._natural = True
-            else:                                           # White key
-                self._natural = False
-                if offset_pitch > expected_pitch:
-                    self._sharp = -1
-                else:
-                    self._sharp = +1
+    #     expected_pitch: float = self % float() + key_offset
+    #     self.apply_key_offset(key_offset)
+    #     offset_pitch: int = int(self % float())
+    #     if offset_pitch != expected_pitch:
+    #         if self._major_scale[offset_pitch % 12] == 0:   # Black key
+    #             self._natural = True
+    #         else:                                           # White key
+    #             self._natural = False
+    #             if offset_pitch > expected_pitch:
+    #                 self._sharp = -1
+    #             else:
+    #                 self._sharp = +1
 
-        return self
+    #     return self
     
 
     def __mod__(self, operand: o.T) -> o.T:

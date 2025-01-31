@@ -204,6 +204,8 @@ def test_note_shift():
 
 def test_note_scale():
 
+    defaults << KeySignature() << Scale([])
+
     defaults << Scale("Major")
     major_note: Note = Note()
     defaults << Scale([])
@@ -250,6 +252,8 @@ def test_keyscale_mod():
 
 
 def test_chord_mod():
+
+    defaults << KeySignature() << Scale([])
 
     # Perform the operation
     chord = Chord("A") << Scale("minor") << Size("7th") << Duration(1/2)
