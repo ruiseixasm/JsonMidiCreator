@@ -278,6 +278,9 @@ class Pitch(Generic):
             signature_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
             signature_tonic: int = self._staff_reference._key_signature.get_tonic_key()
             signature_key_offset: int = self._key % 12 - signature_tonic    # in semitones
+            sharp_key_offset: int = 0   # It has to start on an active key (1)
+            if signature_scale[signature_key_offset % 12] == 0:
+                sharp_key_offset += 1
 
             # Because all Diatonic scales have two active keys surrounded any inactive key,
             # it's possible to decrease just one semitone to increase it afterwards!
@@ -293,14 +296,17 @@ class Pitch(Generic):
             signature_scale_transpose: int = 0
             while degree_0_new > 0:
                 signature_scale_transpose += 1
-                if signature_scale[signature_scale_transpose % 12] == 1: # Scale key
+                if signature_scale[
+                        (signature_key_offset + signature_scale_transpose - sharp_key_offset) % 12
+                    ] == 1: # Scale key
                     degree_0_new -= 1
             while degree_0_new < 0:
                 signature_scale_transpose -= 1
-                if signature_scale[signature_scale_transpose % 12] == 1: # Scale key
+                if signature_scale[
+                        (signature_key_offset + signature_scale_transpose - sharp_key_offset) % 12] == 1: # Scale key
                     degree_0_new += 1
 
-            key_int_new: int = signature_tonic + signature_scale_transpose + signature_key_offset
+            key_int_new: int = self._key % 12 + signature_scale_transpose
 
             # # Key Signature | Circle of Fifths
             # sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
@@ -322,7 +328,7 @@ class Pitch(Generic):
                     key_int_new += self._sharp  # applies Pitch self accidentals
 
 
-            # return float(key_int_new)
+            return float(key_int_new)
 
 
             # OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
@@ -376,12 +382,12 @@ class Pitch(Generic):
                     if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
                         key_int += self._sharp  # applies Pitch self accidentals
 
-                # if key_int + semitone_transpose != key_int_new:
-                #     print(f"BLACK - OLD_key: {key_int + semitone_transpose}, NEW_key: {key_int_new}")
+                if key_int + semitone_transpose != key_int_new:
+                    print(f"BLACK - OLD_key: {key_int + semitone_transpose}, NEW_key: {key_int_new}")
                 return float(key_int) # Requires future removal
 
-            # if key_int != key_int_new:
-            #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
+            if key_int != key_int_new:
+                print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
 
             # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int % 12] == 0:  # Black key

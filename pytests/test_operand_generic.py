@@ -160,7 +160,6 @@ def test_pitch_degrees():
                 print(f"Key: {key_pitch % float()}")
                 # assert key_pitch % float() == reference_keys[degree - 1] + (pitch_int - 60)
 
-
 # test_pitch_degrees()
 
 
