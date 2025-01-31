@@ -273,35 +273,51 @@ class Pitch(Generic):
 
             # NEW
 
-            signature_tonic_key: int = self._staff_reference._key_signature % ou.Key() % int() % 12
-            self_key_offset: int = self._key % 12 - signature_tonic_key
+            signature_scale: list[int] = self._staff_reference._key_signature % list()
+
+            # Because all Diatonic scales have two active keys surrounded any inactive key,
+            # it's possible to decrease just one semitone to increase it afterwards!
+
+            # Check if tonic key doesn't belong to the key signature scale
+            key_int_new: int = self._key % 12
+            tonic_offset: int = 0
+            if signature_scale[key_int_new] == 0:
+                tonic_offset += 1
+                key_int_new -= tonic_offset
 
             degree_0_new: int = degree_0
             degree_transpose_new: int = 0
             while degree_0_new > 0:
                 degree_transpose_new += 1
-                if self._major_scale[(signature_tonic_key + degree_transpose_new) % 12]:          # Scale key
+                if signature_scale[(key_int_new + degree_transpose_new) % 12]:          # Scale key
                     degree_0_new -= 1
             while degree_0_new < 0:
                 degree_transpose_new -= 1
-                if self._major_scale[(signature_tonic_key + degree_transpose_new) % 12]:          # Scale key
+                if signature_scale[(key_int_new + degree_transpose_new) % 12]:          # Scale key
                     degree_0_new += 1
 
-            signature_degree_key: int = signature_tonic_key + degree_transpose_new
-            self_degree_key: int = signature_degree_key + self_key_offset
+            key_int_new += degree_transpose_new + tonic_offset
 
-            if self._major_scale[self_degree_key % 12] == 0:    # Black key
+            if self._major_scale[key_int_new % 12] == 0:    # Black key
                 if self._natural is True:
                     if self._staff_reference._key_signature._unit < 0:
-                        self_degree_key += 1
+                        key_int_new += 1
                     else:
-                        self_degree_key -= 1
+                        key_int_new -= 1
             else:                                               # White key
                 if self._natural is False:
-                    self_degree_key += self._sharp
+                    key_int_new += self._sharp
+
+            # Key Signature | Circle of Fifths
+            accidentals_int: int = self._staff_reference._key_signature._unit
+            sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
+
+            # # Avoid Key Signature offsetting with natural setting
+            # if sharps_flats[key_int_new % 12] != 0:
+            #     self._key = self._key % 24 + 24 # Locks the key
 
 
-            # return float(self_degree_key)
+            # return float(key_int_new)
 
             # OLD
 
@@ -354,12 +370,12 @@ class Pitch(Generic):
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                 semitone_transpose = sharps_flats[semitone_int % 12]
 
-                # if semitone_int + semitone_transpose != self_degree_key:
-                #     print(f"BLACK - OLD_key: {semitone_int + semitone_transpose}, NEW_key: {self_degree_key}")
+                if semitone_int + semitone_transpose != key_int_new:
+                    print(f"BLACK - OLD_key: {semitone_int + semitone_transpose}, NEW_key: {key_int_new}")
                 return float(semitone_int + semitone_transpose)
 
-            # if key_int != self_degree_key:
-            #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {self_degree_key}")
+            if key_int != key_int_new:
+                print(f"WHITE - OLD_key: {key_int}, NEW_key: {key_int_new}")
             return float(key_int)
         
 
