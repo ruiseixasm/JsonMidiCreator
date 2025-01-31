@@ -168,30 +168,21 @@ class Pitch(Generic):
              
             staff_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
-            degree_transposition: int = 0
-            while degree_0 > 0:
-                degree_transposition += 1
-                if staff_scale[degree_transposition % 12]:          # Scale key
-                    degree_0 -= 1
-            while degree_0 < 0:
-                degree_transposition -= 1
-                if staff_scale[degree_transposition % 12]:          # Scale key
-                    degree_0 += 1
-
 
         else:   # Uses the Key Signature
         
             staff_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
+            
 
-            degree_transposition: int = 0
-            while degree_0 > 0:
-                degree_transposition += 1
-                if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
-                    degree_0 -= 1
-            while degree_0 < 0:
-                degree_transposition -= 1
-                if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
-                    degree_0 += 1
+        degree_transposition: int = 0
+        while degree_0 > 0:
+            degree_transposition += 1
+            if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
+                degree_0 -= 1
+        while degree_0 < 0:
+            degree_transposition -= 1
+            if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
+                degree_0 += 1
 
         key_int: int = self._key % 12 + degree_transposition
 
