@@ -158,24 +158,15 @@ class Pitch(Generic):
     # IGNORES THE KEY SIGNATURE (CHROMATIC)
     def get_key_int(self) -> int:
 
+        degree_0: int   = 0
+        if self._degree > 0:
+            degree_0    = self._degree - 1
+        elif self._degree < 0:
+            degree_0    = self._degree + 1
+
         if self._staff_reference._scale.hasScale():
              
-            key_sharp: int          = 0
             key_int: int            = self._key % 12
-            degree_0: int   = 0
-            if self._degree > 0:
-                degree_0    = self._degree - 1
-            elif self._degree < 0:
-                degree_0    = self._degree + 1
-
-            # strips existent accidentals
-            if self._major_scale[key_int] == 0: # Black key
-                if self._key % 24 < 12: # sharps
-                    key_sharp = 1
-                    key_int -= 1
-                else:                   # flats
-                    key_sharp = -1
-                    key_int += 1
 
             key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
@@ -192,32 +183,22 @@ class Pitch(Generic):
             key_int += degree_transpose
 
             # Final parameter decorators like Sharp and Natural
-            if self._major_scale[key_int % 12] == 0:  # Black key
+            if self._major_scale[key_int % 12] == 0:    # Black key
                 accidentals_int: int = self._staff_reference._key_signature._unit
                 if self._natural:   # Has to process the Natural
                     if accidentals_int < 0:
                         key_int += 1
                     else:
                         key_int -= 1
-            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
-
-                key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
-                if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
-                    key_int += self._sharp  # applies Pitch self accidentals
+            elif not self._natural:                     # White key
+                key_int += self._sharp  # applies Pitch self accidentals
 
             return key_int
 
 
-        else:
+        else:   # Uses the Key Signature
         
             signature_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
-
-            accidentals_int: int = self._staff_reference._key_signature._unit
-            degree_0: int   = 0
-            if self._degree > 0:
-                degree_0    = self._degree - 1
-            elif self._degree < 0:
-                degree_0    = self._degree + 1
 
             signature_scale_transpose: int = 0
             while degree_0 > 0:
@@ -234,6 +215,7 @@ class Pitch(Generic):
             # Final parameter decorators like Sharp and Natural
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
+                    accidentals_int: int = self._staff_reference._key_signature._unit
                     if accidentals_int < 0:
                         key_int += 1
                     else:
