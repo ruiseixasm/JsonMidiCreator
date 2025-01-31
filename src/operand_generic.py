@@ -282,12 +282,37 @@ class Pitch(Generic):
                     key_sharp = -1
                     key_int += 1
 
+            # NEW
+
             key_scale: list[int] = self._major_scale     # Major scale
             signature_tonic_key: int = self._staff_reference._key_signature % ou.Key() % int() % 12
             self_key_offset: int = self._key - signature_tonic_key
-            root_key: int = key_int
 
+            degree_0_0: int = degree_0
             degree_transpose: int = 0
+            while degree_0_0 > 0:
+                degree_transpose += 1
+                if key_scale[(signature_tonic_key + degree_transpose) % 12]:          # Scale key
+                    degree_0_0 -= 1
+            while degree_0_0 < 0:
+                degree_transpose -= 1
+                if key_scale[(signature_tonic_key + degree_transpose) % 12]:          # Scale key
+                    degree_0_0 += 1
+
+            signature_degree_key: int = signature_tonic_key + degree_transpose
+            self_degree_key: int = signature_degree_key + self_key_offset
+
+            if self._major_scale[self_degree_key % 12] == 0 and self._natural is True:  # Black key
+                if self._staff_reference._key_signature._unit < 0:
+                    self_degree_key += 1
+                else:
+                    self_degree_key -= 1
+
+
+            # OLD
+
+            root_key: int = key_int
+            degree_transpose = 0
             while degree_0 > 0:
                 degree_transpose += 1
                 if key_scale[(root_key + degree_transpose) % 12]:          # Scale key
@@ -297,7 +322,6 @@ class Pitch(Generic):
                 if key_scale[(root_key + degree_transpose) % 12]:          # Scale key
                     degree_0 += 1
 
-            signature_degree_key: int = signature_tonic_key + degree_transpose
             key_int += degree_transpose
 
             if self._major_scale[key_int % 12] == 0:  # Black key
