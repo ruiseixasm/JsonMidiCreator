@@ -466,38 +466,8 @@ class Pitch(Generic):
 
         # Excludes the effect of the decorative parameters
         offset_pitch: int = pitch - ( 12 * (self._octave + 1) + self._key % 12 )
-        self.apply_key_offset(offset_pitch)
-        
-        # if not self._staff_reference._scale.hasScale():
+        return self.apply_key_offset(offset_pitch)
 
-        #     # Key Signature | Circle of Fifths
-        #     accidentals_int: int = self._staff_reference._key_signature._unit
-        #     sharps_flats: list[int] = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-
-        #     # Avoid Key Signature offsetting with natural setting
-        #     if sharps_flats[self._key % 12] != 0:
-        #         self._natural = True
-
-        return self
-
-
-    # def apply_chromatic_offset(self, key_offset: int | float) -> Self:
-        
-    #     expected_pitch: float = self % float() + key_offset
-    #     self.apply_key_offset(key_offset)
-    #     offset_pitch: int = int(self % float())
-    #     if offset_pitch != expected_pitch:
-    #         if self._major_scale[offset_pitch % 12] == 0:   # Black key
-    #             self._natural = True
-    #         else:                                           # White key
-    #             self._natural = False
-    #             if offset_pitch > expected_pitch:
-    #                 self._sharp = -1
-    #             else:
-    #                 self._sharp = +1
-
-    #     return self
-    
 
     def __mod__(self, operand: o.T) -> o.T:
         """
@@ -533,14 +503,10 @@ class Pitch(Generic):
             case of.Frame():        return self % (operand._data)
             case Pitch():           return self.copy()
 
-            case int(): # WITHOUT KEY SIGNATURE
-                
-                # IGNORES THE KEY SIGNATURE (CHROMATIC)
+            case int():
                 return 12 * (self._octave + 1) + self.get_key_int()
              
-            case float(): # WITH KEY SIGNATURE
-
-                # RESPECTS THE KEY SIGNATURE
+            case float():
                 return float( self % int() )
             
             case ou.Semitone():
