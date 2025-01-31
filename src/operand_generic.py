@@ -301,6 +301,9 @@ class Pitch(Generic):
                 if self._natural is False:
                     self_degree_key += self._sharp
 
+
+            # return float(self_degree_key)
+
             # OLD
 
             accidentals_int: int    = self._staff_reference._key_signature._unit
@@ -352,9 +355,12 @@ class Pitch(Generic):
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
                 semitone_transpose = sharps_flats[semitone_int % 12]
 
+                # if semitone_int + semitone_transpose != self_degree_key:
+                #     print(f"BLACK - OLD_key: {semitone_int + semitone_transpose}, NEW_key: {self_degree_key}")
                 return float(semitone_int + semitone_transpose)
 
-        
+            # if key_int != self_degree_key:
+            #     print(f"WHITE - OLD_key: {key_int}, NEW_key: {self_degree_key}")
             return float(key_int)
         
 
