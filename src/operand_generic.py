@@ -213,33 +213,126 @@ class Pitch(Generic):
     # APPLIES ONLY FOR KEY SIGNATURES (DEGREES)
     def get_key_float(self) -> float:
 
-        if not self._staff_reference._scale.hasScale():
+        if self._staff_reference._scale.hasScale():
+             
+            accidentals_int: int    = self._staff_reference._key_signature._unit
+            key_sharp: int          = 0
+            key_int: int            = self._key % 12
+            degree_transpose: int   = 0
+            if self._degree > 0:
+                degree_transpose    = self._degree - 1
+            elif self._degree < 0:
+                degree_transpose    = self._degree + 1
 
-            if self._major_scale[self._key % 12] == 1:  # Tonic key is a White Key
+            # strips existent accidentals
+            if self._major_scale[key_int] == 0: # Black key
+                if self._key % 24 < 12: # sharps
+                    key_sharp = 1
+                    key_int -= 1
+                else:                   # flats
+                    key_sharp = -1
+                    key_int += 1
 
-                # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
-                if self._key < 24 and not self._natural:
-
-                    semitone_int: int = self.get_key_int()
-
-                    # Circle of Fifths
-                    accidentals_int = self._staff_reference._key_signature._unit
-                    sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                    semitone_transpose = sharps_flats[semitone_int % 12]
-
-                    return float(semitone_int + semitone_transpose)
-
+            if self._staff_reference._scale.hasScale():
+                key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
+                root_key: int = 0
             else:
-                
+                key_scale: list[int] = self._major_scale     # Major scale
+                root_key: int = key_int
+
+            semitone_transpose: int = 0
+            while degree_transpose > 0:
+                semitone_transpose += 1
+                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
+                    degree_transpose -= 1
+            while degree_transpose < 0:
+                semitone_transpose -= 1
+                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
+                    degree_transpose += 1
+
+            key_int += semitone_transpose
+
+            if self._major_scale[key_int % 12] == 0:  # Black key
+                if self._natural:   # Has to process the Natural
+                    if accidentals_int < 0:
+                        key_int += 1
+                    else:
+                        key_int -= 1
+            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+
+                key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
+                if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
+                    key_int += self._sharp  # applies Pitch self accidentals
+
+            return float(key_int)
+
+
+        else:
+        
+            accidentals_int: int    = self._staff_reference._key_signature._unit
+            key_sharp: int          = 0
+            key_int: int            = self._key % 12
+            degree_transpose: int   = 0
+            if self._degree > 0:
+                degree_transpose    = self._degree - 1
+            elif self._degree < 0:
+                degree_transpose    = self._degree + 1
+
+            # strips existent accidentals
+            if self._major_scale[key_int] == 0: # Black key
+                if self._key % 24 < 12: # sharps
+                    key_sharp = 1
+                    key_int -= 1
+                else:                   # flats
+                    key_sharp = -1
+                    key_int += 1
+
+            if self._staff_reference._scale.hasScale():
+                key_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
+                root_key: int = 0
+            else:
+                key_scale: list[int] = self._major_scale     # Major scale
+                root_key: int = key_int
+
+            semitone_transpose: int = 0
+            while degree_transpose > 0:
+                semitone_transpose += 1
+                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
+                    degree_transpose -= 1
+            while degree_transpose < 0:
+                semitone_transpose -= 1
+                if key_scale[(root_key + semitone_transpose) % 12]:          # Scale key
+                    degree_transpose += 1
+
+            key_int += semitone_transpose
+
+            if self._major_scale[key_int % 12] == 0:  # Black key
+                if self._natural:   # Has to process the Natural
+                    if accidentals_int < 0:
+                        key_int += 1
+                    else:
+                        key_int -= 1
+            elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
+
+                key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
+                if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
+                    key_int += self._sharp  # applies Pitch self accidentals
+
+            # Whites Keys already sharpened or flattened due to time signature aren't considered (>= 24)
+            if self._major_scale[self._key % 12] == 1 and not self._natural and self._key < 24:
+
+                semitone_int: int = key_int
+
                 # Circle of Fifths
                 accidentals_int = self._staff_reference._key_signature._unit
                 sharps_flats = ou.KeySignature._key_signatures[(accidentals_int + 7) % 15] # [+1, 0, -1, ...]
-                semitone_transpose = sharps_flats[self._key % 12]
+                semitone_transpose = sharps_flats[semitone_int % 12]
 
-                if semitone_transpose != 0: # Tonic Key must be LOCKED
-                    self._key = self._key % 24 + 24
+                return float(semitone_int + semitone_transpose)
+
         
-        return float(self.get_key_int())
+            return float(key_int)
+        
 
 
     def octave_key_offset(self, key_offset: int | float) -> tuple[int, int]:
