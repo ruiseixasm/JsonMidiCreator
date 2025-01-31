@@ -168,60 +168,45 @@ class Pitch(Generic):
              
             staff_scale: list[int] = self._staff_reference._scale % list() # Scale already modulated
 
-            degree_transpose: int = 0
+            degree_transposition: int = 0
             while degree_0 > 0:
-                degree_transpose += 1
-                if staff_scale[degree_transpose % 12]:          # Scale key
+                degree_transposition += 1
+                if staff_scale[degree_transposition % 12]:          # Scale key
                     degree_0 -= 1
             while degree_0 < 0:
-                degree_transpose -= 1
-                if staff_scale[degree_transpose % 12]:          # Scale key
+                degree_transposition -= 1
+                if staff_scale[degree_transposition % 12]:          # Scale key
                     degree_0 += 1
-
-            key_int = self._key % 12 + degree_transpose
-
-            # Final parameter decorators like Sharp and Natural
-            if self._major_scale[key_int % 12] == 0:    # Black key
-                accidentals_int: int = self._staff_reference._key_signature._unit
-                if self._natural:   # Has to process the Natural
-                    if accidentals_int < 0:
-                        key_int += 1
-                    else:
-                        key_int -= 1
-            elif not self._natural:                     # White key
-                key_int += self._sharp  # applies Pitch self accidentals
-
-            return key_int
 
 
         else:   # Uses the Key Signature
         
             staff_scale: list[int] = self._staff_reference._key_signature.get_scale_list() # Major or minor scale
 
-            staff_scale_transpose: int = 0
+            degree_transposition: int = 0
             while degree_0 > 0:
-                staff_scale_transpose += 1
-                if staff_scale[ staff_scale_transpose % 12 ] == 1:  # Scale key
+                degree_transposition += 1
+                if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
                     degree_0 -= 1
             while degree_0 < 0:
-                staff_scale_transpose -= 1
-                if staff_scale[ staff_scale_transpose % 12 ] == 1:  # Scale key
+                degree_transposition -= 1
+                if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
                     degree_0 += 1
 
-            key_int: int = self._key % 12 + staff_scale_transpose
+        key_int: int = self._key % 12 + degree_transposition
 
-            # Final parameter decorators like Sharp and Natural
-            if self._major_scale[key_int % 12] == 0:  # Black key
-                if self._natural:   # Has to process the Natural
-                    accidentals_int: int = self._staff_reference._key_signature._unit
-                    if accidentals_int < 0:
-                        key_int += 1
-                    else:
-                        key_int -= 1
-            elif not self._natural: # Already known to be a White key
-                key_int += self._sharp  # applies Pitch self accidentals
+        # Final parameter decorators like Sharp and Natural
+        if self._major_scale[key_int % 12] == 0:  # Black key
+            if self._natural:   # Has to process the Natural
+                accidentals_int: int = self._staff_reference._key_signature._unit
+                if accidentals_int < 0:
+                    key_int += 1
+                else:
+                    key_int -= 1
+        elif not self._natural: # Already known to be a White key
+            key_int += self._sharp  # applies Pitch self accidentals
 
-            return key_int
+        return key_int
 
 
     def octave_key_offset(self, key_offset: int | float) -> tuple[int, int]:
