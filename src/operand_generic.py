@@ -271,7 +271,7 @@ class Pitch(Generic):
                 degree_0    = self._degree + 1
 
 
-            # NEW
+            # NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW NEW
 
             signature_scale: list[int] = self._staff_reference._key_signature % list()
 
@@ -280,10 +280,10 @@ class Pitch(Generic):
 
             # Check if tonic key doesn't belong to the key signature scale
             key_int_new: int = self._key % 12
-            tonic_offset: int = 0
+            tonic_offset_new: int = 0
             if signature_scale[key_int_new] == 0:
-                tonic_offset += 1
-                key_int_new -= tonic_offset
+                tonic_offset_new += 1
+                key_int_new -= tonic_offset_new
 
             degree_0_new: int = degree_0
             degree_transpose_new: int = 0
@@ -296,7 +296,7 @@ class Pitch(Generic):
                 if signature_scale[(key_int_new + degree_transpose_new) % 12]:          # Scale key
                     degree_0_new += 1
 
-            key_int_new += degree_transpose_new + tonic_offset
+            key_int_new += degree_transpose_new + tonic_offset_new
 
             if self._major_scale[key_int_new % 12] == 0:    # Black key
                 if self._natural is True:
@@ -329,20 +329,23 @@ class Pitch(Generic):
 
 
 
-            # OLD
+            # OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD OLD
 
             accidentals_int: int    = self._staff_reference._key_signature._unit
-            key_sharp: int          = 0
+            # key_sharp: int          = 0
             key_int: int            = self._key % 12
+            tonic_offset: int       = 0
 
             # strips existent accidentals
             if self._major_scale[key_int] == 0: # Black key
-                if self._key % 24 < 12: # sharps
-                    key_sharp = 1
-                    key_int -= 1
-                else:                   # flats
-                    key_sharp = -1
-                    key_int += 1
+                tonic_offset += 1
+                key_int -+ tonic_offset
+                # if self._key % 24 < 12: # sharps
+                #     key_sharp = 1
+                #     key_int -= 1
+                # else:                   # flats
+                #     key_sharp = -1
+                #     key_int += 1
 
 
             root_key: int = key_int
@@ -356,7 +359,7 @@ class Pitch(Generic):
                 if self._major_scale[(root_key + degree_transpose) % 12]:          # Scale key
                     degree_0 += 1
 
-            key_int += degree_transpose
+            key_int += degree_transpose + tonic_offset
 
             if self._major_scale[key_int % 12] == 0:  # Black key
                 if self._natural:   # Has to process the Natural
@@ -365,8 +368,6 @@ class Pitch(Generic):
                     else:
                         key_int -= 1
             elif not self._natural: # The only case where Sharp and Flat is processed (NOT LOCKED)
-
-                key_int += key_sharp        # applies pre-existing accidentals (regardless present key)
                 if self._major_scale[key_int % 12] == 1:  # Applies the Sharp or Flat if in a White key
                     key_int += self._sharp  # applies Pitch self accidentals
 
