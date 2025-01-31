@@ -284,6 +284,7 @@ class Pitch(Generic):
 
             key_scale: list[int] = self._major_scale     # Major scale
             signature_tonic_key: int = self._staff_reference._key_signature % ou.Key() % int() % 12
+            self_key_offset: int = self._key - signature_tonic_key
             root_key: int = key_int
 
             semitone_transpose: int = 0
