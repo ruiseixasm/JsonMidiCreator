@@ -146,8 +146,8 @@ def test_pitch_degrees():
 
     print("------")
     key_pitch = Pitch() # It has a reference to defaults, so, only defaults need to be changed
-    for key_sharps in range(1):         # For Sharps, shall be 8 (excluded)
-        defaults << KeySignature(key_sharps)
+    for flats_sharps in range(-7, 8):         # For all Flats and Sharps!
+        defaults << KeySignature(flats_sharps)
 
         reference_keys: list[float] = []
         for degree in range(1, 8):
