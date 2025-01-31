@@ -149,7 +149,7 @@ def test_pitch_degrees():
 
         reference_keys: list[float] = []
         for degree in range(1, 8):
-            key_pitch << degree << 60.0
+            key_pitch << 60.0 << degree
             reference_keys.append( key_pitch % float() )
 
         for pitch_int in range(60, 72):
