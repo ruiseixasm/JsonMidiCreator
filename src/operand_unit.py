@@ -783,6 +783,14 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
                     key_signature_scale[key_i] = original_scale[(key_i + 9) % 12]
                 
         return key_signature_scale
+    
+    def is_enharmonic(self, tonic_key: int, key: int) -> bool:
+        if self._unit > +5:
+            return (key - tonic_key) % 12 == 11
+        if self._unit < -5:
+            return (key - tonic_key) % 12 == 5
+        return False
+
 
     def __mod__(self, operand: o.T) -> o.T:
         import operand_generic as og

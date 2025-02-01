@@ -91,6 +91,21 @@ def test_tonic_key_signature():
 # test_tonic_key_signature()
 
 
+def test_enharmonic_key():
+
+    key_signature = KeySignature(+6)
+    assert key_signature.is_enharmonic(6, 5)
+    key_signature = KeySignature(+7)
+    assert key_signature.is_enharmonic(1, 0)
+
+    key_signature = KeySignature(-6)
+    assert key_signature.is_enharmonic(6, 11)
+    key_signature = KeySignature(-7)
+    assert key_signature.is_enharmonic(11, 4)
+
+# test_enharmonic_key()
+
+
 def test_drum_kit():
 
     assert DrumKit("Drum")      == 35   # White Key
