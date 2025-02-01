@@ -44,7 +44,7 @@ ghost_notes << Velocity(60)
 anticipation = Note(DrumKit("Snare"), 1/32) * 2 + Steps(15) << Velocity(30)
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
-backbeats * 8 >> P
+backbeats * 8 >> Play(1)
 
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
@@ -54,5 +54,5 @@ anticipation += Steps(1/2)
 anticipation << Duration(0.40 * 1/32)
 
 backbeats = hi_hat + snare + drum + ghost_notes + anticipation
-backbeats * 8 >> P
+backbeats * 8 >> Play(1)
 

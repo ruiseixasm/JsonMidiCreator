@@ -17,6 +17,7 @@ import json
 import platform
 import os
 import ctypes
+import threading
 import math
 import time
 
@@ -130,7 +131,17 @@ def loadJsonMidiPlay(filename):
     except Exception as e:
         print(f"Unable to Import the file: {filename}")
     return []
-        
+
+
+# Function to run the DLL in a separate thread
+def run_dll(json_str, verbose):
+    if lib:
+        try:
+            # Call the C++ function with the JSON string
+            lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
+        except Exception as e:
+            print(f"An error occurred when calling the function 'PlayList_ctypes': {e}")
+
 def jsonMidiPlay(play_list: list[dict], verbose: bool = False):
     global lib
     global not_found_library_message_already_shown
@@ -145,17 +156,22 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False):
         # Convert Python dictionary to JSON string
         json_str = json.dumps([ json_file_dict ])
 
-        try:
-            # Call the C++ function with the JSON string
-            lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
-        except FileNotFoundError:
-            print(f"Could not find the library file: {lib_path}")
-        except OSError as e:
-            print(f"An error occurred while loading the library: {e}")
-        except AttributeError as e:
-            print(f"An error occurred while accessing the function: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
+        # Create and start a new thread to run the DLL
+        dll_thread = threading.Thread(target=run_dll, args=(json_str, verbose))
+        dll_thread.start()
+        dll_thread.join()  # Wait for the thread to finish
+
+        # try:
+        #     # Call the C++ function with the JSON string
+        #     lib.PlayList_ctypes(json_str.encode('utf-8'), 1 if verbose else 0)
+        # except FileNotFoundError:
+        #     print(f"Could not find the library file: {lib_path}")
+        # except OSError as e:
+        #     print(f"An error occurred while loading the library: {e}")
+        # except AttributeError as e:
+        #     print(f"An error occurred while accessing the function: {e}")
+        # except Exception as e:
+        #     print(f"An unexpected error occurred when calling the function 'PlayList_ctypes': {e}")
 
 
 
