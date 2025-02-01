@@ -18,6 +18,7 @@ import platform
 import os
 import ctypes
 import threading
+# import multiprocessing
 import math
 import time
 
@@ -160,6 +161,11 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False):
         dll_thread = threading.Thread(target=run_dll, args=(json_str, verbose))
         dll_thread.start()
         dll_thread.join()  # Wait for the thread to finish
+
+        # # Create and start a new process to run the DLL
+        # dll_process = multiprocessing.Process(target=run_dll, args=(json_str, verbose))
+        # dll_process.start()
+        # dll_process.join()  # Wait for the process to finish
 
         # try:
         #     # Call the C++ function with the JSON string
@@ -515,6 +521,14 @@ def chat_gpt_solution(midi_list: list[dict], filename="output.mid"):
 
     # Write the MIDI file to disk
     midi_file.save(filename)
+
+
+
+# # Main guard to prevent multiprocessing errors
+# if __name__ == "__main__":
+#     # Optional: Call freeze_support() for frozen executables
+#     multiprocessing.freeze_support()
+
 
 
 
