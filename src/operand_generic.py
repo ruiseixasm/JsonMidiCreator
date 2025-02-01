@@ -292,15 +292,13 @@ class Pitch(Generic):
                 self_pitch: int = int( self % float() )
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key % 48 // 12
-                # if not self._staff_reference._scale.hasScale():
-                #     accidentals_int: int = self._staff_reference._key_signature._unit
-                #     key_signature: list[int] = ou.KeySignature._key_signatures[accidentals_int]
-                #     key_transpose: int = key_signature[key_note]
-                #     if key_transpose != 0:
-                #         if accidentals_int < 0:
-                #             key_line = 3
-                #         else:
-                #             key_line = 2
+                if not self._staff_reference._scale.hasScale() \
+                    and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, self_pitch):
+                    accidentals_int: int = self._staff_reference._key_signature._unit
+                    if accidentals_int < 0:
+                        key_line = 3
+                    else:
+                        key_line = 2
                 return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Degree():
