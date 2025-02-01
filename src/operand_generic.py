@@ -295,9 +295,9 @@ class Pitch(Generic):
                 if not self._staff_reference._scale.hasScale() \
                     and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, key_note):
                     if self._staff_reference._key_signature._unit < 0:
-                        key_line = 3
+                        key_line = 3    # All Flats
                     else:
-                        key_line = 2
+                        key_line = 2    # All Sharps
                 return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Degree():
