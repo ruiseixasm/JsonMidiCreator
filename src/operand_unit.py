@@ -1740,6 +1740,10 @@ class MidiTrack(Midi):
             case _:                 super().__lshift__(operand)
         return self
 
+class TrackNumber(Midi):
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)         # By default is Track number 1
+
 class Channel(Midi):
     """
     A Channel() is an identifier normally associated to an instrument in a given midi device.
@@ -1749,7 +1753,8 @@ class Channel(Midi):
     first : integer_like
         For a given device, there are 16 channels ranging from 1 to 16
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)         # By default is channel 1
 
 class Velocity(Midi):
     """
@@ -1760,7 +1765,8 @@ class Velocity(Midi):
     first : integer_like
         A key velocity varies from 0 to 127
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__(100, *parameters)         # By default is velocity 100
 
 class Pressure(Midi):
     """

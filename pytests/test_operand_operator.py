@@ -48,5 +48,7 @@ def test_oscillator_mod():
     oscillator_operand = oscillator % Operand()
     oscillator_operand_dict = oscillator_operand % dict()
 
-    assert o.found_dict_in_dict({'unit': 0}, oscillator_operand_dict)
+    assert o.found_dict_in_dict({'unit': 100}, oscillator_operand_dict)
+
+# test_oscillator_mod()
 
