@@ -202,6 +202,11 @@ class PartParameter(Data):   # Just a data wrapper
         super().__init__()
         self._data = operand
 
+class TrackName(Data):
+    def __init__(self, *parameters):
+        super().__init__("Track 1", *parameters)         # By default is "Track 1"
+
+
 class Serialization(Data):
     def __init__(self, serialization: dict | o.Operand = None):
         super().__init__()
@@ -498,6 +503,7 @@ class Import(Playlist):
         if isinstance(file_name, str):
             # No need to copy (fresh data)
             self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
+
 
 class SideEffects(Data):
     def __init__(self, operand: o.Operand = None):
