@@ -293,7 +293,7 @@ class Pitch(Generic):
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key % 48 // 12
                 if not self._staff_reference._scale.hasScale() \
-                    and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, self_pitch):
+                    and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, self_pitch % 12):
                     if self._staff_reference._key_signature._unit < 0:
                         key_line = 3
                     else:
