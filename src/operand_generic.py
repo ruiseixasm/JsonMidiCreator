@@ -219,7 +219,7 @@ class Pitch(Generic):
         self._natural = False
 
         # Excludes the effect of the decorative parameters
-        offset_pitch: int = pitch - ( 12 * (self._octave + 1) + self._key % 12 )
+        offset_pitch: int = int( pitch - self % float() )
         return self.apply_key_offset(offset_pitch)
 
 
