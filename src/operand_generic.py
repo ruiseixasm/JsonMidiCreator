@@ -129,7 +129,7 @@ class Pitch(Generic):
         super().__init__(*parameters)
 
 
-    def set_staff_reference(self, staff_reference: 'Staff' = None) -> 'Pitch':
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
         if isinstance(staff_reference, Staff):
             self._staff_reference = staff_reference
         return self
@@ -137,21 +137,21 @@ class Pitch(Generic):
     def get_staff_reference(self) -> 'Staff':
         return self._staff_reference
 
-    def reset_staff_reference(self) -> 'Pitch':
+    def reset_staff_reference(self) -> Self:
         self._staff_reference = defaults._staff
         return self
 
 
-    def sharp(self, unit: bool = True) -> 'Pitch':
+    def sharp(self, unit: bool = True) -> Self:
         return self << ou.Sharp(unit)
 
-    def flat(self, unit: bool = True) -> 'Pitch':
+    def flat(self, unit: bool = True) -> Self:
         return self << ou.Flat(unit)
 
-    def natural(self, unit: bool = True) -> 'Pitch':
+    def natural(self, unit: bool = True) -> Self:
         return self << ou.Natural(unit)
 
-    def degree(self, unit: int = 1) -> 'Pitch':
+    def degree(self, unit: int = 1) -> Self:
         return self << ou.Degree(unit)
 
 
@@ -356,7 +356,7 @@ class Pitch(Generic):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Pitch':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "tonic_key" in serialization["parameters"] and "sharp" in serialization["parameters"] and "natural" in serialization["parameters"] and
             "degree" in serialization["parameters"] and "octave" in serialization["parameters"]):
@@ -465,11 +465,11 @@ class Pitch(Generic):
 
         return self
 
-    def __add__(self, operand: any) -> 'Pitch':
+    def __add__(self, operand: any) -> Self:
         self_copy: Pitch = self.copy()
         return self_copy.__iadd__(operand)
     
-    def __iadd__(self, operand: any) -> 'Pitch':
+    def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
@@ -491,11 +491,11 @@ class Pitch(Generic):
                 self.set_chromatic_pitch(new_pitch)
         return self
     
-    def __sub__(self, operand: any) -> 'Pitch':
+    def __sub__(self, operand: any) -> Self:
         self_copy: Pitch = self.copy()
         return self_copy.__isub__(operand)
     
-    def __isub__(self, operand: any) -> 'Pitch':
+    def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Pitch():
@@ -517,7 +517,7 @@ class Pitch(Generic):
                 self.set_chromatic_pitch(new_pitch)
         return self
 
-    def __mul__(self, operand) -> 'Pitch':
+    def __mul__(self, operand) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
@@ -537,7 +537,7 @@ class Pitch(Generic):
             case _:
                 return super().__mul__(operand)
     
-    def __div__(self, operand) -> 'Pitch':
+    def __div__(self, operand) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case int():
@@ -585,7 +585,7 @@ class Pitch(Generic):
             "b": 11
          }
 
-    def snap(self, up: bool = False) -> 'Pitch':
+    def snap(self, up: bool = False) -> Self:
         scale_list: list[int] = self._staff_reference % list()
         self_pitch: float = self % float()
         pitch_offset: float = 0.0
