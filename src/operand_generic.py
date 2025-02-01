@@ -178,15 +178,16 @@ class Pitch(Generic):
         key_int: int = self._key % 12 + degree_transposition
 
         # Final parameter decorators like Sharp and Natural
-        if self._major_scale[key_int % 12] == 0:  # Black key
-            if self._natural:   # Has to process the Natural
+        if self._natural:
+            if self._major_scale[key_int % 12] == 0:  # Black key
                 accidentals_int: int = self._staff_reference._key_signature._unit
                 if accidentals_int < 0:
                     key_int += 1
                 else:
                     key_int -= 1
-        elif not self._natural: # Already known to be a White key
-            key_int += self._sharp  # applies Pitch self accidentals
+        elif self._sharp != 0:
+            if self._major_scale[key_int % 12] == 1:  # White key
+                key_int += self._sharp  # applies Pitch self accidentals
 
         return key_int
 
