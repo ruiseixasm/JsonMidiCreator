@@ -786,9 +786,15 @@ class KeySignature(PitchParameter):       # Sharps (+) and Flats (-)
     
     def is_enharmonic(self, tonic_key: int, key: int) -> bool:
         if self._unit > +5:
-            return (key - tonic_key) % 12 == 11
-        if self._unit < -5:
-            return (key - tonic_key) % 12 == 5
+            if (key - tonic_key) % 12 == 11:
+                return True
+            if self._unit == +7:
+                return (key - tonic_key) % 12 == 4
+        elif self._unit < -5:
+            if (key - tonic_key) % 12 == 5:
+                return True
+            if self._unit == -7:
+                return (key - tonic_key) % 12 == 0
         return False
 
 

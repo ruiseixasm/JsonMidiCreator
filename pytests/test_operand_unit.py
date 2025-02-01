@@ -97,11 +97,13 @@ def test_enharmonic_key():
     assert key_signature.is_enharmonic(6, 5)
     key_signature = KeySignature(+7)
     assert key_signature.is_enharmonic(1, 0)
+    assert key_signature.is_enharmonic(1, 5)
 
     key_signature = KeySignature(-6)
     assert key_signature.is_enharmonic(6, 11)
     key_signature = KeySignature(-7)
     assert key_signature.is_enharmonic(11, 4)
+    assert key_signature.is_enharmonic(11, 11)
 
 # test_enharmonic_key()
 
