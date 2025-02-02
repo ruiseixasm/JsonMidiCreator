@@ -219,8 +219,8 @@ class Pitch(Generic):
         self._natural = False
 
         # Excludes the effect of the decorative parameters
-        offset_pitch: int = int( pitch - self % float() )
-        return self.apply_key_offset(offset_pitch)
+        key_offset: int = int( pitch - self % float() )
+        return self.apply_key_offset(key_offset)
 
 
     def __mod__(self, operand: o.T) -> o.T:
