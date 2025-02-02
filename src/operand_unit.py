@@ -424,7 +424,8 @@ class TimeUnit(Unit):
 
 
 class Measure(TimeUnit):
-    """
+    """`Unit -> TimeUnit -> Measure`
+
     A Measure() represents the basic unit of a Staff division by witch Clips are multiplied,
     and is set as an integer without decimal places.
     Its return from Length and Position objects represents their rounded value accordingly.
@@ -502,7 +503,8 @@ class Measure(TimeUnit):
 
 
 class Beat(TimeUnit):
-    """
+    """`Unit -> TimeUnit -> Beat`
+
     A Beat() represents the basic unit of a TimeSignature in relation to Measures (Ex 4 per Measure),
     and is set as an integer without decimal places.
     Its return from Length and Position objects represents their rounded value accordingly.
@@ -580,7 +582,8 @@ class Beat(TimeUnit):
 
 
 class Step(TimeUnit):
-    """
+    """`Unit -> TimeUnit -> Step`
+
     A Step() represents an unit of Quantization (Ex 1/16) as an integer without decimal places.
     Its return from Length and Position objects represents their rounded value accordingly.
 
@@ -660,7 +663,8 @@ class Accidentals(Unit):
         super().__init__(1, *parameters)
 
 class Sharps(Accidentals):  # Sharps (###)
-    """
+    """`Unit -> Accidentals -> Sharps`
+
     Sharps() is intended to be used with KeySignature to set its amount of Sharps.
     
     Parameters
@@ -685,7 +689,8 @@ class Sharps(Accidentals):  # Sharps (###)
         return self
 
 class Flats(Accidentals):   # Flats (bbb)
-    """
+    """`Unit -> Accidentals -> Flats`
+
     Flats() is intended to be used with KeySignature to set its amount of Flats.
     
     Parameters
@@ -709,164 +714,6 @@ class Flats(Accidentals):   # Flats (bbb)
                 super().__lshift__(operand)
         return self
 
-
-class PitchParameter(Unit):
-    pass
-
-class Tone(PitchParameter):
-    """
-    A Tone() represents a Key change in a given KeySignature or Scale, AKA whole-step.
-    The default is 0.
-    
-    Parameters
-    ----------
-    first : integer_like
-        An Integer representing the amount of whole-steps, from 0 to higher.
-    """
-    pass
-
-class Semitone(PitchParameter):
-    """
-    A Semitone() represents a pitch in a Chromatic scale, AKA half-step.
-    The default is 0.
-    
-    Parameters
-    ----------
-    first : integer_like
-        An Integer representing the amount of Chromatic steps, from 0 to 127.
-    """
-    pass
-
-class Key(PitchParameter):
-    """
-    A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
-    the 12 keys of an octave.
-    
-    Parameters
-    ----------
-    first : integer_like or string_like
-        A number from 0 to 11 with 0 as default or the equivalent string key "C"
-    """
-    def key_signature(self, key_signature: 'KeySignature' = None) -> Self:
-        self._key_signature = key_signature
-        return self
-
-    def sharp(self, unit: int = None) -> Self:
-        return self << od.DataSource( Sharp(unit) )
-
-    def flat(self, unit: int = None) -> Self:
-        return self << od.DataSource( Flat(unit) )
-
-    def natural(self, unit: int = None) -> Self:
-        return self << od.DataSource( Natural(unit) )
-
-    def degree(self, unit: int = None) -> Self:
-        return self << od.DataSource( Degree(unit) )
-
-    def scale(self, scale: list[int] | str = None) -> Self:
-        import operand_generic as og
-        return self << od.DataSource( og.Scale(scale) )
-
-    def __mod__(self, operand: o.T) -> o.T:
-        import operand_generic as og
-        match operand:
-            case od.DataSource():
-                match operand._data:
-                    case str():
-                        return Key._keys[self._unit % 48]
-                    case _:
-                        return super().__mod__(operand)
-
-            case int():
-                return self._unit % 24
-
-            case float():
-                return float(self._unit % 48)
-
-            case str():
-                return Key._keys[self._unit % 48]
-
-            case Sharp():
-                line: int = self._unit // 12
-                if line % 2 == 0:   # Even line
-                    return Sharp(self._accidentals[self._unit % 48])
-                return Sharp(0)
-            case Flat():
-                line: int = self._unit // 12
-                if line % 2 == 1:   # Odd line
-                    return Flat(self._accidentals[self._unit % 48] * -1)
-                return Flat(0)
-
-            case _:                 return super().__mod__(operand)
-
-    def __eq__(self, other: o.Operand) -> bool:
-        import operand_generic as og
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        match other:
-            case self.__class__():
-                return self % int() == other % int()    # This get's in consideration the just final key pressed
-            case str():
-                return self % str() == other
-            case _:
-                return super().__eq__(other)
-    
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        import operand_generic as og
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case od.DataSource():
-                match operand._data:
-                    case int():
-                        self._unit = operand._data
-                    case float() | Fraction():
-                        self._unit = int(operand._data)
-                    case Semitone():
-                        self._unit = operand._data % od.DataSource( int() )
-                        self << Degree(1)
-
-                    case str():
-                        self._unit = self.getStringToNumber(operand._data) % 48
-                    case _:
-                        super().__lshift__(operand)
-          
-
-            case int():
-                self._unit = operand % 24
-            case float():
-                self._unit = int(operand) % 48
-
-            case str():
-                self_unit: int = self.getStringToNumber(operand)
-                if self_unit != -1:
-                    self._unit = self_unit
-
-            case _:
-                super().__lshift__(operand)
-        return self
-
-    _keys: list[str] = [
-        "C",   "C#", "D",   "D#", "E",   "F",   "F#", "G",   "G#", "A",   "A#", "B",    # Black Sharps
-        "C",   "Db", "D",   "Eb", "E",   "F",   "Gb", "G",   "Ab", "A",   "Bb", "B",    # Black Flats
-        "B#",  "C#", "C##", "D#", "D##", "E#",  "F#", "F##", "G#", "G##", "A#", "A##",  # All Sharps
-        "Dbb", "Db", "Ebb", "Eb", "Fb",  "Gbb", "Gb", "Abb", "Ab", "Bbb", "Bb", "Cb"    # All Flats
-    ]
-
-    _accidentals: list[int] = [
-         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
-         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
-        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
-        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
-    ]
-    
-    def getStringToNumber(self, key: str = "C") -> int:
-        key_to_find: str = key.strip().lower()
-        for index, value in enumerate(Key._keys):
-            if value.lower().find(key_to_find) != -1:
-                return index
-        return -1
 
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
     """
@@ -1045,13 +892,172 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1]     # +7
     ]
 
+class PitchParameter(Unit):
+    pass
+
+class Tone(PitchParameter):
+    """`Unit -> PitchParameter -> Tone`
+
+    A Tone() represents a Key change in a given KeySignature or Scale, AKA whole-step.
+    The default is 0.
+    
+    Parameters
+    ----------
+    first : integer_like
+        An Integer representing the amount of whole-steps, from 0 to higher.
+    """
+    pass
+
+class Semitone(PitchParameter):
+    """
+    A Semitone() represents a pitch in a Chromatic scale, AKA half-step.
+    The default is 0.
+    
+    Parameters
+    ----------
+    first : integer_like
+        An Integer representing the amount of Chromatic steps, from 0 to 127.
+    """
+    pass
+
+class Key(PitchParameter):
+    """
+    A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
+    the 12 keys of an octave.
+    
+    Parameters
+    ----------
+    first : integer_like or string_like
+        A number from 0 to 11 with 0 as default or the equivalent string key "C"
+    """
+    def key_signature(self, key_signature: 'KeySignature' = None) -> Self:
+        self._key_signature = key_signature
+        return self
+
+    def sharp(self, unit: int = None) -> Self:
+        return self << od.DataSource( Sharp(unit) )
+
+    def flat(self, unit: int = None) -> Self:
+        return self << od.DataSource( Flat(unit) )
+
+    def natural(self, unit: int = None) -> Self:
+        return self << od.DataSource( Natural(unit) )
+
+    def degree(self, unit: int = None) -> Self:
+        return self << od.DataSource( Degree(unit) )
+
+    def scale(self, scale: list[int] | str = None) -> Self:
+        import operand_generic as og
+        return self << od.DataSource( og.Scale(scale) )
+
+    def __mod__(self, operand: o.T) -> o.T:
+        import operand_generic as og
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case str():
+                        return Key._keys[self._unit % 48]
+                    case _:
+                        return super().__mod__(operand)
+
+            case int():
+                return self._unit % 24
+
+            case float():
+                return float(self._unit % 48)
+
+            case str():
+                return Key._keys[self._unit % 48]
+
+            case Sharp():
+                line: int = self._unit // 12
+                if line % 2 == 0:   # Even line
+                    return Sharp(self._accidentals[self._unit % 48])
+                return Sharp(0)
+            case Flat():
+                line: int = self._unit // 12
+                if line % 2 == 1:   # Odd line
+                    return Flat(self._accidentals[self._unit % 48] * -1)
+                return Flat(0)
+
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        import operand_generic as og
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return self % int() == other % int()    # This get's in consideration the just final key pressed
+            case str():
+                return self % str() == other
+            case _:
+                return super().__eq__(other)
+    
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        import operand_rational as ra
+        import operand_generic as og
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case int():
+                        self._unit = operand._data
+                    case float() | Fraction():
+                        self._unit = int(operand._data)
+                    case Semitone():
+                        self._unit = operand._data % od.DataSource( int() )
+                        self << Degree(1)
+
+                    case str():
+                        self._unit = self.getStringToNumber(operand._data) % 48
+                    case _:
+                        super().__lshift__(operand)
+          
+
+            case int():
+                self._unit = operand % 24
+            case float():
+                self._unit = int(operand) % 48
+
+            case str():
+                self_unit: int = self.getStringToNumber(operand)
+                if self_unit != -1:
+                    self._unit = self_unit
+
+            case _:
+                super().__lshift__(operand)
+        return self
+
+    _keys: list[str] = [
+        "C",   "C#", "D",   "D#", "E",   "F",   "F#", "G",   "G#", "A",   "A#", "B",    # Black Sharps
+        "C",   "Db", "D",   "Eb", "E",   "F",   "Gb", "G",   "Ab", "A",   "Bb", "B",    # Black Flats
+        "B#",  "C#", "C##", "D#", "D##", "E#",  "F#", "F##", "G#", "G##", "A#", "A##",  # All Sharps
+        "Dbb", "Db", "Ebb", "Eb", "Fb",  "Gbb", "Gb", "Abb", "Ab", "Bbb", "Bb", "Cb"    # All Flats
+    ]
+
+    _accidentals: list[int] = [
+         0,    +1,    0,    +1,    0,     0,    +1,    0,    +1,    0,    +1,    0,     # Black Sharps
+         0,    -1,    0,    -1,    0,     0,    -1,    0,    -1,    0,    -1,    0,     # Black Flats
+        +1,    +1,   +2,    +1,   +2,    +1,    +1,   +2,    +1,   +2,    +1,   +2,     # All Sharps
+        -2,    -1,   -2,    -1,   -1,    -2,    -1,   -2,    -1,   -2,    -1,   -1      # All Flats
+    ]
+    
+    def getStringToNumber(self, key: str = "C") -> int:
+        key_to_find: str = key.strip().lower()
+        for index, value in enumerate(Key._keys):
+            if value.lower().find(key_to_find) != -1:
+                return index
+        return -1
+
 class Root(Key):
     pass
 
 class Home(Key):
     pass
 
-class Tonic(Key):
+class Tonic(PitchParameter):
     pass
 
 class Octave(PitchParameter):
@@ -1688,10 +1694,14 @@ class PPQN(Unit):
         super().__init__(24, *parameters)
 
 class Midi(Unit):
+    """`Unit -> Midi`
+
+    """
     pass
 
 class MidiTrack(Midi):
-    """
+    """`Unit -> Midi -> MidiTrack`
+
     A MidiTrack() is how arrangements are split in multiple compositions in Midi files.
     
     Parameters
@@ -1771,7 +1781,8 @@ class TrackNumber(Midi):
         super().__init__(1, *parameters)         # By default is Track number 1
 
 class Channel(Midi):
-    """
+    """`Unit -> Midi -> Channel`
+
     A Channel() is an identifier normally associated to an instrument in a given midi device.
     
     Parameters
@@ -1783,7 +1794,8 @@ class Channel(Midi):
         super().__init__(1, *parameters)         # By default is channel 1
 
 class Velocity(Midi):
-    """
+    """`Unit -> Midi -> Velocity`
+
     Velocity() represents the velocity or strength by which a key is pressed.
     
     Parameters
@@ -1795,7 +1807,8 @@ class Velocity(Midi):
         super().__init__(100, *parameters)         # By default is velocity 100
 
 class Pressure(Midi):
-    """
+    """`Unit -> Midi -> Pressure`
+
     Pressure() represents the intensity with which a key is pressed after being down.
     
     Parameters
@@ -1806,7 +1819,8 @@ class Pressure(Midi):
     pass
 
 class Bend(Midi):
-    """
+    """`Unit -> Midi -> Bend`
+
     Bend() sets the bending of the pitch to be associated to the PitchBend() Element.
     
     Parameters
@@ -1818,7 +1832,8 @@ class Bend(Midi):
     pass
 
 class Program(Midi):
-    """
+    """`Unit -> Midi -> Program`
+
     Program() represents the Program Number associated to a given Instrument.
     
     Parameters
@@ -2028,7 +2043,8 @@ class Program(Midi):
 # max : The maximum positive swing is achieved with data byte values of 127, 127 (7FH, 7FH). Value = 16384
 
 class Value(Midi):
-    """
+    """`Unit -> Midi -> Value`
+
     Value() represents the Control Change value that is sent via Midi
     
     Parameters
@@ -2039,7 +2055,8 @@ class Value(Midi):
     pass
 
 class Number(Midi):
-    """
+    """`Unit -> Midi -> Number`
+
     Number() represents the number of the Control to be manipulated with the Value values.
     
     Parameters
