@@ -147,7 +147,7 @@ def test_pitch_degrees():
     ]
 
     # White Tonic Key
-    sharp_pitch = Pitch()
+    sharp_pitch = Pitch()   # With Degree 1
     for degree in range(1, 8):
         sharp_pitch << degree
         print(f"Key: {sharp_pitch % float()}")
@@ -155,7 +155,7 @@ def test_pitch_degrees():
 
     # Black Tonic Key
     print("------")
-    sharp_pitch << 61.0
+    sharp_pitch << 1 << 61.0    # Has to reset previous Degree to 1 first
     for degree in range(1, 8):
         sharp_pitch << degree
         print(f"Key: {sharp_pitch % float()}")
@@ -168,12 +168,12 @@ def test_pitch_degrees():
 
         reference_keys: list[float] = []
         for degree in range(1, 8):
-            key_pitch << 60.0 << degree
+            key_pitch << 1 << 60.0 << degree    # Has to reset previous Degree to 1 first
             reference_keys.append( key_pitch % float() )
 
         for pitch_int in range(60, 72):
             print("---")
-            key_pitch << float(pitch_int)
+            key_pitch << 1 << float(pitch_int)  # Has to reset previous Degree to 1 first
             for degree in range(1, 8):
                 key_pitch << degree
                 print(f"Key: {key_pitch % float()}")
@@ -182,7 +182,7 @@ def test_pitch_degrees():
     # Resets the defaults
     defaults << KeySignature() << Scale([])
 
-test_pitch_degrees()
+# test_pitch_degrees()
 
 
 def test_pitch_key_signature():

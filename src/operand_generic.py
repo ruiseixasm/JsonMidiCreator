@@ -212,12 +212,11 @@ class Pitch(Generic):
     
     def set_chromatic_pitch(self, pitch: int | float) -> Self:
         
-        # Reset decorative parameters
-        self._degree = 1
+        # Reset purely decorative parameters
         self._natural = False
         self._sharp = 0
 
-        # Excludes the effect of the decorative parameters
+        # Excludes the effect of purely decorative parameters
         key_offset: int = int( pitch - self % float() )
         return self.apply_key_offset(key_offset)
 
