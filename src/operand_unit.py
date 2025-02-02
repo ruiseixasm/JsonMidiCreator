@@ -1724,6 +1724,10 @@ class MidiTrack(Midi):
         match other:
             case self.__class__():
                 return super().__eq__(other) and self._name == other._name
+            case TrackNumber():
+                return self._unit == other._unit
+            case od.TrackName():
+                return self._unit == other._data
             case str():
                 return self._name == other
             case _:
