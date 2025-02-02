@@ -207,7 +207,6 @@ class Pitch(Generic):
         octave_offset_int, key_offset_int = self.octave_key_offset(key_offset)
         self._octave += octave_offset_int
         self._tonic_key += key_offset_int
-        self._tonic_key %= 24   # Removes key from Key Signature specificity
 
         return self
     
