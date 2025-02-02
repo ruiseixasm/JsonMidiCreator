@@ -1709,8 +1709,12 @@ class MidiTrack(Midi):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     return self._name
-                    case _:                         return super().__mod__(operand)
+                    case TrackNumber():         return operand._data << od.DataSource(self._unit)
+                    case od.TrackName():        return operand._data << od.DataSource(self._name)
+                    case str():                 return self._name
+                    case _:                     return super().__mod__(operand)
+            case TrackNumber():         return TrackNumber(self._unit)
+            case od.TrackName():        return od.TrackName(self._name)
             case str():                 return self._name
             case _:                     return super().__mod__(operand)
 
@@ -1732,7 +1736,7 @@ class MidiTrack(Midi):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'MidiTrack':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "name" in serialization["parameters"]):
 
