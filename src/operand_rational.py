@@ -1267,7 +1267,7 @@ class Duration(Convertible):
     
     Parameters
     ----------
-    first : float_like
+    first : float_like, string_like
         Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
     # CHAINABLE OPERATIONS
@@ -1279,6 +1279,22 @@ class Duration(Convertible):
                 super().__lshift__(operand)
             case Convertible() | ou.TimeUnit():
                 self._rational = self._staff_reference.convertToDuration(operand)._rational
+            case str():
+                time_division: str = operand.strip().upper()
+                match time_division:
+                    case "1/1" | "1":       super().__lshift__(1)
+                    case "1/2":             super().__lshift__(1/2)
+                    case "1/4":             super().__lshift__(1/4)
+                    case "1/6" | "1/4T":    super().__lshift__(1/6)
+                    case "1/8":             super().__lshift__(1/8)
+                    case "1/12" | "1/8T":   super().__lshift__(1/12)
+                    case "1/16":            super().__lshift__(1/16)
+                    case "1/24" | "1/16T":  super().__lshift__(1/24)
+                    case "1/32":            super().__lshift__(1/32)
+                    case "1/48" | "1/32T":  super().__lshift__(1/48)
+                    case "1/64":            super().__lshift__(1/64)
+                    case "1/96" | "1/64T":  super().__lshift__(1/96)
+                    case _:                 super().__lshift__(operand)
             case _:
                 super().__lshift__(operand)
         return self
@@ -1384,6 +1400,22 @@ class Dotted(Duration):
                 # Then it's multiplied by 3/2 because it's a Dotted Note
                 self._rational = self._rational * 3 / 2 # Retains the Fraction
                 # DON'T DO THIS: "self._rational *= 3/2"
+            case str():
+                time_division: str = operand.strip().upper()
+                match time_division:
+                    case "1/1" | "1":       super().__lshift__(1 * 3/2)
+                    case "1/2":             super().__lshift__(1/2 * 3/2)
+                    case "1/4":             super().__lshift__(1/4 * 3/2)
+                    case "1/6" | "1/4T":    super().__lshift__(1/6 * 3/2)
+                    case "1/8":             super().__lshift__(1/8 * 3/2)
+                    case "1/12" | "1/8T":   super().__lshift__(1/12 * 3/2)
+                    case "1/16":            super().__lshift__(1/16 * 3/2)
+                    case "1/24" | "1/16T":  super().__lshift__(1/24 * 3/2)
+                    case "1/32":            super().__lshift__(1/32 * 3/2)
+                    case "1/48" | "1/32T":  super().__lshift__(1/48 * 3/2)
+                    case "1/64":            super().__lshift__(1/64 * 3/2)
+                    case "1/96" | "1/64T":  super().__lshift__(1/96 * 3/2)
+                    case _:                 super().__lshift__(operand)
             case _:
                 if not isinstance(operand, (Rational, ou.Unit)):
                     super().__lshift__(operand)
