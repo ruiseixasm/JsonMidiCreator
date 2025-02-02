@@ -239,7 +239,6 @@ class Pitch(Generic):
             case od.DataSource():
                 match operand._data:
                     case of.Frame():        return self % od.DataSource( operand._data )
-                    case Pitch():           return self
                     case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
                     case ou.Key():          return ou.Key() << od.DataSource(self._tonic_key)
                     case ou.Sharp():        return ou.Sharp() << od.DataSource(max(0, self._sharp))
@@ -250,7 +249,6 @@ class Pitch(Generic):
                     case float():           return float(self._tonic_key)
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
-            case Pitch():           return self.copy()
 
             case int():
                 return self._degree
