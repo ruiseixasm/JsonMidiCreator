@@ -262,6 +262,10 @@ class Pitch(Generic):
             case ou.Octave():
                 final_pitch: int = int(self % float())
                 return ou.Octave( final_pitch // 12 - 1 )
+            
+            case ou.Degree():
+                return ou.Degree() << od.DataSource(self._degree)
+             
             case ou.Sharp():
                 final_pitch: int = int(self % float())
                 if self._major_scale[final_pitch % 12] == 0:    # Black key
@@ -289,9 +293,6 @@ class Pitch(Generic):
                     and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
-            
-            case ou.Degree():
-                return ou.Degree() << od.DataSource(self._degree)
             
             case str():
                 return self % ou.Key() % str()
