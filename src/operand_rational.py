@@ -794,9 +794,10 @@ class Convertible(Rational):
 
 
 class Length(Convertible):
-    """
+    """`Rational -> Convertible -> Length`
+
     Length() is a Parameter applicable to Element and Clip objects. The input and output
-    is given in Measures and their TimeUnit returns are rounded up to the next one.
+    is given in Measures and their TimeUnit returns are rounded up to the NEXT one.
     Internally though, the values are in Beats and can be directly accessed with the "//" operator.
 
     Parameters
@@ -928,7 +929,28 @@ class Length(Convertible):
 
 
 class Position(Length):
+    """`Rational -> Convertible -> Length -> Position`
+
+    Position() is a Parameter applicable to Element and Clip objects. The input and output
+    is given in Measures and their TimeUnit returns are rounded up to the SAME one.
+    Internally though, the values are in Beats and can be directly accessed with the "//" operator.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 0.
     
+    Examples
+    --------
+    Gets the Note default Position from 1/4 NoteValue:
+    >>> note = Note()
+    >>> note % Position() % float() >> Print()
+    0.25
+    >>> note % Position() // float() >> Print()
+    1.0
+    """
+
     # Position round type: [...)
     def roundMeasures(self) -> 'Position':
         measures: Fraction = self.convertToMeasures()._rational
@@ -949,25 +971,27 @@ class Position(Length):
 
 
 class TimeValue(Convertible):  # Works as Absolute Beats
-    """
-    TimeUnit() represents any Time Length variables, namely, Measure, Beat, NoteValue and Step.
+    """`Rational -> Convertible -> TimeValue`
+
+    TimeValue() represents any Time variables like Measure, Beat, NoteValue and Step.
     
     Parameters
     ----------
     first : float_like
-        Not intended to be set directly
+        The default value is 0.
     """
     pass
 
 
 class Measures(TimeValue):
-    """
-    Measure() represents the Staff Time Length in Measures, also known as Bar.
+    """`Rational -> Convertible -> TimeValue -> Measures`
+
+    Measures() represents the Staff Time Length, also known as Bar.
     
     Parameters
     ----------
     first : float_like
-        Proportional value to a Measure on the Staff
+        Proportional value to a Measures on the Staff
     """
     # CHAINABLE OPERATIONS
 
@@ -1032,8 +1056,9 @@ class Measures(TimeValue):
 
 
 class Beats(TimeValue):
-    """
-    A Beat() represents the Staff Time Length in Beat on which the Tempo is based on (BPM).
+    """`Rational -> Convertible -> TimeValue -> Beats`
+
+    Beats() represents the Staff Time Length in Beats on which the Tempo is based on (BPM).
     
     Parameters
     ----------
@@ -1103,13 +1128,14 @@ class Beats(TimeValue):
 
 
 class Steps(TimeValue):
-    """
+    """`Rational -> Convertible -> TimeValue -> Steps`
+
     A Step() represents the Length given by the Quantization, normally 1/16 Note Value.
     
     Parameters
     ----------
     first : float_like
-        Steps as 1, 2, 4, 8
+        Steps as 1, 2, 4, 8...
     """
     # CHAINABLE OPERATIONS
 
@@ -1174,13 +1200,14 @@ class Steps(TimeValue):
 
 
 class Duration(Convertible):
-    """
-    NoteValue() represents the Duration of a Note, a Note Value typically comes as 1/4, 1/8 and 1/16.
+    """`Rational -> Convertible -> Duration`
+
+    Duration() represents the Note Value of a Note, a Duration typically comes as 1/4, 1/8 and 1/16.
     
     Parameters
     ----------
     first : float_like
-        Note Value as 1, 1/2, 1/4, 1/8, 1/16, 1/32
+        Duration as 1, 1/2, 1/4, 1/8, 1/16, 1/32
     """
     # CHAINABLE OPERATIONS
 
@@ -1236,15 +1263,16 @@ class Duration(Convertible):
 NoteValue = Duration
 
 class Dotted(Duration):
-    """
+    """`Rational -> Convertible -> Duration -> Dotted`
+
     A Dotted() represents the Note Value of a Dotted Note, a Dotted Note Value typically comes as 1/4* and 1/8*.
     Dots are equivalent to the following Note Values:
-        | 1*    = (1    + 1/2)   = 3/2
-        | 1/2*  = (1/2  + 1/4)   = 3/4
-        | 1/4*  = (1/4  + 1/8)   = 3/8
-        | 1/8*  = (1/8  + 1/16)  = 3/16
-        | 1/16* = (1/16 + 1/32)  = 3/32
-        | 1/32* = (1/32 + 1/64)  = 3/64
+        1*    = (1    + 1/2)   = 3/2;
+        1/2*  = (1/2  + 1/4)   = 3/4;
+        1/4*  = (1/4  + 1/8)   = 3/8;
+        1/8*  = (1/8  + 1/16)  = 3/16;
+        1/16* = (1/16 + 1/32)  = 3/32;
+        1/32* = (1/32 + 1/64)  = 3/64.
     
     Parameters
     ----------
