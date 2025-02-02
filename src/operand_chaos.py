@@ -37,6 +37,17 @@ import operand_frame as of
 
 
 class Chaos(o.Operand):
+    """`Chaos`
+
+    Chaos, contrarily to Randomness, is repeatable!
+    This class allows trough parametrization the unpredictable return of data
+    and processing of other class object in a repeatable way.
+
+    Parameters
+    ----------
+    first : any_like
+        Any type of parameter can be used to set Chaos. No defaults.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._xn: ra.Xn                 = ra.Xn()
