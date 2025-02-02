@@ -301,7 +301,7 @@ class Pitch(Generic):
                         key_line_new = 2    # All Sharps
                 if key_line != key_line_new:
                     print(f"OLD_LINE: {key_line}, NEW_LINE: {key_line_new}")
-                # return ou.Key( float(key_note + key_line_new * 12) )
+                return ou.Key( float(key_note + key_line_new * 12) )
                 return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Degree():

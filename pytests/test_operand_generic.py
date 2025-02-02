@@ -198,7 +198,6 @@ def test_pitch_key_signature():
 
         defaults << KeySignature(signature - 7)
         pitch_key: Pitch = Pitch()
-        defaults << KeySignature()
 
         print(f"Major Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % str() == major_keys_signatures[signature]
@@ -212,7 +211,6 @@ def test_pitch_key_signature():
         
         defaults << KeySignature(signature - 7, Minor())
         pitch_key: Pitch = Pitch()
-        defaults << KeySignature()
 
         print(f"minor Signature: {signature - 7}, result: {pitch_key % str()}")
         assert pitch_key % str() == minor_keys_signatures[signature]
