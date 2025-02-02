@@ -239,7 +239,7 @@ class Pitch(Generic):
                 match operand._data:
                     case of.Frame():        return self % od.DataSource( operand._data )
                     case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
-                    case ou.Key():          return ou.Key() << od.DataSource(self._tonic_key)
+                    case ou.Tonic():        return ou.Tonic() << od.DataSource(self._tonic_key)
                     case ou.Sharp():        return ou.Sharp() << od.DataSource(max(0, self._sharp))
                     case ou.Flat():         return ou.Flat() << od.DataSource(max(0, self._sharp * -1))
                     case ou.Natural():      return ou.Natural() << od.DataSource(self._natural)
@@ -258,6 +258,8 @@ class Pitch(Generic):
             case ou.Semitone():
                 return ou.Semitone(self % float())
             
+            case ou.Tonic():
+                return ou.Tonic(self._tonic_key)
             case ou.Octave():
                 final_pitch: int = int(self % float())
                 return ou.Octave( final_pitch // 12 - 1 )
@@ -378,10 +380,10 @@ class Pitch(Generic):
                 self._staff_reference       = operand._staff_reference
             case od.DataSource():
                 match operand._data:
+                    case ou.Tonic():
+                        self._tonic_key = operand._data._unit
                     case ou.Octave():
                         self._octave    = operand._data._unit
-                    case ou.Key():
-                        self._tonic_key       = operand._data._unit
                     case int():
                         self._unit = operand._data
                     case float() | Fraction():
@@ -408,11 +410,13 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case ou.Tonic():
+                self._tonic_key = operand._unit % 24
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset._unit
             case ou.Key():
-                self._tonic_key = operand._unit
+                self._tonic_key = operand._unit % 24
             case None:
                 self._tonic_key = int( self._staff_reference._key_signature % float() )
             case int():
@@ -450,8 +454,8 @@ class Pitch(Generic):
                 self._sharp = \
                     (ou.Sharp(max(0, self._sharp)) << string)._unit + \
                     (ou.Flat(max(0, self._sharp * -1)) << string)._unit
-                self._degree    = (self // ou.Degree() << operand)._unit
-                self._tonic_key       = (self // ou.Key() << string)._unit
+                self._degree    = (self % ou.Degree() << operand)._unit
+                self._tonic_key = (self % ou.Key() << string)._unit
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -479,6 +483,8 @@ class Pitch(Generic):
             case ou.Tone():
                 new_pitch: float = self % float() + self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
+            case ou.Tonic():
+                self._tonic_key += operand._unit
             case float() | Fraction():
                 new_pitch: float = self % float() + float(operand)
                 self.set_chromatic_pitch(new_pitch)
@@ -505,6 +511,8 @@ class Pitch(Generic):
             case ou.Tone():
                 new_pitch: float = self % float() - self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
+            case ou.Tonic():
+                self._tonic_key -= operand._unit
             case float() | Fraction():
                 new_pitch: float = self % float() - float(operand)
                 self.set_chromatic_pitch(new_pitch)

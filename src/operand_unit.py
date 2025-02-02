@@ -1062,6 +1062,16 @@ class Home(Key):
     pass
 
 class Tonic(PitchParameter):
+    """`Unit -> PitchParameter -> Tonic`
+
+    An Tonic() represents the root note of a given pitch, with same pitch to a Degree of 1.
+    The default value is the Tonic key is 0 representing the key of C.
+    
+    Parameters
+    ----------
+    first : integer_like
+        An Integer representing the key offset relative to the key of C.
+    """
     pass
 
 class Octave(PitchParameter):
