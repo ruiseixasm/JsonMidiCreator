@@ -246,12 +246,8 @@ class Pitch(Generic):
                     case ou.Flat():         return ou.Flat() << od.DataSource(max(0, self._sharp * -1))
                     case ou.Natural():      return ou.Natural() << od.DataSource(self._natural)
                     case ou.Degree():       return ou.Degree() << od.DataSource(self._degree)
-                    case int():             return self % int()
-                    case float():           return self % float()
-                    case str():
-                        note_key = self._tonic_key % 12
-                        note_key += 12 * max(0, self._sharp * -1)   # second line of the list
-                        return ou.Key._keys[note_key]
+                    case int():             return self._degree
+                    case float():           return float(self._tonic_key)
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % (operand._data)
             case Pitch():           return self.copy()
