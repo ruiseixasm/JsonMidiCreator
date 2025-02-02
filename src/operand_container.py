@@ -484,6 +484,8 @@ class Clip(Container):  # Just a container of Elements
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
             case ou.MidiTrack():    return self._midi_track.copy()
+            case ou.TrackNumber() | od.TrackName() | str():
+                return self._midi_track % operand
             case ra.Position():
                 return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
@@ -492,7 +494,7 @@ class Clip(Container):  # Just a container of Elements
                 return self.length()
             case ra.Duration():     return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
-                | int() | float() | Fraction() | str():
+                | int() | float() | Fraction():
                                     return self._staff % operand
             case _:                 return super().__mod__(operand)
 
@@ -704,7 +706,7 @@ class Clip(Container):  # Just a container of Elements
                         super().__lshift__(operand)
                         self._items = o.filter_list(self._items, lambda item: isinstance(item, oe.Element))
 
-            case ou.MidiTrack():
+            case ou.MidiTrack() | ou.TrackNumber() | od.TrackName():
                 self._midi_track << operand
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 self._staff << operand
@@ -726,10 +728,10 @@ class Clip(Container):  # Just a container of Elements
                         self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case ra.Length() | ra.Duration():
                         self._length_beats = self._staff.convertToBeats(operand._data)._rational
-                    case ou.MidiTrack():
+                    case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
                         self._midi_track << operand._data
                     case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
-                            | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction() | str():
+                            | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction():
                         self._staff << operand._data
                     case None:
                         self._length_beats = Fraction(-1)
