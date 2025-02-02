@@ -787,14 +787,14 @@ class Key(PitchParameter):
                 return Key._keys[self._unit % 48]
 
             case Sharp():
-                self_unit: int = self._unit % 48
-                if self_unit < 12 or (self_unit >= 24 and self_unit < 48): 
-                    return Sharp(self._accidentals[self_unit])
+                line: int = self._unit // 12
+                if line % 2 == 0:
+                    return Sharp(self._accidentals[self._unit % 48])
                 return Sharp(0)
             case Flat():
-                self_unit: int = self._unit % 48
-                if self_unit >= 32 or (self_unit >= 12 and self_unit < 24): 
-                    return Flat(self._accidentals[self_unit] * -1)
+                line: int = self._unit // 12
+                if line % 2 == 1:
+                    return Flat(self._accidentals[self._unit % 48] * -1)
                 return Flat(0)
 
             case _:                 return super().__mod__(operand)
