@@ -945,16 +945,18 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case KeySignature():        return self.copy()
             case int():                 return self._unit
             case float():
-                tonic_key_int: int = self.get_tonic_key()
-                if self._unit < 0:
-                    tonic_key_int += 12   # 2nd line for sharps
-                # Special case of bellow -5 or above +5 turns in the circle of fifths
-                if self._unit < -5 or self._unit > 5:
-                    tonic_key_int += 24   # 3rd and 4th lines respectively
-                return float(tonic_key_int)
+                return self % Key() % float()
             
             case Key():
-                return Key(self % float())
+                tonic_key: int = self.get_tonic_key()
+                key_line: int = 0
+                if self._unit < 0:
+                    key_line = 1
+                # It happens only for 7 Flats (-7) (Cb)
+                if self.is_enharmonic(tonic_key, tonic_key):
+                    key_line += 2    # All Sharps/Flats
+                return Key( float(tonic_key + key_line * 12) )
+            
             case Major():               return Major() << od.DataSource(self._major)
             case Minor():               return Minor() << od.DataSource(not self._major)
             case Sharps():
