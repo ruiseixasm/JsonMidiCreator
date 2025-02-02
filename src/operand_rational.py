@@ -40,7 +40,8 @@ import operand_label as ol
     # Fraction * Fraction results in a Fraction
 
 class Rational(o.Operand):
-    """
+    """`Rational`
+
     This is a type of Operand that has associated to a Fractional number.
     This class is intended to represent time based variables that are ratios like the typical 1/4 note value
 

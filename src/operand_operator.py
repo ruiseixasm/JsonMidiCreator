@@ -34,7 +34,8 @@ import operand_element as oe
 
 
 class Operator(o.Operand):
-    """
+    """`Operator`
+
     An Operator processes an Operand with an Integer input and an Operand output.
 
     Parameters

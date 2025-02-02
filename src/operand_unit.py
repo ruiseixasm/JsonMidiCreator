@@ -34,7 +34,8 @@ import operand_label as ol
 
 # Units have never None values and are also const, with no setters
 class Unit(o.Operand):
-    """
+    """`Unit`
+
     This type of Operand is associated to an Integer.
     This class is intended to represent parameters that are whole numbers like midi messages from 0 to 127
 
