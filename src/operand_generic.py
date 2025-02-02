@@ -194,11 +194,11 @@ class Pitch(Generic):
 
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
         
-        original_key_int: int = self._tonic_key % 12
-        final_key_int: int = original_key_int + key_offset
-        octave_offset: int = final_key_int // 12
-        final_key: int = final_key_int % 12
-        key_offset = final_key - original_key_int
+        octave_tonic_key: int = self._tonic_key % 12
+        moved_key: int = octave_tonic_key + key_offset
+        octave_key: int = moved_key % 12
+        octave_offset: int = moved_key // 12
+        key_offset = octave_key - octave_tonic_key
 
         return octave_offset, key_offset
     
@@ -214,8 +214,8 @@ class Pitch(Generic):
         
         # Reset decorative parameters
         self._degree = 1
-        self._sharp = 0
         self._natural = False
+        self._sharp = 0
 
         # Excludes the effect of the decorative parameters
         key_offset: int = int( pitch - self % float() )

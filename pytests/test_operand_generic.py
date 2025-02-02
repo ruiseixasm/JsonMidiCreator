@@ -182,7 +182,7 @@ def test_pitch_degrees():
     # Resets the defaults
     defaults << KeySignature() << Scale([])
 
-# test_pitch_degrees()
+test_pitch_degrees()
 
 
 def test_pitch_key_signature():
