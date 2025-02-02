@@ -909,7 +909,8 @@ class Tone(PitchParameter):
     pass
 
 class Semitone(PitchParameter):
-    """
+    """`Unit -> PitchParameter -> Semitone`
+
     A Semitone() represents a pitch in a Chromatic scale, AKA half-step.
     The default is 0.
     
@@ -921,7 +922,8 @@ class Semitone(PitchParameter):
     pass
 
 class Key(PitchParameter):
-    """
+    """`Unit -> PitchParameter -> Key`
+
     A Key() is an integer from 0 to 11 (12 to 23 for flats) that describes
     the 12 keys of an octave.
     
@@ -1061,7 +1063,8 @@ class Tonic(PitchParameter):
     pass
 
 class Octave(PitchParameter):
-    """
+    """`Unit -> PitchParameter -> Octave`
+
     An Octave() represents the full midi keyboard, varying from -1 to 9 (11 octaves).
     The default value is 1 octave.
     
@@ -1074,7 +1077,8 @@ class Octave(PitchParameter):
         super().__init__(1, *parameters) # By default it's 1 to be used in basic operations like + and -
 
 class Degree(PitchParameter):
-    """
+    """`Unit -> PitchParameter -> Degree`
+
     A Degree() represents its relation with a Tonic key on a scale
     and respective Progressions.
     
@@ -1145,7 +1149,8 @@ class Degree(PitchParameter):
             case "vii" | "leading tone":            self._unit = 7
 
 class Sharp(PitchParameter):  # Sharp (#)
-    """
+    """`Unit -> PitchParameter -> Sharp`
+
     A Sharp() sets a given Pitch as Sharped or not.
     
     Parameters
@@ -1174,7 +1179,8 @@ class Sharp(PitchParameter):  # Sharp (#)
 
 
 class Flat(PitchParameter):   # Flat (b)
-    """
+    """`Unit -> PitchParameter -> Flat`
+
     A Flat() sets a given Pitch as Flatten or not.
     
     Parameters
@@ -1334,7 +1340,8 @@ class Stackable(Boolean):
     pass
 
 class Tied(Boolean):
-    """
+    """`Unit -> Boolean -> Tied`
+
     Sets the respective Notes or descendent Elements as Tied.
     
     Parameters
@@ -1345,7 +1352,8 @@ class Tied(Boolean):
     pass
 
 class Major(Boolean):
-    """
+    """`Unit -> Boolean -> Major`
+
     Sets the respective Key Signature as Major, the default.
     
     Parameters
@@ -1356,7 +1364,8 @@ class Major(Boolean):
     pass
 
 class Minor(Boolean):
-    """
+    """`Unit -> Boolean -> Minor`
+
     Sets the respective Key Signature as minor.
     
     Parameters
@@ -1367,7 +1376,8 @@ class Minor(Boolean):
     pass
 
 class Natural(Boolean):     # Natural (n)
-    """
+    """`Unit -> Boolean -> Natural`
+
     Sets the respective Pitch as Natural, in which case sharps and flats aren't applied.
     
     Parameters
@@ -1388,7 +1398,8 @@ class Natural(Boolean):     # Natural (n)
         return self
 
 class Dominant(Boolean):    # Flats the seventh
-    """
+    """`Unit -> Boolean -> Dominant`
+
     Sets the respective Chord configuration by flatting the seventh key.
     
     Parameters
@@ -1410,7 +1421,8 @@ class Dominant(Boolean):    # Flats the seventh
         return self
 
 class Diminished(Boolean):  # Flats the third and the fifth
-    """
+    """`Unit -> Boolean -> Diminished`
+
     Sets the respective Chord configuration by flatting the third and the fifth key.
     
     Parameters
@@ -1430,7 +1442,8 @@ class Diminished(Boolean):  # Flats the third and the fifth
         return self
 
 class Augmented(Boolean):   # Sharps the fifth
-    """
+    """`Unit -> Boolean -> Augmented`
+
     Sets the respective Chord configuration by sharping the fifth key.
     
     Parameters
@@ -1450,7 +1463,8 @@ class Augmented(Boolean):   # Sharps the fifth
         return self
 
 class Sus2(Boolean):        # Second instead of the third
-    """
+    """`Unit -> Boolean -> Sus2`
+
     Sets the respective Chord configuration by replacing the third with the second degree.
     
     Parameters
@@ -1470,7 +1484,8 @@ class Sus2(Boolean):        # Second instead of the third
         return self
 
 class Sus4(Boolean):        # Fourth instead of the third
-    """
+    """`Unit -> Boolean -> Sus4`
+
     Sets the respective Chord configuration by replacing the third with the fourth degree.
     
     Parameters
@@ -1609,7 +1624,8 @@ class ScaleOperation(Unit):
     pass
 
 class Transposition(ScaleOperation):
-    """
+    """`Unit -> ScaleOperation -> Transposition`
+
     A Transposition() is used to do a modal Transposition along a given Scale.
     
     Parameters
@@ -1621,7 +1637,8 @@ class Transposition(ScaleOperation):
         super().__init__(tones)
 
 class Modulation(ScaleOperation):    # Modal Modulation
-    """
+    """`Unit -> ScaleOperation -> Modulation`
+
     A Modulation() is used to return a modulated Scale from a given Scale or Scale.
     
     Parameters
@@ -1634,7 +1651,8 @@ class Modulation(ScaleOperation):    # Modal Modulation
         super().__init__(unit)
 
 class Modulate(ScaleOperation):    # Modal Modulation
-    """
+    """`Unit -> ScaleOperation -> Modulate`
+
     Modulate() is used to modulate the self Scale or Scale.
     
     Parameters
@@ -1657,7 +1675,8 @@ class Modulate(ScaleOperation):    # Modal Modulation
             return super().__rrshift__(operand)
 
 class Progression(ScaleOperation):
-    """
+    """`Unit -> ScaleOperation -> Progression`
+
     A Progression() is used to do a Progression along a given Scale.
     
     Parameters
@@ -1670,7 +1689,8 @@ class Progression(ScaleOperation):
         super().__init__(unit)
 
 class Inversion(ScaleOperation):
-    """
+    """`Unit -> ScaleOperation -> Inversion`
+
     Inversion() sets the degree of inversion of a given chord.
     
     Parameters
