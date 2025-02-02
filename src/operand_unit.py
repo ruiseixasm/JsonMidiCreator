@@ -1753,13 +1753,17 @@ class MidiTrack(Midi):
         match operand:
             case MidiTrack():
                 super().__lshift__(operand)
-                self._name          = operand._name
+                self._name = operand._name
             case od.DataSource():
                 match operand._data:
-                    case str():                     self._name = operand._data
-                    case _:                         super().__lshift__(operand)
-            case str():             self._name = operand
-            case _:                 super().__lshift__(operand)
+                    case TrackNumber():         self._unit = operand._data._unit
+                    case od.TrackName():        self._name = operand._data._data
+                    case str():                 self._name = operand._data
+                    case _:                     super().__lshift__(operand)
+            case TrackNumber():         self._unit = operand._unit
+            case od.TrackName():        self._name = operand._data
+            case str():                 self._name = operand
+            case _:                     super().__lshift__(operand)
         return self
 
 class TrackNumber(Midi):
