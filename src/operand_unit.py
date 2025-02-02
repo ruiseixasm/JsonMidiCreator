@@ -717,7 +717,8 @@ class Flats(Accidentals):   # Flats (bbb)
 
 
 class KeySignature(Unit):       # Sharps (+) and Flats (-)
-    """
+    """`Unit -> KeySignature`
+
     A KeySignature() consists in an integer from -7 to 7 describing the amount
     of Sharps for positive values and the amount of Flats for negative values.
     
@@ -1212,7 +1213,8 @@ class Flat(PitchParameter):   # Flat (b)
 
 
 class DrumKit(Unit):
-    """
+    """`Unit -> DrumKit`
+
     Auxiliary object that represents the standard Midi Drum Kit.
     
     Parameters
@@ -1506,7 +1508,8 @@ class Sus4(Boolean):        # Fourth instead of the third
         return self
 
 class Mode(Unit):
-    """
+    """`Unit -> Mode`
+
     Mode() represents the different scales (e.g., Ionian, Dorian, Phrygian)
     derived from the degrees of the major scale.
     
@@ -1560,7 +1563,8 @@ class Mode(Unit):
         return __class__._modes_str[number % len(__class__._modes_str)]
 
 class Size(Unit):
-    """
+    """`Unit -> Size`
+
     Size() represents the size of the Chord, like "7th", "9th", etc, or
     as the total number of keys, like integer 3, representing a triad, the default.
     
@@ -1610,7 +1614,8 @@ class Size(Unit):
         return __class__._types_str[number % len(__class__._types_str)]
 
 class Division(Unit):
-    """
+    """`Unit -> Division`
+
     A Division() is used in conjugation with a Tuplet as not the usual 3 of the Triplet.
     
     Parameters
@@ -1702,8 +1707,15 @@ class Inversion(ScaleOperation):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
-class PPQN(Unit):
+class Midi(Unit):
+    """`Unit -> Midi`
+
     """
+    pass
+
+class PPQN(Midi):
+    """`Unit -> Midi -> PPQN`
+
     PPQN() represent Pulses Per Quarter Note for Midi clock.
     
     Parameters
@@ -1713,12 +1725,6 @@ class PPQN(Unit):
     """
     def __init__(self, *parameters):
         super().__init__(24, *parameters)
-
-class Midi(Unit):
-    """`Unit -> Midi`
-
-    """
-    pass
 
 class MidiTrack(Midi):
     """`Unit -> Midi -> MidiTrack`
