@@ -788,12 +788,12 @@ class Key(PitchParameter):
 
             case Sharp():
                 line: int = self._unit // 12
-                if line % 2 == 0:
+                if line % 2 == 0:   # Even line
                     return Sharp(self._accidentals[self._unit % 48])
                 return Sharp(0)
             case Flat():
                 line: int = self._unit // 12
-                if line % 2 == 1:
+                if line % 2 == 1:   # Odd line
                     return Flat(self._accidentals[self._unit % 48] * -1)
                 return Flat(0)
 

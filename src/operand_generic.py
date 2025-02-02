@@ -192,17 +192,17 @@ class Pitch(Generic):
         return key_int
 
 
-    def octave_key_offset(self, key_offset: int | float) -> tuple[int, int]:
+    def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
         
         original_key_int: int = self._tonic_key % 12
-        final_key_int: int = original_key_int + int(key_offset)
+        final_key_int: int = original_key_int + key_offset
         octave_offset: int = final_key_int // 12
         final_key: int = final_key_int % 12
         key_offset = final_key - original_key_int
 
         return octave_offset, key_offset
     
-    def apply_key_offset(self, key_offset: int | float) -> Self:
+    def apply_key_offset(self, key_offset: int) -> Self:
         
         octave_offset_int, key_offset_int = self.octave_key_offset(key_offset)
         self._octave += octave_offset_int
