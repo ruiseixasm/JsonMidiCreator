@@ -291,17 +291,13 @@ class Pitch(Generic):
             case ou.Key():
                 self_pitch: int = int( self % float() )
                 key_note: int = self_pitch % 12
-                key_line: int = self._tonic_key % 48 // 12
-                key_line_new: int = self._tonic_key % 24 // 12
+                key_line: int = self._tonic_key // 12
                 if not self._staff_reference._scale.hasScale() \
                     and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, key_note):
                     if self._staff_reference._key_signature._unit < 0:
-                        key_line_new = 3    # All Flats
+                        key_line = 3    # All Flats
                     else:
-                        key_line_new = 2    # All Sharps
-                if key_line != key_line_new:
-                    print(f"OLD_LINE: {key_line}, NEW_LINE: {key_line_new}")
-                return ou.Key( float(key_note + key_line_new * 12) )
+                        key_line = 2    # All Sharps
                 return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Degree():
