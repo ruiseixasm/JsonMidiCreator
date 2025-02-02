@@ -121,7 +121,7 @@ class TimeSignature(Generic):
 class Pitch(Generic):
     def __init__(self, *parameters):
         self._staff_reference: Staff            = defaults._staff
-        self._tonic_key: int                    = self._staff_reference % ou.Key() // int()
+        self._tonic_key: int                    = self._staff_reference % ou.Key() % int()
         self._octave: int                       = 4     # By default it's the 4th Octave!
         self._degree: int                       = 1     # By default it's Degree 1
         self._sharp: int                        = 0     # By default not a Sharp or Flat
@@ -294,10 +294,7 @@ class Pitch(Generic):
                 key_line: int = self._tonic_key // 12
                 if not self._staff_reference._scale.hasScale() \
                     and self._staff_reference._key_signature.is_enharmonic(self._tonic_key, key_note):
-                    if self._staff_reference._key_signature._unit < 0:
-                        key_line = 3    # All Flats
-                    else:
-                        key_line = 2    # All Sharps
+                    key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             
             case ou.Degree():
