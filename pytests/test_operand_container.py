@@ -311,9 +311,9 @@ def test_mul_clip():
     hi_hat[1] % Position() % Steps() % float() >> Print()
     assert hi_hat[1] % Position() % Steps() == 6.0
     hi_hat[2] % Position() % Steps() % float() >> Print()
-    assert hi_hat[2] % Position() % Steps() == 10.0
+    assert hi_hat[2] % Position() % Steps() == 18.0
     hi_hat[3] % Position() % Steps() % float() >> Print()
-    assert hi_hat[3] % Position() % Steps() == 14.0
+    assert hi_hat[3] % Position() % Steps() == 22.0
 
     print("------")
     six_notes = 6 * Note()
@@ -322,7 +322,6 @@ def test_mul_clip():
     six_notes << CParameter(Length(1.0))
     print(f"Length: {six_notes % Length() % float()}")
     assert six_notes % Length() == 1.0  # Measures
-
 
 # test_mul_clip()
 

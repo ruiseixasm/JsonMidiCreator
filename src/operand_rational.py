@@ -607,7 +607,7 @@ class Convertible(Rational):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Length() | TimeValue() | Duration():
+            case Measurement() | TimeValue() | Duration():
                 return self._staff_reference.convertToBeats(self)._rational == self._staff_reference.convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other == other
@@ -618,7 +618,7 @@ class Convertible(Rational):
     def __lt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Length() | TimeValue() | Duration():
+            case Measurement() | TimeValue() | Duration():
                 return self._staff_reference.convertToBeats(self)._rational < self._staff_reference.convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other < other
@@ -629,7 +629,7 @@ class Convertible(Rational):
     def __gt__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
-            case Length() | TimeValue() | Duration():
+            case Measurement() | TimeValue() | Duration():
                 return self._staff_reference.convertToBeats(self)._rational > self._staff_reference.convertToBeats(other)._rational
             case ou.TimeUnit() | int() | float():
                 return self % other > other
@@ -798,32 +798,13 @@ class Convertible(Rational):
                 super().__lshift__(operand)
         return self
 
+class Measurement(Convertible):
+    """`Rational -> Convertible -> Measurement`
 
-
-class Length(Convertible):
-    """`Rational -> Convertible -> Length`
-
-    Length() is a Parameter applicable to Element and Clip objects. The input and output
-    is given in Measures and their TimeUnit returns are rounded up to the NEXT one.
-    Internally though, the values are in Beats and can be directly accessed with the "//" operator.
-
-    Parameters
-    ----------
-    *args : integer_like, float_like, Fraction_like
-        The last passed argument is the one being considered. If no parameters are provided,
-        the default is 0 of Length.
-    
-    Examples
-    --------
-    Gets the Note default Length from 1/4 NoteValue:
-    >>> note = Note()
-    >>> note % Length() % float() >> Print()
-    0.25
-    >>> note % Length() // float() >> Print()
-    1.0
+    Measurement() represents either a Length or a Position.
     """
 
-    def position(self, beats: float = None) -> Self:
+    def measurement(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -848,42 +829,33 @@ class Length(Convertible):
             case Fraction():            return self._staff_reference.convertToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
+    # Measurement round type: [...)
+    def roundMeasures(self) -> Self:
+        measures: Fraction = self.convertToMeasures()._rational
+        measures = Fraction( int(measures) )
+        return Measurement( self.convertToPosition( Measures(measures) ) )
+
+    # Measurement round type: [...)
+    def roundBeats(self) -> Self:
+        beats: Fraction = self.convertToBeats()._rational
+        beats = Fraction( int(beats) )
+        return Measurement( self.convertToPosition( Beats(beats) ) )
+    
+    # Measurement round type: [...)
+    def roundSteps(self) -> Self:
+        steps: Fraction = self.convertToSteps()._rational
+        steps = Fraction( int(steps) )
+        return Measurement( self.convertToPosition( Steps(steps) ) )
+
     def __str__(self):
         return f'Span Beats = {self._rational}'
-
-    # Length round type: (...]
-    def roundMeasures(self) -> 'Length':
-        measures: Fraction = self.convertToMeasures()._rational
-        if measures.denominator != 1:
-            measures = Fraction(int(measures) + 1)  # moves forward one unit
-        else:
-            measures = Fraction( int(measures) )
-        return self.convertToLength( Measures(measures) )
-
-    # Length round type: (...]
-    def roundBeats(self) -> 'Length':
-        beats: Fraction = self.convertToBeats()._rational
-        if beats.denominator != 1:
-            beats = Fraction(int(beats) + 1)  # moves forward one unit
-        else:
-            beats = Fraction( int(beats) )
-        return self.convertToLength( Beats(beats) )
-    
-    # Length round type: (...]
-    def roundSteps(self) -> 'Length':
-        steps: Fraction = self.convertToSteps()._rational
-        if steps.denominator != 1:
-            steps = Fraction(int(steps) + 1)  # moves forward one unit
-        else:
-            steps = Fraction( int(steps) )
-        return self.convertToLength( Steps(steps) )
 
     # CHAINABLE OPERATIONS
 
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Length():
+            case Measurement():
                 super().__lshift__(operand)
             case TimeValue() | Duration():
                 self._rational = self._staff_reference.convertToBeats(operand)._rational
@@ -900,43 +872,97 @@ class Length(Convertible):
                 super().__lshift__(operand)
         return self
 
-    def __iadd__(self, operand: any) -> 'Length':
+    def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Length() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Length conversion
+            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational += self._staff_reference.convertToBeats(operand)._rational
             case int() | float() | Fraction():
                 self += Measures(operand)
         return self
     
-    def __isub__(self, operand: any) -> 'Length':
+    def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Length() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Length conversion
+            case Measurement() | TimeValue() | Duration() | ou.TimeUnit():  # Implicit Measurement conversion
                 self._rational -= self._staff_reference.convertToBeats(operand)._rational
             case int() | float() | Fraction():
                 self -= Measures(operand)
         return self
     
-    def __imul__(self, operand: any) -> 'Length':
+    def __imul__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Length():
+            case Measurement():
                 multiplier: Fraction = operand.convertToMeasures()._rational
                 return super().__imul__(multiplier)
         return super().__imul__(operand)
     
-    def __itruediv__(self, operand: any) -> 'Length':
+    def __itruediv__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Length():
+            case Measurement():
                 divider: Fraction = operand.convertToMeasures()._rational
                 return super().__itruediv__(divider)
         return super().__itruediv__(operand)
 
 
-class Position(Length):
-    """`Rational -> Convertible -> Length -> Position`
+class Length(Measurement):
+    """`Rational -> Convertible -> Measurement -> Length`
+
+    Length() is a Parameter applicable to Element and Clip objects. The input and output
+    is given in Measures and their TimeUnit returns are rounded up to the NEXT one.
+    Internally though, the values are in Beats and can be directly accessed with the "//" operator.
+
+    Parameters
+    ----------
+    *args : integer_like, float_like, Fraction_like
+        The last passed argument is the one being considered. If no parameters are provided,
+        the default is 0 of Length.
+    
+    Examples
+    --------
+    Gets the Note default Length from 1/4 NoteValue:
+    >>> note = Note()
+    >>> note % Length() % float() >> Print()
+    0.25
+    >>> note % Length() // float() >> Print()
+    1.0
+    """
+
+    def length(self, beats: float = None) -> Self:
+        return self << od.DataSource( beats )
+
+    # Length round type: (...]
+    def roundMeasures(self) -> Self:
+        measures: Fraction = self.convertToMeasures()._rational
+        if measures.denominator != 1:
+            measures = Fraction(int(measures) + 1)  # moves forward one unit
+        else:
+            measures = Fraction( int(measures) )
+        return self.convertToLength( Measures(measures) )
+
+    # Length round type: (...]
+    def roundBeats(self) -> Self:
+        beats: Fraction = self.convertToBeats()._rational
+        if beats.denominator != 1:
+            beats = Fraction(int(beats) + 1)  # moves forward one unit
+        else:
+            beats = Fraction( int(beats) )
+        return self.convertToLength( Beats(beats) )
+    
+    # Length round type: (...]
+    def roundSteps(self) -> Self:
+        steps: Fraction = self.convertToSteps()._rational
+        if steps.denominator != 1:
+            steps = Fraction(int(steps) + 1)  # moves forward one unit
+        else:
+            steps = Fraction( int(steps) )
+        return self.convertToLength( Steps(steps) )
+
+
+class Position(Measurement):
+    """`Rational -> Convertible -> Measurement -> Position`
 
     Position() is a Parameter applicable to Element and Clip objects. The input and output
     is given in Measures and their TimeUnit returns are rounded up to the SAME one.
@@ -958,20 +984,23 @@ class Position(Length):
     1.0
     """
 
+    def position(self, beats: float = None) -> Self:
+        return self << od.DataSource( beats )
+
     # Position round type: [...)
-    def roundMeasures(self) -> 'Position':
+    def roundMeasures(self) -> Self:
         measures: Fraction = self.convertToMeasures()._rational
         measures = Fraction( int(measures) )
         return self.convertToPosition( Measures(measures) )
 
     # Position round type: [...)
-    def roundBeats(self) -> 'Position':
+    def roundBeats(self) -> Self:
         beats: Fraction = self.convertToBeats()._rational
         beats = Fraction( int(beats) )
         return self.convertToPosition( Beats(beats) )
     
     # Position round type: [...)
-    def roundSteps(self) -> 'Position':
+    def roundSteps(self) -> Self:
         steps: Fraction = self.convertToSteps()._rational
         steps = Fraction( int(steps) )
         return self.convertToPosition( Steps(steps) )

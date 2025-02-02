@@ -479,7 +479,7 @@ class Clip(Container):  # Just a container of Elements
                     case ou.MidiTrack():    return self._midi_track
                     case ra.Position():
                         return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
-                    case ra.Length():
+                    case ra.Measurement():
                         return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
                     case _:                 return super().__mod__(operand)
             case og.Staff():        return self._staff.copy()
