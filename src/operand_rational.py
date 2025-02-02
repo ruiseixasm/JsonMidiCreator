@@ -352,7 +352,8 @@ class TimeSignatureParameter(StaffParameter):
     pass
 
 class BeatsPerMeasure(TimeSignatureParameter):
-    """
+    """`Rational -> StaffParameter -> TimeSignatureParameter -> BeatsPerMeasure`
+
     BeatsPerMeasure() sets the top value of a time signature, in a 3/4 time signature 3 are the Beats per Measure.
     The default is 4, 4 Beats per Measure.
 
@@ -375,7 +376,8 @@ class BeatsPerMeasure(TimeSignatureParameter):
         super().__init__(4, *parameters)
 
 class BeatNoteValue(TimeSignatureParameter):
-    """
+    """`Rational -> StaffParameter -> TimeSignatureParameter -> BeatNoteValue`
+
     BeatNoteValue() represents the Note Value for the Beat, in a 3/4 time signature 1/4 is the Beats Note Value.
     The default is 1/4, 1/4 NoteValue for each Beat.
 
@@ -398,7 +400,8 @@ class BeatNoteValue(TimeSignatureParameter):
         super().__init__(1/4, *parameters)
 
 class NotesPerMeasure(TimeSignatureParameter):
-    """
+    """`Rational -> StaffParameter -> TimeSignatureParameter -> NotesPerMeasure`
+
     NotesPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature 3/4 is the Measure Note Value.
     The default is 1, 1 NoteValue for each Measure. This is just an output parameter and not a setting one.
 
@@ -423,7 +426,8 @@ class NotesPerMeasure(TimeSignatureParameter):
         super().__init__(1, *parameters)
 
 class StepsPerMeasure(StaffParameter):
-    """
+    """`Rational -> StaffParameter -> StepsPerMeasure`
+
     StepsPerMeasure() represents the Note Value for a single Measure, in a 3/4 time signature with 
     a Quantization of 1/16 you get 12 Steps per each Measure.
     The default is 16, 16 Steps for each Measure. This concerns Staff objects Quantization.
@@ -453,7 +457,8 @@ class StepsPerMeasure(StaffParameter):
         super().__init__(16, *parameters)
 
 class StepsPerNote(StaffParameter):
-    """
+    """`Rational -> StaffParameter -> StepsPerNote`
+
     StepsPerNote() represents the inversion of the Quantization, for a Quantization of 1/16 
     you will get 16 Notes per Step.
     The default is 16, 16 Steps for each Note. This concerns Staff objects Quantization.
@@ -482,7 +487,8 @@ class StepsPerNote(StaffParameter):
         super().__init__(16, *parameters)
 
 class Tempo(StaffParameter):
-    """
+    """`Rational -> StaffParameter -> Tempo`
+
     Tempo() represents the Staff Beats per Minute (BPM). The default is 120 BPM.
 
     Parameters
@@ -541,7 +547,8 @@ class Tempo(StaffParameter):
         return self
 
 class Quantization(StaffParameter):
-    """
+    """`Rational -> StaffParameter -> Quantization`
+
     Quantization() represents the Note Value of each Step. The default is 1/16.
 
     Parameters
