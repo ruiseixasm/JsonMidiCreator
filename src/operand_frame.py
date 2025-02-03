@@ -382,18 +382,18 @@ class Iterate(Left):
 class Foreach(Left):
     def __init__(self, *parameters):
 
-        # processed_params = []
-        # for param in parameters:
-        #     if isinstance(param, range):
-        #         processed_params.extend(param)
-        #     else:
-        #         processed_params.append(param)
-        # super().__init__(tuple(processed_params))
+        processed_params = []
+        for param in parameters:
+            if isinstance(param, range):
+                processed_params.extend(param)
+            else:
+                processed_params.append(param)
+        super().__init__(tuple(processed_params))
 
         # if parameters and isinstance(parameters[0], range):
         #     parameters = tuple(parameters[0])
-
-        super().__init__(parameters)
+        # super().__init__(parameters)
+        
         self._multi_data['step'] = 1
 
     def __and__(self, subject: o.Operand) -> o.Operand:
