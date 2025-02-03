@@ -828,7 +828,6 @@ class Measurement(Convertible):
 
     Measurement() represents either a Length or a Position.
     """
-
     def measurement(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
 
@@ -854,23 +853,32 @@ class Measurement(Convertible):
             case Fraction():            return self._staff_reference.convertToMeasures(self) % Fraction()
             case _:                     return super().__mod__(operand)
 
-    # Measurement round type: [...)
+    # Measurement/Length round type: (...]
     def roundMeasures(self) -> Self:
         measures: Fraction = self.convertToMeasures()._rational
-        measures = Fraction( int(measures) )
-        return Measurement( self.convertToPosition( Measures(measures) ) )
+        if measures.denominator != 1:
+            measures = Fraction(int(measures) + 1)  # moves forward one unit
+        else:
+            measures = Fraction( int(measures) )
+        return self.convertToLength( Measures(measures) )
 
-    # Measurement round type: [...)
+    # Measurement/Length round type: (...]
     def roundBeats(self) -> Self:
         beats: Fraction = self.convertToBeats()._rational
-        beats = Fraction( int(beats) )
-        return Measurement( self.convertToPosition( Beats(beats) ) )
+        if beats.denominator != 1:
+            beats = Fraction(int(beats) + 1)  # moves forward one unit
+        else:
+            beats = Fraction( int(beats) )
+        return self.convertToLength( Beats(beats) )
     
-    # Measurement round type: [...)
+    # Measurement/Length round type: (...]
     def roundSteps(self) -> Self:
         steps: Fraction = self.convertToSteps()._rational
-        steps = Fraction( int(steps) )
-        return Measurement( self.convertToPosition( Steps(steps) ) )
+        if steps.denominator != 1:
+            steps = Fraction(int(steps) + 1)  # moves forward one unit
+        else:
+            steps = Fraction( int(steps) )
+        return self.convertToLength( Steps(steps) )
 
     def __str__(self):
         return f'Span Beats = {self._rational}'
@@ -954,36 +962,8 @@ class Length(Measurement):
     >>> note % Length() // float() >> Print()
     1.0
     """
-
     def length(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
-
-    # Length round type: (...]
-    def roundMeasures(self) -> Self:
-        measures: Fraction = self.convertToMeasures()._rational
-        if measures.denominator != 1:
-            measures = Fraction(int(measures) + 1)  # moves forward one unit
-        else:
-            measures = Fraction( int(measures) )
-        return self.convertToLength( Measures(measures) )
-
-    # Length round type: (...]
-    def roundBeats(self) -> Self:
-        beats: Fraction = self.convertToBeats()._rational
-        if beats.denominator != 1:
-            beats = Fraction(int(beats) + 1)  # moves forward one unit
-        else:
-            beats = Fraction( int(beats) )
-        return self.convertToLength( Beats(beats) )
-    
-    # Length round type: (...]
-    def roundSteps(self) -> Self:
-        steps: Fraction = self.convertToSteps()._rational
-        if steps.denominator != 1:
-            steps = Fraction(int(steps) + 1)  # moves forward one unit
-        else:
-            steps = Fraction( int(steps) )
-        return self.convertToLength( Steps(steps) )
 
 
 class Position(Measurement):
@@ -1008,7 +988,6 @@ class Position(Measurement):
     >>> note % Position() // float() >> Print()
     1.0
     """
-
     def position(self, beats: float = None) -> Self:
         return self << od.DataSource( beats )
 
