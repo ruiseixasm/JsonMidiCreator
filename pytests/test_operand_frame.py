@@ -98,6 +98,13 @@ def test_foreach_mod():
     assert four_notes[2] == quarter
     assert four_notes[3] == quarter
 
+    four_notes << Foreach(range(2,6))**Beats()
+    assert four_notes[0] == Beats(2)
+    assert four_notes[1] == Beats(3)
+    assert four_notes[2] == Beats(4)
+    assert four_notes[3] == Beats(5)
+
+
 # test_foreach_mod()
 
 
