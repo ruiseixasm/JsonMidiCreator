@@ -73,13 +73,13 @@ print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 # Best outcome with some extra variation
-syncopation_6: Clip = no_syncopation + (wood_block + Nths(5)**Step(1) << 1/16)
+syncopation_6: Clip = no_syncopation + (wood_block + Every(5)**Step(1) << 1/16)
 syncopation_6 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 # Best outcome with some extra variation
-syncopation_7: Clip = no_syncopation + (wood_block + Nths(4)**Step(1) + Nths(5)**Step(1) << 1/16)
+syncopation_7: Clip = no_syncopation + (wood_block + Every(4)**Step(1) + Every(5)**Step(1) << 1/16)
 syncopation_7 >> Play(1)
 print("Delay for 0.5 seconds")
 time.sleep(0.5)
