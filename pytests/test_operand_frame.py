@@ -85,6 +85,12 @@ def test_foreach_mod():
     assert four_notes[2] == quarter
     assert four_notes[3] == eight
 
+    # Test Stacking
+    four_notes >> Stack()
+    assert four_notes[0] == Beats(0)
+    assert four_notes[1] == Beats(4)
+    assert four_notes[2] == Beats(6)
+    assert four_notes[3] == Beats(7)
 
 # test_foreach_mod()
 
