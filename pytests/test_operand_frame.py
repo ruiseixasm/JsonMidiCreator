@@ -104,8 +104,24 @@ def test_foreach_mod():
     assert four_notes[2] == Beats(4)
     assert four_notes[3] == Beats(5)
 
-
 # test_foreach_mod()
+
+
+def test_each():
+
+    many_notes = Note() * 9
+
+    for single_note in many_notes:
+        assert single_note % Duration() == 1/4
+    
+    many_notes << Every(3)**Duration(1/8)
+    for i, value in enumerate(many_notes):
+        if (i + 1) in {3, 6, 9}:
+            assert value % Duration() == 1/8
+        else:
+            assert value % Duration() == 1/4
+
+# test_each()
 
 
 def test_conditional_note():
