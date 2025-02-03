@@ -92,6 +92,12 @@ def test_foreach_mod():
     assert four_notes[2] == Beats(6)
     assert four_notes[3] == Beats(7)
 
+    four_notes << Nth(1, 4)**Foreach(quarter)
+    assert four_notes[0] == quarter
+    assert four_notes[1] == half
+    assert four_notes[2] == quarter
+    assert four_notes[3] == quarter
+
 # test_foreach_mod()
 
 
