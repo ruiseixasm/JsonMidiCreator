@@ -56,6 +56,24 @@ def test_foreach_mod():
     
     assert notes == clip
 
+    four_notes = Note() * 4
+    assert four_notes[0] == Beats(0)
+    assert four_notes[1] == Beats(1)
+    assert four_notes[2] == Beats(2)
+    assert four_notes[3] == Beats(3)
+
+    four_notes << Foreach(0, 1, 2, 3)**Steps()
+    assert four_notes[0] == Steps(0)
+    assert four_notes[1] == Steps(1)
+    assert four_notes[2] == Steps(2)
+    assert four_notes[3] == Steps(3)
+
+    four_notes << Foreach(Beats(0), Beats(1), Beats(2), Beats(3))
+    assert four_notes[0] == Beats(0)
+    assert four_notes[1] == Beats(1)
+    assert four_notes[2] == Beats(2)
+    assert four_notes[3] == Beats(3)
+
 # test_foreach_mod()
 
 
