@@ -369,7 +369,7 @@ class Iterate(Left):
     >>> notes[3] % Pitch() % int() >> Print()
     4
     """
-    def __init__(self, start = None, step = None):
+    def __init__(self, start = 0, step = 1):
         iterator: dict = {
             "current":  start,
             "step":     step
