@@ -376,8 +376,11 @@ class Iterate(Left):
         }
         if iterator['step'] is None:
             iterator['step'] = 1
-        if iterator['current'] is None or type(iterator['current']) is not type(iterator['step']):
+        if iterator['current'] is None:
             iterator['current'] = iterator['step'] * 0
+        elif type(iterator['current']) is not type(iterator['step']) \
+            and isinstance(iterator['step'], o.Operand):
+                iterator['current'] = iterator['step'].copy() << type(iterator['current'])
         super().__init__(iterator)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
