@@ -376,7 +376,7 @@ class Iterate(Left):
         }
         if iterator['step'] is None:
             iterator['step'] = 1
-        if iterator['current'] is None:
+        if iterator['current'] is None or type(iterator['current']) is not type(iterator['step']):
             iterator['current'] = iterator['step'] * 0
         super().__init__(iterator)
 
