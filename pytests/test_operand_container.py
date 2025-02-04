@@ -297,7 +297,7 @@ def test_mul_clip():
     assert (two_notes * two_notes).len() == 4
     assert two_notes * two_notes % Length() == 1.5 # Measures
 
-    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(2)**Steps() << TimeSignature(2, 4)
+    hi_hat: Clip = Note(DrumKit("Hi-Hat"), 1/16) * 4 << Iterate(None, 2)**Steps() << TimeSignature(2, 4)
     assert hi_hat.len() == 4
     assert hi_hat.test_staff_reference()
     hi_hat |= Nth(2, 4)
@@ -561,7 +561,7 @@ def test_clip_operations():
 def test_flip_operation():
 
     four_notes: Clip = Note() * 4
-    four_notes << Iterate(2.0)**Add(60.0)**Semitone()
+    four_notes << Iterate(60, 2)**Semitone()
 
     actual_pitch: float = 60.0
     for single_note in four_notes:

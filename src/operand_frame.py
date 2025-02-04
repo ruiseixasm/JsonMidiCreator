@@ -369,13 +369,23 @@ class Iterate(Left):
     >>> notes[3] % Pitch() % int() >> Print()
     4
     """
-    def __init__(self, step = None):
-        super().__init__(1 if step is None else step)
-        self._value: any = self._multi_data['operand'] * 0
+    def __init__(self, start = None, step = None):
+        iterator: dict = {
+            "current":  start,
+            "step":     step
+        }
+        if iterator['step'] is None:
+            iterator['step'] = 1
+        if iterator['current'] is None:
+            iterator['current'] = iterator['step'] * 0
+        super().__init__(iterator)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
-        self_operand = super().__and__(self.deep_copy(self._value))
-        self._value += self._multi_data['operand']    # iterates whenever called
+        self_operand = super().__and__(
+            self.deep_copy(self._multi_data['operand']['current'])
+        )
+        # iterates whenever called
+        self._multi_data['operand']['current'] += self._multi_data['operand']['step']
         self._index += 1
         return self_operand
     

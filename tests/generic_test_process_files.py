@@ -290,7 +290,7 @@ original_export     = Import("json/testing/_Export_Play_p.10.3_sequence.json")
 start_time = time.time()
 
 oscillator = Oscillator(Bend()) << Amplitude(8191 / 2)
-pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(4)**Steps()
+pitch_bend = PitchBend() * (2*16 + 1) << Iterate()**Steps() << GetR(Bend())**WrapR(oscillator)**WrapR(PitchBend())**Iterate(0, 4)**Steps()
 
 chord + pitch_bend >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     >> Save("json/testing/_Save_4.2_pitch_bend.json") >> Export("json/testing/_Export_4.2_pitch_bend.json")
@@ -502,22 +502,22 @@ defaults << Tempo(240) << Measures(7)
 
 # All Sharps(#) of the Major Scale on the Circle of Fifths
 play_list_1 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
-    + Iterate(Scale("Major") % Transposition(5 - 1))**Semitone() 
+    + Iterate(None, Scale("Major") % Transposition(5 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the Major Scale on the Circle of Fifths
 play_list_2 = Playlist() << ((KeyScale("C") << Scale("Major") << NoteValue(1)) * 8 
-    + Iterate(Scale("Major") % Transposition(4 - 1))**Semitone() 
+    + Iterate(None, Scale("Major") % Transposition(4 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Sharps(#) of the minor Scale on the Circle of Fifths
 play_list_3 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) * 8 
-    + Iterate(Scale("minor") % Transposition(5 - 1))**Semitone() 
+    + Iterate(None, Scale("minor") % Transposition(5 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 # All Fats(b) of the minor Scale on the Circle of Fifths
 play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) * 8 
-    + Iterate(Scale("minor") % Transposition(4 - 1))**Semitone() 
+    + Iterate(None, Scale("minor") % Transposition(4 - 1))**Semitone() 
     << Duration(1) << Velocity(70) << Octave(4))
 
 play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 \
