@@ -401,6 +401,7 @@ class Element(o.Operand):
 
     def __imul__(self, operand: any) -> Union[TypeElement, 'Clip']:
         import operand_container as oc
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
             case Element():
                 extended_clip: Clip = self + operand
@@ -427,7 +428,6 @@ class Element(o.Operand):
                     operand_duration: Fraction = self._staff_reference.convertToDuration(operand)._rational
                     self_repeating: int = operand_duration // self._duration_notevalue
                 return self.__imul__(self_repeating)
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         self_operand: any = self % operand
         self_operand *= operand
         return self << self_operand
