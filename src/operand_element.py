@@ -414,12 +414,11 @@ class Element(o.Operand):
                 operand += ra.Position( self_clip[0] % ra.Length() )
                 self_clip += operand
                 return self_clip
-            case int() | float():
+            case int():
                 new_clip: oc.Clip = oc.Clip()
-                multiplier: int = int(operand)
-                if multiplier > 0:
+                if operand > 0:
                     new_clip._items.append( self )
-                    for _ in range(multiplier - 1):
+                    for _ in range(operand - 1):
                         new_clip._items.append( self.copy() )
                 return new_clip.stack().set_staff_reference()
             case ra.TimeValue() | ou.TimeUnit():
