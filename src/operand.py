@@ -419,8 +419,11 @@ class Operand:
     
         return operand  # Return operand if there is no next operand in the chain
     
-    def __iand__(self, other: any) -> any:
-        return self.__and__(other)
+    def __iand__(self, operand: any) -> any:
+        return self.__and__(operand)
+    
+    def __rand__(self, operand: any) -> any:
+        return self.__and__(operand)
     
     def __or__(self, operand: any) -> any:
         return operand.__ror__(self)
