@@ -291,7 +291,7 @@ class Pitch(Generic):
                 key_note: int = self_pitch % 12
                 key_line: int = self._tonic_key // 12
                 if not self._staff_reference._scale.hasScale() \
-                    and self._staff_reference._key_signature.is_enharmonic_old(self._tonic_key, key_note):
+                    and self._staff_reference._key_signature.is_enharmonic(key_note):
                     key_line += 2    # All Sharps/Flats
                 return ou.Key( float(key_note + key_line * 12) )
             
