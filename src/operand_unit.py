@@ -777,9 +777,22 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     #             return (key - tonic_key) % 12 == 0
     #     return False
 
-    def is_enharmonic(self, key: int) -> bool:
+    def is_enharmonic_2nd(self, key: int) -> bool:
         self_key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
         return self_key_signature[key % 12] != 0
+
+    def is_enharmonic(self, tonic_key: int, key: int) -> bool:
+        # Key signature based on self._unit (-7 to +7)
+        key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
+        signature_tonic_key: int = self.get_tonic_key()
+        
+        # Step 1: Normalize key and tonic
+        key_pc: int = key % 12  # Pitch class of the key
+        tonic_pc: int = tonic_key % 12  # Pitch class of the tonic
+        offset_pc: int = tonic_key - signature_tonic_key
+        accidental: int = key_signature[offset_pc % 12]
+        
+        return accidental != 0
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -804,7 +817,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 if self._unit < 0:
                     key_line = 1
                 # It happens only for 7 Flats (-7) (Cb)
-                if self.is_enharmonic(tonic_key):
+                if self.is_enharmonic_2nd(tonic_key):
                     key_line += 2    # All Sharps/Flats
                 return Key( float(tonic_key + key_line * 12) )
             
