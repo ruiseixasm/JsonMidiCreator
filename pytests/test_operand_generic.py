@@ -205,7 +205,7 @@ def test_pitch_key_signature():
     for degree in {1, 2, 3, 4, 5, 6, 7}:
         pitch << degree
         print(f"Key: {pitch % str()}")
-        # assert pitch == ds_major_scale[degree - 1]
+        assert pitch == ds_major_scale[degree - 1]
 
 
     defaults << KeySignature()
