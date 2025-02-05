@@ -189,6 +189,17 @@ def test_pitch_key_signature():
 
     defaults << KeySignature() << Scale([])
 
+    defaults << KeySignature("###") # A Major scale
+    a_major_scale: list[str] = [
+        "A", "B", "C#", "D", "E", "F#", "G#"
+    ]
+    pitch = Pitch()
+    for degree in {1, 2, 3, 4, 5, 6, 7}:
+        pitch << degree
+        assert pitch == a_major_scale[degree - 1]
+
+    defaults << KeySignature()
+
     major_keys_signatures: list[str] = [
         "Cb", "Gb", "Db", "Ab", "Eb", "Bb", "F",
         "C",
