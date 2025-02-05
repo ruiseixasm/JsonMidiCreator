@@ -804,7 +804,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 if self._unit < 0:
                     key_line = 1
                 # It happens only for 7 Flats (-7) (Cb)
-                if self.is_enharmonic_old(tonic_key, tonic_key):
+                if self.is_enharmonic_new(tonic_key):
                     key_line += 2    # All Sharps/Flats
                 return Key( float(tonic_key + key_line * 12) )
             

@@ -198,6 +198,16 @@ def test_pitch_key_signature():
         pitch << degree
         assert pitch == a_major_scale[degree - 1]
 
+    pitch << Tonic(3)   # (3) D♯ Major with A Major Key Signature (###)
+    ds_major_scale: list[str] = [
+        "D#", "E#", "F##", "G#", "A#", "B#", "C##"
+    ]
+    for degree in {1, 2, 3, 4, 5, 6, 7}:
+        pitch << degree
+        print(f"Key: {pitch % str()}")
+        # assert pitch == ds_major_scale[degree - 1]
+
+
     defaults << KeySignature()
 
     major_keys_signatures: list[str] = [
