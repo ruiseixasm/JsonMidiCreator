@@ -514,10 +514,10 @@ class Pitch(Generic):
                 self += operand % float()
             case ou.Octave():
                 self._octave += operand._unit
-            case int():
-                self._degree += operand
-            case ou.Degree():
-                self._degree += operand._unit
+            case int() | ou.Degree():
+                self_degree: ou.Degree = ou.Degree(self._degree)
+                self_degree += operand
+                self._degree = self_degree._unit
             case ou.Tone():
                 new_pitch: float = self % float() + self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)
@@ -542,10 +542,10 @@ class Pitch(Generic):
                 self -= operand % float()
             case ou.Octave():
                 self._octave -= operand._unit
-            case int():
-                self._degree -= operand
-            case ou.Degree():
-                self._degree -= operand._unit
+            case int() | ou.Degree():
+                self_degree: ou.Degree = ou.Degree(self._degree)
+                self_degree -= operand
+                self._degree = self_degree._unit
             case ou.Tone():
                 new_pitch: float = self % float() - self.move_semitones(operand % int())
                 self.set_chromatic_pitch(new_pitch)

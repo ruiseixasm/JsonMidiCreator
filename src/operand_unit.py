@@ -1152,22 +1152,16 @@ class Degree(PitchParameter):
         return self
 
     def __iadd__(self, number: any) -> 'Degree':
-        self_add: Degree = super().__iadd__(number)
-        if self_add._unit == 0: # Must jump the 0 (zero)
-            if number > 0:
-                self_add._unit = 1
-            elif number < 0:
-                self_add._unit = -1
-        return self_add
+        super().__iadd__(number)
+        if self._unit == 0 or self._unit == -1:
+            self._unit = 1      # Always jumps to 1
+        return self
     
     def __isub__(self, number: any) -> 'Degree':
-        self_sub: Degree = super().__isub__(number)
-        if self_sub._unit == 0: # Must jump the 0 (zero)
-            if number > 0:
-                self_sub._unit = -1
-            elif number < 0:
-                self_sub._unit = 1
-        return self_sub
+        super().__isub__(number)
+        if self._unit == 0 or self._unit == -1:
+            self._unit = 1      # Always jumps to 1
+        return self
     
     def stringSetDegree(self, string: str) -> None:
         string = string.strip()
