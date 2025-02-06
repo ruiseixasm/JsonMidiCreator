@@ -1163,6 +1163,18 @@ class Degree(PitchParameter):
             self._unit = 1      # Always jumps to 1
         return self
     
+    def __imul__(self, number: any) -> 'Degree':
+        super().__imul__(number)
+        if self._unit == 0 or self._unit == -1:
+            self._unit = 1      # Always jumps to 1
+        return self
+    
+    def __itruediv__(self, number: any) -> 'Degree':
+        super().__itruediv__(number)
+        if self._unit == 0 or self._unit == -1:
+            self._unit = 1      # Always jumps to 1
+        return self
+    
     def stringSetDegree(self, string: str) -> None:
         string = string.strip()
         match re.sub(r'[^a-z]', '', string.lower()):    # also removes "º" (base 0)
