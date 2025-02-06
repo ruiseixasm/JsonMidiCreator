@@ -44,7 +44,7 @@ class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._clip: oc.Clip             = oe.Note() * 4
-        self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Steps(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
+        self._chaos: ch.Chaos           = ch.SinX()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -53,10 +53,10 @@ class Mutation(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():         return self._clip
-                    case of.Frame():        return self._frame
+                    case ch.Chaos():        return self._chaos
                     case _:                 return super().__mod__(operand)
             case oc.Clip():         return self._clip.copy()
-            case of.Frame():        return self._frame.copy()
+            case ch.Chaos():        return self._chaos.copy()
             case ra.Index():        return ra.Index(self._index)
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
@@ -72,18 +72,18 @@ class Mutation(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["clip"]             = self.serialize(self._clip)
-        serialization["parameters"]["frame"]            = self.serialize(self._frame)
+        serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clip" in serialization["parameters"] and "frame" in serialization["parameters"]):
+            "clip" in serialization["parameters"] and "chaos" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._clip              = self.deserialize(serialization["parameters"]["clip"])
-            self._frame             = self.deserialize(serialization["parameters"]["frame"])
+            self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -92,15 +92,15 @@ class Mutation(o.Operand):
             case Mutation():
                 super().__lshift__(operand)
                 self._clip          << operand._clip
-                self._frame         << operand._frame
+                self._chaos         << operand._chaos
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():                 self._clip = operand._data
-                    case of.Frame():                self._frame = operand._data
+                    case ch.Chaos():                self._chaos = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case oc.Clip():         self._clip  << operand
-            case of.Frame():        self._frame << operand
+            case ch.Chaos():        self._chaos << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -111,14 +111,14 @@ class Mutation(o.Operand):
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
-                self._clip << self._frame
+                self._clip.shuffle(self._chaos)
                 self._index += 1    # keeps track of each iteration
         return self
 
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         self._clip.reset()
-        self._frame.reset()
+        self._chaos.reset()
         return self
 
 class Translocation(Mutation):

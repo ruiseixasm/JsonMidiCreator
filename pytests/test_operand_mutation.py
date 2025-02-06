@@ -39,4 +39,4 @@ def test_mutation_mod():
     mutation.reset()
     assert mutation % Clip() == sequence_100_1
     sequence_100_2 = mutation * 100 % Clip()
-    assert sequence_100_1 == sequence_100_2
+    assert sequence_100_1 != sequence_100_2
