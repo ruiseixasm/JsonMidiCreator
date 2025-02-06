@@ -179,6 +179,16 @@ def test_pitch_degrees():
                 print(f"Key: {key_pitch % float()}")
                 assert key_pitch % float() == reference_keys[degree - 1] + (pitch_int - 60)
 
+    defaults << KeySignature("###") # A Major scale key signature
+    a_degree_c_major_scale: list[str] = [
+        "C", "D", "E", "F#", "G#", "A", "B"
+    ]
+    pitch = Pitch(Key("C"))
+    for degree in {0, 1, 2, 3, 4, 5, 6}:
+        pitch += degree
+        print(f"Key: {pitch % str()}")
+        # assert pitch == a_degree_c_major_scale[degree]
+
     # Resets the defaults
     defaults << KeySignature() << Scale([])
 
