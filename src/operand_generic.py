@@ -154,6 +154,7 @@ class Pitch(Generic):
     def degree(self, unit: int = 1) -> Self:
         return self << ou.Degree(unit)
 
+
     def get_key_degree(self, key_int: int) -> int:
         tonic_key: int = self._tonic_key
         staff_scale: list[int] = self._staff_reference % list()
@@ -164,14 +165,14 @@ class Pitch(Generic):
             degree_0 = self._degree - 1
         elif self._degree < 0:
             degree_0 = self._degree + 1
-            
+        
         while tonic_key < key_int:
             tonic_key += 1
-            if staff_scale[ tonic_key % 12 ] == 1:  # Scale key
+            if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
                 degree_0 += 1
         while tonic_key > key_int:
             tonic_key -= 1
-            if staff_scale[ tonic_key % 12 ] == 1:  # Scale key
+            if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
                 degree_0 -= 1
         # Expands
         if degree_0 < 0:
@@ -180,7 +181,6 @@ class Pitch(Generic):
             degree: int = degree_0 + 1
 
         return degree
-
 
     def get_key_int(self) -> int:
 

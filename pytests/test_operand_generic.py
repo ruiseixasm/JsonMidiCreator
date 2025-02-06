@@ -200,13 +200,13 @@ def test_pitch_degrees():
     pitch = Pitch(Key("C#"))
     for degree in {0, 1, 2, 3, 4, 5, 6}:
         print(f"Key: {pitch % str()}")
-        # assert pitch == a_degree_cs_major_scale[degree]
+        assert pitch == a_degree_cs_major_scale[degree]
         pitch += 1  # One degree each time
 
     # Resets the defaults
     defaults << KeySignature() << Scale([])
 
-test_pitch_degrees()
+# test_pitch_degrees()
 
 
 def test_pitch_key_signature():
