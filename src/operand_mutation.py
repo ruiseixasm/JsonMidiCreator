@@ -61,7 +61,7 @@ class Mutation(o.Operand):
                 match operand._data:
                     case od.Performers():   return self._performers
                     case of.Frame():        return self._frame
-                    case oc.Clip():     return self._clip
+                    case oc.Clip():         return self._clip
                     case str():             return self._operator
                     case od.Result():       return self._result
                     case _:                 return super().__mod__(operand)
@@ -69,7 +69,7 @@ class Mutation(o.Operand):
             case od.Performers():   return self._performers.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
-            case oc.Clip():     return self._result._data.copy()
+            case oc.Clip():         return self._result._data.copy()
             case str():             return self._operator
             case od.Result():       return self._result.copy()
             case ou.Next():         return self * operand
@@ -85,7 +85,7 @@ class Mutation(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["clip"]         = self.serialize(self._clip)
+        serialization["parameters"]["clip"]             = self.serialize(self._clip)
         serialization["parameters"]["frame"]            = self.serialize(self._frame)
         serialization["parameters"]["performers"]       = self.serialize(self._performers)
         serialization["parameters"]["operator"]         = self.serialize(self._operator)
@@ -99,7 +99,7 @@ class Mutation(o.Operand):
             "operator" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._clip          = self.deserialize(serialization["parameters"]["clip"])
+            self._clip              = self.deserialize(serialization["parameters"]["clip"])
             self._frame             = self.deserialize(serialization["parameters"]["frame"])
             self._performers        = self.deserialize(serialization["parameters"]["performers"])
             self._operator          = self.deserialize(serialization["parameters"]["operator"])
@@ -301,7 +301,7 @@ class TranslocatePitch(Translocation):
 class Crossover(Mutation):
     def __init__(self, *parameters):
         super().__init__()
-        self._clips: od.Clips   = od.Clips()
+        self._clips: od.Clips           = od.Clips()
         self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(oe.Note())
@@ -312,12 +312,12 @@ class Crossover(Mutation):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case od.Clips():    return self._clips
+                    case od.Clips():        return self._clips
                     case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
-            case od.Clips():    return self._clips.copy()
+            case od.Clips():        return self._clips.copy()
             case ch.Chaos():        return self._chaos.copy()
             case od.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
@@ -325,7 +325,7 @@ class Crossover(Mutation):
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["clips"]    = self.serialize(self._clips)
+        serialization["parameters"]["clips"]        = self.serialize(self._clips)
         serialization["parameters"]["chaos"]        = self.serialize(self._chaos)
         serialization["parameters"]["filter"]       = self.serialize(self._filter)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
@@ -338,7 +338,7 @@ class Crossover(Mutation):
             "clips" in serialization["parameters"] and "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._clips         = self.deserialize(serialization["parameters"]["clips"])
+            self._clips             = self.deserialize(serialization["parameters"]["clips"])
             self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
             self._filter            = self.deserialize(serialization["parameters"]["filter"])
             self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
@@ -349,18 +349,18 @@ class Crossover(Mutation):
         match operand:
             case Crossover():
                 super().__lshift__(operand)
-                self._clips     << operand._clips
+                self._clips         << operand._clips
                 self._chaos         << operand._chaos
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case od.DataSource():
                 match operand._data:
-                    case od.Clips():            self._clips = operand._data
+                    case od.Clips():                self._clips = operand._data
                     case ch.Chaos():                self._chaos = operand._data
                     case od.Filter():               self._filter = operand._data
                     case od.Parameters():           self._parameters = operand._data
                     case _:                         super().__lshift__(operand)
-            case od.Clips():            self._clips << operand
+            case od.Clips():                self._clips << operand
             case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
