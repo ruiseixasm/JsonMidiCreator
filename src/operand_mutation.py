@@ -93,7 +93,7 @@ class Mutation(o.Operand):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Mutation':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "clip" in serialization["parameters"] and "frame" in serialization["parameters"] and "performers" in serialization["parameters"] and
             "operator" in serialization["parameters"]):
@@ -218,7 +218,7 @@ class Translocation(Mutation):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Translocation':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
@@ -248,7 +248,7 @@ class Translocation(Mutation):
             case _:                         super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Translocation':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -264,7 +264,7 @@ class Translocation(Mutation):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'Translocation':
+    def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         self._chaos.reset()
         self._filter.reset()
@@ -333,7 +333,7 @@ class Crossover(Mutation):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Crossover':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "clips" in serialization["parameters"] and "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
@@ -367,7 +367,7 @@ class Crossover(Mutation):
             case _:                         super().__lshift__(operand)
         return self
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Crossover':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -387,7 +387,7 @@ class Crossover(Mutation):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def reset(self, *parameters) -> 'Crossover':
+    def reset(self, *parameters) -> Self:
         super().reset()
         self._clips.reset()
         self._chaos.reset()
