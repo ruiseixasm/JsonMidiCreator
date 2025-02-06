@@ -448,9 +448,13 @@ class Pitch(Generic):
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset._unit
             case ou.Key():
-                current_degree: int = self._degree
-                current_key_int: int = self.get_key_int()
-                self._tonic_key = operand._unit % 24
+                operand_key: int = operand._unit % 12
+                self._sharp = 0
+                self._natural = False
+                self._degree = self.get_key_degree(operand_key)
+                key_int: int = self.get_key_int()
+                if key_int != operand_key:
+                    self._sharp = operand_key - key_int
             case None:
                 self._tonic_key = int( self._staff_reference._key_signature % float() )
             case int():
