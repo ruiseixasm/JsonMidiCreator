@@ -203,6 +203,17 @@ def test_pitch_degrees():
         assert pitch == a_degree_cs_major_scale[degree]
         pitch += 1  # One degree each time
 
+    # print("---")
+    # a_degree_c_major_scale: list[str] = [
+    # #    C     D      D#    F     G      G#    A#      C minor scale
+    #     "B#", "C##", "D#", "E#", "F##", "G#", "A#"   # same as C minor (rooted in A Major)
+    # ]
+    # pitch = Pitch(Key("C"))
+    # for degree in {0, 1, 2, 3, 4, 5, 6}:
+    #     print(f"Key: {pitch % str()}")
+    #     # assert pitch == a_degree_c_major_scale[degree]
+    #     pitch += 1  # One degree each time
+
     # Resets the defaults
     defaults << KeySignature() << Scale([])
 
