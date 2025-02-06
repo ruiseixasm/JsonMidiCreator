@@ -43,7 +43,9 @@ import operand_chaos as ch
 class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
-        self._clip: oc.Clip             = oe.Note() * 4
+        self._clip: oc.Clip = oe.Note() * 6 \
+            << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
+            << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
         self._chaos: ch.Chaos           = ch.SinX()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
