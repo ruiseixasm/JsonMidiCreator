@@ -45,12 +45,6 @@ class Mutation(o.Operand):
         super().__init__()
         self._clip: oc.Clip             = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Steps(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
-        self._performers: od.Performers = od.Performers(
-                od.Stack(),
-                of.PushTo(od.Play()),
-                of.Subject(oe.Rest())**of.PushTo(od.Play()) # Finally plays a single Rest (just to have an interval between)
-            )
-        self._operator: str             = "<<"
         self._result: od.Result         = od.Result(self._clip)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
