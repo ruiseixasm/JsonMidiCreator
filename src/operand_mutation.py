@@ -119,8 +119,6 @@ class Mutation(o.Operand):
         super().reset(*parameters)
         self._clip.reset()
         self._frame.reset()
-        self._performers.reset()
-        self._result << self._clip
         return self
 
 class Translocation(Mutation):
