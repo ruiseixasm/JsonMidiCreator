@@ -1087,8 +1087,12 @@ class Tonic(Key):
     """
     pass
 
-# Root and Home as Alias to Tonic
-Root = Home = Tonic
+class Root(Key):
+    pass
+
+class Home(Key):
+    pass
+
 
 class Octave(PitchParameter):
     """`Unit -> PitchParameter -> Octave`
