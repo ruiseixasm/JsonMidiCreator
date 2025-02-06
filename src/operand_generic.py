@@ -452,9 +452,9 @@ class Pitch(Generic):
                 self._sharp = 0
                 self._natural = False
                 self._degree = self.get_key_degree(operand_key)
-                key_int: int = self.get_key_int()
+                # key_int: int = self.get_key_int()
                 # # Final adjustment of the Tonic key in case changing the Degree is not enough
-                # self._tonic_key += operand_key - key_int
+                # self._sharp = operand_key - key_int
             case None:
                 self._tonic_key = int( self._staff_reference._key_signature % float() )
             case int():
