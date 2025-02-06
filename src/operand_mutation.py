@@ -119,7 +119,7 @@ class Mutation(o.Operand):
                 match operand._data:
                     case od.Performers():           self._performers = operand._data
                     case of.Frame():                self._frame = operand._data
-                    case oc.Clip():             self._clip = operand._data
+                    case oc.Clip():                 self._clip = operand._data
                     case str():                     self._operator = operand._data
                     case od.Result():               self._result = operand._data
             case od.Serialization():
