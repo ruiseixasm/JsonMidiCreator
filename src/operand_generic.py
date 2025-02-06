@@ -177,7 +177,7 @@ class Pitch(Generic):
             tonic_key -= 1
 
         if staff_scale[ (key_int - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
-            if not self._staff_reference._scale.hasScale() and self._staff_reference._key_signature._unit < 0:
+            if self._tonic_key // 12 == 1:  # Checks the tonic key line
                 if self._tonic_key % 12 > key_int:
                     degree_0 -= 1
             else:
