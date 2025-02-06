@@ -158,7 +158,13 @@ class Pitch(Generic):
         tonic_key: int = self._tonic_key
         staff_scale: list[int] = self._staff_reference % list()
 
-        degree_0: int   = 0
+        degree_0: int = 0
+        # Contracts
+        if self._degree > 0:
+            degree_0 = self._degree - 1
+        elif self._degree < 0:
+            degree_0 = self._degree + 1
+            
         while tonic_key < key_int:
             tonic_key += 1
             if staff_scale[ tonic_key % 12 ] == 1:  # Scale key
@@ -167,7 +173,7 @@ class Pitch(Generic):
             tonic_key -= 1
             if staff_scale[ tonic_key % 12 ] == 1:  # Scale key
                 degree_0 -= 1
-        
+        # Expands
         if degree_0 < 0:
             degree: int = degree_0 - 1
         else:
