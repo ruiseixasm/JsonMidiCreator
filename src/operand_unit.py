@@ -1074,14 +1074,11 @@ class Key(PitchParameter):
                 return index
         return -1
 
-class Root(Key):
-    pass
-
 class Home(Key):
     pass
 
-class Tonic(PitchParameter):
-    """`Unit -> PitchParameter -> Tonic`
+class Tonic(Key):
+    """`Unit -> PitchParameter -> Key -> Tonic`
 
     An Tonic() represents the root note of a given pitch, with same pitch to a Degree of 1.
     The default value is the Tonic key is 0 representing the key of C.
@@ -1092,6 +1089,9 @@ class Tonic(PitchParameter):
         An Integer representing the key offset relative to the key of C.
     """
     pass
+
+# Root as an Alias to Tonic
+Root = Tonic
 
 class Octave(PitchParameter):
     """`Unit -> PitchParameter -> Octave`

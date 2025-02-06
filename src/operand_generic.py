@@ -239,7 +239,7 @@ class Pitch(Generic):
                 match operand._data:
                     case of.Frame():        return self % od.DataSource( operand._data )
                     case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
-                    case ou.Tonic():        return ou.Tonic() << od.DataSource(self._tonic_key)
+                    case ou.Tonic():        return ou.Tonic() << od.DataSource(self._tonic_key)    # Must come before than Key()
                     case ou.Sharp():        return ou.Sharp() << od.DataSource(max(0, self._sharp))
                     case ou.Flat():         return ou.Flat() << od.DataSource(max(0, self._sharp * -1))
                     case ou.Natural():      return ou.Natural() << od.DataSource(self._natural)
@@ -258,7 +258,7 @@ class Pitch(Generic):
             case ou.Semitone():
                 return ou.Semitone(self % float())
             
-            case ou.Tonic():
+            case ou.Tonic():    # Must come before than Key()
                 return ou.Tonic(self._tonic_key)
             case ou.Octave():
                 final_pitch: int = int(self % float())
@@ -380,7 +380,7 @@ class Pitch(Generic):
                 self._staff_reference       = operand._staff_reference
             case od.DataSource():
                 match operand._data:
-                    case ou.Tonic():
+                    case ou.Tonic():    # Must come before than Key()
                         self._tonic_key = operand._data._unit
                     case ou.Octave():
                         self._octave    = operand._data._unit
@@ -410,7 +410,7 @@ class Pitch(Generic):
 
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Tonic():
+            case ou.Tonic():    # Must come before than Key()
                 self._tonic_key = operand._unit % 24
             case ou.Octave():
                 octave_offset: ou.Octave = operand - self % ou.Octave()

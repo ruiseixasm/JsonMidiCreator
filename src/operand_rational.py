@@ -1314,9 +1314,9 @@ class Duration(Convertible):
                 super().__itruediv__(operand)
         return self
 
-
 # NoteValue as an Alias to Duration
 NoteValue = Duration
+
 
 class Dotted(Duration):
     """`Rational -> Convertible -> Duration -> Dotted`
