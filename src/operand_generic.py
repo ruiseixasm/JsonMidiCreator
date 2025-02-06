@@ -166,26 +166,21 @@ class Pitch(Generic):
         elif self._degree < 0:
             degree_0 = self._degree + 1
         
-        if not self._staff_reference._scale.hasScale() and self._staff_reference._key_signature._unit < 0:
-            # tonic_key goes UP and then DOWN (results in flat or natural)
-            while tonic_key < key_int:
-                tonic_key += 1
-                if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
-                    degree_0 += 1
-            while tonic_key > key_int:
-                tonic_key -= 1
-                if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
-                    degree_0 -= 1
-        else:
-            # tonic_key goes DOWN and then UP (results in sharp or natural)
-            while tonic_key > key_int:
-                tonic_key -= 1
-                if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
-                    degree_0 -= 1
-            while tonic_key < key_int:
-                tonic_key += 1
-                if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
-                    degree_0 += 1
+        degree_offset: int = 0
+        # tonic_key goes UP and then DOWN (results in flat or natural)
+        while tonic_key < key_int:
+            degree_offset = -1
+            if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
+                degree_0 += 1
+            tonic_key += 1
+        while tonic_key > key_int:
+            degree_offset = +1
+            if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
+                degree_0 -= 1
+            tonic_key -= 1
+
+        # if staff_scale[ (key_int - tonic_key) % 12 ] == 0:  # Key NOT on the scale
+        #     degree_0 -= degree_offset
 
         # Expands
         if degree_0 < 0:
