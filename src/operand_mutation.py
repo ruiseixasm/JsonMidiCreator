@@ -45,7 +45,6 @@ class Mutation(o.Operand):
         super().__init__()
         self._clip: oc.Clip             = oe.Note() * 4
         self._frame: of.Frame           = of.Foreach(ch.Modulus(ra.Amplitude(23), ra.Steps(78)))**of.Pick(1, 2, 3, 4, 5, 6, 7)**ou.Degree()
-        self._result: od.Result         = od.Result(self._clip)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -53,19 +52,12 @@ class Mutation(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case od.Performers():   return self._performers
-                    case of.Frame():        return self._frame
                     case oc.Clip():         return self._clip
-                    case str():             return self._operator
-                    case od.Result():       return self._result
+                    case of.Frame():        return self._frame
                     case _:                 return super().__mod__(operand)
-            case Mutation():        return self.copy()
-            case od.Performers():   return self._performers.copy()
+            case oc.Clip():         return self._clip.copy()
             case of.Frame():        return self._frame.copy()
             case ra.Index():        return ra.Index(self._index)
-            case oc.Clip():         return self._result._data.copy()
-            case str():             return self._operator
-            case od.Result():       return self._result.copy()
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
@@ -81,22 +73,17 @@ class Mutation(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["clip"]             = self.serialize(self._clip)
         serialization["parameters"]["frame"]            = self.serialize(self._frame)
-        serialization["parameters"]["performers"]       = self.serialize(self._performers)
-        serialization["parameters"]["operator"]         = self.serialize(self._operator)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clip" in serialization["parameters"] and "frame" in serialization["parameters"] and "performers" in serialization["parameters"] and
-            "operator" in serialization["parameters"]):
+            "clip" in serialization["parameters"] and "frame" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._clip              = self.deserialize(serialization["parameters"]["clip"])
             self._frame             = self.deserialize(serialization["parameters"]["frame"])
-            self._performers        = self.deserialize(serialization["parameters"]["performers"])
-            self._operator          = self.deserialize(serialization["parameters"]["operator"])
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -104,73 +91,28 @@ class Mutation(o.Operand):
         match operand:
             case Mutation():
                 super().__lshift__(operand)
-                self._clip      = operand._clip.copy()
-                self._result        = operand._result.copy()
-                self._frame         = operand._frame.copy()
-                self._performers    = operand._performers.copy()
-                self._operator      = operand._operator # The string str()
+                self._clip          << operand._clip
+                self._frame         << operand._frame
             case od.DataSource():
                 match operand._data:
-                    case od.Performers():           self._performers = operand._data
-                    case of.Frame():                self._frame = operand._data
                     case oc.Clip():                 self._clip = operand._data
-                    case str():                     self._operator = operand._data
-                    case od.Result():               self._result = operand._data
+                    case of.Frame():                self._frame = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case od.Performers():           self._performers << operand
-            case of.Frame():                self._frame = operand.copy()
-            case oc.Clip():
-                                            self._clip  = operand.copy()
-                                            self._result    << self._clip
-            case str():                     self._operator = operand
+            case oc.Clip():         self._clip  << operand
+            case of.Frame():        self._frame << operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
         return self
-
-    def muted_and_total_iterations(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> tuple:
-        number = self & number      # Processes the tailed self operands or the Frame operand if any exists
-        iterations = 1
-        match number:
-            case ou.Unit() | ra.Rational():
-                iterations = number % float()
-            case int() | float() | Fraction():
-                iterations = float(number)
-        fractional_part, integer_part = math.modf(iterations)  # Separate fractional and integer parts
-        muted_iterations: int = round(abs(fractional_part) * (10 ** 2) + 1)
-        total_iterations: int = round(integer_part * muted_iterations)
-        return muted_iterations, total_iterations
-
+    
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        total_iterations = self.convert_to_int(number)
         if total_iterations > 0:
             self._initiated = True
-            for actual_iteration in range(1, total_iterations + 1):
-                match self._operator:
-                    case "^":   self._result._data ^ self._frame
-                    case ">>":  self._result._data >> self._frame
-                    case "+":   self._result._data + self._frame
-                    case "-":   self._result._data - self._frame
-                    case "*":   self._result._data * self._frame
-                    case "%":   self._result._data % self._frame
-                    case "/":   self._result._data / self._frame
-                    case "//":  self._result._data // self._frame
-                    case _:     self._result._data << self._frame
-                if actual_iteration % muted_iterations == 0:
-                    self.perform(number)
+            for _ in range(total_iterations):
+                self._clip << self._frame
                 self._index += 1    # keeps track of each iteration
-        return self
-
-    def perform(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
-            print(f'{type(self).__name__} {self._index + 1}', end = " ")
-            if isinstance(self._performers._data, (list, tuple)):
-                for single_performers in self._performers._data:
-                    self._result._data >> single_performers
-            else:
-                self._result._data >> self._performers._data
-            print()
         return self
 
     def reset(self, *parameters) -> Self:
@@ -243,18 +185,15 @@ class Translocation(Mutation):
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        total_iterations = self.convert_to_int(number)
         if total_iterations > 0:
             self._initiated = True
             source_result: oc.Clip  = self._result._data | self._filter._data   # Applies the filter
             jumbled_result: oc.Clip = source_result.copy()
-            for actual_iteration in range(1, total_iterations + 1):
+            for _ in range(total_iterations):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
                 for single_parameter in self._parameters._data: # A tuple of parameters
                     source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
-                # self._result % od.DataSource() >> od.Stack()    # It only changes the Duration, so it requires a Stack NOT a Link!
-                if actual_iteration % muted_iterations == 0:
-                    self.perform(number)
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -362,12 +301,12 @@ class Crossover(Mutation):
         return self
 
     def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        muted_iterations, total_iterations = self.muted_and_total_iterations(number)
+        total_iterations = self.convert_to_int(number)
         if total_iterations > 0:
             self._initiated = True
             result_clip: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
             source_len: int = result_clip.len()
-            for actual_iteration in range(1, total_iterations + 1):
+            for _ in range(total_iterations):
                 source_parameters: list[any] = []
                 for _ in range(source_len):
                     for single_clip in self._clips._data:
@@ -376,8 +315,6 @@ class Crossover(Mutation):
                     source_parameter = source_parameters[self._chaos * 1 % int() % len(source_parameters)]
                     destination_parameter = result_clip % ou.Next()
                     destination_parameter << source_parameter
-                if actual_iteration % muted_iterations == 0:
-                    self.perform(number)
                 self._index += 1    # keeps track of each iteration
         return self
 

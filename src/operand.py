@@ -436,6 +436,18 @@ class Operand:
     # @staticmethod decorator is needed in order to be possible to call it with self !!
 
     @staticmethod
+    def convert_to_int(number: any) -> int:
+        import operand_unit as ou
+        import operand_rational as ra
+        match number:
+            case int():         return number
+            case float():       return int(number)
+            case Fraction():    return int(number)
+            case ou.Unit():     return number._unit
+            case ra.Rational(): return int(number._rational)
+            case _:             return 0
+
+    @staticmethod
     def serialize(data: any) -> any:
         match data:
             case Operand():
