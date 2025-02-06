@@ -217,7 +217,7 @@ class Container(o.Operand):
         parameter_instance = parameter()
         if isinstance(parameter_instance, od.DataSource):
             for _ in range(len(self._items)):
-                data_index: int = shuffler * 1 % int() % len(parameters)
+                data_index: int = shuffler * 1 % int() % len(self._items)
                 parameters.append(self._items[data_index])   # No need to copy
                 del self._items[data_index] # Like picking up colored balls, pop out
             self._items = parameters

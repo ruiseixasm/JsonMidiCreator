@@ -252,7 +252,7 @@ class Translocation(Mutation):
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
-            source_result: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
+            source_result: oc.Clip  = self._result._data | self._filter._data   # Applies the filter
             jumbled_result: oc.Clip = source_result.copy()
             for actual_iteration in range(1, total_iterations + 1):
                 jumbled_result.shuffle(self._chaos) # a single shuffle
