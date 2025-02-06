@@ -39,4 +39,7 @@ def test_mutation_mod():
     mutation.reset()
     assert mutation % Clip() == sequence_100_1
     sequence_100_2 = mutation * 100 % Clip()
+    # Shuffled Note positions
     assert sequence_100_1 != sequence_100_2
+
+# test_mutation_mod()

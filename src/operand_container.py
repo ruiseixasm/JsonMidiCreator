@@ -210,7 +210,7 @@ class Container(o.Operand):
         self._items.sort(key=lambda x: x % compare)
         return self
 
-    def shuffle(self, shuffler: ch.Chaos = None, parameter: type = od.DataSource) -> Self:
+    def shuffle(self, shuffler: ch.Chaos = None, parameter: type = ra.Position) -> Self:
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
         parameters: list = []

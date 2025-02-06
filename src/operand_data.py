@@ -765,8 +765,10 @@ if TYPE_CHECKING:
     from operand_chaos import Chaos
 
 class Shuffle(Operation):
+    
+    from operand_rational import Position
 
-    def __init__(self, shuffler: 'Chaos' = None, parameter: type = DataSource):
+    def __init__(self, shuffler: 'Chaos' = None, parameter: type = Position):
         super().__init__((shuffler, parameter))
 
     # CHAINABLE OPERATIONS
