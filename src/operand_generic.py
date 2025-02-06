@@ -177,6 +177,11 @@ class Pitch(Generic):
 
         key_int: int = self._tonic_key % 12 + degree_transposition
 
+        return key_int
+
+    def get_key_float(self) -> float:
+        key_int: int = self.get_key_int()
+
         # Final parameter decorators like Sharp and Natural
         if self._natural:
             if self._major_scale[key_int % 12] == 0:  # Black key
@@ -189,7 +194,7 @@ class Pitch(Generic):
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
 
-        return key_int
+        return float(key_int)
 
 
     def octave_key_offset(self, key_offset: int) -> tuple[int, int]:
@@ -253,7 +258,7 @@ class Pitch(Generic):
                 return self._degree
              
             case float():
-                return float( 12 * (self._octave + 1) + self.get_key_int() )
+                return float( 12 * (self._octave + 1) + self.get_key_float() )
             
             case ou.Semitone():
                 return ou.Semitone(self % float())
@@ -416,6 +421,8 @@ class Pitch(Generic):
                 octave_offset: ou.Octave = operand - self % ou.Octave()
                 self._octave += octave_offset._unit
             case ou.Key():
+                current_degree: int = self._degree
+                
                 self._tonic_key = operand._unit % 24
             case None:
                 self._tonic_key = int( self._staff_reference._key_signature % float() )
