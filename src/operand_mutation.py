@@ -75,7 +75,7 @@ class Mutation(o.Operand):
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: 'Mutation') -> bool:
+    def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
@@ -148,7 +148,7 @@ class Mutation(o.Operand):
         total_iterations: int = round(integer_part * muted_iterations)
         return muted_iterations, total_iterations
 
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
+    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         muted_iterations, total_iterations = self.muted_and_total_iterations(number)
         if total_iterations > 0:
             self._initiated = True
@@ -168,7 +168,7 @@ class Mutation(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
 
-    def perform(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> 'Mutation':
+    def perform(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         if not isinstance(number, (int, ou.Unit)):  # Report only when floats are used
             print(f'{type(self).__name__} {self._index + 1}', end = " ")
             if isinstance(self._performers._data, (list, tuple)):
@@ -179,7 +179,7 @@ class Mutation(o.Operand):
             print()
         return self
 
-    def reset(self, *parameters) -> 'Mutation':
+    def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         self._clip.reset()
         self._frame.reset()
