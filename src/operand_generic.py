@@ -503,10 +503,6 @@ class Pitch(Generic):
 
         return self
 
-    def __add__(self, operand: any) -> Self:
-        self_copy: Pitch = self.copy()
-        return self_copy.__iadd__(operand)
-    
     def __iadd__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
@@ -530,10 +526,6 @@ class Pitch(Generic):
                 new_pitch: float = self % float() + operand % float()
                 self.set_chromatic_pitch(new_pitch)
         return self
-    
-    def __sub__(self, operand: any) -> Self:
-        self_copy: Pitch = self.copy()
-        return self_copy.__isub__(operand)
     
     def __isub__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
