@@ -1074,9 +1074,6 @@ class Key(PitchParameter):
                 return index
         return -1
 
-class Home(Key):
-    pass
-
 class Tonic(Key):
     """`Unit -> PitchParameter -> Key -> Tonic`
 
@@ -1090,8 +1087,8 @@ class Tonic(Key):
     """
     pass
 
-# Root as an Alias to Tonic
-Root = Tonic
+# Root and Home as Alias to Tonic
+Root = Home = Tonic
 
 class Octave(PitchParameter):
     """`Unit -> PitchParameter -> Octave`
