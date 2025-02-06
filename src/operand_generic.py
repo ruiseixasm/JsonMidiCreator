@@ -154,6 +154,27 @@ class Pitch(Generic):
     def degree(self, unit: int = 1) -> Self:
         return self << ou.Degree(unit)
 
+    def get_key_degree(self, key_int: int) -> int:
+        tonic_key: int = self._tonic_key
+        staff_scale: list[int] = self._staff_reference % list()
+
+        degree_0: int   = 0
+        while tonic_key < key_int:
+            tonic_key += 1
+            if staff_scale[ tonic_key % 12 ] == 1:  # Scale key
+                degree_0 += 1
+        while tonic_key > key_int:
+            tonic_key -= 1
+            if staff_scale[ tonic_key % 12 ] == 1:  # Scale key
+                degree_0 -= 1
+        
+        if degree_0 < 0:
+            degree: int = degree_0 - 1
+        else:
+            degree: int = degree_0 + 1
+
+        return degree
+
 
     def get_key_int(self) -> int:
 
@@ -422,7 +443,7 @@ class Pitch(Generic):
                 self._octave += octave_offset._unit
             case ou.Key():
                 current_degree: int = self._degree
-                
+                current_key_int: int = self.get_key_int()
                 self._tonic_key = operand._unit % 24
             case None:
                 self._tonic_key = int( self._staff_reference._key_signature % float() )
