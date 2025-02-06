@@ -778,8 +778,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     #     return False
 
     def is_enharmonic(self, tonic_key: int, key: int) -> bool:
-        if self._major_scale[tonic_key % 12] != 1:
-            return True
+        # if self._major_scale[tonic_key % 12] != 1:
+        #     return True
         self_key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
         return self_key_signature[key % 12] != 0
 

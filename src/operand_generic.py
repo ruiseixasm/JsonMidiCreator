@@ -156,7 +156,7 @@ class Pitch(Generic):
 
 
     def get_key_degree(self, key_int: int) -> int:
-        tonic_key: int = self._tonic_key
+        tonic_key: int = self._tonic_key % 12
         staff_scale: list[int] = self._staff_reference % list()
 
         degree_0: int = 0
@@ -166,21 +166,23 @@ class Pitch(Generic):
         elif self._degree < 0:
             degree_0 = self._degree + 1
         
-        degree_offset: int = 0
         # tonic_key goes UP and then DOWN (results in flat or natural)
         while tonic_key < key_int:
-            degree_offset = -1
             if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
                 degree_0 += 1
             tonic_key += 1
         while tonic_key > key_int:
-            degree_offset = +1
             if staff_scale[ (key_int - tonic_key) % 12 ] == 1:  # Scale key
                 degree_0 -= 1
             tonic_key -= 1
 
-        # if staff_scale[ (key_int - tonic_key) % 12 ] == 0:  # Key NOT on the scale
-        #     degree_0 -= degree_offset
+        if staff_scale[ (key_int - self._tonic_key % 12) % 12 ] == 0:  # Key NOT on the scale
+            if not self._staff_reference._scale.hasScale() and self._staff_reference._key_signature._unit < 0:
+                if self._tonic_key % 12 > key_int:
+                    degree_0 -= 1
+            else:
+                if self._tonic_key % 12 < key_int:
+                    degree_0 += 1
 
         # Expands
         if degree_0 < 0:
