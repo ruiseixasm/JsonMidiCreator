@@ -762,25 +762,26 @@ class Clip(Container):  # Just a container of Elements
     def __rrshift__(self, operand: any) -> 'Clip':
         match operand:
             case Part():
-                wrapper_song: Part = Part()
-                wrapper_song._items = [
+                wrapper_part: Part = Part()
+                wrapper_part._items = [
                     data_clip for data_clip in operand._items
                 ]
-                wrapper_song._items.append( self )
-                return wrapper_song
+                wrapper_part._items.append( self )
+                return wrapper_part
             case Clip():
-                wrapper_song: Part = Part()
-                wrapper_song._items = [ operand, self ]
-                return wrapper_song
+                wrapper_part: Part = Part()
+                wrapper_part._items = [ operand, self ]
+                return wrapper_part
             case oe.Element():
                 element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
                 # Convert Length to Position
                 add_position: ra.Position = ra.Position(element_length)
                 self += add_position  # No copy!
                 self._items.insert(0, operand.set_staff_reference(self._staff))
+            case ra.Position():
+                self._position_beats = self._staff.convertToBeats(operand)._rational
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
-                return self
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
