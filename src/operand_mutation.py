@@ -45,6 +45,9 @@ class Mutation(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        return clip.shuffle(self._chaos, self._parameter)
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():

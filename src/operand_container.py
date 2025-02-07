@@ -951,7 +951,7 @@ class Clip(Container):  # Just a container of Elements
             case ch.Chaos():
                 return self.shuffle(operand)
             case om.Mutation():
-                return operand // self
+                return operand.mutate(self)
 
             case tuple():
                 for single_operand in operand:
