@@ -291,6 +291,9 @@ class Container(o.Operand):
                 for item in operand._items:
                     self._items.append(self.deep_copy(item))
 
+            case list():
+                for item in operand:
+                    self._items.append( self.deep_copy( item ) )
             case tuple():
                 for single_operand in operand:
                     self += single_operand
