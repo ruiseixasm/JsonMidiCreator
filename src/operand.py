@@ -307,6 +307,10 @@ class Operand:
             # COPY THE SELF OPERANDS RECURSIVELY
             self._next_operand = self.deep_copy(operand._next_operand)
         return self
+    
+    def __ilshift__(self, operand: any) -> Self:
+        import operand_data as od
+        return self << od.DataSource( operand )
 
     def __xor__(self, operand: any) -> Self:
         import operand_data as od
