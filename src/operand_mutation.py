@@ -47,6 +47,7 @@ class Mutation(o.Operand):
             << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
             << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
         self._chaos: ch.Chaos           = ch.SinX()
+        self._parameter: type           = ra.Position
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -56,9 +57,11 @@ class Mutation(o.Operand):
                 match operand._data:
                     case oc.Clip():         return self._clip
                     case ch.Chaos():        return self._chaos
+                    case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
             case oc.Clip():         return self._clip.copy()
             case ch.Chaos():        return self._chaos.copy()
+            case type():            return self._parameter
             case ra.Index():        return ra.Index(self._index)
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
@@ -67,25 +70,31 @@ class Mutation(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if type(self) != type(other):
-            return False
-        return  self._result == other._result
+        if isinstance(other, Mutation):
+            return self._clip == other._clip
+        return False
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["clip"]             = self.serialize(self._clip)
         serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
+        serialization["parameters"]["parameter"]        = self._parameter.__name__
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clip" in serialization["parameters"] and "chaos" in serialization["parameters"]):
+            "clip" in serialization["parameters"] and "chaos" in serialization["parameters"] and "parameter" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._clip              = self.deserialize(serialization["parameters"]["clip"])
             self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
+            parameter: type = o.find_class_by_name( o.Operand, serialization["parameters"]["parameter"] )
+            if parameter:
+                self._parameter     = parameter
+            else:
+                self._parameter     = ra.Position
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -95,14 +104,17 @@ class Mutation(o.Operand):
                 super().__lshift__(operand)
                 self._clip          << operand._clip
                 self._chaos         << operand._chaos
+                self._parameter     = operand._parameter
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():                 self._clip = operand._data
                     case ch.Chaos():                self._chaos = operand._data
+                    case type():                    self._parameter = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case oc.Clip():         self._clip  << operand
             case ch.Chaos():        self._chaos << operand
+            case type():            self._parameter = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -113,7 +125,7 @@ class Mutation(o.Operand):
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
-                self._clip.shuffle(self._chaos)
+                self._clip.shuffle(self._chaos, self._parameter)
                 self._index += 1    # keeps track of each iteration
         return self
 

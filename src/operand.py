@@ -42,7 +42,7 @@ T = TypeVar('T')
 # GLOBAL FUNCTIONS
 
 @cache  # Important decorator to avoid repeated searches (class names are static, never change)
-def find_class_by_name(root_class: type, name: str):
+def find_class_by_name(root_class: type, name: str) -> type:
     """
     Recursively searches for a class with a given name in the hierarchy 
     starting from the root_class.
