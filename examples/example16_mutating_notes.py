@@ -29,13 +29,13 @@ motif = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
 motif * 2 >> Play()
 
 mutation = Mutation()
-# for _ in range(5):
-#     mutation * 10 % motif * 2.0 >> Sort() >> Stack() >> Play()
-#     # mutation * 10 % motif * 2.0 >> Sort() >> Stack()
+for _ in range(5):
+    motif / mutation * 2.0 >> Sort() >> Stack() >> Play()
+    # motif / mutation * 2.0 >> Sort() >> Stack()
 
-crossover = Crossover(Pitch, 2.0)
+crossover = Crossover(Pitch, 2.0) * 40
 for _ in range(4):
-    crossover * 40 % motif * 2.0 >> Play()
+    motif / crossover * 2.0 >> Play()
 
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01

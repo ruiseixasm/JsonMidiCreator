@@ -53,13 +53,11 @@ class Mutation(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case oc.Clip():         return self.mutate(operand._data)
                     case ch.Chaos():        return self._chaos
                     case int():             return int(self._step)
                     case float():           return float(self._step)
                     case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
-            case oc.Clip():         return self.mutate(operand.copy())
             case ch.Chaos():        return self._chaos.copy()
             case int():             return int(self._step)
             case float():           return float(self._step)
@@ -259,6 +257,7 @@ class Crossover(Mutation):
                 match operand._data:
                     case oc.Clip():         return self._clip
                     case _:                 return super().__mod__(operand)
+            case oc.Clip():         return self.mutate(operand.copy())
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
