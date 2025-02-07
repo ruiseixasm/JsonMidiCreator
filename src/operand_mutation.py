@@ -74,6 +74,12 @@ class Mutation(o.Operand):
             return self._clip == other._clip
         return False
     
+    def getPlaylist(self) -> list[dict]:
+        return self._clip.getPlaylist()
+
+    def getMidilist(self) -> list[dict]:
+        return self._clip.getMidilist()
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["clip"]             = self.serialize(self._clip)

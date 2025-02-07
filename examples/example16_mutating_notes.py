@@ -25,8 +25,11 @@ rest_play = (R, P)
 defaults << 150
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-final_mutation = Mutation() * 40 * 4.37
-final_mutation = TranslocateRhythm(final_mutation) * 60 * 4.01
-final_mutation = TranslocatePitch(final_mutation) * 35 * 4.02
+mutation = Mutation()
+for _ in range(5):
+    mutation * 0 >> Sort() >> Stack() >> Play()
 
-final_mutation >> Print()
+# mutation = TranslocateRhythm(mutation) * 60 * 4.01
+# mutation = TranslocatePitch(mutation) * 35 * 4.02
+
+# mutation >> Print()
