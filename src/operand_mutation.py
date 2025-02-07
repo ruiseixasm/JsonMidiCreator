@@ -52,11 +52,11 @@ class Mutation(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case oc.Clip():         return operand._data.shuffle(self._chaos, self._parameter)
+                    case oc.Clip():         return self.mutate(operand._data)
                     case ch.Chaos():        return self._chaos
                     case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
-            case oc.Clip():         return operand.copy().shuffle(self._chaos, self._parameter)
+            case oc.Clip():         return self.mutate(operand.copy())
             case ch.Chaos():        return self._chaos.copy()
             case type():            return self._parameter
             case ra.Index():        return ra.Index(self._index)
@@ -228,9 +228,8 @@ class TranslocatePitch(Translocation):
 class Crossover(Mutation):
     def __init__(self, *parameters):
         super().__init__()
-        self._clips: od.Clips           = od.Clips()
-        self._filter: od.Filter         = od.Filter(of.All())
-        self._parameters: od.Parameters = od.Parameters(oe.Note())
+        self._clip: oc.Clip = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
+                                << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -238,32 +237,24 @@ class Crossover(Mutation):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case od.Clips():        return self._clips
-                    case od.Filter():       return self._filter
-                    case od.Parameters():   return self._parameters
+                    case oc.Clip():         return self._clip
                     case _:                 return super().__mod__(operand)
-            case od.Clips():        return self._clips.copy()
-            case od.Filter():       return self._filter.copy()
-            case od.Parameters():   return self._parameters.copy()
+            case oc.Clip():         return self._clip.copy()
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["clips"]        = self.serialize(self._clips)
-        serialization["parameters"]["filter"]       = self.serialize(self._filter)
-        serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
+        serialization["parameters"]["clip"] = self.serialize(self._clip)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clips" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
+            "clip" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._clips             = self.deserialize(serialization["parameters"]["clips"])
-            self._filter            = self.deserialize(serialization["parameters"]["filter"])
-            self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
+            self._clip = self.deserialize(serialization["parameters"]["clip"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -271,41 +262,16 @@ class Crossover(Mutation):
         match operand:
             case Crossover():
                 super().__lshift__(operand)
-                self._clips         << operand._clips
-                self._filter        << operand._filter
-                self._parameters    << operand._parameters
+                self._clip          << operand._clip
             case od.DataSource():
                 match operand._data:
-                    case od.Clips():                self._clips = operand._data
-                    case od.Filter():               self._filter = operand._data
-                    case od.Parameters():           self._parameters = operand._data
-                    case _:                         super().__lshift__(operand)
-            case od.Clips():                self._clips << operand
-            case od.Filter():               self._filter << operand
-            case od.Parameters():           self._parameters << operand
-            case _:                         super().__lshift__(operand)
-        return self
-
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        total_iterations = self.convert_to_int(number)
-        if total_iterations > 0:
-            self._initiated = True
-            result_clip: oc.Clip  = (self._result % od.DataSource()) % (self._filter % od.DataSource())
-            source_len: int = result_clip.len()
-            for _ in range(total_iterations):
-                source_parameters: list[any] = []
-                for _ in range(source_len):
-                    for single_clip in self._clips._data:
-                        if isinstance(single_clip, oc.Clip):
-                            source_parameters.append(single_clip % ou.Next()) # moves the index one step forward
-                    source_parameter = source_parameters[self._chaos * 1 % int() % len(source_parameters)]
-                    destination_parameter = result_clip % ou.Next()
-                    destination_parameter << source_parameter
-                self._index += 1    # keeps track of each iteration
+                    case oc.Clip():         self._clip = operand._data
+                    case _:                 super().__lshift__(operand)
+            case oc.Clip():         self._clip << operand
+            case _:                 super().__lshift__(operand)
         return self
 
     def reset(self, *parameters) -> Self:
         super().reset()
-        self._clips.reset()
-        self._filter.reset()
+        self._clip.reset()
         return self << parameters
