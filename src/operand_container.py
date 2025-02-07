@@ -391,6 +391,7 @@ class Container(o.Operand):
         return self.shallow_copy().__ior__(operand)
 
     def __ior__(self, operand: any) -> Self:
+        import operand_mutation as om
         match operand:
             case Container():
                 self._items.extend( item for item in operand )
@@ -398,6 +399,8 @@ class Container(o.Operand):
                 self >>= operand
             case ch.Chaos():
                 self.shuffle(operand)
+            case om.Mutation():
+                operand.mutate(self)
             case _:
                 self.filter(operand)
         return self
