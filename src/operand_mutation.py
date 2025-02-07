@@ -233,13 +233,22 @@ class Crossover(Mutation):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        self_clip_len: int = self._clip.len()
+        clip_len: int = clip.len()
+        for element_i in range(clip_len):
+            if self._chaos * 1 % int() % 2 == 0:
+                switch_data: any = clip[element_i] // self._parameter()
+                clip[element_i] << self._clip[element_i % self_clip_len] // self._parameter()
+                self._clip[element_i % self_clip_len] << switch_data
+        return clip
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():         return self._clip
                     case _:                 return super().__mod__(operand)
-            case oc.Clip():         return self._clip.copy()
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:

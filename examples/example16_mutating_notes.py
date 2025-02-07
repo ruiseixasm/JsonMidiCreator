@@ -28,9 +28,14 @@ motif = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
     << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
 
 mutation = Mutation()
-
 for _ in range(5):
-    mutation * 10 % motif * 4 >> Sort() >> Stack() >> Play()
+    mutation * 10 % motif * 2 >> Sort() >> Stack() >> Play()
+    # mutation * 10 % motif * 2 >> Sort() >> Stack()
+
+crossover = Crossover()
+for _ in range(5):
+    crossover * 40 % motif * 2 >> Sort() >> Stack() >> Play()
+
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01
 # mutation = TranslocatePitch(mutation) * 35 * 4.02
