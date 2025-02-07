@@ -137,6 +137,12 @@ class Mutation(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
 
+    def __or__(self, operand: any) -> Self:
+        return self.shallow_copy().__ior__(operand)
+
+    def __ior__(self, operand: any) -> Self:
+        return self.__itruediv__(operand)
+
     def __itruediv__(self, operand: any) -> Self:
         match operand:
             case Mutation():
@@ -145,6 +151,26 @@ class Mutation(o.Operand):
                 self.mutate(operand)
         return self
 
+    def empty_copy(self, *parameters) -> Self:
+        empty_copy: Mutation = self.__class__()
+        # COPY THE SELF OPERANDS RECURSIVELY
+        if self._next_operand:
+            empty_copy._next_operand = self.deep_copy(self._next_operand)
+        empty_copy._chaos           << self._chaos
+        empty_copy._step            = self._step
+        empty_copy._parameter       = self._parameter
+        for single_parameter in parameters:
+            empty_copy << single_parameter
+        return empty_copy
+
+    def shallow_copy(self, *parameters) -> Self:
+        shallow_copy: Mutation      = self.empty_copy()
+        if isinstance(self._clip, oc.Clip):
+            shallow_copy._clip = self._clip.shallow_copy()
+        for single_parameter in parameters:
+            shallow_copy << single_parameter
+        return shallow_copy
+    
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
         if isinstance(self._clip, oc.Clip):
