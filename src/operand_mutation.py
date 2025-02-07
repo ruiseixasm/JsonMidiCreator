@@ -41,6 +41,7 @@ class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
         self._chaos: ch.Chaos           = ch.SinX()
+        self._step: int | float         = 1
         self._parameter: type           = ra.Position
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -54,10 +55,14 @@ class Mutation(o.Operand):
                 match operand._data:
                     case oc.Clip():         return self.mutate(operand._data)
                     case ch.Chaos():        return self._chaos
+                    case int():             return int(self._step)
+                    case float():           return float(self._step)
                     case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
             case oc.Clip():         return self.mutate(operand.copy())
             case ch.Chaos():        return self._chaos.copy()
+            case int():             return int(self._step)
+            case float():           return float(self._step)
             case type():            return self._parameter
             case ra.Index():        return ra.Index(self._index)
             case ou.Next():         return self * operand
@@ -74,6 +79,7 @@ class Mutation(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
+        serialization["parameters"]["step"]             = self.serialize(self._step)
         serialization["parameters"]["parameter"]        = self._parameter.__name__
         return serialization
 
@@ -81,10 +87,11 @@ class Mutation(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "chaos" in serialization["parameters"] and "parameter" in serialization["parameters"]):
+            "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
+            self._step              = self.deserialize(serialization["parameters"]["step"])
             parameter: type = o.find_class_by_name( o.Operand, serialization["parameters"]["parameter"] )
             if parameter:
                 self._parameter     = parameter
@@ -98,14 +105,17 @@ class Mutation(o.Operand):
             case Mutation():
                 super().__lshift__(operand)
                 self._chaos         << operand._chaos
+                self._step          = operand._step
                 self._parameter     = operand._parameter
             case od.DataSource():
                 match operand._data:
                     case ch.Chaos():                self._chaos = operand._data
+                    case int() | float():           self._step = operand._data
                     case type():                    self._parameter = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ch.Chaos():        self._chaos << operand
+            case int() | float():   self._step = operand
             case type():            self._parameter = operand
             case tuple():
                 for single_operand in operand:
@@ -117,7 +127,7 @@ class Mutation(o.Operand):
         if total_iterations > 0:
             self._initiated = True
             for _ in range(total_iterations):
-                self._chaos * 1
+                self._chaos * self._step
                 self._index += 1    # keeps track of each iteration
         return self
 
@@ -237,7 +247,7 @@ class Crossover(Mutation):
         self_clip_len: int = self._clip.len()
         clip_len: int = clip.len()
         for element_i in range(clip_len):
-            if self._chaos * 1 % int() % 2 == 0:
+            if self._chaos * self._step % int() % 2 == 0:
                 switch_data: any = clip[element_i] % self._parameter()
                 clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
                 self._clip[element_i % self_clip_len] << switch_data
