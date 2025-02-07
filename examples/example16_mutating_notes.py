@@ -27,7 +27,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 
 mutation = Mutation()
 for _ in range(5):
-    mutation * 0 >> Sort() >> Stack() >> Play()
+    mutation * 1 >> Sort() >> Stack() >> Play()
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01
 # mutation = TranslocatePitch(mutation) * 35 * 4.02
