@@ -40,24 +40,27 @@ import operand_chaos as ch
 class Mutation(o.Operand):
     def __init__(self, *parameters):
         super().__init__()
+        self._clip: oc.Clip = None
         self._chaos: ch.Chaos           = ch.SinX()
         self._step: int | float         = 1
         self._parameter: type           = ra.Position
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def mutate(self, clip: oc.Clip) -> oc.Clip:
+    def mutate(self, clip: o.T) -> o.T:
         return clip.shuffle(self._chaos, self._parameter)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
+                    case oc.Clip():         return self._clip
                     case ch.Chaos():        return self._chaos
                     case int():             return int(self._step)
                     case float():           return float(self._step)
                     case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
+            case oc.Clip():         return self.deep_copy(self._clip)
             case ch.Chaos():        return self._chaos.copy()
             case int():             return int(self._step)
             case float():           return float(self._step)
@@ -76,6 +79,7 @@ class Mutation(o.Operand):
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
+        serialization["parameters"]["clip"]             = self.serialize(self._clip)
         serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
         serialization["parameters"]["step"]             = self.serialize(self._step)
         serialization["parameters"]["parameter"]        = self._parameter.__name__
@@ -85,9 +89,10 @@ class Mutation(o.Operand):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"]):
+            "clip" in serialization["parameters"] and "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._clip              = self.deserialize(serialization["parameters"]["clip"])
             self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
             self._step              = self.deserialize(serialization["parameters"]["step"])
             parameter: type = o.find_class_by_name( o.Operand, serialization["parameters"]["parameter"] )
@@ -102,16 +107,19 @@ class Mutation(o.Operand):
         match operand:
             case Mutation():
                 super().__lshift__(operand)
+                self._clip          = self.deep_copy( operand._clip )
                 self._chaos         << operand._chaos
                 self._step          = operand._step
                 self._parameter     = operand._parameter
             case od.DataSource():
                 match operand._data:
+                    case oc.Clip():                 self._clip = operand._data
                     case ch.Chaos():                self._chaos = operand._data
                     case int() | float():           self._step = operand._data
                     case type():                    self._parameter = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case oc.Clip():         self._clip << operand
             case ch.Chaos():        self._chaos << operand
             case int() | float():   self._step = operand
             case type():            self._parameter = operand
@@ -120,7 +128,7 @@ class Mutation(o.Operand):
                     self << single_operand
         return self
     
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
         total_iterations = self.convert_to_int(number)
         if total_iterations > 0:
             self._initiated = True
@@ -129,8 +137,18 @@ class Mutation(o.Operand):
                 self._index += 1    # keeps track of each iteration
         return self
 
+    def __itruediv__(self, operand: any) -> Self:
+        match operand:
+            case Mutation():
+                self.mutate(operand._clip)
+            case oc.Clip():
+                self.mutate(operand)
+        return self
+
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
+        if isinstance(self._clip, oc.Clip):
+            self._clip.reset()
         self._chaos.reset()
         return self
 
@@ -234,62 +252,20 @@ class TranslocatePitch(Translocation):
         return self
 
 class Crossover(Mutation):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._clip: oc.Clip = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-                                >> od.Stack() << of.Foreach(2, 3, 2, -3, 1, -3) # Degree
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
 
-    def mutate(self, clip: oc.Clip) -> oc.Clip:
-        self_clip_len: int = self._clip.len()
-        clip_len: int = clip.len()
-        for element_i in range(clip_len):
-            if self._chaos * self._step % int() % 2 == 0:
-                switch_data: any = clip[element_i] % self._parameter()
-                clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
-                self._clip[element_i % self_clip_len] << switch_data
+    def mutate(self, clip: o.T) -> o.T:
+        if clip is None:
+            self._clip = None
+        elif isinstance(clip, oc.Clip):
+            if self._clip is None:
+                self._clip = clip.copy()
+            else:
+                self_clip_len: int = self._clip.len()
+                clip_len: int = clip.len()
+                for element_i in range(clip_len):
+                    if self._chaos * self._step % int() % 2 == 0:
+                        switch_data: any = clip[element_i] % self._parameter()
+                        clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
+                        self._clip[element_i % self_clip_len] << switch_data
         return clip
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.DataSource():
-                match operand._data:
-                    case oc.Clip():         return self._clip
-                    case _:                 return super().__mod__(operand)
-            case oc.Clip():         return self.mutate(operand.copy())
-            case _:                 return super().__mod__(operand)
-
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["clip"] = self.serialize(self._clip)
-        return serialization
-
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clip" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._clip = self.deserialize(serialization["parameters"]["clip"])
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Crossover():
-                super().__lshift__(operand)
-                self._clip          << operand._clip
-            case od.DataSource():
-                match operand._data:
-                    case oc.Clip():         self._clip = operand._data
-                    case _:                 super().__lshift__(operand)
-            case oc.Clip():         self._clip << operand
-            case _:                 super().__lshift__(operand)
-        return self
-
-    def reset(self, *parameters) -> Self:
-        super().reset()
-        self._clip.reset()
-        return self << parameters
