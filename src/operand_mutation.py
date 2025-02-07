@@ -132,7 +132,6 @@ class Mutation(o.Operand):
 class Translocation(Mutation):
     def __init__(self, *parameters):
         super().__init__()
-        self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(ra.Position())
         for single_parameter in parameters: # Faster than passing a tuple
@@ -142,18 +141,15 @@ class Translocation(Mutation):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
-            case ch.Chaos():        return self._chaos.copy()
             case od.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["chaos"]        = self.serialize(self._chaos)
         serialization["parameters"]["filter"]       = self.serialize(self._filter)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
         return serialization
@@ -162,10 +158,9 @@ class Translocation(Mutation):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
+            "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
             self._filter            = self.deserialize(serialization["parameters"]["filter"])
             self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
         return self
@@ -175,16 +170,13 @@ class Translocation(Mutation):
         match operand:
             case Translocation():
                 super().__lshift__(operand)
-                self._chaos         << operand._chaos
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case od.DataSource():
                 match operand._data:
-                    case ch.Chaos():                self._chaos = operand._data
                     case od.Filter():               self._filter = operand._data
                     case od.Parameters():           self._parameters = operand._data
                     case _:                         super().__lshift__(operand)
-            case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
             case _:                         super().__lshift__(operand)
@@ -205,7 +197,6 @@ class Translocation(Mutation):
 
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
-        self._chaos.reset()
         self._filter.reset()
         return self
 
@@ -241,7 +232,6 @@ class Crossover(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._clips: od.Clips           = od.Clips()
-        self._chaos: ch.Chaos           = ch.SinX()
         self._filter: od.Filter         = od.Filter(of.All())
         self._parameters: od.Parameters = od.Parameters(oe.Note())
         for single_parameter in parameters: # Faster than passing a tuple
@@ -252,12 +242,10 @@ class Crossover(Mutation):
             case od.DataSource():
                 match operand._data:
                     case od.Clips():        return self._clips
-                    case ch.Chaos():        return self._chaos
                     case od.Filter():       return self._filter
                     case od.Parameters():   return self._parameters
                     case _:                 return super().__mod__(operand)
             case od.Clips():        return self._clips.copy()
-            case ch.Chaos():        return self._chaos.copy()
             case od.Filter():       return self._filter.copy()
             case od.Parameters():   return self._parameters.copy()
             case _:                 return super().__mod__(operand)
@@ -265,7 +253,6 @@ class Crossover(Mutation):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["clips"]        = self.serialize(self._clips)
-        serialization["parameters"]["chaos"]        = self.serialize(self._chaos)
         serialization["parameters"]["filter"]       = self.serialize(self._filter)
         serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
         return serialization
@@ -274,11 +261,10 @@ class Crossover(Mutation):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clips" in serialization["parameters"] and "chaos" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
+            "clips" in serialization["parameters"] and "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._clips             = self.deserialize(serialization["parameters"]["clips"])
-            self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
             self._filter            = self.deserialize(serialization["parameters"]["filter"])
             self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
         return self
@@ -289,18 +275,15 @@ class Crossover(Mutation):
             case Crossover():
                 super().__lshift__(operand)
                 self._clips         << operand._clips
-                self._chaos         << operand._chaos
                 self._filter        << operand._filter
                 self._parameters    << operand._parameters
             case od.DataSource():
                 match operand._data:
                     case od.Clips():                self._clips = operand._data
-                    case ch.Chaos():                self._chaos = operand._data
                     case od.Filter():               self._filter = operand._data
                     case od.Parameters():           self._parameters = operand._data
                     case _:                         super().__lshift__(operand)
             case od.Clips():                self._clips << operand
-            case ch.Chaos():                self._chaos << operand
             case od.Filter():               self._filter << operand
             case od.Parameters():           self._parameters << operand
             case _:                         super().__lshift__(operand)
@@ -327,6 +310,5 @@ class Crossover(Mutation):
     def reset(self, *parameters) -> Self:
         super().reset()
         self._clips.reset()
-        self._chaos.reset()
         self._filter.reset()
         return self << parameters
