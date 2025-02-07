@@ -33,12 +33,13 @@ import sys
 
 def test_mutation_mod():
 
+    four_notes = Note() * 4
     # Perform the operation
-    mutation = Mutation()
-    sequence_100_1 = mutation * 100 % Clip()
-    mutation.reset()
-    assert mutation % Clip() == sequence_100_1
-    sequence_100_2 = mutation * 100 % Clip()
+    mutation = Mutation() * 100
+    sequence_100_1 = mutation % four_notes
+    mutation.reset() * 100
+    assert mutation % four_notes == sequence_100_1
+    sequence_100_2 = mutation * 100 % four_notes
     # Shuffled Note positions
     assert sequence_100_1 != sequence_100_2
 

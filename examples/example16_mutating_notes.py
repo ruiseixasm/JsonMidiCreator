@@ -24,7 +24,8 @@ from JsonMidiCreator import *
 rest_play = (R, P)
 defaults << 150
 Key() % str() >> Print()    # Returns the tonic key (I)
-
+motif = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
+    << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
 mutation = Mutation()
 for _ in range(5):
     mutation * 10 >> Sort() >> Stack() >> Play()
