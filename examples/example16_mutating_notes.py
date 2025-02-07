@@ -33,7 +33,7 @@ mutation = Mutation()
 #     mutation * 10 % motif * 2.0 >> Sort() >> Stack() >> Play()
 #     # mutation * 10 % motif * 2.0 >> Sort() >> Stack()
 
-crossover = Crossover(Pitch)
+crossover = Crossover(Pitch, 2.0)
 for _ in range(4):
     crossover * 40 % motif * 2.0 >> Play()
 
