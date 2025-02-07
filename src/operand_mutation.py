@@ -68,12 +68,6 @@ class Mutation(o.Operand):
             return self._chaos == other._chaos and self._parameter == other._parameter
         return False
     
-    def getPlaylist(self) -> list[dict]:
-        return self._clip.getPlaylist()
-
-    def getMidilist(self) -> list[dict]:
-        return self._clip.getMidilist()
-
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
