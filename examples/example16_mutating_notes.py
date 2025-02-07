@@ -25,16 +25,17 @@ rest_play = (R, P)
 defaults << 150
 Key() % str() >> Print()    # Returns the tonic key (I)
 motif = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-    << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
+    >> od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
+motif * 2 >> Play()
 
 mutation = Mutation()
-for _ in range(5):
-    mutation * 10 % motif * 2 >> Sort() >> Stack() >> Play()
-    # mutation * 10 % motif * 2 >> Sort() >> Stack()
+# for _ in range(5):
+#     mutation * 10 % motif * 2.0 >> Sort() >> Stack() >> Play()
+#     # mutation * 10 % motif * 2.0 >> Sort() >> Stack()
 
-crossover = Crossover()
-for _ in range(5):
-    crossover * 40 % motif * 2 >> Sort() >> Stack() >> Play()
+crossover = Crossover(Pitch)
+for _ in range(4):
+    crossover * 40 % motif * 2.0 >> Play()
 
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01

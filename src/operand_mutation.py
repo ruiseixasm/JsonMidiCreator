@@ -229,7 +229,7 @@ class Crossover(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._clip: oc.Clip = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-                                << od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
+                                >> od.Stack() << of.Foreach(2, 3, 2, -3, 1, -3) # Degree
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -238,8 +238,8 @@ class Crossover(Mutation):
         clip_len: int = clip.len()
         for element_i in range(clip_len):
             if self._chaos * 1 % int() % 2 == 0:
-                switch_data: any = clip[element_i] // self._parameter()
-                clip[element_i] << self._clip[element_i % self_clip_len] // self._parameter()
+                switch_data: any = clip[element_i] % self._parameter()
+                clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
                 self._clip[element_i % self_clip_len] << switch_data
         return clip
 
