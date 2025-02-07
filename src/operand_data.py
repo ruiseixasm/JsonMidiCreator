@@ -595,11 +595,8 @@ class Sort(Operation):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.sort(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.sort(self._data)
         return super().__rrshift__(operand)
 
 class Filter(Operation):
@@ -610,11 +607,8 @@ class Filter(Operation):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.filter(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.filter(self._data)
         return super().__rrshift__(operand)
 
 class Copy(Operation):
@@ -659,11 +653,8 @@ if TYPE_CHECKING:
 class Stack(Operation):
     def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.stack()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.stack()
         return super().__rrshift__(operand)
 
 class Tie(Operation):
@@ -672,11 +663,8 @@ class Tie(Operation):
 
     def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.tie(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.tie(self._data)
         return super().__rrshift__(operand)
 
 class Slur(Operation):
@@ -685,21 +673,15 @@ class Slur(Operation):
 
     def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.slur(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.slur(self._data)
         return super().__rrshift__(operand)
 
 class Smooth(Operation):
     def __rrshift__(self, operand: any) -> 'Clip':
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.smooth()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.smooth()
         return super().__rrshift__(operand)
 
 class Play(Operation):
@@ -757,11 +739,8 @@ class Print(Operation):
 class Link(Operation):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.link()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.link()
         return super().__rrshift__(operand)
 
 if TYPE_CHECKING:
@@ -778,21 +757,15 @@ class Shuffle(Operation):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.shuffle(*self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.shuffle(*self._data)
         return super().__rrshift__(operand)
 
 class Reverse(Operation):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.reverse()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.reverse()
         return super().__rrshift__(operand)
 
 class Rotate(Operation):
@@ -806,21 +779,15 @@ class Rotate(Operation):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.rotate(*self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.rotate(*self._data)
         return super().__rrshift__(operand)
 
 class Flip(Operation):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.flip()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.flip()
         return super().__rrshift__(operand)
 
 class Snap(Operation):
@@ -831,21 +798,15 @@ class Snap(Operation):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.snap(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.snap(self._data)
         return super().__rrshift__(operand)
 
 class Extend(Operation):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.extend(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.extend(self._data)
         return super().__rrshift__(operand)
 
 if TYPE_CHECKING:
@@ -859,21 +820,15 @@ class Trim(Operation):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.trim(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.trim(self._data)
         return super().__rrshift__(operand)
 
 class Fill(Operation):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.fill()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.fill()
         return super().__rrshift__(operand)
 
 class Getter(Data):
@@ -888,31 +843,22 @@ class Getter(Data):
 class Len(Getter):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.len()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.len()
         return ol.Null()
 
 class First(Getter):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.first()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.first()
         return ol.Null()
 
 class Last(Getter):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.last()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.last()
         return ol.Null()
 
 class Middle(Getter):
@@ -929,31 +875,22 @@ class Middle(Getter):
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Container):
             return operand.middle(self._data)
-        if isinstance(operand, om.Mutation):
-            return operand._clip.middle(self._data)
         return ol.Null()
 
 class Start(Getter):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.start()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.start()
         return ol.Null()
 
 class End(Getter):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
-        import operand_mutation as om
         if isinstance(operand, oc.Clip):
             return operand.finish()
-        if isinstance(operand, om.Mutation):
-            return operand._clip.finish()
         return ol.Null()
 
 class Name(Getter):

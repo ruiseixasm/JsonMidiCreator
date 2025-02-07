@@ -933,6 +933,7 @@ class Clip(Container):  # Just a container of Elements
         return self.__mul__(operand)
     
     def __itruediv__(self, operand: any) -> 'Clip':
+        import operand_mutation as om
         match operand:
             case int():
                 return super().__itruediv__(operand)
@@ -946,9 +947,12 @@ class Clip(Container):  # Just a container of Elements
             # Returns an altered Clip with less info (truncated info)
             case od.Getter() | od.Operation():
                 return self >> operand
+
             case ch.Chaos():
                 return self.shuffle(operand)
-            
+            case om.Mutation():
+                return operand // self
+
             case tuple():
                 for single_operand in operand:
                     self /= single_operand

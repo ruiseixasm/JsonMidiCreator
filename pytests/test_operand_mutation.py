@@ -36,11 +36,11 @@ def test_mutation_mod():
     four_notes = Note() * 4
     # Perform the operation
     mutation = Mutation() * 100
-    sequence_100_1 = mutation % four_notes
+    clip_100_1 = mutation % four_notes
     mutation.reset() * 100
-    assert mutation % four_notes == sequence_100_1
-    sequence_100_2 = mutation * 100 % four_notes
+    assert four_notes / mutation == clip_100_1
+    clip_100_2 = mutation * 100 % four_notes
     # Shuffled Note positions
-    assert sequence_100_1 != sequence_100_2
+    assert clip_100_1 != clip_100_2
 
 # test_mutation_mod()
