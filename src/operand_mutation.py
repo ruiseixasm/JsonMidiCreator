@@ -47,8 +47,19 @@ class Mutation(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def mutate(self, clip: o.T) -> o.T:
-        return clip.shuffle(self._chaos, self._parameter)
+    def setup(self, clip: oc.Clip) -> bool:
+        if clip is None:
+            self._clip = None
+        elif isinstance(clip, oc.Clip):
+            if self._clip is None:
+                self._clip = clip.copy()
+            return True
+        return False
+
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        if self.setup(clip):
+            return clip.shuffle(self._chaos, self._parameter)
+        return clip
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -279,19 +290,14 @@ class TranslocatePitch(Translocation):
 
 class Crossover(Mutation):
 
-    def mutate(self, clip: o.T) -> o.T:
-        if clip is None:
-            self._clip = None
-        elif isinstance(clip, oc.Clip):
-            if self._clip is None:
-                self._clip = clip.copy()
-            else:
-                self_clip_len: int = self._clip.len()
-                clip_len: int = clip.len()
-                for element_i in range(clip_len):
-                    if self._chaos * self._step % int() % 2 == 0:
-                        switch_data: any = clip[element_i] % self._parameter()
-                        clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
-                        self._clip[element_i % self_clip_len] << switch_data
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        if self.setup(clip):
+            self_clip_len: int = self._clip.len()
+            clip_len: int = clip.len()
+            for element_i in range(clip_len):
+                if self._chaos * self._step % int() % 2 == 0:
+                    switch_data: any = clip[element_i] % self._parameter()
+                    clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
+                    self._clip[element_i % self_clip_len] << switch_data
         return clip
 
