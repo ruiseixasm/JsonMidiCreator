@@ -597,9 +597,9 @@ class Sort(Operation):
         import operand_container as oc
         import operand_mutation as om
         if isinstance(operand, oc.Container):
-            return operand.sort()
+            return operand.sort(self._data)
         if isinstance(operand, om.Mutation):
-            return operand._clip.sort()
+            return operand._clip.sort(self._data)
         return super().__rrshift__(operand)
 
 class Filter(Operation):
