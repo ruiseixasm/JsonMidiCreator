@@ -16,11 +16,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 import logging
 from functools import cache
 from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
-try:
-    from typing import Self
-except ImportError:
-    from typing import TypeVar
-    Self = TypeVar('Self', bound='Operand')  # Define Self manually
+from typing import Self
 
 from fractions import Fraction
 # Json Midi Creator Libraries

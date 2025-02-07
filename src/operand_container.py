@@ -15,10 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
-try:
-    from typing import Self
-except ImportError:
-    Self = TypeVar('Self', bound='Container')  # Define Self manually
+from typing import Self
 
 from fractions import Fraction
 import json
