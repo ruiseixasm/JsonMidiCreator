@@ -67,13 +67,26 @@ class Mutation(o.Operand):
             return True
         return False
 
+    def switch(self, clip, source_clip_index, target_clip_index):
+            
+        parameter_instance = self._parameter()
+        source_clip_len: int = self._clip.len()
+        target_clip_len: int = clip.len()
+        if isinstance(parameter_instance, od.DataSource):
+            element_switch: oe.Element = clip[source_clip_index % source_clip_len]
+            clip[target_clip_index % target_clip_len] = self._clip[source_clip_index % source_clip_len]
+            self._clip[source_clip_index % source_clip_len] = element_switch
+        else:
+            parameter_switch: any = clip[source_clip_index % source_clip_len] % parameter_instance
+            clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
+            self._clip[source_clip_index % source_clip_len] << parameter_switch
+
+
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
             source_picks: list[int] = [*range(self._clip.len())]
             target_picks: list[int] = [*range(clip.len())]
-
-            parameter_instance = self._parameter()
 
             while len(source_picks) > 0 and len(target_picks) > 0:
 
@@ -85,16 +98,10 @@ class Mutation(o.Operand):
                 target_clip_index: int = target_picks[target_index]
                 del target_picks[target_index]
 
-                if isinstance(parameter_instance, od.DataSource):
-                    element_switch: oe.Element = clip[source_clip_index]
-                    clip[target_clip_index] = self._clip[source_clip_index]
-                    self._clip[source_clip_index] = element_switch
-                else:
-                    parameter_switch: any = clip[source_clip_index] % parameter_instance
-                    clip[target_clip_index] << self._clip[source_clip_index] % parameter_instance
-                    self._clip[source_clip_index] << parameter_switch
+                self.switch(clip, source_clip_index, target_clip_index)
 
         return clip
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -220,115 +227,28 @@ class Mutation(o.Operand):
         self._chaos.reset()
         return self
 
+
 class Translocation(Mutation):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._filter: od.Filter         = od.Filter(of.All())
-        self._parameters: od.Parameters = od.Parameters(ra.Position())
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+    
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        if self.setup(clip):
+            
+            source_incision: int = self._chaos * self._step % int() % self._clip.len()
+            target_incision: int = self._chaos * self._step % int() % clip.len()
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case od.DataSource():
-                match operand._data:
-                    case od.Filter():       return self._filter
-                    case od.Parameters():   return self._parameters
-                    case _:                 return super().__mod__(operand)
-            case od.Filter():       return self._filter.copy()
-            case od.Parameters():   return self._parameters.copy()
-            case _:                 return super().__mod__(operand)
+            # Translocation is all about the elements themselves
+            self._clip[source_incision:], clip[target_incision:] = clip[target_incision:], self._clip[source_incision:]
 
-    def getSerialization(self) -> dict:
-        serialization = super().getSerialization()
-        serialization["parameters"]["filter"]       = self.serialize(self._filter)
-        serialization["parameters"]["parameters"]   = self.serialize(self._parameters)
-        return serialization
+        return clip
 
-    # CHAINABLE OPERATIONS
-
-    def loadSerialization(self, serialization: dict) -> Self:
-        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "filter" in serialization["parameters"] and "parameters" in serialization["parameters"]):
-
-            super().loadSerialization(serialization)
-            self._filter            = self.deserialize(serialization["parameters"]["filter"])
-            self._parameters        = self.deserialize(serialization["parameters"]["parameters"])
-        return self
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Translocation():
-                super().__lshift__(operand)
-                self._filter        << operand._filter
-                self._parameters    << operand._parameters
-            case od.DataSource():
-                match operand._data:
-                    case od.Filter():               self._filter = operand._data
-                    case od.Parameters():           self._parameters = operand._data
-                    case _:                         super().__lshift__(operand)
-            case od.Filter():               self._filter << operand
-            case od.Parameters():           self._parameters << operand
-            case _:                         super().__lshift__(operand)
-        return self
-
-    def __mul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        total_iterations = self.convert_to_int(number)
-        if total_iterations > 0:
-            self._initiated = True
-            source_result: oc.Clip  = self._result._data | self._filter._data   # Applies the filter
-            jumbled_result: oc.Clip = source_result.copy()
-            for _ in range(total_iterations):
-                jumbled_result.shuffle(self._chaos) # a single shuffle
-                for single_parameter in self._parameters._data: # A tuple of parameters
-                    source_result << of.Foreach(jumbled_result)**of.Get(single_parameter)
-                self._index += 1    # keeps track of each iteration
-        return self
-
-    def reset(self, *parameters) -> Self:
-        super().reset(*parameters)
-        self._filter.reset()
-        return self
-
-class TranslocateRhythm(Translocation):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._parameters        = od.Parameters(ra.NoteValue())
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        super().__lshift__(operand)
-        self._parameters        = od.Parameters(ra.NoteValue())  # Can't change targeted parameter
-        return self
-
-class TranslocatePitch(Translocation):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._parameters        = od.Parameters(og.Pitch())
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        super().__lshift__(operand)
-        self._parameters        = od.Parameters(og.Pitch())     # Can't change targeted parameter
-        return self
 
 class Crossover(Mutation):
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
-            self_clip_len: int = self._clip.len()
             clip_len: int = clip.len()
             for element_i in range(clip_len):
-                if self._chaos * self._step % int() % 2 == 0:
-                    switch_data: any = clip[element_i] % self._parameter()
-                    clip[element_i] << self._clip[element_i % self_clip_len] % self._parameter()
-                    self._clip[element_i % self_clip_len] << switch_data
+                if self._chaos * self._step % int() % 2 == 0:   # Even
+                    self.switch(clip, element_i, element_i)
         return clip
 
