@@ -35,10 +35,11 @@ def test_mutation_mod():
 
     four_notes = Note() * 4
     # Perform the operation
-    mutation = Mutation() * 100
+    mutation = Mutation() * 100 # Position parameter by default
     clip_100_1 = four_notes / mutation
-    mutation.reset()
-    mutation *= 100
+    assert clip_100_1 != four_notes # Different positions
+    mutation.reset()    # Resets the Chaos and sets Clip to None
+    mutation *= 100     # Configured to the same value as in the start of mutation
     assert four_notes / mutation == clip_100_1
     clip_100_2 = four_notes / (mutation * 100) 
     # Shuffled Note positions

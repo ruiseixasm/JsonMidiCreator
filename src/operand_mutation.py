@@ -216,8 +216,7 @@ class Mutation(o.Operand):
     
     def reset(self, *parameters) -> Self:
         super().reset(*parameters)
-        if isinstance(self._clip, oc.Clip):
-            self._clip.reset()
+        self._clip = None
         self._chaos.reset()
         return self
 
