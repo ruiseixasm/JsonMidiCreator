@@ -70,8 +70,8 @@ class Mutation(o.Operand):
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
-            source_picks: list[int] = list( range(self._clip.len()) )
-            target_picks: list[int] = list( range(clip.len()) )
+            source_picks: list[int] = [*range(self._clip.len())]
+            target_picks: list[int] = [*range(clip.len())]
 
             parameter_instance = self._parameter()
 
