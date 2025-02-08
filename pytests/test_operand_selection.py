@@ -37,8 +37,12 @@ def test_selection_mod():
     six_notes = Note()  * 6
 
     selection = Selection(Or(4, 6))
-
+    assert four_notes == selection
+    assert six_notes == selection
     
+    selection << And(4)
+    assert four_notes == selection
+    assert six_notes != selection
 
 # test_selection_mod()
 
