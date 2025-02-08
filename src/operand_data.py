@@ -196,6 +196,8 @@ class Conditional(Data):
 class And(Conditional):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, And):
+            return self._data == other._data
         for single_condition in self._data:
             if not other == single_condition:
                 return False
@@ -204,6 +206,8 @@ class And(Conditional):
 class Or(Conditional):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Or):
+            return self._data == other._data
         for single_condition in self._data:
             if other == single_condition:
                 return True

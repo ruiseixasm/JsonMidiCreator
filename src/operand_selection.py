@@ -48,4 +48,68 @@ class Selection(o.Operand):
     first : any_like
         Any type of parameter can be used to set Selection.
     """
-    pass
+    def __init__(self, *parameters):
+        super().__init__()
+        self._and: od.And               = od.And()
+        self._or: od.Or                 = od.Or()
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case od.And():          return self._and
+                    case od.Or():           return self._or
+                    case _:                 return super().__mod__(operand)
+            case od.And():          return self.deep_copy(self._and)
+            case od.Or():           return self._or.copy()
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Selection):
+            return self._and == other._and and self._or == other._or
+        return self._and == other and self._or == other
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["and"]          = self.serialize(self._and)
+        serialization["parameters"]["or"]           = self.serialize(self._or)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "and" in serialization["parameters"] and "or" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._and           = self.deserialize(serialization["parameters"]["and"])
+            self._or            = self.deserialize(serialization["parameters"]["or"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Selection():
+                super().__lshift__(operand)
+                self._and           << operand._and
+                self._or            << operand._or
+            case od.DataSource():
+                match operand._data:
+                    case od.And():              self._and = operand._data
+                    case od.Or():               self._or = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case od.And():          self._and << operand
+            case od.Or():           self._or << operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+    
+
