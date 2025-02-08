@@ -190,7 +190,8 @@ class DataSource(Data):
 
 
 class Conditional(Data):
-    pass
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
 class And(Conditional):
     def __eq__(self, other: any) -> bool:
