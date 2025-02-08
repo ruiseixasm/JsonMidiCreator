@@ -28,6 +28,7 @@ from operand_container import *
 from operand_element import *
 from operand_chaos import *
 from operand_mutation import *
+from operand_selection import *
 
 # Determine the operating system
 import platform
