@@ -207,7 +207,9 @@ class Or(Conditional):
         for single_condition in self._data:
             if other == single_condition:
                 return True
-        return False
+        if isinstance(self._data, tuple) and len(self._data) > 0:
+            return False
+        return True
 
 
 class ClipParameter(Data):   # Just a data wrapper
