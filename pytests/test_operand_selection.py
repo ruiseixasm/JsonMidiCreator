@@ -36,7 +36,7 @@ def test_selection_mod():
     four_notes = Note() * 4
     six_notes = Note()  * 6
 
-    selection = Selection(Or(4, 6))
+    selection = Condition(Or(4, 6))
     assert four_notes == selection
     assert six_notes == selection
     

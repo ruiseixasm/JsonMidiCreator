@@ -48,6 +48,10 @@ class Selection(o.Operand):
     first : any_like
         Any type of parameter can be used to set Selection.
     """
+    pass
+
+
+class Condition(Selection):
     def __init__(self, *parameters):
         super().__init__()
         self._and: od.And               = od.And()
@@ -55,7 +59,6 @@ class Selection(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
@@ -111,5 +114,4 @@ class Selection(o.Operand):
                 for single_operand in operand:
                     self << single_operand
         return self
-    
 
