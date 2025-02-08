@@ -177,8 +177,9 @@ class Matching(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
-                if other[element_index] != other[element_index + 1]:
+                if other[element_index] % parameter_instantiation != other[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
@@ -188,8 +189,9 @@ class Ascending(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
-                if other[element_index] > other[element_index + 1]:
+                if other[element_index] % parameter_instantiation > other[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
@@ -199,8 +201,9 @@ class Descending(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            parameter_instantiation = self._parameter()
             for element_index in range(other.len() - 1):
-                if other[element_index] < other[element_index + 1]:
+                if other[element_index] % parameter_instantiation < other[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)

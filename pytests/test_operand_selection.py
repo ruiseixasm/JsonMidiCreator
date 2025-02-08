@@ -31,7 +31,7 @@ import sys
 
 
 
-def test_selection_mod():
+def test_selection():
 
     four_notes = Note() * 4
     six_notes = Note()  * 6
@@ -44,5 +44,21 @@ def test_selection_mod():
     assert four_notes == selection
     assert six_notes != selection
 
-# test_selection_mod()
+# test_selection()
+
+
+def test_comparison():
+
+    four_notes = Note() * 4 << Foreach(1/1, 1/2, 1/4, 1/8)
+
+    comparison = Matching()
+    assert four_notes != comparison
+
+    comparison = Ascending()
+    assert four_notes != comparison
+
+    comparison = Descending()
+    assert four_notes == comparison
+
+# test_comparison()
 
