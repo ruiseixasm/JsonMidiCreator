@@ -53,11 +53,9 @@ class Selection(o.Operand):
 
 class Condition(Selection):
     def __init__(self, *parameters):
-        super().__init__()
         self._and: od.And               = od.And()
         self._or: od.Or                 = od.Or()
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
+        super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -115,3 +113,95 @@ class Condition(Selection):
                     self << single_operand
         return self
 
+
+class Comparison(Selection):
+    def __init__(self, *parameters):
+        self._parameter: type = ra.Length
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case type():            return self._parameter
+                    case _:                 return super().__mod__(operand)
+            case type():            return self._parameter
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Comparison):
+            return self._parameter == other._parameter
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["parameter"]        = self._parameter.__name__
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "parameter" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            parameter: type = o.find_class_by_name( o.Operand, serialization["parameters"]["parameter"] )
+            if parameter:
+                self._parameter     = parameter
+            else:
+                self._parameter     = ra.Length
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Comparison():
+                super().__lshift__(operand)
+                self._parameter = operand._parameter
+            case od.DataSource():
+                match operand._data:
+                    case type():                    self._parameter = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case type():            self._parameter = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+    
+class Matching(Comparison):
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            for element_index in range(other.len() - 1):
+                if other[element_index] != other[element_index + 1]:
+                    return False
+            return True
+        return super().__eq__(other)
+
+class Ascending(Comparison):
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            for element_index in range(other.len() - 1):
+                if other[element_index] > other[element_index + 1]:
+                    return False
+            return True
+        return super().__eq__(other)
+    
+class Descending(Comparison):
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            for element_index in range(other.len() - 1):
+                if other[element_index] < other[element_index + 1]:
+                    return False
+            return True
+        return super().__eq__(other)
+    
