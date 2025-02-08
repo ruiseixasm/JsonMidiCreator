@@ -189,6 +189,26 @@ class DataSource(Data):
         return self
 
 
+class Conditional(Data):
+    pass
+
+class And(Conditional):
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        for single_condition in self._data:
+            if not other == single_condition:
+                return False
+        return True
+
+class Or(Conditional):
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        for single_condition in self._data:
+            if other == single_condition:
+                return True
+        return False
+
+
 class ClipParameter(Data):   # Just a data wrapper
     def __init__(self, operand: any = None):
         super().__init__()
