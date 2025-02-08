@@ -106,9 +106,12 @@ class Container(o.Operand):
     def len(self) -> int:
         return len(self._items)
 
-    def __eq__(self, other: 'Container') -> bool:
+    def __eq__(self, other: any) -> bool:
+        import operand_selection as os
         if isinstance(other, Container):
             return self._items == other._items
+        if isinstance(other, os.Selection):
+            return other == self
         if not isinstance(other, ol.Null):
             return self % other == other
         # if type(self) == type(other):
