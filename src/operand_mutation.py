@@ -69,7 +69,31 @@ class Mutation(o.Operand):
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
-            return clip.shuffle(self._chaos, self._parameter)
+            
+            source_picks: list[int] = list( range(self._clip.len()) )
+            target_picks: list[int] = list( range(clip.len()) )
+
+            parameter_instance = self._parameter()
+
+            while len(source_picks) > 0 and len(target_picks) > 0:
+
+                source_index: int = self._chaos * self._step % int() % len(source_picks)
+                source_clip_index: int = source_picks[source_index]
+                del source_picks[source_index]
+
+                target_index: int = self._chaos * self._step % int() % len(target_picks)
+                target_clip_index: int = target_picks[target_index]
+                del target_picks[target_index]
+
+                if isinstance(parameter_instance, od.DataSource):
+                    element_switch: oe.Element = clip[source_clip_index]
+                    clip[target_clip_index] = self._clip[source_clip_index]
+                    self._clip[source_clip_index] = element_switch
+                else:
+                    parameter_switch: any = clip[source_clip_index] % parameter_instance
+                    clip[target_clip_index] << self._clip[source_clip_index] % parameter_instance
+                    self._clip[source_clip_index] << parameter_switch
+
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -151,12 +175,9 @@ class Mutation(o.Operand):
         return self
     
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
-        total_iterations = self.convert_to_int(number)
-        if total_iterations > 0:
-            self._initiated = True
-            for _ in range(total_iterations):
-                self._chaos * self._step
-                self._index += 1    # keeps track of each iteration
+        self._initiated = True
+        self._chaos * number
+        self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
 
     def __or__(self, operand: any) -> Self:
