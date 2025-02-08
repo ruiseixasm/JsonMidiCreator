@@ -234,9 +234,7 @@ class Operand:
         return True # All subclasses are Operands. Useful for Framing
     
     def __ne__(self, other: 'Operand') -> bool:
-        if self == other:
-            return False
-        return True
+        return not self == other
     
     def __lt__(self, other: 'Operand') -> bool:
         return False
