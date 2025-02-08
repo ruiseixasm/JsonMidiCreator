@@ -38,6 +38,17 @@ import operand_chaos as ch
 
 
 class Mutation(o.Operand):
+    """`Mutation`
+
+    Clip class already has it's own Shuffle Operation but this process is an
+    Haploid kind of process, so, Mutation adds a second Clip so that Shuffle
+    of Clips becomes a Diploid process.
+
+    Parameters
+    ----------
+    first : any_like
+        Any type of parameter can be used to set Mutation. Self clip as None is de default.
+    """
     def __init__(self, *parameters):
         super().__init__()
         self._clip: oc.Clip = None
