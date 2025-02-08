@@ -51,7 +51,7 @@ class Mutation(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._clip: oc.Clip = None
+        self._clip: oc.Clip             = None
         self._chaos: ch.Chaos           = ch.SinX()
         self._step: int | float         = 1
         self._parameter: type           = ra.Position
