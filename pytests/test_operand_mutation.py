@@ -46,3 +46,22 @@ def test_mutation_mod():
     assert clip_100_1 != clip_100_2
 
 # test_mutation_mod()
+
+def test_translocation():
+
+    eight_notes = Note() * 8
+    two_notes = Note() * 2
+
+    translocation = Translocation()
+    assert eight_notes.len() == 8
+    eight_notes /= translocation
+    assert eight_notes.len() + translocation.len() ==  2 * 8
+    two_notes /= translocation
+
+    assert eight_notes.len() != 8
+    assert two_notes.len() != 2
+    eight_notes_len = eight_notes.len()
+    two_notes_len = two_notes.len()
+    assert eight_notes_len + two_notes_len + translocation.len() == 10 + 8
+
+# test_translocation()

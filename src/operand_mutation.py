@@ -102,6 +102,11 @@ class Mutation(o.Operand):
 
         return clip
 
+    def len(self) -> int:
+        if isinstance(self._clip, oc.Clip):
+            return self._clip.len()
+        return 0
+
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -229,15 +234,21 @@ class Mutation(o.Operand):
 
 
 class Translocation(Mutation):
-    
+    def __init__(self, *parameters):
+        super().__init__()
+        self._parameter = od.DataSource # Translocation is all about the elements themselves
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+            
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
+            self._parameter = od.DataSource # Translocation is all about the elements themselves
             source_incision: int = self._chaos * self._step % int() % self._clip.len()
             target_incision: int = self._chaos * self._step % int() % clip.len()
 
-            # Translocation is all about the elements themselves
-            self._clip[source_incision:], clip[target_incision:] = clip[target_incision:], self._clip[source_incision:]
+            clip._items[target_incision:], self._clip._items[source_incision:] \
+                = self._clip._items[source_incision:], clip._items[target_incision:]
 
         return clip
 
