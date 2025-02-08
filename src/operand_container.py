@@ -88,9 +88,7 @@ class Container(o.Operand):
                     self.deep_copy(item) for item in self._items
                 ]
             case int():
-                if operand >= 0 and operand < self.len():
-                    return self[operand]
-                return ol.Null()
+                return self.len()
             case ou.Next():
                 self._index += operand % int() - 1
                 item: any = self._items[self._index % len(self._items)]
@@ -497,7 +495,7 @@ class Clip(Container):  # Just a container of Elements
                 return self.length()
             case ra.Duration():     return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
-                | int() | float() | Fraction():
+                | float() | Fraction():
                                     return self._staff % operand
             case _:                 return super().__mod__(operand)
 
