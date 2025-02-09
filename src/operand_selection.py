@@ -212,5 +212,6 @@ class Descending(Comparison):
 class Threshold(Selection):
     pass
 
-# class First(Threshold):
-#     pass
+class First(Threshold):
+    pass
+
