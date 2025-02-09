@@ -208,6 +208,60 @@ class Descending(Comparison):
             return True
         return super().__eq__(other)
 
+class Pattern(Comparison):
+    def __init__(self, *parameters):
+        self._pattern: list = []
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case list():            return self._pattern
+                    case _:                 return super().__mod__(operand)
+            case list():            return self._pattern
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Pattern):
+            return self._pattern == other._pattern
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["pattern"]    = self.serialize(self._pattern)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "pattern" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._pattern     = self.deserialize(serialization["parameters"]["pattern"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Pattern():
+                super().__lshift__(operand)
+                self._pattern = operand._pattern
+            case od.DataSource():
+                match operand._data:
+                    case list():                    self._pattern = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():            self._pattern = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
 
 class Threshold(Selection):
     def __init__(self, *parameters):
