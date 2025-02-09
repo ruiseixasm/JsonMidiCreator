@@ -25,10 +25,19 @@ rest_play = (R, P)
 defaults << 150
 defaults % Key() % str() >> Print()    # Returns the tonic key (I)
 
-rhythmic_notes = Note() * 9 * 4 << Foreach(whole, dotted_half, half, dotted_quarter, quarter, dotted_eight, eight, dotted_sixteenth, sixteenth)
-rhythmic_notes >> P
+rhythmic_notes = Note() * 8 * 16 << Foreach(whole, dotted_half, half, dotted_quarter, dotted_eight, eight, dotted_sixteenth, sixteenth) >> Stack()
+# rhythmic_notes >> P
 
-mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
+mutated_clip = Note() * 16 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 # mutated_clip >> P
 
+duration_mutation = Mutation(Duration) * 100
+duration_mutation << rhythmic_notes
+length_condition = Condition(Length(1.0))
+maximum_plays = First(6)
+
+for _ in range(1000):
+    mutated_clip /= duration_mutation
+    mutated_clip >> Stack()
+    mutated_clip * length_condition * maximum_plays >> Play()
 

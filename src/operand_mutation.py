@@ -73,11 +73,11 @@ class Mutation(o.Operand):
         source_clip_len: int = self._clip.len()
         target_clip_len: int = clip.len()
         if isinstance(parameter_instance, od.DataSource):
-            element_switch: oe.Element = clip[source_clip_index % source_clip_len]
+            element_switch: oe.Element = clip[source_clip_index % target_clip_len]
             clip[target_clip_index % target_clip_len] = self._clip[source_clip_index % source_clip_len]
             self._clip[source_clip_index % source_clip_len] = element_switch
         else:
-            parameter_switch: any = clip[source_clip_index % source_clip_len] % parameter_instance
+            parameter_switch: any = clip[source_clip_index % target_clip_len] % parameter_instance
             clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
             self._clip[source_clip_index % source_clip_len] << parameter_switch
 
@@ -179,7 +179,7 @@ class Mutation(o.Operand):
                     case type():                    self._parameter = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case oc.Clip():         self._clip << operand
+            case oc.Clip():         self._clip = operand.copy() # Avoids None case error
             case ch.Chaos():        self._chaos << operand
             case int() | float():   self._step = operand
             case type():            self._parameter = operand
