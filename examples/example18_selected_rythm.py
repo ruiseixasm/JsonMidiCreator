@@ -26,26 +26,9 @@ defaults << 150
 defaults % Key() % str() >> Print()    # Returns the tonic key (I)
 
 rhythmic_notes = Note() * 9 * 4 << Foreach(whole, dotted_half, half, dotted_quarter, quarter, dotted_eight, eight, dotted_sixteenth, sixteenth)
+rhythmic_notes >> P
 
-motif_1 = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-            >> od.Stack() << of.Foreach(2, 3, 2, -3, 1, -3) # Degree
-
-motif_2 = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-            >> od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
-
-motif_2 * 2 >> Play()
-
-mutation = Mutation()
-for _ in range(5):
-    motif_2 / mutation * 2.0 >> Sort() >> Stack() >> Play()
-    # motif_2 / mutation * 2.0 >> Sort() >> Stack()
-
-crossover = Crossover(Pitch, 2.0) * 40
-for _ in range(4):
-    motif_2 / crossover * 2.0 >> Play()
+mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
+# mutated_clip >> P
 
 
-# mutation = TranslocateRhythm(mutation) * 60 * 4.01
-# mutation = TranslocatePitch(mutation) * 35 * 4.02
-
-# mutation >> Print()
