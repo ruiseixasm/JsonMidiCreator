@@ -67,7 +67,7 @@ class Mutation(o.Operand):
             return True
         return False
 
-    def switch(self, clip, source_clip_index, target_clip_index):
+    def switch(self, clip: oc.Clip, source_clip_index: int, target_clip_index: int) -> Self:
             
         parameter_instance = self._parameter()
         source_clip_len: int = self._clip.len()
@@ -80,6 +80,8 @@ class Mutation(o.Operand):
             parameter_switch: any = clip[source_clip_index % source_clip_len] % parameter_instance
             clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
             self._clip[source_clip_index % source_clip_len] << parameter_switch
+
+        return self
 
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
