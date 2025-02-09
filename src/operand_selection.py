@@ -224,12 +224,16 @@ class Pattern(Comparison):
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
+        if isinstance(other, oc.Clip):
+            parameter_instantiation = self._parameter()
+            for element_index in range(other.len() - 1):
+                if len(self._parameter) > 0:
+                    if other[element_index + 1] % parameter_instantiation - other[element_index] % parameter_instantiation \
+                        != self._pattern[element_index % len(self._parameter)]:
+                        return False
             return True
-        if isinstance(other, Pattern):
-            return self._pattern == other._pattern
-        return False
-    
+        return super().__eq__(other)
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["pattern"]    = self.serialize(self._pattern)
