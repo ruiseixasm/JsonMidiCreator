@@ -61,7 +61,7 @@ class Condition(Selection):
             if not isinstance(single_parameter, (od.And, od.Or))
         ]
         if len(and_parameters) > 0:
-            self._and = od.And( tuple(and_parameters) )
+            self._and = od.And( *tuple(and_parameters) )
         else:
             for single_operand in parameters:
                 self << single_operand
@@ -123,7 +123,7 @@ class Condition(Selection):
                     if not isinstance(single_parameter, (od.And, od.Or))
                 ]
                 if len(and_parameters) > 0:
-                    self._and = od.And( tuple(and_parameters) )
+                    self._and = od.And( *tuple(and_parameters) )
                 else:
                     for single_operand in operand:
                         self << single_operand
