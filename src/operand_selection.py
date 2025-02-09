@@ -213,5 +213,58 @@ class Threshold(Selection):
     pass
 
 class First(Threshold):
-    pass
+    def __init__(self, *parameters):
+        self._first: int = 5
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case int():            return self._first
+                    case _:                 return super().__mod__(operand)
+            case int():            return self._first
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if self._first > 0:
+            self._first -= 1
+            return True
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["first"]    = self.serialize(self._first)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "first" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._first     = self.deserialize(serialization["parameters"]["first"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Comparison():
+                super().__lshift__(operand)
+                self._first = operand._first
+            case od.DataSource():
+                match operand._data:
+                    case int():                    self._first = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case int():            self._first = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+    
 
