@@ -231,7 +231,8 @@ class First(Threshold):
         if other.__class__ == o.Operand:
             return True
         if self._first > 0:
-            self._first -= 1
+            if isinstance(other, oc.Clip) and other.len() > 0:
+                self._first -= 1
             return True
         return False
     
