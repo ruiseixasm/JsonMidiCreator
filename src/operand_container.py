@@ -413,11 +413,14 @@ class Clip(Container):  # Just a container of Elements
         To set it with a group of Elements wrap them in a list to pass them
     """
     def __init__(self, *operands):
+        super().__init__()
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
         self._position_beats: Fraction  = Fraction(0)   # in Beats
         self._length_beats: Fraction    = Fraction(-1)  # in Beats where -1 means isn't set
-        super().__init__(*operands)
+        self._items: list[oe.Element] = []
+        for single_operand in operands:
+            self << single_operand
 
 
     def __getitem__(self, index: int) -> oe.Element:
@@ -1117,6 +1120,11 @@ class Clip(Container):  # Just a container of Elements
 
 
 class Part(Container):
+    def __init__(self, *operands):
+        super().__init__()
+        self._items: list[Clip | od.Playlist] = []
+        for single_operand in operands:
+            self << single_operand
 
     def __getitem__(self, key: str | int) -> Clip:
         if isinstance(key, str):
@@ -1235,9 +1243,6 @@ class Part(Container):
     def __imul__(self, operand: any) -> 'Part':
         import operand_selection as os
         match operand:
-            case os.Selection():
-                if operand != self:
-                    self._items = []
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
