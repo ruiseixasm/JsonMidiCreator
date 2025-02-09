@@ -53,9 +53,18 @@ class Selection(o.Operand):
 
 class Condition(Selection):
     def __init__(self, *parameters):
+        super().__init__()
         self._and: od.And               = od.And()
         self._or: od.Or                 = od.Or()
-        super().__init__(*parameters)
+        and_parameters: list = [ 
+            single_parameter for single_parameter in parameters \
+            if not isinstance(single_parameter, (od.And, od.Or))
+        ]
+        if len(and_parameters) > 0:
+            self._and = od.And( tuple(and_parameters) )
+        else:
+            for single_operand in parameters:
+                self << single_operand
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -109,8 +118,15 @@ class Condition(Selection):
             case od.And():          self._and << operand
             case od.Or():           self._or << operand
             case tuple():
-                for single_operand in operand:
-                    self << single_operand
+                and_parameters: list = [ 
+                    single_parameter for single_parameter in operand \
+                    if not isinstance(single_parameter, (od.And, od.Or))
+                ]
+                if len(and_parameters) > 0:
+                    self._and = od.And( tuple(and_parameters) )
+                else:
+                    for single_operand in operand:
+                        self << single_operand
         return self
 
 
