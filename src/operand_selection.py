@@ -210,9 +210,6 @@ class Descending(Comparison):
 
 
 class Threshold(Selection):
-    pass
-
-class First(Threshold):
     def __init__(self, *parameters):
         self._first: int = 5
         super().__init__(*parameters)
@@ -226,16 +223,6 @@ class First(Threshold):
             case int():            return self._first
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if self._first > 0:
-            if isinstance(other, oc.Clip) and other.len() > 0:
-                self._first -= 1
-            return True
-        return False
-    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["first"]    = self.serialize(self._first)
@@ -267,5 +254,17 @@ class First(Threshold):
                 for single_operand in operand:
                     self << single_operand
         return self
+
+class First(Threshold):
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if self._first > 0:
+            if isinstance(other, oc.Clip) and other.len() > 0:
+                self._first -= 1
+            return True
+        return False
     
 
