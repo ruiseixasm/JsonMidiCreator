@@ -266,5 +266,19 @@ class First(Threshold):
                 self._threshold -= 1
             return True
         return False
+
+class After(Threshold):
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if self._threshold > 0:
+            if isinstance(other, oc.Clip) and other.len() > 0:
+                self._threshold -= 1
+            return False
+        else:
+            return True
+        return False
     
 
