@@ -207,4 +207,10 @@ class Descending(Comparison):
                     return False
             return True
         return super().__eq__(other)
-    
+
+
+class Threshold(Selection):
+    pass
+
+# class First(Threshold):
+#     pass

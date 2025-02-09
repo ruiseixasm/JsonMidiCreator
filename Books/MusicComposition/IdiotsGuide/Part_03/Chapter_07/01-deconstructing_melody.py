@@ -50,7 +50,7 @@ defaults << TimeSignature(9, 8) << KeySignature(2) << Tempo(180)
 outline: Clip = Note("B", Dotted(1/4)) * 3 + Nth(2)**2
 outline *= 4
 outline + Equal(Measures(1), Measures(3))**2 + Equal(Measures(2))**4
-(outline - outline % Last() | outline % Last()) << Dotted(1/2)
+(outline - outline[-1] | outline[-1]) << Dotted(1/2)
 outline << Equal(Measures(2))**Equal(Beats(6))**Pitch("A", 4)
 outline >> Play()
 

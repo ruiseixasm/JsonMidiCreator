@@ -123,21 +123,6 @@ class Container(o.Operand):
             # (which usually involves comparing object identities, like references,
             # using the is operator) will be used.
         return False
-    
-    def first(self) -> o.Operand:
-        if len(self._items) > 0:
-            return self._items[0]
-        return ol.Null()
-
-    def last(self) -> o.Operand:
-        if len(self._items) > 0:
-            return self._items[len(self._items) - 1]
-        return ol.Null()
-
-    def middle(self, nth: int) -> o.Operand:
-        if isinstance(nth, int) and nth > 0 and nth <= len(self._items):
-            return self._items[nth - 1]
-        return ol.Null()
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()

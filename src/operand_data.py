@@ -874,38 +874,6 @@ class Len(Getter):
             return operand.len()
         return ol.Null()
 
-class First(Getter):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.first()
-        return ol.Null()
-
-class Last(Getter):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.last()
-        return ol.Null()
-
-class Middle(Getter):
-    """
-    Middle() represent the Nth Operand in a Container or Track.
-    
-    Parameters
-    ----------
-    first : integer_like
-        The Nth Operand in a Container like 2 for the 2nd Operand
-    """
-    def __init__(self, nth: int = None):
-        super().__init__( 1 if nth is None else nth )
-
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Container):
-            return operand.middle(self._data)
-        return ol.Null()
-
 class Start(Getter):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
