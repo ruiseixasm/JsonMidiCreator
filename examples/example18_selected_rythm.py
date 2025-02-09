@@ -31,14 +31,15 @@ rhythmic_notes = Note() * 8 * 8 << Foreach(whole, dotted_half, half, dotted_quar
 mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 # mutated_clip >> P
 
-duration_mutation = Mutation(Duration) * 100
+duration_mutation = Mutation(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(1.0))
-total_plays = First(6)
+minimum_notes = Least(5)
+total_plays = First(8)
 
 for _ in range(100):
     mutated_clip /= duration_mutation
     mutated_clip >> Stack()
     mutated_clip % Length() % float() >> Print()
-    mutated_clip * length_condition * total_plays >> Play()
+    mutated_clip.copy().trim().link() * minimum_notes * length_condition * total_plays >> Play()
 
