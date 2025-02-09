@@ -330,6 +330,7 @@ class Container(o.Operand):
 
     # multiply with a scalar 
     def __imul__(self, operand: any) -> Self:
+        import operand_selection as os
         match operand:
             case Container():
                 pass
@@ -348,7 +349,9 @@ class Container(o.Operand):
                     self._items.extend( items_copy )
                 elif operand == 0:
                     self._items = []
-
+            case os.Selection():
+                if operand != self:
+                    self._items = []
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
@@ -862,6 +865,7 @@ class Clip(Container):  # Just a container of Elements
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
+        import operand_selection as os
         match operand:
             case Clip():
                 if self._length_beats < 0:
@@ -922,12 +926,14 @@ class Clip(Container):  # Just a container of Elements
                 self._items.append(
                     operand.copy().set_staff_reference(self._staff) << next_position
                 )
-
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats *= self._staff.convertToBeats(operand)._rational
+            case os.Selection():
+                if operand != self:
+                    self._items = []
 
             case tuple():
                 for single_operand in operand:
@@ -1125,7 +1131,6 @@ class Clip(Container):  # Just a container of Elements
         return self_left, self_right
 
 
-
 class Part(Container):
 
     def __getitem__(self, key: str | int) -> Clip:
@@ -1243,7 +1248,11 @@ class Part(Container):
         return self
 
     def __imul__(self, operand: any) -> 'Part':
+        import operand_selection as os
         match operand:
+            case os.Selection():
+                if operand != self:
+                    self._items = []
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
