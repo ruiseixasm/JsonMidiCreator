@@ -211,31 +211,31 @@ class Descending(Comparison):
 
 class Threshold(Selection):
     def __init__(self, *parameters):
-        self._first: int = 5
+        self._threshold: int = 5
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case int():            return self._first
+                    case int():            return self._threshold
                     case _:                 return super().__mod__(operand)
-            case int():            return self._first
+            case int():            return self._threshold
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["first"]    = self.serialize(self._first)
+        serialization["parameters"]["threshold"]    = self.serialize(self._threshold)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "first" in serialization["parameters"]):
+            "threshold" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._first     = self.deserialize(serialization["parameters"]["first"])
+            self._threshold     = self.deserialize(serialization["parameters"]["threshold"])
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -243,13 +243,13 @@ class Threshold(Selection):
         match operand:
             case Comparison():
                 super().__lshift__(operand)
-                self._first = operand._first
+                self._threshold = operand._threshold
             case od.DataSource():
                 match operand._data:
-                    case int():                    self._first = operand._data
+                    case int():                    self._threshold = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case int():            self._first = operand
+            case int():            self._threshold = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -261,9 +261,9 @@ class First(Threshold):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if self._first > 0:
+        if self._threshold > 0:
             if isinstance(other, oc.Clip) and other.len() > 0:
-                self._first -= 1
+                self._threshold -= 1
             return True
         return False
     
