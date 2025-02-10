@@ -428,12 +428,17 @@ class Element(o.Operand):
         self_operand *= operand
         return self << self_operand
 
-    def __itruediv__(self, operand: any) -> Self:
+    def __itruediv__(self, operand: any) -> Union[TypeElement, 'Clip']:
+        import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        if operand != 0:
-            self_operand: any = self % operand
-            self_operand /= operand
-            return self << self_operand
+        match operand:  # Allows Frame skipping to be applied to the elements' parameters!
+            case Element() | oc.Clip():
+                return self * operand
+            case _:
+                if operand != 0:
+                    self_operand: any = self % operand
+                    self_operand /= operand
+                    return self << self_operand
         return self
 
     def get_position_duration_ms(self, position_beats: Fraction = None) -> tuple:
