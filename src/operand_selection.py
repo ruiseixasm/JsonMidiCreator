@@ -48,7 +48,11 @@ class Selection(o.Operand):
     first : any_like
         Any type of parameter can be used to set Selection.
     """
-    pass
+    # clip is the input >> (NO COPIES!)
+    def __rrshift__(self, clip: oc.Clip) -> oc.Clip:
+        if isinstance(clip, oc.Clip) and self != clip:
+            clip._items = []
+        return clip
 
 
 class Condition(Selection):
