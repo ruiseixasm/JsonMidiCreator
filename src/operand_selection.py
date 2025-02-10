@@ -343,7 +343,7 @@ class First(Threshold):
             if isinstance(other, oc.Clip) and other.len() > 0:
                 self._threshold -= 1
             return True
-        return False
+        return super().__eq__(other)
 
 class After(Threshold):
 
@@ -351,16 +351,16 @@ class After(Threshold):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if self._threshold > 0:
-            if isinstance(other, oc.Clip) and other.len() > 0:
+        if self._threshold > 0 and isinstance(other, oc.Clip):
+            if other.len() > 0:
                 self._threshold -= 1
             return False
-        return True
+        return super().__eq__(other)
     
 class Most(Threshold):
     def __init__(self, *parameters):
         super().__init__()
-        self._threshold: int = 16
+        self._threshold = 16
         for single_operand in parameters:
             self << single_operand
 
@@ -370,12 +370,12 @@ class Most(Threshold):
             return True
         if isinstance(other, oc.Clip) and other.len() > self._threshold:
             return False
-        return True
+        return super().__eq__(other)
     
 class Least(Threshold):
     def __init__(self, *parameters):
         super().__init__()
-        self._threshold: int = 4
+        self._threshold = 4
         for single_operand in parameters:
             self << single_operand
 
@@ -385,5 +385,5 @@ class Least(Threshold):
             return True
         if isinstance(other, oc.Clip) and other.len() < self._threshold:
             return False
-        return True
+        return super().__eq__(other)
 
