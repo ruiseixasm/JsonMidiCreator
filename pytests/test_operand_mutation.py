@@ -64,4 +64,4 @@ def test_translocation():
     two_notes_len = two_notes.len()
     assert eight_notes_len + two_notes_len + translocation.len() == 10 + 8
 
-test_translocation()
+# test_translocation()
