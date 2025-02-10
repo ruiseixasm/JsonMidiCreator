@@ -762,7 +762,7 @@ class Clip(Container):  # Just a container of Elements
         return shallow_copy
     
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: any) -> 'Clip':
+    def __rrshift__(self, operand: o.T) -> Union[o.T, 'Part']:
         match operand:
             case Part():
                 wrapper_part: Part = Part()
@@ -789,7 +789,7 @@ class Clip(Container):  # Just a container of Elements
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
                 return super().__rrshift__(operand)
-        return self
+        return operand
 
 
     # Avoids the costly copy of Track self doing +=

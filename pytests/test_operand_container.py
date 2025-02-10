@@ -150,7 +150,8 @@ def test_rrshift_clip():
 
     print("------")
     measure_length: Length = Length(1)
-    moved_two_notes: Clip = measure_length >> two_notes.copy()
+    moved_two_notes = two_notes.copy()
+    measure_length >> moved_two_notes
     moved_two_notes % Position() % Fraction() >> Print()    # 1
     assert moved_two_notes == Position(1)
     moved_two_notes[0] % Position() % Fraction() >> Print() # 0
@@ -487,7 +488,8 @@ def test_position_shift():
     assert chords % Position() == 3 * 1/16
 
     Steps(-3) >> chords
-    fifth_measure_chords: Clip = Measures(4) >> chords.copy()
+    fifth_measure_chords = chords.copy()
+    Measures(4) >> fifth_measure_chords
     assert fifth_measure_chords % Length() == 4.0
 
     aggregated_chords: Clip = chords + fifth_measure_chords

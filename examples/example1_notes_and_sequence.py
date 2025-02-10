@@ -31,8 +31,7 @@ single_clock = Clock() * 1 << MidiTrack(0, "Clock Track") >> Save("json/_Save_1.
 
 # Multiple individual Notes creation and sequentially played
 first_note = Note() << (Position() << Steps(3*4 + 2)) >> Save("json/_Save_1.1_first_note.json")
-multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) \
-    >> ((first_note + Rest()) * 3 >> Stack()) \
+multi_notes = Rest(NoteValue(1/16 * (3*4 + 2))) + (first_note + Rest()) * 3 >> Stack() \
     << MidiTrack(1, "Piano") \
     >> Play(0) \
     >> Save("json/_Save_1.2_sequence.json") \
@@ -55,13 +54,14 @@ second_sequence = first_sequence >> Copy()
 second_sequence /= Position(2)
 second_sequence /= NoteValue(2)
 some_rest = Rest(4/1)
-second_sequence = Rest(4/1, Channel(10)) >> second_sequence
+second_sequence = Rest(4/1, Channel(10)) * second_sequence
 second_sequence >> Save("json/_Save_1.5_second_sequence.json")
-first_sequence = Rest(2/1, Channel(10)) >> first_sequence
+first_sequence = Rest(2/1, Channel(10)) * first_sequence
 # second_sequence >> Play()
 
 # Creations, aggregation of both Sequences in a Track element and respective Play
 all_elements = Part(first_sequence) + second_sequence >> Save("json/_Save_1.6_all_elements.json") # HAS TO BECOME A SONG !!!
-all_elements += (Length( Beats(2) ) >> first_note) + single_clock
+Length( Beats(2) ) >> first_note
+all_elements += first_note + single_clock
 all_elements >> Play() >> Export("json/_Export_1.2_all_elements.json")  # IT'S GONNA BE A SONG SAVE !!
 # all_elements >> Print() >> Play(1) >> Export("json/_Export_1.2_all_elements.json")
