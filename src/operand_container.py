@@ -942,6 +942,22 @@ class Clip(Container):  # Just a container of Elements
     def __itruediv__(self, operand: any) -> 'Clip':
         import operand_mutation as om
         match operand:
+            case Clip():
+                if self._length_beats < 0:
+                    left_end_position: ra.Position = self.finish()
+                else:
+                    left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))    # Doesn't round, immediate stacking
+                    self._length_beats += (operand % ra.Length())._rational
+                right_start_position: ra.Position = operand.start()
+                length_shift: ra.Length = ra.Length(left_end_position - right_start_position)
+                # Convert Length to Position
+                add_position: ra.Position = ra.Position(length_shift)
+                operand_elements = [
+                    (single_data + add_position).set_staff_reference(self._staff) for single_data in operand._items
+                        if isinstance(single_data, oe.Element)
+                ]
+                self._items.extend( single_element for single_element in operand_elements )
+
             case int():
                 return super().__itruediv__(operand)
             
