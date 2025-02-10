@@ -679,6 +679,7 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def __lshift__(self, operand: any) -> Self:
+        import operand_mutation as om
         match operand:
             case Clip():
                 self._midi_track        << operand._midi_track
@@ -712,10 +713,9 @@ class Clip(Container):  # Just a container of Elements
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, oe.Element)
                 ]
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-                    
+            case om.Mutation():
+                operand.mutate(self)
+            
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
@@ -730,6 +730,10 @@ class Clip(Container):  # Just a container of Elements
                         self._staff << operand._data
                     case None:
                         self._length_beats = Fraction(-1)
+
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
 
             case _: # Works for Frame too
                 for item in self._items:
@@ -953,7 +957,7 @@ class Clip(Container):  # Just a container of Elements
             case ch.Chaos():
                 return self.shuffle(operand)
             case om.Mutation():
-                return operand.mutate(self)
+                return operand.copy().mutate(self)
 
             case tuple():
                 for single_operand in operand:
