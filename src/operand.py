@@ -230,22 +230,27 @@ class Operand:
         import operand_data as od
         return self.__mod__( od.DataSource( operand ) )
 
-    def __eq__(self, other: 'Operand') -> bool:
-        return True # All subclasses are Operands. Useful for Framing
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == Operand:
+            return True
+        if isinstance(other, self.__class__):
+            return True
+        return False
     
-    def __ne__(self, other: 'Operand') -> bool:
+    def __ne__(self, other: any) -> bool:
         return not self == other
     
-    def __lt__(self, other: 'Operand') -> bool:
+    def __lt__(self, other: any) -> bool:
         return False
     
-    def __gt__(self, other: 'Operand') -> bool:
+    def __gt__(self, other: any) -> bool:
         return False
     
-    def __le__(self, other: 'Operand') -> bool:
+    def __le__(self, other: any) -> bool:
         return self.__eq__(other) or self.__lt__(other)
     
-    def __ge__(self, other: 'Operand') -> bool:
+    def __ge__(self, other: any) -> bool:
         return self.__eq__(other) or self.__gt__(other)
     
     def start(self):
