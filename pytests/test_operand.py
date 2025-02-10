@@ -115,7 +115,7 @@ def test_operand_copy():
             print(single_class.__name__)
             assert class_object == class_object.copy()
 
-test_operand_copy()
+# test_operand_copy()
 
 
 # Do 'pytest --markers' to see markers
