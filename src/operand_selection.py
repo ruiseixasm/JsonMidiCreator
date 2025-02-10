@@ -319,7 +319,7 @@ class Threshold(Selection):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Comparison():
+            case Threshold():
                 super().__lshift__(operand)
                 self._threshold = operand._threshold
             case od.DataSource():
