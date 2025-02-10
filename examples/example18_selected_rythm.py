@@ -35,11 +35,10 @@ duration_mutation = Mutation(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(1.0))
 minimum_notes = Least(5)
-total_plays = First(8)
+total_plays = First(12)
 
 for _ in range(100):
-    mutated_clip /= duration_mutation
-    mutated_clip >> Stack()
+    mutated_clip << duration_mutation >> Stack()
     mutated_clip % Length() % float() >> Print()
     mutated_clip.copy().trim().link() * minimum_notes * length_condition * total_plays >> Play()
 
