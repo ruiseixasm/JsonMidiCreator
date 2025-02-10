@@ -85,7 +85,7 @@ class Condition(Selection):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if isinstance(other, Selection):
+        if isinstance(other, Condition):
             return self._and == other._and and self._or == other._or
         return self._and == other and self._or == other
     
@@ -148,14 +148,6 @@ class Comparison(Selection):
             case type():            return self._parameter
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if isinstance(other, Comparison):
-            return self._parameter == other._parameter
-        return False
-    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["parameter"]        = self._parameter.__name__
