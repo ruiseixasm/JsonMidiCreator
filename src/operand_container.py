@@ -698,6 +698,7 @@ class Clip(Container):  # Just a container of Elements
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
+                    case om.Mutation():     operand._data.mutate(self)
                     case _:
                         super().__lshift__(operand)
                         self._items = o.filter_list(self._items, lambda item: isinstance(item, oe.Element))
@@ -714,7 +715,7 @@ class Clip(Container):  # Just a container of Elements
                     self.deep_copy(item) for item in operand if isinstance(item, oe.Element)
                 ]
             case om.Mutation():
-                operand.mutate(self)
+                operand.copy().mutate(self)
             
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists

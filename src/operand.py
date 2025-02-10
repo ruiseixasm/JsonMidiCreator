@@ -342,9 +342,6 @@ class Operand:
         self._next_operand = None
         return self.reset() << self.__class__() << parameters
     
-    def __ilshift__(self, other) -> Self:
-        return self.__lshift__(other)
-    
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
         if isinstance(operand, tuple):

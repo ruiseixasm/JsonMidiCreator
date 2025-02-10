@@ -54,9 +54,9 @@ def test_translocation():
 
     translocation = Translocation()
     assert eight_notes.len() == 8
-    eight_notes << translocation
+    eight_notes <<= translocation
     assert eight_notes.len() + translocation.len() ==  2 * 8
-    two_notes << translocation
+    two_notes <<= translocation
 
     assert eight_notes.len() != 8
     assert two_notes.len() != 2
@@ -64,4 +64,4 @@ def test_translocation():
     two_notes_len = two_notes.len()
     assert eight_notes_len + two_notes_len + translocation.len() == 10 + 8
 
-# test_translocation()
+test_translocation()
