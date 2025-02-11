@@ -81,16 +81,24 @@ from JsonMidiCreator import *
 # print(all_classes)
 
 
-class ParentClass:
-    _limit_denominator: int = 100  # Static variable in the parent class
+# class ParentClass:
+#     _limit_denominator: int = 100  # Static variable in the parent class
 
-class SubClass(ParentClass):
-    _limit_denominator: int = 50  # Override the static variable in the subclass
+# class SubClass(ParentClass):
+#     _limit_denominator: int = 50  # Override the static variable in the subclass
 
-# Instances
-parent_instance = ParentClass()
-subclass_instance = SubClass()
+# # Instances
+# parent_instance = ParentClass()
+# subclass_instance = SubClass()
 
-# Accessing the variable
-print(parent_instance._limit_denominator)  # Output: 100 (from ParentClass)
-print(subclass_instance._limit_denominator)  # Output: 50 (from SubClass)
+# # Accessing the variable
+# print(parent_instance._limit_denominator)  # Output: 100 (from ParentClass)
+# print(subclass_instance._limit_denominator)  # Output: 50 (from SubClass)
+
+
+sixteen_notes = Note(1/1) * 16
+# sixteen_notes >> Play()
+
+sixteen_notes << Get(Duration())**Divide(Iterate(1, 2))
+sixteen_notes >> Stack() >> Play()
+

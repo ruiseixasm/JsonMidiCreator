@@ -36,12 +36,10 @@ import operand_frame as of
 import operand_container as oc
 import operand_chaos as ch
 
-
 class Mutation(o.Operand):
     """`Mutation`
 
-    Clip class already has it's own Shuffle Operation but this process is an
-    Haploid kind of process, so, Mutation adds a second Clip so that Shuffle
+    Mutation can be Haploid or Diploid, the second one adds a second Clip so that Shuffle
     of Clips becomes a Diploid process.
 
     Parameters
@@ -51,10 +49,92 @@ class Mutation(o.Operand):
     """
     def __init__(self, *parameters):
         super().__init__()
-        self._clip: oc.Clip             = None
         self._chaos: ch.Chaos           = ch.SinX()
         self._step: int | float         = 1
         self._parameter: type           = ra.Position
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case ch.Chaos():        return self._chaos
+                    case int():             return int(self._step)
+                    case float():           return float(self._step)
+                    case type():            return self._parameter
+                    case _:                 return super().__mod__(operand)
+            case ch.Chaos():        return self._chaos.copy()
+            case int():             return int(self._step)
+            case float():           return float(self._step)
+            case type():            return self._parameter
+            case ra.Index():        return ra.Index(self._index)
+            case ou.Next():         return self * operand
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Diploid):
+            return self._chaos == other._chaos and self._parameter == other._parameter
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
+        serialization["parameters"]["step"]             = self.serialize(self._step)
+        serialization["parameters"]["parameter"]        = self._parameter.__name__
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
+            self._step              = self.deserialize(serialization["parameters"]["step"])
+            parameter: type = o.find_class_by_name( o.Operand, serialization["parameters"]["parameter"] )
+            if parameter:
+                self._parameter     = parameter
+            else:
+                self._parameter     = ra.Position
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Diploid():
+                super().__lshift__(operand)
+                self._chaos         << operand._chaos
+                self._step          = operand._step
+                self._parameter     = operand._parameter
+            case od.DataSource():
+                match operand._data:
+                    case ch.Chaos():                self._chaos = operand._data
+                    case int() | float():           self._step = operand._data
+                    case type():                    self._parameter = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ch.Chaos():        self._chaos << operand
+            case int() | float():   self._step = operand
+            case type():            self._parameter = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+
+class Haploid(Mutation):
+    pass
+
+class Diploid(Mutation):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._clip: oc.Clip             = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -115,32 +195,14 @@ class Mutation(o.Operand):
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():         return self._clip
-                    case ch.Chaos():        return self._chaos
-                    case int():             return int(self._step)
-                    case float():           return float(self._step)
-                    case type():            return self._parameter
                     case _:                 return super().__mod__(operand)
             case oc.Clip():         return self.deep_copy(self._clip)
-            case ch.Chaos():        return self._chaos.copy()
-            case int():             return int(self._step)
-            case float():           return float(self._step)
-            case type():            return self._parameter
-            case ra.Index():        return ra.Index(self._index)
-            case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
 
-    def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if isinstance(other, Mutation):
-            return self._chaos == other._chaos and self._parameter == other._parameter
-        return False
-    
     # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, clip: o.T) -> o.T:
         match clip:
-            case Mutation():
+            case Diploid():
                 self.mutate(clip._clip)
             case oc.Clip():
                 self.mutate(clip)
@@ -149,49 +211,30 @@ class Mutation(o.Operand):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["clip"]             = self.serialize(self._clip)
-        serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
-        serialization["parameters"]["step"]             = self.serialize(self._step)
-        serialization["parameters"]["parameter"]        = self._parameter.__name__
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "clip" in serialization["parameters"] and "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"]):
+            "clip" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._clip              = self.deserialize(serialization["parameters"]["clip"])
-            self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
-            self._step              = self.deserialize(serialization["parameters"]["step"])
-            parameter: type = o.find_class_by_name( o.Operand, serialization["parameters"]["parameter"] )
-            if parameter:
-                self._parameter     = parameter
-            else:
-                self._parameter     = ra.Position
         return self
         
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Mutation():
+            case Diploid():
                 super().__lshift__(operand)
                 self._clip          = self.deep_copy( operand._clip )
-                self._chaos         << operand._chaos
-                self._step          = operand._step
-                self._parameter     = operand._parameter
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():                 self._clip = operand._data
-                    case ch.Chaos():                self._chaos = operand._data
-                    case int() | float():           self._step = operand._data
-                    case type():                    self._parameter = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case oc.Clip():         self._clip = operand.copy() # Avoids None case error
-            case ch.Chaos():        self._chaos << operand
-            case int() | float():   self._step = operand
-            case type():            self._parameter = operand
             case tuple():
                 for single_operand in operand:
                     self << single_operand
@@ -211,14 +254,14 @@ class Mutation(o.Operand):
 
     def __itruediv__(self, operand: any) -> Self:
         match operand:
-            case Mutation():
+            case Diploid():
                 self.mutate(operand._clip.copy())
             case oc.Clip():
                 self.mutate(operand.copy())
         return self
 
     def empty_copy(self, *parameters) -> Self:
-        empty_copy: Mutation = self.__class__()
+        empty_copy: Diploid = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
             empty_copy._next_operand = self.deep_copy(self._next_operand)
@@ -230,7 +273,7 @@ class Mutation(o.Operand):
         return empty_copy
 
     def shallow_copy(self, *parameters) -> Self:
-        shallow_copy: Mutation      = self.empty_copy()
+        shallow_copy: Diploid      = self.empty_copy()
         if isinstance(self._clip, oc.Clip):
             shallow_copy._clip = self._clip.shallow_copy()
         for single_parameter in parameters:
@@ -244,7 +287,7 @@ class Mutation(o.Operand):
         return self
 
 
-class Translocation(Mutation):
+class Translocation(Diploid):
     def __init__(self, *parameters):
         super().__init__()
         self._parameter = od.DataSource # Translocation is all about the elements themselves
@@ -264,7 +307,7 @@ class Translocation(Mutation):
         return clip
 
 
-class Crossover(Mutation):
+class Crossover(Diploid):
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):

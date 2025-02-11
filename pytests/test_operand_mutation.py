@@ -35,7 +35,7 @@ def test_mutation_mod():
 
     four_notes = Note() * 4
     # Perform the operation
-    mutation = Mutation() * 100 # Position parameter by default
+    mutation = Diploid() * 100 # Position parameter by default
     clip_100_1 = four_notes / mutation
     assert clip_100_1 != four_notes # Different positions
     mutation.reset()    # Resets the Chaos and sets Clip to None
