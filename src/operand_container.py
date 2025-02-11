@@ -1206,7 +1206,7 @@ class Part(Container):
                     item << operand
         return self
 
-    # operand is the pusher >> (NO COPIES!)
+    # operand is the pusher >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case Part():
@@ -1225,8 +1225,13 @@ class Part(Container):
                     data_clip for data_clip in self._items
                 )
                 return wrapper_song
+            case tuple():
+                for single_operand in operand:
+                    self.__rrshift__(single_operand)
             case _:
-                return super().__rrshift__(operand)
+                for single_item in self:
+                    if isinstance(single_item, o.Operand):
+                        single_item.__rrshift__(operand)
         return operand
 
 

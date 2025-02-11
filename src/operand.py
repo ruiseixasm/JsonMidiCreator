@@ -356,14 +356,8 @@ class Operand:
     def __rrshift__(self, operand: T) -> T:
         match operand:
             case tuple():
-                rshift_operands = None
                 for single_operand in operand:
-                    if isinstance(single_operand, Operand):
-                        if rshift_operands is not None:
-                            rshift_operands >>= single_operand
-                        else:
-                            rshift_operands = single_operand
-                return rshift_operands >> self
+                    self.__rrshift__(single_operand)
             case _:
                 self << operand
         return operand
