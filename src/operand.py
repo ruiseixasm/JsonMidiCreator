@@ -364,6 +364,8 @@ class Operand:
                         else:
                             rshift_operands = single_operand
                 return rshift_operands >> self
+            case _:
+                self << operand
         return operand
 
     def __irshift__(self, operand: T) -> T:

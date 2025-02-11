@@ -790,10 +790,8 @@ class Clip(Container):  # Just a container of Elements
                 return operand.mutate(self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
-            case tuple():
-                return super().__rrshift__(operand)
             case _:
-                self << operand
+                return super().__rrshift__(operand)
         return operand
 
 
@@ -1209,7 +1207,7 @@ class Part(Container):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: any) -> 'Part':
+    def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case Part():
                 wrapper_song: Part = Part()
@@ -1227,7 +1225,9 @@ class Part(Container):
                     data_clip for data_clip in self._items
                 )
                 return wrapper_song
-        return self
+            case _:
+                return super().__rrshift__(operand)
+        return operand
 
 
     def __iadd__(self, operand: any) -> 'Part':
