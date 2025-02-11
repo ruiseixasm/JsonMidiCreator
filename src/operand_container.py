@@ -789,6 +789,8 @@ class Clip(Container):  # Just a container of Elements
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
                 return super().__rrshift__(operand)
+            case _:
+                self << operand
         return operand
 
 
