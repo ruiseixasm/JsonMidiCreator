@@ -77,7 +77,7 @@ class Mutation(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if isinstance(other, Diploid):
+        if isinstance(other, Swap):
             return self._chaos == other._chaos and self._parameter == other._parameter
         return False
     
@@ -107,7 +107,7 @@ class Mutation(o.Operand):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Diploid():
+            case Swap():
                 super().__lshift__(operand)
                 self._chaos         << operand._chaos
                 self._step          = operand._step
@@ -132,6 +132,9 @@ class Haploid(Mutation):
     pass
 
 class Diploid(Mutation):
+    pass
+
+class Swap(Diploid):
     def __init__(self, *parameters):
         super().__init__()
         self._clip: oc.Clip             = None
@@ -202,7 +205,7 @@ class Diploid(Mutation):
     # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, clip: o.T) -> o.T:
         match clip:
-            case Diploid():
+            case Swap():
                 self.mutate(clip._clip)
             case oc.Clip():
                 self.mutate(clip)
@@ -226,7 +229,7 @@ class Diploid(Mutation):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Diploid():
+            case Swap():
                 super().__lshift__(operand)
                 self._clip          = self.deep_copy( operand._clip )
             case od.DataSource():
@@ -254,14 +257,14 @@ class Diploid(Mutation):
 
     def __itruediv__(self, operand: any) -> Self:
         match operand:
-            case Diploid():
+            case Swap():
                 self.mutate(operand._clip.copy())
             case oc.Clip():
                 self.mutate(operand.copy())
         return self
 
     def empty_copy(self, *parameters) -> Self:
-        empty_copy: Diploid = self.__class__()
+        empty_copy: Swap = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
             empty_copy._next_operand = self.deep_copy(self._next_operand)
@@ -273,7 +276,7 @@ class Diploid(Mutation):
         return empty_copy
 
     def shallow_copy(self, *parameters) -> Self:
-        shallow_copy: Diploid      = self.empty_copy()
+        shallow_copy: Swap      = self.empty_copy()
         if isinstance(self._clip, oc.Clip):
             shallow_copy._clip = self._clip.shallow_copy()
         for single_parameter in parameters:
@@ -287,7 +290,7 @@ class Diploid(Mutation):
         return self
 
 
-class Translocation(Diploid):
+class Translocation(Swap):
     def __init__(self, *parameters):
         super().__init__()
         self._parameter = od.DataSource # Translocation is all about the elements themselves
@@ -307,7 +310,7 @@ class Translocation(Diploid):
         return clip
 
 
-class Crossover(Diploid):
+class Crossover(Swap):
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):

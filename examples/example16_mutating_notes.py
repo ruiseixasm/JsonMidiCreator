@@ -33,7 +33,7 @@ motif_2 = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
 
 motif_2 * 2 >> Play()
 
-mutation = Diploid()
+mutation = Swap()
 for _ in range(5):
     motif_2 / mutation * 2.0 >> Sort() >> Stack() >> Play()
     # motif_2 / mutation * 2.0 >> Sort() >> Stack()

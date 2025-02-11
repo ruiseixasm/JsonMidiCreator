@@ -391,7 +391,7 @@ class Container(o.Operand):
                 self >>= operand
             case ch.Chaos():
                 self.shuffle(operand)
-            case om.Diploid():
+            case om.Swap():
                 operand.mutate(self)
             case _:
                 self.filter(operand)
@@ -698,7 +698,7 @@ class Clip(Container):  # Just a container of Elements
                     case ou.MidiTrack():    self._midi_track = operand._data
                     case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
-                    case om.Diploid():     operand._data.mutate(self)
+                    case om.Swap():     operand._data.mutate(self)
                     case _:
                         super().__lshift__(operand)
                         self._items = o.filter_list(self._items, lambda item: isinstance(item, oe.Element))
@@ -714,7 +714,7 @@ class Clip(Container):  # Just a container of Elements
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, oe.Element)
                 ]
-            case om.Diploid():
+            case om.Swap():
                 operand.copy().mutate(self)
             
             case od.ClipParameter():
@@ -786,7 +786,7 @@ class Clip(Container):  # Just a container of Elements
                 self._position_beats = self._staff.convertToBeats(operand)._rational
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
-            case om.Diploid():
+            case om.Swap():
                 return operand.mutate(self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
@@ -976,7 +976,7 @@ class Clip(Container):  # Just a container of Elements
 
             case ch.Chaos():
                 return self.shuffle(operand)
-            case om.Diploid():
+            case om.Swap():
                 return operand.copy().mutate(self)
 
             case tuple():
