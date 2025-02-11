@@ -137,7 +137,7 @@ class Mutation(o.Operand):
             return self._chaos == other._chaos and self._parameter == other._parameter
         return False
     
-    # Clip or Mutation is the input >> (NO COPIES!)
+    # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, clip: o.T) -> o.T:
         match clip:
             case Mutation():

@@ -139,8 +139,8 @@ class Frame(o.Operand):
                 self._next_operand = self.deep_copy(operand._next_operand)
         return self
 
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return operand & self   # operand is the subject
+    # def __rrshift__(self, operand: o.T) -> o.T:
+    #     return operand & self   # operand is the subject
 
     def pop(self, frame: 'Frame') -> 'Frame':
         previous_frame: 'Frame' = self

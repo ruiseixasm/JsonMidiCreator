@@ -409,7 +409,7 @@ class Operand:
         return self.__mul__(operand)
 
     
-    def __and__(self, operand: any) -> any:
+    def __and__(self, operand: T) -> T:
         
         import operand_frame as of
         if isinstance(operand, of.Frame):   # Extracts the Frame operand first
