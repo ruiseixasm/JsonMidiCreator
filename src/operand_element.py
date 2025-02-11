@@ -331,7 +331,7 @@ class Element(o.Operand):
                 new_clip: oc.Clip = self * 1  # Creates new_clip with self
                 operand >> new_clip # Inserts operand into new_clip at the beginning
                 return new_clip
-            case oc.Clip(): # TO BE TESTED
+            case oc.Clip():
                 operand *= self
             case od.Serialization():
                 return operand % od.DataSource() >> self
