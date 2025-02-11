@@ -202,9 +202,12 @@ def test_note_shift():
     assert second_note % Position() == 0.0 # Measures
     two_notes: Clip = note >> second_note   # Must be a Clip!
     assert two_notes.len() == 2
+    print(f"Position: {two_notes % Position() % float()}")
     assert two_notes % Position() == 0.0 # Measures
-    assert two_notes[0] % Position() == 0.0 # Measures
-    assert two_notes[1] % Position() == 0.25 # Measures
+    print(f"Position: {two_notes[0] % Position() % float()}")
+    assert two_notes[0] % Position() == 0.5 # Measures
+    print(f"Position: {two_notes[1] % Position() % float()}")
+    assert two_notes[1] % Position() == 0.75 # Measures
 
 # test_note_shift()
 

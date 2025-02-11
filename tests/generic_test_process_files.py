@@ -145,12 +145,8 @@ original_export     = Import("json/testing/_Export_Play_p.6_sequence.json")
 start_time = time.time()
 
 # Process Loaded files as Elements
-first_load = Load("json/testing/_Save_1.1_first_note.json")
-note_0 = Note() << first_load
-note_1 = Note() << first_load
-note_2 = Note() << first_load
-note_3 = Note() << first_load
-note_0 >> note_1 >> note_2 >> note_3 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+note = Note(Load("json/testing/_Save_1.1_first_note.json"))
+note * 4 >> Save ("json/testing/_Save_2.1_multiple_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 2.2",
@@ -164,11 +160,8 @@ original_export     = Import("json/testing/_Export_Play_p.7_sequence.json")
 start_time = time.time()
 
 # Process Loaded files as Serialization
-load_0 = first_load >> Copy()
-load_1 = first_load >> Copy()
-load_2 = first_load >> Copy()
-load_3 = first_load >> Copy()
-load_0 >> load_1 >> load_2 >> load_3 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
+load = Note(Load("json/testing/_Save_1.1_first_note.json").copy())
+load * 4 >> Save ("json/testing/_Save_2.2_sequence_notes.json") >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
     "test":     "TEST 2.3",

@@ -776,11 +776,11 @@ class Clip(Container):  # Just a container of Elements
                 wrapper_part._items = [ operand, self ]
                 return wrapper_part
             case oe.Element():
-                element_length: ra.Length = self._staff.convertToLength( operand % ra.Length() )
-                # Convert Length to Position
-                add_position: ra.Position = ra.Position(element_length)
+                # Give space to Element
+                add_position: ra.Position = \
+                    self._staff.convertToPosition( operand % ra.Position() ) + self._staff.convertToPosition( operand % ra.Duration() )
                 self += add_position  # No copy!
-                self._items.insert(0, operand.set_staff_reference(self._staff))
+                self._items.insert(0, operand.copy().set_staff_reference(self._staff))
             case ra.Position():
                 self._position_beats = self._staff.convertToBeats(operand)._rational
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():

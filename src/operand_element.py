@@ -319,7 +319,7 @@ class Element(o.Operand):
                     self << single_operand
         return self
 
-    # operand is the pusher >> (NO COPIES!)
+    # operand is the pusher >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         match operand:
@@ -327,8 +327,12 @@ class Element(o.Operand):
                 self << operand
             case ra.Length():
                 self << ra.Position(ra.Beats(self._position_beats + operand._rational))
-            case Element() | oc.Clip():
-                return operand + self >> od.Stack()
+            case Element():
+                new_clip: oc.Clip = self * 1  # Creates new_clip with self
+                operand >> new_clip # Inserts operand into new_clip at the beginning
+                return new_clip
+            case oc.Clip(): # TO BE TESTED
+                operand *= self
             case od.Serialization():
                 return operand % od.DataSource() >> self
             case od.Playlist():
