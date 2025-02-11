@@ -320,7 +320,7 @@ class Element(o.Operand):
         return self
 
     # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: any) -> Self:
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         match operand:
             case ra.Position():
@@ -335,7 +335,7 @@ class Element(o.Operand):
                 return operand >> od.Playlist(self.getPlaylist())
             case _:
                 return super().__rrshift__(operand)
-        return self
+        return operand
 
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__iadd__(operand)
