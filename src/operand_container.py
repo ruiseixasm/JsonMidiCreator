@@ -763,6 +763,7 @@ class Clip(Container):  # Just a container of Elements
     
     # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.T) -> Union[o.T, 'Part']:
+        import operand_mutation as om
         match operand:
             case Part():
                 wrapper_part: Part = Part()
@@ -785,6 +786,8 @@ class Clip(Container):  # Just a container of Elements
                 self._position_beats = self._staff.convertToBeats(operand)._rational
             case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
                 self._position_beats += self._staff.convertToBeats(operand)._rational
+            case om.Mutation():
+                return operand.mutate(self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist(self._position_beats))
             case tuple():
