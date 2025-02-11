@@ -174,6 +174,20 @@ def test_rrshift_clip():
     four_notes[3] % Position() % Fraction() >> Print()  # 5/4
     assert four_notes[3] == Position(1 + 1/4)
 
+    print("------")
+    note_clip = Note() * 1
+    note: Note = Note()
+    assert note_clip % Position() == 0.0 # Measures
+    assert note_clip.len() == 1
+    two_notes = note_clip >> note
+    assert two_notes.len() == 2
+    print(f"Position: {two_notes % Position() % float()}")
+    assert two_notes % Position() == 0.0 # Measures
+    print(f"Position: {two_notes[0] % Position() % float()}")
+    assert two_notes[0] % Position() == 0.0 # Measures
+    print(f"Position: {two_notes[1] % Position() % float()}")
+    assert two_notes[1] % Position() == 0.25 # Measures
+
 # test_rrshift_clip()
 
 
