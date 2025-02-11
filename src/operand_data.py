@@ -344,7 +344,7 @@ class Serialization(Data):
                 self._data = o.Operand().loadSerialization(operand)
         return self
 
-    def __rrshift__(self, operand: any) -> o.Operand:
+    def __rrshift__(self, operand: o.T) -> o.T:
         if not isinstance(self._data, ol.Null) and isinstance(operand, o.Operand) and isinstance(self._data, o.Operand):
             return operand >> self._data
         else:
@@ -678,7 +678,7 @@ if TYPE_CHECKING:
     from operand_container import Clip
 
 class Stack(Operation):
-    def __rrshift__(self, operand: any) -> 'Clip':
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.stack()
@@ -688,7 +688,7 @@ class Tie(Operation):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
-    def __rrshift__(self, operand: any) -> 'Clip':
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.tie(self._data)
@@ -698,14 +698,14 @@ class Slur(Operation):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
-    def __rrshift__(self, operand: any) -> 'Clip':
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.slur(self._data)
         return super().__rrshift__(operand)
 
 class Smooth(Operation):
-    def __rrshift__(self, operand: any) -> 'Clip':
+    def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.smooth()

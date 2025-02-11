@@ -353,7 +353,7 @@ class Operand:
         return operand.__rrshift__(self)
 
     # operand is the pusher
-    def __rrshift__(self, operand: any) -> Self:
+    def __rrshift__(self, operand: T) -> T:
         match operand:
             case tuple():
                 rshift_operands = None
@@ -366,7 +366,7 @@ class Operand:
                 return rshift_operands >> self
         return operand
 
-    def __irshift__(self, operand: any) -> Self:
+    def __irshift__(self, operand: T) -> T:
         # Simply delegate to the __rshift__ method
         return self.__rshift__(operand)
     
