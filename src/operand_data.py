@@ -440,7 +440,7 @@ class Playlist(Data):
         import operand_element as oe
         import operand_container as oc
         match operand:
-            case oc.Clip() | oe.Element() | Playlist():
+            case oc.Clip() | oe.Element() | Playlist(): # TO BE REVIEWED !!
                 operand_play_list: list[dict] = operand.getPlaylist()
                 self_copy: Playlist = self.copy()
                 if len(self_copy._data) > 0 and len(operand_play_list) > 0:
