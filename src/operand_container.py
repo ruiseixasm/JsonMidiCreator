@@ -221,6 +221,11 @@ class Container(o.Operand):
             self._items[operand_i] = tail_operand
         return self
     
+    def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
+        for item_i in range(1, self.len()):
+            self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
+        return self
+
     def rotate(self, offset: int = 1, parameter: type = ra.Duration) -> Self:
         """
         Rotates a given parameter by a given offset, by other words,

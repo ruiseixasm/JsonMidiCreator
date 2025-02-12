@@ -99,6 +99,8 @@ from JsonMidiCreator import *
 sixteen_notes = Note(1/1) * 16
 # sixteen_notes >> Play()
 
-sixteen_notes << Get(Duration())**Divide(Iterate(1, 2))
-sixteen_notes >> Stack() >> Play()
+# sixteen_notes << Get(Duration())**Divide(Iterate(1, 2))
+# sixteen_notes >> Stack() >> Play()
+
+sixteen_notes >> Recur(lambda d: d/1.5) >> Stack() >> Play()
 

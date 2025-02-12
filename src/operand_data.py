@@ -795,6 +795,21 @@ class Reverse(Operation):
             return operand.reverse()
         return super().__rrshift__(operand)
 
+class Recur(Operation):
+    
+    from operand_rational import Duration
+
+    def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
+        super().__init__((recursion, parameter))
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.recur(*self._data)
+        return super().__rrshift__(operand)
+
 class Rotate(Operation):
     
     from operand_rational import Duration
