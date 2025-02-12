@@ -77,7 +77,7 @@ class Mutation(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if isinstance(other, Swap):
+        if isinstance(other, Mutation):
             return self._chaos == other._chaos and self._parameter == other._parameter
         return False
     
@@ -107,7 +107,7 @@ class Mutation(o.Operand):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Swap():
+            case Mutation():
                 super().__lshift__(operand)
                 self._chaos         << operand._chaos
                 self._step          = operand._step
