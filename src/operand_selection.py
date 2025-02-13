@@ -112,6 +112,34 @@ class IsNot(Selection):
         return self
 
 
+from typing import Dict, Iterable
+
+class Mono(Selection):
+
+    @staticmethod
+    def is_overlapping(event: Dict[str, ra.Position], events: Iterable[ Dict[str, ra.Position] ]) -> bool:
+        for single_event in events:
+            if event["start"] < single_event["finish"] and event["finish"] > single_event["start"]:
+                return True
+        return False
+    
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            events_filo: list[ Dict[str, ra.Position] ] = []
+            for element in other:
+                if isinstance(element, oe.Element):
+                    event: Dict[str, ra.Position] = {
+                        "start": element.start(),
+                        "finish": element.finish()
+                    }
+                    if self.is_overlapping(event, events_filo):
+                        return False
+                    events_filo.insert(0, event)    # Faster with insert than append (FILO) (STACK)
+            return True
+        return super().__eq__(other)
+    
+
 class Condition(Selection):
     def __init__(self, *parameters):
         super().__init__()
