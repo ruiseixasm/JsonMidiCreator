@@ -75,9 +75,9 @@ class IsNot(Selection):
             return self._selection == other._selection
         if isinstance(other, oc.Clip):
             if isinstance(self._selection, Selection):
-                return self._selection == other
-            return False
-        return super().__eq__(other)
+                return self._selection != other
+            return True # IsNot None
+        return not super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
