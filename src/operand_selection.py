@@ -55,6 +55,63 @@ class Selection(o.Operand):
         return clip
 
 
+class IsNot(Selection):
+    def __init__(self, *parameters):
+        self._selection: Selection = None
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case Selection():       return self._selection
+                    case _:                 return super().__mod__(operand)
+            case Selection():       return self._selection
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, IsNot):
+            return self._selection == other._selection
+        if isinstance(other, oc.Clip):
+            if isinstance(self._selection, Selection):
+                return self._selection == other
+            return False
+        return super().__eq__(other)
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["selection"]          = self.serialize(self._selection)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "selection" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._selection           = self.deserialize(serialization["parameters"]["selection"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case IsNot():
+                super().__lshift__(operand)
+                self._selection     = self.deep_copy(operand._selection)   # Avoids None Type error
+            case od.DataSource():
+                match operand._data:
+                    case Selection():           self._selection = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case Selection():       self._selection = self.deep_copy(operand)   # Avoids None Type error
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+        return self
+
+
 class Condition(Selection):
     def __init__(self, *parameters):
         super().__init__()
@@ -83,11 +140,11 @@ class Condition(Selection):
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
         if isinstance(other, Condition):
             return self._and == other._and and self._or == other._or
-        return self._and == other and self._or == other
+        if isinstance(other, oc.Clip):
+            return self._and == other and self._or == other
+        return super().__eq__(other)
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -109,7 +166,7 @@ class Condition(Selection):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Selection():
+            case Condition():
                 super().__lshift__(operand)
                 self._and           << operand._and
                 self._or            << operand._or
@@ -148,6 +205,12 @@ class Comparison(Selection):
             case type():            return self._parameter
             case _:                 return super().__mod__(operand)
 
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Comparison):
+            return self._parameter == other._parameter
+        return super().__eq__(other)
+    
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["parameter"]        = self._parameter.__name__
