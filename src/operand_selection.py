@@ -328,9 +328,9 @@ class Pattern(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
-            parameter_instantiation = self._parameter()
-            for element_index in range(other.len() - 1):
-                if len(self._parameter) > 0:
+            if len(self._parameter) > 0:
+                parameter_instantiation = self._parameter()
+                for element_index in range(other.len() - 1):
                     if other[element_index + 1] % parameter_instantiation - other[element_index] % parameter_instantiation \
                         != self._pattern[element_index % len(self._parameter)]:
                         return False
@@ -368,6 +368,26 @@ class Pattern(Comparison):
                 for single_operand in operand:
                     self << single_operand
         return self
+
+class UpDown(Pattern):
+    
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            if len(self._parameter) > 0:
+                parameter_instantiation = self._parameter()
+                for element_index in range(other.len() - 1):
+                    if self._pattern[element_index % len(self._parameter)] > 0:
+                        if not other[element_index + 1] % parameter_instantiation > other[element_index] % parameter_instantiation:
+                            return False
+                    elif self._pattern[element_index % len(self._parameter)] < 0:
+                        if not other[element_index + 1] % parameter_instantiation < other[element_index] % parameter_instantiation:
+                            return False
+                    else:
+                        if other[element_index + 1] % parameter_instantiation != other[element_index] % parameter_instantiation:
+                            return False
+            return True
+        return super().__eq__(other)
 
 
 class Threshold(Selection):
