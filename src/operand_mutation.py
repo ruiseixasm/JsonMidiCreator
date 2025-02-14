@@ -148,6 +148,7 @@ class Picking(Haploid):
     def __init__(self, *parameters):
         super().__init__()
         self._pick: of.Pick = of.Pick()
+        self._parameter = o.Operand # Directly returns the Pick content
         self._picking_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
 
     def mutate(self, clip: o.T) -> o.T:
