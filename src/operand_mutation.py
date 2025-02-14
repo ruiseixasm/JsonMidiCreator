@@ -147,8 +147,8 @@ class Haploid(Mutation):
 class Picking(Haploid):
     def __init__(self, *parameters):
         super().__init__()
-        self._source: tuple = parameters
-        self._picking_frame: of.Frame = of.Foreach(self._chaos)**of.Pick(self._source)**self._parameter()
+        self._pick: of.Pick = of.Pick()
+        self._picking_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
 
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
@@ -159,42 +159,43 @@ class Picking(Haploid):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case tuple():           return self._source
+                    case of.Pick():         return self._pick
                     case _:                 return super().__mod__(operand)
-            case tuple():           return self._source
+            case of.Pick():         return self._pick
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["source"] = self.serialize(self._source)
+        serialization["parameters"]["pick"] = self.serialize(self._pick)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "source" in serialization["parameters"]):
+            "pick" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._source = self.deserialize(serialization["parameters"]["source"])
-            self._picking_frame: of.Frame = of.Foreach(self._chaos)**of.Pick(self._source)**self._parameter()
+            self._pick = self.deserialize(serialization["parameters"]["pick"])
+        self._picking_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
         return self
         
     def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        if not isinstance(operand, of.Pick):
+            operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Picking():
                 super().__lshift__(operand)
-                self._source = operand._source
+                self._pick = operand._pick.copy()
             case od.DataSource():
                 match operand._data:
-                    case tuple():           self._source = operand._data
+                    case of.Pick():         self._pick = operand._data
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case tuple():         self._source = operand
+            case of.Pick():     self._pick = operand.copy()
             case _:             super().__lshift__(operand)
         
-        self._picking_frame: of.Frame = of.Foreach(self._chaos)**of.Pick(self._source)**self._parameter()
+        self._picking_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
         return self
 
 
