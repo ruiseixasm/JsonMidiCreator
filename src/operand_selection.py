@@ -49,13 +49,13 @@ class Selection(o.Operand):
         Any type of parameter can be used to set Selection.
     """
     # clip is the input >> (NO COPIES!) (PASSTHROUGH)
-    def __rrshift__(self, clip: o.T) -> o.T:
+    def select(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip) and self != clip:
             clip._items = []
         return clip
 
-    def select(self, clip: o.T) -> o.T:
-        return self.__rrshift__(clip)
+    def __rrshift__(self, clip: o.T) -> o.T:
+        return self.select(clip)
 
 
 class IsNot(Selection):
