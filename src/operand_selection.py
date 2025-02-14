@@ -54,6 +54,9 @@ class Selection(o.Operand):
             clip._items = []
         return clip
 
+    def select(self, clip: o.T) -> o.T:
+        return self.__rrshift__(clip)
+
 
 class IsNot(Selection):
     def __init__(self, *parameters):
