@@ -56,17 +56,17 @@ class Mutation(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
-    def mutate(self, clip: oc.Clip) -> oc.Clip:
-        return clip
-
-    # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
-    def __rrshift__(self, clip: o.T) -> o.T:
+    def mutate(self, clip: o.T) -> o.T:
         match clip:
             case Swap():
                 self.mutate(clip._clip)
             case oc.Clip():
                 self.mutate(clip)
         return clip
+
+    # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
+    def __rrshift__(self, clip: o.T) -> o.T:
+        return self.mutate(clip)
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -143,6 +143,60 @@ class Mutation(o.Operand):
 
 class Haploid(Mutation):
     pass
+
+class Picking(Haploid):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._source: tuple = parameters
+        self._picking_frame: of.Frame = of.Foreach(self._chaos)**of.Pick(self._source)**self._parameter()
+
+    def mutate(self, clip: o.T) -> o.T:
+        if isinstance(clip, oc.Clip):
+            clip << self._picking_frame
+        return clip
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case tuple():           return self._source
+                    case _:                 return super().__mod__(operand)
+            case tuple():           return self._source
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["source"] = self.serialize(self._source)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "source" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._source = self.deserialize(serialization["parameters"]["source"])
+            self._picking_frame: of.Frame = of.Foreach(self._chaos)**of.Pick(self._source)**self._parameter()
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Picking():
+                super().__lshift__(operand)
+                self._source = operand._source
+            case od.DataSource():
+                match operand._data:
+                    case tuple():           self._source = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case tuple():         self._source = operand
+            case _:             super().__lshift__(operand)
+        
+        self._picking_frame: of.Frame = of.Foreach(self._chaos)**of.Pick(self._source)**self._parameter()
+        return self
+
 
 class Diploid(Mutation):
     pass
