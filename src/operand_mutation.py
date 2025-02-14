@@ -36,6 +36,7 @@ import operand_frame as of
 import operand_container as oc
 import operand_chaos as ch
 
+
 class Mutation(o.Operand):
     """`Mutation`
 
@@ -54,6 +55,18 @@ class Mutation(o.Operand):
         self._parameter: type           = ra.Position
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        return clip
+
+    # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
+    def __rrshift__(self, clip: o.T) -> o.T:
+        match clip:
+            case Swap():
+                self.mutate(clip._clip)
+            case oc.Clip():
+                self.mutate(clip)
+        return clip
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -201,15 +214,6 @@ class Swap(Diploid):
                     case _:                 return super().__mod__(operand)
             case oc.Clip():         return self.deep_copy(self._clip)
             case _:                 return super().__mod__(operand)
-
-    # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
-    def __rrshift__(self, clip: o.T) -> o.T:
-        match clip:
-            case Swap():
-                self.mutate(clip._clip)
-            case oc.Clip():
-                self.mutate(clip)
-        return clip
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
