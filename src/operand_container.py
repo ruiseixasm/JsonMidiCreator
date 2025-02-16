@@ -606,6 +606,9 @@ class Clip(Container):  # Just a container of Elements
         from operand_element import Element
 
     def get_clip_elements(self) -> list['Element']: # Helper method
+        
+        self._staff.reset_accidentals()
+
         clip_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
         for item in self._items:   # Read only (extracts the play list)

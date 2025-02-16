@@ -138,6 +138,14 @@ class Pitch(Generic):
         self._staff_reference = defaults._staff
         return self
 
+    def get_accidental(self) -> bool | int:
+        # parameter decorators like Sharp and Natural
+        if self._natural:
+            return True         # returns as bool
+        if self._sharp != 0:
+            return self._sharp  # returns as int
+        return False
+
 
     def sharp(self, unit: bool = True) -> Self:
         return self << ou.Sharp(unit)
@@ -213,11 +221,12 @@ class Pitch(Generic):
 
         return key_int
 
-    def get_key_float(self) -> float:
+    def get_key_float(self, measure: int = 0) -> float:
         key_int: int = self.get_key_int()
 
         # Final parameter decorators like Sharp and Natural
         if self._natural:
+            self._staff_reference.add_accidental(measure, key_int, True)
             if self._major_scale[key_int % 12] == 0:  # Black key
                 accidentals_int: int = self._staff_reference._key_signature._unit
                 if accidentals_int < 0:
@@ -225,9 +234,24 @@ class Pitch(Generic):
                 else:
                     key_int -= 1
         elif self._sharp != 0:
+            self._staff_reference.add_accidental(measure, key_int, self._sharp)
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
-
+        # Check staff accidentals
+        # else:
+        #     staff_accidentals = self._staff_reference.get_accidental(measure, key_int)
+        #     if staff_accidentals:
+        #         match staff_accidentals:
+        #             case bool():
+        #                 if self._major_scale[key_int % 12] == 0:  # Black key
+        #                     accidentals_int: int = self._staff_reference._key_signature._unit
+        #                     if accidentals_int < 0:
+        #                         key_int += 1
+        #                     else:
+        #                         key_int -= 1
+        #             case int():
+        #                 if self._major_scale[key_int % 12] == 1:  # White key
+        #                     key_int += self._sharp  # applies Pitch self accidentals
         return float(key_int)
 
 
@@ -1052,6 +1076,24 @@ class Staff(Generic):
         self._measures: int                         = 8
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+        
+        self._accidentals: dict = dict()
+
+    def reset_accidentals(self) -> Self:
+        self._accidentals = dict()
+        return self
+    
+    def add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
+        if measure not in self._accidentals:
+            self._accidentals[measure] = {}  # Initialize inner dictionary if missing
+        self._accidentals[measure][pitch] = accidental
+        return self
+
+    def get_accidental(self, measure: int, pitch: int) -> bool | int:
+        if measure in self._accidentals and pitch in self._accidentals[measure]:
+            return self._accidentals[measure][pitch]
+        return False
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
