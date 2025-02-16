@@ -315,7 +315,7 @@ class Pitch(Generic):
             case int():
                 return self._degree
              
-            case float():
+            case float() | Fraction():
                 return float( 12 * (self._octave + 1) + self.get_key_float( int(operand) ) )
             
             case ou.Semitone():
