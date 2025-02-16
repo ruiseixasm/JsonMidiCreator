@@ -1077,7 +1077,10 @@ class Staff(Generic):
     def add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
         if self is not defaults._staff: # defaults's staff remains clean
             if measure not in self._accidentals:
-                self._accidentals[measure] = {}  # Initialize inner dictionary if missing
+                # It's a new measure, includes cleaning every Measure before
+                self._accidentals = {
+                    measure: {}
+                }
             if accidental is True:
                 if measure in self._accidentals and pitch in self._accidentals[measure]:
                     del self._accidentals[measure][pitch]
