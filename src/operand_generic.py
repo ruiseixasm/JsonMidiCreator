@@ -240,18 +240,9 @@ class Pitch(Generic):
         # Check staff accidentals
         else:
             staff_accidentals = self._staff_reference.get_accidental(measure, key_int)
-            if staff_accidentals:
-                match staff_accidentals:
-                    case bool():
-                        if self._major_scale[key_int % 12] == 0:  # Black key
-                            accidentals_int: int = self._staff_reference._key_signature._unit
-                            if accidentals_int < 0:
-                                key_int += 1
-                            else:
-                                key_int -= 1
-                    case int():
-                        if self._major_scale[key_int % 12] == 1:  # White key
-                            key_int += self._sharp  # applies Pitch self accidentals
+            if staff_accidentals:    # Staff only set Sharps and Flats
+                if self._major_scale[key_int % 12] == 1:  # White key
+                    key_int += staff_accidentals    # applies Pitch self accidentals
         return float(key_int)
 
 
@@ -1082,12 +1073,16 @@ class Staff(Generic):
     def reset_accidentals(self) -> Self:
         self._accidentals = dict()
         return self
-    
+
     def add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
         if self is not defaults._staff: # defaults's staff remains clean
             if measure not in self._accidentals:
                 self._accidentals[measure] = {}  # Initialize inner dictionary if missing
-            self._accidentals[measure][pitch] = accidental
+            if accidental is True:
+                if measure in self._accidentals and pitch in self._accidentals[measure]:
+                    del self._accidentals[measure][pitch]
+            else:
+                self._accidentals[measure][pitch] = accidental
         return self
 
     def get_accidental(self, measure: int, pitch: int) -> bool | int:
