@@ -238,20 +238,20 @@ class Pitch(Generic):
             if self._major_scale[key_int % 12] == 1:  # White key
                 key_int += self._sharp  # applies Pitch self accidentals
         # Check staff accidentals
-        # else:
-        #     staff_accidentals = self._staff_reference.get_accidental(measure, key_int)
-        #     if staff_accidentals:
-        #         match staff_accidentals:
-        #             case bool():
-        #                 if self._major_scale[key_int % 12] == 0:  # Black key
-        #                     accidentals_int: int = self._staff_reference._key_signature._unit
-        #                     if accidentals_int < 0:
-        #                         key_int += 1
-        #                     else:
-        #                         key_int -= 1
-        #             case int():
-        #                 if self._major_scale[key_int % 12] == 1:  # White key
-        #                     key_int += self._sharp  # applies Pitch self accidentals
+        else:
+            staff_accidentals = self._staff_reference.get_accidental(measure, key_int)
+            if staff_accidentals:
+                match staff_accidentals:
+                    case bool():
+                        if self._major_scale[key_int % 12] == 0:  # Black key
+                            accidentals_int: int = self._staff_reference._key_signature._unit
+                            if accidentals_int < 0:
+                                key_int += 1
+                            else:
+                                key_int -= 1
+                    case int():
+                        if self._major_scale[key_int % 12] == 1:  # White key
+                            key_int += self._sharp  # applies Pitch self accidentals
         return float(key_int)
 
 
