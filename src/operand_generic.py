@@ -1081,9 +1081,9 @@ class Staff(Generic):
                 self._accidentals = {
                     measure: {}
                 }
-            if type(accidental) is bool:
+            if accidental is True:
                 self._accidentals[measure].pop(pitch, None)
-            else:
+            elif accidental is not False:
                 self._accidentals[measure][pitch] = accidental
         return self
 
