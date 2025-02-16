@@ -1067,11 +1067,11 @@ class Staff(Generic):
         self._measures: int                         = 8
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-        
-        self._accidentals: dict = dict()
+        # Volatile variable not intended to be user defined
+        self._accidentals: dict[int, dict[int, int]] = { 0: {} }
 
     def reset_accidentals(self) -> Self:
-        self._accidentals = dict()
+        self._accidentals = { 0: {} }
         return self
 
     def add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
@@ -1081,9 +1081,8 @@ class Staff(Generic):
                 self._accidentals = {
                     measure: {}
                 }
-            if accidental is True:
-                if measure in self._accidentals and pitch in self._accidentals[measure]:
-                    del self._accidentals[measure][pitch]
+            if type(accidental) is bool:
+                self._accidentals[measure].pop(pitch, None)
             else:
                 self._accidentals[measure][pitch] = accidental
         return self
