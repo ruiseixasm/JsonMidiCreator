@@ -188,8 +188,8 @@ class Container(o.Operand):
         self._items = []
         return super().clear(parameters)
     
-    def sort(self, compare: o.Operand = None) -> Self:
-        compare = ra.Position() if compare is None else compare
+    def sort(self, parameter: type = ra.Position) -> Self:
+        compare = parameter()
         self._items.sort(key=lambda x: x % compare)
         return self
 
@@ -608,6 +608,7 @@ class Clip(Container):  # Just a container of Elements
     def get_clip_elements(self) -> list['Element']: # Helper method
         
         self._staff.reset_accidentals()
+        self.sort(ra.Position)
 
         clip_elements: list[oe.Element] = []
         tied_notes: list[oe.Note] = []
@@ -1073,7 +1074,7 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def link(self) -> 'Clip':
-        self.sort()
+        self.sort(ra.Position)
         element_index: int = 0
         first_element_index: int = None
         last_element: oe.Element = None

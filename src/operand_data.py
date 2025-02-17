@@ -617,8 +617,11 @@ class MidiExport(Operation):
         return super().__rrshift__(operand)
 
 class Sort(Operation):
-    def __init__(self, compare: o.Operand = None):
-        super().__init__(compare)
+    
+    from operand_rational import Position
+
+    def __init__(self, parameter: type = Position):
+        super().__init__(parameter)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
