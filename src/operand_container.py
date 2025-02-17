@@ -607,6 +607,7 @@ class Clip(Container):  # Just a container of Elements
 
     def get_clip_elements(self) -> list['Element']: # Helper method
         
+        # SHALL BE REMOVED IN THE FUTURE DUE TO THE SHALLOW_COPY BELLOW!
         self._staff.reset_accidentals()
         self._staff.reset_tied_note()
 
