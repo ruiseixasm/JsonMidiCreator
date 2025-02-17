@@ -1069,7 +1069,7 @@ class Staff(Generic):
             self << single_parameter
         # Volatile variable not intended to be user defined
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
-        self._tied_note: dict[str, any] = {}
+        self._tied_notes: dict[int, dict[str, any]] = {}
 
     def reset_accidentals(self) -> Self:
         self._accidentals = { 0: {} }
@@ -1094,27 +1094,27 @@ class Staff(Generic):
         return False
 
     def reset_tied_note(self) -> Self:
-        self._tied_note = {}
+        self._tied_notes = {}
         return self
 
-    def set_tied_note(self, position: Fraction, length: Fraction, pitch: int, note_list: list) -> Self:
+    def add_tied_note(self, pitch: int, position: Fraction, length: Fraction, note_list: list) -> Self:
         if self is not defaults._staff: # defaults's staff remains clean
-            self._tied_note = {
+            tied_note = {
                 "position":     position,
                 "length":       length,
-                "pitch":        pitch,
                 "note_list":    note_list
             }
+            self._tied_notes[pitch] = tied_note
         return self
 
-    def set_tied_note_length(self, length: Fraction) -> Self:
-        if self._tied_note != {}:
-            self._tied_note["length"] = length
+    def set_tied_note_length(self, pitch: int, length: Fraction) -> Self:
+        if pitch in self._tied_notes:
+            self._tied_notes[pitch]["length"] = length
         return self
     
-    def get_tied_note(self):
-        if self._tied_note != {}:
-            return self._tied_note
+    def get_tied_note(self, pitch: int):
+        if pitch in self._tied_notes:
+            return self._tied_notes
         return None
         
 
