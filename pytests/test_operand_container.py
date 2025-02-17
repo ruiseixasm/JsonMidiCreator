@@ -641,10 +641,17 @@ def test_clip_content():
 
 def test_tied_notes():
 
-    tied_notes: Clip = Note(Tied()) * 2
-    clip_elements: list[Element] = tied_notes.get_clip_elements()
+    notes = Note() * 2
+    playlist = notes.getPlaylist()
+    note_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
+    assert len(playlist) == 4
+        
+    tied_notes = Note(Tied()) * 2
+    playlist = tied_notes.getPlaylist()
+    tied_notes_length = playlist[1]["time_ms"] - playlist[0]["time_ms"]
+    assert len(playlist) == 2
 
-    assert len(clip_elements) == 1 # Two tied notes become a long single one
+    assert tied_notes_length == 2 * note_length
 
 # test_tied_notes()
 

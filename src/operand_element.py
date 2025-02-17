@@ -100,10 +100,12 @@ class Element(o.Operand):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Position():
-                        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
                     case ra.Duration():
                         return operand._data.set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
+                    case ra.Position():
+                        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
+                    case ra.Length():
+                        return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
                     case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case od.Device():       return od.Device() << od.DataSource( self._device )
@@ -203,7 +205,7 @@ class Element(o.Operand):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
         return [
                 {
                     "time_ms":  self.get_time_ms(self_position_ms)
@@ -445,7 +447,7 @@ class Element(o.Operand):
                     return self << self_operand
         return self
 
-    def get_position_duration_ms(self, position_beats: Fraction = None) -> tuple:
+    def get_position_duration_minutes(self, position_beats: Fraction = None) -> tuple:
 
         if isinstance(position_beats, Fraction):
             self_position_ms: Fraction = self._staff_reference.getMinutes(
@@ -456,6 +458,9 @@ class Element(o.Operand):
         self_duration_ms: Fraction = self._staff_reference.getMinutes( ra.Duration(self._duration_notevalue) )
 
         return self_position_ms, self_duration_ms
+
+    def get_beats_minutes(self, beats: Fraction) -> Fraction:
+        return self._staff_reference.getMinutes( ra.Beats(beats) )
 
     @staticmethod
     def get_time_ms(minutes: Fraction) -> float:
@@ -512,7 +517,7 @@ class Clock(Element):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         pulses_per_note: int = self._pulses_per_quarternote * 4
         pulses_per_beat: Fraction = self._staff_reference // ra.BeatNoteValue() % Fraction() * pulses_per_note
@@ -598,7 +603,7 @@ class Rest(Element):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -714,7 +719,7 @@ class Note(Element):
         if not self._enabled:
             return []
         
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -745,12 +750,12 @@ class Note(Element):
             self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
             self_pitch: int = pitch_int
             last_tied_note = self._staff_reference.get_tied_note(self_pitch)
-            if last_tied_note \
-                and last_tied_note["pitch"] == self_pitch \
-                and last_tied_note["position"] + last_tied_note["length"] == self_position:
+            if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
                 # Extend last note
-                last_tied_note["note_list"][1]["time_ms"] = \
-                    self.get_time_ms(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
+                off_position_ms: float = self.get_time_ms(
+                    self.get_beats_minutes(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
+                )
+                last_tied_note["note_list"][1]["time_ms"] = off_position_ms
                 self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["length"] + self_length)
                 return []   # Discard self_playlist
             else:
@@ -780,9 +785,7 @@ class Note(Element):
             self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
             self_pitch: int = pitch_int
             last_tied_note = self._staff_reference.get_tied_note(self_pitch)
-            if last_tied_note \
-                and last_tied_note["pitch"] == self_pitch \
-                and last_tied_note["position"] + last_tied_note["length"] == self_position:
+            if last_tied_note and last_tied_note["position"] + last_tied_note["length"] == self_position:
                 # Extend last note
                 last_tied_note["note_list"][0]["duration"] = float(last_tied_note["length"] + self_length * self._gate)
                 self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["length"] + self_length)
@@ -1669,7 +1672,7 @@ class ControlChange(Automation):
         if not self._enabled:
             return []
 
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -1785,7 +1788,7 @@ class PitchBend(Automation):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         # from -8192 to 8191
         amount = 8192 + self._bend          # 2^14 = 16384, 16384 / 2 = 8192
@@ -1894,7 +1897,7 @@ class Aftertouch(Automation):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [
@@ -2009,7 +2012,7 @@ class PolyAftertouch(Aftertouch):
         if not self._enabled:
             return []
 
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -2116,7 +2119,7 @@ class ProgramChange(Automation):
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
-        self_position_ms, self_duration_ms = self.get_position_duration_ms(position_beats)
+        self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
         return [

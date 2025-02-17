@@ -1114,7 +1114,7 @@ class Staff(Generic):
     
     def get_tied_note(self, pitch: int):
         if pitch in self._tied_notes:
-            return self._tied_notes
+            return self._tied_notes[pitch]
         return None
         
 

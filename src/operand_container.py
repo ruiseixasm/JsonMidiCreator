@@ -609,35 +609,11 @@ class Clip(Container):  # Just a container of Elements
         
         self._staff.reset_accidentals()
         self._staff.reset_tied_note()
-        self.sort(ra.Position)
 
-        clip_elements: list[oe.Element] = []
-        tied_notes: list[oe.Note] = []
-        for item in self._items:   # Read only (extracts the play list)
-            if isinstance(item, oe.Element):
-                if isinstance(item, oe.Note) and item._tied:
-                    tied_notes.append(item.copy())
-                else:
-                    clip_elements.append(item)
-        if len(tied_notes) > 0: # Extends the root Note to accommodate all following Notes durations
-            first_tied_note: oe.Note = tied_notes[0]
-            for next_tied_note_i in range(1, len(tied_notes)):
-                # Must be in clip to be tied (FS - Finish to Start)!
-                next_note_position: Fraction = first_tied_note._position_beats \
-                    + first_tied_note % ra.Length() // Fraction()
-                if tied_notes[next_tied_note_i]._pitch == first_tied_note._pitch \
-                    and tied_notes[next_tied_note_i]._channel == first_tied_note._channel \
-                    and tied_notes[next_tied_note_i]._position_beats == next_note_position:
-
-                    first_tied_note._duration_notevalue += tied_notes[next_tied_note_i]._duration_notevalue
-                    if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
-                        clip_elements.append(first_tied_note)
-                else:
-                    clip_elements.append(first_tied_note)
-                    first_tied_note = tied_notes[next_tied_note_i]
-                    if next_tied_note_i == len(tied_notes) - 1:   # list come to its end
-                        clip_elements.append(first_tied_note)
-        return clip_elements
+        return [
+                element for element in self.shallow_copy().sort(ra.Position)._items 
+                if isinstance(element, oe.Element)
+            ]
 
     def getPlaylist(self, position_beats: Fraction = None) -> list[dict]:
 
