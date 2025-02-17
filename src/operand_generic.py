@@ -1097,12 +1097,12 @@ class Staff(Generic):
         self._tied_note = {}
         return self
 
-    def set_tied_note(self, position: Fraction, length: Fraction, pitch: int, playlist: list) -> Self:
+    def set_tied_note(self, position: Fraction, length: Fraction, pitch: int, note_list: list) -> Self:
         self._tied_note = {
-            "position": position,
-            "length":   length,
-            "pitch":    pitch,
-            "playlist": playlist
+            "position":     position,
+            "length":       length,
+            "pitch":        pitch,
+            "note_list":    note_list
         }
         return self
 

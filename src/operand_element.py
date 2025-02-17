@@ -749,6 +749,8 @@ class Note(Element):
                 and last_tied_note["pitch"] == self_pitch \
                 and last_tied_note["position"] + last_tied_note["length"] == self_position:
                 # Extend last note
+                last_tied_note["note_list"][1]["time_ms"] = \
+                    self.get_time_ms(last_tied_note["position"] + last_tied_note["length"] + self_length * self._gate)
                 self._staff_reference.set_tied_note_length(last_tied_note["length"] + self_length)
                 return []   # Discard self_playlist
             else:
@@ -771,6 +773,26 @@ class Note(Element):
         self_midilist[0]["duration"]    = float(self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate)
         self_midilist[0]["velocity"]    = self._velocity
         self_midilist[0]["pitch"]       = pitch_int
+
+        # Checks if it's a tied note first
+        if self._tied:
+            self_position: Fraction = self._position_beats
+            self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
+            self_pitch: int = pitch_int
+            last_tied_note = self._staff_reference.get_tied_note()
+            if last_tied_note \
+                and last_tied_note["pitch"] == self_pitch \
+                and last_tied_note["position"] + last_tied_note["length"] == self_position:
+                # Extend last note
+                last_tied_note["note_list"][0]["duration"] = float(last_tied_note["length"] + self_length * self._gate)
+                self._staff_reference.set_tied_note_length(last_tied_note["length"] + self_length)
+                return []   # Discard self_midilist
+            else:
+                # This note becomes the last tied note
+                self._staff_reference.set_tied_note(
+                    self_position, self_length, self_pitch, self_midilist
+                )
+
         return self_midilist
 
     def getSerialization(self) -> dict:
