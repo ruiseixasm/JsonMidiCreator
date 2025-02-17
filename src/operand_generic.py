@@ -361,7 +361,7 @@ class Pitch(Generic):
             return True
         match other:
             case Pitch():
-                return self % float() == other % float()
+                return self % -1.0 == other % -1.0
             case ou.Octave():
                 return self % od.DataSource( ou.Octave() ) == other
             case int() | float() | str() | ou.Key():
@@ -1075,7 +1075,7 @@ class Staff(Generic):
         return self
 
     def add_accidental(self, measure: int, pitch: int, accidental: bool | int) -> Self:
-        if self is not defaults._staff: # defaults's staff remains clean
+        if measure >= 0 and self is not defaults._staff: # defaults's staff remains clean
             if measure not in self._accidentals:
                 # It's a new measure, includes cleaning every Measure before
                 self._accidentals = {

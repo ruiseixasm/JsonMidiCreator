@@ -220,6 +220,30 @@ def test_milliseconds_duration():
     assert clip_stop["time_ms"] == 500.0
 
 
+def test_playlists():
+
+    two_notes = Note() * 2
+    playlist = two_notes.getPlaylist()
+    midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
+    midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
+    assert midi_pitch_1 == midi_pitch_2
+
+    assert two_notes[0] % Pitch() == two_notes[1] % Pitch()
+    two_notes << Nth(1)**Sharp()
+    assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
+    playlist = two_notes.getPlaylist()
+    midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
+    midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
+    assert midi_pitch_1 == midi_pitch_2
+
+    two_notes.reverse()
+    assert two_notes[0] % Pitch() != two_notes[1] % Pitch()
+    playlist = two_notes.getPlaylist()
+    midi_pitch_1 = playlist[0]["midi_message"]["data_byte_1"]
+    midi_pitch_2 = playlist[3]["midi_message"]["data_byte_1"]
+    assert midi_pitch_1 != midi_pitch_2
+
+
 def test_add_clip():
 
     two_notes: Clip = Note() * 2
