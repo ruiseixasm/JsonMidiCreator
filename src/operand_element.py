@@ -718,7 +718,7 @@ class Note(Element):
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
-        return [
+        self_playlist: list = [
                 {
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
@@ -738,6 +738,26 @@ class Note(Element):
                     }
                 }
             ]
+
+        # Checks if it's a tied note first
+        if self._tied:
+            self_position: Fraction = self._position_beats
+            self_length: Fraction = self // ra.Length() // Fraction()   # In Beats
+            self_pitch: int = pitch_int
+            last_tied_note = self._staff_reference.get_tied_note()
+            if last_tied_note \
+                and last_tied_note["pitch"] == self_pitch \
+                and last_tied_note["position"] + last_tied_note["length"] == self_position:
+                # Extend last note
+                self._staff_reference.set_tied_note_length(last_tied_note["length"] + self_length)
+                return []   # Discard self_playlist
+            else:
+                # This note becomes the last tied note
+                self._staff_reference.set_tied_note(
+                    self_position, self_length, self_pitch, self_playlist
+                )
+
+        return self_playlist
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         if not self._enabled:
