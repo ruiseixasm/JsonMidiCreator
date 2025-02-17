@@ -608,6 +608,7 @@ class Clip(Container):  # Just a container of Elements
     def get_clip_elements(self) -> list['Element']: # Helper method
         
         self._staff.reset_accidentals()
+        self._staff.reset_tied_note()
         self.sort(ra.Position)
 
         clip_elements: list[oe.Element] = []

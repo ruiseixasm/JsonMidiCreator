@@ -1069,6 +1069,7 @@ class Staff(Generic):
             self << single_parameter
         # Volatile variable not intended to be user defined
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
+        self._tied_note: dict[str, any] = {}
 
     def reset_accidentals(self) -> Self:
         self._accidentals = { 0: {} }
@@ -1092,6 +1093,29 @@ class Staff(Generic):
             return self._accidentals[measure][pitch]
         return False
 
+    def reset_tied_note(self) -> Self:
+        self._tied_note = {}
+        return self
+
+    def set_tied_note(self, position: Fraction, length: Fraction, pitch: int, playlist: list) -> Self:
+        self._tied_note = {
+            "position": position,
+            "length":   length,
+            "pitch":    pitch,
+            "playlist": playlist
+        }
+        return self
+
+    def set_tied_note_length(self, length: Fraction) -> Self:
+        if self._tied_note != {}:
+            self._tied_note["length"] = length
+        return self
+    
+    def get_tied_note(self):
+        if self._tied_note != {}:
+            return self._tied_note
+        return None
+        
 
     def __mod__(self, operand: o.T) -> o.T:
         """
