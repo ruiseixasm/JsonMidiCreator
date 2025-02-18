@@ -607,7 +607,8 @@ class Clip(Container):  # Just a container of Elements
 
     def get_clip_elements(self) -> list['Element']: # Helper method
         
-        # SHALL BE REMOVED IN THE FUTURE DUE TO THE SHALLOW_COPY BELLOW!
+        # Needs to be reset because shallow_copy doesn't result in different
+        # staff references for each element
         self._staff.reset_accidentals()
         self._staff.reset_tied_note()
 
