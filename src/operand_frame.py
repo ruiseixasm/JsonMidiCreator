@@ -270,6 +270,27 @@ class Choice(Left):
             return super().__and__(self._multi_data['operand'][choice])
         return super().__and__(ol.Null())
 
+class Pick(Left):
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+        self._multi_data['pick'] = list(self._multi_data['operand'])
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        if len(self._multi_data['operand']) > 0:
+            if len(self._multi_data['pick']) == 0:
+                self._multi_data['pick'] = list(self._multi_data['operand'])
+            choice: int = 0
+            match subject:
+                case int() | float() | Fraction():
+                    choice = int(subject)
+                case o.Operand():
+                    choice_candidate = subject % int()
+                    if isinstance(choice_candidate, int):
+                        choice = choice_candidate
+            choice %= len(self._multi_data['pick'])
+            return super().__and__(self._multi_data['pick'].pop(choice))
+        return super().__and__(ol.Null())
+
 class Until(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
