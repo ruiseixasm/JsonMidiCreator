@@ -252,22 +252,22 @@ class PushOut(Left):
         subject >> self._multi_data['operand']
         return super().__and__(subject)
 
-class Pick(Left):
+class Choice(Left):
     def __init__(self, *parameters):
         super().__init__(parameters)
 
     def __and__(self, subject: o.Operand) -> o.Operand:
         if len(self._multi_data['operand']) > 0:
-            picker: int = 0
+            choice: int = 0
             match subject:
                 case int() | float() | Fraction():
-                    picker = int(subject)
+                    choice = int(subject)
                 case o.Operand():
-                    picker_candidate = subject % int()
-                    if isinstance(picker_candidate, int):
-                        picker = picker_candidate
-            picker %= len(self._multi_data['operand'])
-            return super().__and__(self._multi_data['operand'][picker])
+                    choice_candidate = subject % int()
+                    if isinstance(choice_candidate, int):
+                        choice = choice_candidate
+            choice %= len(self._multi_data['operand'])
+            return super().__and__(self._multi_data['operand'][choice])
         return super().__and__(ol.Null())
 
 class Until(Left):
