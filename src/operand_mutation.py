@@ -199,6 +199,61 @@ class Choosing(Haploid):
         self._choice_frame: of.Frame = of.Foreach(self._chaos)**self._choice**self._parameter()
         return self
 
+class Picking(Haploid):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._pick: of.Pick = of.Pick()
+        self._parameter = o.Operand # Directly returns the Pick content
+        self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+
+    def mutate(self, clip: o.T) -> o.T:
+        if isinstance(clip, oc.Clip):
+            clip << self._pick_frame
+        return clip
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case of.Pick():         return self._pick
+                    case _:                 return super().__mod__(operand)
+            case of.Pick():         return self._pick
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["pick"] = self.serialize(self._pick)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "pick" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._pick = self.deserialize(serialization["parameters"]["pick"])
+        self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        if not isinstance(operand, of.Pick):
+            operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Picking():
+                super().__lshift__(operand)
+                self._pick = operand._pick.copy()
+            case od.DataSource():
+                match operand._data:
+                    case of.Pick():         self._pick = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case of.Pick():     self._pick = operand.copy()
+            case _:             super().__lshift__(operand)
+        
+        self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+        return self
+
 
 class Diploid(Mutation):
     pass
