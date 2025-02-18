@@ -150,6 +150,8 @@ class Choosing(Haploid):
         self._choice: of.Choice = of.Choice()
         self._parameter = o.Operand # Directly returns the Pick content
         self._choice_frame: of.Frame = of.Foreach(self._chaos)**self._choice**self._parameter()
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
@@ -205,6 +207,8 @@ class Picking(Haploid):
         self._pick: of.Pick = of.Pick()
         self._parameter = o.Operand # Directly returns the Pick content
         self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
 
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
