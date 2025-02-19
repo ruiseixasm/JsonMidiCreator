@@ -302,11 +302,11 @@ class Container(o.Operand):
             case Container():
                 # Exclude items based on equality (==) comparison
                 self._items = [
-                        self_datasource.copy() for self_datasource in self._items
-                        if all(self_datasource != operand_datasource for operand_datasource in operand._items)
+                        self_item for self_item in self._items
+                        if all(self_item != operand_datasource for operand_datasource in operand._items)
                     ]
             case o.Operand():
-                self._items = [self_datasource for self_datasource in self._items if self_datasource != operand]
+                self._items = [self_item for self_item in self._items if self_item != operand]
 
             case tuple():
                 for single_operand in operand:
