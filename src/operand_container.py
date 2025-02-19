@@ -71,7 +71,6 @@ class Container(o.Operand):
         """
         match operand:
             case od.DataSource():
-                # return self._datasource_list
                 match operand._data:
                     case Container():
                         return self
@@ -114,14 +113,12 @@ class Container(o.Operand):
             return other == self
         if not isinstance(other, ol.Null):
             return self % other == other
-        # if type(self) == type(other):
-        #     return self._datasource_list == other % od.DataSource( list() )
-            # When comparing lists containing objects in Python using the == operator,
-            # Python will call the __eq__ method on the objects if it is defined,
-            # rather than comparing their references directly.
-            # If the __eq__ method is not defined for the objects, then the default behavior
-            # (which usually involves comparing object identities, like references,
-            # using the is operator) will be used.
+        # When comparing lists containing objects in Python using the == operator,
+        # Python will call the __eq__ method on the objects if it is defined,
+        # rather than comparing their references directly.
+        # If the __eq__ method is not defined for the objects, then the default behavior
+        # (which usually involves comparing object identities, like references,
+        # using the is operator) will be used.
         return False
 
     def getSerialization(self) -> dict:
@@ -302,11 +299,11 @@ class Container(o.Operand):
             case Container():
                 # Exclude items based on equality (==) comparison
                 self._items = [
-                        self_item for self_item in self._items
-                        if all(self_item != operand_datasource for operand_datasource in operand._items)
+                        single_item for single_item in self._items
+                        if all(single_item != operand_item for operand_item in operand._items)
                     ]
             case o.Operand():
-                self._items = [self_item for self_item in self._items if self_item != operand]
+                self._items = [single_item for single_item in self._items if single_item != operand]
 
             case tuple():
                 for single_operand in operand:
@@ -827,6 +824,12 @@ class Clip(Container):  # Just a container of Elements
 
     def __isub__(self, operand: any) -> 'Clip':
         match operand:
+            case Container():
+                # Exclude items based on equality (==) comparison
+                self._items = [
+                        single_element for single_element in self._items
+                        if all(single_element != operand_item for operand_item in operand._items)
+                    ]
             case Part():
                 operand -= self # Order is irrelevant in Song
                 return operand 
@@ -1244,11 +1247,11 @@ class Part(Container):
         match operand:
             case Part():
                 self._items = [
-                    data_clip for data_clip in self._items if data_clip not in operand._items
+                    single_clip for single_clip in self._items if single_clip not in operand._items
                 ]
             case Clip():
                 self._items = [
-                    data_clip for data_clip in self._items if data_clip != operand
+                    single_clip for single_clip in self._items if single_clip != operand
                 ]
                 
             case tuple():
