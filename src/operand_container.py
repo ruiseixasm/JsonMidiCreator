@@ -738,7 +738,7 @@ class Clip(Container):  # Just a container of Elements
     
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Clip              = super().shallow_copy()
-        shallow_copy._staff             << self._staff
+        shallow_copy._staff             = self._staff   # It's a shallow copy, so it shares the same Staff
         shallow_copy._midi_track        << self._midi_track
         shallow_copy._position_beats    = self._position_beats
         shallow_copy._length_beats      = self._length_beats
