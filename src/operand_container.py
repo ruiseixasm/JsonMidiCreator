@@ -186,11 +186,30 @@ class Container(o.Operand):
         return super().clear(parameters)
     
     def sort(self, parameter: type = ra.Position) -> Self:
+        """
+        Sorts the self list based on a given type of parameter.
+
+        Args:
+            parameter (type): The type of parameter being sorted by.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
         compare = parameter()
         self._items.sort(key=lambda x: x % compare)
         return self
 
     def shuffle(self, shuffler: ch.Chaos = None, parameter: type = ra.Position) -> Self:
+        """
+        Reaffects the given parameter type in a chaotic manner.
+
+        Args:
+            shuffler (ch.Chaos): An Chaos object to be used as shuffler.
+            parameter (type): The type of parameter being shuffled around the items.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
         if shuffler is None or not isinstance(shuffler, ch.Chaos):
             shuffler = ch.SinX()
         parameters: list = []
@@ -211,6 +230,15 @@ class Container(o.Operand):
         return self
 
     def reverse(self) -> Self:
+        """
+        Reverses the self list of items.
+
+        Args:
+            None
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
         self_len: int = self.len()
         for operand_i in range(self_len // 2):
             tail_operand = self._items[self_len - 1 - operand_i]
@@ -219,6 +247,17 @@ class Container(o.Operand):
         return self
     
     def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
+        """
+        Calls the function on the successive items in a Xn+1 = Xn fashion (recursive),
+        where n is the previous element and n+1 the next one.
+
+        Args:
+            recursion (Callable): recursive function.
+            parameter (type): The type of parameter being processed by the recursive function.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
         for item_i in range(1, self.len()):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
         return self
