@@ -296,6 +296,15 @@ class Container(o.Operand):
         return self
 
     def filter(self, criteria: any) -> Self:
+        """
+        Filters out all items that don't met the criteria (equal to).
+
+        Args:
+            parameter (any): The object to be compared with (==).
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
         self._items = [item for item in self._items if item == criteria]
         return self
 
@@ -620,6 +629,16 @@ class Clip(Container):  # Just a container of Elements
         return self._staff.convertToPosition(0)
 
     def finish(self) -> ra.Position:
+        """
+        Processes each element Position plus Length and returns the finish position
+        as the maximum of all of them.
+
+        Args:
+            None
+
+        Returns:
+            Position: The maximum of Position + Length of all Elements.
+        """
         finish_beats: Fraction = Fraction(0)
         for item in self._items:
             if isinstance(item, oe.Element):
@@ -632,9 +651,27 @@ class Clip(Container):  # Just a container of Elements
 
 
     def length(self) -> ra.Length:
+        """
+        Reruns the length that goes from the start to finish of all elements.
+
+        Args:
+            None
+
+        Returns:
+            Length: Equal to Clip finish() - start().
+        """
         return ra.Length( self.finish() - self.start() )
 
     def duration(self) -> ra.Duration:
+        """
+        Reruns the length wrapped as Duration.
+
+        Args:
+            None
+
+        Returns:
+            Duration: Equal to length() but returning Duration.
+        """
         return self.length().convertToDuration()
 
 
