@@ -200,7 +200,7 @@ class Element(o.Operand):
         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
 
     def finish(self) -> ra.Position:
-        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self % ra.Duration()
+        return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) + self // ra.Length()
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:

@@ -1117,7 +1117,54 @@ class Clip(Container):  # Just a container of Elements
             self._length_beats = min(self._length_beats, length_beats)
         return self
 
-    def fill(self) -> 'Clip':
+    def monofy(self) -> Self:
+        """
+        Cuts out any part of an element Duration that overlaps with the next element.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        if self.len() > 1:
+            # Starts by sorting by Position
+            shallow_copy: Clip = self.shallow_copy().sort(ra.Position)
+            for index in range(shallow_copy.len()):
+                current_element: oe.Element = shallow_copy._items[index]
+                next_element: oe.Element = shallow_copy._items[index + 1]
+                if current_element.finish() > next_element.start():
+                    new_length: ra.Length = ra.Length( next_element.start() - current_element.start() )
+                    current_element << new_length
+        return self
+
+    def fill(self) -> Self:
+        """
+        Adds up Rests to empty spaces (lengths) in a staff for each Measure.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        shallow_copy: Clip = self.shallow_copy().sort(ra.Position)
+        shallow_copy_len: int = shallow_copy.len()
+        for index in range(shallow_copy_len):
+            current_element: oe.Element = shallow_copy._items[index]
+            next_element: oe.Element = shallow_copy._items[index + 1]
+            if current_element.finish() < next_element.start():
+                rest_length: ra.Length = ra.Length( next_element.start() - current_element.finish() )
+                rest_element: oe.Rest = oe.Rest().set_staff_reference(self._staff) << rest_length
+                self += rest_element
+        
+        last_element: oe.Element = shallow_copy[shallow_copy_len - 1]
+        staff_end: ra.Position = last_element.finish().convertToLength().roundMeasures().convertToPosition()
+        if last_element.finish() < staff_end:
+            rest_length: ra.Length = ra.Length( staff_end - last_element.finish() )
+            rest_element: oe.Rest = oe.Rest().set_staff_reference(self._staff) << rest_length
+            self += rest_element
+
         return self
 
     def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Clip':
