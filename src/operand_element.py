@@ -274,13 +274,13 @@ class Element(o.Operand):
             case Element():
 
                 super().__lshift__(operand)
-                self._position_beats          = operand._position_beats
-                self._duration_notevalue          = operand._duration_notevalue
-                self._stackable         = operand._stackable
-                self._channel           = operand._channel
-                self._device            = operand._device   # It's a list of strings, but it won't be changed directly
-                self._enabled           = operand._enabled
-                self._staff_reference   = operand._staff_reference
+                self._position_beats        = operand._position_beats
+                self._duration_notevalue    = operand._duration_notevalue
+                self._stackable             = operand._stackable
+                self._channel               = operand._channel
+                self._device                = operand._device   # It's a list of strings, but it won't be changed directly
+                self._enabled               = operand._enabled
+                self._staff_reference       = operand._staff_reference
 
             case od.DataSource():
                 match operand._data:
@@ -896,12 +896,12 @@ class Cluster(Note):
     def get_cluster_notes(self) -> list[Note]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
-            single_note: Note = Note(self)
+            single_note: Note = Note(self).set_staff_reference(self._staff_reference)
             match single_set:
-                case int():
-                    single_note._pitch << single_set
                 case float():
                     single_note._pitch += single_set
+                case _:
+                    single_note._pitch << single_set
             cluster_notes.append( single_note )
         return cluster_notes
 
@@ -1009,12 +1009,12 @@ class KeyScale(Note):
         if self._scale.hasScale():
             for key_note_i in range(self._scale.keys()): # presses entire scale, 7 keys for diatonic scales
                 transposition: int = self._scale.transposition(key_note_i)
-                new_note: Note = Note(self)
+                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
             for degree_i in range(self._pitch._scale.keys()):
-                new_note: Note = Note(self)
+                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
         return scale_notes
@@ -1179,7 +1179,7 @@ class Chord(KeyScale):
                 if key_degree == 3 or key_degree == 5:   # flattens Third and Fifth
                     if self._diminished:
                         transposition -= 1   # cancels out if both dominant and diminished are set to true
-                new_note: Note = Note(self)
+                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 chord_notes.append( new_note )
         else:   # Uses the staff keys straight away
@@ -1191,7 +1191,7 @@ class Chord(KeyScale):
                         key_step -= 1
                     if self._sus4:
                         key_step += 1   # cancels out if both sus2 and sus4 are set to true
-                new_note: Note = Note(self)
+                new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch._degree += key_step # Jumps by degrees (scale tones)
                 chord_notes.append( new_note )
 
