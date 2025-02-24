@@ -931,17 +931,15 @@ class Cluster(Note):
         match operand:
             case Cluster():
                 super().__lshift__(operand)
-                self._sets = operand._sets.copy()
+                self._sets = self.deep_copy( operand._sets )
             case od.DataSource():
                 match operand._data:
                     case list():
-                        if all(isinstance(single_degree, (int, float)) for single_degree in operand._data):
-                            self._sets = operand._data
+                        self._sets = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
-                if all(isinstance(single_degree, int) for single_degree in operand):
-                    self._sets = operand.copy()
+                self._sets = self.deep_copy( operand )
             case _:
                 super().__lshift__(operand)
         return self
@@ -1088,37 +1086,37 @@ class Polychord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_cluster_notes(self) -> list[Note]:
-        cluster_notes: list[Note] = []
-        for single_set in self._degrees:
-            cluster_notes.append( Note(self).set_staff_reference(self._staff_reference) << single_set )
-        return cluster_notes
+    def get_polychord_notes(self) -> list[Note]:
+        polychord_notes: list[Note] = []
+        for single_degree in self._degrees:
+            polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
+        return polychord_notes
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_element in self.get_cluster_notes():
+        for single_element in self.get_polychord_notes():
             self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_element in self.get_cluster_notes():
+        for single_element in self.get_polychord_notes():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["sets"] = self.serialize( self._degrees )
+        serialization["parameters"]["degrees"] = self.serialize( self._degrees )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sets" in serialization["parameters"]):
+            "degrees" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._degrees  = self.deserialize( serialization["parameters"]["sets"] )
+            self._degrees  = self.deserialize( serialization["parameters"]["degrees"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -1126,17 +1124,17 @@ class Polychord(KeyScale):
         match operand:
             case Polychord():
                 super().__lshift__(operand)
-                self._degrees = operand._degrees.copy()
+                self._degrees = self.deep_copy( operand._degrees )
             case od.DataSource():
                 match operand._data:
                     case list():
-                        if all(isinstance(single_degree, (int, float)) for single_degree in operand._data):
+                        if all(isinstance(single_degree, (int, float, Fraction)) for single_degree in operand._data):
                             self._degrees = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
-                if all(isinstance(single_degree, int) for single_degree in operand):
-                    self._degrees = operand.copy()
+                if all(isinstance(single_degree, (int, float, Fraction)) for single_degree in operand):
+                    self._degrees = self.deep_copy( operand )
             case _:
                 super().__lshift__(operand)
         return self
