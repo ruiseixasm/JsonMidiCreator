@@ -896,13 +896,7 @@ class Cluster(Note):
     def get_cluster_notes(self) -> list[Note]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
-            single_note: Note = Note(self).set_staff_reference(self._staff_reference)
-            match single_set:
-                case float():
-                    single_note._pitch += single_set
-                case _:
-                    single_note._pitch << single_set
-            cluster_notes.append( single_note )
+            cluster_notes.append( Note(self).set_staff_reference(self._staff_reference) << single_set )
         return cluster_notes
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
@@ -924,7 +918,7 @@ class Cluster(Note):
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict) -> 'Cluster':
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "sets" in serialization["parameters"]):
 
@@ -1013,7 +1007,8 @@ class KeyScale(Note):
                 new_note._pitch += float(transposition) # Jumps by semitones (chromatic tones)
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
-            for degree_i in range(self._pitch._scale.keys()):
+            staff_scale: list = self._staff_reference % list()
+            for degree_i in range(len(staff_scale)):
                 new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
@@ -1071,7 +1066,80 @@ class KeyScale(Note):
         return self
     
 class Polychord(KeyScale):
-    pass
+    def __init__(self, *parameters):
+        self._degrees: list[int | float] = [1, 3, 5]
+        super().__init__( *parameters )
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case list():            return self._degrees
+                    case _:                 return super().__mod__(operand)
+            case list():            return self._degrees.copy()
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._degrees == other._degrees
+            case _:
+                return super().__eq__(other)
+    
+    def get_cluster_notes(self) -> list[Note]:
+        cluster_notes: list[Note] = []
+        for single_set in self._degrees:
+            cluster_notes.append( Note(self).set_staff_reference(self._staff_reference) << single_set )
+        return cluster_notes
+
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
+        self_playlist: list = []
+        for single_element in self.get_cluster_notes():
+            self_playlist.extend(single_element.getPlaylist(position_beats))
+        return self_playlist
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+        self_midilist: list = []
+        for single_element in self.get_cluster_notes():
+            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
+        return self_midilist
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["sets"] = self.serialize( self._degrees )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "sets" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._degrees  = self.deserialize( serialization["parameters"]["sets"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Polychord():
+                super().__lshift__(operand)
+                self._degrees = operand._degrees.copy()
+            case od.DataSource():
+                match operand._data:
+                    case list():
+                        if all(isinstance(single_degree, (int, float)) for single_degree in operand._data):
+                            self._degrees = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                if all(isinstance(single_degree, int) for single_degree in operand):
+                    self._degrees = operand.copy()
+            case _:
+                super().__lshift__(operand)
+        return self
 
 class Chord(KeyScale):
     def __init__(self, *parameters):
