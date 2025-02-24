@@ -952,9 +952,6 @@ class Cluster(Note):
                 super().__lshift__(operand)
         return self
 
-class Dyad(Cluster):
-    # In music, a dyad is a set of two notes or pitches.
-    ...
 
 class KeyScale(Note):
     def __init__(self, *parameters):
@@ -1072,6 +1069,9 @@ class KeyScale(Note):
             case _:
                 super().__lshift__(operand)
         return self
+    
+class Polychord(KeyScale):
+    pass
 
 class Chord(KeyScale):
     def __init__(self, *parameters):
