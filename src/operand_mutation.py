@@ -58,7 +58,7 @@ class Mutation(o.Operand):
 
     def mutate(self, clip: o.T) -> o.T:
         match clip:
-            case Swapping():
+            case Mutation():
                 self.mutate(clip._clip)
             case oc.Clip():
                 self.mutate(clip)
