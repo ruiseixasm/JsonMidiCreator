@@ -1387,8 +1387,11 @@ class Tied(Boolean):
     """
     pass
 
-class Major(Boolean):
-    """`Unit -> Boolean -> Major`
+class Quality(Boolean):
+    pass
+
+class Major(Quality):
+    """`Unit -> Boolean -> Quality -> Major`
 
     Sets the respective Key Signature as Major, the default.
     
@@ -1399,8 +1402,8 @@ class Major(Boolean):
     """
     pass
 
-class Minor(Boolean):
-    """`Unit -> Boolean -> Minor`
+class Minor(Quality):
+    """`Unit -> Boolean -> Quality -> Minor`
 
     Sets the respective Key Signature as minor.
     
