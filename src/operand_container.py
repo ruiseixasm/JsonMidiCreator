@@ -477,7 +477,7 @@ class Clip(Container):  # Just a container of Elements
         return self._items[index]
 
 
-    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> 'Clip':
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff << staff_reference
         for single_element in self:
@@ -1290,6 +1290,7 @@ class Part(Container):
     def __init__(self, *operands):
         super().__init__()
         self._items: list[Clip | od.Playlist] = []
+        self._staff: og.Staff = None
         for single_operand in operands:
             self << single_operand
 
@@ -1301,6 +1302,20 @@ class Part(Container):
                         return single_clip
             return ol.Null()
         return self._items[key]
+
+    def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
+        if isinstance(staff_reference, og.Staff):
+            self._staff = staff_reference.copy()
+        elif staff_reference is None:
+            self._staff = og.defaults._staff.copy()
+        return self
+
+    def get_staff_reference(self) -> og.Staff:
+        return self._staff
+
+    def reset_staff_reference(self) -> Self:
+        self._staff = None
+        return self
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
