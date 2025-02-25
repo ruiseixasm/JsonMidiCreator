@@ -404,7 +404,7 @@ class Playlist(Data):
                 return self._data == other.getPlaylist()
         return super().__eq__(other)
     
-    def getPlaylist(self, position = None) -> list:
+    def getPlaylist(self, position = None, staff = None) -> list:
         return self.shallow_playlist_copy(self._data)
 
     # CHAINABLE OPERATIONS
