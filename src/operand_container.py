@@ -1330,16 +1330,20 @@ class Part(Container):
 
     def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list:
         play_list: list = []
+        if staff is None:
+            staff = self._staff
         for single_clip in self:
             if isinstance(single_clip, (Clip, od.Playlist)):
-                play_list.extend(single_clip.getPlaylist(position))
+                play_list.extend(single_clip.getPlaylist(position, staff))
         return play_list
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, staff: og.Staff = None) -> list:
         midi_list: list = []
+        if staff is None:
+            staff = self._staff
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                midi_list.extend(single_clip.getMidilist(midi_track, position))
+                midi_list.extend(single_clip.getMidilist(midi_track, position, staff))
         return midi_list
 
     def getSerialization(self) -> dict:
