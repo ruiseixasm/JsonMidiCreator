@@ -692,15 +692,18 @@ class Clip(Container):  # Just a container of Elements
 
     def getPlaylist(self, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
 
+        clip_position_beats: Fraction = self._position_beats
+
+        if isinstance(staff, og.Staff):
+            clip_position_beats = staff.transformBeats(self._staff.convertToBeats(ra.Beats(clip_position_beats)))._rational
+
         if isinstance(position_beats, Fraction):
-            position_beats += self._position_beats
-        else:
-            position_beats = self._position_beats
+            clip_position_beats += position_beats
 
         return [
             single_playlist
                 for single_element in self.get_clip_elements()
-                for single_playlist in single_element.getPlaylist(position_beats)
+                for single_playlist in single_element.getPlaylist(clip_position_beats)
         ]
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
