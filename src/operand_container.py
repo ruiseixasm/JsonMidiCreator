@@ -1325,6 +1325,9 @@ class Part(Container):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case od.DataSource():
+                match operand._data:
+                    case og.Staff():        return self._staff
             case ou.MidiTrack():
                 for single_clip in self:
                     if isinstance(single_clip, Clip):
@@ -1332,6 +1335,7 @@ class Part(Container):
                             return single_clip
                 return ol.Null()
             case str():             return self[operand]
+            case og.Staff():        return self.deep_copy(self._staff)
             case _:                 return super().__mod__(operand)
 
     def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list:
@@ -1374,12 +1378,24 @@ class Part(Container):
                 super().__lshift__(operand)
             case Clip():
                 self._items.append( operand.copy() )
+            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff << operand
+            case None:
+                self._staff = None
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, (Clip, od.Playlist))
                 ]
+                
+            case od.PartParameter():
+                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
+                match operand._data:
+                    case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
+                            | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction():
+                        self._staff << operand._data
+
             case tuple():
                 for single_operand in operand:
                     self << single_operand
