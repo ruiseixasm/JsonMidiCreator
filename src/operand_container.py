@@ -1342,7 +1342,21 @@ class Part(Container):
                 midi_list.extend(single_clip.getMidilist(midi_track, position))
         return midi_list
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+
+        serialization["parameters"]["staff"]        = self.serialize(self._staff)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "staff" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._staff             = self.deserialize(serialization["parameters"]["staff"])
+        return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
