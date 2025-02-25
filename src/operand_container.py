@@ -690,7 +690,7 @@ class Clip(Container):  # Just a container of Elements
                 if isinstance(element, oe.Element)
             ]
 
-    def getPlaylist(self, position_beats: Fraction = None) -> list[dict]:
+    def getPlaylist(self, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
 
         if isinstance(position_beats, Fraction):
             position_beats += self._position_beats
@@ -703,7 +703,7 @@ class Clip(Container):  # Just a container of Elements
                 for single_playlist in single_element.getPlaylist(position_beats)
         ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
         if isinstance(position_beats, Fraction):
             position_beats += self._position_beats
@@ -1328,14 +1328,14 @@ class Part(Container):
             case str():             return self[operand]
             case _:                 return super().__mod__(operand)
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list:
         play_list: list = []
         for single_clip in self:
             if isinstance(single_clip, (Clip, od.Playlist)):
                 play_list.extend(single_clip.getPlaylist(position))
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, staff: og.Staff = None) -> list:
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
@@ -1407,7 +1407,7 @@ class Part(Container):
         return operand
 
 
-    def __iadd__(self, operand: any) -> 'Part':
+    def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
                 self._items.extend(
@@ -1424,7 +1424,7 @@ class Part(Container):
                     item += operand
         return self
 
-    def __isub__(self, operand: any) -> 'Part':
+    def __isub__(self, operand: any) -> Self:
         match operand:
             case Part():
                 self._items = [
@@ -1443,7 +1443,7 @@ class Part(Container):
                     item -= operand
         return self
 
-    def __imul__(self, operand: any) -> 'Part':
+    def __imul__(self, operand: any) -> Self:
         import operand_selection as os
         match operand:
             case tuple():
@@ -1454,7 +1454,7 @@ class Part(Container):
                     item *= operand
         return self
 
-    def __itruediv__(self, operand: any) -> 'Part':
+    def __itruediv__(self, operand: any) -> Self:
         match operand:
             case tuple():
                 for single_operand in operand:
