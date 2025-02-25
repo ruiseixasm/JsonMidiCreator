@@ -488,7 +488,7 @@ class Clip(Container):  # Just a container of Elements
     def get_staff_reference(self) -> 'og.Staff':
         return self._staff
 
-    def reset_staff_reference(self) -> 'Clip':
+    def reset_staff_reference(self) -> Self:
         self._staff = og.defaults._staff.copy()
         for single_element in self:
             if isinstance(single_element, oe.Element):
@@ -727,7 +727,7 @@ class Clip(Container):  # Just a container of Elements
 
     # CHAINABLE OPERATIONS
 
-    def loadSerialization(self, serialization: dict):
+    def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"]
             and "position" in serialization["parameters"] and "length" in serialization["parameters"]):
@@ -857,7 +857,7 @@ class Clip(Container):  # Just a container of Elements
 
 
     # Avoids the costly copy of Track self doing +=
-    def __iadd__(self, operand: any) -> 'Clip':
+    def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
                 # Song at the right must be a copy
@@ -898,7 +898,7 @@ class Clip(Container):  # Just a container of Elements
                     item += operand
         return self
 
-    def __isub__(self, operand: any) -> 'Clip':
+    def __isub__(self, operand: any) -> Self:
         match operand:
             case Container():
                 # Exclude items based on equality (==) comparison
@@ -1006,10 +1006,10 @@ class Clip(Container):  # Just a container of Elements
                     item *= operand
         return self
 
-    def __rmul__(self, operand: any) -> 'Clip':
+    def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
     
-    def __itruediv__(self, operand: any) -> 'Clip':
+    def __itruediv__(self, operand: any) -> Self:
         import operand_mutation as om
         match operand:
             case Clip():
@@ -1054,7 +1054,7 @@ class Clip(Container):  # Just a container of Elements
                     item /= operand
         return self
 
-    def reverse(self) -> 'Clip':
+    def reverse(self) -> Self:
         length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
         for item in self._items:
             if isinstance(item, oe.Element):
@@ -1064,7 +1064,7 @@ class Clip(Container):  # Just a container of Elements
                 single_element._position_beats = length_beats - (single_element._position_beats + duration_beats)
         return super().reverse()    # Reverses the list
 
-    def flip(self) -> 'Clip':
+    def flip(self) -> Self:
         higher_pitch: og.Pitch = None
         lower_pitch: og.Pitch = None
         
@@ -1091,20 +1091,20 @@ class Clip(Container):  # Just a container of Elements
                 
         return self
 
-    def snap(self, up: bool = False) -> 'Clip':
+    def snap(self, up: bool = False) -> Self:
         for single_note in self:
             if isinstance(single_note, oe.Note):
                 single_note._pitch.snap(up)
         return self
 
-    def extend(self, time_value: ra.TimeValue | ra.Duration) -> 'Clip':
+    def extend(self, time_value: ra.TimeValue | ra.Duration) -> Self:
         extended_clip: Clip = self.copy() << od.DataSource( self._items )
         while (extended_clip >> self).length() <= time_value:
             extended_clip >>= self
         self._items = extended_clip._items
         return self
 
-    def trim(self, length: ra.Length = ra.Length(1.0)) -> 'Clip':
+    def trim(self, length: ra.Length = ra.Length(1.0)) -> Self:
         if isinstance(length, ra.Length):
             length_beats: Fraction = length._rational
         else:
@@ -1167,9 +1167,18 @@ class Clip(Container):  # Just a container of Elements
 
         return self
 
-    def fit(self, time: Union['ra.Position', 'ra.TimeValue', 'ra.Duration', 'ou.TimeUnit'] = None) -> 'Clip':
-        if isinstance(time, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
-            fitting_finish: ra.Position = self._staff.convertToPosition(time)
+    def fit(self, length: ra.Length = None) -> Self:
+        """
+        Fits the entire clip in a given length.
+
+        Args:
+            length (ra.Length): A length in which the clip must fit
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        if isinstance(length, (ra.Position, ra.TimeValue, ra.Duration, ou.TimeUnit)):
+            fitting_finish: ra.Position = self._staff.convertToPosition(length)
         else:
             fitting_finish: ra.Position = self._staff.convertToPosition(ou.Measure(1))
         actual_finish: ra.Position = self.finish()
@@ -1178,7 +1187,17 @@ class Clip(Container):  # Just a container of Elements
         self *= ra.Duration(length_ratio)   # Adjust durations
         return self
 
-    def link(self) -> 'Clip':
+    def link(self) -> Self:
+        """
+        Adjusts the duration/length of each element to connect to the start of the next.
+        For the last element in the clip, this is extended up to the end of the measure.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         self.sort(ra.Position)
         element_index: int = 0
         first_element_index: int = None
@@ -1203,8 +1222,18 @@ class Clip(Container):  # Just a container of Elements
             last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
         return self
 
-    def stack(self) -> 'Clip':
 
+    def stack(self) -> Self:
+        """
+        For stackable elements, moves each one to start at the finish position
+        of the previous one. If it's the first element then it's position becomes 0.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Element] = [
                 single_data
@@ -1220,13 +1249,13 @@ class Clip(Container):  # Just a container of Elements
         
         return self
     
-    def tie(self, tied: bool = True) -> 'Clip':
+    def tie(self, tied: bool = True) -> Self:
         for item in self._items:
             if isinstance(item, oe.Note):
                 item << ou.Tied(tied)
         return self
     
-    def slur(self, gate: float = 1.05) -> 'Clip':
+    def slur(self, gate: float = 1.05) -> Self:
         last_element = None
         for item in self._items:
             if isinstance(item, oe.Note):
@@ -1235,7 +1264,7 @@ class Clip(Container):  # Just a container of Elements
                 last_element = item
         return self
     
-    def smooth(self) -> 'Clip':
+    def smooth(self) -> Self:
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for item in self._items:
