@@ -357,9 +357,7 @@ class Swapping(Diploid):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case oc.Clip():         self._clip = operand.copy() # Avoids None case error
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
+            case _:                 super().__lshift__(operand)
         return self
     
     def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:

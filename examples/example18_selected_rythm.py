@@ -37,8 +37,9 @@ length_condition = Condition(Length(1.0))
 minimum_notes = Least(5)
 total_plays = First(12)
 
-for _ in range(4):
-    mutated_clip << duration_mutation >> Stack()
+for _ in range(400):
+    mutated_clip <<= duration_mutation
+    mutated_clip >> Stack()
     mutated_clip % Length() % float() >> Print()
     # mutated_clip.copy().trim().link() >> Play()
     # mutated_clip.copy().trim().link() >> minimum_notes >> Play()
