@@ -446,10 +446,12 @@ class First(Threshold):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if self._threshold > 0:
-            if isinstance(other, oc.Clip) and other.len() > 0:
-                self._threshold -= 1
-            return True
+        if isinstance(other, oc.Clip):
+            if self._threshold > 0:
+                if other.len() > 0:
+                    self._threshold -= 1
+                return True
+            return False
         return super().__eq__(other)
 
 class After(Threshold):
@@ -458,10 +460,12 @@ class After(Threshold):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if self._threshold > 0 and isinstance(other, oc.Clip):
-            if other.len() > 0:
-                self._threshold -= 1
-            return False
+        if isinstance(other, oc.Clip):
+            if self._threshold > 0:
+                if other.len() > 0:
+                    self._threshold -= 1
+                return False
+            return True
         return super().__eq__(other)
     
 class Most(Threshold):
@@ -475,8 +479,10 @@ class Most(Threshold):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if isinstance(other, oc.Clip) and other.len() > self._threshold:
-            return False
+        if isinstance(other, oc.Clip):
+            if other.len() > self._threshold:
+                return False
+            return True
         return super().__eq__(other)
     
 class Least(Threshold):
@@ -490,7 +496,9 @@ class Least(Threshold):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
-        if isinstance(other, oc.Clip) and other.len() < self._threshold:
-            return False
+        if isinstance(other, oc.Clip):
+            if other.len() < self._threshold:
+                return False
+            return True
         return super().__eq__(other)
 
