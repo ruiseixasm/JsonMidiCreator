@@ -708,15 +708,18 @@ class Clip(Container):  # Just a container of Elements
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
+        clip_position_beats: Fraction = self._position_beats
+
+        if isinstance(staff, og.Staff):
+            clip_position_beats = staff.transformBeats(self._staff.convertToBeats(ra.Beats(clip_position_beats)))._rational
+
         if isinstance(position_beats, Fraction):
-            position_beats += self._position_beats
-        else:
-            position_beats = self._position_beats
+            clip_position_beats += position_beats
 
         return [
             single_midilist
                 for single_element in self.get_clip_elements()
-                for single_midilist in single_element.getMidilist(midi_track, position_beats)
+                for single_midilist in single_element.getMidilist(midi_track, clip_position_beats)
         ]
 
     def getSerialization(self) -> dict:
