@@ -1116,11 +1116,26 @@ class Clip(Container):  # Just a container of Elements
         else:
             length_beats: Fraction = self._staff.convertToBeats(ra.Measures(1))._rational
         self._items = [
-            item for item in self._items
-            if isinstance(item, oe.Element) and item._position_beats < length_beats
+            element for element in self._items
+            if isinstance(element, oe.Element) and element._position_beats < length_beats
         ]
         if self._length_beats >= 0:
             self._length_beats = min(self._length_beats, length_beats)
+        return self
+    
+    def cut(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
+        if start is None:
+            start = ra.Position(0)
+        if finish is None:
+            finish = start + ra.Measures(1)
+        start_beats: Fraction = start._rational
+        finish_beats: Fraction = finish._rational
+        self._items = [
+            element for element in self._items
+            if isinstance(element, oe.Element)
+                and element._position_beats >= start_beats
+                and element._position_beats < finish_beats
+        ]
         return self
 
     def monofy(self) -> Self:
@@ -1379,7 +1394,8 @@ class Part(Container):
             case Clip():
                 self._items.append( operand.copy() )
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
-                self._staff << operand
+                if isinstance(self._staff, og.Staff):
+                    self._staff << operand
             case None:
                 self._staff = None
             case od.Serialization():
@@ -1394,7 +1410,8 @@ class Part(Container):
                 match operand._data:
                     case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
                             | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction():
-                        self._staff << operand._data
+                        if isinstance(self._staff, og.Staff):
+                            self._staff << operand._data
 
             case tuple():
                 for single_operand in operand:
