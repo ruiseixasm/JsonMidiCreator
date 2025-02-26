@@ -1137,7 +1137,7 @@ class Clip(Container):  # Just a container of Elements
                     and element._position_beats >= start_beats
                     and element._position_beats < finish_beats
             ]
-            move_left: ra.Position = finish_beats - start_beats
+            move_left: ra.Position = finish - start
             for index, element in enumerate(self._items):
                 if isinstance(element, oe.Element) and element._position_beats > start_beats:
                     element -= move_left
