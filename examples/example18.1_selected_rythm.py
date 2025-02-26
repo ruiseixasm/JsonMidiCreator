@@ -44,4 +44,4 @@ for _ in range(400):
     final_clip *= mutated_clip.copy().trim().link() >> minimum_notes >> length_condition >> total_plays
 
 final_clip % Length() % float() >> Print()
-final_clip >> Play()
+final_clip >> MidiExport("Midi/18.1_chaotic_rhythm.mid")
