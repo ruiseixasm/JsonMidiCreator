@@ -720,6 +720,9 @@ class Note(Element):
             return []
         
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
+        if self_duration_ms == 0:
+            return []
+
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
         # Midi validation is done in the JsonMidiPlayer program
@@ -770,12 +773,16 @@ class Note(Element):
         if not self._enabled:
             return []
         
+        self_duration: float = float(self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate)
+        if self_duration == 0:
+            return []
+
         pitch_int: int = int(self._pitch % ( self // ra.Position() % Fraction() ))
 
         self_midilist: list = super().getMidilist(midi_track, position_beats)
         # Validation is done by midiutil Midi Range Validation
         self_midilist[0]["event"]       = "Note"
-        self_midilist[0]["duration"]    = float(self._staff_reference.convertToBeats( ra.Duration(self._duration_notevalue) )._rational * self._gate)
+        self_midilist[0]["duration"]    = self_duration
         self_midilist[0]["velocity"]    = self._velocity
         self_midilist[0]["pitch"]       = pitch_int
 
