@@ -1130,12 +1130,17 @@ class Clip(Container):  # Just a container of Elements
             finish = start + ra.Measures(1)
         start_beats: Fraction = start._rational
         finish_beats: Fraction = finish._rational
-        self._items = [
-            element for element in self._items
-            if isinstance(element, oe.Element)
-                and element._position_beats >= start_beats
-                and element._position_beats < finish_beats
-        ]
+        if finish_beats > start_beats:
+            self._items = [
+                element for element in self._items
+                if isinstance(element, oe.Element)
+                    and element._position_beats >= start_beats
+                    and element._position_beats < finish_beats
+            ]
+            move_left: ra.Position = finish_beats - start_beats
+            for index, element in enumerate(self._items):
+                if isinstance(element, oe.Element) and element._position_beats > start_beats:
+                    element -= move_left
         return self
 
     def monofy(self) -> Self:
