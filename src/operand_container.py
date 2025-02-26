@@ -1112,15 +1112,12 @@ class Clip(Container):  # Just a container of Elements
 
     def trim(self, length: ra.Length = ra.Length(1.0)) -> Self:
         if isinstance(length, ra.Length):
-            length_beats: Fraction = length._rational
-        else:
-            length_beats: Fraction = self._staff.convertToBeats(ra.Measures(1))._rational
-        self._items = [
-            element for element in self._items
-            if isinstance(element, oe.Element) and element._position_beats < length_beats
-        ]
-        if self._length_beats >= 0:
-            self._length_beats = min(self._length_beats, length_beats)
+            self._items = [
+                element for element in self._items
+                if isinstance(element, oe.Element) and element < length
+            ]
+            if self._length_beats >= 0:
+                self._length_beats = min(self._length_beats, self._staff.convertToBeats(length)._rational)
         return self
     
     def cut(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
@@ -1128,18 +1125,14 @@ class Clip(Container):  # Just a container of Elements
             start = ra.Position(0)
         if finish is None:
             finish = start + ra.Measures(1)
-        start_beats: Fraction = start._rational
-        finish_beats: Fraction = finish._rational
-        if finish_beats > start_beats:
+        if finish > start:
             self._items = [
                 element for element in self._items
-                if isinstance(element, oe.Element)
-                    and element._position_beats >= start_beats
-                    and element._position_beats < finish_beats
+                if isinstance(element, oe.Element) and element >= start and element < finish
             ]
             move_left: ra.Position = finish - start
             for index, element in enumerate(self._items):
-                if isinstance(element, oe.Element) and element._position_beats > start_beats:
+                if isinstance(element, oe.Element) and element > start:
                     element -= move_left
         return self
 
