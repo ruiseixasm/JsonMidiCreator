@@ -465,7 +465,7 @@ class Multiplication(Mutation):
             multiplied_clips: oc.Clip = oc.Clip()
             for clip in shuffled_clips:
                 multiplied_clips *= clip
-            clip << multiplied_clips
+            clip << multiplied_clips // list()
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
