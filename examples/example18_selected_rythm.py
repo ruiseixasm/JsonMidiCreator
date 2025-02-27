@@ -34,7 +34,7 @@ mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 duration_mutation = Swapping(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(1.0))
-minimum_notes = Least(5)
+minimum_notes = Least(8)
 total_plays = First(12)
 
 for _ in range(400):
