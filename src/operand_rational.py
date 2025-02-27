@@ -337,9 +337,8 @@ class Negative(Rational):
                 super().__lshift__(operand)
         return self
 
-class RationalDefault(Rational):
+class Probability(Rational):
     pass
-
 
 
 class StaffParameter(Rational):
