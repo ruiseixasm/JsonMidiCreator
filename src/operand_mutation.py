@@ -461,8 +461,10 @@ class Multiplication(Mutation):
 
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
+            shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
             multiplied_clips: oc.Clip = oc.Clip()
-
+            for clip in shuffled_clips:
+                multiplied_clips *= clip
             clip << multiplied_clips
         return clip
 
@@ -506,3 +508,36 @@ class Multiplication(Mutation):
         
         return self
 
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case oc.Clip():
+                self._clips.append(operand.copy())
+            case list():
+                for clip in operand:
+                    if isinstance(clip, oc.Clip):
+                        self._clips.append( clip.copy() )
+            case tuple():
+                for single_operand in operand:
+                    self += single_operand
+            case _:
+                super().__iadd__(operand)
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case oc.Clip():
+                self._clips = [
+                        single_clip for single_clip in self._clips if single_clip != operand
+                    ]
+            case list():
+                self._clips = [
+                        single_clip for single_clip in self._clips
+                        if all(single_clip != operand_clip for operand_clip in operand)
+                    ]
+
+            case tuple():
+                for single_operand in operand:
+                    self -= single_operand
+            case _:
+                super().__isub__(operand)
+        return self
