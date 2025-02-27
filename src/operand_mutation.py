@@ -453,7 +453,8 @@ class Crossover(Swapping):
         if self.setup(clip):
             clip_len: int = clip.len()
             for element_i in range(clip_len):
-                if self._chaos * self._step % int() % 2 == 0:   # Even
+                if self._chaos * self._step % int() \
+                    % self._probability._rational.denominator < self._probability._rational.numerator:   # Even
                     self.swap(clip, element_i, element_i)
         return clip
 
