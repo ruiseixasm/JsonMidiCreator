@@ -1114,8 +1114,12 @@ class Clip(Container):  # Just a container of Elements
         if isinstance(length, ra.Length):
             self._items = [
                 element for element in self._items
-                if element % ra.Position() + element % ra.Length() < length
+                if element % ra.Position() < length
             ]
+            for index, element in enumerate(self._items):
+                if element % ra.Position() + element % ra.Length() > length:
+                    new_length: ra.Length = length - element % ra.Position()
+                    element << new_length
             if self._length_beats >= 0:
                 self._length_beats = min(self._length_beats, self._staff.convertToBeats(length)._rational)
         return self
