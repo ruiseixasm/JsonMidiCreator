@@ -779,7 +779,7 @@ class Clip(Container):  # Just a container of Elements
                 self.loadSerialization( operand.getSerialization() )
             case list():
                 self._items = [
-                    self.deep_copy(item) for item in operand if isinstance(item, oe.Element)
+                    item.copy() for item in operand if isinstance(item, oe.Element)
                 ]
             case om.Mutation():
                 operand.copy().mutate(self)
