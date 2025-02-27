@@ -463,8 +463,8 @@ class Multiplication(Mutation):
         if isinstance(clip, oc.Clip):
             shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
             multiplied_clips: oc.Clip = oc.Clip()
-            for clip in shuffled_clips:
-                multiplied_clips *= clip
+            for single_clip in shuffled_clips:
+                multiplied_clips *= single_clip
             clip <<= multiplied_clips // list()
         return clip
 
