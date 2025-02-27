@@ -56,10 +56,23 @@ class Mutation(o.Operand):
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
+
+    def shuffle_list(self, list: list) -> list:
+        
+        source_picks = [*range(len(list))]
+        target_picks = []
+
+        while len(source_picks) > 0:
+            target_picks.append(source_picks.pop(self._chaos * self._step % int() % len(source_picks)))
+
+        shuffled_list = []
+        for pick in target_picks:
+            shuffled_list.append(list[pick])
+
+        return shuffled_list
+
     def mutate(self, clip: o.T) -> o.T:
         match clip:
-            case Mutation():
-                self.mutate(clip._clip)
             case oc.Clip():
                 self.mutate(clip)
         return clip
@@ -436,4 +449,60 @@ class Crossover(Swapping):
                 if self._chaos * self._step % int() % 2 == 0:   # Even
                     self.swap(clip, element_i, element_i)
         return clip
+
+
+class Multiplication(Mutation):
+    def __init__(self, *parameters):
+        super().__init__()
+        self._clips: list[oc.Clip] = []
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+
+    def mutate(self, clip: o.T) -> o.T:
+        if isinstance(clip, oc.Clip):
+            multiplied_clips: oc.Clip = oc.Clip()
+
+            clip << multiplied_clips
+        return clip
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case list():            return self._clips
+                    case _:                 return super().__mod__(operand)
+            case list():            return self.deep_copy(self._clips)
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["clips"] = self.serialize(self._clips)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "clips" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._clips = self.deserialize(serialization["parameters"]["clips"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Multiplication():
+                super().__lshift__(operand)
+                self._clips = self.deep_copy(operand._clips)
+            case od.DataSource():
+                match operand._data:
+                    case list():            self._clips = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():        self._clips = self.deep_copy(operand)
+            case _:             super().__lshift__(operand)
+        
+        return self
 
