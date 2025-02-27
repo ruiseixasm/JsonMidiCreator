@@ -107,10 +107,11 @@ class Container(o.Operand):
 
     def __eq__(self, other: any) -> bool:
         import operand_selection as os
-        if isinstance(other, Container):
-            return self._items == other._items
-        if isinstance(other, os.Selection):
-            return other == self
+        match other:
+            case Container():
+                return self._items == other._items
+            case os.Selection():
+                return other == self
         if not isinstance(other, ol.Null):
             return self % other == other
         # When comparing lists containing objects in Python using the == operator,
@@ -120,6 +121,12 @@ class Container(o.Operand):
         # (which usually involves comparing object identities, like references,
         # using the is operator) will be used.
         return False
+
+    def __lt__(self, other: any) -> bool:
+        return self % other < other
+
+    def __gt__(self, other: any) -> bool:
+        return self % other > other
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -1061,6 +1068,15 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def reverse(self) -> Self:
+        """
+        Reverses the sequence of the clip concerning the elements position, like horizontally mirrored.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
         for item in self._items:
             if isinstance(item, oe.Element):
@@ -1071,6 +1087,16 @@ class Clip(Container):  # Just a container of Elements
         return super().reverse()    # Reverses the list
 
     def flip(self) -> Self:
+        """
+        Flip is similar to reverse but instead of the elements position it reverses the
+        Note and similar Pitch, like vertically mirrored.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         higher_pitch: og.Pitch = None
         lower_pitch: og.Pitch = None
         
@@ -1098,14 +1124,33 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def snap(self, up: bool = False) -> Self:
+        """
+        For Note and similar, it snaps the given Pitch to the one of the key signature.
+
+        Args:
+            up (bool): By default it snaps to the closest bellow pitch, but if set
+            as True, it will snap to the closest above pitch instead
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         for single_note in self:
             if isinstance(single_note, oe.Note):
                 single_note._pitch.snap(up)
         return self
 
-    def extend(self, time_value: ra.TimeValue | ra.Duration) -> Self:
-        extended_clip: Clip = self.copy() << od.DataSource( self._items )
-        while (extended_clip >> self).length() <= time_value:
+    def extend(self, length: ra.Length) -> Self:
+        """
+        Extends (drags) the given clip along a given length.
+
+        Args:
+            length (ra.Length): The length along with the clip will be extended (dragged)
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
+        original_self: Clip = self.shallow_copy()
+        while self / original_self <= length:
             extended_clip >>= self
         self._items = extended_clip._items
         return self
@@ -1292,12 +1337,30 @@ class Clip(Container):  # Just a container of Elements
         return self
     
     def tie(self, tied: bool = True) -> Self:
+        """
+        Sets the Note or similar elements as tied or not tied.
+
+        Args:
+            tied (bool): True for tied and False for not tied
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         for item in self._items:
             if isinstance(item, oe.Note):
                 item << ou.Tied(tied)
         return self
     
     def slur(self, gate: float = 1.05) -> Self:
+        """
+        Changes the element duration in order to crate a small overlap.
+
+        Args:
+            gate (float): Can be given a different value from 1.05, de default
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         last_element = None
         for item in self._items:
             if isinstance(item, oe.Note):
@@ -1307,6 +1370,15 @@ class Clip(Container):  # Just a container of Elements
         return self
     
     def smooth(self) -> Self:
+        """
+        Changes the Note or similar octave to become the closest pitch to the previous one.
+
+        Args:
+            None
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         last_note = None
         smooth_range = og.Pitch(ou.Key(12 // 2), -1)  # 6 chromatic steps
         for item in self._items:

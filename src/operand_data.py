@@ -847,15 +847,20 @@ class Snap(Process):
             return operand.snap(self._data)
         return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_rational import Length
+
 class Extend(Process):
+    def __init__(self, length: 'Length' = None):
+        super().__init__( length )
+        
+    # CHAINABLE OPERATIONS
+
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.extend(self._data)
         return super().__rrshift__(operand)
-
-if TYPE_CHECKING:
-    from operand_rational import Length
 
 class Trim(Process):
     def __init__(self, length: 'Length' = None):
