@@ -1139,7 +1139,7 @@ class Clip(Container):  # Just a container of Elements
                 single_note._pitch.snap(up)
         return self
 
-    def extend(self, length: ra.Length) -> Self:
+    def extend(self, length: ra.Length = ra.Length(2.0)) -> Self:
         """
         Extends (drags) the given clip along a given length.
 
@@ -1155,6 +1155,15 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def trim(self, length: ra.Length = ra.Length(1.0)) -> Self:
+        """
+        Trims the given clip at a given length.
+
+        Args:
+            length (ra.Length): The length along with the clip will be trimmed
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         if isinstance(length, ra.Length):
             self._items = [
                 element for element in self._items
@@ -1169,6 +1178,16 @@ class Clip(Container):  # Just a container of Elements
         return self
     
     def cut(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
+        """
+        Cuts (removes) the section of the clip from the start to the finish positions.
+
+        Args:
+            start (ra.Position): Starting position of the section to be cut
+            finish (ra.Position): Finish position of the section to be cut
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         if start is None:
             start = ra.Position(0)
         if finish is None:
@@ -1185,6 +1204,16 @@ class Clip(Container):  # Just a container of Elements
         return self
 
     def select(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
+        """
+        Selects the section of the clip that will be preserved.
+
+        Args:
+            start (ra.Position): Starting position of the section to be selected
+            finish (ra.Position): Finish position of the section to be selected
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         if start is None:
             start = ra.Position(0)
         if finish is None:
@@ -1394,6 +1423,15 @@ class Clip(Container):  # Just a container of Elements
         return self
     
     def split(self, position: ra.Position) -> tuple['Clip', 'Clip']:
+        """
+        Splits the given clip in two at the given position.
+
+        Args:
+            position (ra.Position): Position at which the clip will be split in two
+
+        Returns:
+            Clip: The same self object with the items processed.
+        """
         self_left: Clip     = self.filter(of.Less(position))
         self_right: Clip    = self.filter(of.GreaterEqual(position))
         return self_left, self_right
