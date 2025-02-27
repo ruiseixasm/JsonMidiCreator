@@ -1151,8 +1151,7 @@ class Clip(Container):  # Just a container of Elements
         """
         original_self: Clip = self.shallow_copy()
         while self / original_self <= length:
-            extended_clip >>= self
-        self._items = extended_clip._items
+            self /= original_self
         return self
 
     def trim(self, length: ra.Length = ra.Length(1.0)) -> Self:
