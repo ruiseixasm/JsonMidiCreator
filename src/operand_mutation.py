@@ -537,7 +537,7 @@ class Multiplication(Operation):
             shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
             multiplied_clips: oc.Clip = oc.Clip()
             for single_clip in shuffled_clips:
-                multiplied_clips *= single_clip
+                multiplied_clips *= clip * single_clip
             clip <<= multiplied_clips // list()
         return clip
 
@@ -547,6 +547,6 @@ class Division(Operation):
             shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
             divided_clips: oc.Clip = oc.Clip()
             for single_clip in shuffled_clips:
-                divided_clips /= single_clip
+                divided_clips /= clip / single_clip
             clip <<= divided_clips // list()
         return clip
