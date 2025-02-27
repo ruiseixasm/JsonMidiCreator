@@ -39,6 +39,7 @@ total_plays = First(12)
 
 final_clip = mutated_clip.copy().cut(Position(0), Position(Steps(12)))
 final_clip % Length() // float() >> Print()
+final_clip >> MidiExport("Midi/20_final_clip_1.mid")
 
 division = Division()
 

@@ -883,6 +883,20 @@ class Cut(Process):
             return operand.cut(*self._data)
         return super().__rrshift__(operand)
 
+class Select(Process):
+    from operand_rational import Position
+
+    def __init__(self, start: Position = None, finish: Position = None):
+        super().__init__((start, finish))
+
+    # CHAINABLE OPERATIONS
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.select(*self._data)
+        return super().__rrshift__(operand)
+
 class Monofy(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc

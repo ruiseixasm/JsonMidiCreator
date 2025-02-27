@@ -1132,12 +1132,26 @@ class Clip(Container):  # Just a container of Elements
         if finish > start:
             self._items = [
                 element for element in self._items
-                if element >= start and element < finish
+                if element < start or element >= finish
             ]
             move_left: ra.Position = finish - start
             for index, element in enumerate(self._items):
                 if element > start:
                     element -= move_left
+        return self
+
+    def select(self, start: ra.Position = None, finish: ra.Position = None) -> Self:
+        if start is None:
+            start = ra.Position(0)
+        if finish is None:
+            finish = start + ra.Measures(1)
+        if finish > start:
+            self._items = [
+                element for element in self._items
+                if element >= start and element < finish
+            ]
+            for index, element in enumerate(self._items):
+                element -= start
         return self
 
     def monofy(self) -> Self:
