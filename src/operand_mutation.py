@@ -511,11 +511,11 @@ class Multiplication(Mutation):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case oc.Clip():
-                self._clips.append(operand.copy())
+                if operand.len() > 0:
+                    self._clips.append(operand.copy())
             case list():
                 for clip in operand:
-                    if isinstance(clip, oc.Clip):
-                        self._clips.append( clip.copy() )
+                    self += clip
             case tuple():
                 for single_operand in operand:
                     self += single_operand
