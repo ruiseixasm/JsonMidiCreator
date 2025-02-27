@@ -461,9 +461,9 @@ class Crossover(Swapping):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Probability():  return self._clip
+                    case ra.Probability():  return self._probability
                     case _:                 return super().__mod__(operand)
-            case ra.Probability():  return self.deep_copy(self._clip)
+            case ra.Probability():  return self.deep_copy(self._probability)
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -484,17 +484,17 @@ class Crossover(Swapping):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Swapping():
+            case Crossover():
                 super().__lshift__(operand)
-                self._clip          = self.deep_copy( operand._clip )
+                self._probability       << operand._probability
             case od.DataSource():
                 match operand._data:
-                    case ra.Probability():      self._clip = operand._data
+                    case ra.Probability():      self._probability = operand._data
                     case _:                     super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Probability():  self._clip = operand.copy() # Avoids None case error
-            case _:                 super().__lshift__(operand)
+            case ra.Probability():      self._probability << operand
+            case _:                     super().__lshift__(operand)
         return self
     
 class Operation(Mutation):
