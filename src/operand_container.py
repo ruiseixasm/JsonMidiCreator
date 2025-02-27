@@ -1114,7 +1114,7 @@ class Clip(Container):  # Just a container of Elements
         if isinstance(length, ra.Length):
             self._items = [
                 element for element in self._items
-                if isinstance(element, oe.Element) and element < length
+                if element % ra.Position() + element % ra.Length() < length
             ]
             if self._length_beats >= 0:
                 self._length_beats = min(self._length_beats, self._staff.convertToBeats(length)._rational)
@@ -1128,11 +1128,11 @@ class Clip(Container):  # Just a container of Elements
         if finish > start:
             self._items = [
                 element for element in self._items
-                if isinstance(element, oe.Element) and element >= start and element < finish
+                if element >= start and element < finish
             ]
             move_left: ra.Position = finish - start
             for index, element in enumerate(self._items):
-                if isinstance(element, oe.Element) and element > start:
+                if element > start:
                     element -= move_left
         return self
 
