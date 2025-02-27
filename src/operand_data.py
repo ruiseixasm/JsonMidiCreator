@@ -577,10 +577,10 @@ class Clips(DataMany):
 class Result(Data):
     pass
 
-class Operation(Data):
+class Process(Data):
     pass
     
-class Save(Operation):
+class Save(Process):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
 
@@ -592,7 +592,7 @@ class Save(Operation):
             return operand
         return super().__rrshift__(operand)
 
-class Export(Operation):
+class Export(Process):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
         super().__init__(file_name)
 
@@ -604,7 +604,7 @@ class Export(Operation):
             return operand
         return super().__rrshift__(operand)
 
-class MidiExport(Operation):
+class MidiExport(Process):
     def __init__(self, file_name: str = "song.mid"):
         super().__init__(file_name)
 
@@ -616,7 +616,7 @@ class MidiExport(Operation):
             return operand
         return super().__rrshift__(operand)
 
-class Sort(Operation):
+class Sort(Process):
     
     from operand_rational import Position
 
@@ -629,7 +629,7 @@ class Sort(Operation):
             return operand.sort(self._data)
         return super().__rrshift__(operand)
 
-class Filter(Operation):
+class Filter(Process):
     def __init__(self, criteria: any = None):
         super().__init__(criteria)
         
@@ -641,7 +641,7 @@ class Filter(Operation):
             return operand.filter(self._data)
         return super().__rrshift__(operand)
 
-class Copy(Operation):
+class Copy(Process):
     """
     Copy() does an total duplication of the Operand including its parts.
     """
@@ -653,7 +653,7 @@ class Copy(Operation):
             return operand.copy(*self._data)
         return super().__rrshift__(operand)
 
-class Reset(Operation):
+class Reset(Process):
     """
     Reset() does an total reset of the Operand including its non accessible parameters.
     """
@@ -665,7 +665,7 @@ class Reset(Operation):
             return operand.reset(*self._data)
         return super().__rrshift__(operand)
 
-class Clear(Operation):
+class Clear(Process):
     """
     Clear() does an total clean up of all parameters including a reset.
     """
@@ -680,14 +680,14 @@ class Clear(Operation):
 if TYPE_CHECKING:
     from operand_container import Clip
 
-class Stack(Operation):
+class Stack(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.stack()
         return super().__rrshift__(operand)
 
-class Tie(Operation):
+class Tie(Process):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
 
@@ -697,7 +697,7 @@ class Tie(Operation):
             return operand.tie(self._data)
         return super().__rrshift__(operand)
 
-class Slur(Operation):
+class Slur(Process):
     def __init__(self, gate: float = 1.05):
         super().__init__(gate)
 
@@ -707,14 +707,14 @@ class Slur(Operation):
             return operand.slur(self._data)
         return super().__rrshift__(operand)
 
-class Smooth(Operation):
+class Smooth(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.smooth()
         return super().__rrshift__(operand)
 
-class Play(Operation):
+class Play(Process):
     """
     Play() allows to send a given Element to the Player directly without the need of Exporting to the respective .json Player file.
     
@@ -736,7 +736,7 @@ class Play(Operation):
             case _:
                 return super().__rrshift__(operand)
 
-class Print(Operation):
+class Print(Process):
     """
     Print() allows to get on the console the configuration of the source Operand in a JSON layout.
     
@@ -766,7 +766,7 @@ class Print(Operation):
             case _: print(operand)
         return operand
 
-class Link(Operation):
+class Link(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -776,7 +776,7 @@ class Link(Operation):
 if TYPE_CHECKING:
     from operand_chaos import Chaos
 
-class Shuffle(Operation):
+class Shuffle(Process):
     
     from operand_rational import Position
 
@@ -791,14 +791,14 @@ class Shuffle(Operation):
             return operand.shuffle(*self._data)
         return super().__rrshift__(operand)
 
-class Reverse(Operation):
+class Reverse(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.reverse()
         return super().__rrshift__(operand)
 
-class Recur(Operation):
+class Recur(Process):
     
     from operand_rational import Duration
 
@@ -813,7 +813,7 @@ class Recur(Operation):
             return operand.recur(*self._data)
         return super().__rrshift__(operand)
 
-class Rotate(Operation):
+class Rotate(Process):
     
     from operand_rational import Duration
 
@@ -828,14 +828,14 @@ class Rotate(Operation):
             return operand.rotate(*self._data)
         return super().__rrshift__(operand)
 
-class Flip(Operation):
+class Flip(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.flip()
         return super().__rrshift__(operand)
 
-class Snap(Operation):
+class Snap(Process):
     def __init__(self, up: bool = False):
         super().__init__(up)
 
@@ -847,7 +847,7 @@ class Snap(Operation):
             return operand.snap(self._data)
         return super().__rrshift__(operand)
 
-class Extend(Operation):
+class Extend(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -857,7 +857,7 @@ class Extend(Operation):
 if TYPE_CHECKING:
     from operand_rational import Length
 
-class Trim(Operation):
+class Trim(Process):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
         
@@ -869,7 +869,7 @@ class Trim(Operation):
             return operand.trim(self._data)
         return super().__rrshift__(operand)
 
-class Cut(Operation):
+class Cut(Process):
     from operand_rational import Position
 
     def __init__(self, start: Position = None, finish: Position = None):
@@ -883,14 +883,14 @@ class Cut(Operation):
             return operand.cut(*self._data)
         return super().__rrshift__(operand)
 
-class Monofy(Operation):
+class Monofy(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.monofy()
         return super().__rrshift__(operand)
 
-class Fill(Operation):
+class Fill(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):

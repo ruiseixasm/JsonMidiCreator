@@ -450,6 +450,7 @@ class Crossover(Swapping):
                     self.swap(clip, element_i, element_i)
         return clip
 
+# class Operation(Mutation):
 
 class Multiplication(Mutation):
     def __init__(self, *parameters):

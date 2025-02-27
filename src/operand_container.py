@@ -411,7 +411,7 @@ class Container(o.Operand):
                     return many_operands
 
             # Returns an altered Container with less info (truncated info)
-            case od.Getter() | od.Operation():
+            case od.Getter() | od.Process():
                 return self >> operand
             case ch.Chaos():
                 return self.shuffle(operand)
@@ -437,7 +437,7 @@ class Container(o.Operand):
         match operand:
             case Container():
                 self._items.extend( item for item in operand )
-            case od.Getter() | od.Operation():
+            case od.Getter() | od.Process():
                 self >>= operand
             case ch.Chaos():
                 self.shuffle(operand)
@@ -1044,7 +1044,7 @@ class Clip(Container):  # Just a container of Elements
                         self._position_beats /= self._staff.convertToBeats(operand)._rational
 
             # Returns an altered Clip with less info (truncated info)
-            case od.Getter() | od.Operation():
+            case od.Getter() | od.Process():
                 return self >> operand
 
             case ch.Chaos():
