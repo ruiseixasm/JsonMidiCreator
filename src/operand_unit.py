@@ -1649,10 +1649,10 @@ class Size(Unit):
     def numberToString(number: int) -> str:
         return __class__._types_str[number % len(__class__._types_str)]
 
-class Division(Unit):
-    """`Unit -> Division`
+class Divisions(Unit):
+    """`Unit -> Divisions`
 
-    A Division() is used in conjugation with a Tuplet as not the usual 3 of the Triplet.
+    A Divisions() is used in conjugation with a Tuplet as not the usual 3 of the Triplet.
     
     Parameters
     ----------

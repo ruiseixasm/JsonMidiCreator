@@ -450,24 +450,12 @@ class Crossover(Swapping):
                     self.swap(clip, element_i, element_i)
         return clip
 
-# class Operation(Mutation):
-
-class Multiplication(Mutation):
+class Operation(Mutation):
     def __init__(self, *parameters):
         super().__init__()
         self._clips: list[oc.Clip] = []
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-
-
-    def mutate(self, clip: o.T) -> o.T:
-        if isinstance(clip, oc.Clip):
-            shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
-            multiplied_clips: oc.Clip = oc.Clip()
-            for single_clip in shuffled_clips:
-                multiplied_clips *= single_clip
-            clip <<= multiplied_clips // list()
-        return clip
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -496,7 +484,7 @@ class Multiplication(Mutation):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Multiplication():
+            case Operation():
                 super().__lshift__(operand)
                 self._clips = self.deep_copy(operand._clips)
             case od.DataSource():
@@ -542,3 +530,23 @@ class Multiplication(Mutation):
             case _:
                 super().__isub__(operand)
         return self
+
+class Multiplication(Operation):
+    def mutate(self, clip: o.T) -> o.T:
+        if isinstance(clip, oc.Clip):
+            shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
+            multiplied_clips: oc.Clip = oc.Clip()
+            for single_clip in shuffled_clips:
+                multiplied_clips *= single_clip
+            clip <<= multiplied_clips // list()
+        return clip
+
+# class Division(Operation):
+#     def mutate(self, clip: o.T) -> o.T:
+#         if isinstance(clip, oc.Clip):
+#             shuffled_clips: list[oc.Clip] = self.shuffle_list(self._clips)
+#             multiplied_clips: oc.Clip = oc.Clip()
+#             for single_clip in shuffled_clips:
+#                 multiplied_clips /= single_clip
+#             clip <<= multiplied_clips // list()
+#         return clip

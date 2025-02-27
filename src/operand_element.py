@@ -1423,10 +1423,10 @@ class Retrigger(Note):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Division():     return ou.Division() << od.DataSource(self._division)
+                    case ou.Divisions():     return ou.Divisions() << od.DataSource(self._division)
                     case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Division():     return ou.Division() << od.DataSource(self._division)
+            case ou.Divisions():     return ou.Divisions() << od.DataSource(self._division)
             case int():             return self._division
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note
@@ -1487,13 +1487,13 @@ class Retrigger(Note):
                 self._swing     = operand._swing
             case od.DataSource():
                 match operand._data:
-                    case ou.Division():             self._division = operand._data // int()
+                    case ou.Divisions():             self._division = operand._data // int()
                     case ra.Swing():                self._swing = operand._data._rational
                     case _:                         super().__lshift__(operand)
             case int():
                 if operand > 0:
                     self._division = operand
-            case ou.Division():
+            case ou.Divisions():
                 if operand > 0:
                     self._division = operand // int()
             case ra.Swing():
@@ -1531,7 +1531,7 @@ class Note3(Retrigger):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case ou.Division() | int():
+            case ou.Divisions() | int():
                 return self # disables the setting of Division, always 3
             case _:                 super().__lshift__(operand)
         return self
@@ -1584,7 +1584,7 @@ class Tuplet(Element):
                     case list():            return self._elements
                     case _:                 return super().__mod__(operand)
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
-            case ou.Division():     return ou.Division() << len(self._elements)
+            case ou.Divisions():     return ou.Divisions() << len(self._elements)
             case int():             return len(self._elements)
             case ra.Duration():     return operand << od.DataSource( self._duration_notevalue / 2 )
             case list():            return self.get_tuplet_elements()
