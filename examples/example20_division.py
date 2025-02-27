@@ -36,8 +36,10 @@ duration_mutation << rhythmic_notes
 length_condition = Condition(Length(Steps(4)))
 minimum_notes = Least(3)
 total_plays = First(12)
+
 final_clip = mutated_clip.copy().cut(Position(0), Position(Steps(12)))
-first_clip = First(1)
+final_clip % Length() // float() >> Print()
+
 division = Division()
 
 for _ in range(400):

@@ -204,7 +204,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
 
             processed_events.append(event)
         else:
-            print("\033[93mWarning: Some midi key events aren't valid!\033[0m")
+            print("\033[93mWarning: Some midi events aren't valid!\033[0m")
     
     if len(processed_events) > 0:
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))

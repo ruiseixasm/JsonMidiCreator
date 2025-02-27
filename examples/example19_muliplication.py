@@ -37,7 +37,6 @@ length_condition = Condition(Length(1.0))
 minimum_notes = Least(8)
 total_plays = First(12)
 final_clip = Clip()
-first_clip = First(1)
 multiplication = Multiplication()
 
 for _ in range(400):
