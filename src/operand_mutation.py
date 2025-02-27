@@ -143,6 +143,7 @@ class Mutation(o.Operand):
                     case ch.Chaos():                self._chaos = operand._data
                     case int() | float():           self._step = operand._data
                     case type():                    self._parameter = operand._data
+                    case _:                         super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ch.Chaos():        self._chaos << operand
@@ -205,11 +206,12 @@ class Choosing(Haploid):
                 self._choice = operand._choice.copy()
             case od.DataSource():
                 match operand._data:
-                    case of.Choice():         self._choice = operand._data
+                    case of.Choice():           self._choice = operand._data
+                    case _:                     super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case of.Choice():     self._choice = operand.copy()
-            case _:             super().__lshift__(operand)
+            case of.Choice():       self._choice = operand.copy()
+            case _:                 super().__lshift__(operand)
         
         self._choice_frame: of.Frame = of.Foreach(self._chaos)**self._choice**self._parameter()
         return self
@@ -263,6 +265,7 @@ class Picking(Haploid):
             case od.DataSource():
                 match operand._data:
                     case of.Pick():         self._pick = operand._data
+                    case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case of.Pick():     self._pick = operand.copy()
@@ -367,6 +370,7 @@ class Swapping(Diploid):
             case od.DataSource():
                 match operand._data:
                     case oc.Clip():                 self._clip = operand._data
+                    case _:                         super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case oc.Clip():         self._clip = operand.copy() # Avoids None case error
@@ -441,6 +445,9 @@ class Translocation(Swapping):
 
 
 class Crossover(Swapping):
+    def __init__(self, *parameters):
+        self._probability: ra.Probability = ra.Probability(1/2)
+        super().__init__(*parameters)
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
@@ -450,6 +457,46 @@ class Crossover(Swapping):
                     self.swap(clip, element_i, element_i)
         return clip
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case ra.Probability():  return self._clip
+                    case _:                 return super().__mod__(operand)
+            case ra.Probability():  return self.deep_copy(self._clip)
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["probability"] = self.serialize(self._probability)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "probability" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._probability = self.deserialize(serialization["parameters"]["probability"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Swapping():
+                super().__lshift__(operand)
+                self._clip          = self.deep_copy( operand._clip )
+            case od.DataSource():
+                match operand._data:
+                    case ra.Probability():      self._clip = operand._data
+                    case _:                     super().__lshift__(operand)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ra.Probability():  self._clip = operand.copy() # Avoids None case error
+            case _:                 super().__lshift__(operand)
+        return self
+    
 class Operation(Mutation):
     def __init__(self, *parameters):
         super().__init__()
@@ -490,6 +537,7 @@ class Operation(Mutation):
             case od.DataSource():
                 match operand._data:
                     case list():            self._clips = operand._data
+                    case _:                 super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():        self._clips = self.deep_copy(operand)
