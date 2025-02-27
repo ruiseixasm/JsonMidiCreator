@@ -1237,8 +1237,13 @@ class Clip(Container):  # Just a container of Elements
                 self._items.insert(first_element_index, oe.Rest(rest_duration))
         # Adjust last_element duration based on its Measure position
         if last_element is not None:    # LAST ELEMENT ONLY!
-            remaining_beats: Fraction = self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational - last_element._position_beats
-            last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
+            remaining_beats: Fraction = \
+                self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational \
+                    - last_element._position_beats
+            if remaining_beats == 0:    # Means it's on the next Measure alone, thus, it's a one Measure note
+                last_element << self._staff.convertToDuration(ra.Measures(1))
+            else:
+                last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
         return self
 
 
