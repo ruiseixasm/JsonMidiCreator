@@ -39,10 +39,10 @@ total_plays = First(12)
 
 for _ in range(400):
     mutated_clip <<= duration_mutation
-    mutated_clip >> Stack()
-    mutated_clip % Length() % float() >> Print()
-    # mutated_clip.copy().trim().link() >> Play()
-    # mutated_clip.copy().trim().link() >> minimum_notes >> Play()
-    # mutated_clip.copy().trim().link() >> minimum_notes >> length_condition >> Play()
-    mutated_clip.copy().trim().link() >> minimum_notes >> length_condition >> total_plays >> Play()
+    processed_clip: Clip = mutated_clip.copy().stack().trim().link()
+    processed_clip % Length() % float() >> Print()
+    # processed_clip >> Play()
+    # processed_clip >> minimum_notes >> Play()
+    # processed_clip >> minimum_notes >> length_condition >> Play()
+    processed_clip >> minimum_notes >> length_condition >> total_plays >> Play()
 
