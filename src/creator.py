@@ -182,11 +182,16 @@ def jsonMidiPlay(play_list: list[dict], verbose: bool = False):
 
 
 def saveMidiFile(midi_list: list[dict], filename="output.mid"):
+    
+    # Define ANSI escape codes for colors
+    RED = "\033[91m"
+    RESET = "\033[0m"
+            
     try:
         # pip install midiutil
         from midiutil import MIDIFile
     except ImportError:
-        print("Error: The 'midiutil' library is not installed.")
+        print(f"{RED}Error: The 'midiutil' library is not installed.\033[0m")
         print("Please install it by running 'pip install midiutil'.")
         return
     
@@ -199,7 +204,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
 
             processed_events.append(event)
         else:
-            print("Error, some midi key events aren't valid!")
+            print("\033[93mWarning: Some midi key events aren't valid!\033[0m")
     
     if len(processed_events) > 0:
         processed_events = sorted(processed_events, key=lambda x: (x["track"], x["time"]))
@@ -234,7 +239,7 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                         event["tempo"]
                     )
                 else:
-                    print("Error, Tempo is NOT a number!")
+                    print(f"{RED}Error: Tempo is NOT a number!")
             if all(key in event for key in ("numerator", "denominator")):
                 if event["track"] != last_event["track"] \
                     or event["numerator"] != last_event["numerator"] or event["denominator"] != last_event["denominator"]:
@@ -252,14 +257,10 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                             24, 8
                         )
                     else:
-                        print("Error, Time Signature with wrong values!")
+                        print(f"{RED}Error: Time Signature with wrong values!\033[0m")
 
             last_event["track"] = event["track"]
 
-            # Define ANSI escape codes for colors
-            RED = "\033[91m"
-            RESET = "\033[0m"
-            
             match event["event"]:
                 case "Note":
                     if isinstance(event["duration"], (float, int)) and event["duration"] > 0:
@@ -275,22 +276,13 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                         event["velocity"]
                                     )
                                 else:
-                                    print(f"{RED}Error: Note Velocity with wrong values! ({event['velocity']})")
+                                    print(f"{RED}Error: Note Velocity with wrong values! ({event['velocity']})\033[0m")
                             else:
-                                print(f"{RED}Error: Note Pitch with wrong values! ({event['pitch']})")
+                                print(f"{RED}Error: Note Pitch with wrong values! ({event['pitch']})\033[0m")
                         else:
-                            print(f"{RED}Error: Note Channel with wrong values! ({event['channel']})")
+                            print(f"{RED}Error: Note Channel with wrong values! ({event['channel']})\033[0m")
                     else:
-                        print(f"{RED}Error: Note Duration must be above zero! ({event['duration']})")
-                # case "Rest":    # Doesn't make sense to send phony notes as Rests!
-                #     MyMIDI.addNote(
-                #         event["track"],
-                #         event["channel"],
-                #         0,
-                #         event["time"],
-                #         event["duration"],
-                #         0
-                #     )
+                        print(f"{RED}Error: Note Duration must be above zero! ({event['duration']})\033[0m")
                 case "ControllerEvent":
                     if 0 <= event["channel"] < 16:
                         if 0 <= event["number"] < 128:
@@ -303,11 +295,11 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                     event["value"]
                                 )
                             else:
-                                print(f"{RED}Error: CC Value with wrong values! ({event['value']})")
+                                print(f"{RED}Error: CC Value with wrong values! ({event['value']})\033[0m")
                         else:
-                            print(f"{RED}Error: CC Number with wrong values! ({event['number']})")
+                            print(f"{RED}Error: CC Number with wrong values! ({event['number']})\033[0m")
                     else:
-                        print(f"{RED}Error: CC Channel with wrong values! ({event['channel']})")
+                        print(f"{RED}Error: CC Channel with wrong values! ({event['channel']})\033[0m")
                 case "PitchWheelEvent":
                     if 0 <= event["channel"] < 16:
                             if -8192 <= event["value"] < 8192:
@@ -318,9 +310,9 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                     event["value"]
                                 )
                             else:
-                                print(f"{RED}Error: Pitch Value with wrong values! ({event['value']})")
+                                print(f"{RED}Error: Pitch Value with wrong values! ({event['value']})\033[0m")
                     else:
-                        print(f"{RED}Error: Pitch Channel with wrong values! ({event['channel']})")
+                        print(f"{RED}Error: Pitch Channel with wrong values! ({event['channel']})\033[0m")
                 case "ChannelPressure":
                     if 0 <= event["channel"] < 16:
                         if 0 <= event["pressure"] < 128:
@@ -331,9 +323,9 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                 event["pressure"]
                             )
                         else:
-                            print(f"{RED}Error: Channel Pressure Value with wrong values! ({event['pressure']})")
+                            print(f"{RED}Error: Channel Pressure Value with wrong values! ({event['pressure']})\033[0m")
                     else:
-                        print(f"{RED}Error: Channel Pressure Channel with wrong values! ({event['channel']})")
+                        print(f"{RED}Error: Channel Pressure Channel with wrong values! ({event['channel']})\033[0m")
                 case "ProgramChange":
                     if 0 <= event["channel"] < 16:
                         if 0 <= event["program"] < 128:
@@ -344,9 +336,9 @@ def saveMidiFile(midi_list: list[dict], filename="output.mid"):
                                 event["program"]
                             )
                         else:
-                            print(f"{RED}Error: Program Change Program with wrong values! ({event['program']})")
+                            print(f"{RED}Error: Program Change Program with wrong values! ({event['program']})\033[0m")
                     else:
-                        print(f"{RED}Error: Program Change Channel with wrong values! ({event['channel']})")
+                        print(f"{RED}Error: Program Change Channel with wrong values! ({event['channel']})\033[0m")
         with open(filename, "wb") as output_file:   # opened to write in binary mode
             MyMIDI.writeFile(output_file)
 
