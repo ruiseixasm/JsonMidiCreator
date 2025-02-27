@@ -37,11 +37,14 @@ length_condition = Condition(Length(1.0))
 minimum_notes = Least(5)
 total_plays = First(12)
 final_clip = Clip()
+first_clip = First(1)
+original_clip = mutated_clip.copy() - Octave()
 
 for _ in range(400):
     mutated_clip <<= duration_mutation
-    mutated_clip >> Stack()
-    final_clip *= mutated_clip.copy().trim().link() >> minimum_notes >> length_condition >> total_plays
+    original_clip += mutated_clip
+    original_clip >> first_clip >> MidiExport("Midi/18.1_first_clip.mid")
+    final_clip *= mutated_clip.copy().stack().trim().link() >> minimum_notes >> length_condition >> total_plays
 
 final_clip % Length() % float() >> Print()
 final_clip >> MidiExport("Midi/18.1_chaotic_rhythm_2.mid")
