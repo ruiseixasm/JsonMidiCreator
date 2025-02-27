@@ -34,7 +34,7 @@ mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 duration_mutation = Swapping(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(Steps(4)))
-minimum_notes = Least(3)
+minimum_notes = Least(2)
 total_plays = First(12)
 
 final_clip = mutated_clip.copy().cut(Position(0), Position(Steps(12)))
@@ -50,4 +50,4 @@ final_clip <<= division
 final_clip % Length() % float() >> Print()
 
 
-final_clip >> MidiExport("Midi/19_division_1.mid")
+final_clip >> MidiExport("Midi/20_division_1.mid")
