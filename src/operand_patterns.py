@@ -35,6 +35,8 @@ import operand_element as oe
 import operand_frame as of
 import operand_container as oc
 import operand_chaos as ch
+import operand_mutation as om
+import operand_selection as os
 
 
 class Patterns(o.Operand):
