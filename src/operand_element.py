@@ -1429,6 +1429,8 @@ class Retrigger(Note):
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue / 2 )
+            case float():           return float( self._duration_notevalue / 2 )
+            case Fraction():        return self._duration_notevalue / 2
             case list():            return self.get_retrigger_notes()
             case _:                 return super().__mod__(operand)
 
@@ -1503,6 +1505,10 @@ class Retrigger(Note):
                     self._swing = operand._rational
             case ra.Duration():
                 self._duration_notevalue = operand._rational * 2  # Equivalent to two sized Notes
+            case Fraction():
+                self._duration_notevalue    = operand * 2
+            case float():
+                self._duration_notevalue    = ra.Duration(operand)._rational * 2
             case _:
                 super().__lshift__(operand)
         return self
