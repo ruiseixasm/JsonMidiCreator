@@ -614,6 +614,15 @@ class Clip(Container):  # Just a container of Elements
 
 
     def first(self) -> oe.Element:
+        """
+        Gets the first Element accordingly to it's Position on the Staff.
+
+        Args:
+            None
+
+        Returns:
+            Element: The first Element of all Elements.
+        """
         first_element: oe.Element = None
         if self.len() > 0:
             first_element = self._items[0]
@@ -623,6 +632,15 @@ class Clip(Container):  # Just a container of Elements
         return first_element
 
     def last(self) -> oe.Element:
+        """
+        Gets the last Element accordingly to it's Position on the Staff.
+
+        Args:
+            None
+
+        Returns:
+            Element: The last Element of all Elements.
+        """
         last_element: oe.Element = None
         if self.len() > 0:
             last_element = self._items[0]
