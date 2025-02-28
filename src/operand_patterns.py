@@ -105,3 +105,28 @@ class Drums(Patterns):
         return pattern << ra.Duration(1/16)
 
 
+    def reggae_one_drop(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                rimshot = ou.DrumKit("Electric Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """Reggae One Drop – Snare (or rimshot) and kick on beat 3, with hi-hat or guitar skank filling the space."""
+        pattern: oc.Clip = oe.Note(kick, 1/16) * 1 << ou.Beat(2)    # Beat starts on 0
+        pattern += oe.Note(rimshot, 1/16) * 1 << ou.Beat(2)    # Beat starts on 0
+        pattern += oe.Note(hi_hats) * 4 + ra.Beats(1/2)
+        return pattern << ra.Duration(1/16)
+
+
+    def funk_shuffle(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """Funk Shuffle – A swung groove with syncopated hi-hat and ghost snare notes, adding a "rolling" feel."""
+        pattern: oc.Clip = oe.Note(kick, 1/2) * 2 + ra.Beats(1) << ra.Duration(1/16)
+        pattern += oe.Note(snare, 1/2) * 2 + ra.Beats(1) << ra.Duration(1/16)
+        pattern += oe.Note3(hi_hats, 1/4) * 4 + ra.Beats(1/2)
+        return pattern
+
+
+
