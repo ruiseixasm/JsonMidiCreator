@@ -983,7 +983,9 @@ class Clip(Container):  # Just a container of Elements
                     operand = int(operand)
                     self._length_beats *= operand
                 elif isinstance(operand, int):
-                    add_position: ra.Position = ra.Position((self % ra.Length()).roundMeasures())
+                    # It's the position of the element that matters and not their tailed Duration
+                    left_end_position: ra.Position = self.last() % ra.Position()
+                    add_position: ra.Position = left_end_position.roundMeasures() + ra.Measures(1)
                 else:
                     add_position: ra.Position = ra.Position(self.length())
                     operand = int(operand)
