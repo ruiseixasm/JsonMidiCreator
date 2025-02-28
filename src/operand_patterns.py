@@ -100,7 +100,7 @@ class Drums(Patterns):
             ) -> oc.Clip:
         """D-Beat – A fast punk/hardcore beat with alternating kick and snare hits, driving an aggressive rhythm."""
         pattern: oc.Clip = oe.Note(kick, 1/8) * 8 << ou.Velocity(75)
-        pattern += oe.Note(snare, 1/8) * 8 + ra.Beats(1/2)
+        pattern += oe.Note(snare, 1/8) * 8 + ra.Beats(1/4)  # Alternates one Step only, 1/4 of a Beat
         pattern += oe.Note(hi_hats, 1/16) * 16
         return pattern << ra.Duration(1/16)
 

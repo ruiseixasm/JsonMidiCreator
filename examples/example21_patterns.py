@@ -31,8 +31,8 @@ drums = Drums()
 # backbeat = drums.backbeat()
 # backbeat * 8 >> Play()
 
-half_groove = drums.half_time_groove()
-half_groove * 8 >> Play()
+# half_groove = drums.half_time_groove()
+# half_groove * 8 >> Play()
 
 d_beat = drums.d_beat()
 d_beat * 8 >> Play()
