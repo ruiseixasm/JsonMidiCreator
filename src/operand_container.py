@@ -980,20 +980,20 @@ class Clip(Container):  # Just a container of Elements
         import operand_selection as os
         match operand:
             case Clip():
+                right_start_position: ra.Position = operand.start()
                 if self._length_beats < 0:
                     # It's the position of the element that matters and not their tailed Duration
                     last_element: oe.Element = self.last()
                     if last_element:
                         left_end_position: ra.Position = last_element % ra.Position()
+                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
+                        add_position: ra.Position = ra.Position(length_shift)
                     else:
-                        left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
+                        add_position: ra.Position = ra.Position(0)
                 else:
                     left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
                     self._length_beats += (operand % ra.Length())._rational
-                right_start_position: ra.Position = operand.start()
-                length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
-                # Convert Length to Position
-                add_position: ra.Position = ra.Position(length_shift)
+                    add_position: ra.Position = left_end_position - right_start_position
                 operand_elements = [
                     (single_data + add_position).set_staff_reference(self._staff) for single_data in operand._items
                         if isinstance(single_data, oe.Element)
@@ -1009,9 +1009,9 @@ class Clip(Container):  # Just a container of Elements
                     last_element: oe.Element = self.last()
                     if last_element:
                         left_end_position: ra.Position = last_element % ra.Position()
+                        add_position: ra.Position = left_end_position.roundMeasures() + ra.Measures(1)
                     else:
-                        left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
-                    add_position: ra.Position = left_end_position.roundMeasures() + ra.Measures(1)
+                        add_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
                 else:
                     add_position: ra.Position = ra.Position(self.length())
                     operand = int(operand)
