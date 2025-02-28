@@ -22,12 +22,18 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 drums = Drums()
-four_on_floor = drums.four_on_the_floor()
-four_on_floor * 8 >> Play()
+# four_on_floor = drums.four_on_the_floor()
+# four_on_floor * 8 >> Play()
 
-boom_bap = drums.boom_bap()
-boom_bap * 4 >> Play()
+# boom_bap = drums.boom_bap()
+# boom_bap * 4 >> Play()
 
-boom_bap = drums.backbeat()
-boom_bap * 8 >> Play()
+# backbeat = drums.backbeat()
+# backbeat * 8 >> Play()
+
+half_groove = drums.half_time_groove()
+half_groove * 8 >> Play()
+
+d_beat = drums.d_beat()
+d_beat * 8 >> Play()
 

@@ -50,7 +50,7 @@ class Drums(Patterns):
                 snare = ou.DrumKit("Snare", ou.Channel(10)),
                 hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
             ) -> oc.Clip:
-        """Uniformly accented beat in 4/4 time in which the bass drum is hit on every beat (1, 2, 3, 4)."""
+        """Four on the Floor – A steady kick drum on every beat (1-2-3-4), common in house, disco, and techno."""
         pattern: oc.Clip = oe.Note(kick) * 4
         pattern += oe.Note(snare, ra.Duration(1/2)) * 2 + ra.Beats(1)
         pattern += oe.Note(hi_hats) * 4 + ra.Beats(1/2)
@@ -62,8 +62,9 @@ class Drums(Patterns):
                 snare = ou.DrumKit("Snare", ou.Channel(10)),
                 hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
             ) -> oc.Clip:
+        """Boom Bap – A classic hip-hop groove with a strong snare hit on beats 2 and 4, and syncopated kick patterns."""
         pattern: oc.Clip = oe.Note(kick, 1/2) * 2
-        pattern += oe.Note(snare, ra.Duration(1/2)) * 2 + ra.Beats(1)
+        pattern += oe.Note(snare, ra.Duration(1/2)) * 2 + ra.Beats(1) << ou.Velocity(110)
         swung: oc.Clip = (oe.Note(hi_hats, 1/8) * 8) * (oe.Note(hi_hats, 1/16) * 16)
         return pattern * 2 + swung << ra.Duration(1/16)
 
@@ -73,8 +74,33 @@ class Drums(Patterns):
                 snare = ou.DrumKit("Snare", ou.Channel(10)),
                 hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
             ) -> oc.Clip:
+        """Backbeat – A rock and pop staple with the snare drum emphasizing beats 2 and 4, while the kick supports the rhythm."""
         pattern: oc.Clip = oe.Note(kick, 1/2) * 2
         pattern += oe.Note(snare, ra.Duration(1/2)) * 2 + ra.Beats(1) << ou.Velocity(120)
+        pattern += oe.Note(hi_hats, 1/16) * 16
+        return pattern << ra.Duration(1/16)
+
+
+    def half_time_groove(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """Half-Time Groove – Slower-feeling pattern with snare on beat 3, often used in hip-hop, trap, and metal breakdowns."""
+        pattern: oc.Clip = oe.Note(kick, 1/16) * 1
+        pattern += oe.Note(snare, 1/16) * 1 + ra.Beats(2)
+        pattern += oe.Note3(hi_hats) * 4
+        return pattern
+
+
+    def d_beat(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """D-Beat – A fast punk/hardcore beat with alternating kick and snare hits, driving an aggressive rhythm."""
+        pattern: oc.Clip = oe.Note(kick, 1/8) * 8 << ou.Velocity(75)
+        pattern += oe.Note(snare, 1/8) * 8 + ra.Beats(1/2)
         pattern += oe.Note(hi_hats, 1/16) * 16
         return pattern << ra.Duration(1/16)
 
