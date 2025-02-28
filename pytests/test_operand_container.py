@@ -354,6 +354,12 @@ def test_mul_clip():
     hi_hat[3] % Position() % Steps() % float() >> Print()
     assert hi_hat[3] % Position() % Steps() == 14.0
 
+    # Test empty Clip
+    empty_clip = hi_hat * 0
+    assert empty_clip.len() == 0
+    unchanged_hi_hat = empty_clip * hi_hat
+    assert unchanged_hi_hat == hi_hat
+    
     print("------")
     six_notes = 6 * Note()
     print(f"Length: {six_notes % Length() % float()}")
