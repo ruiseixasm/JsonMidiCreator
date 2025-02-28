@@ -1256,7 +1256,7 @@ class DrumKit(Unit):
         Accepts a numeral (35 to 82) or a String like "Drum"
     """
     def __init__(self, *parameters):
-        self._channel: Channel = Channel(10)
+        self._channel: int = 10
         super().__init__(35, *parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1264,10 +1264,10 @@ class DrumKit(Unit):
             case od.DataSource():
                 match operand._data:
                     case str():                     return Program.numberToName(self._unit)
-                    case Channel():                 return self._channel
+                    case Channel():                 return operand._data << self._channel
                     case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit)
-            case Channel():             return self._channel.copy()
+            case Channel():             return Channel(self._channel)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -1292,10 +1292,10 @@ class DrumKit(Unit):
             case od.DataSource():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
-                    case Channel():                 self._channel = operand._data
+                    case Channel():                 self._channel = operand._data._unit
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
-            case Channel():         self._channel << operand
+            case Channel():         self._channel = operand._unit
             case _:                 super().__lshift__(operand)
         return self
 
