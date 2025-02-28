@@ -613,6 +613,24 @@ class Clip(Container):  # Just a container of Elements
         return self._staff.transformPosition(time)
 
 
+    def first(self) -> oe.Element:
+        first_element: oe.Element = None
+        if self.len() > 0:
+            first_element = self._items[0]
+            for element in self._items:
+                if element % ra.Position() < first_element % ra.Position():
+                    first_element = element
+        return first_element
+
+    def last(self) -> oe.Element:
+        last_element: oe.Element = None
+        if self.len() > 0:
+            last_element = self._items[0]
+            for element in self._items:
+                if element % ra.Position() > last_element % ra.Position():
+                    last_element = element
+        return last_element
+
     def start(self) -> ra.Position:
         """
         Gets the starting position of all its Elements.
