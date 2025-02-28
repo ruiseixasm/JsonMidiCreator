@@ -982,7 +982,11 @@ class Clip(Container):  # Just a container of Elements
             case Clip():
                 if self._length_beats < 0:
                     # It's the position of the element that matters and not their tailed Duration
-                    left_end_position: ra.Position = self.last() % ra.Position()
+                    last_element: oe.Element = self.last()
+                    if last_element:
+                        left_end_position: ra.Position = last_element % ra.Position()
+                    else:
+                        left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
                 else:
                     left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
                     self._length_beats += (operand % ra.Length())._rational
@@ -1002,7 +1006,11 @@ class Clip(Container):  # Just a container of Elements
                     self._length_beats *= operand
                 elif isinstance(operand, int):
                     # It's the position of the element that matters and not their tailed Duration
-                    left_end_position: ra.Position = self.last() % ra.Position()
+                    last_element: oe.Element = self.last()
+                    if last_element:
+                        left_end_position: ra.Position = last_element % ra.Position()
+                    else:
+                        left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
                     add_position: ra.Position = left_end_position.roundMeasures() + ra.Measures(1)
                 else:
                     add_position: ra.Position = ra.Position(self.length())
