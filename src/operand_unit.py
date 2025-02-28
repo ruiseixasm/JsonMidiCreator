@@ -1256,6 +1256,7 @@ class DrumKit(Unit):
         Accepts a numeral (35 to 82) or a String like "Drum"
     """
     def __init__(self, *parameters):
+        self._channel: Channel = Channel(10)
         super().__init__(35, *parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1263,12 +1264,27 @@ class DrumKit(Unit):
             case od.DataSource():
                 match operand._data:
                     case str():                     return Program.numberToName(self._unit)
+                    case Channel():                 return self._channel
                     case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit)
+            case Channel():             return self._channel.copy()
             case _:                     return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["channel"] = self.serialize(self._channel)
+        return serialization
 
     # CHAINABLE OPERATIONS
 
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "channel" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._channel = self.deserialize(serialization["parameters"]["channel"])
+        return self
+        
     def __lshift__(self, operand: any) -> Self:
         import operand_rational as ra
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
@@ -1276,8 +1292,10 @@ class DrumKit(Unit):
             case od.DataSource():
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
+                    case Channel():                 self._channel = operand._data
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
+            case Channel():         self._channel << operand
             case _:                 super().__lshift__(operand)
         return self
 
