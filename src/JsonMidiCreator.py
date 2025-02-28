@@ -29,6 +29,8 @@ from operand_element import *
 from operand_chaos import *
 from operand_mutation import *
 from operand_selection import *
+from operand_patterns import *
+
 
 # Determine the operating system
 import platform
