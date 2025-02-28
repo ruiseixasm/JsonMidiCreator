@@ -963,7 +963,8 @@ class Clip(Container):  # Just a container of Elements
         match operand:
             case Clip():
                 if self._length_beats < 0:
-                    left_end_position: ra.Position = self.finish()
+                    # It's the position of the element that matters and not their tailed Duration
+                    left_end_position: ra.Position = self.last() % ra.Position()
                 else:
                     left_end_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
                     self._length_beats += (operand % ra.Length())._rational
