@@ -51,7 +51,10 @@ class Drums(Patterns):
                 hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
             ) -> oc.Clip:
         """Uniformly accented beat in 4/4 time in which the bass drum is hit on every beat (1, 2, 3, 4)."""
-        return oe.Note(ou.Channel(10)) * 4
+        pattern: oc.Clip = oe.Note(kick) * 4
+        pattern += oe.Note(snare, ra.Duration(1/2)) * 2 + ra.Beats(1)
+        pattern += oe.Note(hi_hats) * 4 + ra.Beats(1/2)
+        return pattern << ra.Duration(1/16)
 
 
 
