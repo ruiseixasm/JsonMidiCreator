@@ -23,5 +23,8 @@ from JsonMidiCreator import *
 
 drums = Drums()
 four_on_floor = drums.four_on_the_floor()
-
 four_on_floor * 8 >> Play()
+
+boom_bap = drums.boom_bap()
+boom_bap * 4 >> Play()
+

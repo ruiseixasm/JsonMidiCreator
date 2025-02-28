@@ -57,4 +57,12 @@ class Drums(Patterns):
         return pattern << ra.Duration(1/16)
 
 
-
+    def boom_bap(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        pattern: oc.Clip = oe.Note(kick, 1/2) * 2
+        pattern += oe.Note(snare, ra.Duration(1/2)) * 2 + ra.Beats(1)
+        swung: oc.Clip = (oe.Note(hi_hats, 1/8) * 8) * (oe.Note(hi_hats, 1/16) * 16)
+        return pattern * 2 + swung << ra.Duration(1/16)
