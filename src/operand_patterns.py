@@ -37,3 +37,8 @@ import operand_container as oc
 import operand_chaos as ch
 
 
+
+p_four_on_the_floor: oc.Clip = oe.Note() * 4
+"""Uniformly accented beat in 4/4 time in which the bass drum is hit on every beat (1, 2, 3, 4)."""
+
+
