@@ -28,3 +28,6 @@ four_on_floor * 8 >> Play()
 boom_bap = drums.boom_bap()
 boom_bap * 4 >> Play()
 
+boom_bap = drums.backbeat()
+boom_bap * 8 >> Play()
+
