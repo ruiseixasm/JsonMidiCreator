@@ -696,9 +696,7 @@ class Note(Element):
             case ou.PitchParameter() | str():
                                     return self._pitch % operand
             case ou.DrumKit():
-                if self._channel == 10:
-                    return ou.DrumKit(self._pitch % ( self // ra.Position() % Fraction() ))
-                return ol.Null()
+                return ou.DrumKit(self._pitch % ( self // ra.Position() % Fraction() ), ou.Channel(self._channel))
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -852,7 +850,7 @@ class Note(Element):
             case ou.PitchParameter() | int() | str() | None:
                 self._pitch << operand
             case ou.DrumKit():
-                self._channel = 10
+                self._channel = operand._channel
                 self._pitch << operand
             case _:
                 super().__lshift__(operand)
