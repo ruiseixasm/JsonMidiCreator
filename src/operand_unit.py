@@ -1268,6 +1268,7 @@ class DrumKit(Unit):
                     case _:                         return super().__mod__(operand)
             case str():                 return Program.numberToName(self._unit)
             case Channel():             return Channel(self._channel)
+            case float():               return float(self._channel)
             case _:                     return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -1296,6 +1297,7 @@ class DrumKit(Unit):
                     case _:                         super().__lshift__(operand)
             case str():             self.nameToNumber(operand)
             case Channel():         self._channel = operand._unit
+            case float():           self._channel = int(operand)
             case _:                 super().__lshift__(operand)
         return self
 

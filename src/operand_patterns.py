@@ -45,7 +45,11 @@ class Patterns(o.Operand):
 
 class Drums(Patterns):
 
-    def four_on_the_floor(self) -> oc.Clip:
+    def four_on_the_floor(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
         """Uniformly accented beat in 4/4 time in which the bass drum is hit on every beat (1, 2, 3, 4)."""
         return oe.Note(ou.Channel(10)) * 4
 
