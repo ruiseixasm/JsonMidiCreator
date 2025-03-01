@@ -1244,6 +1244,53 @@ class Flat(PitchParameter):   # Flat (b)
                 super().__lshift__(operand)
         return self
 
+class Order(Unit):
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case str():                     return Order.numberToName(self._unit)
+                    case _:                         return super().__mod__(operand)
+            case str():                 return Order.numberToName(self._unit)
+            case _:                     return super().__mod__(operand)
+
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case str():                     self.nameToNumber(operand._data)
+                    case _:                         super().__lshift__(operand)
+            case str():             self.nameToNumber(operand)
+            case _:                 super().__lshift__(operand)
+        return self
+
+    _order: dict = {
+        "Up":                       0,
+        "Down":                     1
+    }
+
+    def nameToNumber(self, order: str = "Up"):
+        # Convert input words to lowercase
+        order_split = order.lower().split()
+        # Iterate over the instruments list
+        for key, value in Order._order.items():
+            # Check if all input words are present in the order string
+            if all(word in key.lower() for word in order_split):
+                self._unit = value
+                return
+
+    @staticmethod
+    def numberToName(number: int) -> str:
+        for key, value in Order._order.items():
+            if value == number:
+                return key
+        return "Unknown Order!"
+
+
 
 class DrumKit(Unit):
     """`Unit -> DrumKit`
@@ -1263,10 +1310,10 @@ class DrumKit(Unit):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     return Program.numberToName(self._unit)
+                    case str():                     return DrumKit.numberToName(self._unit)
                     case Channel():                 return operand._data << self._channel
                     case _:                         return super().__mod__(operand)
-            case str():                 return Program.numberToName(self._unit)
+            case str():                 return DrumKit.numberToName(self._unit)
             case Channel():             return Channel(self._channel)
             case float():               return float(self._channel)
             case _:                     return super().__mod__(operand)

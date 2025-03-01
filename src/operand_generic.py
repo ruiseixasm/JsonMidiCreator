@@ -1431,6 +1431,11 @@ class Staff(Generic):
         return self
 
 
+class Arpeggio(Generic):
+    def __init__(self, *parameters):
+        self._octave: int = 0
+        super().__init__(*parameters)
+
 
 class Defaults(Generic):
     def __init__(self, *parameters):
