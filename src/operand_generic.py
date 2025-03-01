@@ -1458,6 +1458,10 @@ class Arpeggio(Generic):
 
     from operand_element import Note
 
+    def sort(self, notes: list[Note]) -> list[Note]:
+
+        return notes
+
     def arpeggiate(self, notes: list[Note]) -> list[Note]:
         from operand_element import Note
         notes_len: int = len(notes)
