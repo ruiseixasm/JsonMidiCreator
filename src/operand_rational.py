@@ -87,7 +87,7 @@ class Rational(o.Operand):
             case Fraction():        return self._rational
             case float():           return float(self._rational)
             case int():             return int(self._rational)
-            case of.Frame():        return self % (operand._data)
+            case of.Frame():        return self % operand
             case str():             return str(self._rational)
             case Rational() | ou.Unit():
                                     return operand.__class__() << od.DataSource( self._rational )
@@ -311,7 +311,7 @@ class Negative(Rational):
             case Fraction():        return self._rational * -1
             case float():           return float(self._rational * -1)
             case int():             return int(self._rational * -1)
-            case of.Frame():        return self % (operand._data)
+            case of.Frame():        return self % operand
             case str():             return str(self._rational * -1)
             case Rational() | ou.Unit():
                                     return operand.__class__() << od.DataSource( self._rational )

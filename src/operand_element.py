@@ -117,7 +117,7 @@ class Element(o.Operand):
                     case float():           return float( self._duration_notevalue )
                     case Fraction():        return self._duration_notevalue
                     case _:                 return super().__mod__(operand)
-            case of.Frame():        return self % (operand._data)
+            case of.Frame():        return self % operand
             case ra.Duration():
                 return operand.copy().set_staff_reference(self._staff_reference) << od.DataSource( self._duration_notevalue )
             case ra.Position():

@@ -76,7 +76,7 @@ class Unit(o.Operand):
             case bool():            return False if self._unit == 0 else True
             case Fraction():        return Fraction(self._unit)
             case float():           return float(self._unit)
-            case of.Frame():        return self % (operand._data)
+            case of.Frame():        return self % operand
             case Unit() | ra.Rational():
                                     return operand.__class__() << od.DataSource( self._unit )
             case _:                 return super().__mod__(operand)
@@ -804,7 +804,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                     case list():                return self % list()
                     case Major():               return Major() << od.DataSource(self._major)
                     case _:                     return super().__mod__(operand)
-            case of.Frame():            return self % (operand._data)
+            case of.Frame():            return self % operand
             case KeySignature():        return self.copy()
             case int():                 return self._unit
             case float():
