@@ -1447,6 +1447,17 @@ class Arpeggio(Generic):
             case ou.Order():            return ou.Order(self._order)
             case _:                     return super().__mod__(operand)
 
+    from operand_element import Note
+
+    def arpeggiate(self, notes: list[Note]) -> list[Note]:
+        if self._order == ou.Order._order["Up"]:
+            
+            return notes
+        if self._order == ou.Order._order["Down"]:
+            return notes
+
+        return notes
+
     def __eq__(self, other: 'Arpeggio') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
