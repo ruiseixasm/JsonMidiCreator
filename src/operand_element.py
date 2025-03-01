@@ -1391,10 +1391,10 @@ class Chord(KeyScale):
 class Retrigger(Note):
     def __init__(self, *parameters):
         self._division: int     = 16
-        self._swing: Fraction   = Fraction(0.5)
+        self._swing: Fraction   = ra.Swing(0.5)._rational
         super().__init__()
         self._duration_notevalue  *= 2 # Equivalent to twice single note duration
-        self._gate      = Fraction(0.5)
+        self._gate      = ra.Gate(0.5)._rational
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -1421,10 +1421,10 @@ class Retrigger(Note):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Divisions():     return ou.Divisions() << od.DataSource(self._division)
-                    case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
+                    case ou.Divisions():    return operand._data << od.DataSource(self._division)
+                    case ra.Swing():        return operand._data << od.DataSource(self._swing)
                     case _:                 return super().__mod__(operand)
-            case ou.Divisions():     return ou.Divisions() << od.DataSource(self._division)
+            case ou.Divisions():    return ou.Divisions() << od.DataSource(self._division)
             case int():             return self._division
             case ra.Swing():        return ra.Swing() << od.DataSource(self._swing)
             # Returns the SYMBOLIC value of each note

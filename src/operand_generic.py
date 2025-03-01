@@ -1435,6 +1435,7 @@ class Arpeggio(Generic):
     def __init__(self, *parameters):
         self._order: int = 0
         self._duration_notevalue: Fraction = ra.Duration(1/16)._rational
+        self._swing: Fraction = ra.Swing(0.5)._rational
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -1442,8 +1443,9 @@ class Arpeggio(Generic):
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
-                    case ou.Order():            return ou.Order(self._order)
+                    case ou.Order():            return operand._data << od.DataSource( self._order )
                     case ra.Duration():         return operand._data << od.DataSource( self._duration_notevalue )
+                    case ra.Swing():            return operand._data << od.DataSource( self._swing )
                     case int():                 return self._order
                     case float():               return float( self._duration_notevalue )
                     case Fraction():            return self._duration_notevalue
@@ -1451,10 +1453,12 @@ class Arpeggio(Generic):
             case of.Frame():            return self % operand
             case ou.Order():            return ou.Order(self._order)
             case ra.Duration():         return ra.Duration( self._duration_notevalue )
+            case ra.Swing():            return ra.Swing(self._swing)
             case int():                 return self._order
             case float():               return float( self._duration_notevalue )
             case Fraction():            return self._duration_notevalue
             case _:                     return super().__mod__(operand)
+
 
     from operand_element import Note
 
@@ -1464,28 +1468,28 @@ class Arpeggio(Generic):
 
     def arpeggiate(self, notes: list[Note]) -> list[Note]:
         from operand_element import Note
-        notes_len: int = len(notes)
-        if notes_len > 0:
-            arpeggiated_notes: list[Note] = []
+
+        if self._order > 0 and len(notes) > 0:
+
             staff_reference: Staff = notes[0]._staff_reference
             position: ra.Position = notes[0] // ra.Position()
             remaining_length: ra.Length = notes[0] // ra.Length()
             note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
-            if self._order == ou.Order._order["Up"]:
-                while remaining_length > 0:
-                    for source_note in notes:
-                        new_note: Note = source_note.copy()
-                        new_note << position + note_length * len(arpeggiated_notes)
-                        if note_length > remaining_length:
-                            note_length = remaining_length
-                        new_note << note_length
-                        arpeggiated_notes.append(new_note)
-                        remaining_length -= note_length
-                        if remaining_length == 0:
-                            break
-                return arpeggiated_notes
-            if self._order == ou.Order._order["Down"]:
-                return notes
+            
+            sorted_notes: list[Note] = self.sort(notes)
+            arpeggiated_notes: list[Note] = []
+            while remaining_length > 0:
+                for source_note in sorted_notes:
+                    new_note: Note = source_note.copy()
+                    new_note << position + note_length * len(arpeggiated_notes)
+                    if note_length > remaining_length:
+                        note_length = remaining_length
+                    new_note << note_length
+                    arpeggiated_notes.append(new_note)
+                    remaining_length -= note_length
+                    if remaining_length == 0:
+                        break
+            return arpeggiated_notes
 
         return notes
 
