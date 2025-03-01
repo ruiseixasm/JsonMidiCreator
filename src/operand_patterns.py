@@ -129,4 +129,28 @@ class Drums(Patterns):
         return pattern
 
 
+    def breakbeat(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """Breakbeat – A syncopated drum pattern, often sampled from funk and jazz, with offbeat snare hits."""
+        pattern: oc.Clip = oe.Note(kick, 1/2) * 2 + ra.Beats(7/4) + oe.Note(kick, 1/2) * 2
+        pattern += oe.Note(snare, 1/2) * 2 + ra.Beats(1)
+        pattern += oe.Note(hi_hats, 1/16) * 16
+        return pattern << ra.Duration(1/16)
+
+
+    def bossa_nova(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """Latin Clave Rhythms – Patterns like Son Clave and Rumba Clave, forming the backbone of Latin music grooves."""
+        step: ra.Beats = ra.Beats(1/4)
+        pattern: oc.Clip = oe.Note(kick, 0*step) + oe.Note(kick, 10*step) + oe.Note(kick, 24*step)
+        pattern += oe.Note(snare, 6*step) + oe.Note(snare, 19*step)
+        pattern += oe.Note(hi_hats, 3*step) + oe.Note(hi_hats, 9*step) + oe.Note(hi_hats, 16*step) \
+                + oe.Note(hi_hats, 22*step) + oe.Note(hi_hats, 28*step)
+        return pattern << ra.Duration(1/16)
 

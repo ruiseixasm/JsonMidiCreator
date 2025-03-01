@@ -31,8 +31,8 @@ drums = Drums()
 # backbeat = drums.backbeat()
 # backbeat * 8 >> Play()
 
-half_groove = drums.half_time_groove()
-half_groove * 8 >> Play()
+# half_groove = drums.half_time_groove()
+# half_groove * 8 >> Play()
 
 # d_beat = drums.d_beat()
 # d_beat * 8 >> Play()
@@ -40,6 +40,12 @@ half_groove * 8 >> Play()
 # reggae_drop = drums.reggae_one_drop()
 # reggae_drop * 8 >> Play()
 
-funk_shuffle = drums.funk_shuffle()
-funk_shuffle * 8 >> Play()
+# funk_shuffle = drums.funk_shuffle()
+# funk_shuffle * 8 >> Play()
+
+# breakbeat = drums.breakbeat()
+# breakbeat * 8 >> Play()
+
+bossa_nova = drums.bossa_nova()
+bossa_nova * 4 >> Play()
 
