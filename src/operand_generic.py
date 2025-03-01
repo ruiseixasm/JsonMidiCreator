@@ -1441,20 +1441,10 @@ class Arpeggio(Generic):
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
-                    case Staff():               return self._staff
-                    case ra.StaffParameter() | ou.KeySignature() | TimeSignature() \
-                        | Scale() | ra.Measures() | ou.Measure() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats() \
-                        | int() | float() | Fraction() | str():
-                                                return self._staff // operand._data
-                    case ra.Duration():         return operand << self._duration
-                    case ou.Octave():           return ou.Octave(self._octave)
-                    case ou.Velocity():         return ou.Velocity(self._velocity)
-                    case Controller():          return self._controller
-                    case ou.Channel():          return ou.Channel(self._channel)
-                    case od.Device():           return od.Device(self._device)
+                    case ou.Octave():           return ou.Octave(self._order)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case ou.Octave():           return ou.Octave(self._octave)
+            case ou.Octave():           return ou.Octave(self._order)
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Defaults') -> bool:
@@ -1463,35 +1453,35 @@ class Arpeggio(Generic):
             return True
         if type(self) != type(other):
             return False
-        return  self._octave            == other._octave
+        return  self._order            == other._order
     
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
-        serialization["parameters"]["octave"]           = self.serialize( self._octave )
+        serialization["parameters"]["order"]           = self.serialize( self._order )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "octave" in serialization["parameters"]):
+            "order" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._octave            = self.deserialize( serialization["parameters"]["octave"] )
+            self._order            = self.deserialize( serialization["parameters"]["order"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Defaults():
+            case Arpeggio():
                 super().__lshift__(operand)
-                self._octave            = operand._octave
+                self._order            = operand._order
             case od.DataSource():
                 match operand._data:
-                    case ou.Octave():           self._octave = operand._data._unit
+                    case ou.Octave():           self._order = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Octave():           self._octave = operand._unit
+            case ou.Octave():           self._order = operand._unit
             case tuple():
                 for single_operand in operand:
                     self << single_operand
