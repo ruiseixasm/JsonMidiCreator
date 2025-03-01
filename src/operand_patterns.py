@@ -154,3 +154,17 @@ class Drums(Patterns):
                 + oe.Note(hi_hats, 22*step) + oe.Note(hi_hats, 28*step)
         return pattern << ra.Duration(1/16)
 
+
+    def blast_beat(self,
+                kick = ou.DrumKit("Drum", ou.Channel(10)),
+                snare = ou.DrumKit("Snare", ou.Channel(10)),
+                hi_hats = ou.DrumKit("Hi-Hat", ou.Channel(10))
+            ) -> oc.Clip:
+        """Blast Beat – Extreme metal drumming technique with rapid, alternating kick and snare hits."""
+        pattern: oc.Clip = oe.Note(kick, 1/8) * 8
+        pattern += oe.Note(snare, 1/8) * 8 + ra.Beats(1/4)
+        pattern += oe.Note(hi_hats, 1/16) * 16
+        return pattern << ra.Duration(1/16)
+
+
+

@@ -46,6 +46,9 @@ drums = Drums()
 # breakbeat = drums.breakbeat()
 # breakbeat * 8 >> Play()
 
-bossa_nova = drums.bossa_nova()
-bossa_nova * 4 >> Play()
+# bossa_nova = drums.bossa_nova()
+# bossa_nova * 4 >> Play()
+
+blast_beat = drums.blast_beat()
+blast_beat * 8 >> Play()
 
