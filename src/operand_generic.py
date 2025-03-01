@@ -1441,13 +1441,13 @@ class Arpeggio(Generic):
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
-                    case ou.Octave():           return ou.Octave(self._order)
+                    case ou.Order():            return ou.Order(self._order)
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
-            case ou.Octave():           return ou.Octave(self._order)
+            case ou.Order():            return ou.Order(self._order)
             case _:                     return super().__mod__(operand)
 
-    def __eq__(self, other: 'Defaults') -> bool:
+    def __eq__(self, other: 'Arpeggio') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:
             return True
@@ -1475,13 +1475,13 @@ class Arpeggio(Generic):
         match operand:
             case Arpeggio():
                 super().__lshift__(operand)
-                self._order            = operand._order
+                self._order             = operand._order
             case od.DataSource():
                 match operand._data:
-                    case ou.Octave():           self._order = operand._data._unit
+                    case ou.Order():            self._order = operand._data._unit
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ou.Octave():           self._order = operand._unit
+            case ou.Order():            self._order = operand._unit
             case tuple():
                 for single_operand in operand:
                     self << single_operand

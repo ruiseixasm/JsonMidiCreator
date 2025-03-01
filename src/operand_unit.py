@@ -1269,8 +1269,9 @@ class Order(Unit):
         return self
 
     _order: dict = {
-        "Up":                       0,
-        "Down":                     1
+        "None":                     0,
+        "Up":                       1,
+        "Down":                     2
     }
 
     def nameToNumber(self, order: str = "Up"):
