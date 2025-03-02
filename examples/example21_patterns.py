@@ -59,7 +59,11 @@ drums = Drums()
 
 melodies = Melodies()
 
-sequence = melodies.sequence()
-sequence * 4 >> Play()
+# sequence = melodies.sequence()
+# sequence * 4 >> Play()
+
+
+arpeggio = melodies.arpeggio()
+arpeggio * 4 >> Play()
 
 

@@ -175,17 +175,18 @@ class Melodies(Patterns):
             ) -> oc.Clip:
         """A short melody is repeated at different pitches while maintaining the same interval pattern."""
         pattern: oc.Clip = oe.Cluster([0, 2, 4, 6], 1/1) * measures + of.Iterate() # Increases one Degree on the second Measure
-        pattern << og.Arpeggio("Up", 1/4)
-        return pattern
+        return pattern << og.Arpeggio("Up", 1/4)
 
 
-    def arpeggios(self,
-                measures: int = 2
+    def arpeggio(self,
+                degrees: list[int] = [1, 5]
             ) -> oc.Clip:
         """A short melody is repeated at different pitches while maintaining the same interval pattern."""
-        pattern: oc.Clip = oe.Chord() * measures + of.Iterate() # Increases one Degree on the second Measure
-        pattern << ou.Size(4) << og.Arpeggio("Up", 1/4)
-        return pattern
+        pattern: oc.Clip = oc.Clip()
+        for degree in degrees:
+            pattern += oe.Chord(ou.Degree(degree))
+        pattern += of.Iterate()**ra.Measures() # Places the Chords in each Measure
+        return pattern << ou.Size(4) << og.Arpeggio("Up", 1/4)
 
 
 
