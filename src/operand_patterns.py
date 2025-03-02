@@ -181,7 +181,7 @@ class Melodies(Patterns):
     def arpeggio(self,
                 degrees: list[int] = [1, 5]
             ) -> oc.Clip:
-        """A short melody is repeated at different pitches while maintaining the same interval pattern."""
+        """Notes of a chord are played one at a time instead of simultaneously."""
         pattern: oc.Clip = oc.Clip()
         for degree in degrees:
             pattern += oe.Chord(ou.Degree(degree))
