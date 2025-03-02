@@ -1452,6 +1452,7 @@ class Arpeggio(Generic):
                     case _:                     return super().__mod__(operand)
             case of.Frame():            return self % operand
             case ou.Order():            return ou.Order(self._order)
+            case str():                 return ou.Order(self._order) % str()
             case ra.Duration():         return ra.Duration( self._duration_notevalue )
             case ra.Swing():            return ra.Swing(self._swing)
             case int():                 return self._order
@@ -1549,6 +1550,7 @@ class Arpeggio(Generic):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Order():                self._order = operand._unit
+            case str():                     self._order = ou.Order(operand)._unit
             case ra.Duration():             self._duration_notevalue = operand._rational
             case ra.Swing():
                 if operand < 0:
