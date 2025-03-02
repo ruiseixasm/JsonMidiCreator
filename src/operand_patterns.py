@@ -168,3 +168,15 @@ class Drums(Patterns):
 
 
 
+class Melodies(Patterns):
+
+    def sequence(self,
+                measures: int = 2
+            ) -> oc.Clip:
+        """A short melody is repeated at different pitches while maintaining the same interval pattern."""
+        pattern: oc.Clip = oe.Chord() * measures + of.Iterate() # Increases one Degree on the second Measure
+        pattern << ou.Size(4) << og.Arpeggio("Up", 1/4)
+        return pattern
+
+
+

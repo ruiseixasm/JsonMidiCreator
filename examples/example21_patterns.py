@@ -21,6 +21,8 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
+# DRUM PATTERNS
+
 drums = Drums()
 # four_on_floor = drums.four_on_the_floor()
 # four_on_floor * 8 >> Play()
@@ -49,6 +51,15 @@ drums = Drums()
 # bossa_nova = drums.bossa_nova()
 # bossa_nova * 4 >> Play()
 
-blast_beat = drums.blast_beat()
-blast_beat * 8 >> Play()
+# blast_beat = drums.blast_beat()
+# blast_beat * 8 >> Play()
+
+
+# MELODIC PATTERNS
+
+melodies = Melodies()
+
+sequence = melodies.sequence()
+sequence * 4 >> Play()
+
 
