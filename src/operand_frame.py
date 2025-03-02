@@ -409,7 +409,21 @@ class Iterate(Left):
         self._multi_data['operand']['current'] += self._multi_data['operand']['step']
         self._index += 1
         return self_operand
-    
+
+class Propagate(Left):
+    def __init__(self, *parameters):
+        self._first_parameter = None
+        super().__init__(parameters)
+
+    def __and__(self, subject: o.Operand) -> o.Operand:
+        if isinstance(subject, o.Operand):
+            if self._first_parameter is None:
+                self._first_parameter = subject
+                for single_parameter in self._multi_data['operand']:
+                    self._first_parameter %= single_parameter
+            return super().__and__(self._first_parameter)
+        return super().__and__(subject)
+
 class Foreach(Left):
     def __init__(self, *parameters):
 

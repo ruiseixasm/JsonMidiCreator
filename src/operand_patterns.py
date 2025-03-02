@@ -193,7 +193,16 @@ class Melodies(Patterns):
                 tonic = ou.Tonic("C")
             ) -> oc.Clip:
         """Melodic movement using smooth stepwise motion between strong chord tones."""
-        pattern: oc.Clip = oe.Note() * 8 << of.Iterate(1) << of.Nth(7, 8)**of.Foreach("G", "F")**ou.Key()
+        pattern: oc.Clip = oe.Note(tonic) * 8 << of.Iterate(1)
+        pattern << of.Nth(6, 7, 8)**of.Propagate(ou.Degree())
+        pattern -= of.Nth(7, 8)**of.Iterate(1)
         return pattern
 
+
+    def pedal_tones(self,
+                tonic = ou.Tonic("C")
+            ) -> oc.Clip:
+        """Melodic movement using smooth stepwise motion between strong chord tones."""
+        pattern: oc.Clip = oe.Note(tonic) * 8 << of.Iterate(1) << of.Nth(7, 8)**of.Foreach("G", "F")**ou.Key()
+        return pattern
 
