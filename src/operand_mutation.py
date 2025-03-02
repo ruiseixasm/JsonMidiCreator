@@ -279,13 +279,13 @@ class Dropping(Haploid):
         self._probability: Fraction = ra.Probability(1/16)._rational
         super().__init__(*parameters)
 
-    def mutate(self, clip: oc.Clip) -> oc.Clip:
-        if self.setup(clip):
-            clip_len: int = clip.len()
-            for element_i in range(clip_len):
+    def mutate(self, clip: o.T) -> o.T:
+        if isinstance(clip, oc.Clip):
+            clip._items = [
+                element for element in clip._items
                 if self._chaos * self._step % int() \
-                    % self._probability.denominator < self._probability.numerator:   # Even
-                    self.swap(clip, element_i, element_i)
+                    % self._probability.denominator < self._probability.numerator
+            ]
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
