@@ -202,7 +202,7 @@ class Melodies(Patterns):
     def pedal_tones(self,
                 tonic = ou.Tonic("C")
             ) -> oc.Clip:
-        """Melodic movement using smooth stepwise motion between strong chord tones."""
-        pattern: oc.Clip = oe.Note(tonic) * 8 << of.Iterate(1) << of.Nth(7, 8)**of.Foreach("G", "F")**ou.Key()
+        """A sustained or repeated note with other melodic movement above it."""
+        pattern: oc.Clip = oe.Note(tonic) * 8 << of.Foreach(1, 5, 1, 6, 1, 4, 1, 5)**ou.Degree()
         return pattern
 
