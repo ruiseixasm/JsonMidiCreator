@@ -283,7 +283,7 @@ class Dropping(Haploid):
         if isinstance(clip, oc.Clip):
             clip._items = [
                 element for element in clip._items
-                if self._chaos * self._step % int() \
+                if not self._chaos * self._step % int() \
                     % self._probability.denominator < self._probability.numerator
             ]
         return clip
