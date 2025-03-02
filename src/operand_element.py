@@ -878,6 +878,7 @@ class Note(Element):
 class Cluster(Note):
     def __init__(self, *parameters):
         self._sets: list[int | float] = [1, 3, 5]
+        self._arpeggio: og.Arpeggio = og.Arpeggio()
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -885,8 +886,10 @@ class Cluster(Note):
             case od.DataSource():
                 match operand._data:
                     case list():            return self._sets
+                    case og.Arpeggio():     return self._arpeggio
                     case _:                 return super().__mod__(operand)
             case list():            return self._sets.copy()
+            case og.Arpeggio():     return self._arpeggio.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -894,7 +897,8 @@ class Cluster(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._sets == other._sets
+                    and self._sets == other._sets \
+                    and self._arpeggio == other._arpeggio
             case _:
                 return super().__eq__(other)
     
@@ -919,16 +923,18 @@ class Cluster(Note):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["sets"] = self.serialize( self._sets )
+        serialization["parameters"]["arpeggio"] = self.serialize( self._arpeggio )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "sets" in serialization["parameters"]):
+            "sets" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._sets  = self.deserialize( serialization["parameters"]["sets"] )
+            self._arpeggio = self.deserialize( serialization["parameters"]["arpeggio"] )
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -937,6 +943,7 @@ class Cluster(Note):
             case Cluster():
                 super().__lshift__(operand)
                 self._sets = self.deep_copy( operand._sets )
+                self._arpeggio  << operand._arpeggio
             case od.DataSource():
                 match operand._data:
                     case list():
@@ -945,6 +952,8 @@ class Cluster(Note):
                         super().__lshift__(operand)
             case list():
                 self._sets = self.deep_copy( operand )
+            case og.Arpeggio():
+                self._arpeggio << operand
             case _:
                 super().__lshift__(operand)
         return self
@@ -954,8 +963,8 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale   = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
-        self._arpeggio          = og.Arpeggio()
+        self._scale: og.Scale       = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
+        self._arpeggio: og.Arpeggio = og.Arpeggio()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
