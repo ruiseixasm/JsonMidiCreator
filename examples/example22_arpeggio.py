@@ -28,3 +28,6 @@ major_chord >> Play()
 major_chord << Arpeggio("Up") << Length(8)
 major_chord >> Play()
 
+major_chord << Arpeggio("Down")
+major_chord >> Play()
+
