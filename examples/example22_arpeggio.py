@@ -25,6 +25,6 @@ from JsonMidiCreator import *
 major_chord = Chord(Length(2))
 major_chord >> Play()
 
-major_chord << Arpeggio("Up")
+major_chord << Arpeggio("Up") << Length(8)
 major_chord >> Play()
 
