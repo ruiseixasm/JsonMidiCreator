@@ -274,6 +274,60 @@ class Picking(Haploid):
         self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
         return self
 
+class Dropping(Haploid):
+    def __init__(self, *parameters):
+        self._probability: Fraction = ra.Probability(1/16)._rational
+        super().__init__(*parameters)
+
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        if self.setup(clip):
+            clip_len: int = clip.len()
+            for element_i in range(clip_len):
+                if self._chaos * self._step % int() \
+                    % self._probability.denominator < self._probability.numerator:   # Even
+                    self.swap(clip, element_i, element_i)
+        return clip
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case ra.Probability():  return operand._data << od.DataSource( self._probability )
+                    case _:                 return super().__mod__(operand)
+            case ra.Probability():  return ra.Probability(self._probability)
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["probability"] = self.serialize(self._probability)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "probability" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._probability = self.deserialize(serialization["parameters"]["probability"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Dropping():
+                super().__lshift__(operand)
+                self._probability = operand._probability
+            case od.DataSource():
+                match operand._data:
+                    case ra.Probability():      self._probability = operand._data._rational
+                    case _:                     super().__lshift__(operand)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ra.Probability():      self._probability = operand._rational
+            case _:                     super().__lshift__(operand)
+        return self
+
 
 class Diploid(Mutation):
     pass
@@ -446,7 +500,7 @@ class Translocation(Swapping):
 
 class Crossover(Swapping):
     def __init__(self, *parameters):
-        self._probability: ra.Probability = ra.Probability(1/2)
+        self._probability: Fraction = ra.Probability(1/2)._rational
         super().__init__(*parameters)
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
@@ -454,7 +508,7 @@ class Crossover(Swapping):
             clip_len: int = clip.len()
             for element_i in range(clip_len):
                 if self._chaos * self._step % int() \
-                    % self._probability._rational.denominator < self._probability._rational.numerator:   # Even
+                    % self._probability.denominator < self._probability.numerator:   # Even
                     self.swap(clip, element_i, element_i)
         return clip
 
@@ -462,9 +516,9 @@ class Crossover(Swapping):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ra.Probability():  return self._probability
+                    case ra.Probability():  return operand._data << od.DataSource( self._probability )
                     case _:                 return super().__mod__(operand)
-            case ra.Probability():  return self.deep_copy(self._probability)
+            case ra.Probability():  return ra.Probability(self._probability)
             case _:                 return super().__mod__(operand)
 
     def getSerialization(self) -> dict:
@@ -487,14 +541,14 @@ class Crossover(Swapping):
         match operand:
             case Crossover():
                 super().__lshift__(operand)
-                self._probability       << operand._probability
+                self._probability = operand._probability
             case od.DataSource():
                 match operand._data:
-                    case ra.Probability():      self._probability = operand._data
+                    case ra.Probability():      self._probability = operand._data._rational
                     case _:                     super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case ra.Probability():      self._probability << operand
+            case ra.Probability():      self._probability = operand._rational
             case _:                     super().__lshift__(operand)
         return self
     
@@ -599,3 +653,4 @@ class Division(Operation):
                 divided_clips /= clip / single_clip
             clip <<= divided_clips // list()
         return clip
+
