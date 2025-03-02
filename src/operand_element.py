@@ -954,7 +954,8 @@ class KeyScale(Note):
     def __init__(self, *parameters):
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
-        self._scale: og.Scale  = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
+        self._scale: og.Scale   = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
+        self._arpeggio          = og.Arpeggio()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -984,10 +985,12 @@ class KeyScale(Note):
             case od.DataSource():
                 match operand._data:
                     case og.Scale():        return self._scale
+                    case og.Arpeggio():     return self._arpeggio
                     case list():            return self._scale % list()
                     case _:                 return super().__mod__(operand)
             case og.Scale():        return self._scale.copy()
             case ou.Mode():         return self._scale % operand
+            case og.Arpeggio():     return self._arpeggio.copy()
             case list():            return self.get_scale_notes()
             case _:                 return super().__mod__(operand)
 
@@ -996,7 +999,8 @@ class KeyScale(Note):
         match other:
             case self.__class__():
                 return super().__eq__(other) \
-                    and self._scale == other._scale
+                    and self._scale == other._scale \
+                    and self._arpeggio == other._arpeggio
             case _:
                 return super().__eq__(other)
             
@@ -1015,7 +1019,7 @@ class KeyScale(Note):
                 new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
-        return scale_notes
+        return self._arpeggio.arpeggiate(scale_notes)
     
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
@@ -1032,16 +1036,18 @@ class KeyScale(Note):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
         serialization["parameters"]["self_scale"] = self.serialize( self._scale )
+        serialization["parameters"]["arpeggio"] = self.serialize( self._arpeggio )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> 'KeyScale':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "self_scale" in serialization["parameters"]):
+            "self_scale" in serialization["parameters"] and "arpeggio" in serialization["parameters"]):
             
             super().loadSerialization(serialization)
             self._scale = self.deserialize( serialization["parameters"]["self_scale"] )
+            self._arpeggio = self.deserialize( serialization["parameters"]["arpeggio"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -1049,10 +1055,12 @@ class KeyScale(Note):
         match operand:
             case KeyScale():
                 super().__lshift__(operand)
-                self._scale << operand._scale
+                self._scale     << operand._scale
+                self._arpeggio  << operand._arpeggio
             case od.DataSource():
                 match operand._data:
                     case og.Scale():        self._scale = operand._data
+                    case og.Arpeggio():     self._arpeggio = operand._data
                     case _:                 super().__lshift__(operand)
             case og.Scale() | list() | ou.Mode():   # It's the element scale that is set
                 self._scale << operand
@@ -1064,6 +1072,8 @@ class KeyScale(Note):
                 # Set root note and Scale
                 self._pitch << operand
                 self._scale << operand
+            case og.Arpeggio():
+                self._arpeggio << operand
             case _:
                 super().__lshift__(operand)
         return self
