@@ -906,7 +906,7 @@ class Cluster(Note):
         cluster_notes: list[Note] = []
         for single_set in self._sets:
             cluster_notes.append( Note(self).set_staff_reference(self._staff_reference) << single_set )
-        return cluster_notes
+        return self._arpeggio.arpeggiate(cluster_notes)
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
@@ -1114,7 +1114,7 @@ class Polychord(KeyScale):
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
             polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
-        return polychord_notes
+        return self._arpeggio.arpeggiate(polychord_notes)
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
@@ -1297,7 +1297,7 @@ class Chord(KeyScale):
                         single_note << single_note % ou.Octave() + 1
                         if single_note % od.DataSource( int() ) < 128:
                             not_first_note = True # to result in another while loop
-        return chord_notes
+        return self._arpeggio.arpeggiate(chord_notes)
     
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
