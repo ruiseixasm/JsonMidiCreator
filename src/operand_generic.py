@@ -1515,17 +1515,19 @@ class Arpeggio(Generic):
         serialization = super().getSerialization()
         serialization["parameters"]["order"]            = self.serialize( self._order )
         serialization["parameters"]["duration"]         = self.serialize( self._duration_notevalue )
+        serialization["parameters"]["swing"]            = self.serialize( self._swing )
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "order" in serialization["parameters"] and "duration" in serialization["parameters"]):
+            "order" in serialization["parameters"] and "duration" in serialization["parameters"] and "swing" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._order                 = self.deserialize( serialization["parameters"]["order"] )
             self._duration_notevalue    = self.deserialize( serialization["parameters"]["duration"] )
+            self._swing                 = self.deserialize( serialization["parameters"]["swing"] )
         return self
     
     def __lshift__(self, operand: any) -> Self:
@@ -1535,10 +1537,12 @@ class Arpeggio(Generic):
                 super().__lshift__(operand)
                 self._order                 = operand._order
                 self._duration_notevalue    = operand._duration_notevalue
+                self._swing                 = operand._swing
             case od.DataSource():
                 match operand._data:
                     case ou.Order():                self._order = operand._data._unit
                     case ra.Duration():             self._duration_notevalue = operand._data._rational
+                    case ra.Swing():                self._swing = operand._data._rational
                     case int():                     self._order = operand._data
                     case float():                   self._duration_notevalue = ra.Duration(operand._data)._rational
                     case Fraction():                self._duration_notevalue = operand._data
@@ -1546,6 +1550,13 @@ class Arpeggio(Generic):
                 self.loadSerialization( operand.getSerialization() )
             case ou.Order():                self._order = operand._unit
             case ra.Duration():             self._duration_notevalue = operand._rational
+            case ra.Swing():
+                if operand < 0:
+                    self._swing = Fraction(0)
+                elif operand > 1:
+                    self._swing = Fraction(1)
+                else:
+                    self._swing = operand._rational
             case int():                     self._order = operand
             case float():                   self._duration_notevalue = ra.Duration(operand)._rational
             case Fraction():                self._duration_notevalue = operand
