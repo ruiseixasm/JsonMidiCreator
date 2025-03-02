@@ -62,8 +62,8 @@ melodies = Melodies()
 # sequence = melodies.sequence()
 # sequence * 4 >> Play()
 
+# arpeggio = melodies.arpeggio()
+# arpeggio * 4 >> Play()
 
-arpeggio = melodies.arpeggio()
-arpeggio * 4 >> Play()
-
-
+passing_tones = melodies.passing_tones()
+passing_tones * 4 >> Play()

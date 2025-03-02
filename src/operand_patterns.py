@@ -189,4 +189,11 @@ class Melodies(Patterns):
         return pattern << ou.Size(4) << og.Arpeggio("Up", 1/4)
 
 
+    def passing_tones(self,
+                tonic = ou.Tonic("C")
+            ) -> oc.Clip:
+        """Melodic movement using smooth stepwise motion between strong chord tones."""
+        pattern: oc.Clip = oe.Note() * 8 << of.Iterate(1) << of.Nth(7, 8)**of.Foreach("G", "F")**ou.Key()
+        return pattern
+
 
