@@ -877,7 +877,7 @@ class Note(Element):
 
 class Cluster(Note):
     def __init__(self, *parameters):
-        self._sets: list[int | float] = [1, 3, 5]
+        self._sets: list[int | float] = [0, 2, 4]
         self._arpeggio: og.Arpeggio = og.Arpeggio()
         super().__init__( *parameters )
 
@@ -905,7 +905,9 @@ class Cluster(Note):
     def get_cluster_notes(self) -> list[Note]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
-            cluster_notes.append( Note(self).set_staff_reference(self._staff_reference) << single_set )
+            new_note: Note = Note(self).set_staff_reference(self._staff_reference)
+            new_note += single_set
+            cluster_notes.append( new_note )
         return self._arpeggio.arpeggiate(cluster_notes)
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
