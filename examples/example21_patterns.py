@@ -74,7 +74,10 @@ melodies = Melodies()
 # call_response = melodies.call_response()
 # call_response * 4 >> Play()
 
-ostinato = melodies.ostinato()
-ostinato * 4 >> Play()
+# ostinato = melodies.ostinato()
+# ostinato * 4 >> Play()
+
+riff = melodies.riff()
+riff * 4 >> Play()
 
 

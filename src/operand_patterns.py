@@ -233,4 +233,18 @@ class Melodies(Patterns):
         return pattern
 
 
+    def riff(self,
+                tonic = ou.Tonic("C"),
+                degrees = [1, 5, 1, 6]
+            ) -> oc.Clip:
+        """A catchy and distinct repeating phrase, often rhythmic and driving (Short Repeated Phrase)."""
+        measure_notes: int = len(degrees)
+        duration: ra.Duration = ra.Duration(ra.Measures(1) / measure_notes)
+        left_pattern: oc.Clip = oe.Note(tonic, duration) * measure_notes << of.Foreach(degrees)
+        degrees[int(len(degrees) / 1.25)] += 1
+        right_measure: oc.Clip = oe.Note(tonic, duration) * measure_notes << of.Foreach(degrees)
+        return left_pattern * right_measure
+
+
+
 
