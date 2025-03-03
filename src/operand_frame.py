@@ -429,7 +429,7 @@ class Foreach(Left):
 
         processed_params = []
         for param in parameters:
-            if isinstance(param, range):
+            if isinstance(param, (range, list, tuple)):
                 processed_params.extend(param)
             else:
                 processed_params.append(param)

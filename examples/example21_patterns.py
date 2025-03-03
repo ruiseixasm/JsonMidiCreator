@@ -68,7 +68,13 @@ melodies = Melodies()
 # passing_tones = melodies.passing_tones()
 # passing_tones * 4 >> Play()
 
-pedal_tones = melodies.pedal_tones()
-pedal_tones * 4 >> Play()
+# pedal_tones = melodies.pedal_tones()
+# pedal_tones * 4 >> Play()
+
+# call_response = melodies.call_response()
+# call_response * 4 >> Play()
+
+ostinato = melodies.ostinato()
+ostinato * 4 >> Play()
 
 

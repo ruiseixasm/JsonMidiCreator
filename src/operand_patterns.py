@@ -173,7 +173,7 @@ class Melodies(Patterns):
     def sequence(self,
                 measures: int = 2
             ) -> oc.Clip:
-        """A short melody is repeated at different pitches while maintaining the same interval pattern."""
+        """A short melody is repeated at different pitches while maintaining the same interval pattern (Repetition with Transposition)."""
         pattern: oc.Clip = oe.Cluster([0, 2, 4, 6], 1/1) * measures + of.Iterate() # Increases one Degree on the second Measure
         return pattern << og.Arpeggio("Up", 1/4)
 
@@ -181,7 +181,7 @@ class Melodies(Patterns):
     def arpeggio(self,
                 degrees: list[int] = [1, 5]
             ) -> oc.Clip:
-        """Notes of a chord are played one at a time instead of simultaneously."""
+        """Notes of a chord are played one at a time instead of simultaneously (Broken Chords)."""
         pattern: oc.Clip = oc.Clip()
         for degree in degrees:
             pattern += oe.Chord(ou.Degree(degree))
@@ -205,4 +205,32 @@ class Melodies(Patterns):
         """A sustained or repeated note with other melodic movement above it."""
         pattern: oc.Clip = oe.Note(tonic) * 8 << of.Foreach(1, 5, 1, 6, 1, 4, 1, 5)**ou.Degree()
         return pattern
+
+
+    def call_response(self,
+                tonic = ou.Tonic("C"),
+                transposition = ou.Degree(2)
+            ) -> oc.Clip:
+        """A phrase (Call) is answered by another phrase (Response), often with variation (Antiphony)."""
+        pattern: oc.Clip = oe.Note(tonic) * 4 << of.Foreach(1, 2, 3, 5)**ou.Degree()
+        pattern *= 2
+        second_measure = pattern | of.Equal(ou.Measure(1))
+        second_measure += transposition
+        two_notes = second_measure | of.Odd()
+        two_notes.reverse()
+        two_notes += ou.Beat(3)
+        return pattern << ou.Tied()
+
+
+    def ostinato(self,
+                tonic = ou.Tonic("C"),
+                degrees = [1, 5, 1, 6]
+            ) -> oc.Clip:
+        """A short melodic pattern repeated consistently throughout a piece (Looping Motif)."""
+        measure_notes: int = len(degrees)
+        duration: ra.Duration = ra.Duration(ra.Measures(1) / measure_notes)
+        pattern: oc.Clip = oe.Note(tonic, duration) * measure_notes * 2 << of.Foreach(degrees)
+        return pattern
+
+
 
