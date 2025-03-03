@@ -410,7 +410,7 @@ class Iterate(Left):
         self._index += 1
         return self_operand
 
-class Propagate(Left):
+class Drag(Left):
     def __init__(self, *parameters):
         self._first_parameter = None
         super().__init__(parameters)

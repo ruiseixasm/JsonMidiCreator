@@ -194,7 +194,7 @@ class Melodies(Patterns):
             ) -> oc.Clip:
         """Melodic movement using smooth stepwise motion between strong chord tones."""
         pattern: oc.Clip = oe.Note(tonic) * 8 << of.Iterate(1)
-        pattern << of.Nth(6, 7, 8)**of.Propagate(ou.Degree())
+        pattern << of.Nth(6, 7, 8)**of.Drag(ou.Degree())
         pattern -= of.Nth(7, 8)**of.Iterate(1)
         return pattern
 
