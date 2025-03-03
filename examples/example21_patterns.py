@@ -77,7 +77,9 @@ melodies = Melodies()
 # ostinato = melodies.ostinato()
 # ostinato * 4 >> Play()
 
-riff = melodies.riff()
-riff * 4 >> Play()
+# riff = melodies.riff()
+# riff * 4 >> Play()
 
+chromatic_run = melodies.chromatic_run()
+chromatic_run * 4 >> Play()
 

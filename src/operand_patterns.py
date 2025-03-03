@@ -246,5 +246,13 @@ class Melodies(Patterns):
         return left_pattern * right_measure
 
 
+    def chromatic_run(self,
+                tonic = ou.Tonic("C")
+            ) -> oc.Clip:
+        """A melody moves by half-step intervals (semitones) instead of traditional scale steps (Half-Step Motion)."""
+        pattern: oc.Clip = oe.Note(tonic) * 8 + of.Iterate()**ou.Tonic()
+        return pattern
+
+
 
 
