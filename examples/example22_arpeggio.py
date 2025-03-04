@@ -22,12 +22,21 @@ if src_path not in sys.path:
 from JsonMidiCreator import *
 
 
-major_chord = Chord(Length(1))
+major_chord = Chord(Length(1), Size(4))
 major_chord >> Play()
 
 major_chord << Arpeggio("Up") << Length(4)
 major_chord >> Play()
 
 major_chord << Arpeggio("Down")
+major_chord >> Play()
+
+major_chord << Arpeggio("Up-Down")
+major_chord >> Play()
+
+major_chord << Arpeggio("Down-Up")
+major_chord >> Play()
+
+major_chord << Arpeggio("Chaotic")
 major_chord >> Play()
 

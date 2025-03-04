@@ -1491,17 +1491,6 @@ class Arpeggio(Generic):
             case _:
                 return notes  # Default to "Up"
 
-    def sort(self, notes: list[Note]) -> list[Note]:
-        from operand_element import Note
-
-        if self._order == ou.Order._name_order["Down"]:
-            down_notes: list[Note] = []
-            for source_note in notes:
-                down_notes.insert(0, source_note)
-            return down_notes
-
-        return notes
-
     def arpeggiate(self, notes: list[Note]) -> list[Note]:
         from operand_element import Note
 
