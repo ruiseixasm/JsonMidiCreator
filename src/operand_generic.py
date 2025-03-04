@@ -1426,8 +1426,6 @@ class Staff(Generic):
         return self
 
 
-from typing import Iterator
-
 class Arpeggio(Generic):
     def __init__(self, *parameters):
         self._order: int = 0
@@ -1602,6 +1600,12 @@ class Arpeggio(Generic):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+        return self
+
+    def __imul__(self, number: int | float | Fraction | ou.Unit | ra.Rational) -> Self:
+        self._initiated = True
+        self._chaos * number
+        self._index += self.convert_to_int(number)    # keeps track of each iteration
         return self
 
 
