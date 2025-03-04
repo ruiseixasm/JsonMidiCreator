@@ -1500,6 +1500,8 @@ class Arpeggio(Generic):
             position: ra.Position = notes[0] // ra.Position()
             remaining_length: ra.Length = notes[0] // ra.Length()
             note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+            odd_length: ra.Length = note_length * 2 * self._swing
+            even_length: ra.Length = note_length * 2 - odd_length
             
             sequenced_notes: list[Note] = self._generate_sequence(notes)
             arpeggiated_notes: list[Note] = []
