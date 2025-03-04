@@ -30,6 +30,7 @@ import operand_label as ol
 import operand_frame as of
 import operand_generic as og
 import operand_frame as of
+import operand_chaos as ch
 
 TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents any subclass of Operand
 
@@ -890,7 +891,8 @@ class Cluster(Note):
                     case _:                 return super().__mod__(operand)
             case list():            return self._sets.copy()
             case og.Arpeggio():     return self._arpeggio.copy()
-            case ra.Swing():        return self._arpeggio % operand
+            case ou.Order() | ra.Swing() | ch.Chaos():
+                                    return self._arpeggio % operand
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -955,7 +957,7 @@ class Cluster(Note):
                         super().__lshift__(operand)
             case list():
                 self._sets = self.deep_copy( operand )
-            case og.Arpeggio() | ra.Swing():
+            case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
                 super().__lshift__(operand)
@@ -1003,7 +1005,8 @@ class KeyScale(Note):
             case og.Scale():        return self._scale.copy()
             case ou.Mode():         return self._scale % operand
             case og.Arpeggio():     return self._arpeggio.copy()
-            case ra.Swing():        return self._arpeggio % operand
+            case ou.Order() | ra.Swing() | ch.Chaos():
+                                    return self._arpeggio % operand
             case list():            return self.get_scale_notes()
             case _:                 return super().__mod__(operand)
 
@@ -1085,7 +1088,7 @@ class KeyScale(Note):
                 # Set root note and Scale
                 self._pitch << operand
                 self._scale << operand
-            case og.Arpeggio() | ra.Swing():
+            case og.Arpeggio() | ou.Order() | ra.Swing() | ch.Chaos():
                 self._arpeggio << operand
             case _:
                 super().__lshift__(operand)

@@ -28,8 +28,6 @@ import operand as o
 import operand_unit as ou
 import operand_rational as ra
 import operand_data as od
-import operand_label as ol
-import operand_generic as og
 import operand_frame as of
 
 
