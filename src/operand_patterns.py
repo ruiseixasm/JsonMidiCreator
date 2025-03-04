@@ -264,5 +264,16 @@ class Melodies(Patterns):
         return measure_1 * measure_2
 
 
+    def modal_interchange(self,
+                tonic = ou.Tonic("C")
+            ) -> oc.Clip:
+        """Switching to a different mode for color and harmonic interest (Borrowed Notes from Other Scales)."""
+        major_pattern: oc.Clip = oe.Note(tonic) * 4 + of.Iterate(step=2)**ou.Degree() << ou.Major()
+        last_note: oe.Note = major_pattern.last()
+        last_note -= ou.Degree(1)
+        minor_pattern: oc.Clip = major_pattern.copy() << ou.Minor() << of.Get(float())**ou.Tonic() << ou.Degree(1)
+        return major_pattern * minor_pattern
+
+
 
 
