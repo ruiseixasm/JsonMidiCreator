@@ -1512,10 +1512,10 @@ class Arpeggio(Generic):
             remaining_length: ra.Length = notes[0] // ra.Length()
             note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             
-            sorted_notes: list[Note] = self.sort(notes)
+            sequenced_notes: list[Note] = self._generate_sequence(notes)
             arpeggiated_notes: list[Note] = []
             while remaining_length > 0:
-                for source_note in sorted_notes:
+                for source_note in sequenced_notes:
                     new_note: Note = source_note.copy()
                     new_note << position + note_length * len(arpeggiated_notes)
                     if note_length > remaining_length:
