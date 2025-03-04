@@ -1271,13 +1271,19 @@ class Order(Unit):
     _name_order: dict = {
         "None":         0,
         "Up":           1,
-        "Down":         2
+        "Down":         2,
+        "Up-Down":      3,
+        "Down-Up":      4,
+        "Chaotic":      5
     }
 
     _order_name: dict = {
         0:              "None",
         1:              "Up",
-        2:              "Down"
+        2:              "Down",
+        3:              "Up-Down",
+        4:              "Down-Up",
+        5:              "Chaotic"
     }
 
     def nameToNumber(self, order: str = "Up"):
@@ -1292,9 +1298,8 @@ class Order(Unit):
 
     @staticmethod
     def numberToName(number: int) -> str:
-        for key, value in Order._name_order.items():
-            if value == number:
-                return key
+        if 0 <= number < len(Order._order_name):
+            return Order._order_name[number]
         return "Unknown Order!"
 
 

@@ -1461,38 +1461,37 @@ class Arpeggio(Generic):
             case _:                     return super().__mod__(operand)
 
 
+    def _shuffle_list(self, list: list) -> list:
+        
+        source_picks = [*range(len(list))]
+        target_picks = []
+
+        while len(source_picks) > 0:
+            target_picks.append(source_picks.pop(self._chaos * 1 % int() % len(source_picks)))
+
+        shuffled_list = []
+        for pick in target_picks:
+            shuffled_list.append(list[pick])
+
+        return shuffled_list
+
     from operand_element import Note
 
-    def _generate_sequence(self, notes: list[Note]) -> list[int]:
-        """Generates the sequence of indices based on the arpeggio order."""
-        indices = list(range(len(notes)))
-        
-        match self._order:
+    def _generate_sequence(self, notes: list[Note]) -> list[Note]:
+        """Generates the sequence of the arpeggio order."""
+        match ou.Order.numberToName( self._order ):
             case "Up":
-                return indices
+                return notes
             case "Down":
-                return indices[::-1]
+                return notes[::-1]
             case "Up-Down":
-                return indices + indices[-2:0:-1]  # Ascend then descend
+                return notes + notes[-2:0:-1]  # Ascend then descend
             case "Down-Up":
-                return indices[::-1] + indices[1:-1]  # Descend then ascend
-            case "Random":
-                random.shuffle(indices)
-                return indices
+                return notes[::-1] + notes[1:-1]  # Descend then ascend
+            case "Chaotic":
+                return self._shuffle_list(notes)
             case _:
-                return indices  # Default to "Up"
-
-    def __iter__(self) -> Iterator:
-        return self
-
-    def __next__(self):
-        if not self.index_sequence:
-            raise StopIteration
-        if self.current_index >= len(self.index_sequence):
-            self.current_index = 0  # Loop indefinitely
-        note = self.notes[self.index_sequence[self.current_index]]
-        self.current_index += 1
-        return note
+                return notes  # Default to "Up"
 
     def sort(self, notes: list[Note]) -> list[Note]:
         from operand_element import Note
