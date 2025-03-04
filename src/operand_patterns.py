@@ -271,7 +271,8 @@ class Melodies(Patterns):
         major_pattern: oc.Clip = oe.Note(tonic) * 4 + of.Iterate(step=2)**ou.Degree() << ou.Major()
         last_note: oe.Note = major_pattern.last()
         last_note -= ou.Degree(1)
-        minor_pattern: oc.Clip = major_pattern.copy() << ou.Minor() << of.Get(float())**ou.Tonic() << ou.Degree(1)
+        minor_pattern: oc.Clip = major_pattern.copy(ou.Minor())
+        minor_pattern << of.Get(og.Pitch(), float())**ou.Tonic() << ou.Degree(1)
         return major_pattern * minor_pattern
 
 
