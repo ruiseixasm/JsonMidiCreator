@@ -80,6 +80,9 @@ melodies = Melodies()
 # riff = melodies.riff()
 # riff * 4 >> Play()
 
-chromatic_run = melodies.chromatic_run()
-chromatic_run * 4 >> Play()
+# chromatic_run = melodies.chromatic_run()
+# chromatic_run * 4 >> Play()
+
+syncopation = melodies.syncopation()
+syncopation * 4 >> Play()
 

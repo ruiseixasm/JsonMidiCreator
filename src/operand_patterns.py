@@ -254,5 +254,15 @@ class Melodies(Patterns):
         return pattern
 
 
+    def syncopation(self,
+                tonic_1 = ou.Tonic("C"),
+                tonic_2 = ou.Tonic("G")
+            ) -> oc.Clip:
+        """A melody emphasizing offbeats or unexpected rhythmic placements (Offbeat Melodies)."""
+        measure_1: oc.Clip = oe.Note(tonic_1, 1/2) * 2 + ou.Beat() << of.Foreach(1, 3)**ou.Degree() << ra.Duration(1/4)
+        measure_2: oc.Clip = oe.Note(tonic_2, 1/2) * 2 << of.Foreach(1, 2)**ou.Degree() << ra.Duration(1/4)
+        return measure_1 * measure_2
+
+
 
 
