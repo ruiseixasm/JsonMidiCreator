@@ -279,7 +279,6 @@ class Melodies(Patterns):
 
 class Automations(Patterns):
 
-
     def fade_in_out(self,
                 start = ou.Value(100),
                 end = ou.Value(0),
@@ -289,8 +288,7 @@ class Automations(Patterns):
         measure_amount: int = length / ra.Length(1) % int() * 16
         if measure_amount > 1:
             volume_automation: oc.Clip = oe.ControlChange(ou.Number("Volume"), start) * measure_amount
-            change_amount = (end - start) / (measure_amount - 1)
-            volume_automation += of.Iterate(step=change_amount)
+            volume_automation += of.Iterate()**of.Divide(measure_amount - 1)**of.Multiply(end - start)
             return volume_automation
         return oc.Clip(oe.ControlChange(ou.Number("Volume"), start))
 
