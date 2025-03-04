@@ -25,7 +25,7 @@ from JsonMidiCreator import *
 major_chord = Chord(Length(1), Size(4))
 major_chord >> Play()
 
-major_chord << Arpeggio("Up") << Length(4)
+major_chord << Arpeggio("Up") << Length(2)
 major_chord >> Play()
 
 major_chord << Arpeggio("Down")
@@ -38,5 +38,21 @@ major_chord << Arpeggio("Down-Up")
 major_chord >> Play()
 
 major_chord << Arpeggio("Chaotic")
+major_chord >> Play()
+
+
+major_chord << Arpeggio("Up") << Swing(0.65)
+major_chord >> Play()
+
+major_chord << Arpeggio("Down", Swing(0.65))
+major_chord >> Play()
+
+major_chord << Arpeggio("Up-Down", Swing(0.65))
+major_chord >> Play()
+
+major_chord << Arpeggio("Down-Up", Swing(0.65))
+major_chord >> Play()
+
+major_chord << Arpeggio("Chaotic", Swing(0.65))
 major_chord >> Play()
 

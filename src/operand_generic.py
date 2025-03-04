@@ -1497,25 +1497,32 @@ class Arpeggio(Generic):
         if self._order > 0 and len(notes) > 0:
 
             staff_reference: Staff = notes[0]._staff_reference
-            position: ra.Position = notes[0] // ra.Position()
-            remaining_length: ra.Length = notes[0] // ra.Length()
+            note_start_position: ra.Position = notes[0] // ra.Position()
+            arpeggio_length: ra.Length = notes[0] // ra.Length()
+            arpeggio_end_position: ra.Position = arpeggio_length.convertToPosition()
             note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             odd_length: ra.Length = note_length * 2 * self._swing
             even_length: ra.Length = note_length * 2 - odd_length
             
             sequenced_notes: list[Note] = self._generate_sequence(notes)
             arpeggiated_notes: list[Note] = []
-            while remaining_length > 0:
+            nth_note: int = 1
+            while note_start_position < arpeggio_end_position:
                 for source_note in sequenced_notes:
                     new_note: Note = source_note.copy()
-                    new_note << position + note_length * len(arpeggiated_notes)
-                    if note_length > remaining_length:
-                        note_length = remaining_length
-                    new_note << note_length
                     arpeggiated_notes.append(new_note)
-                    remaining_length -= note_length
-                    if remaining_length == 0:
+                    new_note << note_start_position
+                    if nth_note % 2 == 1:   # Odd note
+                        new_note << odd_length
+                    else:
+                        new_note << even_length
+                    note_end_position: ra.Position = note_start_position + new_note // ra.Length()
+                    if note_end_position > arpeggio_end_position:
+                        length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
+                        new_note += length_deficit
                         break
+                    note_start_position = note_end_position
+                    nth_note += 1
             return arpeggiated_notes
 
         return notes
