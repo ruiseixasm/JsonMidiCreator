@@ -1268,17 +1268,23 @@ class Order(Unit):
             case _:                 super().__lshift__(operand)
         return self
 
-    _order: dict = {
-        "None":                     0,
-        "Up":                       1,
-        "Down":                     2
+    _name_order: dict = {
+        "None":         0,
+        "Up":           1,
+        "Down":         2
+    }
+
+    _order_name: dict = {
+        0:              "None",
+        1:              "Up",
+        2:              "Down"
     }
 
     def nameToNumber(self, order: str = "Up"):
         # Convert input words to lowercase
         order_split = order.lower().split()
         # Iterate over the instruments list
-        for key, value in Order._order.items():
+        for key, value in Order._name_order.items():
             # Check if all input words are present in the order string
             if all(word in key.lower() for word in order_split):
                 self._unit = value
@@ -1286,7 +1292,7 @@ class Order(Unit):
 
     @staticmethod
     def numberToName(number: int) -> str:
-        for key, value in Order._order.items():
+        for key, value in Order._name_order.items():
             if value == number:
                 return key
         return "Unknown Order!"

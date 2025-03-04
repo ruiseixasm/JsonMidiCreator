@@ -1426,6 +1426,8 @@ class Staff(Generic):
         return self
 
 
+from typing import Iterator
+
 class Arpeggio(Generic):
     def __init__(self, *parameters):
         self._order: int = 0
@@ -1461,10 +1463,41 @@ class Arpeggio(Generic):
 
     from operand_element import Note
 
+    def _generate_sequence(self, notes: list[Note]) -> list[int]:
+        """Generates the sequence of indices based on the arpeggio order."""
+        indices = list(range(len(notes)))
+        
+        match self._order:
+            case "Up":
+                return indices
+            case "Down":
+                return indices[::-1]
+            case "Up-Down":
+                return indices + indices[-2:0:-1]  # Ascend then descend
+            case "Down-Up":
+                return indices[::-1] + indices[1:-1]  # Descend then ascend
+            case "Random":
+                random.shuffle(indices)
+                return indices
+            case _:
+                return indices  # Default to "Up"
+
+    def __iter__(self) -> Iterator:
+        return self
+
+    def __next__(self):
+        if not self.index_sequence:
+            raise StopIteration
+        if self.current_index >= len(self.index_sequence):
+            self.current_index = 0  # Loop indefinitely
+        note = self.notes[self.index_sequence[self.current_index]]
+        self.current_index += 1
+        return note
+
     def sort(self, notes: list[Note]) -> list[Note]:
         from operand_element import Note
 
-        if self._order == ou.Order._order["Down"]:
+        if self._order == ou.Order._name_order["Down"]:
             down_notes: list[Note] = []
             for source_note in notes:
                 down_notes.insert(0, source_note)
