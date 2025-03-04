@@ -86,6 +86,19 @@ melodies = Melodies()
 # syncopation = melodies.syncopation()
 # syncopation * 4 >> Play()
 
-modal_interchange = melodies.modal_interchange()
-modal_interchange * 4 >> Play()
+# modal_interchange = melodies.modal_interchange()
+# modal_interchange * 4 >> Play()
+
+
+
+# AUTOMATION PATTERNS
+
+automations = Automations()
+
+
+fade_out = automations.fade_in_out()
+fade_out >> Play()
+
+fade_in = automations.fade_in_out(Value(0), Value(100))
+fade_in >> Play()
 
