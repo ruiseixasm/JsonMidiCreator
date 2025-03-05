@@ -212,7 +212,37 @@ class Container(o.Operand):
 
         Args:
             chaos (ch.Chaos): An Chaos object to be used as sorter.
-            parameter (type): The type of parameter being shuffled around the items.
+            parameter (type): The type of parameter being swapped around the items.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
+        if chaos is None or not isinstance(chaos, ch.Chaos):
+            chaos = ch.SinX()
+        parameters: list = []
+        parameter_instance = parameter()
+        if isinstance(parameter_instance, od.DataSource):
+            for _ in range(len(self._items)):
+                data_index: int = chaos * 1 % int() % len(self._items)
+                parameters.append(self._items[data_index])   # No need to copy
+                del self._items[data_index] # Like picking up colored balls, pop out
+            self._items = parameters
+        else:
+            for item in self._items:
+                parameters.append(item % parameter_instance)   # No need to copy
+            for item in self._items:
+                data_index: int = chaos * 1 % int() % len(parameters)
+                item << parameters[data_index]
+                del parameters[data_index] # Like picking up colored balls, pop out
+        return self
+
+    def shuffle(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
+        """
+        Reaffects the given parameter type in a chaotic manner accordingly to a probability.
+
+        Args:
+            chaos (ch.Chaos): An Chaos object to be used as sorter.
+            parameter (type): The type of parameter being swapped around the items.
 
         Returns:
             Container: The same self object with the items processed.
