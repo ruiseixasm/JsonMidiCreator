@@ -478,6 +478,71 @@ class Swapping(Diploid):
         return self
 
 
+class Shuffling(Swapping):
+    def __init__(self, *parameters):
+        self._probability: Fraction = ra.Probability(1/4**2)._rational
+        super().__init__()
+        self._parameter = od.DataSource # Translocation is all about the elements themselves
+        for single_parameter in parameters: # Faster than passing a tuple
+            self << single_parameter
+
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
+        if self.setup(clip):
+            
+            source_clip_len: int = self._clip.len()
+            target_clip_len: int = clip.len()
+
+            for source_i in range(source_clip_len):
+                for target_j in range(target_clip_len):
+                    
+                    if self._chaos * self._step % int() \
+                        % self._probability.denominator < self._probability.numerator:   # Make the swap
+
+                        self.swap(clip, source_i, target_j)
+
+        return clip
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case ra.Probability():  return operand._data << od.DataSource( self._probability )
+                    case _:                 return super().__mod__(operand)
+            case ra.Probability():  return ra.Probability(self._probability)
+            case _:                 return super().__mod__(operand)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["probability"] = self.serialize(self._probability)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "probability" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._probability = self.deserialize(serialization["parameters"]["probability"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Shuffling():
+                super().__lshift__(operand)
+                self._probability = operand._probability
+            case od.DataSource():
+                match operand._data:
+                    case ra.Probability():      self._probability = operand._data._rational
+                    case _:                     super().__lshift__(operand)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case ra.Probability():      self._probability = operand._rational
+            case _:                     super().__lshift__(operand)
+        return self
+    
+
 class Translocation(Swapping):
     def __init__(self, *parameters):
         super().__init__()
@@ -509,7 +574,7 @@ class Crossover(Swapping):
             for element_i in range(clip_len):
                 if self._chaos * self._step % int() \
                     % self._probability.denominator < self._probability.numerator:   # Even
-                    self.swap(clip, element_i, element_i)
+                    self.swap(clip, element_i, element_i)   # Same locus
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
