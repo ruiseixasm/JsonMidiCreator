@@ -502,3 +502,16 @@ class Least(Threshold):
             return True
         return super().__eq__(other)
 
+
+class Totals(Selection):
+    pass
+
+class Above(Totals):
+    pass
+
+class Same(Totals):
+    pass
+
+class Bellow(Totals):
+    pass
+
