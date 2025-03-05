@@ -31,7 +31,7 @@ rhythmic_notes = Note() * 8 * 8 << Foreach(whole, dotted_half, half, dotted_quar
 mutated_clip = Note() * 8 << of.Foreach(2, 3, 2, -3, 1, -3, 4, 5) # Degree
 # mutated_clip >> P
 
-duration_mutation = Swapping(Duration) * 22
+duration_mutation = Shuffling(Duration) * 22
 duration_mutation << rhythmic_notes
 length_condition = Condition(Length(Steps(4)))
 minimum_notes = Least(2)

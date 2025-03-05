@@ -332,7 +332,7 @@ class Dropping(Haploid):
 class Diploid(Mutation):
     pass
 
-class Swapping(Diploid):
+class Shuffling(Diploid):
     def __init__(self, *parameters):
         super().__init__()
         self._clip: oc.Clip             = None
@@ -418,7 +418,7 @@ class Swapping(Diploid):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Swapping():
+            case Shuffling():
                 super().__lshift__(operand)
                 self._clip          = self.deep_copy( operand._clip )
             case od.DataSource():
@@ -445,14 +445,14 @@ class Swapping(Diploid):
 
     def __itruediv__(self, operand: any) -> Self:
         match operand:
-            case Swapping():
+            case Shuffling():
                 self.mutate(operand._clip.copy())
             case oc.Clip():
                 self.mutate(operand.copy())
         return self
 
     def empty_copy(self, *parameters) -> Self:
-        empty_copy: Swapping = self.__class__()
+        empty_copy: Shuffling = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
         if self._next_operand:
             empty_copy._next_operand = self.deep_copy(self._next_operand)
@@ -464,7 +464,7 @@ class Swapping(Diploid):
         return empty_copy
 
     def shallow_copy(self, *parameters) -> Self:
-        shallow_copy: Swapping      = self.empty_copy()
+        shallow_copy: Shuffling      = self.empty_copy()
         if isinstance(self._clip, oc.Clip):
             shallow_copy._clip = self._clip.shallow_copy()
         for single_parameter in parameters:
@@ -478,7 +478,7 @@ class Swapping(Diploid):
         return self
 
 
-class Shuffling(Swapping):
+class Swapping(Shuffling):
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/4**2)._rational
         super().__init__()
@@ -529,7 +529,7 @@ class Shuffling(Swapping):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Shuffling():
+            case Swapping():
                 super().__lshift__(operand)
                 self._probability = operand._probability
             case od.DataSource():
@@ -543,7 +543,7 @@ class Shuffling(Swapping):
         return self
     
 
-class Translocation(Swapping):
+class Translocation(Shuffling):
     def __init__(self, *parameters):
         super().__init__()
         self._parameter = od.DataSource # Translocation is all about the elements themselves
@@ -563,7 +563,7 @@ class Translocation(Swapping):
         return clip
 
 
-class Crossover(Swapping):
+class Crossover(Shuffling):
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/2)._rational
         super().__init__(*parameters)
