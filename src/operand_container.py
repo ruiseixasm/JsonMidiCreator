@@ -248,29 +248,30 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        if probability is None or not isinstance(probability, ra.Probability):
-            probability = ra.Probability(1/self.len()**2)
-        if chaos is None or not isinstance(chaos, ch.Chaos):
-            chaos = ch.SinX()
-        
-        parameter_instance = parameter()
-        for element_i in range(self.len()):
-            for element_j in range(self.len()):
-                
-                if chaos * 1 % int() \
-                    % probability._rational.denominator < probability._rational.numerator:   # Make the swap
+        if self.len() > 0:
+            if probability is None or not isinstance(probability, ra.Probability):
+                probability = ra.Probability(1/self.len()**2)
+            if chaos is None or not isinstance(chaos, ch.Chaos):
+                chaos = ch.SinX()
+            
+            parameter_instance = parameter()
+            for element_i in range(self.len()):
+                for element_j in range(self.len()):
+                    
+                    if chaos * 1 % int() \
+                        % probability._rational.denominator < probability._rational.numerator:   # Make the swap
 
-                    if isinstance(parameter_instance, od.DataSource):
+                        if isinstance(parameter_instance, od.DataSource):
 
-                        temp_element: oe.Element = self[element_i]
-                        self[element_i] = self[element_j]
-                        self[element_j] = temp_element
+                            temp_element: oe.Element = self[element_i]
+                            self[element_i] = self[element_j]
+                            self[element_j] = temp_element
 
-                    else:
+                        else:
 
-                        temp_parameter: any = self[element_i] % parameter_instance
-                        self[element_i] << self[element_j] % parameter_instance
-                        self[element_j] << temp_parameter
+                            temp_parameter: any = self[element_i] % parameter_instance
+                            self[element_i] << self[element_j] % parameter_instance
+                            self[element_j] << temp_parameter
 
         return self
 
