@@ -206,7 +206,7 @@ class Container(o.Operand):
         self._items.sort(key=lambda x: x % compare)
         return self
 
-    def swap(self, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
+    def shuffle(self, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
         """
         Reaffects the given parameter type in a chaotic manner.
 
@@ -236,7 +236,7 @@ class Container(o.Operand):
                 del parameters[data_index] # Like picking up colored balls, pop out
         return self
 
-    def shuffle(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
+    def swap(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
         """
         Reaffects the given parameter type in a chaotic manner accordingly to a probability.
 
@@ -459,7 +459,7 @@ class Container(o.Operand):
             case od.Getter() | od.Process():
                 return self >> operand
             case ch.Chaos():
-                return self.swap(operand)
+                return self.shuffle(operand)
             
             case tuple():
                 for single_operand in operand:
@@ -485,7 +485,7 @@ class Container(o.Operand):
             case od.Getter() | od.Process():
                 self >>= operand
             case ch.Chaos():
-                self.swap(operand)
+                self.shuffle(operand)
             case om.Mutation():
                 operand.mutate(self)
             case _:
@@ -1140,7 +1140,7 @@ class Clip(Container):  # Just a container of Elements
                 return self >> operand
 
             case ch.Chaos():
-                return self.swap(operand)
+                return self.shuffle(operand)
             case om.Mutation():
                 return operand.copy().mutate(self)
 

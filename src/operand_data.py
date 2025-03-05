@@ -789,7 +789,7 @@ class Swap(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.swap(*self._data)
+            return operand.shuffle(*self._data)
         return super().__rrshift__(operand)
 
 class Shuffle(Process):
@@ -804,7 +804,7 @@ class Shuffle(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.shuffle(*self._data)
+            return operand.swap(*self._data)
         return super().__rrshift__(operand)
 
 class Reverse(Process):
