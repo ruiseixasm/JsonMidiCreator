@@ -238,10 +238,17 @@ class Left(Frame):  # LEFT TO RIGHT
             self_operand._set = True
             
         return self_operand
-    
+
+
 class Input(Left):
     def __and__(self, input: o.Operand) -> o.Operand:
+        import operand_container as oc
+        if isinstance(self._multi_data['operand'], oc.Container) and self._multi_data['operand'].len() > 0:
+            item = self._multi_data['operand'][self._index % self._multi_data['operand'].len()]
+            self._index += 1
+            super().__and__(item)
         return super().__and__(self._multi_data['operand'])
+
 
 class PushTo(Left):
     def __and__(self, input: o.Operand) -> o.Operand:

@@ -181,3 +181,20 @@ def test_even_odd():
 # test_even_odd()
 
 
+def test_input_clip():
+
+    clip = Note() * 4
+    clip_G = Note("G") * 4
+
+    for note in clip:
+        assert note == "C"
+    
+    for note in clip_G:
+        assert note == "G"
+    
+    clip << Input(clip_G)**Get(Pitch())
+
+    for note in clip:
+        assert note == "G"
+    
+
