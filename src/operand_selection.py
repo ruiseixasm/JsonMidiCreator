@@ -222,6 +222,19 @@ class Condition(Selection):
                         self << single_operand
         return self
 
+class Amount(Condition):
+    pass
+
+class Above(Amount):
+    pass
+
+class Same(Amount):
+    pass
+
+class Bellow(Amount):
+    pass
+
+
 
 class Comparison(Selection):
     def __init__(self, *parameters):
@@ -501,17 +514,4 @@ class Least(Threshold):
                 return False
             return True
         return super().__eq__(other)
-
-
-class Totals(Selection):
-    pass
-
-class Above(Totals):
-    pass
-
-class Same(Totals):
-    pass
-
-class Bellow(Totals):
-    pass
 
