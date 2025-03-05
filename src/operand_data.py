@@ -776,19 +776,19 @@ class Link(Process):
 if TYPE_CHECKING:
     from operand_chaos import Chaos
 
-class Shuffle(Process):
+class Swap(Process):
     
     from operand_rational import Position
 
-    def __init__(self, shuffler: 'Chaos' = None, parameter: type = Position):
-        super().__init__((shuffler, parameter))
+    def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
+        super().__init__((chaos, parameter))
 
     # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.shuffle(*self._data)
+            return operand.swap(*self._data)
         return super().__rrshift__(operand)
 
 class Reverse(Process):

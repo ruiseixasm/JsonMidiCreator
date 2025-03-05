@@ -206,24 +206,24 @@ class Container(o.Operand):
         self._items.sort(key=lambda x: x % compare)
         return self
 
-    def shuffle(self, shuffler: ch.Chaos = None, parameter: type = ra.Position) -> Self:
+    def swap(self, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
         """
         Reaffects the given parameter type in a chaotic manner.
 
         Args:
-            shuffler (ch.Chaos): An Chaos object to be used as shuffler.
+            chaos (ch.Chaos): An Chaos object to be used as sorter.
             parameter (type): The type of parameter being shuffled around the items.
 
         Returns:
             Container: The same self object with the items processed.
         """
-        if shuffler is None or not isinstance(shuffler, ch.Chaos):
-            shuffler = ch.SinX()
+        if chaos is None or not isinstance(chaos, ch.Chaos):
+            chaos = ch.SinX()
         parameters: list = []
         parameter_instance = parameter()
         if isinstance(parameter_instance, od.DataSource):
             for _ in range(len(self._items)):
-                data_index: int = shuffler * 1 % int() % len(self._items)
+                data_index: int = chaos * 1 % int() % len(self._items)
                 parameters.append(self._items[data_index])   # No need to copy
                 del self._items[data_index] # Like picking up colored balls, pop out
             self._items = parameters
@@ -231,7 +231,7 @@ class Container(o.Operand):
             for item in self._items:
                 parameters.append(item % parameter_instance)   # No need to copy
             for item in self._items:
-                data_index: int = shuffler * 1 % int() % len(parameters)
+                data_index: int = chaos * 1 % int() % len(parameters)
                 item << parameters[data_index]
                 del parameters[data_index] # Like picking up colored balls, pop out
         return self
@@ -421,7 +421,7 @@ class Container(o.Operand):
             case od.Getter() | od.Process():
                 return self >> operand
             case ch.Chaos():
-                return self.shuffle(operand)
+                return self.swap(operand)
             
             case tuple():
                 for single_operand in operand:
@@ -447,7 +447,7 @@ class Container(o.Operand):
             case od.Getter() | od.Process():
                 self >>= operand
             case ch.Chaos():
-                self.shuffle(operand)
+                self.swap(operand)
             case om.Mutation():
                 operand.mutate(self)
             case _:
@@ -1102,7 +1102,7 @@ class Clip(Container):  # Just a container of Elements
                 return self >> operand
 
             case ch.Chaos():
-                return self.shuffle(operand)
+                return self.swap(operand)
             case om.Mutation():
                 return operand.copy().mutate(self)
 
