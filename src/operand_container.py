@@ -241,29 +241,37 @@ class Container(o.Operand):
         Reaffects the given parameter type in a chaotic manner accordingly to a probability.
 
         Args:
+            probability (ra.Probability): A given probability of swapping.
             chaos (ch.Chaos): An Chaos object to be used as sorter.
             parameter (type): The type of parameter being swapped around the items.
 
         Returns:
             Container: The same self object with the items processed.
         """
+        if probability is None or not isinstance(probability, ra.Probability):
+            probability = ra.Probability(1/self.len()**2)
         if chaos is None or not isinstance(chaos, ch.Chaos):
             chaos = ch.SinX()
-        parameters: list = []
+        
         parameter_instance = parameter()
-        if isinstance(parameter_instance, od.DataSource):
-            for _ in range(len(self._items)):
-                data_index: int = chaos * 1 % int() % len(self._items)
-                parameters.append(self._items[data_index])   # No need to copy
-                del self._items[data_index] # Like picking up colored balls, pop out
-            self._items = parameters
-        else:
-            for item in self._items:
-                parameters.append(item % parameter_instance)   # No need to copy
-            for item in self._items:
-                data_index: int = chaos * 1 % int() % len(parameters)
-                item << parameters[data_index]
-                del parameters[data_index] # Like picking up colored balls, pop out
+        for element_i in range(self.len()):
+            for element_j in range(self.len()):
+                
+                if chaos * 1 % int() \
+                    % probability._rational.denominator < probability._rational.numerator:   # Make the swap
+
+                    if isinstance(parameter_instance, od.DataSource):
+
+                        temp_element: oe.Element = self[element_i]
+                        self[element_i] = self[element_j]
+                        self[element_j] = temp_element
+
+                    else:
+
+                        temp_parameter: any = self[element_i] % parameter_instance
+                        self[element_i] << self[element_j] % parameter_instance
+                        self[element_j] << temp_parameter
+
         return self
 
     def reverse(self) -> Self:
