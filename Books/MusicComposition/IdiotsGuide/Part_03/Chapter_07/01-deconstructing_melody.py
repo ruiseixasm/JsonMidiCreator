@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 defaults << TimeSignature(3, 4) << KeySignature("#")
 outline = Note("D") * 2 + Note("E") + Note("G") + Note("C") << Dotted(1/2) << Octave(5)
-outline += Note("B", Dotted(1/2)) * 3 - Increment()**0
+outline += Note("B", Dotted(1/2)) * 3 - Iterate()
 outline >> Stack()
 outline >> Play()
 
@@ -33,13 +33,13 @@ flesh - 1 + Foreach(5, 7, 5, 8, 10, 5, 6, 5, 4)
 outline << Nth(1, 2, 3, 4)**NoteValue(1/4) << Nth(5, 6, 7)**NoteValue(1/2)
 outline + flesh >> Link() >> Play()
 
-embellishing = Note("G", Measures(0), Beats(1), 1/8) * 4 + Increment()**0
+embellishing = Note("G", Measures(0), Beats(1), 1/8) * 4 + Iterate()
 embellishing += Note("G", Measures(1), Beats(1)) * 2
-embellishing += Note("C", 5, Measures(2), Beats(1), 1/8) * 4 + Increment()**0
+embellishing += Note("C", 5, Measures(2), Beats(1), 1/8) * 4 + Iterate()
 embellishing += Note("G", Measures(3), Beats(1)) * 2
-embellishing += Note("D", 5, Measures(4), Beats(1), 1/8) * 4 - Increment()**0
-embellishing += Note("C", 5, Measures(5), Beats(1), 1/8) * 4 - Increment()**0
-embellishing += Note("B", Measures(6), Beats(1), 1/8) * 4 - Increment()**0
+embellishing += Note("D", 5, Measures(4), Beats(1), 1/8) * 4 - Iterate()
+embellishing += Note("C", 5, Measures(5), Beats(1), 1/8) * 4 - Iterate()
+embellishing += Note("B", Measures(6), Beats(1), 1/8) * 4 - Iterate()
 full = outline + embellishing >> Link()
 full << Get(NoteValue())**NoteValue()
 full >> Play()

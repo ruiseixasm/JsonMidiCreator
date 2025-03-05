@@ -34,7 +34,7 @@ approach >> Play()
 (approach | Measures(2) | Beats(3)) - 3
 approach >> Play()
 
-four_steps: Clip = Note("C", 1/16) * 4 - Increment()
+four_steps: Clip = Note("C", 1/16) * 4 - Iterate()
 approach |= Beats(0)
 approach = approach \
             + (four_steps.copy() + Octave(1) + 2 << Position(Measures(0), Beats(3)) >> Stack()) \

@@ -396,7 +396,7 @@ class Iterate(Left):
     >>> notes[3] % Pitch() % int() >> Print()
     4
     """
-    def __init__(self, start = 0, step = 1):
+    def __init__(self, start: any = 0, step: any = 1):
         iterator: dict = {
             "current":  start,
             "step":     step
@@ -824,40 +824,6 @@ class Right(Frame):
     def __init__(self, operand: any = None):
         super().__init__()
         self._multi_data['operand'] = 0 if operand is None else operand   # NO COPY !!
-
-class Increment(Right):
-    def __init__(self, step = None):
-        super().__init__(0)
-        self._multi_data['step'] = 1 if step is None else step
-
-    def __and__(self, input: o.Operand) -> o.Operand:
-        self_operand = self._next_operand
-        if isinstance(self_operand, Frame):
-            self_operand &= input
-        match self_operand:
-            case ol.Null():
-                self._multi_data['operand'] += self._multi_data['step']    # iterates whenever called
-                return self_operand
-            case tuple():
-                for single_operand in self_operand:
-                    if isinstance(single_operand, o.Operand):
-                        single_operand << single_operand + self._multi_data['operand']
-                        single_operand._set = True
-                incremented_operand = self_operand
-            case _:
-                if self_operand.__class__ == o.Operand:
-                    incremented_operand = self._multi_data['operand']
-                elif isinstance(self_operand, o.Operand):
-                    incremented_operand = self_operand + self._multi_data['operand']
-                else:
-                    incremented_operand = self._multi_data['operand']
-        self._multi_data['operand'] += self._multi_data['step']
-        if isinstance(incremented_operand, o.Operand):
-            if isinstance(self_operand, o.Operand):
-                incremented_operand._set = self_operand._set
-            else:
-                incremented_operand._set = True
-        return incremented_operand
 
 class WrapR(Right):
     def __init__(self, wrapper: o.Operand = None):

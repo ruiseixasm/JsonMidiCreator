@@ -55,7 +55,7 @@ syncopation >> R >> P
 
 defaults << "#"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-volume = Note() * 7 << half << Increment(12)**Velocity(30) >> S >> LJ << Foreach(D, A, B, F, G, C, B)
+volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> S >> LJ << Foreach(D, A, B, F, G, C, B)
 volume >> R >> P
 
 defaults << ""
@@ -71,11 +71,11 @@ melodic_line = \
     sixteenth_group * 2 >> (N << half)
 melodic_line % M1 << Foreach(B, C, B, A)
 melodic_line % M2 % B1 << Foreach(G, A, G)
-melodic_line % M2 % B2 << Increment()**F
-melodic_line % M2 % B3 << Increment(-1)**C
-melodic_line % M2 % B4 << Increment()**G
+melodic_line % M2 % B2 << Iterate(F)
+melodic_line % M2 % B3 << Iterate(C, -1)
+melodic_line % M2 % B4 << Iterate(G)
 melodic_line % M3 % B1 << Foreach((D, 5), G)
-melodic_line % M3 % B2 << Increment()**A
+melodic_line % M3 % B2 << Iterate(A)
 melodic_line % M3 % B3 << Foreach(D, F, E, C)
 melodic_line % M3 % B4 << Foreach(D, C, D)
 melodic_line % M4 << Foreach((G, 5), E, C, G, B, G, E, B, A)
