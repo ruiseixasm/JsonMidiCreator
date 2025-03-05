@@ -37,6 +37,7 @@ import operand_container as oc
 import operand_chaos as ch
 import operand_mutation as om
 import operand_selection as os
+import operand_arrangement as oa
 
 
 class Patterns(o.Operand):
