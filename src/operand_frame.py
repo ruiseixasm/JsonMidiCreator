@@ -243,10 +243,12 @@ class Left(Frame):  # LEFT TO RIGHT
 class Input(Left):
     def __and__(self, input: o.Operand) -> o.Operand:
         import operand_container as oc
-        if isinstance(self._multi_data['operand'], oc.Container) and self._multi_data['operand'].len() > 0:
-            item = self._multi_data['operand'][self._index % self._multi_data['operand'].len()]
-            self._index += 1
-            super().__and__(item)
+        if isinstance(self._multi_data['operand'], oc.Container):
+            if self._multi_data['operand'].len() > 0:
+                item = self._multi_data['operand'][self._index % self._multi_data['operand'].len()]
+                self._index += 1
+                return super().__and__(item)
+            return super().__and__(ol.Null())
         return super().__and__(self._multi_data['operand'])
 
 

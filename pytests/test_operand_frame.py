@@ -197,4 +197,5 @@ def test_input_clip():
     for note in clip:
         assert note == "G"
     
+test_input_clip()
 
