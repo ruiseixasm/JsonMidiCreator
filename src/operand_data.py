@@ -777,7 +777,7 @@ if TYPE_CHECKING:
     from operand_chaos import Chaos
     from operand_rational import Probability
 
-class Swap(Process):
+class Shuffle(Process):
     
     from operand_rational import Position
 
@@ -792,7 +792,7 @@ class Swap(Process):
             return operand.shuffle(*self._data)
         return super().__rrshift__(operand)
 
-class Shuffle(Process):
+class Swap(Process):
     
     from operand_rational import Position
 
