@@ -232,6 +232,8 @@ class Previous(Unit):
     def __init__(self, *parameters):
         super().__init__(1, *parameters)
 
+class Total(Unit):
+    pass
 
 class TimeUnit(Unit):
     def __init__(self, *parameters):
