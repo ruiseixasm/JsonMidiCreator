@@ -223,17 +223,91 @@ class Condition(Selection):
         return self
 
 class Amount(Condition):
-    pass
+    def __init__(self, *parameters):
+        self._amount: int = 4
+        super().__init__()
+        for single_operand in parameters:
+            self << single_operand
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case int():             return self._amount
+                    case _:                 return super().__mod__(operand)
+            case int():             return self._amount
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, Amount):
+            return super().__eq__(other) and self._amount == other._amount
+        if isinstance(other, oc.Clip):
+            total: int = 0
+            for element in other:
+                if self._and == element and self._amount == element:
+                    total += 1
+            return total == self._amount
+        return super().__eq__(other)
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["amount"] = self.serialize(self._amount)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "amount" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._amount = self.deserialize(serialization["parameters"]["amount"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Amount():
+                super().__lshift__(operand)
+                self._amount = operand._amount
+            case od.DataSource():
+                match operand._data:
+                    case int():                 self._amount = operand._data
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case int():             self._amount = operand
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _:
+                super().__lshift__(operand)
+        return self
 
 class Above(Amount):
-    pass
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            total: int = 0
+            for element in other:
+                if self._and == element and self._amount == element:
+                    total += 1
+            return total > self._amount
+        return super().__eq__(other)
 
 class Same(Amount):
     pass
 
 class Bellow(Amount):
-    pass
-
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            total: int = 0
+            for element in other:
+                if self._and == element and self._amount == element:
+                    total += 1
+            return total < self._amount
+        return super().__eq__(other)
 
 
 class Comparison(Selection):
