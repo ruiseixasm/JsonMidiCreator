@@ -58,8 +58,7 @@ class Selection(o.Operand):
         return clip | self._mask
 
     def select(self, clip: oc.Clip) -> oc.Clip:
-        masked_clip: oc.Clip = self.mask(clip)
-        if self != masked_clip:
+        if self != clip:
             clip._items = []
         return clip
 
@@ -140,8 +139,9 @@ class IsNot(Selection):
         if isinstance(other, IsNot):
             return self._selection == other._selection
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             if isinstance(self._selection, Selection):
-                return self._selection != other
+                return self._selection != masked_clip
             return True # IsNot None
         return not super().__eq__(other)
     
@@ -192,8 +192,9 @@ class Mono(Selection):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             events_filo: list[ Dict[str, ra.Position] ] = []
-            for element in other:
+            for element in masked_clip:
                 if isinstance(element, oe.Element):
                     event: Dict[str, ra.Position] = {
                         "start": element.start(),
@@ -237,7 +238,8 @@ class Condition(Selection):
         if isinstance(other, Condition):
             return self._and == other._and and self._or == other._or
         if isinstance(other, oc.Clip):
-            return self._and == other and self._or == other
+            masked_clip: oc.Clip = self.mask(other)
+            return self._and == masked_clip and self._or == masked_clip
         return super().__eq__(other)
     
     def getSerialization(self) -> dict:
@@ -305,8 +307,9 @@ class Amount(Condition):
         if isinstance(other, Amount):
             return super().__eq__(other) and self._amount == other._amount
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             total: int = 0
-            for element in other:
+            for element in masked_clip:
                 if self._and == element and self._amount == element:
                     total += 1
             return total == self._amount
@@ -350,8 +353,9 @@ class Above(Amount):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             total: int = 0
-            for element in other:
+            for element in masked_clip:
                 if self._and == element and self._amount == element:
                     total += 1
             return total > self._amount
@@ -364,8 +368,9 @@ class Bellow(Amount):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             total: int = 0
-            for element in other:
+            for element in masked_clip:
                 if self._and == element and self._amount == element:
                     total += 1
             return total < self._amount
@@ -433,9 +438,10 @@ class Matching(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             parameter_instantiation = self._parameter()
-            for element_index in range(other.len() - 1):
-                if other[element_index] % parameter_instantiation != other[element_index + 1] % parameter_instantiation:
+            for element_index in range(masked_clip.len() - 1):
+                if masked_clip[element_index] % parameter_instantiation != masked_clip[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
@@ -445,9 +451,10 @@ class Ascending(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             parameter_instantiation = self._parameter()
-            for element_index in range(other.len() - 1):
-                if other[element_index] % parameter_instantiation > other[element_index + 1] % parameter_instantiation:
+            for element_index in range(masked_clip.len() - 1):
+                if masked_clip[element_index] % parameter_instantiation > masked_clip[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
@@ -457,9 +464,10 @@ class Descending(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
+            masked_clip: oc.Clip = self.mask(other)
             parameter_instantiation = self._parameter()
-            for element_index in range(other.len() - 1):
-                if other[element_index] % parameter_instantiation < other[element_index + 1] % parameter_instantiation:
+            for element_index in range(masked_clip.len() - 1):
+                if masked_clip[element_index] % parameter_instantiation < masked_clip[element_index + 1] % parameter_instantiation:
                     return False
             return True
         return super().__eq__(other)
@@ -482,9 +490,10 @@ class Pattern(Comparison):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             if len(self._parameter) > 0:
+                masked_clip: oc.Clip = self.mask(other)
                 parameter_instantiation = self._parameter()
-                for element_index in range(other.len() - 1):
-                    if other[element_index + 1] % parameter_instantiation - other[element_index] % parameter_instantiation \
+                for element_index in range(masked_clip.len() - 1):
+                    if masked_clip[element_index + 1] % parameter_instantiation - masked_clip[element_index] % parameter_instantiation \
                         != self._pattern[element_index % len(self._parameter)]:
                         return False
             return True
@@ -528,16 +537,17 @@ class UpDown(Pattern):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
             if len(self._parameter) > 0:
+                masked_clip: oc.Clip = self.mask(other)
                 parameter_instantiation = self._parameter()
-                for element_index in range(other.len() - 1):
+                for element_index in range(masked_clip.len() - 1):
                     if self._pattern[element_index % len(self._parameter)] > 0:
-                        if not other[element_index + 1] % parameter_instantiation > other[element_index] % parameter_instantiation:
+                        if not masked_clip[element_index + 1] % parameter_instantiation > masked_clip[element_index] % parameter_instantiation:
                             return False
                     elif self._pattern[element_index % len(self._parameter)] < 0:
-                        if not other[element_index + 1] % parameter_instantiation < other[element_index] % parameter_instantiation:
+                        if not masked_clip[element_index + 1] % parameter_instantiation < masked_clip[element_index] % parameter_instantiation:
                             return False
                     else:
-                        if other[element_index + 1] % parameter_instantiation != other[element_index] % parameter_instantiation:
+                        if masked_clip[element_index + 1] % parameter_instantiation != masked_clip[element_index] % parameter_instantiation:
                             return False
             return True
         return super().__eq__(other)
@@ -597,7 +607,8 @@ class First(Threshold):
             return True
         if isinstance(other, oc.Clip):
             if self._threshold > 0:
-                if other.len() > 0:
+                masked_clip: oc.Clip = self.mask(other)
+                if masked_clip.len() > 0:
                     self._threshold -= 1
                 return True
             return False
@@ -611,7 +622,8 @@ class After(Threshold):
             return True
         if isinstance(other, oc.Clip):
             if self._threshold > 0:
-                if other.len() > 0:
+                masked_clip: oc.Clip = self.mask(other)
+                if masked_clip.len() > 0:
                     self._threshold -= 1
                 return False
             return True
@@ -629,7 +641,8 @@ class Most(Threshold):
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, oc.Clip):
-            if other.len() > self._threshold:
+            masked_clip: oc.Clip = self.mask(other)
+            if masked_clip.len() > self._threshold:
                 return False
             return True
         return super().__eq__(other)
@@ -646,7 +659,8 @@ class Least(Threshold):
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, oc.Clip):
-            if other.len() < self._threshold:
+            masked_clip: oc.Clip = self.mask(other)
+            if masked_clip.len() < self._threshold:
                 return False
             return True
         return super().__eq__(other)
