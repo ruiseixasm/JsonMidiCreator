@@ -341,9 +341,9 @@ class Container(o.Operand):
                 offset += 1
         return self
 
-    def filter(self, criteria: any) -> Self:
+    def filter(self, mask: any) -> Self:
         """
-        Filters out all items that don't met the criteria (equal to).
+        Filters out all items that don't met the mask (equal to).
 
         Args:
             parameter (any): The object to be compared with (==).
@@ -351,7 +351,7 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
-        self._items = [item for item in self._items if item == criteria]
+        self._items = [item for item in self._items if item == mask]
         return self
 
     def __add__(self, operand: any) -> Self:

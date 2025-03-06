@@ -633,8 +633,8 @@ class Sort(Process):
         return super().__rrshift__(operand)
 
 class Filter(Process):
-    def __init__(self, criteria: any = None):
-        super().__init__(criteria)
+    def __init__(self, mask: any = None):
+        super().__init__(mask)
         
     # CHAINABLE OPERATIONS
 
