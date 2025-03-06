@@ -52,9 +52,16 @@ class Selection(o.Operand):
         self._mask: any = None
         super().__init__(*parameters)
     
+    def mask(self, clip: o.T) -> o.T:
+        if self._mask is None:
+            return clip
+        return clip | self._mask
+
     def select(self, clip: o.T) -> o.T:
-        if isinstance(clip, oc.Clip) and self != clip:
-            clip._items = []
+        if isinstance(clip, oc.Clip):
+            masked_clip: oc.Clip = self.mask(clip)
+            if self != masked_clip:
+                clip._items = []
         return clip
 
     # clip is the input >> (NO COPIES!) (PASSTHROUGH)
