@@ -53,6 +53,7 @@ class Mutation(o.Operand):
         self._chaos: ch.Chaos           = ch.SinX()
         self._step: int | float         = 1
         self._parameter: type           = ra.Position
+        self._mask: any                 = None
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -90,11 +91,13 @@ class Mutation(o.Operand):
                     case int():             return int(self._step)
                     case float():           return float(self._step)
                     case type():            return self._parameter
+                    case od.Mask():         return operand._data << od.DataSource( self._mask )
                     case _:                 return super().__mod__(operand)
             case ch.Chaos():        return self._chaos.copy()
             case int():             return int(self._step)
             case float():           return float(self._step)
             case type():            return self._parameter
+            case od.Mask():         return od.Mask(self._mask)
             case ra.Index():        return ra.Index(self._index)
             case ou.Next():         return self * operand
             case _:                 return super().__mod__(operand)
@@ -104,7 +107,9 @@ class Mutation(o.Operand):
         if other.__class__ == o.Operand:
             return True
         if isinstance(other, Mutation):
-            return self._chaos == other._chaos and self._parameter == other._parameter
+            return self._chaos == other._chaos \
+                and self._parameter == other._parameter \
+                and self._mask == other._mask
         return False
     
     def getSerialization(self) -> dict:
@@ -112,13 +117,15 @@ class Mutation(o.Operand):
         serialization["parameters"]["chaos"]            = self.serialize(self._chaos)
         serialization["parameters"]["step"]             = self.serialize(self._step)
         serialization["parameters"]["parameter"]        = self._parameter.__name__
+        serialization["parameters"]["mask"]             = self.serialize(self._mask)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"]):
+            "chaos" in serialization["parameters"] and "step" in serialization["parameters"] and "parameter" in serialization["parameters"] and
+            "mask" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._chaos             = self.deserialize(serialization["parameters"]["chaos"])
@@ -128,6 +135,7 @@ class Mutation(o.Operand):
                 self._parameter     = parameter
             else:
                 self._parameter     = ra.Position
+            self._mask              = self.deserialize(serialization["parameters"]["mask"])
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -138,17 +146,20 @@ class Mutation(o.Operand):
                 self._chaos         << operand._chaos
                 self._step          = operand._step
                 self._parameter     = operand._parameter
+                self._mask          = self.deep_copy( operand._mask )
             case od.DataSource():
                 match operand._data:
                     case ch.Chaos():                self._chaos = operand._data
                     case int() | float():           self._step = operand._data
                     case type():                    self._parameter = operand._data
+                    case od.Mask():                 self._mask = operand._data._data
                     case _:                         super().__lshift__(operand)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ch.Chaos():        self._chaos << operand
             case int() | float():   self._step = operand
             case type():            self._parameter = operand
+            case od.Mask():         self._mask = self.deep_copy( operand._data )
             case tuple():
                 for single_operand in operand:
                     self << single_operand
