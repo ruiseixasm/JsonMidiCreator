@@ -126,12 +126,6 @@ class IsNot(Selection):
         self._selection: Selection = None
         super().__init__(*parameters)
 
-    def select(self, clip: oc.Clip) -> oc.Clip:
-        masked_clip: oc.Clip = self.mask(clip)
-        if self != masked_clip:
-            clip._items = []
-        return clip
-
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
