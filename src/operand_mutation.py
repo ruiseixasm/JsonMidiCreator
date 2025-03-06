@@ -168,6 +168,7 @@ class Mutation(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case _:                 super().__lshift__(operand)
         return self
 
 

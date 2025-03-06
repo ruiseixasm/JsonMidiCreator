@@ -48,6 +48,9 @@ class Selection(o.Operand):
     first : any_like
         Any type of parameter can be used to set Selection.
     """
+    def __init__(self, *parameters):
+        self._mask: any = None
+        super().__init__(*parameters)
     
     def select(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip) and self != clip:
@@ -57,6 +60,57 @@ class Selection(o.Operand):
     # clip is the input >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, clip: o.T) -> o.T:
         return self.select(clip)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case od.Mask():         return operand._data << od.DataSource( self._mask )
+                    case _:                 return super().__mod__(operand)
+            case od.Mask():         return od.Mask(self._mask)
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if other.__class__ == o.Operand:
+            return True
+        if isinstance(other, Selection):
+            return self._mask == other._mask
+        return False
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["mask"]             = self.serialize(self._mask)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "mask" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._mask              = self.deserialize(serialization["parameters"]["mask"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Selection():
+                super().__lshift__(operand)
+                self._mask          = self.deep_copy( operand._mask )
+            case od.DataSource():
+                match operand._data:
+                    case od.Mask():                 self._mask = operand._data._data
+                    case _:                         super().__lshift__(operand)
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case od.Mask():         self._mask = self.deep_copy( operand._data )
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _:                 super().__lshift__(operand)
+        return self
 
 
 class IsNot(Selection):
