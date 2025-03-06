@@ -71,11 +71,16 @@ class Mutation(o.Operand):
             shuffled_list.append(list[pick])
 
         return shuffled_list
+    
+    def mask(self, clip: o.T) -> o.T:
+        if self._mask is None:
+            return clip
+        return clip | self._mask
 
     def mutate(self, clip: o.T) -> o.T:
         match clip:
             case oc.Clip():
-                self.mutate(clip)
+                self.mutate(self.mask(clip))
         return clip
 
     # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
@@ -180,7 +185,7 @@ class Choosing(Haploid):
 
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
-            clip << self._choice_frame
+            self.mask(clip) << self._choice_frame
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -238,7 +243,7 @@ class Picking(Haploid):
 
     def mutate(self, clip: o.T) -> o.T:
         if isinstance(clip, oc.Clip):
-            clip << self._pick_frame
+            self.mask(clip) << self._pick_frame
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -378,9 +383,11 @@ class Shuffling(Diploid):
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
+
+            target_clip: oc.Clip = self.mask(clip)
             
             source_picks: list[int] = [*range(self._clip.len())]
-            target_picks: list[int] = [*range(clip.len())]
+            target_picks: list[int] = [*range(target_clip.len())]
 
             while len(source_picks) > 0 and len(target_picks) > 0:
 
@@ -392,7 +399,7 @@ class Shuffling(Diploid):
                 target_clip_index: int = target_picks[target_index]
                 del target_picks[target_index]
 
-                self.swap(clip, source_clip_index, target_clip_index)
+                self.swap(target_clip, source_clip_index, target_clip_index)
 
         return clip
 
@@ -500,8 +507,10 @@ class Swapping(Shuffling):
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
+            target_clip: oc.Clip = self.mask(clip)
+            
             source_clip_len: int = self._clip.len()
-            target_clip_len: int = clip.len()
+            target_clip_len: int = target_clip.len()
 
             for source_i in range(source_clip_len):
                 for target_j in range(target_clip_len):
@@ -509,7 +518,7 @@ class Swapping(Shuffling):
                     if self._chaos * self._step % int() \
                         % self._probability.denominator < self._probability.numerator:   # Make the swap
 
-                        self.swap(clip, source_i, target_j)
+                        self.swap(target_clip, source_i, target_j)
 
         return clip
 
@@ -581,11 +590,14 @@ class Crossover(Shuffling):
 
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
-            clip_len: int = clip.len()
-            for element_i in range(clip_len):
+            
+            target_clip: oc.Clip = self.mask(clip)
+            
+            target_clip_len: int = target_clip.len()
+            for element_i in range(target_clip_len):
                 if self._chaos * self._step % int() \
                     % self._probability.denominator < self._probability.numerator:   # Even
-                    self.swap(clip, element_i, element_i)   # Same locus
+                    self.swap(target_clip, element_i, element_i)   # Same locus
         return clip
 
     def __mod__(self, operand: o.T) -> o.T:
