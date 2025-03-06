@@ -72,20 +72,19 @@ class Mutation(o.Operand):
 
         return shuffled_list
     
-    def mask(self, clip: o.T) -> o.T:
+    def mask(self, clip: oc.Clip) -> oc.Clip:
         if self._mask is None:
             return clip
         return clip | self._mask
 
-    def mutate(self, clip: o.T) -> o.T:
-        match clip:
-            case oc.Clip():
-                self.mutate(self.mask(clip))
+    def mutate(self, clip: oc.Clip) -> oc.Clip:
         return clip
 
     # Clip or Mutation is the input >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, clip: o.T) -> o.T:
-        return self.mutate(clip)
+        if isinstance(clip, oc.Clip):
+            return self.mutate(clip)
+        return clip
 
 
     def __mod__(self, operand: o.T) -> o.T:

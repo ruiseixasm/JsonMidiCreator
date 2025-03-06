@@ -52,21 +52,22 @@ class Selection(o.Operand):
         self._mask: any = None
         super().__init__(*parameters)
     
-    def mask(self, clip: o.T) -> o.T:
+    def mask(self, clip: oc.Clip) -> oc.Clip:
         if self._mask is None:
             return clip
         return clip | self._mask
 
-    def select(self, clip: o.T) -> o.T:
-        if isinstance(clip, oc.Clip):
-            masked_clip: oc.Clip = self.mask(clip)
-            if self != masked_clip:
-                clip._items = []
+    def select(self, clip: oc.Clip) -> oc.Clip:
+        masked_clip: oc.Clip = self.mask(clip)
+        if self != masked_clip:
+            clip._items = []
         return clip
 
     # clip is the input >> (NO COPIES!) (PASSTHROUGH)
     def __rrshift__(self, clip: o.T) -> o.T:
-        return self.select(clip)
+        if isinstance(clip, oc.Clip):
+            return self.select(clip)
+        return clip
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
@@ -124,6 +125,12 @@ class IsNot(Selection):
     def __init__(self, *parameters):
         self._selection: Selection = None
         super().__init__(*parameters)
+
+    def select(self, clip: oc.Clip) -> oc.Clip:
+        masked_clip: oc.Clip = self.mask(clip)
+        if self != masked_clip:
+            clip._items = []
+        return clip
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
