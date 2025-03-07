@@ -456,7 +456,7 @@ class Loop(Left):
             input = self._multi_data['operand'][self._index % operand_len]
             self._index += 1
             return super().__and__(input)
-        else:   # Uses subject as the iterator parameter!
+        else:   # Uses input itself as the iterator parameter!
             last_data = ol.Null()
             match input:
                 case oc.Container():    # is iterable
