@@ -344,7 +344,7 @@ class Operand:
     
     # self is the pusher
     def __rshift__(self, operand: any) -> Self:
-        if isinstance(operand, tuple):
+        if isinstance(operand, (tuple, list)):
             last_operand = self
             for single_operand in operand:
                 if isinstance(single_operand, Operand):
