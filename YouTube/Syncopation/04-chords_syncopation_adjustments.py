@@ -72,7 +72,7 @@ syncopation_1: Clip = no_syncopation + base_line
 # print("Delay for 0.5 seconds")
 # time.sleep(0.5)
 
-chords: Clip = Chord([]) * 4 << Foreach(1, 5, 6, 4)    # Sets Chords Degree
+chords: Clip = Chord([]) * 4 << Loop(1, 5, 6, 4)    # Sets Chords Degree
 chords -= NotEqual(Measure(0))**Octave(1)
 chords -= Octave(1)
 chords *= 4
@@ -120,7 +120,7 @@ for _ in range(2):
     # syncopation_3 >> Play()
 
 lead_notes: Clip = Note() * repeated_chords.len()
-lead_notes << Foreach(repeated_chords)
+lead_notes << Loop(repeated_chords)
 lead_notes << Equal(Degree(5))**Degree(7) << Equal(6)**5
 lead_notes += Octave(1)
 # lead_notes += Degree(4)

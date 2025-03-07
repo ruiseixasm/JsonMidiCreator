@@ -23,10 +23,10 @@ from JsonMidiCreator import *
 
 defaults << "#"
 Key() % str() >> Print()
-notes_B     = Note("B") * 3 << Foreach((0), (0, Beats(2)), (1, Beats(1)))**Position()
-notes_A     = Note("A") * 2 << Foreach(Position(0, Beats(1)), Position(1, Beats(2)))
-notes_C5    = Note("C", 5) * 2 << Foreach(Position(0, Beats(3)), Position(2))
-notes_D5    = Note("D", 5) * 3 << Foreach(Position(1), Position(1, Beats(3)), Position(2, Beats(2)))
+notes_B     = Note("B") * 3 << Loop((0), (0, Beats(2)), (1, Beats(1)))**Position()
+notes_A     = Note("A") * 2 << Loop(Position(0, Beats(1)), Position(1, Beats(2)))
+notes_C5    = Note("C", 5) * 2 << Loop(Position(0, Beats(3)), Position(2))
+notes_D5    = Note("D", 5) * 3 << Loop(Position(1), Position(1, Beats(3)), Position(2, Beats(2)))
 notes_E     = Note("E") * 1 << Position(2, Beats(1))
 notes_F5    = Note("F", 5) * 1 << Position(2, Beats(3))
 notes_G     = Note("G") * 1 << Position(3)
@@ -38,30 +38,30 @@ notes >> Rest() >> Play()
 
 defaults << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-rising = Note() * 13 << Foreach(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link() >> Smooth()
+rising = Note() * 13 << Loop(A, G, A, B, C, B, C, D, E, D, E, F, G) >> Link() >> Smooth()
 rising >> Rest() >> Play()
 
 defaults << "b"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Foreach(A, D, G, C, G, (C, 5)) >> Link()
-faster = Note() * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Foreach(F, B, A, G, A, B, A, G, A, F)
+slower = Note() * 6 << half >> Stack() << Nth(5, 6)**M4 << Loop(A, D, G, C, G, (C, 5)) >> Link()
+faster = Note() * 10 << M3 << sixteenth << Nth(2, 3, 4)**eight << Nth(1)**quarter >> S << Loop(F, B, A, G, A, B, A, G, A, F)
 slower + faster >> L >> R >> P
 
 defaults << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-syncopation = Note() * 16 << Greater(M1)**Foreach(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
-syncopation << Foreach(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
+syncopation = Note() * 16 << Greater(M1)**Loop(quarter, eight, eight, dotted_quarter, eight, eight, quarter, eight, eight, quarter, eight, whole) >> S
+syncopation << Loop(G, A, G, B, C, B, A, B, G, A, G, F, G, C, E, D) >> Smooth()
 syncopation >> R >> P
 
 defaults << "#"
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
-volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> S >> LJ << Foreach(D, A, B, F, G, C, B)
+volume = Note() * 7 << half << Iterate(30, 12)**Velocity() >> S >> LJ << Loop(D, A, B, F, G, C, B)
 volume >> R >> P
 
 defaults << ""
 Key() % str() >> Print()    # Prints the Tonic for the given Key Signature
 sixteenth_group = Note() * 4 << sixteenth
-dotted_rhythm = Note() * 3 << Foreach(sixteenth, sixteenth, eight)
+dotted_rhythm = Note() * 3 << Loop(sixteenth, sixteenth, eight)
 duplet = Note() * 2 << eight
 dotted_rhythm >> N >> dotted_rhythm >> N >> Print()
 melodic_line = \
@@ -69,16 +69,16 @@ melodic_line = \
     dotted_rhythm >> sixteenth_group >> dotted_rhythm >> sixteenth_group >> \
     duplet >> dotted_rhythm % Reverse() >> sixteenth_group >> dotted_rhythm >> \
     sixteenth_group * 2 >> (N << half)
-melodic_line % M1 << Foreach(B, C, B, A)
-melodic_line % M2 % B1 << Foreach(G, A, G)
+melodic_line % M1 << Loop(B, C, B, A)
+melodic_line % M2 % B1 << Loop(G, A, G)
 melodic_line % M2 % B2 << Iterate(F)
 melodic_line % M2 % B3 << Iterate(C, -1)
 melodic_line % M2 % B4 << Iterate(G)
-melodic_line % M3 % B1 << Foreach((D, 5), G)
+melodic_line % M3 % B1 << Loop((D, 5), G)
 melodic_line % M3 % B2 << Iterate(A)
-melodic_line % M3 % B3 << Foreach(D, F, E, C)
-melodic_line % M3 % B4 << Foreach(D, C, D)
-melodic_line % M4 << Foreach((G, 5), E, C, G, B, G, E, B, A)
+melodic_line % M3 % B3 << Loop(D, F, E, C)
+melodic_line % M3 % B4 << Loop(D, C, D)
+melodic_line % M4 << Loop((G, 5), E, C, G, B, G, E, B, A)
 
 melodic_line % M1 >> Smooth()
 melodic_line % M2 >> Smooth()

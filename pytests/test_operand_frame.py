@@ -45,7 +45,7 @@ def test_frame_mod():
 
 def test_foreach_mod():
 
-    frame = Foreach(1, 2, 3, 4, 5)  # ints represent Degrees
+    frame = Loop(1, 2, 3, 4, 5)  # ints represent Degrees
     notes = Note() * 7  # default degree 1 relative to the note C
 
     notes += frame  # Original sequences aren't modified by + operator
@@ -62,13 +62,13 @@ def test_foreach_mod():
     assert four_notes[2] == Beats(2)
     assert four_notes[3] == Beats(3)
 
-    four_notes << Foreach(0, 1, 2, 3)**Steps()
+    four_notes << Loop(0, 1, 2, 3)**Steps()
     assert four_notes[0] == Steps(0)
     assert four_notes[1] == Steps(1)
     assert four_notes[2] == Steps(2)
     assert four_notes[3] == Steps(3)
 
-    four_notes << Foreach(Beats(0), Beats(1), Beats(2), Beats(3))
+    four_notes << Loop(Beats(0), Beats(1), Beats(2), Beats(3))
     assert four_notes[0] == Beats(0)
     assert four_notes[1] == Beats(1)
     assert four_notes[2] == Beats(2)
@@ -79,7 +79,7 @@ def test_foreach_mod():
     assert four_notes[2] == quarter
     assert four_notes[3] == quarter
 
-    four_notes << Foreach(whole, half, quarter, eight)
+    four_notes << Loop(whole, half, quarter, eight)
     assert four_notes[0] == whole
     assert four_notes[1] == half
     assert four_notes[2] == quarter
@@ -92,13 +92,13 @@ def test_foreach_mod():
     assert four_notes[2] == Beats(6)
     assert four_notes[3] == Beats(7)
 
-    four_notes << Nth(1, 4)**Foreach(quarter)
+    four_notes << Nth(1, 4)**Loop(quarter)
     assert four_notes[0] == quarter
     assert four_notes[1] == half
     assert four_notes[2] == quarter
     assert four_notes[3] == quarter
 
-    four_notes << Foreach(range(2,6))**Beats()
+    four_notes << Loop(range(2,6))**Beats()
     assert four_notes[0] == Beats(2)
     assert four_notes[1] == Beats(3)
     assert four_notes[2] == Beats(4)

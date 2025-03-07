@@ -29,7 +29,7 @@ outline >> Play()
 
 flesh = Note(Measures(0), Beats(1)) * 2 + Note(Measures(1), Beats(1), 1/2) + Note(Measures(2), Beats(1)) * 2 + Note(Measures(3), Beats(1), 1/2)
 flesh += Note(Measures(4), Beats(2)) + Note(Measures(5), Beats(2)) + Note(Measures(6), Beats(2))
-flesh - 1 + Foreach(5, 7, 5, 8, 10, 5, 6, 5, 4)
+flesh - 1 + Loop(5, 7, 5, 8, 10, 5, 6, 5, 4)
 outline << Nth(1, 2, 3, 4)**NoteValue(1/4) << Nth(5, 6, 7)**NoteValue(1/2)
 outline + flesh >> Link() >> Play()
 

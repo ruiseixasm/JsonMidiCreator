@@ -26,7 +26,7 @@ defaults << KeySignature("bbb")
 simple_phrase: Clip = Note("B") * 3 + Nth(2)**1 >> Link()
 simple_phrase >> Rest() >> Play()
 
-dotted_quarter: Clip = simple_phrase.copy() << Foreach(Dotted(1/4), 1/8, 1/2) >> Stack() >> Link()
+dotted_quarter: Clip = simple_phrase.copy() << Loop(Dotted(1/4), 1/8, 1/2) >> Stack() >> Link()
 dotted_quarter >> Rest() >> Play()
 
 off_beat: Clip = simple_phrase.copy() << Nth(2)**Position(Duration(1/8)) >> Link()
@@ -37,16 +37,16 @@ speeding_up >> Rest() >> Play()
 
 defaults << KeySignature("#")
 
-original_phrase: Clip = Note("B") * 5 + Foreach(2, -1, 0, 2, 1) >> Link()
+original_phrase: Clip = Note("B") * 5 + Loop(2, -1, 0, 2, 1) >> Link()
 original_phrase >> Rest() >> Play()
 
 variation_a: Clip = original_phrase.copy() << Equal(Measures(0))**Duration(1/8)
 (variation_a | Measures(0)) >> Stack()
 variation_a + Note("C", 5, 1/2, Gate(1), Position(Beats(2))) >> Link()
 
-variation_b: Clip = original_phrase.copy() << Equal(Measures(0))**Foreach(1/8, 1/8, 1/2, 1/4)**Duration() >> Stack()
-variation_c: Clip = original_phrase.copy() << Equal(Measures(0))**Foreach(1/4, 1/2, 1/8, 1/8)**Duration() >> Stack()
-variation_d: Clip = original_phrase.copy() << Equal(Measures(0))**Foreach(1/4, 1/8, 1/8, 1/2)**Duration() >> Stack()
+variation_b: Clip = original_phrase.copy() << Equal(Measures(0))**Loop(1/8, 1/8, 1/2, 1/4)**Duration() >> Stack()
+variation_c: Clip = original_phrase.copy() << Equal(Measures(0))**Loop(1/4, 1/2, 1/8, 1/8)**Duration() >> Stack()
+variation_d: Clip = original_phrase.copy() << Equal(Measures(0))**Loop(1/4, 1/8, 1/8, 1/2)**Duration() >> Stack()
 
 variation_e: Clip = Rest() + (original_phrase.copy() << Equal(Measures(0))**Duration(1/8)) >> Stack()
 

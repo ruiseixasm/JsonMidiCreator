@@ -30,9 +30,9 @@ phrase_1 % NoteValue() >> Print(0)
 phrase_2 = Note() * 5 >> LJ
 phrase_2 % NoteValue() >> Print(0)
 symmetrical = \
-    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()   >> Slur()) + \
-    (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7)**Degree()         >> Slur()) + \
-    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()  >> Slur()) >> S
+    (phrase_1 % Copy()  << Loop(8, 5, 6, 7, 8, 9, 8)**Degree()   >> Slur()) + \
+    (phrase_2 % Copy()  << Loop(7, 8, 7, 6, 7)**Degree()         >> Slur()) + \
+    (phrase_1 % Copy()  << Loop(8, 5, 6, 7, 8, 9, 10)**Degree()  >> Slur()) >> S
 symmetrical += symmetrical % Equal(M3, M4) % Copy() + 3
 symmetrical >> S
 symmetrical % NoteValue() >> Print(0)
@@ -42,11 +42,11 @@ phrase_1 = Note() * 7 >> LJ  >> Slur()
 phrase_2 = Note() * 8        >> Slur()
 phrase_3 = Note() * 5 >> LJ  >> Slur()
 asymmetrical = \
-    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 8)**Degree()) + \
-    (phrase_2 % Copy()  << Foreach(7, 8, 7, 6, 7, 5, 6, 7)**Degree()) + \
-    (phrase_3 % Copy()  << Foreach(8, 6, 7, 8, 9)**Degree()) + \
-    (phrase_1 % Copy()  << Foreach(8, 5, 6, 7, 8, 9, 10)**Degree()) + \
-    (phrase_3 % Copy()  << Foreach(10, 11, 10, 9, 10)**Degree()) >> S
+    (phrase_1 % Copy()  << Loop(8, 5, 6, 7, 8, 9, 8)**Degree()) + \
+    (phrase_2 % Copy()  << Loop(7, 8, 7, 6, 7, 5, 6, 7)**Degree()) + \
+    (phrase_3 % Copy()  << Loop(8, 6, 7, 8, 9)**Degree()) + \
+    (phrase_1 % Copy()  << Loop(8, 5, 6, 7, 8, 9, 10)**Degree()) + \
+    (phrase_3 % Copy()  << Loop(10, 11, 10, 9, 10)**Degree()) >> S
 asymmetrical % NoteValue() >> Print(0)
 asymmetrical >> rest_play
 

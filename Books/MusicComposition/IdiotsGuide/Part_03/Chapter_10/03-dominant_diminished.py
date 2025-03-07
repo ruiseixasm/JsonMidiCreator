@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 defaults << Tempo(30)
 sevenths = Chord(1/2) * 8
-sevenths << Foreach(
+sevenths << Loop(
     (Size("7th"),   Degree("V7")),
     (Size("5th"),   Degree("I"),    Inversion(2)),
 
@@ -40,7 +40,7 @@ sevenths >> Rest() >> Play()
 
 defaults << Tempo(90)
 single_notes = Note() * 6
-single_notes << Foreach(
+single_notes << Loop(
     ("G"),
     ("F"),
     ("G"),
@@ -50,7 +50,7 @@ single_notes << Foreach(
 ) >> Stack()
 single_notes >> Rest() >> Play()
 chords = Chord() * 3
-chords << Foreach(
+chords << Loop(
     (1/1, Size(3), Degree("I")),
     (1/2, Size(3), Degree("V")),
     (1/2, Size("7th"), Degree("II"), Dominant())
@@ -60,7 +60,7 @@ single_notes + chords >> Link() >> Rest() >> Play()
 
 defaults << Tempo(30)
 fifths = Chord(1/2) * 8
-fifths << Foreach(
+fifths << Loop(
     (Degree("viiº")),
     (Degree("I"),       Octave(5)),
 
@@ -77,7 +77,7 @@ fifths >> Rest() >> Play()
 
 defaults << Tempo(90)
 single_notes = Note() * 7
-single_notes << Foreach(
+single_notes << Loop(
     ("C"),
     ("A"),
     ("G"),
@@ -88,7 +88,7 @@ single_notes << Foreach(
 ) >> Stack()
 single_notes >> Rest() >> Play()
 chords = Chord(1/2) * 4
-chords << Foreach(
+chords << Loop(
     (Degree("vi"),  Mode("6th")),
     (Degree("iii"), Mode("3rd")),
     (Degree("ii"),  Mode("2nd")),

@@ -32,7 +32,7 @@ chords: Clip = Chord(1) + Chord(2, Octave(3), Inversion(2)) + Chord(6, 1/2, Octa
 chords *= 4
 # chords >> Play()
 
-bass_line: Clip = Note(1/1) + Note(2, 1/1) + Note(1/2, 6) + Note(1/2, 3) + Note(1/1, 6) << Foreach(3, 3, 3, 2, 3)**Octave() >> Stack()
+bass_line: Clip = Note(1/1) + Note(2, 1/1) + Note(1/2, 6) + Note(1/2, 3) + Note(1/1, 6) << Loop(3, 3, 3, 2, 3)**Octave() >> Stack()
 bass_line *= 4
 # bass_line >> Play()
 

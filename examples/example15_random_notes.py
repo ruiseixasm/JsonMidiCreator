@@ -25,13 +25,13 @@ rest_play = (R, P)
 defaults << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-some_notes = Note() * (1 & Foreach(Modulus(20))**Choice(3, 4, 5, 6, 7))
-some_notes << Foreach(Bouncer() * 10.15)**Get(int())**Choice(eight, quarter, dotted_eight, dotted_quarter) >> S
-some_notes + Foreach(Flipper())**Get(int())**Formula(lambda n: (n * 5 + 4) % 3)**Multiply(2)
+some_notes = Note() * (1 & Loop(Modulus(20))**Choice(3, 4, 5, 6, 7))
+some_notes << Loop(Bouncer() * 10.15)**Get(int())**Choice(eight, quarter, dotted_eight, dotted_quarter) >> S
+some_notes + Loop(Flipper())**Get(int())**Formula(lambda n: (n * 5 + 4) % 3)**Multiply(2)
 some_notes >> rest_play
 
-some_notes = Note() * Foreach(Modulus(20))**Choice(3, 4, 5, 6, 7)
-some_notes << Foreach(SinX() * 4.11)**Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter) >> S
-some_notes << Foreach(SinX() * 100)**Until(5, 1, 5)**Choice(O3, O4, O5) << Foreach(SinX())**Choice(C, D, E, F, G, A, B)
+some_notes = Note() * Loop(Modulus(20))**Choice(3, 4, 5, 6, 7)
+some_notes << Loop(SinX() * 4.11)**Frequency(1, 4, 2, 1)**Choice(eight, quarter, dotted_eight, dotted_quarter) >> S
+some_notes << Loop(SinX() * 100)**Until(5, 1, 5)**Choice(O3, O4, O5) << Loop(SinX())**Choice(C, D, E, F, G, A, B)
 some_notes >> rest_play
 

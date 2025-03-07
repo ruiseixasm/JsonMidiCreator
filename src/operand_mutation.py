@@ -179,7 +179,7 @@ class Choosing(Haploid):
         super().__init__()
         self._choice: of.Choice = of.Choice()
         self._parameter = o.Operand # Directly returns the Pick content
-        self._choice_frame: of.Frame = of.Foreach(self._chaos)**self._choice**self._parameter()
+        self._choice_frame: of.Frame = of.Loop(self._chaos)**self._choice**self._parameter()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -210,7 +210,7 @@ class Choosing(Haploid):
 
             super().loadSerialization(serialization)
             self._choice = self.deserialize(serialization["parameters"]["choice"])
-        self._choice_frame: of.Frame = of.Foreach(self._chaos)**self._choice**self._parameter()
+        self._choice_frame: of.Frame = of.Loop(self._chaos)**self._choice**self._parameter()
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -229,7 +229,7 @@ class Choosing(Haploid):
             case of.Choice():       self._choice = operand.copy()
             case _:                 super().__lshift__(operand)
         
-        self._choice_frame: of.Frame = of.Foreach(self._chaos)**self._choice**self._parameter()
+        self._choice_frame: of.Frame = of.Loop(self._chaos)**self._choice**self._parameter()
         return self
 
 class Picking(Haploid):
@@ -237,7 +237,7 @@ class Picking(Haploid):
         super().__init__()
         self._pick: of.Pick = of.Pick()
         self._parameter = o.Operand # Directly returns the Pick content
-        self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+        self._pick_frame: of.Frame = of.Loop(self._chaos)**self._pick**self._parameter()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -268,7 +268,7 @@ class Picking(Haploid):
 
             super().loadSerialization(serialization)
             self._pick = self.deserialize(serialization["parameters"]["pick"])
-        self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+        self._pick_frame: of.Frame = of.Loop(self._chaos)**self._pick**self._parameter()
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -287,7 +287,7 @@ class Picking(Haploid):
             case of.Pick():     self._pick = operand.copy()
             case _:             super().__lshift__(operand)
         
-        self._pick_frame: of.Frame = of.Foreach(self._chaos)**self._pick**self._parameter()
+        self._pick_frame: of.Frame = of.Loop(self._chaos)**self._pick**self._parameter()
         return self
 
 class Dropping(Haploid):

@@ -26,18 +26,18 @@ defaults << "##"
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 notes = Note(half) * 2 + Note() * 4 + Note(half) * 2 + Note(whole) >> S
-notes << Foreach(A, (F, 5), E, D, C, A, B, C, B)
+notes << Loop(A, (F, 5), E, D, C, A, B, C, B)
 notes % Greater(Position(0, Beats(0))) >> Smooth()
 # notes >> R >> P
 
 original_chords = Chord() * 5 << Nth(3, 4)**half >> S
-original_chords << Foreach("I", "ii", "IV", "V", "ii") << O3
+original_chords << Loop("I", "ii", "IV", "V", "ii") << O3
 # original_chords >> R >> P
 
 notes + original_chords >> L >> R >> P
 
 reharmonized_chords = Chord() * 5 << Nth(3, 4)**half >> S
-reharmonized_chords << Foreach("I", "V", "ii", "iii", "vi") << O3
+reharmonized_chords << Loop("I", "V", "ii", "iii", "vi") << O3
 # reharmonized_chords >> R >> P
 
 notes + reharmonized_chords >> L >> R >> P

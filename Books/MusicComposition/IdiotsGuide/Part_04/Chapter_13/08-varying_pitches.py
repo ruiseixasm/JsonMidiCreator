@@ -26,9 +26,9 @@ defaults << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
 # Original Motif to work on its pitches
-motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
-motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
+motif = Note() * 6 << Loop(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif << Loop(-3, 1, 2, 3, 2, -3)**Degree()
 
 # Where the Variation pitch is generated (Foreach does iteration contrary to Subject)
-varying_pitches = motif >> (motif * 1 << Foreach(SinX() * 100)**Get(int())**Formula(lambda n: n % 7 - 3)**Degree())
+varying_pitches = motif >> (motif * 1 << Loop(SinX() * 100)**Get(int())**Formula(lambda n: n % 7 - 3)**Degree())
 varying_pitches >> rest_play

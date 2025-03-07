@@ -204,7 +204,7 @@ class Melodies(Patterns):
                 tonic = ou.Tonic("C")
             ) -> oc.Clip:
         """A sustained or repeated note with other melodic movement above it."""
-        pattern: oc.Clip = oe.Note(tonic) * 8 << of.Foreach(1, 5, 1, 6, 1, 4, 1, 5)**ou.Degree()
+        pattern: oc.Clip = oe.Note(tonic) * 8 << of.Loop(1, 5, 1, 6, 1, 4, 1, 5)**ou.Degree()
         return pattern
 
 
@@ -213,7 +213,7 @@ class Melodies(Patterns):
                 transposition = ou.Degree(2)
             ) -> oc.Clip:
         """A phrase (Call) is answered by another phrase (Response), often with variation (Antiphony)."""
-        pattern: oc.Clip = oe.Note(tonic) * 4 << of.Foreach(1, 2, 3, 5)**ou.Degree()
+        pattern: oc.Clip = oe.Note(tonic) * 4 << of.Loop(1, 2, 3, 5)**ou.Degree()
         pattern *= 2
         second_measure = pattern | of.Equal(ou.Measure(1))
         second_measure += transposition
@@ -230,7 +230,7 @@ class Melodies(Patterns):
         """A short melodic pattern repeated consistently throughout a piece (Looping Motif)."""
         measure_notes: int = len(degrees)
         duration: ra.Duration = ra.Duration(ra.Measures(1) / measure_notes)
-        pattern: oc.Clip = oe.Note(tonic, duration) * measure_notes * 2 << of.Foreach(degrees)
+        pattern: oc.Clip = oe.Note(tonic, duration) * measure_notes * 2 << of.Loop(degrees)
         return pattern
 
 
@@ -241,9 +241,9 @@ class Melodies(Patterns):
         """A catchy and distinct repeating phrase, often rhythmic and driving (Short Repeated Phrase)."""
         measure_notes: int = len(degrees)
         duration: ra.Duration = ra.Duration(ra.Measures(1) / measure_notes)
-        left_pattern: oc.Clip = oe.Note(tonic, duration) * measure_notes << of.Foreach(degrees)
+        left_pattern: oc.Clip = oe.Note(tonic, duration) * measure_notes << of.Loop(degrees)
         degrees[int(len(degrees) / 1.25)] += 1
-        right_measure: oc.Clip = oe.Note(tonic, duration) * measure_notes << of.Foreach(degrees)
+        right_measure: oc.Clip = oe.Note(tonic, duration) * measure_notes << of.Loop(degrees)
         return left_pattern * right_measure
 
 
@@ -260,8 +260,8 @@ class Melodies(Patterns):
                 tonic_2 = ou.Tonic("G")
             ) -> oc.Clip:
         """A melody emphasizing offbeats or unexpected rhythmic placements (Offbeat Melodies)."""
-        measure_1: oc.Clip = oe.Note(tonic_1, 1/2) * 2 + ou.Beat() << of.Foreach(1, 3)**ou.Degree() << ra.Duration(1/4)
-        measure_2: oc.Clip = oe.Note(tonic_2, 1/2) * 2 << of.Foreach(1, 2)**ou.Degree() << ra.Duration(1/4)
+        measure_1: oc.Clip = oe.Note(tonic_1, 1/2) * 2 + ou.Beat() << of.Loop(1, 3)**ou.Degree() << ra.Duration(1/4)
+        measure_2: oc.Clip = oe.Note(tonic_2, 1/2) * 2 << of.Loop(1, 2)**ou.Degree() << ra.Duration(1/4)
         return measure_1 * measure_2
 
 

@@ -21,13 +21,13 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-suspended = Chord(1/1) * 2 << Foreach(
+suspended = Chord(1/1) * 2 << Loop(
     (Sus4()),
     ("C")
 )
 suspended >> Rest() >> Play()
 
-suspended = Chord(1/2) * 8 << Foreach(
+suspended = Chord(1/2) * 8 << Loop(
     ("D", Scale("minor")),
     ("G"),
     ("E", Scale("minor")),
@@ -38,7 +38,7 @@ suspended = Chord(1/2) * 8 << Foreach(
     (1/1)
 ) >> Stack()
 suspended >> Rest() >> Play()
-single_notes = Note(1/2) * 8 << Foreach(
+single_notes = Note(1/2) * 8 << Loop(
     ("A"),
     ("G"),
     ("B"),

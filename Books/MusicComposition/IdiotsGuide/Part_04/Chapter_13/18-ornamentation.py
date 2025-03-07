@@ -24,8 +24,8 @@ from JsonMidiCreator import *
 rest_play = (R, P)
 
 # Original Motif to work on its pitches
-motif: Clip = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
-motif << Foreach(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
+motif: Clip = Note() * 6 << Loop(quarter, eight, eight, dotted_quarter, eight, whole) >> Stack()
+motif << Loop(1, 3, 4, 5, 4, 1)**Degree() << KeySignature(1, Minor())
 melody: Clip = motif * 2 << MidiTrack("Melody")
 defaults << KeySignature(1, Minor())   # Sets the default Key Note configuration
 melody \

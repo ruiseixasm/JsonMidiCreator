@@ -525,7 +525,7 @@ def test_clip_selectors():
 
 def test_position_shift():
 
-    chords: Clip = Chord() * 4 << Foreach(1, 5, 6, 4)
+    chords: Clip = Chord() * 4 << Loop(1, 5, 6, 4)
 
     assert chords % Position() == 0.0
     Steps(3) >> chords
@@ -568,8 +568,8 @@ def test_position_shift():
 
 def test_clip_operations():
 
-    straight_clip: Clip = Note() * 4 << Foreach(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
-    reversed_clip: Clip = Note() * 4 << Foreach(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
+    straight_clip: Clip = Note() * 4 << Loop(eight, quarter, dotted_quarter, dotted_eight) >> Stack()
+    reversed_clip: Clip = Note() * 4 << Loop(dotted_eight, dotted_quarter, quarter, eight) >> Stack()
 
     # 1/8 + 1/4 + 1/4 * 3/2 + 1/8 * 3/2 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats
     # 1/8 * 3/2 + 1/4 * 3/2 + 1/4 + 1/8 = 15/16 NoteValue = 4 * 15/16 = 15/4 = 3.75 Beats

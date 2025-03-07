@@ -25,11 +25,11 @@ rest_play = (R, P)
 defaults << 150
 defaults % Key() % str() >> Print()    # Returns the tonic key (I)
 
-motif_1 = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-            >> od.Stack() << of.Foreach(2, 3, 2, -3, 1, -3) # Degree
+motif_1 = oe.Note() * 6 << of.Loop(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
+            >> od.Stack() << of.Loop(2, 3, 2, -3, 1, -3) # Degree
 
-motif_2 = oe.Note() * 6 << of.Foreach(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
-            >> od.Stack() << of.Foreach(-3, 1, 2, 3, 2, -3) # Degree
+motif_2 = oe.Note() * 6 << of.Loop(1/4, 1/8, 1/8, ra.Dotted(1/4), 1/4, 1/1) \
+            >> od.Stack() << of.Loop(-3, 1, 2, 3, 2, -3) # Degree
 
 motif_2 * 2 >> Play()
 

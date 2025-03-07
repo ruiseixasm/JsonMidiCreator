@@ -49,7 +49,7 @@ def test_selection():
 
 def test_comparison():
 
-    four_notes = Note() * 4 << Foreach(1/1, 1/2, 1/4, 1/8)
+    four_notes = Note() * 4 << Loop(1/1, 1/2, 1/4, 1/8)
 
     comparison = Matching()
     assert four_notes != comparison

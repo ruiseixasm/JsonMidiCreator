@@ -23,7 +23,7 @@ from JsonMidiCreator import *
 
 defaults << KeySignature("#")
 
-original: Clip = Note("B") * 4 + Foreach(0, 3, 2, 0) << Foreach(1/4, 1/4, 1/2, 1/1) >> Stack()
+original: Clip = Note("B") * 4 + Loop(0, 3, 2, 0) << Loop(1/4, 1/4, 1/2, 1/1) >> Stack()
 original >> Rest() >> Play()
 
 back_phrasing:Clip = original.copy() + Equal(Measures(0))**Position(Duration(1/4)) >> Link()

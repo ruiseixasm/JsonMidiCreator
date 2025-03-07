@@ -21,13 +21,13 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-stable = Note("C", 1/1) * 3 - 1 + Foreach(1, 5, 3)
+stable = Note("C", 1/1) * 3 - 1 + Loop(1, 5, 3)
 rest = Rest(1/1)
-unstable = Note("C", 1/1) * 4 - 1 + Foreach(6, 2, 4, 7)
+unstable = Note("C", 1/1) * 4 - 1 + Loop(6, 2, 4, 7)
 
 # stable >> rest >> unstable >> Play()
 
 
 harmonies = Note(Measures(0), NoteValue(1/2)) + Note(Beats(2), NoteValue(1/2)) + Note(Measures(1)) * 4 + Note(Measures(2), Duration(1/2)) * 2 + Note(Measures(3), Duration(1/1)) >> Link()
-harmonies - 1 + Foreach(8, 1, 2, 3, 4, 5, 6, 5, 8)
+harmonies - 1 + Loop(8, 1, 2, 3, 4, 5, 6, 5, 8)
 harmonies >> Play()

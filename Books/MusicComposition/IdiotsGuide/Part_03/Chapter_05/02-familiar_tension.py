@@ -29,40 +29,40 @@ familiar_bar1 >> familiar_bar2 >> familiar_bar3 >> familiar_bar4 >> Play()
 
 
 tension = Note("B", 5) * 12 << Nth(7)**Duration(1/2) >> Stack() << Equal(Measures(3))**Duration(1) >> Stack()
-tension + Foreach(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
+tension + Loop(1, 0, 1, 2, 3, 5, 4, 3, 2, 1, 0, 1)
 tension >> Play()
 
 
 defaults << KeySignature("#")
-center = Note("B", 5) * 11 << Foreach(1/2, None, None, 1/2, None, None, None, None, None, None, 1/1) >> Stack()
+center = Note("B", 5) * 11 << Loop(1/2, None, None, 1/2, None, None, None, None, None, None, 1/1) >> Stack()
 
-(center | Measures(0)) + Foreach(0, -2, -1)
-(center | Measures(1)) + Foreach(0, 2, 1)
-(center | Measures(2)) + Foreach(0, -1, -2, -1)
+(center | Measures(0)) + Loop(0, -2, -1)
+(center | Measures(1)) + Loop(0, 2, 1)
+(center | Measures(2)) + Loop(0, -1, -2, -1)
 center >> Play()
 
 
 defaults << KeySignature("b") << Tempo(90)
-repeat_1 = Note("B", 5) * 5 + Foreach(-1, 0, -1, -2, -1) << Foreach(1/8, 1/8)
-repeat_2 = Note("B", 5) * 4 + Foreach(-1, 0, -1, -2) << Foreach(1/8, 1/8, 1/4, 1/2)
-repeat_3 = Note("B", 5) * 5 + Foreach(-1, 0, -1, -2, -3) << Foreach(1/8, 1/8)
+repeat_1 = Note("B", 5) * 5 + Loop(-1, 0, -1, -2, -1) << Loop(1/8, 1/8)
+repeat_2 = Note("B", 5) * 4 + Loop(-1, 0, -1, -2) << Loop(1/8, 1/8, 1/4, 1/2)
+repeat_3 = Note("B", 5) * 5 + Loop(-1, 0, -1, -2, -3) << Loop(1/8, 1/8)
 repeat_4 = Note("B", 5) - 2 << 1/1
 (repeat_1, repeat_2, repeat_3) >> repeat_4 >> Play()
 
 
 form_1 = Note("B", 5, Gate(1)) * 6 << Nth(1, 6)**Duration(1) << Nth(2, 3, 4, 5)**Duration(1/2) << Nth(6)**Gate(0.9) >> Stack()
-form_1 + Foreach(0, 3, 2, 1, 2)
+form_1 + Loop(0, 3, 2, 1, 2)
 
 form_2 = (form_1 | Equal(Measures(0), Measures(3))) >> Copy()
 form_2 = form_2 + Note("B", 5, Measures(1), Gate(1)) * 5 >> Sort()
-form_2 + Foreach(-1, 0, -1, -2, -1, 0, -1)
+form_2 + Loop(-1, 0, -1, -2, -1, 0, -1)
 form_2 << Nth(6)**Duration(1) >> Stack()
 
 form_3 = Note("B", 5, Gate(1)) * 10 << Nth(1, 8, 9)**Duration(1/2) << Nth(10)**(Duration(1), Gate(0.9))
-form_3 + Foreach(-2, 5, 4, 3, 2, 1, -1, 0, 1, 2)
+form_3 + Loop(-2, 5, 4, 3, 2, 1, -1, 0, 1, 2)
 
 form_4 = Note("B", 5, Gate(1)) * 8 << Nth(6, 7)**Duration(1/2) << Nth(1, 8)**(Duration(1)) << Nth(8)**(Gate(0.9))
-form_4 + Foreach(3, 2, 1, -2, -1, 0, -3, -2)
+form_4 + Loop(3, 2, 1, -2, -1, 0, -3, -2)
 
 defaults << KeySignature("#") << Tempo(125)
 form_1 >> form_2 >> form_3 >> form_4 >> Play()

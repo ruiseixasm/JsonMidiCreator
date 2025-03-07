@@ -25,10 +25,10 @@ rest_play = (R, P)
 defaults << "#" << 120
 Key() % str() >> Print()    # Returns the tonic key (I)
 
-motif = Note() * 6 << Foreach(quarter, eight, eight, dotted_quarter, eight, whole) >> S
-motif << Foreach(-3, 1, 2, 3, 2, -3)**Degree()
+motif = Note() * 6 << Loop(quarter, eight, eight, dotted_quarter, eight, whole) >> S
+motif << Loop(-3, 1, 2, 3, 2, -3)**Degree()
 
-reversing_pitch = motif >> (motif % Copy() << Foreach(motif * 1 % Reverse())**Get(Degree()))
+reversing_pitch = motif >> (motif % Copy() << Loop(motif * 1 % Reverse())**Get(Degree()))
 reversing_pitch >> rest_play
 
 reversing_rhythm = motif >> motif * 1 % Reverse()

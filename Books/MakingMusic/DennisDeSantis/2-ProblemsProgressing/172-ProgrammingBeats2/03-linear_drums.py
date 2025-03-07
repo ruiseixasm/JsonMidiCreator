@@ -25,9 +25,9 @@ rest_play = (R, P)
 defaults << Tempo(110)
 
 # Direct programming
-hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 3 << Foreach(2, 8, 14)**Step()
-snare = Note(DrumKit("Snare"), 1/16) * 2 << Foreach(4, 10)**Step()
-drum = Note(DrumKit("Drum"), 1/16) * 3 << Foreach(0, 6, 12)**Step()
+hi_hat = Note(DrumKit("Hi-Hat"), 1/16) * 3 << Loop(2, 8, 14)**Step()
+snare = Note(DrumKit("Snare"), 1/16) * 2 << Loop(4, 10)**Step()
+drum = Note(DrumKit("Drum"), 1/16) * 3 << Loop(0, 6, 12)**Step()
 
 (hi_hat + snare + drum) * 8 >> P
 
@@ -35,7 +35,7 @@ print("Delay for 0.5 seconds")
 time.sleep(0.5)
 
 # 2+2+2 pattern programming
-pattern = Note(1/16) * 3 << Iterate(2)**Step() << Foreach(DrumKit("Drum"), DrumKit("Hi-Hat"), DrumKit("Snare"))
+pattern = Note(1/16) * 3 << Iterate(2)**Step() << Loop(DrumKit("Drum"), DrumKit("Hi-Hat"), DrumKit("Snare"))
 pattern << CParameter(Length(Steps(2+2+2)))
 pattern *= 3
 pattern >> Trim()

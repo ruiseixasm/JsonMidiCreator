@@ -433,7 +433,7 @@ class Drag(Left):
             return super().__and__(self._first_parameter)
         return super().__and__(input)
 
-class Foreach(Left):
+class Loop(Left):
     def __init__(self, *parameters):
 
         processed_params = []
@@ -444,10 +444,6 @@ class Foreach(Left):
                 processed_params.append(param)
         super().__init__(tuple(processed_params))
 
-        # if parameters and isinstance(parameters[0], range):
-        #     parameters = tuple(parameters[0])
-        # super().__init__(parameters)
-        
         self._multi_data['step'] = 1
 
     def __and__(self, input: o.Operand) -> o.Operand:
