@@ -605,7 +605,7 @@ class Chain(Data):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Chain():
-                self._data = operand._data
+                self._data = self.deep_copy(operand._data)
             case DataSource():
                 match operand._data:
                     case tuple():
