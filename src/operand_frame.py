@@ -444,18 +444,35 @@ class Loop(Left):
                 processed_params.append(param)
         super().__init__(tuple(processed_params))
 
-        self._multi_data['step'] = 1
-
     def __and__(self, input: o.Operand) -> o.Operand:
         import operand_container as oc
         import operand_chaos as ch
-        if len(self._multi_data['operand']) > 0:    # In case it its own parameters to iterate trough
-            input = self._multi_data['operand'][self._index]
+        operand_len: int = len(self._multi_data['operand'])
+        if operand_len > 0:    # In case it its own parameters to iterate trough
+            input = self._multi_data['operand'][self._index % operand_len]
             if isinstance(input, (oc.Container, ch.Chaos)):
                 input %= ou.Next()    # Iterates to next subject
-            self._index += self._multi_data['step']
-            self._index %= len(self._multi_data['operand'])
+            self._index += 1
             return super().__and__(input)
+        else:   # Uses subject as the iterator parameter!
+            last_data = ol.Null()
+            match input:
+                case oc.Container():    # is iterable
+                    for single_data in input:
+                        last_data = super().__and__(single_data)
+                case _:
+                    last_data = super().__and__(input)
+            return last_data
+
+class Foreach(Loop):
+    def __and__(self, input: o.Operand) -> o.Operand:
+        import operand_container as oc
+        import operand_chaos as ch
+        operand_len: int = len(self._multi_data['operand'])
+        if operand_len > 0:    # In case it its own parameters to iterate trough
+            if self._index < operand_len:
+                return super().__and__(input)
+            return ol.Null()    # Does only a single loop!
         else:   # Uses subject as the iterator parameter!
             last_data = ol.Null()
             match input:
