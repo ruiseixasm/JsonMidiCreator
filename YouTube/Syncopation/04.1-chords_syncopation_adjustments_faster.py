@@ -111,7 +111,7 @@ for _ in range(2):
 c.profiling_timer.call_timer_b()
 
 lead_notes: Clip = Note() * repeated_chords.len()
-lead_notes << Loop(repeated_chords)
+lead_notes << Input(repeated_chords)
 lead_notes << Equal(Degree(5))**Degree(7) << Equal(6)**5
 lead_notes += Octave(1)
 # lead_notes += Degree(4)

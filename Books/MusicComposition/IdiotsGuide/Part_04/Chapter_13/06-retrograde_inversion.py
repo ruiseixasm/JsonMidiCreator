@@ -28,7 +28,7 @@ Key() % str() >> Print()    # Returns the tonic key (I)
 motif = Note() * 6 << Loop(quarter, eight, eight, dotted_quarter, eight, whole) >> S
 motif << Loop(-3, 1, 2, 3, 2, -3)**Degree()
 
-reversing_pitch = motif >> (motif % Copy() << Loop(motif * 1 % Reverse())**Get(Degree()))
+reversing_pitch = motif >> (motif % Copy() << Input(motif * 1 % Reverse())**Get(Degree()))
 reversing_pitch >> rest_play
 
 reversing_rhythm = motif >> motif * 1 % Reverse()
