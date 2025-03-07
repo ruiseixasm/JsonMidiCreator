@@ -454,8 +454,6 @@ class Loop(Left):
         operand_len: int = len(self._multi_data['operand'])
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._multi_data['operand'][self._index % operand_len]
-            if isinstance(input, (oc.Container, ch.Chaos)):
-                input %= ou.Next()    # Iterates to next subject (Has to be passed as Operand for Choice for instance)
             self._index += 1
             return super().__and__(input)
         else:   # Uses subject as the iterator parameter!
