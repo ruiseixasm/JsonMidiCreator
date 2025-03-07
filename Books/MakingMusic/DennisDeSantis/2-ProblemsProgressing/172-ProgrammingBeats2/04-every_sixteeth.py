@@ -38,7 +38,7 @@ time.sleep(0.5)
 
 # Chaotic Drum pattern programming
 chaotic_drum_pattern = Note(1/16) * 32 << \
-    Loop(SinX() * 25)**Choice(DrumKit("Drum"), DrumKit("Snare"), DrumKit("Hi-Hat"))
+    Input(SinX() * 25)**Choice(DrumKit("Drum"), DrumKit("Snare"), DrumKit("Hi-Hat"))
 chaotic_drum_pattern << Equal(DrumKit("Hi-Hat"))**Velocity(60)
 chaotic_drum_pattern << Equal(DrumKit("Snare"))**Loop(60, 110, 65, 70, 60, 65, 105)**Velocity()
 chaotic_drum_pattern * 8 >> P

@@ -243,12 +243,16 @@ class Left(Frame):  # LEFT TO RIGHT
 class Input(Left):
     def __and__(self, input: o.Operand) -> o.Operand:
         import operand_container as oc
+        import operand_chaos as ch
         if isinstance(self._multi_data['operand'], oc.Container):
             if self._multi_data['operand'].len() > 0:
                 item = self._multi_data['operand'][self._index % self._multi_data['operand'].len()]
                 self._index += 1
                 return super().__and__(item)
             return super().__and__(ol.Null())
+        if isinstance(self._multi_data['operand'], ch.Chaos):
+            self._index += 1
+            return super().__and__(self._multi_data['operand'] * 1) # Does single iteration (remains as Chaos)
         return super().__and__(self._multi_data['operand'])
 
 
@@ -451,7 +455,7 @@ class Loop(Left):
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._multi_data['operand'][self._index % operand_len]
             if isinstance(input, (oc.Container, ch.Chaos)):
-                input %= ou.Next()    # Iterates to next subject
+                input %= ou.Next()    # Iterates to next subject (Has to be passed as Operand for Choice for instance)
             self._index += 1
             return super().__and__(input)
         else:   # Uses subject as the iterator parameter!
