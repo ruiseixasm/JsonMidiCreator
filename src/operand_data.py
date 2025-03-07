@@ -580,14 +580,52 @@ class Clips(DataMany):
 class Result(Data):
     pass
 
+class Chain(Data):
+    def __init__(self, *parameters):
+        super().__init__()
+        self << parameters
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        for process in self._data:
+            operand >>= process
+        return operand
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "data" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            data_list: list = self.deserialize(serialization["parameters"]["data"])
+            self._data = tuple(data_list)
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Chain():
+                self._data = operand._data
+            case DataSource():
+                match operand._data:
+                    case tuple():
+                        self._data = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case tuple():
+                # self._data = operand
+                self._data = self.deep_copy(operand)
+            case _:
+                self._data = tuple(self.deep_copy(operand))
+        return self
+
+
 class Process(Data):
     pass
     
 class Save(Process):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
@@ -599,8 +637,6 @@ class Export(Process):
     def __init__(self, file_name: str = "json/_Export_jsonMidiPlayer.json"):
         super().__init__(file_name)
 
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
             c.saveJsonMidiPlay(operand.getPlaylist(), self._data)
@@ -610,8 +646,6 @@ class Export(Process):
 class MidiExport(Process):
     def __init__(self, file_name: str = "song.mid"):
         super().__init__(file_name)
-
-    # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         if isinstance(operand, o.Operand):
@@ -636,8 +670,6 @@ class Filter(Process):
     def __init__(self, mask: any = None):
         super().__init__(mask)
         
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
@@ -729,8 +761,6 @@ class Play(Process):
     def __init__(self, verbose: bool = False):
         super().__init__(1 if verbose else 0)
 
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case o.Operand():
@@ -750,8 +780,6 @@ class Print(Process):
     """
     def __init__(self, formatted: bool = True):
         super().__init__( 1 if formatted is None else formatted )
-
-    # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
@@ -787,8 +815,6 @@ class Shuffle(Process):
     def __init__(self, chaos: 'Chaos' = None, parameter: type = Position):
         super().__init__((chaos, parameter))
 
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
@@ -801,8 +827,6 @@ class Swap(Process):
 
     def __init__(self, probability: 'Probability' = None, chaos: 'Chaos' = None, parameter: type = Position):
         super().__init__((probability, chaos, parameter))
-
-    # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -824,8 +848,6 @@ class Recur(Process):
     def __init__(self, recursion: Callable = lambda d: d/2, parameter: type = Duration):
         super().__init__((recursion, parameter))
 
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
@@ -838,8 +860,6 @@ class Rotate(Process):
 
     def __init__(self, offset: int = 1, parameter: type = Duration):
         super().__init__((offset, parameter))
-
-    # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
@@ -858,8 +878,6 @@ class Snap(Process):
     def __init__(self, up: bool = False):
         super().__init__(up)
 
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -873,8 +891,6 @@ class Extend(Process):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
         
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -885,8 +901,6 @@ class Trim(Process):
     def __init__(self, length: 'Length' = None):
         super().__init__( length )
         
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -899,8 +913,6 @@ class Cut(Process):
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__((start, finish))
 
-    # CHAINABLE OPERATIONS
-
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
@@ -912,8 +924,6 @@ class Select(Process):
 
     def __init__(self, start: Position = None, finish: Position = None):
         super().__init__((start, finish))
-
-    # CHAINABLE OPERATIONS
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
