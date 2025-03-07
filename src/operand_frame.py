@@ -475,15 +475,7 @@ class Foreach(Loop):
             if self._index < operand_len:
                 return super().__and__(input)
             return ol.Null()    # Does only a single loop!
-        else:   # Uses subject as the iterator parameter!
-            last_data = ol.Null()
-            match input:
-                case oc.Container():    # is iterable
-                    for single_data in input:
-                        last_data = super().__and__(single_data)
-                case _:
-                    last_data = super().__and__(input)
-            return last_data
+        return super().__and__(input)
 
 class Transition(Left):
     def __init__(self, *parameters):
