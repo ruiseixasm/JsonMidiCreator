@@ -449,33 +449,19 @@ class Loop(Left):
         super().__init__(tuple(processed_params))
 
     def __and__(self, input: o.Operand) -> o.Operand:
-        import operand_container as oc
-        import operand_chaos as ch
         operand_len: int = len(self._multi_data['operand'])
         if operand_len > 0:    # In case it its own parameters to iterate trough
             input = self._multi_data['operand'][self._index % operand_len]
             self._index += 1
             return super().__and__(input)
-        else:   # Uses input itself as the iterator parameter!
-            last_data = ol.Null()
-            match input:
-                case oc.Container():    # is iterable
-                    for single_data in input:
-                        last_data = super().__and__(single_data)
-                case _:
-                    last_data = super().__and__(input)
-            return last_data
+        return ol.Null()
 
 class Foreach(Loop):
     def __and__(self, input: o.Operand) -> o.Operand:
-        import operand_container as oc
-        import operand_chaos as ch
         operand_len: int = len(self._multi_data['operand'])
-        if operand_len > 0:    # In case it its own parameters to iterate trough
-            if self._index < operand_len:
-                return super().__and__(input)
-            return ol.Null()    # Does only a single loop!
-        return super().__and__(input)
+        if self._index < operand_len:   # Does only a single loop!
+            return super().__and__(input)
+        return ol.Null()
 
 class Transition(Left):
     def __init__(self, *parameters):
