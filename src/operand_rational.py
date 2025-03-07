@@ -1250,8 +1250,10 @@ class Duration(Convertible):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case self.__class__():
-                super().__lshift__(operand)
+            case Dotted():
+                self._rational = operand._rational * 2 / 3
+            case Duration():
+                self._rational = operand._rational
             case Convertible() | ou.TimeUnit():
                 self._rational = self._staff_reference.convertToDuration(operand)._rational
             case str():
@@ -1367,6 +1369,10 @@ class Dotted(Duration):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
+            case Dotted():
+                self._rational = operand._rational
+            case Duration():
+                self._rational = operand._rational * 3 / 2
             case od.DataSource() | Duration() | od.Serialization():
                 super().__lshift__(operand)
             # It's just a wrapper for NoteValue 3/2
