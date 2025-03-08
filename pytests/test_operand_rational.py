@@ -54,6 +54,10 @@ def test_dotted_mod():
     assert dotted % Duration() % Fraction() == Fraction(3, 8)
     assert dotted % DataSource( Fraction() ) == Fraction(3, 8)
 
+    undotted = Duration(dotted)
+    assert dotted // Fraction() == Fraction(3, 8)
+    assert undotted // Fraction() == Fraction(1, 4)
+
 # test_dotted_mod()
 
 
