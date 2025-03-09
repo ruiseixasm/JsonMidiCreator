@@ -1162,16 +1162,15 @@ class Clip(Container):  # Just a container of Elements
             Clip: The same self object with the items processed.
         """
         if non_empty_measures_only:
-            clip_position_beats: Fraction = self.start().roundMeasures()._rational
-            clip_length_beats: Fraction = ra.Length( self.finish() - self.start() ).roundMeasures()._rational # Rounded up Duration to next Measure
+            first_measure_position_beats: Fraction = self.start().roundMeasures()._rational
         else:
-            clip_position_beats: Fraction = Fraction(0)
-            clip_length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
-        for item in self._items:
-            single_element: oe.Element = item
-            duration_beats: Fraction = single_element % ra.Length() // Fraction()
+            first_measure_position_beats: Fraction = Fraction(0)
+        clip_length_beats: Fraction = ra.Length( self.finish() ).roundMeasures()._rational # Rounded up Duration to next Measure
+        for single_element in self._items:
+            element_position_beats: Fraction = single_element._position_beats
+            element_length_beats: Fraction = single_element % ra.Length() // Fraction()
             # Only changes Positions
-            single_element._position_beats = clip_position_beats + clip_length_beats - (single_element._position_beats + duration_beats)
+            single_element._position_beats = first_measure_position_beats + clip_length_beats - (element_position_beats + element_length_beats)
         return super().reverse()    # Reverses the list
 
     def flip(self) -> Self:

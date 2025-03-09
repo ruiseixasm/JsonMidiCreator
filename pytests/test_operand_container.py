@@ -617,7 +617,7 @@ def test_clip_operations():
     three_notes.reverse()
     assert three_notes % Length() == 1.25
     print(three_notes[0] % Position() % float())
-    assert three_notes[0] % Position() == 0.75
+    assert three_notes[0] % Position() == 1.75
 
 
 
