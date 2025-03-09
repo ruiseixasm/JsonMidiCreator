@@ -32,8 +32,8 @@ chords = Chord() * 4 << Foreach("I", "IV", "V", "I")**Degree()
 # chords >> Play()
 
 chord_notes_i = Chord(Degree("I")) % Clip()
-chord_notes_i >> Play()
+# chord_notes_i >> Play()
 chord_notes_iv = Chord(Degree("IV")) % Clip()
-chord_notes_iv >> Play()
-# chord_notes_i * chord_notes_iv >> Play()
+# chord_notes_iv >> Play()
+chord_notes_i * chord_notes_iv >> Play()
 

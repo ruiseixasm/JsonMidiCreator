@@ -1025,8 +1025,7 @@ class Clip(Container):  # Just a container of Elements
                     last_element: oe.Element = self.last()
                     if last_element:
                         left_end_position: ra.Position = last_element % ra.Position()
-                        length_shift: ra.Length = ra.Length(left_end_position - right_start_position).roundMeasures()
-                        add_position: ra.Position = ra.Position(length_shift)
+                        add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
                     else:
                         add_position: ra.Position = ra.Position(0)
                 else:
@@ -1048,7 +1047,7 @@ class Clip(Container):  # Just a container of Elements
                     last_element: oe.Element = self.last()
                     if last_element:
                         left_end_position: ra.Position = last_element % ra.Position()
-                        add_position: ra.Position = left_end_position.roundMeasures() + ra.Measures(1)
+                        add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
                     else:
                         add_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
                 else:
