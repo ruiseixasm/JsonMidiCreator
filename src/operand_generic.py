@@ -300,15 +300,15 @@ class Pitch(Generic):
     def set_degree(self, degree: int | float) -> Self:
 
         self_degree_0: int = 0
-        while self._degree > 0:
+        if self._degree > 0:
             self_degree_0 = self._degree - 1
-        while self._degree < 0:
+        elif self._degree < 0:
             self_degree_0 = self._degree + 1
 
         degree_0: int = 0
-        while degree > 0:
+        if degree > 0:
             degree_0 = degree - 1
-        while degree < 0:
+        elif degree < 0:
             degree_0 = degree + 1
 
         # Excludes the effect of purely decorative parameters
@@ -333,19 +333,27 @@ class Pitch(Generic):
             case od.DataSource():
                 match operand._data:
                     case of.Frame():        return self % od.DataSource( operand._data )
-                    case ou.Octave():       return ou.Octave() << od.DataSource(self._octave)
-                    case ou.Tonic():        return ou.Tonic() << od.DataSource(self._tonic_key)    # Must come before than Key()
-                    case ou.Sharp():        return ou.Sharp() << od.DataSource(max(0, self._sharp))
-                    case ou.Flat():         return ou.Flat() << od.DataSource(max(0, self._sharp * -1))
-                    case ou.Natural():      return ou.Natural() << od.DataSource(self._natural)
-                    case ou.Degree():       return ou.Degree() << od.DataSource(self._degree)
+                    case ou.Octave():       return operand._data << od.DataSource(self._octave)
+                    case ou.Tonic():        return operand._data << od.DataSource(self._tonic_key)    # Must come before than Key()
+                    case ou.Sharp():        return operand._data << od.DataSource(max(0, self._sharp))
+                    case ou.Flat():         return operand._data << od.DataSource(max(0, self._sharp * -1))
+                    case ou.Natural():      return operand._data << od.DataSource(self._natural)
+                    case ou.Degree():       return operand._data << od.DataSource(self._degree)
                     case int():             return self._degree
                     case float():           return float(self._tonic_key)
                     case _:                 return super().__mod__(operand)
             case of.Frame():        return self % operand
 
             case int():
-                return self._degree
+                self_degree_0: int = 0
+                if self._degree > 0:
+                    self_degree_0 = self._degree - 1
+                elif self._degree < 0:
+                    self_degree_0 = self._degree + 1
+                staff_scale: list[int] = self._staff_reference % list()
+                total_degrees: int = sum(1 for key in staff_scale if key != 0)
+
+                return self_degree_0 % total_degrees + 1
              
             case float() | Fraction():
                 return float( 12 * (self._octave + 1) + self.get_key_float( int(operand) ) )
@@ -360,7 +368,7 @@ class Pitch(Generic):
                 return ou.Octave( final_pitch // 12 - 1 )
             
             case ou.Degree():
-                return ou.Degree() << od.DataSource(self._degree)
+                return ou.Degree(self % int())
              
             case ou.Sharp():
                 final_pitch: int = int(self % float())
