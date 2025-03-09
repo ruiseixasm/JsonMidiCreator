@@ -883,6 +883,7 @@ class Cluster(Note):
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
+        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -893,6 +894,12 @@ class Cluster(Note):
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
+            case oc.Clip():
+                notes: oc.Clip = oc.Clip(self._staff_reference)
+                cluster_notes: list[Note] = self.get_cluster_notes()
+                for single_note in cluster_notes:
+                    notes += single_note
+                return notes
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
