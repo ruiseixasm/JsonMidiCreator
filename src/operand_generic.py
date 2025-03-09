@@ -273,9 +273,9 @@ class Pitch(Generic):
     def octave_degree_offset(self, degree_offset: int) -> tuple[int, int]:
         
         self_degree_0: int = 0
-        while self._degree > 0:
+        if self._degree > 0:
             self_degree_0 = self._degree - 1
-        while self._degree < 0:
+        elif self._degree < 0:
             self_degree_0 = self._degree + 1
 
         staff_scale: list[int] = self._staff_reference % list()
@@ -475,7 +475,7 @@ class Pitch(Generic):
         match operand:
             case Pitch():
                 super().__lshift__(operand)
-                self._tonic_key                   = operand._tonic_key
+                self._tonic_key             = operand._tonic_key
                 self._octave                = operand._octave
                 self._degree                = operand._degree
                 self._sharp                 = operand._sharp
@@ -529,6 +529,7 @@ class Pitch(Generic):
                     self._tonic_key = int( self._staff_reference._key_signature % float() )
                 else:
                     self._degree = operand
+                    # self.set_degree(operand)
 
             case ou.Degree():
                 self << operand._unit
