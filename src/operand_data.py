@@ -842,10 +842,13 @@ class Swap(Process):
         return super().__rrshift__(operand)
 
 class Reverse(Process):
+    def __init__(self, non_empty_measures_only: bool = True):
+        super().__init__(non_empty_measures_only)
+
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.reverse()
+            return operand.reverse(self._data)
         return super().__rrshift__(operand)
 
 class Recur(Process):

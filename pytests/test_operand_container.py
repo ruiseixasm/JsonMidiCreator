@@ -607,6 +607,20 @@ def test_clip_operations():
     assert straight_clip.copy().reverse()[3] == reversed_clip[3] + Beats(0.25)
     assert straight_clip.reverse() == reversed_clip + All()**Beats(0.25)
 
+
+    three_notes = Note(1/4) + Note(1/2) + Note(1/2) >> Stack()
+    three_notes += Measure(1)
+
+    assert three_notes % Length() == 1.25
+    assert three_notes[0] % Position() == 1.0
+
+    three_notes.reverse()
+    assert three_notes % Length() == 1.25
+    print(three_notes[0] % Position() % float())
+    assert three_notes[0] % Position() == 0.75
+
+
+
 # test_clip_operations()
 
 
