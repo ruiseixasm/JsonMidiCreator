@@ -282,10 +282,10 @@ class Pitch(Generic):
         total_degrees: int = sum(1 for key in staff_scale if key != 0)
 
         self_octave_degree_0: int = self_degree_0 % total_degrees
-        moved_degree: int = self_octave_degree_0 + degree_offset
-        octave_degree: int = moved_degree % total_degrees
-        octave_offset: int = moved_degree // total_degrees
-        degree_offset = octave_degree - octave_degree
+        moved_degree_0: int = self_octave_degree_0 + degree_offset
+        octave_degree_0: int = moved_degree_0 % total_degrees
+        octave_offset: int = moved_degree_0 // total_degrees
+        degree_offset = octave_degree_0 - self_octave_degree_0
 
         return octave_offset, degree_offset
     
@@ -307,13 +307,11 @@ class Pitch(Generic):
 
         degree_0: int = 0
         if degree > 0:
-            degree_0 = degree - 1
+            degree_0 = int(degree) - 1
         elif degree < 0:
-            degree_0 = degree + 1
+            degree_0 = int(degree) + 1
 
-        # Excludes the effect of purely decorative parameters
-        degree_offset: int = int( degree_0 - self_degree_0 )
-        return self.apply_degree_offset(degree_offset)
+        return self.apply_degree_offset( degree_0 - self_degree_0 )
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -528,8 +526,7 @@ class Pitch(Generic):
                 if operand == 0:
                     self._tonic_key = int( self._staff_reference._key_signature % float() )
                 else:
-                    self._degree = operand
-                    # self.set_degree(operand)
+                    self.set_degree(operand)
 
             case ou.Degree():
                 self << operand._unit
