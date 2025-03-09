@@ -419,7 +419,7 @@ class Element(o.Operand):
                 self_clip += operand
                 return self_clip
             case int():
-                new_clip: oc.Clip = oc.Clip()
+                new_clip: oc.Clip = oc.Clip(self._staff_reference)
                 if operand > 0:
                     new_clip._items.append( self )
                     for _ in range(operand - 1):
@@ -995,6 +995,7 @@ class KeyScale(Note):
         >>> scale % list() >> Print()
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
+        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1008,6 +1009,12 @@ class KeyScale(Note):
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
             case list():            return self.get_scale_notes()
+            case oc.Clip():
+                notes: oc.Clip = oc.Clip(self._staff_reference)
+                scale_notes: list[Note] = self.get_scale_notes()
+                for single_note in scale_notes:
+                    notes += single_note
+                return notes
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:

@@ -27,3 +27,7 @@ from JsonMidiCreator import *
 
 
 defaults << TimeSignature(3, 4)
+
+chords = Chord() * 4 << Foreach("I", "IV", "V", "I")**Degree()
+
+chords >> Play()
