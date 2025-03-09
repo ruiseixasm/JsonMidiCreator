@@ -270,6 +270,52 @@ class Pitch(Generic):
         return self.apply_key_offset(key_offset)
 
 
+    def octave_degree_offset(self, degree_offset: int) -> tuple[int, int]:
+        
+        self_degree_0: int = 0
+        while self._degree > 0:
+            self_degree_0 = self._degree - 1
+        while self._degree < 0:
+            self_degree_0 = self._degree + 1
+
+        staff_scale: list[int] = self._staff_reference % list()
+        total_degrees: int = sum(1 for key in staff_scale if key != 0)
+
+        self_octave_degree_0: int = self_degree_0 % total_degrees
+        moved_degree: int = self_octave_degree_0 + degree_offset
+        octave_degree: int = moved_degree % total_degrees
+        octave_offset: int = moved_degree // total_degrees
+        degree_offset = octave_degree - octave_degree
+
+        return octave_offset, degree_offset
+    
+    def apply_degree_offset(self, degree_offset: int) -> Self:
+        
+        octave_offset_int, degree_offset_int = self.octave_degree_offset(degree_offset)
+        self._octave += octave_offset_int
+        self._degree += degree_offset_int
+
+        return self
+    
+    def set_degree(self, degree: int | float) -> Self:
+
+        self_degree_0: int = 0
+        while self._degree > 0:
+            self_degree_0 = self._degree - 1
+        while self._degree < 0:
+            self_degree_0 = self._degree + 1
+
+        degree_0: int = 0
+        while degree > 0:
+            degree_0 = degree - 1
+        while degree < 0:
+            degree_0 = degree + 1
+
+        # Excludes the effect of purely decorative parameters
+        degree_offset: int = int( degree_0 - self_degree_0 )
+        return self.apply_degree_offset(degree_offset)
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Pitch,
