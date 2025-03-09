@@ -98,6 +98,7 @@ class Element(o.Operand):
         >>> element % Device() % list() >> Print()
         ['loopMIDI', 'Microsoft']
         """
+        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -139,7 +140,16 @@ class Element(o.Operand):
             case Fraction():        return self._duration_notevalue
             case ou.Enable():       return ou.Enable(self._enabled)
             case ou.Disable():      return ou.Disable(not self._enabled)
+            case oc.Clip():
+                notes: oc.Clip = oc.Clip(self._staff_reference)
+                cluster_notes: list[Note] = self.get_component_elements()
+                for single_note in cluster_notes:
+                    notes += single_note
+                return notes
             case _:                 return super().__mod__(operand)
+
+    def get_component_elements(self) -> list['Element']:
+        return [ self ]
 
     def eq_time(self, other: 'Element') -> bool:
         return  self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) \
@@ -681,7 +691,6 @@ class Note(Element):
         >>> note % Key() % str() >> Print()
         F
         """
-        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -699,12 +708,6 @@ class Note(Element):
                                     return self._pitch % operand
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch % ( self // ra.Position() % Fraction() ), ou.Channel(self._channel))
-            case oc.Clip():
-                notes: oc.Clip = oc.Clip(self._staff_reference)
-                cluster_notes: list[Note] = self.get_list_notes()
-                for single_note in cluster_notes:
-                    notes += single_note
-                return notes
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -721,9 +724,6 @@ class Note(Element):
             case _:
                 return super().__eq__(other)
     
-    def get_list_notes(self) -> list['Note']:
-        return [ self ]
-
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
@@ -915,7 +915,7 @@ class Cluster(Note):
             case _:
                 return super().__eq__(other)
     
-    def get_list_notes(self) -> list[Note]:
+    def get_component_elements(self) -> list[Note]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
             new_note: Note = Note(self).set_staff_reference(self._staff_reference)
@@ -925,13 +925,13 @@ class Cluster(Note):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_element in self.get_list_notes():
+        for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_element in self.get_list_notes():
+        for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1017,7 +1017,7 @@ class KeyScale(Note):
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
-            case list():            return self.get_list_notes()
+            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1030,7 +1030,7 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other)
             
-    def get_list_notes(self) -> list[Note]:
+    def get_component_elements(self) -> list[Note]:
         scale_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -1049,13 +1049,13 @@ class KeyScale(Note):
     
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_note in self.get_list_notes():
+        for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_note in self.get_list_notes():
+        for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
         return self_midilist
 
@@ -1127,7 +1127,7 @@ class Polychord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_list_notes(self) -> list[Note]:
+    def get_component_elements(self) -> list[Note]:
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
             polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
@@ -1135,13 +1135,13 @@ class Polychord(KeyScale):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_element in self.get_list_notes():
+        for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_element in self.get_list_notes():
+        for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1249,7 +1249,7 @@ class Chord(KeyScale):
             case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
             case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
             case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
-            case list():            return self.get_list_notes()
+            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1267,7 +1267,7 @@ class Chord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_list_notes(self) -> list[Note]:
+    def get_component_elements(self) -> list[Note]:
         chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -1318,13 +1318,13 @@ class Chord(KeyScale):
     
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_note in self.get_list_notes():
+        for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(position_beats))    # extends the list with other list
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_note in self.get_list_notes():
+        for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1467,10 +1467,10 @@ class Retrigger(Note):
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue / 2 )
             case float():           return float( self._duration_notevalue / 2 )
             case Fraction():        return self._duration_notevalue / 2
-            case list():            return self.get_list_notes()
+            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
-    def get_list_notes(self) -> list[Note]:
+    def get_component_elements(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
@@ -1487,13 +1487,13 @@ class Retrigger(Note):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_note in self.get_list_notes():
+        for single_note in self.get_component_elements():
             self_playlist.extend(single_note.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_note in self.get_list_notes():
+        for single_note in self.get_component_elements():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1627,7 +1627,7 @@ class Tuplet(Element):
             case ou.Divisions():     return ou.Divisions() << len(self._elements)
             case int():             return len(self._elements)
             case ra.Duration():     return operand << od.DataSource( self._duration_notevalue / 2 )
-            case list():            return self.get_tuplet_elements()
+            case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1640,7 +1640,7 @@ class Tuplet(Element):
             case _:
                 return super().__eq__(other)
     
-    def get_tuplet_elements(self) -> list[Element]:
+    def get_component_elements(self) -> list[Element]:
         tuplet_elements: list[Element] = []
         element_position: ra.Position = self % ra.Position()
         self_iteration: int = 0
@@ -1656,13 +1656,13 @@ class Tuplet(Element):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_element in self.get_tuplet_elements():
+        for single_element in self.get_component_elements():
             self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_element in self.get_tuplet_elements():
+        for single_element in self.get_component_elements():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
