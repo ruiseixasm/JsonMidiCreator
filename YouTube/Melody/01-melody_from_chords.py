@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 # https://youtu.be/gDS6oerX0wY?si=n3TQLqnub8xBLGIh
 
 
-defaults << TimeSignature(3, 4) << Tempo(110)
+defaults << TimeSignature(3, 4) << Tempo(90)
 
 chords = Chord() * 4 << Foreach("I", "IV", "V", "I")**Degree()
 # chords >> Play()
@@ -42,16 +42,13 @@ decomposed_chords = chords.copy().decompose()
 stacked_notes = decomposed_chords.copy(1/4).stack() # Each single note is now 1/4 note
 # stacked_notes >> Play()
 
-chords_melody = stacked_notes + Octave(1)
-chords_melody -= chords_melody.last()
-chords_melody -= chords_melody.last()
+chords_melody = stacked_notes + Octave(1) - Equal(Measure(2))**Octave(1)
 
-chords_melody += Foreach(0, 0, 0)
-second_measure_notes = chords_melody | Measure(1)
-second_measure_notes.reverse()
-chords_melody += Equal(Measure(1))**Foreach(-2, -2, -3)
-chords_melody += Equal(Measure(2))**Foreach(-2, -4, 5)
-chords_melody += Equal(Measure(2))**Foreach(3)
+chords_melody.filter(Measure(1)).reverse().rotate(-1)
+chords_melody.filter(Measure(2)).reverse().rotate(-1)
+chords_melody.filter(Measure(3)).rotate(-1)
+chords_melody -= chords_melody.last()
+chords_melody -= chords_melody.last()
 chords_melody.link()
 
 # Total Notes = 3 * 4 - 2 = 10 notes

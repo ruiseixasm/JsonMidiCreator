@@ -341,7 +341,7 @@ class Container(o.Operand):
                 offset += 1
         return self
 
-    def filter(self, mask: any) -> Self:
+    def filter(self, mask: any, shallow_copy: bool = True) -> Self:
         """
         Filters out all items that don't met the mask (equal to).
 
@@ -351,6 +351,10 @@ class Container(o.Operand):
         Returns:
             Container: The same self object with the items processed.
         """
+        if shallow_copy:
+            shallow_copy: Container = self.shallow_copy()
+            shallow_copy._items = [item for item in self._items if item == mask]
+            return shallow_copy
         self._items = [item for item in self._items if item == mask]
         return self
 
@@ -490,7 +494,7 @@ class Container(o.Operand):
             case om.Mutation():
                 operand.mutate(self)
             case _:
-                self.filter(operand)
+                self.filter(operand, False)
         return self
 
     def __ror__(self, operand: any) -> Self:
