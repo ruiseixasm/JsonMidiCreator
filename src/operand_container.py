@@ -1452,12 +1452,9 @@ class Clip(Container):  # Just a container of Elements
     def decompose(self) -> Self:
         decomposed_elements: list[oe.Element] = []
         for single_element in self._items:
-            if isinstance(single_element, oe.Note) and type(single_element) is not oe.Note:
-                decomposed_notes: list[oe.Note] = single_element.get_component_elements()
-                for single_note in decomposed_notes:
-                    decomposed_elements.append(single_note)
-            else:
-                decomposed_elements.append(single_element)
+            component_elements: list[oe.Element] = single_element.get_component_elements()
+            for single_component in component_elements:
+                decomposed_elements.append(single_component)
         self._items = decomposed_elements
         return self
 

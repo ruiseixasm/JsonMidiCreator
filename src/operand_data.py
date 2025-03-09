@@ -722,6 +722,13 @@ class Stack(Process):
             return operand.stack()
         return super().__rrshift__(operand)
 
+class Decompose(Process):
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.decompose()
+        return super().__rrshift__(operand)
+
 class Tie(Process):
     def __init__(self, tied: bool = True):
         super().__init__(tied)
