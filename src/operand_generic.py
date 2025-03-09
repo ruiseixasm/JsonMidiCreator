@@ -297,7 +297,7 @@ class Pitch(Generic):
 
         return self
     
-    def set_degree(self, degree: int | float) -> Self:
+    def set_degree(self, degree: int) -> Self:
 
         self_degree_0: int = 0
         if self._degree > 0:
@@ -307,9 +307,9 @@ class Pitch(Generic):
 
         degree_0: int = 0
         if degree > 0:
-            degree_0 = int(degree) - 1
+            degree_0 = degree - 1
         elif degree < 0:
-            degree_0 = int(degree) + 1
+            degree_0 = degree + 1
 
         return self.apply_degree_offset( degree_0 - self_degree_0 )
 
