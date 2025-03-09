@@ -1305,18 +1305,19 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
+        shallow_copy: Clip = self.shallow_copy()
         if start is None:
             start = ra.Position(0)
         if finish is None:
             finish = start + ra.Measures(1)
         if finish > start:
-            self._items = [
-                element for element in self._items
+            shallow_copy._items = [
+                element for element in shallow_copy._items
                 if element >= start and element < finish
             ]
-            for index, element in enumerate(self._items):
+            for index, element in enumerate(shallow_copy._items):
                 element -= start
-        return self
+        return shallow_copy
 
     def monofy(self) -> Self:
         """
