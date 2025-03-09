@@ -681,6 +681,7 @@ class Note(Element):
         >>> note % Key() % str() >> Print()
         F
         """
+        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -698,6 +699,12 @@ class Note(Element):
                                     return self._pitch % operand
             case ou.DrumKit():
                 return ou.DrumKit(self._pitch % ( self // ra.Position() % Fraction() ), ou.Channel(self._channel))
+            case oc.Clip():
+                notes: oc.Clip = oc.Clip(self._staff_reference)
+                cluster_notes: list[Note] = self.get_list_notes()
+                for single_note in cluster_notes:
+                    notes += single_note
+                return notes
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -714,6 +721,9 @@ class Note(Element):
             case _:
                 return super().__eq__(other)
     
+    def get_list_notes(self) -> list['Note']:
+        return [ self ]
+
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         if not self._enabled:
             return []
@@ -883,7 +893,6 @@ class Cluster(Note):
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
-        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -894,12 +903,6 @@ class Cluster(Note):
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
-            case oc.Clip():
-                notes: oc.Clip = oc.Clip(self._staff_reference)
-                cluster_notes: list[Note] = self.get_list_notes()
-                for single_note in cluster_notes:
-                    notes += single_note
-                return notes
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1002,7 +1005,6 @@ class KeyScale(Note):
         >>> scale % list() >> Print()
         [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
         """
-        import operand_container as oc
         match operand:
             case od.DataSource():
                 match operand._data:
@@ -1016,12 +1018,6 @@ class KeyScale(Note):
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
             case list():            return self.get_list_notes()
-            case oc.Clip():
-                notes: oc.Clip = oc.Clip(self._staff_reference)
-                scale_notes: list[Note] = self.get_list_notes()
-                for single_note in scale_notes:
-                    notes += single_note
-                return notes
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:

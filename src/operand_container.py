@@ -1449,6 +1449,18 @@ class Clip(Container):  # Just a container of Elements
         
         return self
     
+    def decompose(self) -> Self:
+        decomposed_elements: list[oe.Element] = []
+        for single_element in self._items:
+            if isinstance(single_element, oe.Note) and type(single_element) is not oe.Note:
+                decomposed_notes: list[oe.Note] = single_element.get_list_notes()
+                for single_note in decomposed_notes:
+                    decomposed_elements.append(single_note)
+            else:
+                decomposed_elements.append(single_element)
+        self._items = decomposed_elements
+        return self
+
     def tie(self, tied: bool = True) -> Self:
         """
         Sets the Note or similar elements as tied or not tied.
