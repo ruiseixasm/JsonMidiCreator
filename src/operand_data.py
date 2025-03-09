@@ -866,9 +866,9 @@ class Recur(Process):
 
 class Rotate(Process):
     
-    from operand_rational import Duration
+    from operand_rational import Position
 
-    def __init__(self, offset: int = 1, parameter: type = Duration):
+    def __init__(self, offset: int = 1, parameter: type = Position):
         super().__init__((offset, parameter))
 
     def __rrshift__(self, operand: o.T) -> o.T:

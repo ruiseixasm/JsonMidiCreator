@@ -308,7 +308,7 @@ class Container(o.Operand):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
         return self
 
-    def rotate(self, offset: int = 1, parameter: type = ra.Duration) -> Self:
+    def rotate(self, offset: int = 1, parameter: type = ra.Position) -> Self:
         """
         Rotates a given parameter by a given offset, by other words,
         does a displacement for each Element in the Container list of

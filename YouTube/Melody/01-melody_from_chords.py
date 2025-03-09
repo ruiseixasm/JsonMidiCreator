@@ -49,9 +49,11 @@ chords_melody -= chords_melody.last()
 chords_melody += Foreach(0, 0, 0)
 second_measure_notes = chords_melody | Measure(1)
 second_measure_notes.reverse()
-# chords_melody += Equal(Measure(1))**Foreach(6, 4, 1)
+chords_melody += Equal(Measure(1))**Foreach(-2, -2, -3)
 chords_melody += Equal(Measure(2))**Foreach(-2, -4, 5)
 chords_melody += Equal(Measure(2))**Foreach(3)
 chords_melody.link()
 
+# Total Notes = 3 * 4 - 2 = 10 notes
+chords_melody.len() >> Print()
 chords_melody >> Play()
