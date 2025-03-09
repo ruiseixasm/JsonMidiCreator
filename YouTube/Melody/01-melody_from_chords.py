@@ -40,7 +40,7 @@ decomposed_chords = chords.copy().decompose()
 # decomposed_chords >> Play()
 
 stacked_notes = decomposed_chords.copy(1/4).stack() # Each single note is now 1/4 note
-stacked_notes >> Play()
+# stacked_notes >> Play()
 
 chords_melody = stacked_notes + Octave(1)
 chords_melody -= chords_melody.last()
@@ -49,7 +49,8 @@ chords_melody -= chords_melody.last()
 # chords_melody << Foreach(0, 2, 4)
 chords_melody << Equal(Measure(0))**Foreach(1, 3, 5)
 chords_melody << Equal(Measure(1))**Foreach(6, 4, 1)
-chords_melody << Equal(Measure(2))**Foreach(-2)
+chords_melody << Equal(Measure(2))**Foreach(-2, -4, 5)
+chords_melody << Equal(Measure(2))**Foreach(3)
 chords_melody.link()
 
 chords_melody >> Play()
