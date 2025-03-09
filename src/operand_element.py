@@ -896,7 +896,7 @@ class Cluster(Note):
                                     return self._arpeggio % operand
             case oc.Clip():
                 notes: oc.Clip = oc.Clip(self._staff_reference)
-                cluster_notes: list[Note] = self.get_cluster_notes()
+                cluster_notes: list[Note] = self.get_list_notes()
                 for single_note in cluster_notes:
                     notes += single_note
                 return notes
@@ -912,7 +912,7 @@ class Cluster(Note):
             case _:
                 return super().__eq__(other)
     
-    def get_cluster_notes(self) -> list[Note]:
+    def get_list_notes(self) -> list[Note]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
             new_note: Note = Note(self).set_staff_reference(self._staff_reference)
@@ -922,13 +922,13 @@ class Cluster(Note):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_element in self.get_cluster_notes():
+        for single_element in self.get_list_notes():
             self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_element in self.get_cluster_notes():
+        for single_element in self.get_list_notes():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1015,10 +1015,10 @@ class KeyScale(Note):
             case og.Arpeggio():     return self._arpeggio.copy()
             case ou.Order() | ra.Swing() | ch.Chaos():
                                     return self._arpeggio % operand
-            case list():            return self.get_scale_notes()
+            case list():            return self.get_list_notes()
             case oc.Clip():
                 notes: oc.Clip = oc.Clip(self._staff_reference)
-                scale_notes: list[Note] = self.get_scale_notes()
+                scale_notes: list[Note] = self.get_list_notes()
                 for single_note in scale_notes:
                     notes += single_note
                 return notes
@@ -1034,7 +1034,7 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other)
             
-    def get_scale_notes(self) -> list[Note]:
+    def get_list_notes(self) -> list[Note]:
         scale_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -1053,13 +1053,13 @@ class KeyScale(Note):
     
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_note in self.get_scale_notes():
+        for single_note in self.get_list_notes():
             self_playlist.extend(single_note.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_note in self.get_scale_notes():
+        for single_note in self.get_list_notes():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))
         return self_midilist
 
@@ -1131,7 +1131,7 @@ class Polychord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_polychord_notes(self) -> list[Note]:
+    def get_list_notes(self) -> list[Note]:
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
             polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
@@ -1139,13 +1139,13 @@ class Polychord(KeyScale):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_element in self.get_polychord_notes():
+        for single_element in self.get_list_notes():
             self_playlist.extend(single_element.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_element in self.get_polychord_notes():
+        for single_element in self.get_list_notes():
             self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1253,7 +1253,7 @@ class Chord(KeyScale):
             case ou.Augmented():    return ou.Augmented() << od.DataSource(self._augmented)
             case ou.Sus2():         return ou.Sus2() << od.DataSource(self._sus2)
             case ou.Sus4():         return ou.Sus4() << od.DataSource(self._sus4)
-            case list():            return self.get_chord_notes()
+            case list():            return self.get_list_notes()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: o.Operand) -> bool:
@@ -1271,7 +1271,7 @@ class Chord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_chord_notes(self) -> list[Note]:
+    def get_list_notes(self) -> list[Note]:
         chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -1322,13 +1322,13 @@ class Chord(KeyScale):
     
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_note in self.get_chord_notes():
+        for single_note in self.get_list_notes():
             self_playlist.extend(single_note.getPlaylist(position_beats))    # extends the list with other list
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_note in self.get_chord_notes():
+        for single_note in self.get_list_notes():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     
@@ -1471,10 +1471,10 @@ class Retrigger(Note):
             case ra.Duration():     return operand.copy() << od.DataSource( self._duration_notevalue / 2 )
             case float():           return float( self._duration_notevalue / 2 )
             case Fraction():        return self._duration_notevalue / 2
-            case list():            return self.get_retrigger_notes()
+            case list():            return self.get_list_notes()
             case _:                 return super().__mod__(operand)
 
-    def get_retrigger_notes(self) -> list[Note]:
+    def get_list_notes(self) -> list[Note]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
@@ -1491,13 +1491,13 @@ class Retrigger(Note):
 
     def getPlaylist(self, position_beats: Fraction = None) -> list:
         self_playlist: list = []
-        for single_note in self.get_retrigger_notes():
+        for single_note in self.get_list_notes():
             self_playlist.extend(single_note.getPlaylist(position_beats))
         return self_playlist
     
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
         self_midilist: list = []
-        for single_note in self.get_retrigger_notes():
+        for single_note in self.get_list_notes():
             self_midilist.extend(single_note.getMidilist(midi_track, position_beats))    # extends the list with other list
         return self_midilist
     

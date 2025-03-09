@@ -272,7 +272,7 @@ def test_chord_mod():
     assert chord_string == "I"
 
     triad_c_major: Chord = Chord()  # C Major scale
-    three_notes: list[Note] = triad_c_major.get_chord_notes()
+    three_notes: list[Note] = triad_c_major.get_list_notes()
     assert three_notes[0] == "C"
     assert three_notes[1] == "E"
     assert three_notes[2] == "G"
@@ -281,7 +281,7 @@ def test_chord_mod():
     triad_e_minor: Chord = Chord("minor")
     defaults << KeySignature()
 
-    three_notes = triad_e_minor.get_chord_notes()
+    three_notes = triad_e_minor.get_list_notes()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"
     print(f"Key: {three_notes[1] % str()}")
@@ -293,7 +293,7 @@ def test_chord_mod():
     defaults << KeySignature(1, Minor())    # E minor scale
     triad_e_minor: Chord = Chord()
 
-    three_notes = triad_e_minor.get_chord_notes()
+    three_notes = triad_e_minor.get_list_notes()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"
     print(f"Key: {three_notes[1] % str()}")
@@ -307,7 +307,7 @@ def test_chord_mod():
     defaults << KeySignature() # Resets the default Key Scale to C Major
 
     print("------")
-    three_notes = triad.get_chord_notes()
+    three_notes = triad.get_list_notes()
     print(f"Key: {three_notes[0] % str()}")
     assert three_notes[0] == "E"
     print(f"Key: {three_notes[1] % str()}")
@@ -555,7 +555,7 @@ def test_chord_element():
 
     triad: Chord = Chord()
     assert Note(triad) % str() == "C"
-    triad_notes: list[Note] = triad.get_chord_notes()
+    triad_notes: list[Note] = triad.get_list_notes()
     #                                +4   +3
     expected_keys: list[str] = ["C", "E", "G"]
     for key in range(3):
@@ -566,7 +566,7 @@ def test_chord_element():
     print("------")
     triad << Degree("ii") << Scale([])  # Uses the Staff signature (Major Scale)
     assert Note(triad) % str() == "D"
-    triad_notes = triad.get_chord_notes()
+    triad_notes = triad.get_list_notes()
     #                      +3   +4
     expected_keys = ["D", "F", "A"]
     for key in range(3):
@@ -577,7 +577,7 @@ def test_chord_element():
     print("------")
     triad << Degree("I") << "D" << Scale("Major")
     assert Note(triad) % str() == "D"
-    triad_notes = triad.get_chord_notes()
+    triad_notes = triad.get_list_notes()
     #                      +4   +3
     expected_keys = ["D", "F#", "A"]
     for key in range(3):
