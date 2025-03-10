@@ -181,9 +181,8 @@ class Container(o.Operand):
 
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
-        shallow_copy._items = [
-            item for item in self
-        ]
+        # This copy of a list is a shallow copy, not a deep copy
+        shallow_copy._items = self._items.copy()
         for single_parameter in parameters:
             shallow_copy << single_parameter
         return shallow_copy
