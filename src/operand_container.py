@@ -455,7 +455,10 @@ class Container(o.Operand):
                 for single_operand in operand:
                     self += single_operand
             case _:
-                self._items.append(self.deep_copy( operand ))
+                if self.len() > 0:
+                    self_last_item: any = self[-1]
+                    return self._append([ self.deep_copy(operand) ], self_last_item)
+                return self._append([ self.deep_copy(operand) ])
         return self
 
     def __radd__(self, operand: any) -> Self:
