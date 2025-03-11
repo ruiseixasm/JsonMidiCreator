@@ -466,14 +466,7 @@ class Container(o.Operand):
     def __isub__(self, operand: any) -> Self:
         match operand:
             case Container():
-                # Exclude items based on equality (==) comparison
-                self._items = [
-                        single_item for single_item in self._items
-                        if all(single_item != operand_item for operand_item in operand._items)
-                    ]
-            case o.Operand():
-                self._items = [single_item for single_item in self._items if single_item != operand]
-
+                return self._delete(operand._items)
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
@@ -482,6 +475,8 @@ class Container(o.Operand):
                     while operand > 0 and len(self._items) > 0:
                         self._items.pop()
                         operand -= 1
+            case _:
+                return self._delete([ operand ])
         return self
 
     # multiply with a scalar 
