@@ -231,11 +231,14 @@ class Operand:
         return self.__mod__( od.DataSource( operand ) )
 
     def __eq__(self, other: any) -> bool:
+        import operand_data as od
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == Operand:
             return True
         if isinstance(other, self.__class__):
             return True
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def __ne__(self, other: any) -> bool:

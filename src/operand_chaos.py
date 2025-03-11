@@ -77,6 +77,8 @@ class Chaos(o.Operand):
         if type(self) == type(other):
             return  self._xn == other._xn \
                 and self._x0 == other._x0
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def getSerialization(self) -> dict:

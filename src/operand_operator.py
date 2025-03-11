@@ -79,6 +79,8 @@ class Operator(o.Operand):
         if type(self) == type(other):
             return  self._operator_list == other % od.DataSource( list() ) \
                 and self._operand == other % od.DataSource( o.Operand() )
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def getSerialization(self) -> dict:
@@ -190,6 +192,8 @@ class Oscillator(Operator):
                 and self._length == other._length \
                 and self._amplitude == other._amplitude \
                 and self._offset == other._offset
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def getSerialization(self) -> dict:

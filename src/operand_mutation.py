@@ -114,6 +114,8 @@ class Mutation(o.Operand):
             return self._chaos == other._chaos \
                 and self._parameter == other._parameter \
                 and self._mask == other._mask
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def getSerialization(self) -> dict:

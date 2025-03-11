@@ -100,6 +100,8 @@ class Unit(o.Operand):
                 return self._unit == other._unit
             case ra.Rational():
                 return self._unit == int( other._rational )
+            case od.Conditional():
+                return other == self
             case _:
                 if other.__class__ == o.Operand:
                     return True
@@ -842,6 +844,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             return True
         if isinstance(other, KeySignature):
             return self._unit == other._unit and self._major == other._major
+        if isinstance(other, od.Conditional):
+            return other == self
         return self % other == other
     
     def getSerialization(self) -> dict:

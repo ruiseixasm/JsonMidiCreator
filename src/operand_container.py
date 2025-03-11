@@ -112,6 +112,8 @@ class Container(o.Operand):
                 return self._items == other._items
             case os.Selection():
                 return other == self
+            case od.Conditional():
+                return other == self
         if not isinstance(other, ol.Null):
             return self % other == other
         # When comparing lists containing objects in Python using the == operator,

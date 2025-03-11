@@ -70,6 +70,8 @@ class TimeSignature(Generic):
             return True
         if type(self) != type(other_signature):
             return False
+        if isinstance(other_signature, od.Conditional):
+            return other_signature == self
         return  self._top           == other_signature._top \
             and self._bottom        == other_signature._bottom
     
@@ -413,6 +415,8 @@ class Pitch(Generic):
                 return self % od.DataSource( ou.Octave() ) == other
             case int() | float() | str() | ou.Key():
                 return self % other == other
+            case od.Conditional():
+                return other == self
             case _:
                 return super().__eq__(other)
         return False
@@ -739,6 +743,8 @@ class Controller(Generic):
             return True
         if self._number == other._number and self % ou.Value() == other % ou.Value():
             return True
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def getSerialization(self) -> dict:
@@ -878,6 +884,8 @@ class Scale(Generic):
             return True
         if type(self) != type(other):
             return False
+        if isinstance(other, od.Conditional):
+            return other == self
         return  self._scale_list == other._scale_list
     
     def hasScale(self) -> bool:
@@ -1241,6 +1249,8 @@ class Staff(Generic):
             return True
         if type(self) != type(other):
             return False
+        if isinstance(other, od.Conditional):
+            return other == self
         return  self._tempo             == other._tempo \
             and self._time_signature    == other._time_signature \
             and self._quantization      == other._quantization \
@@ -1589,6 +1599,8 @@ class Arpeggio(Generic):
             return  self._order                 == other._order \
                 and self._duration_notevalue    == other._duration_notevalue \
                 and self._chaos                 == other._chaos
+        if isinstance(other, od.Conditional):
+            return other == self
         return super().__eq__(other)
     
     def getSerialization(self) -> dict:
@@ -1711,6 +1723,8 @@ class Defaults(Generic):
             return True
         if type(self) != type(other):
             return False
+        if isinstance(other, od.Conditional):
+            return other == self
         return  self._staff             == other._staff \
             and self._duration          == other._duration \
             and self._octave            == other._octave \

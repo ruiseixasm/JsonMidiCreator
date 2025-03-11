@@ -161,7 +161,7 @@ class Element(o.Operand):
         return  self._channel       == other._channel \
             and self._device        == other._device
 
-    def __eq__(self, other: 'o.Operand') -> bool:
+    def __eq__(self, other: o.Operand) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         match other:
             case Element():
@@ -172,6 +172,8 @@ class Element(o.Operand):
                 return ra.Beats(self._position_beats) == other
             case ou.TimeUnit():
                 return ra.Position(od.DataSource( self._position_beats )).set_staff_reference(self._staff_reference) == other
+            case od.Conditional():
+                return other == self
             case _:
                 if other.__class__ == o.Operand:
                     return True

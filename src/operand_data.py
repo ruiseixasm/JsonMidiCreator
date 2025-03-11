@@ -76,6 +76,8 @@ class Data(o.Operand):
             return self._data == other._data
         if other.__class__ == o.Operand:
             return True
+        if isinstance(other, Conditional):
+            return other == self
         return False
     
     def __lt__(self, other: o.Operand) -> bool:

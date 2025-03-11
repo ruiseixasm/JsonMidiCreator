@@ -35,6 +35,8 @@ class Label(o.Operand):
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if type(self) == type(other) or type(other) == o.Operand or not other:
             return True
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def __bool__(self) -> bool:  # For Python 3

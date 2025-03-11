@@ -50,7 +50,7 @@ measure_operations = [
     (Filter(Measure(0)), Operate(Octave(1), "+")),
     (Filter(Measure(1)), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
     (Filter(Measure(2)), Reverse(), Rotate(-1)),
-    (Filter(Measure(3)), Operate(Octave(1), "+"), Reverse(), Rotate(-1))
+    (Filter(And(Measure(3), Nth(1))), Operate(Octave(1), "+"), Reverse(), Rotate(-1))
 ]
 
 chords_melody = stacked_notes + Octave(1) - Equal(Measure(2))**Octave(1)

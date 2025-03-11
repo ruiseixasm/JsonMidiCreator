@@ -83,6 +83,8 @@ class Selection(o.Operand):
             return True
         if isinstance(other, Selection):
             return self._mask == other._mask
+        if isinstance(other, od.Conditional):
+            return other == self
         return False
     
     def getSerialization(self) -> dict:

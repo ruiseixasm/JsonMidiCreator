@@ -103,6 +103,8 @@ class Frame(o.Operand):
     def __eq__(self, other: 'Frame') -> bool:
         if type(self) == type(other):
             return self._multi_data == other._multi_data
+        if isinstance(other, od.Conditional):
+            return other == self
             # self_operand_list: list = []
             # for single_operand in self:
             #     self_operand_list.append(single_operand)

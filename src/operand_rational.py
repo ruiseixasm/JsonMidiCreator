@@ -106,6 +106,8 @@ class Rational(o.Operand):
                 return self._rational == self.check_denominator( other._rational )
             case ou.Unit():
                 return int( self._rational ) == other._unit
+            case od.Conditional():
+                return other == self
             case _:
                 if other.__class__ == o.Operand:
                     return True
