@@ -356,6 +356,10 @@ class Container(o.Operand):
             return shallow_copy
         self._items = [item for item in self._items if item == mask]
         return self
+    
+    def operate(self, operand: any = None, operator: str = "<<") -> Self:
+        ...
+
 
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)

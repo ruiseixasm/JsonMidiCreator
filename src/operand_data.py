@@ -669,11 +669,21 @@ class Sort(Process):
 class Filter(Process):
     def __init__(self, mask: any = None, shallow_copy: bool = True):
         super().__init__((mask, shallow_copy))
-        
+
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
             return operand.filter(*self._data)
+        return super().__rrshift__(operand)
+
+class Operate(Process):
+    def __init__(self, operand: any = None, operator: str = "<<"):
+        super().__init__((operand, operator))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.operate(*self._data)
         return super().__rrshift__(operand)
 
 class Copy(Process):
