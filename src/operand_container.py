@@ -39,7 +39,7 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
-        self._root_container: Container = self
+        self._upper_container: Container = self
         for single_operand in operands:
             self << single_operand
         
@@ -184,8 +184,8 @@ class Container(o.Operand):
 
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
-        # This copy of a list is a shallow copy, so it keeps the reference of this root container
-        shallow_copy._root_container = self._root_container
+        # This copy of a list is a shallow copy, chains upper containers
+        shallow_copy._upper_container = self
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
         for single_parameter in parameters:
@@ -193,16 +193,17 @@ class Container(o.Operand):
         return shallow_copy
     
     def clear(self, *parameters) -> Self:
-        self._root_container._items = [
-            single_item for single_item in self._root_container._items if single_item not in self._items
-        ]
         self._items = []
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
-        self._root_container._items = [
-            single_item for single_item in self._root_container._items if single_item not in self._items
-        ]
+        upper_container: Container = self
+        # Propagates all erasing to all upper containers in the chain
+        while upper_container is not upper_container._upper_container:
+            upper_container._upper_container._items = [
+                single_item for single_item in upper_container._upper_container._items if single_item not in self._items
+            ]
+            upper_container = upper_container._upper_container
         self._items = []
         for single_parameter in parameters:
             self << single_parameter
@@ -947,6 +948,7 @@ class Clip(Container):  # Just a container of Elements
         for single_parameter in parameters:
             shallow_copy << single_parameter
         return shallow_copy
+    
     
     # operand is the pusher >> (NO COPIES!)
     def __rrshift__(self, operand: o.T) -> Union[o.T, 'Part']:
