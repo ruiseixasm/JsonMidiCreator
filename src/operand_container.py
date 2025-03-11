@@ -436,12 +436,18 @@ class Container(o.Operand):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Container():
-                for item in operand._items:
-                    self._items.append(self.deep_copy(item))
-
+                operand_items = [
+                    self.deep_copy(single_item) for single_item in operand._items
+                ]
+                if self.len() > 0:
+                    self_last_element: oe.Element = self[-1]
+                    return self._append(operand_items, self_last_element)
+                return self._append(operand_items)
             case list():
-                for item in operand:
-                    self._items.append( self.deep_copy( item ) )
+                if len(operand) > 0:
+                    last_item: any = operand[-1]
+                    return self._append(operand, last_item)
+                return self._append(operand)
             case tuple():
                 for single_operand in operand:
                     self += single_operand
