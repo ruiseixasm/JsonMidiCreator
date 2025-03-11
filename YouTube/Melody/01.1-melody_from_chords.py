@@ -59,8 +59,7 @@ chords_melody = stacked_notes.copy()
 # first_element_1 = stacked_notes >> (Filter(Measure(3)), Filter(Beat(0)), Link())
 # first_element_2 = stacked_notes >> (Filter(Measure(3)), Filter(Beat(0)), Operate(Octave(1), "+"))
 
-for operation in measure_operations:
-    chords_melody >> operation
+chords_melody >> measure_operations
 
 # Total Notes = 3 * 4 - 2 = 10 notes
 chords_melody.len() >> Print()
