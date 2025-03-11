@@ -29,7 +29,7 @@ from JsonMidiCreator import *
 device_list = defaults % Device() % list() >> Print()
 device_list.insert(0, "Blofeld")
 device_list >> Print()
-# defaults << Device(device_list)
+defaults << Device(device_list)
 defaults << TimeSignature(3, 4) << Tempo(90)
 
 chords = Chord() * 4 << Foreach("I", "IV", "V", "I")**Degree()
