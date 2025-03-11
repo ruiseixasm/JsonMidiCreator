@@ -213,14 +213,7 @@ class Container(o.Operand):
         return super().clear(parameters)
     
     def erase(self, *parameters) -> Self:
-        upper_container: Container = self
-        # Propagates all erasing to all upper containers in the chain
-        while upper_container is not upper_container._upper_container:
-            upper_container._upper_container._items = [
-                single_item for single_item in upper_container._upper_container._items if single_item not in self._items
-            ]
-            upper_container = upper_container._upper_container
-        self._items = []
+        self._delete(self._items)
         for single_parameter in parameters:
             self << single_parameter
         return self
