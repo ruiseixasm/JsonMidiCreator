@@ -1515,9 +1515,8 @@ class Clip(Container):  # Just a container of Elements
         """
         # Starts by sorting the self Elements list accordingly to their Tracks (all data is a Stackable Element)
         stackable_elements: list[oe.Element] = [
-                single_data
-                for single_data in self._items
-                if isinstance(single_data, oe.Element) and single_data._stackable
+                single_element
+                for single_element in self._items if single_element._stackable
             ]
         for index, single_element in enumerate(stackable_elements):
             if index > 0:   # Not the first element
