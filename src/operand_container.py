@@ -185,7 +185,7 @@ class Container(o.Operand):
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
         # This copy of a list is a shallow copy, so it keeps the reference of this root container
-        shallow_copy._root_container = self
+        shallow_copy._root_container = self._root_container
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
         for single_parameter in parameters:
