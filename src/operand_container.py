@@ -1473,7 +1473,10 @@ class Clip(Container):  # Just a container of Elements
         # Add a Rest in the beginning if necessary
         if first_element_index is not None:
             first_element: oe.Element = self._items[first_element_index]
-            if first_element._position_beats != 0:  # Not the first position
+            starting_position_beats: Fraction = Fraction(0)
+            if non_empty_measures_only:
+                starting_position_beats = (first_element // ra.Position()).roundMeasures()._rational
+            if first_element._position_beats != starting_position_beats:  # Not at the starting position
                 rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
                 self._items.insert(first_element_index, oe.Rest(rest_duration))
         # Adjust last_element duration based on its Measure position
