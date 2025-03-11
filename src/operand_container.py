@@ -193,6 +193,9 @@ class Container(o.Operand):
         return shallow_copy
     
     def clear(self, *parameters) -> Self:
+        self._root_container._items = [
+            single_item for single_item in self._root_container._items if single_item not in self._items
+        ]
         self._items = []
         return super().clear(parameters)
     
