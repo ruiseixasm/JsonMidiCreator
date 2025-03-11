@@ -349,6 +349,7 @@ class Operand:
     def __rshift__(self, operand: any) -> Self:
         import operand_data as od
         import operand_container as oc
+        import operand_element as oe
         if isinstance(operand, list):
             for single_operand in operand:
                 if isinstance(single_operand, (od.Process, oc.Container, tuple, list)):
@@ -362,6 +363,8 @@ class Operand:
                 else:
                     last_operand >>= od.Filter(single_operand)
             return last_operand
+        if isinstance(self, oc.Container) and not isinstance(operand, (od.Process, oc.Container, tuple, list, oe.Element)):
+            return self.filter(operand)
         return operand.__rrshift__(self)
 
     # operand is the pusher

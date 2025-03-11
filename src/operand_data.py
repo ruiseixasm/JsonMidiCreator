@@ -534,27 +534,6 @@ class Import(Playlist):
             self._data = [] if file_name is None else c.loadJsonMidiPlay(file_name)
 
 
-class SideEffects(Data):
-    def __init__(self, operand: o.Operand = None):
-        super().__init__()
-        self._data = operand    # needs to keep the original reference (no copy)
-
-class LeftShift(SideEffects):
-    # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(self._data, o.Operand):
-            self._data << operand
-            return operand
-        return super().__rrshift__(operand)
-
-class RightShift(SideEffects):
-    # CHAINABLE OPERATIONS
-    def __rrshift__(self, operand: o.T) -> o.T:
-        if isinstance(self._data, o.Operand):
-            operand >> self._data
-            return operand
-        return super().__rrshift__(operand)
-
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
         import operand_generic as og
@@ -625,6 +604,27 @@ class Chain(Data):
 class Process(Data):
     pass
     
+class SideEffects(Process):
+    def __init__(self, operand: o.Operand = None):
+        super().__init__()
+        self._data = operand    # needs to keep the original reference (no copy)
+
+class LeftShift(SideEffects):
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            self._data << operand
+            return operand
+        return super().__rrshift__(operand)
+
+class RightShift(SideEffects):
+    # CHAINABLE OPERATIONS
+    def __rrshift__(self, operand: o.T) -> o.T:
+        if isinstance(self._data, o.Operand):
+            operand >> self._data
+            return operand
+        return super().__rrshift__(operand)
+
 class Save(Process):
     def __init__(self, file_name: str = "json/_Save_jsonMidiCreator.json"):
         super().__init__(file_name)
