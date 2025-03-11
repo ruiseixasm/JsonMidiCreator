@@ -50,18 +50,19 @@ measure_operations = [
     (Filter(Measure(0)), Operate(Octave(1), "+")),
     (Filter(Measure(1)), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
     (Filter(Measure(2)), Reverse(), Rotate(-1)),
-    (Filter(Measure(3)), Rotate(-1), Filter(Nth(1)), Operate(Octave(1), "+"), Link())
+    (Filter(Measure(3)), Rotate(-1), Filter(Beat(0)), Operate(Octave(1), "+"), Link()),
+    (Filter(Measure(3)), Filter(Greater(Beat(0))), Clear())
 ]
 
-first_element_1 = stacked_notes >> (Filter(Measure(3)), Filter(Nth(1)), Link())
-first_element_2 = stacked_notes >> (Filter(Measure(3)), Filter(Nth(1)), Operate(Octave(1), "+"))
-
 chords_melody = stacked_notes.copy()
+
+# first_element_1 = stacked_notes >> (Filter(Measure(3)), Filter(Beat(0)), Link())
+# first_element_2 = stacked_notes >> (Filter(Measure(3)), Filter(Beat(0)), Operate(Octave(1), "+"))
 
 for operation in measure_operations:
     chords_melody >> operation
 
 # Total Notes = 3 * 4 - 2 = 10 notes
 chords_melody.len() >> Print()
-# chords_melody * 4 >> Play()
-chords_melody * 4 >> MidiExport("Midi/21_melody_from_chords_1.1.mid")
+chords_melody * 4 >> Play()
+# chords_melody * 4 >> MidiExport("Midi/21_melody_from_chords_1.1.mid")

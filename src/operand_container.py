@@ -1436,7 +1436,7 @@ class Clip(Container):  # Just a container of Elements
                     last_element << self._staff.convertToDuration(ra.Beats(single_data._position_beats - last_element._position_beats))
                 else:
                     first_element_index = element_index
-                last_element = single_data
+                last_element = single_data  # Keeps track of the last element
             element_index += 1
         # Add a Rest in the beginning if necessary
         if first_element_index is not None:
