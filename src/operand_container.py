@@ -199,6 +199,15 @@ class Container(o.Operand):
         self._items = []
         return super().clear(parameters)
     
+    def erase(self, *parameters) -> Self:
+        self._root_container._items = [
+            single_item for single_item in self._root_container._items if single_item not in self._items
+        ]
+        self._items = []
+        for single_parameter in parameters:
+            self << single_parameter
+        return self
+    
     def sort(self, parameter: type = ra.Position) -> Self:
         """
         Sorts the self list based on a given type of parameter.

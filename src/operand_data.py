@@ -724,6 +724,19 @@ class Clear(Process):
             return operand.clear(*self._data)
         return super().__rrshift__(operand)
 
+class Erase(Process):
+    """
+    Erase() clears all the Container items and the same ones on the root container.
+    """
+    def __init__(self, *parameters):
+        super().__init__(parameters)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.erase(*self._data)
+        return super().__rrshift__(operand)
+
 if TYPE_CHECKING:
     from operand_container import Clip
 
