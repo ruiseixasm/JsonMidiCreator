@@ -65,3 +65,12 @@ chords_melody >> measure_operations
 chords_melody.len() >> Print()
 chords_melody * 4 >> Play()
 # chords_melody * 4 >> MidiExport("Midi/21_melody_from_chords_1.2.mid")
+
+# ADD SOME RHYTHM
+
+chords_melody >> Measure(0) << Foreach(dotted_quarter, eight) >> Stack()
+chords_melody >> Measure(2) << Foreach(dotted_quarter, eight) >> Stack()
+
+chords_melody * 4 >> Play()
+
+
