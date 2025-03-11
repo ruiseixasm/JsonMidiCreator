@@ -358,7 +358,21 @@ class Container(o.Operand):
         return self
     
     def operate(self, operand: any = None, operator: str = "<<") -> Self:
-        ...
+        operator = operator.strip()
+        match operator:
+            case "<<":
+                self <<= operand
+            case "+":
+                self += operand
+            case "-":
+                self -= operand
+            case "*":
+                self *= operand
+            case "/":
+                self /= operand
+            case "|":
+                self |= operand
+        return self
 
 
     def __add__(self, operand: any) -> Self:
