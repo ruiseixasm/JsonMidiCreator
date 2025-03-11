@@ -379,7 +379,7 @@ class Container(o.Operand):
         operator = operator.strip()
         match operator:
             case "<<":
-                self <<= operand
+                self << operand
             case "+":
                 self += operand
             case "-":
@@ -390,6 +390,8 @@ class Container(o.Operand):
                 self /= operand
             case "|":
                 self |= operand
+            case "<<=":
+                self <<= operand
         return self
 
 

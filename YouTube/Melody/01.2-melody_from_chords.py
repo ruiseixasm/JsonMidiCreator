@@ -53,15 +53,15 @@ measure_operations = [
     (Measure(3), Rotate(-1), Beat(0), Operate(Octave(1), "+"), Link()),
     (Measure(3), Greater(Beat(0)), Erase()),
     (And(Measure(1), Beat(2)), Operate(Octave(1), "-")),
-    (And(Measure(2), Beat(2)), Operate(Degree(5)))
+    (And(Measure(2), Beat(2)), Operate(Degree(5)), Operate(Octave(1), "+"))
 ]
 
 chords_melody = stacked_notes.copy()
 chords_melody >> measure_operations
 
-chords_melody >> Measure(3) >> Play()
+# chords_melody >> Measure(2) >> Play()
 
 # Total Notes = 3 * 4 - 2 = 10 notes
 chords_melody.len() >> Print()
-# chords_melody * 4 >> Play()
+chords_melody * 4 >> Play()
 # chords_melody * 4 >> MidiExport("Midi/21_melody_from_chords_1.2.mid")
