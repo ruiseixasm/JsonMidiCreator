@@ -58,12 +58,22 @@ class Container(o.Operand):
             self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
         
-    def _insert(self, items: list, at: any = None) -> Self:
-
+    def _insert(self, items: list, after_item: any = None) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._insert(items, after_item)
+        insert_at: int = len(self._items)   # By default works as append
+        if after_item is not None:
+            for index, single_item in enumerate(self._items):
+                if single_item == after_item:
+                    insert_at = index + 1   # After the item
+                    break
+        self._items = self._items[:insert_at] + items + self._items[insert_at:]
         return self
 
     def _append(self, items: list) -> Self:
-
+        if self is not self._upper_container:
+            self._upper_container._append(items)
+        self._items = self._items.extend(items)
         return self
 
     def _delete(self, items: list) -> Self:
