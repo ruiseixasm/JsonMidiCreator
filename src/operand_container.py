@@ -57,6 +57,22 @@ class Container(o.Operand):
         else:
             self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
+        
+    def _insert(self, items: list, at: any = None) -> Self:
+
+        return self
+
+    def _append(self, items: list) -> Self:
+
+        return self
+
+    def _delete(self, items: list) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._delete(items)
+        self._items = [
+            single_item for single_item in self._items if single_item not in items
+        ]
+        return self
 
     def __mod__(self, operand: o.T) -> o.T:
         """
