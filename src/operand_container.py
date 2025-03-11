@@ -1031,8 +1031,10 @@ class Clip(Container):  # Just a container of Elements
                 return self._append(operand_elements)
             case oe.Element():
                 new_element: oe.Element = operand.copy().set_staff_reference(self._staff)
-                self_last_element: oe.Element = self.last()
-                return self._append([new_element], self_last_element)
+                if self.len() > 0:
+                    self_last_element: oe.Element = self[-1]
+                    return self._append([ new_element ], self_last_element)
+                return self._append([ new_element ])
             case list():
                 for item in operand:
                     if isinstance(item, oe.Element):
