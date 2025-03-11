@@ -740,6 +740,16 @@ class Erase(Process):
 if TYPE_CHECKING:
     from operand_container import Clip
 
+class Link(Process):
+    def __init__(self, non_empty_measures_only: bool = True):
+        super().__init__(non_empty_measures_only)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.link(self._data)
+        return super().__rrshift__(operand)
+
 class Stack(Process):
     def __init__(self, non_empty_measures_only: bool = True):
         super().__init__(non_empty_measures_only)
@@ -831,13 +841,6 @@ class Print(Process):
             #     return super().__rrshift__(operand)
             case _: print(operand)
         return operand
-
-class Link(Process):
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
-        if isinstance(operand, oc.Clip):
-            return operand.link()
-        return super().__rrshift__(operand)
 
 if TYPE_CHECKING:
     from operand_chaos import Chaos

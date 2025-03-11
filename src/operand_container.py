@@ -1447,7 +1447,7 @@ class Clip(Container):  # Just a container of Elements
         self *= ra.Duration(length_ratio)   # Adjust durations
         return self
 
-    def link(self) -> Self:
+    def link(self, non_empty_measures_only: bool = True) -> Self:
         """
         Adjusts the duration/length of each element to connect to the start of the next.
         For the last element in the clip, this is extended up to the end of the measure.
