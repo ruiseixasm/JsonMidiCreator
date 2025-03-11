@@ -50,17 +50,13 @@ measure_operations = [
     (Filter(Measure(0)), Operate(Octave(1), "+")),
     (Filter(Measure(1)), Operate(Octave(1), "+"), Reverse(), Rotate(-1)),
     (Filter(Measure(2)), Reverse(), Rotate(-1)),
-    (Filter(And(Measure(3), Nth(1))), Operate(Octave(1), "+"), Reverse(), Rotate(-1))
+    (Filter(Measure(3)), Rotate(-1), Filter(Nth(1)), Operate(Octave(1), "+"), Link())
 ]
 
-chords_melody = stacked_notes + Octave(1) - Equal(Measure(2))**Octave(1)
+chords_melody = stacked_notes.copy()
 
-chords_melody.filter(Measure(1)).reverse().rotate(-1)
-chords_melody.filter(Measure(2)).reverse().rotate(-1)
-chords_melody.filter(Measure(3)).rotate(-1)
-chords_melody -= chords_melody.last()
-chords_melody -= chords_melody.last()
-chords_melody.link()
+for operation in measure_operations:
+    chords_melody >> operation
 
 # Total Notes = 3 * 4 - 2 = 10 notes
 chords_melody.len() >> Print()
