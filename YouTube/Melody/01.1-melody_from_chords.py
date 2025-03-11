@@ -46,6 +46,10 @@ decomposed_chords = chords.copy().decompose()
 stacked_notes = decomposed_chords.copy(1/4).stack() # Each single note is now 1/4 note
 # stacked_notes >> Play()
 
+measures_operations = [
+    
+]
+
 chords_melody = stacked_notes + Octave(1) - Equal(Measure(2))**Octave(1)
 
 chords_melody.filter(Measure(1)).reverse().rotate(-1)
