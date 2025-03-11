@@ -1065,17 +1065,13 @@ class Clip(Container):  # Just a container of Elements
 
     def __isub__(self, operand: any) -> Self:
         match operand:
-            case Container():
-                # Exclude items based on equality (==) comparison
-                self._items = [
-                        single_element for single_element in self._items
-                        if all(single_element != operand_item for operand_item in operand._items)
-                    ]
+            case Clip():
+                return self._delete(operand._items)
             case Part():
                 operand -= self # Order is irrelevant in Song
-                return operand 
-            case oe.Element() | Container():
-                return super().__isub__(operand)
+                return operand
+            case oe.Element():
+                return self._delete([ operand ])
             
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
