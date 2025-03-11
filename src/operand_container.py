@@ -1045,9 +1045,13 @@ class Clip(Container):  # Just a container of Elements
                     return self._append([ new_element ], self_last_element)
                 return self._append([ new_element ])
             case list():
-                for item in operand:
-                    if isinstance(item, oe.Element):
-                        self._items.append( item.copy() )
+                operand_elements = [
+                    single_element.copy().set_staff_reference(self._staff) for single_element in operand if isinstance(single_element, oe.Element)
+                ]
+                if self.len() > 0:
+                    self_last_element: oe.Element = self[-1]
+                    return self._append(operand_elements, self_last_element)
+                return self._append(operand_elements)
                         
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
@@ -1072,6 +1076,11 @@ class Clip(Container):  # Just a container of Elements
                 return operand
             case oe.Element():
                 return self._delete([ operand ])
+            case list():
+                operand_elements = [
+                    single_element for single_element in operand if isinstance(single_element, oe.Element)
+                ]
+                return self._delete(operand_elements)
             
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
