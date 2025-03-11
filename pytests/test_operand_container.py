@@ -541,8 +541,9 @@ def test_position_shift():
     Measures(4) >> fifth_measure_chords
     assert fifth_measure_chords % Length() == 4.0
 
+    # __add__ is clip position agnostic!
     aggregated_chords: Clip = chords + fifth_measure_chords
-    assert aggregated_chords % Length() == 8.0
+    assert aggregated_chords % Length() == 4.0
 
 
     four_notes_1: Clip = Note() * 4 << NoteValue(1/8)

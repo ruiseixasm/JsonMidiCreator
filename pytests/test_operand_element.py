@@ -187,6 +187,30 @@ def test_note_mul():
     assert type(many_notes) == Clip
     assert many_notes.len() == 4
 
+    rest = Rest()
+    clip = Rest() * 1
+
+    assert clip[0] == Position(0)
+    rest_clip = rest * clip
+    assert rest_clip.len() == 2
+    rest_clip[0] % Position() % float() >> Print()
+    assert rest_clip[0] == Position(0)
+    rest_clip[1] % Position() % float() >> Print()
+    assert rest_clip[1] == Position(0.25)
+
+    rest_note_clip = (Note() + Rest()) * 3
+
+    assert rest_note_clip.len() == 2*3
+    assert type(rest_note_clip[0]) == type(Note())
+    assert type(rest_note_clip[1]) == type(Rest())
+
+    mul_clip = rest * rest_note_clip
+
+    assert mul_clip.len() == 1 + 2*3
+    assert type(mul_clip[0]) == type(Rest())
+    assert type(mul_clip[1]) == type(Note())
+    assert type(mul_clip[2]) == type(Rest())
+
 # test_note_mul()
 
 

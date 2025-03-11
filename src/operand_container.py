@@ -57,23 +57,29 @@ class Container(o.Operand):
         else:
             self._items_iterator = 0   # Reset to 0 when limit is reached
             raise StopIteration
-        
-    def _insert(self, items: list, after_item: any = None) -> Self:
+
+    def _insert(self, items: list, before_item: any = None) -> Self:
         if self is not self._upper_container:
-            self._upper_container._insert(items, after_item)
-        insert_at: int = len(self._items)   # By default works as append
-        if after_item is not None:
+            self._upper_container._insert(items, before_item)
+        insert_at: int = 0                  # By default works as insert
+        if before_item is not None:
             for index, single_item in enumerate(self._items):
-                if single_item is after_item:
-                    insert_at = index + 1   # After the item
+                if single_item is before_item:
+                    insert_at = index       # Before the item
                     break
         self._items = self._items[:insert_at] + items + self._items[insert_at:]
         return self
 
-    def _append(self, items: list) -> Self:
+    def _append(self, items: list, after_item: any = None) -> Self:
         if self is not self._upper_container:
-            self._upper_container._append(items)
-        self._items = self._items.extend(items)
+            self._upper_container._append(items, after_item)
+        append_at: int = len(self._items)   # By default works as append
+        if after_item is not None:
+            for index, single_item in enumerate(self._items):
+                if single_item is after_item:
+                    append_at = index + 1   # After the item
+                    break
+        self._items = self._items[:append_at] + items + self._items[append_at:]
         return self
 
     def _delete(self, items: list) -> Self:
@@ -1017,20 +1023,22 @@ class Clip(Container):  # Just a container of Elements
                 return new_song # Operand Song replaces self Clip
             case Clip():
                 operand_elements = [
-                    single_data.copy().set_staff_reference(self._staff) for single_data in operand._items
-                        if isinstance(single_data, oe.Element)
+                    single_element.copy().set_staff_reference(self._staff) for single_element in operand._items
                 ]
-                if operand._position_beats > self._position_beats:
-                    for single_element in operand_elements:
-                        single_element += ra.Beats(operand._position_beats - self._position_beats)
-                elif operand._position_beats < self._position_beats:
-                    self += ra.Beats(self._position_beats - operand._position_beats) # NO IMPLICIT COPY
-                    self._position_beats = operand._position_beats
-                self._items.extend( single_element for single_element in operand_elements )
+                # # For the case of both clips being placed at different positions
+                # if operand._position_beats > self._position_beats:
+                #     for single_element in operand_elements:
+                #         single_element += ra.Beats(operand._position_beats - self._position_beats)
+                # elif operand._position_beats < self._position_beats:
+                #     self += ra.Beats(self._position_beats - operand._position_beats) # NO IMPLICIT COPY
+                #     self._position_beats = operand._position_beats
+                # self._items.extend( single_element for single_element in operand_elements )
+                self_last_element: oe.Element = self.last()
+                return self._append(operand_elements, self_last_element)
             case oe.Element():
                 new_element: oe.Element = operand.copy().set_staff_reference(self._staff)
                 self_last_element: oe.Element = self.last()
-                return self._insert([new_element], self_last_element)
+                return self._append([new_element], self_last_element)
             case list():
                 for item in operand:
                     if isinstance(item, oe.Element):

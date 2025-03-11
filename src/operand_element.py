@@ -384,7 +384,7 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                return oc.Clip(od.DataSource( [self, operand.copy()] )).set_staff_reference(self._staff_reference)
+                return oc.Clip(od.DataSource( [self, operand.copy()] )).set_staff_reference()
             case oc.Clip():
                 self_clip: oc.Clip = operand.empty_copy()
                 self_clip += self
@@ -425,10 +425,13 @@ class Element(o.Operand):
                 extended_clip[1] << next_position   # Two elements Clip
                 return extended_clip
             case oc.Clip():
-                self_clip: oc.Clip = operand.empty_copy()
-                self_clip += self
-                operand += ra.Position( od.DataSource( self_clip[0] % ra.Length() ) )
-                self_clip += operand
+                self_clip: oc.Clip = operand.copy()
+                self.set_staff_reference(self_clip._staff)
+                if self_clip.len() > 0:
+                    self_clip += ( self % ra.Length() ).convertToPosition()
+                    self_clip._insert([ self ], self_clip[0])
+                else:
+                    self_clip._insert([ self ])
                 return self_clip
             case int():
                 new_clip: oc.Clip = oc.Clip(self._staff_reference)
