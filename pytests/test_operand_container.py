@@ -373,6 +373,28 @@ def test_mul_clip():
     assert two_notes[0] % Position() == 0.0
     assert two_notes[1] % Position() == 1.0
 
+    timed_rest = Rest(NoteValue(1/16 * (3*4 + 2)))
+    timed_clip = Note(Steps(3*4 + 2)) + Rest()
+
+    assert type(timed_clip[0]) == type(Note())
+    assert type(timed_clip[1]) == type(Rest())
+    
+    timed_clip *= 3
+
+    assert type(timed_clip[0]) == type(Note())
+    assert type(timed_clip[1]) == type(Rest())
+    assert type(timed_clip[2]) == type(Note())
+    assert type(timed_clip[3]) == type(Rest())
+    assert type(timed_clip[4]) == type(Note())
+    assert type(timed_clip[5]) == type(Rest())
+
+    timed_rest_clip = timed_rest * timed_clip
+
+    assert timed_rest_clip.len() == 1 + 2*3
+    assert type(timed_rest_clip[0]) == type(Rest())
+    assert type(timed_rest_clip[1]) == type(Note())
+    assert type(timed_rest_clip[2]) == type(Rest())
+
 # test_mul_clip()
 
 

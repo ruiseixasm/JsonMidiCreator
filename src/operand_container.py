@@ -1025,16 +1025,10 @@ class Clip(Container):  # Just a container of Elements
                 operand_elements = [
                     single_element.copy().set_staff_reference(self._staff) for single_element in operand._items
                 ]
-                # # For the case of both clips being placed at different positions
-                # if operand._position_beats > self._position_beats:
-                #     for single_element in operand_elements:
-                #         single_element += ra.Beats(operand._position_beats - self._position_beats)
-                # elif operand._position_beats < self._position_beats:
-                #     self += ra.Beats(self._position_beats - operand._position_beats) # NO IMPLICIT COPY
-                #     self._position_beats = operand._position_beats
-                # self._items.extend( single_element for single_element in operand_elements )
-                self_last_element: oe.Element = self.last()
-                return self._append(operand_elements, self_last_element)
+                if self.len() > 0:
+                    self_last_element: oe.Element = self[-1]
+                    return self._append(operand_elements, self_last_element)
+                return self._append(operand_elements)
             case oe.Element():
                 new_element: oe.Element = operand.copy().set_staff_reference(self._staff)
                 self_last_element: oe.Element = self.last()
