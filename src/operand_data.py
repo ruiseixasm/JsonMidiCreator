@@ -726,10 +726,13 @@ if TYPE_CHECKING:
     from operand_container import Clip
 
 class Stack(Process):
+    def __init__(self, non_empty_measures_only: bool = True):
+        super().__init__(non_empty_measures_only)
+
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
-            return operand.stack()
+            return operand.stack(self._data)
         return super().__rrshift__(operand)
 
 class Decompose(Process):

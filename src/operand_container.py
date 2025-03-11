@@ -1448,7 +1448,7 @@ class Clip(Container):  # Just a container of Elements
         return self
 
 
-    def stack(self) -> Self:
+    def stack(self, non_empty_measures_only: bool = True) -> Self:
         """
         For stackable elements, moves each one to start at the finish position
         of the previous one. If it's the first element then it's position becomes 0.
