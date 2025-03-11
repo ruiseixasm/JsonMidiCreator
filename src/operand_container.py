@@ -64,7 +64,7 @@ class Container(o.Operand):
         insert_at: int = len(self._items)   # By default works as append
         if after_item is not None:
             for index, single_item in enumerate(self._items):
-                if single_item == after_item:
+                if single_item is after_item:
                     insert_at = index + 1   # After the item
                     break
         self._items = self._items[:insert_at] + items + self._items[insert_at:]
@@ -744,7 +744,8 @@ class Clip(Container):  # Just a container of Elements
         if self.len() > 0:
             last_element = self._items[0]
             for element in self._items:
-                if element % ra.Position() > last_element % ra.Position():
+                # With not < instead of just > allows the return of latter elements in the list
+                if not element % ra.Position() < last_element % ra.Position():
                     last_element = element
         return last_element
 
@@ -1027,7 +1028,9 @@ class Clip(Container):  # Just a container of Elements
                     self._position_beats = operand._position_beats
                 self._items.extend( single_element for single_element in operand_elements )
             case oe.Element():
-                return super().__iadd__(operand).set_staff_reference()
+                new_element: oe.Element = operand.copy().set_staff_reference(self._staff)
+                self_last_element: oe.Element = self.last()
+                return self._insert([new_element], self_last_element)
             case list():
                 for item in operand:
                     if isinstance(item, oe.Element):

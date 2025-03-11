@@ -50,10 +50,26 @@ def test_foreach_mod():
 
     notes += frame  # Original sequences aren't modified by + operator
     clip = Clip() \
-        + (N() << D) + (N() << E) + (N() << F) + (N() << G) + (N() << A) + (N() << D) + (N() << E) \
+            + N(D) + N(E) + N(F) + N(G) + N(A) + N(D) + N(E) \
         >> Stack()
-        # +       1            2            3            4            5            1            2
+        # +     1      2      3      4      5      1      2
+        # =     2      3      4      5      6      2      3
     
+    assert notes.len() == clip.len()
+    clip[0] % Pitch() % Degree() % int() >> Print()
+    clip[1] % Pitch() % Degree() % int() >> Print()
+    clip[2] % Pitch() % Degree() % int() >> Print()
+    clip[3] % Pitch() % Degree() % int() >> Print()
+    clip[4] % Pitch() % Degree() % int() >> Print()
+    clip[5] % Pitch() % Degree() % int() >> Print()
+    clip[6] % Pitch() % Degree() % int() >> Print()
+    assert notes[0] == clip[0]
+    assert notes[1] == clip[1]
+    assert notes[2] == clip[2]
+    assert notes[3] == clip[3]
+    assert notes[4] == clip[4]
+    assert notes[5] == clip[5]
+    assert notes[6] == clip[6]
     assert notes == clip
 
     four_notes = Note() * 4
