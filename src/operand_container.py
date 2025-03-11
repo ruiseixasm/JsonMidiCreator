@@ -39,6 +39,7 @@ class Container(o.Operand):
         super().__init__()
         self._items: list = []
         self._items_iterator: int = 0
+        self._root_container: Container = self
         for single_operand in operands:
             self << single_operand
         
@@ -183,6 +184,8 @@ class Container(o.Operand):
 
     def shallow_copy(self, *parameters) -> Self:
         shallow_copy: Container = self.empty_copy()
+        # This copy of a list is a shallow copy, so it keeps the reference of this root container
+        self._root_container = self
         # This copy of a list is a shallow copy, not a deep copy
         shallow_copy._items = self._items.copy()
         for single_parameter in parameters:
