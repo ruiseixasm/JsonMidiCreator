@@ -349,13 +349,13 @@ class Operand:
     def __rshift__(self, operand: any) -> Self:
         if isinstance(operand, list):
             for single_operand in operand:
-                if isinstance(single_operand, (list, tuple, Operand)):
+                if isinstance(single_operand, (Operand, tuple, list)):
                     self >> single_operand
             return self
         if isinstance(operand, tuple):
             last_operand = self
             for single_operand in operand:
-                if isinstance(single_operand, Operand):
+                if isinstance(single_operand, (Operand, tuple, list)):
                     last_operand >>= single_operand
             return last_operand
         return operand.__rrshift__(self)
