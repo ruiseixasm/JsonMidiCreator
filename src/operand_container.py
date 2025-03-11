@@ -1466,11 +1466,15 @@ class Clip(Container):  # Just a container of Elements
                 if isinstance(single_data, oe.Element) and single_data._stackable
             ]
         for index, single_element in enumerate(stackable_elements):
-            if index > 0:
+            if index > 0:   # Not the first element
                 duration_beats: Fraction = self._staff.convertToBeats(ra.Duration(stackable_elements[index - 1]._duration_notevalue))._rational
                 single_element._position_beats = stackable_elements[index - 1]._position_beats + duration_beats  # Stacks on Element Duration
-            else:   # FIRST ELEMENT!
-                single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
+            else:           # THE FIRST ELEMENT!
+                if non_empty_measures_only:
+                    root_position: ra.Position = (single_element // ra.Position()).roundMeasures()
+                    single_element._position_beats = root_position._rational
+                else:
+                    single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
         return self
     
