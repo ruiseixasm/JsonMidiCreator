@@ -1535,59 +1535,59 @@ class Arpeggio(Generic):
 
         return shuffled_list
 
-    from operand_element import Note
+    from operand_element import Element
 
-    def _generate_sequence(self, notes: list[Note]) -> list[Note]:
+    def _generate_sequence(self, elements: list[Element]) -> list[Element]:
         """Generates the sequence of the arpeggio order."""
         match ou.Order.numberToName( self._order ):
             case "Up":
-                return notes
+                return elements
             case "Down":
-                return notes[::-1]
+                return elements[::-1]
             case "Up-Down":
-                return notes + notes[-2:0:-1]  # Ascend then descend
+                return elements + elements[-2:0:-1]  # Ascend then descend
             case "Down-Up":
-                return notes[::-1] + notes[1:-1]  # Descend then ascend
+                return elements[::-1] + elements[1:-1]  # Descend then ascend
             case "Chaotic":
-                return self._shuffle_list(notes)
+                return self._shuffle_list(elements)
             case _:
-                return notes  # Default to "Up"
+                return elements  # Default to "Up"
 
-    def arpeggiate(self, notes: list[Note]) -> list[Note]:
-        from operand_element import Note
+    def arpeggiate(self, elements: list[Element]) -> list[Element]:
+        from operand_element import Element
 
-        if self._order > 0 and len(notes) > 0:
+        if self._order > 0 and len(elements) > 0:
 
-            staff_reference: Staff = notes[0]._staff_reference
-            note_start_position: ra.Position = notes[0] // ra.Position()
-            arpeggio_length: ra.Length = notes[0] // ra.Length()
+            staff_reference: Staff = elements[0]._staff_reference
+            element_start_position: ra.Position = elements[0] // ra.Position()
+            arpeggio_length: ra.Length = elements[0] // ra.Length()
             arpeggio_end_position: ra.Position = arpeggio_length.convertToPosition()
-            note_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
-            odd_length: ra.Length = note_length * 2 * self._swing
-            even_length: ra.Length = note_length * 2 - odd_length
+            element_length: ra.Length = staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
+            odd_length: ra.Length = element_length * 2 * self._swing
+            even_length: ra.Length = element_length * 2 - odd_length
             
-            sequenced_notes: list[Note] = self._generate_sequence(notes)
-            arpeggiated_notes: list[Note] = []
-            nth_note: int = 1
-            while note_start_position < arpeggio_end_position:
-                for source_note in sequenced_notes:
-                    new_note: Note = source_note.copy()
-                    arpeggiated_notes.append(new_note)
-                    new_note << note_start_position
-                    if nth_note % 2 == 1:   # Odd note
-                        new_note << odd_length
+            sequenced_elements: list[Element] = self._generate_sequence(elements)
+            arpeggiated_elements: list[Element] = []
+            nth_element: int = 1
+            while element_start_position < arpeggio_end_position:
+                for source_element in sequenced_elements:
+                    new_element: Element = source_element.copy()
+                    arpeggiated_elements.append(new_element)
+                    new_element << element_start_position
+                    if nth_element % 2 == 1:   # Odd element
+                        new_element << odd_length
                     else:
-                        new_note << even_length
-                    note_end_position: ra.Position = note_start_position + new_note // ra.Length()
-                    if note_end_position > arpeggio_end_position:
+                        new_element << even_length
+                    element_end_position: ra.Position = element_start_position + new_element // ra.Length()
+                    if element_end_position > arpeggio_end_position:
                         length_deficit: ra.Length = arpeggio_length - arpeggio_end_position
-                        new_note += length_deficit
+                        new_element += length_deficit
                         break
-                    note_start_position = note_end_position
-                    nth_note += 1
-            return arpeggiated_notes
+                    element_start_position = element_end_position
+                    nth_element += 1
+            return arpeggiated_elements
 
-        return notes
+        return elements
 
     def __eq__(self, other: 'Arpeggio') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
