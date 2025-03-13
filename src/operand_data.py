@@ -688,6 +688,19 @@ class Operate(Process):
             return operand.operate(*self._data)
         return super().__rrshift__(operand)
 
+if TYPE_CHECKING:
+    from operand_element import Note
+
+class Transform(Process):
+    def __init__(self, operand_type: type = 'Note'):
+        super().__init__(operand_type)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Container):
+            return operand.transform(self._data)
+        return super().__rrshift__(operand)
+
 class Copy(Process):
     """
     Copy() does an total duplication of the Operand including its parts.

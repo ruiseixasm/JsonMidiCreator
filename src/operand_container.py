@@ -429,10 +429,11 @@ class Container(o.Operand):
                 self ^ operand
         return self
 
-    def wrap(self, operand_type: type = oe.Note) -> Self:
+    def transform(self, operand_type: type = oe.Note) -> Self:
         for item in self._items:
             self._replace(item, operand_type(item))
         return self
+
 
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
