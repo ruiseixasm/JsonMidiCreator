@@ -760,7 +760,7 @@ class Fit(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
-            return operand.arpeggiate(*self._data)
+            return operand.fit(self._data)
         return super().__rrshift__(operand)
 
 if TYPE_CHECKING:
@@ -804,7 +804,7 @@ class Arpeggiate(Process):
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Clip):
-            return operand.arpeggiate(*self._data)
+            return operand.arpeggiate(self._data)
         return super().__rrshift__(operand)
 
 class Tie(Process):
