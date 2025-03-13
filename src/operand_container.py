@@ -1587,6 +1587,12 @@ class Clip(Container):  # Just a container of Elements
         self._items = decomposed_elements
         return self
 
+    def arpeggiate(self, arpeggio: og.Arpeggio = None) -> Self:
+        if not isinstance(arpeggio, og.Arpeggio):
+            arpeggio = og.Arpeggio("Up")
+        
+        return self
+
     def tie(self, tied: bool = True) -> Self:
         """
         Sets the Note or similar elements as tied or not tied.
