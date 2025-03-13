@@ -31,9 +31,9 @@ notes * notes.copy().process(Transform(Chord)) >> Play()
 chords = notes >> Copy() >> Transform(Chord)
 
 notes << Duration(1/8) >> Stack()
-notes *= 2.0
+notes /= 2
 chords << Duration(1/8) >> Stack()
-chords *= 2.0
+chords /= 2
 chords += Step(1)
 
 notes + chords >> Play()
