@@ -610,6 +610,11 @@ class Clip(Container):  # Just a container of Elements
     def __getitem__(self, index: int) -> oe.Element:
         return self._items[index]
 
+    def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
+        if isinstance(new_item, oe.Element):
+            return super()._replace(old_item, new_item)
+        return self
+
 
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
