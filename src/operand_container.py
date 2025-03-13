@@ -429,8 +429,9 @@ class Container(o.Operand):
                 self ^ operand
         return self
 
-    def wrap(self, type: type = oe.Note) -> Self:
-
+    def wrap(self, operand_type: type = oe.Note) -> Self:
+        for item in self._items:
+            self._replace(item, operand_type(item))
         return self
 
     def __add__(self, operand: any) -> Self:
