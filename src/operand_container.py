@@ -90,6 +90,14 @@ class Container(o.Operand):
         ]
         return self
 
+    def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._replace(old_item, new_item)
+        for index, item in enumerate(self._items):
+            if old_item is item:
+                self._items[index] = new_item
+        return self
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Container has
@@ -417,8 +425,13 @@ class Container(o.Operand):
                 self |= operand
             case "<<=":
                 self <<= operand
+            case "^":
+                self ^ operand
         return self
 
+    def wrap(self, type: type = oe.Note) -> Self:
+
+        return self
 
     def __add__(self, operand: any) -> Self:
         return self.copy().__iadd__(operand)
