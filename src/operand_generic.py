@@ -1490,7 +1490,7 @@ class Staff(Generic):
 
 class Arpeggio(Generic):
     def __init__(self, *parameters):
-        self._order: int = 0
+        self._order: int = 1    # "Up" by default
         self._duration_notevalue: Fraction = ra.Duration(1/16)._rational
         self._swing: Fraction = ra.Swing(0.5)._rational
         self._chaos: ch.Chaos = ch.SinX()

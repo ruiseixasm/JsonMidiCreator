@@ -894,7 +894,7 @@ class Note(Element):
 class Cluster(Note):
     def __init__(self, *parameters):
         self._sets: list[int | float] = [0, 2, 4]
-        self._arpeggio: og.Arpeggio = og.Arpeggio()
+        self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         super().__init__( *parameters )
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -984,7 +984,7 @@ class KeyScale(Note):
         super().__init__()
         self << self._staff_reference.convertToDuration(ra.Measures(1))  # By default a Scale and a Chord has one Measure duration
         self._scale: og.Scale       = og.Scale( [] ) # Sets the default Scale based on the Staff Key Signature
-        self._arpeggio: og.Arpeggio = og.Arpeggio()
+        self._arpeggio: og.Arpeggio = og.Arpeggio("None")
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
