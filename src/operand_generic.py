@@ -1589,6 +1589,31 @@ class Arpeggio(Generic):
 
         return elements
 
+    def arpeggiate_source(self, elements: list[Element], start_position: ra.Position, arpeggio_length: ra.Length) -> list[Element]:
+        from operand_element import Element
+
+        if self._order > 0 and len(elements) > 0:
+
+            element_start_position: ra.Position = start_position
+            total_elements: int = len(elements)
+            element_length: ra.Length = arpeggio_length / total_elements
+            odd_length: ra.Length = element_length * 2 * self._swing
+            even_length: ra.Length = element_length * 2 - odd_length
+            
+            sequenced_elements: list[Element] = self._generate_sequence(elements)
+            nth_element: int = 1
+            for element_i in range(total_elements):
+                elements[element_i] = sequenced_elements[element_i]
+                elements[element_i] << element_start_position
+                if nth_element % 2 == 1:   # Odd element
+                    elements[element_i] << odd_length
+                else:
+                    elements[element_i] << even_length
+                element_start_position += elements[element_i] // ra.Length()
+                nth_element += 1
+
+        return elements
+
     def __eq__(self, other: 'Arpeggio') -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if other.__class__ == o.Operand:

@@ -750,6 +750,19 @@ class Erase(Process):
             return operand.erase(*self._data)
         return super().__rrshift__(operand)
 
+class Fit(Process):
+    
+    from operand_rational import Length
+
+    def __init__(self, length: 'Length' = None):
+        super().__init__(length)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.arpeggiate(*self._data)
+        return super().__rrshift__(operand)
+
 if TYPE_CHECKING:
     from operand_container import Clip
 
@@ -778,6 +791,20 @@ class Decompose(Process):
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.decompose()
+        return super().__rrshift__(operand)
+
+if TYPE_CHECKING:
+    from operand_generic import Arpeggio
+
+class Arpeggiate(Process):
+    
+    def __init__(self, arpeggio: 'Arpeggio' = None):
+        super().__init__(arpeggio)
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.arpeggiate(*self._data)
         return super().__rrshift__(operand)
 
 class Tie(Process):

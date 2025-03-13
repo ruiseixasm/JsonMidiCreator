@@ -1590,7 +1590,7 @@ class Clip(Container):  # Just a container of Elements
     def arpeggiate(self, arpeggio: og.Arpeggio = None) -> Self:
         if not isinstance(arpeggio, og.Arpeggio):
             arpeggio = og.Arpeggio("Up")
-        
+        arpeggio.arpeggiate_source(self._items, self.start(), self.length())
         return self
 
     def tie(self, tied: bool = True) -> Self:
