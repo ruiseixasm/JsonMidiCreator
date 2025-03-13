@@ -15,29 +15,27 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 import sys
 import os
-src_path = os.path.join(os.path.dirname(__file__), '', 'src')
+src_path = os.path.join(os.path.dirname(__file__), '..', 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
 from JsonMidiCreator import *
 
-rest_play = (R, P)
-defaults << Tempo(120)     # Sets the metronome tempo
-defaults << Measures(4)    # Sets the length in Measures
-
-measures_long: int = defaults // Measures() // int()
-
-measure_bell: Clip = Nt(DrumKit(34)) * 1 * measures_long
-# measure_bell >> Play()
-beat_tick: Clip = (Nt(DrumKit(33)) * 3 + Beat(1)) * measures_long << Velocity(80)
-# beat_tick >> Play()
-
-metronome: Clip = measure_bell + beat_tick
-
-for tempo in (89, 90, 91, 92):
-    print(f"Tempo: {tempo}")
-    metronome << Tempo(tempo)     # Sets the metronome tempo of the Clip
-    metronome * 2 >> Play()
-    Rest() >> Play()
+# https://youtu.be/0HAxftAH-PU?si=Ou4FZwYBRoGh8ML1
 
 
+device_list = defaults % Device() % list() >> Print()
+device_list.insert(0, "Blofeld")
+device_list >> Print()
+defaults << Device(device_list)
+
+# Global Staff setting up
+defaults << Tempo(90)
+
+note_duration = Duration(1/16)
+three_notes = Note() * 3 << Loop(Dotted(note_duration), note_duration, note_duration) >> Stack()
+three_notes += Octave(1)
+three_notes << Foreach("G", "G", "A")
+# three_notes << CPar(Length(2.0))
+
+three_notes * 64 << Duration(1/16) >> Play()
