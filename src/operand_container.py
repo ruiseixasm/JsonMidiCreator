@@ -1141,23 +1141,19 @@ class Clip(Container):  # Just a container of Elements
                         if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
-            case int() | float():
-                if self._length_beats >= 0:
-                    add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
-                    operand = int(operand)
-                    self._length_beats *= operand
-                elif isinstance(operand, int):
-                    # It's the position of the element that matters and not their tailed Duration
-                    last_element: oe.Element = self.last()
-                    if last_element:
-                        left_end_position: ra.Position = last_element % ra.Position()
-                        add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
-                    else:
-                        add_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
-                else:
-                    add_position: ra.Position = ra.Position(self.length())
-                    operand = int(operand)
+            case int():
                 if operand > 1:
+                    if self._length_beats >= 0:
+                        add_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._length_beats))
+                        self._length_beats *= operand
+                    else:
+                        # It's the position of the element that matters and not their tailed Duration
+                        last_element: oe.Element = self.last()
+                        if last_element:
+                            left_end_position: ra.Position = last_element % ra.Position()
+                            add_position: ra.Position = left_end_position.roundMeasures() + ou.Measure(1)
+                        else:
+                            add_position: ra.Position = self._staff.convertToPosition(ra.Beats(0))
                     self_copy: Clip = self.copy()
                     for _ in range(operand - 2):
                         self_copy += add_position
@@ -1177,14 +1173,6 @@ class Clip(Container):  # Just a container of Elements
                 self_beats: Fraction = self_length.roundMeasures()._rational  # Beats default unit
                 if self_beats > 0:
                     self_repeating = operand_beats // self_beats
-                self *= self_repeating
-            case ra.TimeValue():
-                self_repeating: float = 0.0
-                self_length: ra.Length = self % ra.Length()
-                length_value: Fraction = self_length % operand % Fraction()
-                if length_value > 0:
-                    operand_value: Fraction = operand._rational
-                    self_repeating: float = float( operand_value / length_value )
                 self *= self_repeating
             case oe.Element():
                 next_position: ra.Position = self.finish()
@@ -1231,8 +1219,8 @@ class Clip(Container):  # Just a container of Elements
                 self._items.extend( single_element for single_element in operand_elements )
 
             case int():
-                add_position: ra.Position = ra.Position(self.length())
                 if operand > 1:
+                    add_position: ra.Position = ra.Position(self.length())
                     self_copy: Clip = self.copy()
                     for _ in range(operand - 2):
                         self_copy += add_position
@@ -1250,6 +1238,15 @@ class Clip(Container):  # Just a container of Elements
                 elif operand == 0:   # Must be empty
                     self._items = []  # Just to keep the self object
             
+            case ou.TimeUnit():
+                self_repeating: int = 0
+                self_length: ra.Length = self % ra.Length()
+                length_value: Fraction = self_length % operand % Fraction()
+                if length_value > 0:
+                    operand_value: int = operand._unit
+                    self_repeating = int( operand_value / length_value )
+                self /= self_repeating
+
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
