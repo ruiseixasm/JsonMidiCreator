@@ -28,3 +28,13 @@ notes.copy() >> Transform(Chord) >> Play()
 
 notes * notes.copy().process(Transform(Chord)) >> Play()
 
+chords = notes >> Copy() >> Transform(Chord)
+
+notes << Duration(1/8) >> Stack()
+notes *= 2.0
+chords << Duration(1/8) >> Stack()
+chords *= 2.0
+chords += Step(1)
+
+notes + chords >> Play()
+
