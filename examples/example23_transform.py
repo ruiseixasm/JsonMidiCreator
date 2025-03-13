@@ -24,5 +24,7 @@ from JsonMidiCreator import *
 notes = Note() * 4 << Foreach(1, 4, 5, 1)**Degree()
 notes >> Play()
 
-notes >> Transform(Chord) >> Play()
+notes.copy() >> Transform(Chord) >> Play()
+
+notes * notes.copy().process(Transform(Chord)) >> Play()
 

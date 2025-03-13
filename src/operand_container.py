@@ -232,6 +232,10 @@ class Container(o.Operand):
             shallow_copy << single_parameter
         return shallow_copy
     
+
+    def process(self, input: any = None) -> Self:
+        return self >> input
+
     def clear(self, *parameters) -> Self:
         self._items = []
         return super().clear(parameters)
@@ -1252,6 +1256,7 @@ class Clip(Container):  # Just a container of Elements
                     item /= operand
         return self
 
+    
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
         """
         Reverses the sequence of the clip concerning the elements position, like horizontally mirrored.
