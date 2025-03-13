@@ -1231,7 +1231,24 @@ class Clip(Container):  # Just a container of Elements
                 self._items.extend( single_element for single_element in operand_elements )
 
             case int():
-                return super().__itruediv__(operand)
+                add_position: ra.Position = ra.Position(self.length())
+                if operand > 1:
+                    self_copy: Clip = self.copy()
+                    for _ in range(operand - 2):
+                        self_copy += add_position
+                        self += self_copy   # implicit copy of self_copy
+                    # Uses the last self_copy for the last iteration
+                    self_copy += add_position
+                    self._items.extend(
+                        single_element.set_staff_reference(self._staff) for single_element in self_copy
+                        if isinstance(single_element, oe.Element)
+                    )
+                    if self._length_beats >= 0:
+                        finish_position_beats: Fraction = self.finish()._rational
+                        if finish_position_beats > self._length_beats:
+                            self._length_beats = finish_position_beats
+                elif operand == 0:   # Must be empty
+                    self._items = []  # Just to keep the self object
             
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
