@@ -34,8 +34,8 @@ chromatic_notes /= 2
 chromatic_notes >> Beat(0) >> Arpeggiate("Up")
 chromatic_notes >> Beat(1) >> Arpeggiate("Down")
 
-chromatic_notes / 2 * 8 >> Play()
-Rest(1/2) >> Play()
+chromatic_notes / 2 * 8 >> P
+R(1/2) >> P
 
 chromatic_order = Cluster(tonic_key, [0.0, 2.0, 1.0, 3.0], 1/4) * 1 << Tempo(60)
 chromatic_order >> Decompose()
@@ -43,6 +43,6 @@ chromatic_order /= 2
 chromatic_order >> Beat(0) >> Arpeggiate("Up")
 chromatic_order >> Beat(1) >> Arpeggiate("Down")
 
-chromatic_order / 2 * 8 >> Play()
+chromatic_order / 2 * 8 >> P
 
 
