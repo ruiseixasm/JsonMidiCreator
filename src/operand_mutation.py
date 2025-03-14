@@ -367,13 +367,17 @@ class Shuffling(Diploid):
         return False
 
     def swap(self, clip: oc.Clip, source_clip_index: int, target_clip_index: int) -> Self:
-            
+
         parameter_instance = self._parameter()
         source_clip_len: int = self._clip.len()
         target_clip_len: int = clip.len()
+
         parameter_switch: any = clip[source_clip_index % target_clip_len] % parameter_instance
         clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
         self._clip[source_clip_index % source_clip_len] << parameter_switch
+
+        self._clip._sort_position()
+        clip._sort_position()
 
         return self
 
