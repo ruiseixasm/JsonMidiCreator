@@ -462,7 +462,7 @@ def test_element_stacking():
 # test_element_stacking()
 
 
-def test_clip_lshift():
+def test_lshift_clip():
 
     base_line: Clip = Nt(dotted_eight) * Measures(4)
     print(f"Length: {base_line % Length() % float()}")
@@ -489,7 +489,26 @@ def test_clip_lshift():
     two_measures << Pitch()
     assert two_measures[0] % Pitch() == 60.0
 
-# test_clip_lshift()
+
+    eight_notes = Note() * 8
+
+    filtered_notes = eight_notes >> Measure(1)
+
+    assert filtered_notes.len() == 4
+    assert filtered_notes[0] % Position() == 1.0
+    assert filtered_notes[1] % Position() == 1.25
+    assert filtered_notes[2] % Position() == 1.50
+    assert filtered_notes[3] % Position() == 1.75
+
+    filtered_notes << Measure(0)
+
+    assert filtered_notes.len() == 4
+    assert filtered_notes[0] % Position() == 0.0
+    assert filtered_notes[1] % Position() == 0.25
+    assert filtered_notes[2] % Position() == 0.50
+    assert filtered_notes[3] % Position() == 0.75
+
+# test_lshift_clip()
 
 
 def test_clip_filter():
