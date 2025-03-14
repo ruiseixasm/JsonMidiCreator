@@ -40,7 +40,7 @@ for _ in range(5):
 
 crossover = Crossover(Pitch, 2.0) * 40
 for _ in range(4):
-    motif_2 / crossover / 2 >> Play()
+    motif_2.process(crossover) / 2 >> Play()
 
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01

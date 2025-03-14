@@ -350,6 +350,8 @@ class Operand:
         import operand_data as od
         import operand_container as oc
         import operand_element as oe
+        import operand_mutation as om
+        import operand_selection as os
         if isinstance(operand, list):
             for single_operand in operand:
                 if isinstance(single_operand, (od.Process, oc.Container, tuple, list)):
@@ -363,7 +365,8 @@ class Operand:
                 else:
                     last_operand >>= od.Filter(single_operand)
             return last_operand
-        if isinstance(self, oc.Container) and not isinstance(operand, (od.Process, oc.Container, tuple, list, oe.Element)):
+        if isinstance(self, oc.Container) \
+                and not isinstance(operand, (od.Process, oc.Container, tuple, list, oe.Element, om.Mutation, os.Selection)):
             return self.filter(operand)
         return operand.__rrshift__(self)
 
