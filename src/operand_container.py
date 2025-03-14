@@ -98,6 +98,12 @@ class Container(o.Operand):
                 self._items[index] = new_item
         return self
 
+    def _sort_position(self) -> Self:
+        # Container sort position does nothing
+        # Only applicable to Clip
+        return self
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Container has
