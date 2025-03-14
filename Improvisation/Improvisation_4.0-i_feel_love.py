@@ -27,10 +27,19 @@ from JsonMidiCreator import *
 defaults << Tempo(120)
 defaults << Minor()
 
-KeyScale(Tonic("C")) >> P
-Rest() >> P
-KeyScale(4.0) >> P
+# C - G - A#
+first_notes = Note(Tonic("C"), 1/8) * 3 << Foreach("C", "G", "A#") << Duration(1/16)
+# first_notes >> P
 
-eighth_notes = Note(1/8) * 3 << Foreach(1, 5, 6)
-# eighth_notes >> P
+# Rest() >> P
+second_notes = first_notes + Octave(1) + Step(1)
+# second_notes >> P
+
+# Rest() >> P
+patter_notes = first_notes + second_notes >> Sort()
+
+final_pattern = patter_notes.filter(Nth(1, 2)) / patter_notes / 2
+
+
+final_pattern * 8 >> P >> MidiExport("Midi/improvisation_4.0.mid")
 
