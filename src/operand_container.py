@@ -1093,7 +1093,7 @@ class Clip(Container):  # Just a container of Elements
             case _:
                 for item in self._items:
                     item += operand
-        return self
+        return self._sort_position()  # Shall be sorted!
 
     def __isub__(self, operand: any) -> Self:
         match operand:
@@ -1122,7 +1122,7 @@ class Clip(Container):  # Just a container of Elements
             case _:
                 for item in self._items:
                     item -= operand
-        return self
+        return self._sort_position()  # Shall be sorted!
 
     # in-place multiply (NO COPY!)
     def __imul__(self, operand: any) -> Self:
@@ -1200,7 +1200,7 @@ class Clip(Container):  # Just a container of Elements
             case _:
                 for item in self._items:
                     item *= operand
-        return self
+        return self._sort_position()  # Shall be sorted!
 
     def __rmul__(self, operand: any) -> Self:
         return self.__mul__(operand)
@@ -1274,7 +1274,7 @@ class Clip(Container):  # Just a container of Elements
             case _:
                 for item in self._items:
                     item /= operand
-        return self
+        return self._sort_position()  # Shall be sorted!
 
     
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
