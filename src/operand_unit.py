@@ -765,37 +765,11 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 
         return key_signature_scale
     
-    # def is_enharmonic_old(self, tonic_key: int, key: int) -> bool:
-    #     if self._unit > +5:
-    #         if (key - tonic_key) % 12 == 11:
-    #             return True
-    #         if self._unit == +7:
-    #             return (key - tonic_key) % 12 == 4
-    #     elif self._unit < -5:
-    #         if (key - tonic_key) % 12 == 5:
-    #             return True
-    #         if self._unit == -7:
-    #             return (key - tonic_key) % 12 == 0
-    #     return False
-
     def is_enharmonic(self, tonic_key: int, key: int) -> bool:
         # if self._major_scale[tonic_key % 12] != 1:
         #     return True
         self_key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
         return self_key_signature[key % 12] != 0
-
-    # def is_enharmonic_new(self, tonic_key: int, key: int) -> bool:
-    #     # Key signature based on self._unit (-7 to +7)
-    #     key_signature: list[int] = self._key_signatures[(self._unit + 7) % 15]
-    #     signature_tonic_key: int = self.get_tonic_key()
-        
-    #     # Step 1: Normalize key and tonic
-    #     key_pc: int = key % 12  # Pitch class of the key
-    #     tonic_pc: int = tonic_key % 12  # Pitch class of the tonic
-    #     offset_pc: int = tonic_pc - signature_tonic_key
-    #     accidental: int = key_signature[(offset_pc + key_pc) % 12]
-        
-    #     return accidental != 0
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -880,7 +854,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 self._unit = operand._unit
                 if isinstance(operand, Flats):
                     self._unit *= -1
-            case str():
+            case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._unit = 0
                 else:
@@ -915,6 +889,43 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +0],    # +6
         [+1, 0, +1, 0, +1, +1, 0, +1, 0, +1, 0, +1]     # +7
     ]
+
+    _major_keys_accidentals: dict[int, int] = {
+        23:     -7,     # Cb (11 + 12 = 23)
+        18:     -6,     # Gb
+        13:     -5,     # Db
+        20:     -4,     # Ab
+        15:     -3,     # Eb
+        22:     -2,     # Bb
+        5:      -1,     # F
+        0:      +0,     # C
+        7:      +1,     # G
+        2:      +2,     # D
+        9:      +3,     # A
+        4:      +4,     # E
+        11:     +5,     # B
+        6:      +6,     # F#
+        1:      +7      # C#
+    }
+
+    _minor_keys_accidentals: dict[int, int] = {
+        20:     -7,     # Ab (8 + 12 = 23)
+        3:      -6,     # Eb
+        22:     -5,     # Bb
+        5:      -4,     # F
+        0:      -3,     # C
+        7:      -2,     # G
+        2:      -1,     # D
+        9:      +0,     # A
+        4:      +1,     # E
+        11:     +2,     # B
+        6:      +3,     # F#
+        1:      +4,     # C#
+        8:      +5,     # G#
+        3:      +6,     # D#
+        10:     +7      # A#
+    }
+
 
 class PitchParameter(Unit):
     pass
