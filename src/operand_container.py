@@ -298,19 +298,12 @@ class Container(o.Operand):
             chaos = ch.SinX()
         parameters: list = []
         parameter_instance = parameter()
-        if isinstance(parameter_instance, od.DataSource):
-            for _ in range(len(self._items)):
-                data_index: int = chaos * 1 % int() % len(self._items)
-                parameters.append(self._items[data_index])   # No need to copy
-                del self._items[data_index] # Like picking up colored balls, pop out
-            self._items = parameters
-        else:
-            for item in self._items:
-                parameters.append(item % parameter_instance)   # No need to copy
-            for item in self._items:
-                data_index: int = chaos * 1 % int() % len(parameters)
-                item << parameters[data_index]
-                del parameters[data_index] # Like picking up colored balls, pop out
+        for item in self._items:
+            parameters.append(item % parameter_instance)   # No need to copy
+        for item in self._items:
+            data_index: int = chaos * 1 % int() % len(parameters)
+            item << parameters[data_index]
+            del parameters[data_index] # Like picking up colored balls, pop out
         return self._sort_position()
 
     def swap(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
