@@ -48,6 +48,7 @@ else:  # Assume Linux/Unix
 
 # Class alias, abbreviations
 N = Nt = Note
+R = Rst = Rest
 Ch = Channel
 DS = Src = DataSource
 CPar = CParameter = ClipPar = ClipParameter
@@ -89,12 +90,8 @@ O7 = Octave(7)
 O8 = Octave(8)
 O9 = Octave(9)
 
-# Elements
-R = Rest()
-
 # Actions
 L = Link()
-LT = LJ = Link()
 S = Stack()
 P = Play()
 
