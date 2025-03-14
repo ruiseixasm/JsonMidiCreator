@@ -30,6 +30,12 @@ sixteen_notes = Note() * 16 << Loop(1, 4, 5, 1)
 
 # sixteen_notes >> Play()
 
-sixteen_notes >> Measure(1) >> Play()
+filtered_notes = sixteen_notes >> Measure(1)
+filtered_notes << Measure(0)
+filtered_notes += Note(6, Step(10))
+filtered_notes[0] % Position() % float() >> Print()
+filtered_notes >> Link() >> Play()
+filtered_notes << Measure(1)
+filtered_notes[0] % Position() % float() >> Print()
 
-sixteen_notes.process(Measure(1)) << Measure(0) >> Play()
+sixteen_notes * 2 >> Play()
