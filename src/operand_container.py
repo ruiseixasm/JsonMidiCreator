@@ -877,7 +877,7 @@ class Clip(Container):  # Just a container of Elements
         self._staff.reset_tied_note()
 
         return [
-                element for element in self.shallow_copy().sort(ra.Position)._items 
+                element for element in self.shallow_copy()._sort_position()._items 
                 if isinstance(element, oe.Element)
             ]
 
@@ -1459,7 +1459,7 @@ class Clip(Container):  # Just a container of Elements
         """
         if self.len() > 1:
             # Starts by sorting by Position
-            shallow_copy: Clip = self.shallow_copy().sort(ra.Position)
+            shallow_copy: Clip = self.shallow_copy()._sort_position()
             for index in range(shallow_copy.len()):
                 current_element: oe.Element = shallow_copy._items[index]
                 next_element: oe.Element = shallow_copy._items[index + 1]
@@ -1478,7 +1478,7 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        shallow_copy: Clip = self.shallow_copy().sort(ra.Position)
+        shallow_copy: Clip = self.shallow_copy()._sort_position()
         shallow_copy_len: int = shallow_copy.len()
         for index in range(shallow_copy_len):
             current_element: oe.Element = shallow_copy._items[index]
