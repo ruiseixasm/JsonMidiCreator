@@ -34,4 +34,4 @@ chromatic_notes /= 2
 chromatic_notes >> Beat(0) >> Arpeggiate("Up")
 chromatic_notes >> Beat(1) >> Arpeggiate("Down")
 
-chromatic_notes >> Play()
+chromatic_notes / 2 * 8 >> Play()
