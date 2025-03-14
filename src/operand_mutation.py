@@ -570,12 +570,19 @@ class Translocation(Shuffling):
             source_incision: int = self._chaos * self._step % int() % self._clip.len()
             target_incision: int = self._chaos * self._step % int() % clip.len()
 
-            # NEEDS TO BE REVIEWED
+            source_right: list[oe.Element] = self._clip._items[source_incision:]
+            target_right: list[oe.Element] = clip._items[target_incision:]
 
-            clip._items[target_incision:], self._clip._items[source_incision:] \
-                = self._clip._items[source_incision:], clip._items[target_incision:]
+            self._clip._delete(source_right)
+            clip._delete(target_right)
 
-        return clip._sort_position()
+            self._clip._append(target_right)
+            clip._append(source_right)
+
+            self._clip._sort_position()
+            clip._sort_position()
+
+        return clip
 
 
 class Crossover(Shuffling):
