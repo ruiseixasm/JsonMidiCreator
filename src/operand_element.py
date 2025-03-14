@@ -1049,7 +1049,8 @@ class KeyScale(Note):
                 scale_notes.append( new_note )
         else:   # Uses the staff keys straight away
             staff_scale: list = self._staff_reference % list()
-            for degree_i in range(len(staff_scale)):
+            total_degrees: int = sum(1 for key in staff_scale if key != 0)
+            for degree_i in range(total_degrees):
                 new_note: Note = Note(self).set_staff_reference(self._staff_reference)
                 new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )

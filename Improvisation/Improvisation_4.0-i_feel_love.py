@@ -25,11 +25,11 @@ from JsonMidiCreator import *
 
 # Global Staff setting up
 defaults << Tempo(120)
-# defaults << CParameter(Minor())
+defaults << Minor()
 
-KeyScale("C") >> P
+KeyScale(Tonic("C")) >> P
 Rest() >> P
-KeyScale(2.0) >> P
+KeyScale(4.0) >> P
 
 eighth_notes = Note(1/8) * 3 << Foreach(1, 5, 6)
 # eighth_notes >> P
