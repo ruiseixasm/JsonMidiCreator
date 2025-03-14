@@ -294,7 +294,7 @@ class Container(o.Operand):
                 data_index: int = chaos * 1 % int() % len(parameters)
                 item << parameters[data_index]
                 del parameters[data_index] # Like picking up colored balls, pop out
-        return self
+        return self._sort_position()
 
     def swap(self, probability: ra.Probability = None, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
         """
@@ -333,7 +333,7 @@ class Container(o.Operand):
                             self[element_i] << self[element_j] % parameter_instance
                             self[element_j] << temp_parameter
 
-        return self
+        return self._sort_position()
 
     def reverse(self) -> Self:
         """
@@ -350,7 +350,7 @@ class Container(o.Operand):
             tail_operand = self._items[self_len - 1 - operand_i]
             self._items[self_len - 1 - operand_i] = self._items[operand_i]
             self._items[operand_i] = tail_operand
-        return self
+        return self._sort_position()
     
     def recur(self, recursion: Callable = lambda d: d/2, parameter: type = ra.Duration) -> Self:
         """
@@ -366,7 +366,7 @@ class Container(o.Operand):
         """
         for item_i in range(1, self.len()):
             self._items[item_i] << recursion(self._items[item_i - 1] % parameter())
-        return self
+        return self._sort_position()
 
     def rotate(self, offset: int = 1, parameter: type = ra.Position) -> Self:
         """
@@ -399,7 +399,7 @@ class Container(o.Operand):
                 if isinstance(operand, o.Operand):
                     operand << parameters[ offset % len(parameters) ]
                 offset += 1
-        return self
+        return self._sort_position()
 
     def filter(self, mask: any, shallow_copy: bool = True) -> Self:
         """
