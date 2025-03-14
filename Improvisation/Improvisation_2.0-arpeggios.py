@@ -26,10 +26,17 @@ from JsonMidiCreator import *
 # Global Staff setting up
 defaults << Tempo(110)
 
-root_key = Key("C")
-chromatic_notes = Cluster([0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown", 1/32)) * 1
+tonic_key = Key("C")
+chromatic_notes = Cluster(tonic_key, [0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown", 1/32)) * 1
 
-for tonic_key in range(8):
-    chromatic_notes += Tonic(tonic_key)
+for key in range(8):
+    chromatic_notes += Tonic(key)
+    chromatic_notes >> Play()
+    Rest() >> Play()
+
+chromatic_notes << tonic_key
+
+for key in range(8):
+    chromatic_notes += Semitone(key)
     chromatic_notes >> Play()
     Rest() >> Play()
