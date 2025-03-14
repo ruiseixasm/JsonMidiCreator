@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = (R, P)
+rest_play = (R(), P)
 defaults << 150
 defaults % Key() % str() >> Print()    # Returns the tonic key (I)
 
@@ -40,7 +40,7 @@ for _ in range(5):
 
 crossover = Crossover(Pitch, 2.0) * 40
 for _ in range(4):
-    motif_2 / crossover * 2.0 >> Play()
+    motif_2 / crossover / 2 >> Play()
 
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01

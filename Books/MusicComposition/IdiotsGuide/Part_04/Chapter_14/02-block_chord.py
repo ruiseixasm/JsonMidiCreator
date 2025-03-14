@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = (R, P)
+rest_play = (R(), P)
 defaults << KeySignature(-1)   # Sets the default Key Note configuration
 defaults << Tempo(120)
 

@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = (R, P)
+rest_play = (R(), P)
 defaults << Tempo(90)
 
 basic_loop: Clip = Note(1/16) * 4 << Loop(2, 4, 6, 4) << Octave(3) << Velocity(65)

@@ -28,7 +28,7 @@ if INSTRUMENT:
     defaults << Device(INSTRUMENT)   # Waldorf Blofeld
 
 
-rest_play = (R, P)
+rest_play = (R(), P)
 defaults << Tempo(120)
 
 motif: Clip = Note(1/16) * 12

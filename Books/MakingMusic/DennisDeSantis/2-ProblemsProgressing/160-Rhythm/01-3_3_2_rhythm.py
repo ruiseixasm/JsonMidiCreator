@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-rest_play = (R, P)
+rest_play = (R(), P)
 defaults << Tempo(140)
 
 tresillo: Clip = Note(DrumKit("Drum"), 1/16) * 3 << Iterate(3)**Steps() << TimeSignature(2, 4)
