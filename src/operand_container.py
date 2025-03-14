@@ -98,6 +98,23 @@ class Container(o.Operand):
                 self._items[index] = new_item
         return self
 
+    def _swap(self, left_item: Any = None, right_item: Any = None) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._swap(left_item, right_item)
+        left_index: int = None
+        for index, item in enumerate(self._items):
+            if left_item is item:
+                left_index = index
+        right_index: int = None
+        for index, item in enumerate(self._items):
+            if right_item is item:
+                right_index = index
+        if left_index and right_index:
+            temp_item: Any = self._items[right_index]
+            self._items[right_index] = self._items[left_index]
+            self._items[left_index] = temp_item
+        return self
+
     def _sort_position(self) -> Self:
         # Container sort position does nothing
         # Only applicable to Clip
