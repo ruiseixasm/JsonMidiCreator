@@ -98,6 +98,12 @@ class Container(o.Operand):
                 self._items[index] = new_item
         return self
 
+    def _sort_position(self) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._sort_position()
+        self._items.sort(key=lambda x: x._position_beats)
+        return self
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Container has
@@ -1058,14 +1064,14 @@ class Clip(Container):  # Just a container of Elements
                 ]
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
-                    return self._append(operand_elements, self_last_element)
-                return self._append(operand_elements)
+                    return self._append(operand_elements, self_last_element)._sort_position()  # Shall be sorted!
+                return self._append(operand_elements)._sort_position() # Shall be sorted!
             case oe.Element():
                 new_element: oe.Element = operand.copy().set_staff_reference(self._staff)
                 if self.len() > 0:
                     self_last_element: oe.Element = self[-1]
-                    return self._append([ new_element ], self_last_element)
-                return self._append([ new_element ])
+                    return self._append([ new_element ], self_last_element)._sort_position()  # Shall be sorted!
+                return self._append([ new_element ])._sort_position()  # Shall be sorted!
             case list():
                 operand_elements = [
                     single_element.copy().set_staff_reference(self._staff) for single_element in operand if isinstance(single_element, oe.Element)

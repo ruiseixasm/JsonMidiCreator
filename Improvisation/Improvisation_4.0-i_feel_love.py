@@ -36,7 +36,7 @@ second_notes = first_notes + Octave(1) + Step(1)
 # second_notes >> P
 
 # Rest() >> P
-patter_notes = first_notes + second_notes >> Sort()
+patter_notes = first_notes + second_notes
 
 final_pattern = patter_notes.filter(Nth(1, 2)) / patter_notes / 2
 

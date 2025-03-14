@@ -384,7 +384,7 @@ class Element(o.Operand):
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
             case Element():
-                return oc.Clip(od.DataSource( [self, operand.copy()] )).set_staff_reference()
+                return oc.Clip(od.DataSource( [self, operand.copy()] )).set_staff_reference()._sort_position()
             case oc.Clip():
                 self_clip: oc.Clip = operand.empty_copy()
                 self_clip += self
