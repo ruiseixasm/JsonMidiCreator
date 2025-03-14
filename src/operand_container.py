@@ -1694,6 +1694,13 @@ class Part(Container):
             return ol.Null()
         return self._items[key]
 
+    def _sort_position(self) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._sort_position()
+        self._items.sort(key=lambda x: x % ra.Position() // Fraction())
+        return self
+
+
     def set_staff_reference(self, staff_reference: 'og.Staff' = None) -> Self:
         if isinstance(staff_reference, og.Staff):
             self._staff = staff_reference.copy()
