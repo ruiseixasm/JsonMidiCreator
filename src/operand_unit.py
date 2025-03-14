@@ -854,6 +854,11 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 self._unit = operand._unit
                 if isinstance(operand, Flats):
                     self._unit *= -1
+            case Key():
+                if self._major:
+                    self._unit = self._major_keys_accidentals[ operand % int() ]
+                else:
+                    self._unit = self._minor_keys_accidentals[ operand % int() ]
             case str(): # Processes series of "#" and "b"
                 if len(operand) == 0:
                     self._unit = 0
@@ -892,10 +897,18 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
 
     _major_keys_accidentals: dict[int, int] = {
         23:     -7,     # Cb (11 + 12 = 23)
+
         18:     -6,     # Gb
+        10:     -6,     # A#
+
         13:     -5,     # Db
+
         20:     -4,     # Ab
+        8:      -4,     # G#
+
         15:     -3,     # Eb
+        3:      -3,     # D#
+
         22:     -2,     # Bb
         5:      -1,     # F
         0:      +0,     # C
@@ -909,7 +922,7 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
     }
 
     _minor_keys_accidentals: dict[int, int] = {
-        20:     -7,     # Ab (8 + 12 = 23)
+        20:     -7,     # Ab (8 + 12 = 20)
         3:      -6,     # Eb
         22:     -5,     # Bb
         5:      -4,     # F
@@ -920,10 +933,17 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
         4:      +1,     # E
         11:     +2,     # B
         6:      +3,     # F#
+
         1:      +4,     # C#
+        13:     +4,     # Db
+
         8:      +5,     # G#
+
         3:      +6,     # D#
-        10:     +7      # A#
+        15:     +6,     # Eb
+
+        10:     +7,     # A#
+        18:     +7      # Gb
     }
 
 
