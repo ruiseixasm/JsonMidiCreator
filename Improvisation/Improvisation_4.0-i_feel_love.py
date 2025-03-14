@@ -33,11 +33,11 @@ first_notes = Note("C", 1/8) * 3 << Foreach("C", "G", "A")**Key() << Duration(1/
 # first_notes >> P
 
 # Rest() >> P
-second_notes = first_notes + Octave(1) + Step(1)
+second_notes = first_notes + Step(1)
 # second_notes >> P
 
 # Rest() >> P
-patter_notes = first_notes + second_notes
+patter_notes = first_notes + second_notes + Even()**Octave(1)
 
 final_pattern = patter_notes.filter(Nth(1, 2)) / patter_notes / 2
 
