@@ -98,12 +98,6 @@ class Container(o.Operand):
                 self._items[index] = new_item
         return self
 
-    def _sort_position(self) -> Self:
-        if self is not self._upper_container:
-            self._upper_container._sort_position()
-        self._items.sort(key=lambda x: x._position_beats)
-        return self
-
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, because a Container has
@@ -623,6 +617,12 @@ class Clip(Container):  # Just a container of Elements
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
         if isinstance(new_item, oe.Element):
             return super()._replace(old_item, new_item)
+        return self
+
+    def _sort_position(self) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._sort_position()
+        self._items.sort(key=lambda x: x._position_beats)
         return self
 
 
