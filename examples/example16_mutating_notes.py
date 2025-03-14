@@ -35,12 +35,14 @@ motif_2 * 2 >> Play()
 
 mutation = Shuffling()
 for _ in range(5):
-    motif_2 / mutation * 2.0 >> Sort() >> Stack() >> Play()
-    # motif_2 / mutation * 2.0 >> Sort() >> Stack()
+    R() >> P
+    motif_2.process(mutation) / 2 >> S >> P
+    # motif_2 / mutation * 2.0 >> Stack()
 
 crossover = Crossover(Pitch, 2.0) * 40
 for _ in range(4):
-    motif_2.process(crossover) / 2 >> Play()
+    R() >> P
+    motif_2.process(crossover).stack() / 2 >> Play()
 
 
 # mutation = TranslocateRhythm(mutation) * 60 * 4.01
