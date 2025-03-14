@@ -371,14 +371,9 @@ class Shuffling(Diploid):
         parameter_instance = self._parameter()
         source_clip_len: int = self._clip.len()
         target_clip_len: int = clip.len()
-        if isinstance(parameter_instance, od.DataSource):
-            element_switch: oe.Element = clip[source_clip_index % target_clip_len]
-            clip[target_clip_index % target_clip_len] = self._clip[source_clip_index % source_clip_len]
-            self._clip[source_clip_index % source_clip_len] = element_switch
-        else:
-            parameter_switch: any = clip[source_clip_index % target_clip_len] % parameter_instance
-            clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
-            self._clip[source_clip_index % source_clip_len] << parameter_switch
+        parameter_switch: any = clip[source_clip_index % target_clip_len] % parameter_instance
+        clip[target_clip_index % target_clip_len] << self._clip[source_clip_index % source_clip_len] % parameter_instance
+        self._clip[source_clip_index % source_clip_len] << parameter_switch
 
         return self
 
@@ -502,7 +497,6 @@ class Swapping(Shuffling):
     def __init__(self, *parameters):
         self._probability: Fraction = ra.Probability(1/4**2)._rational
         super().__init__()
-        self._parameter = od.DataSource # Translocation is all about the elements themselves
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -566,23 +560,18 @@ class Swapping(Shuffling):
     
 
 class Translocation(Shuffling):
-    def __init__(self, *parameters):
-        super().__init__()
-        self._parameter = od.DataSource # Translocation is all about the elements themselves
-        for single_parameter in parameters: # Faster than passing a tuple
-            self << single_parameter
-            
     def mutate(self, clip: oc.Clip) -> oc.Clip:
         if self.setup(clip):
             
-            self._parameter = od.DataSource # Translocation is all about the elements themselves
             source_incision: int = self._chaos * self._step % int() % self._clip.len()
             target_incision: int = self._chaos * self._step % int() % clip.len()
+
+            # NEEDS TO BE REVIEWED
 
             clip._items[target_incision:], self._clip._items[source_incision:] \
                 = self._clip._items[source_incision:], clip._items[target_incision:]
 
-        return clip
+        return clip._sort_position()
 
 
 class Crossover(Shuffling):
