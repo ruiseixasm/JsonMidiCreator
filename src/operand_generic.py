@@ -1544,9 +1544,9 @@ class Arpeggio(Generic):
                 return elements
             case "Down":
                 return elements[::-1]
-            case "Up-Down":
+            case "UpDown":
                 return elements + elements[-2:0:-1]  # Ascend then descend
-            case "Down-Up":
+            case "DownUp":
                 return elements[::-1] + elements[1:-1]  # Descend then ascend
             case "Chaotic":
                 return self._shuffle_list(elements)

@@ -31,10 +31,10 @@ major_chord >> Play()
 major_chord << Arpeggio("Down")
 major_chord >> Play()
 
-major_chord << Arpeggio("Up-Down")
+major_chord << Arpeggio("UpDown")
 major_chord >> Play()
 
-major_chord << Arpeggio("Down-Up")
+major_chord << Arpeggio("DownUp")
 major_chord >> Play()
 
 major_chord << Arpeggio("Chaotic")
@@ -47,10 +47,10 @@ major_chord >> Play()
 major_chord << Order("Down")
 major_chord >> Play()
 
-major_chord << Order("Up-Down")
+major_chord << Order("UpDown")
 major_chord >> Play()
 
-major_chord << Order("Down-Up")
+major_chord << Order("DownUp")
 major_chord >> Play()
 
 major_chord << Order("Chaotic")

@@ -27,6 +27,9 @@ from JsonMidiCreator import *
 defaults << Tempo(110)
 
 root_key = Key("C")
-chromatic_notes = Cluster([0.0, 1.0, 2.0, 3.0]) * 1
+chromatic_notes = Cluster([0.0, 1.0, 2.0, 3.0], 4.0, Arpeggio("UpDown")) * 1
 
-chromatic_notes >> Play()
+for tonic_key in range(8):
+    chromatic_notes += Tonic(tonic_key)
+    chromatic_notes >> Play()
+    Rest() >> Play()

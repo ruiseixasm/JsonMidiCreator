@@ -1278,8 +1278,8 @@ class Order(Unit):
         "None":         0,
         "Up":           1,
         "Down":         2,
-        "Up-Down":      3,
-        "Down-Up":      4,
+        "UpDown":      3,
+        "DownUp":      4,
         "Chaotic":      5
     }
 
@@ -1287,8 +1287,8 @@ class Order(Unit):
         0:              "None",
         1:              "Up",
         2:              "Down",
-        3:              "Up-Down",
-        4:              "Down-Up",
+        3:              "UpDown",
+        4:              "DownUp",
         5:              "Chaotic"
     }
 
