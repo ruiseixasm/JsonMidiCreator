@@ -1587,9 +1587,8 @@ class Clip(Container):  # Just a container of Elements
         self._items = decomposed_elements
         return self
 
-    def arpeggiate(self, arpeggio: og.Arpeggio = None) -> Self:
-        if not isinstance(arpeggio, og.Arpeggio):
-            arpeggio = og.Arpeggio("Up")
+    def arpeggiate(self, parameters: any = None) -> Self:
+        arpeggio = og.Arpeggio(parameters)
         arpeggio.arpeggiate_source(self._items, self.start(), self.length())
         return self
 

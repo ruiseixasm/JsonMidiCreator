@@ -798,8 +798,8 @@ if TYPE_CHECKING:
 
 class Arpeggiate(Process):
     
-    def __init__(self, arpeggio: 'Arpeggio' = None):
-        super().__init__(arpeggio)
+    def __init__(self, parameters: any = None):
+        super().__init__(parameters)
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
