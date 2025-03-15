@@ -1538,37 +1538,32 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Clip: The same self object with the items processed.
         """
-        self.sort(ra.Position)
-        element_index: int = 0
-        first_element_index: int = None
-        last_element: oe.Element = None
-        for single_data in self._items:
-            if isinstance(single_data, oe.Element) and single_data._stackable:
-                if last_element is not None:
-                    last_element << self._staff.convertToDuration(ra.Beats(single_data._position_beats - last_element._position_beats))
-                else:
-                    first_element_index = element_index
-                last_element = single_data  # Keeps track of the last element
-            element_index += 1
-        # Add a Rest in the beginning if necessary
-        if first_element_index is not None:
-            first_element: oe.Element = self._items[first_element_index]
+        if self.len() > 0:
+            for index, element in enumerate(self._items):
+                if index > 0:
+                    previous_element: oe.Element = self[index - 1]
+                    previous_element << self._staff.convertToDuration(
+                        ra.Beats(element._position_beats - previous_element._position_beats)
+                    )
+            # Add a Rest in the beginning if necessary
+            first_element: oe.Element = self.first()
+            last_element: oe.Element = self.last()
             starting_position_beats: Fraction = Fraction(0)
             if non_empty_measures_only:
                 starting_position_beats = (first_element // ra.Position()).roundMeasures()._rational
             if first_element._position_beats != starting_position_beats:  # Not at the starting position
                 rest_duration: ra.Duration = self._staff.convertToDuration(ra.Beats(first_element._position_beats))
-                self._items.insert(first_element_index, oe.Rest(rest_duration))
-        # Adjust last_element duration based on its Measure position
-        if last_element is not None:    # LAST ELEMENT ONLY!
-            remaining_beats: Fraction = \
-                self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational \
-                    - last_element._position_beats
-            if remaining_beats == 0:    # Means it's on the next Measure alone, thus, it's a one Measure note
-                last_element << self._staff.convertToDuration(ra.Measures(1))
-            else:
-                last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
-        return self
+                self._items.insert(0, oe.Rest(rest_duration))
+            # Adjust last_element duration based on its Measure position
+            if last_element is not None:    # LAST ELEMENT ONLY!
+                remaining_beats: Fraction = \
+                    self._staff.convertToLength(ra.Beats(last_element._position_beats)).roundMeasures()._rational \
+                        - last_element._position_beats
+                if remaining_beats == 0:    # Means it's on the next Measure alone, thus, it's a one Measure note
+                    last_element << self._staff.convertToDuration(ra.Measures(1))
+                else:
+                    last_element << self._staff.convertToDuration(ra.Beats(remaining_beats))
+        return self._sort_position()
 
 
     def stack(self, non_empty_measures_only: bool = True) -> Self:
