@@ -201,6 +201,8 @@ class Operand:
         import operand_data as od
         import operand_rational as ra
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 return self.__mod__( operand % Operand() )
             case of.Frame():

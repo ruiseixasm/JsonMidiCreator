@@ -95,6 +95,8 @@ class Element(o.Operand):
         """
         import operand_container as oc
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case ra.Duration():

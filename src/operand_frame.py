@@ -76,6 +76,8 @@ class Frame(o.Operand):
         {'class': 'Step', 'parameters': {'value': 4.0}}
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case Frame():

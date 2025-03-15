@@ -52,6 +52,8 @@ class Chaos(o.Operand):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )

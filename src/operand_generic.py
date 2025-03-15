@@ -46,6 +46,8 @@ class TimeSignature(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
@@ -330,6 +332,8 @@ class Pitch(Generic):
         C
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case of.Frame():        return self % od.DataSource( operand._data )
@@ -722,6 +726,8 @@ class Controller(Generic):
         {'class': 'Value', 'parameters': {'unit': 64}}
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case ou.Number():           return ou.Number() << od.DataSource(self._number)
@@ -850,6 +856,8 @@ class Scale(Generic):
         Mixolydian
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case ou.Mode():             return ou.Mode() << od.DataSource(self._mode)
@@ -1189,6 +1197,8 @@ class Staff(Generic):
         3.0
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
@@ -1498,6 +1508,8 @@ class Arpeggio(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )
@@ -1711,6 +1723,8 @@ class Defaults(Generic):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case of.Frame():            return self % od.DataSource( operand._data )

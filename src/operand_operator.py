@@ -57,6 +57,8 @@ class Operator(o.Operand):
         {'next_operand': None, 'initiated': False, 'set': False, 'index': 0, 'unit': 1}
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case list():            return self._operator_list

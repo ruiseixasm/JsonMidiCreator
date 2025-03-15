@@ -74,6 +74,8 @@ class Rational(o.Operand):
         0
         """
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case Fraction():        return self._rational           # returns a Fraction()

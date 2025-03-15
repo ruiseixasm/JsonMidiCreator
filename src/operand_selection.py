@@ -70,6 +70,8 @@ class Selection(o.Operand):
 
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
+            case self.__class__():
+                return self.copy()
             case od.DataSource():
                 match operand._data:
                     case od.Mask():         return operand._data << od.DataSource( self._mask )
