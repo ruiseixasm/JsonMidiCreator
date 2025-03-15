@@ -813,13 +813,7 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Element: The first Element of all Elements.
         """
-        first_element: oe.Element = None
-        if self.len() > 0:
-            first_element = self._items[0]
-            for element in self._items:
-                if element % ra.Position() < first_element % ra.Position():
-                    first_element = element
-        return first_element
+        return super().first()
 
     def last(self) -> oe.Element:
         """
@@ -831,14 +825,7 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Element: The last Element of all Elements.
         """
-        last_element: oe.Element = None
-        if self.len() > 0:
-            last_element = self._items[0]
-            for element in self._items:
-                # With not < instead of just > allows the return of latter elements in the list
-                if not element % ra.Position() < last_element % ra.Position():
-                    last_element = element
-        return last_element
+        return super().last()
 
     def start(self) -> ra.Position:
         """
