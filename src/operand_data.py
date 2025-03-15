@@ -52,6 +52,8 @@ class Data(o.Operand):
                     case Data():                    return self
                     case ol.Null() | None:          return ol.Null()
                     case _:                         return self._data
+            case self.__class__():
+                return self.copy()
             case of.Frame():                return self % operand
             case Serialization():           return self.getSerialization()
             case dict():
