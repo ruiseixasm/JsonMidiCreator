@@ -171,6 +171,36 @@ class Container(o.Operand):
     def len(self) -> int:
         return len(self._items)
 
+    def first(self) -> Any:
+        """
+        Gets the first Item accordingly to it's Position on the Staff.
+
+        Args:
+            None
+
+        Returns:
+            Item: The first Item of all Items.
+        """
+        first_item: Any = None
+        if self.len() > 0:
+            first_item = self._items[0]
+        return first_item
+
+    def last(self) -> Any:
+        """
+        Gets the last Item accordingly to it's Position on the Staff.
+
+        Args:
+            None
+
+        Returns:
+            Item: The last Item of all Items.
+        """
+        last_item: Any = None
+        if self.len() > 0:
+            last_item = self._items[-1]
+        return last_item
+
     def __eq__(self, other: any) -> bool:
         import operand_selection as os
         match other:
