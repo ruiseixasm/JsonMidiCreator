@@ -1293,7 +1293,7 @@ class Clip(Container):  # Just a container of Elements
         return self._sort_position()  # Shall be sorted!
 
     
-    def sort(self, parameter: type = ra.Position) -> Self:
+    def sort(self, parameter: type = og.Pitch) -> Self:
         """
         Sorts the self list based on a given type of parameter.
 
