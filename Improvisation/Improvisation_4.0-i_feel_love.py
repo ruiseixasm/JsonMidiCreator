@@ -28,8 +28,11 @@ defaults << Tempo(120)
 defaults << Minor()
 
 # C - G - A# | A minor with Tonic C
-KeyScale(Tonic("C"), 4.0) >> P
+KeyScale(Tonic("C"), 2.0) >> P
 first_notes = Note("C", 1/8) * 3 << Foreach("C", "G", "A")**Key() << Duration(1/16)
+first_notes[0] % Degree() % int() >> Print()
+first_notes[1] % Degree() % int() >> Print()
+first_notes[2] % Degree() % int() >> Print()
 # first_notes >> P
 
 # Rest() >> P

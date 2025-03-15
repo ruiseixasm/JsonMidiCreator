@@ -37,6 +37,9 @@ first_notes % KeySignature() % str() >> Print()
 
 # C - G - Bb | C minor
 first_notes << Foreach("C", "G", "B")**Key()
+first_notes[0] % Degree() % int() >> Print()
+first_notes[1] % Degree() % int() >> Print()
+first_notes[2] % Degree() % int() >> Print()
 
 second_notes = first_notes + Step(1)
 patter_notes = first_notes + second_notes + Even()**Octave(1)
