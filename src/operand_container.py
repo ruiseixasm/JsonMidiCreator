@@ -1293,6 +1293,21 @@ class Clip(Container):  # Just a container of Elements
         return self._sort_position()  # Shall be sorted!
 
     
+    def sort(self, parameter: type = ra.Position) -> Self:
+        """
+        Sorts the self list based on a given type of parameter.
+
+        Args:
+            parameter (type): The type of parameter being sorted by.
+
+        Returns:
+            Container: The same self object with the items processed.
+        """
+        if parameter is not ra.Position:    # By default Clip is sorted by Position
+            original_sorting: list[oe.Element] = self._items.copy()
+            super().sort(parameter)
+        return self
+
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
         """
         Reverses the sequence of the clip concerning the elements position, like horizontally mirrored.
