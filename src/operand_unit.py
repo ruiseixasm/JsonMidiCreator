@@ -812,6 +812,11 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
                 return Flats(0)
             case og.Scale():            return og.Scale(self % list())
             case list():                return self.get_scale_list()
+            case str():
+                if self._unit < 0:
+                    flats: int = self._unit * -1
+                    return "b" * flats
+                return "#" * self._unit
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
