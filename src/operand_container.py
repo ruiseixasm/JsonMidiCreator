@@ -1304,10 +1304,12 @@ class Clip(Container):  # Just a container of Elements
             Container: The same self object with the items processed.
         """
         if parameter is not ra.Position:    # By default Clip is sorted by Position
-            original_sorting: list[oe.Element] = self._items.copy()
+            original_positions: list[Fraction] = [
+                element._position_beats for element in self._items
+            ]
             super().sort(parameter)
             for index, element in enumerate(self._items):
-                element._position_beats = original_sorting[index]._position_beats
+                element._position_beats = original_positions[index]
         return self
 
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
