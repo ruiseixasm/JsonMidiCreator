@@ -1475,8 +1475,6 @@ class Staff(Generic):
             case TimeSignature() | ra.TimeSignatureParameter():
                                         self._time_signature << operand
             case ra.Quantization():     self._quantization = operand._rational
-            case ou.KeySignature() | ou.Major() | ou.Minor() | ou.Sharps() | ou.Flats():
-                                        self._key_signature << operand
             case Scale():               self._scale << operand
             case ra.Measures() | ou.Measure():         
                                         self._measures = operand // int()
@@ -1495,6 +1493,8 @@ class Staff(Generic):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case _:
+                self._key_signature << operand
         return self
 
 

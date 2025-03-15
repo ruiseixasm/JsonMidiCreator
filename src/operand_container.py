@@ -1010,11 +1010,10 @@ class Clip(Container):  # Just a container of Elements
                         self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
                         self._midi_track << operand._data
-                    case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor() \
-                            | og.Scale() | ra.Measures() | ou.Measure() | int() | float() | Fraction():
-                        self._staff << operand._data
                     case None:
                         self._length_beats = Fraction(-1)
+                    case _:
+                        self._staff << operand._data
 
             case tuple():
                 for single_operand in operand:
