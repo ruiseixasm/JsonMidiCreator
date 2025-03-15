@@ -43,7 +43,6 @@ class Element(o.Operand):
         super().__init__()
         self._position_beats: Fraction      = Fraction(0)   # in Beats
         self._duration_notevalue: Fraction  = og.defaults._duration
-        self._stackable: bool               = True
         self._channel: int                  = og.defaults._channel
         self._device: list[str]             = og.defaults._device.copy()
         self._enabled: bool                 = True
@@ -75,10 +74,6 @@ class Element(o.Operand):
         self._duration_notevalue = ra.Duration(duration)._rational
         return self
 
-    def stackable(self, stackable: bool = None) -> Self:
-        self._stackable = stackable
-        return self
-
     def channel(self, channel: int = None) -> Self:
         self._channel = channel
         return self
@@ -108,7 +103,6 @@ class Element(o.Operand):
                         return self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
                     case ra.Length():
                         return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
-                    case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
                     case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
                     case od.Device():       return od.Device() << od.DataSource( self._device )
                     case Element():         return self
@@ -128,7 +122,6 @@ class Element(o.Operand):
                 return self._staff_reference.convertToLength(ra.Duration(self._duration_notevalue))
             case ra.TimeValue() | ou.TimeUnit():
                 return self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) % operand
-            case ou.Stackable():    return ou.Stackable() << od.DataSource( self._stackable )
             case ou.Channel():      return ou.Channel() << od.DataSource( self._channel )
             case od.Device():       return od.Device() << od.DataSource( self._device )
             case Element():         return self.copy()
@@ -154,8 +147,7 @@ class Element(o.Operand):
     def eq_time(self, other: 'Element') -> bool:
         return  self._staff_reference.convertToPosition(ra.Beats(self._position_beats)) \
                     == other._staff_reference.convertToPosition(ra.Beats(other._position_beats)) \
-            and self._duration_notevalue      == other._duration_notevalue \
-            and self._stackable     == other._stackable
+            and self._duration_notevalue      == other._duration_notevalue
 
     def eq_midi(self, other: 'Element') -> bool:
         return  self._channel       == other._channel \
@@ -257,7 +249,6 @@ class Element(o.Operand):
         serialization = super().getSerialization()
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         serialization["parameters"]["duration"]     = self.serialize(self._duration_notevalue)
-        serialization["parameters"]["stackable"]    = self.serialize(self._stackable)
         serialization["parameters"]["channel"]      = self.serialize(self._channel)
         serialization["parameters"]["device"]       = self.serialize(self._device)
         serialization["parameters"]["enabled"]      = self.serialize(self._enabled)
@@ -268,16 +259,15 @@ class Element(o.Operand):
     def loadSerialization(self, serialization: dict) -> 'Element':
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "position" in serialization["parameters"] and "duration" in serialization["parameters"] and
-            "stackable" in serialization["parameters"] and "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
+            "channel" in serialization["parameters"] and "device" in serialization["parameters"] and
             "enabled" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._position_beats      = self.deserialize(serialization["parameters"]["position"])
-            self._duration_notevalue      = self.deserialize(serialization["parameters"]["duration"])
-            self._stackable     = self.deserialize(serialization["parameters"]["stackable"])
-            self._channel       = self.deserialize(serialization["parameters"]["channel"])
-            self._device        = self.deserialize(serialization["parameters"]["device"])
-            self._enabled       = self.deserialize(serialization["parameters"]["enabled"])
+            self._position_beats        = self.deserialize(serialization["parameters"]["position"])
+            self._duration_notevalue    = self.deserialize(serialization["parameters"]["duration"])
+            self._channel               = self.deserialize(serialization["parameters"]["channel"])
+            self._device                = self.deserialize(serialization["parameters"]["device"])
+            self._enabled               = self.deserialize(serialization["parameters"]["enabled"])
 
         return self
 
@@ -289,7 +279,6 @@ class Element(o.Operand):
                 super().__lshift__(operand)
                 self._position_beats        = operand._position_beats
                 self._duration_notevalue    = operand._duration_notevalue
-                self._stackable             = operand._stackable
                 self._channel               = operand._channel
                 self._device                = operand._device   # It's a list of strings, but it won't be changed directly
                 self._enabled               = operand._enabled
@@ -299,7 +288,6 @@ class Element(o.Operand):
                 match operand._data:
                     case ra.Position():     self._position_beats  = operand._data
                     case ra.Duration():     self._duration_notevalue  = operand._data._rational
-                    case ou.Stackable():    self._stackable = operand._data // bool()
                     case ou.Channel():      self._channel   = operand._data._unit
                     case od.Device():       self._device    = operand._data._data
             case od.Serialization():
@@ -319,8 +307,6 @@ class Element(o.Operand):
                 self._duration_notevalue    = self._staff_reference.convertToDuration(operand)._rational
             case int():
                 self._position_beats        = self._staff_reference.convertToBeats(ra.Measures(operand))._rational
-            case ou.Stackable():
-                self._stackable             = operand // bool()
             case ou.Channel():
                 self._channel               = operand._unit
             case od.Device():

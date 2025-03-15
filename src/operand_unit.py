@@ -1488,9 +1488,6 @@ class Enable(Boolean):
 class Disable(Boolean):
     pass
 
-class Stackable(Boolean):
-    pass
-
 class Tied(Boolean):
     """`Unit -> Boolean -> Tied`
 
