@@ -1622,7 +1622,7 @@ class Clip(Container):  # Just a container of Elements
                 else:
                     single_element._position_beats = Fraction(0)   # everything starts at the beginning (0)!
         
-        return self
+        return self._sort_position()    # May be needed due to upper clips
     
     def decompose(self) -> Self:
         decomposed_elements: list[oe.Element] = []
