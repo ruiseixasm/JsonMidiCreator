@@ -27,7 +27,7 @@ from JsonMidiCreator import *
 defaults << Tempo(120)
 defaults << Minor()
 
-# C - G - A#
+# C - G - A# | A minor with Tonic C
 KeyScale(Tonic("C"), 4.0) >> P
 first_notes = Note("C", 1/8) * 3 << Foreach("C", "G", "A")**Key() << Duration(1/16)
 # first_notes >> P

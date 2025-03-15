@@ -27,11 +27,19 @@ from JsonMidiCreator import *
 defaults << Tempo(120)
 defaults << Minor()
 
-# C - G - A#
-first_notes = Note("C", 1/8) * 3 << Foreach("C", "G", "A")**Key() << Duration(1/16)
+first_notes = Note(1/8) * 3 << Duration(1/16)
 
 # Sets the right C minor Key Signature
-first_notes << CParameter(Key("C"))
+first_notes << CParameter(Key("C")) << None # Resets the Tonic key from A to C
 first_notes % KeySignature() % int() >> Print()
 first_notes % KeySignature() % str() >> Print()
 
+
+# C - G - Bb | C minor
+first_notes << Foreach("C", "G", "B")**Key()
+
+second_notes = first_notes + Step(1)
+patter_notes = first_notes + second_notes + Even()**Octave(1)
+
+final_pattern = patter_notes.filter(Nth(1, 2)) / patter_notes / 2
+final_pattern * 8 >> P >> MidiExport("Midi/improvisation_4.1.mid")
