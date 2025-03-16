@@ -301,7 +301,7 @@ class Container(o.Operand):
             self << single_parameter
         return self
     
-    def sort(self, parameter: type = ra.Position) -> Self:
+    def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
         Sorts the self list based on a given type of parameter.
 
@@ -313,6 +313,8 @@ class Container(o.Operand):
         """
         compare = parameter()
         self._items.sort(key=lambda x: x % compare)
+        if reverse:
+            self._items.reverse()
         return self
 
     def shuffle(self, chaos: ch.Chaos = None, parameter: type = ra.Position) -> Self:
@@ -1308,7 +1310,7 @@ class Clip(Container):  # Just a container of Elements
         return self._sort_position()  # Shall be sorted!
 
     
-    def sort(self, parameter: type = og.Pitch) -> Self:
+    def sort(self, parameter: type = ra.Position, reverse: bool = False) -> Self:
         """
         Sorts the self list based on a given type of parameter.
 
@@ -1318,13 +1320,12 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Container: The same self object with the items processed.
         """
-        if parameter is not ra.Position:    # By default Clip is sorted by Position
-            original_positions: list[Fraction] = [
-                element._position_beats for element in self._items
-            ]
-            super().sort(parameter)
-            for index, element in enumerate(self._items):
-                element._position_beats = original_positions[index]
+        original_positions: list[Fraction] = [
+            element._position_beats for element in self._items
+        ]
+        super().sort(parameter, reverse)
+        for index, element in enumerate(self._items):
+            element._position_beats = original_positions[index]
         return self
 
     def reverse(self, non_empty_measures_only: bool = True) -> Self:

@@ -657,20 +657,18 @@ class MidiExport(Process):
             return operand
         return super().__rrshift__(operand)
 
-if TYPE_CHECKING:
-    from operand_generic import Pitch
 
 class Sort(Process):
 
-    # import operand_generic as og
-    
-    def __init__(self, parameter: type = 'Pitch'):
-        super().__init__(parameter)
+    from operand_rational import Position
+
+    def __init__(self, parameter: type = Position, reverse: bool = True):
+        super().__init__((parameter, reverse))
 
     def __rrshift__(self, operand: o.T) -> o.T:
         import operand_container as oc
         if isinstance(operand, oc.Container):
-            return operand.sort(self._data)
+            return operand.sort(*self._data)
         return super().__rrshift__(operand)
 
 class Filter(Process):
