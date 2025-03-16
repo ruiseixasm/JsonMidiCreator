@@ -39,7 +39,7 @@ seven_keys << CParameter(Scale("Dorian"))
 seven_keys >> P
 R() >> P
 
-seven_keys << Tonic("D")
+seven_keys << Degree(0) # Degree 0 sets the Scale natural tonic
 seven_keys >> P
 R() >> P
 
