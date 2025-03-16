@@ -906,11 +906,7 @@ class Scale(Generic):
         return True
 
     def keys(self) -> int:
-        scale_keys = 0
-        self_scale = self._scale_list
-        for key in self_scale:
-            scale_keys += key
-        return scale_keys
+        return sum(1 for key in self._scale_list if key != 0)
 
     def transposition(self, tones: int) -> int:        # Starting in C
         transposition = 0
