@@ -789,7 +789,8 @@ class KeySignature(Unit):       # Sharps (+) and Flats (-)
             case int():                 return self._unit
             case float():
                 return self % Key() % float()
-            
+            case Tonic():
+                return Tonic(self % float())
             case Key():
                 tonic_key: int = self.get_tonic_key()
                 key_line: int = 0

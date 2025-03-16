@@ -887,6 +887,7 @@ class Scale(Generic):
             case int():                 return self.get_scale_number(self.modulation(None))
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
+            case ou.Tonic():            return ou.Tonic(self % float())
             case ou.Key():              return ou.Key( self.get_tonic_number() )
             case float():               return float( self.get_tonic_number() )
             case _:                     return super().__mod__(operand)
@@ -1236,6 +1237,8 @@ class Staff(Generic):
             case ra.Measures():         return ra.Measures(self._measures)
             case ou.Measure():          return ou.Measure(self._measures)
             # Calculated Values
+            case ou.Tonic():
+                return ou.Tonic(self % float())
             case ou.Key():
                 if self._scale.hasScale():
                     return self._scale % ou.Key()
