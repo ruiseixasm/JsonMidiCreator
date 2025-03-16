@@ -536,7 +536,7 @@ class Pitch(Generic):
                 self._natural = False
             case int():
                 if operand == 0:
-                    self._tonic_key = int( self._staff_reference._key_signature % float() )
+                    self._tonic_key = int( self._staff_reference % float() )
                 else:
                     self.set_degree(operand)
 
@@ -888,6 +888,7 @@ class Scale(Generic):
             case ou.Transposition():    return self.transposition(operand % int())
             case ou.Modulation():       return self.modulation(operand % int())
             case ou.Key():              return ou.Key( self.get_tonic_number() )
+            case float():               return float( self.get_tonic_number() )
             case _:                     return super().__mod__(operand)
 
     def __eq__(self, other: 'Scale') -> bool:
@@ -1243,6 +1244,10 @@ class Staff(Generic):
                 if self._scale.hasScale():
                     return self._scale % list()
                 return self._key_signature.get_scale_list() # Faster this way
+            case float():
+                if self._scale.hasScale():
+                    return self._scale % float()
+                return self._key_signature % float()
             case ra.NotesPerMeasure():
                 return self._time_signature % ra.NotesPerMeasure()
             case ra.StepsPerNote():

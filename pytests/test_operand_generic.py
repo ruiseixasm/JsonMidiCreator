@@ -108,7 +108,26 @@ def test_pitch_mod():
 # test_pitch_mod()
 
 
+def test_pitch_tonic():
+
+    pitch = Pitch()
+
+    assert pitch % Tonic() == "C"
+
+    defaults << Scale("Dorian")
+
+    assert pitch % Tonic() == "C"
+    pitch << Degree(0)
+    assert pitch % Tonic() == "D"
+
+    defaults << Scale([])
+
+# test_pitch_tonic()
+
+
 def test_scale_mod():
+
+    defaults << Scale([])
 
     # Perform the operation
     scale = Scale()
