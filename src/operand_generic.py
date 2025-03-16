@@ -529,7 +529,11 @@ class Pitch(Generic):
                 self._natural = False
                 self._degree = self.get_key_degree(operand._unit % 12)
             case None:
-                self._tonic_key = int( self._staff_reference._key_signature % float() )
+                self << 0   # Resets the Tonic key
+                self << 1   # Resets the degree to I
+                self._octave = 4
+                self._sharp = 0
+                self._natural = False
             case int():
                 if operand == 0:
                     self._tonic_key = int( self._staff_reference._key_signature % float() )
