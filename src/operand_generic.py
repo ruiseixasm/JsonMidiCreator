@@ -983,6 +983,8 @@ class Scale(Generic):
                     self._scale_list = operand.copy()
                 elif operand == []:
                     self._scale_list = []
+            case None:
+                self._scale_list = []
             case tuple():
                 for single_operand in operand:
                     self << single_operand
