@@ -526,9 +526,8 @@ def test_note_pitch():
     note << 0 # Tonic key again
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        note << Degree(degree + 1)
-        note % str() >> Print()
-        assert note == keys[degree]
+        (note + degree) % str() >> Print()
+        assert note + degree == keys[degree]
 
     print("------")
     note << 0 << 1 # Tonic key again and resets the degree to 1

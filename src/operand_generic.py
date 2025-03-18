@@ -538,7 +538,11 @@ class Pitch(Generic):
                 if operand == 0:
                     self._tonic_key = int( self._staff_reference % float() )
                 else:
-                    self.set_degree(operand)
+                    staff_scale: list[int] = self._staff_reference % list()
+                    total_degrees: int = sum(1 for key in staff_scale if key != 0)
+                    self._degree = operand % total_degrees
+
+                    # self.set_degree(operand)
 
             case ou.Degree():
                 self << operand._unit

@@ -25,10 +25,10 @@ from JsonMidiCreator import *
 # Global Staff setting up
 defaults << Measures(7) << Tempo(120)
 
-(Chord() * 7 << Size("7th") << Scale([])) << Iterate()**Add(1)**Degree() >> Play(True)
+(Chord() * 7 << Size("7th") << Scale([])) + Iterate()**Degree() >> Play(True)
 
 defaults << Scale("minor")
-(Chord("A") << Octave(3) << Scale([])) * 7 << Iterate()**Add()**Degree() \
+(Chord("A") << Octave(3) << Scale([])) * 7 + Iterate()**Degree() \
     >> Play(True) >> Print() << Inversion(1) >> Play(True)
 
 defaults << Scale([])

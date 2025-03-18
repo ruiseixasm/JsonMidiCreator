@@ -168,17 +168,17 @@ def test_pitch_degrees():
     # White Tonic Key
     sharp_pitch = Pitch()   # With Degree 1
     for degree in range(1, 8):
-        sharp_pitch << degree
         print(f"Key: {sharp_pitch % float()}")
         assert sharp_pitch % float() == major_keys[degree - 1]
+        sharp_pitch += 1    # Increases by degree
 
     # Black Tonic Key
     print("------")
     sharp_pitch << 1 << 61.0    # Has to reset previous Degree to 1 first
     for degree in range(1, 8):
-        sharp_pitch << degree
         print(f"Key: {sharp_pitch % float()}")
         assert sharp_pitch % float() == major_keys[degree - 1] + 1
+        sharp_pitch += 1    # Increases by degree
 
     print("------")
     key_pitch = Pitch() # It has a reference to defaults, so, only defaults need to be changed
@@ -334,7 +334,7 @@ def test_pitch_degrees():
     # Resets the defaults
     defaults << KeySignature() << Scale([])
 
-test_pitch_degrees()
+# test_pitch_degrees()
 
 
 def test_pitch_key_signature():
@@ -347,8 +347,8 @@ def test_pitch_key_signature():
     ]
     pitch = Pitch()
     for degree in {1, 2, 3, 4, 5, 6, 7}:
-        pitch << degree
         assert pitch == a_major_scale[degree - 1]
+        pitch += 1  # Increases by 1 degree
 
     pitch << Tonic(3)   # (3) D♯ Major with A Major Key Signature (###)
     ds_major_scale: list[str] = [
@@ -356,9 +356,9 @@ def test_pitch_key_signature():
         "D#", "E#", "F##", "G#", "A#", "B#", "D"
     ]
     for degree in {1, 2, 3, 4, 5, 6, 7}:
-        pitch << degree
         print(f"Key: {pitch % str()}")
         assert pitch == ds_major_scale[degree - 1]
+        pitch += 1  # Increases by 1 degree
 
 
     defaults << KeySignature()
@@ -420,15 +420,15 @@ def test_pitch_key_signature():
     defaults << Sharps(2)   # Changes to B minor (##) but remains the Tonic E
     E_minor_key << Degree(3)
     assert E_minor_key % str() == "G"
-    E_minor_key << Tonic("B")
+    E_minor_key << Tonic("B") << 1  # Starts by Degree 1 the Tonic
     E_minor_B_tonic_key: list = ["B", "C#", "D", "E", "F#", "G", "A"]   # Same as B minor
     # Sharp and Flat shall not be set by Degree
     print("------")
     for key_degree in range(1, 8):
         print(key_degree)
-        E_minor_key << Degree(key_degree)
         assert E_minor_key % str() == E_minor_B_tonic_key[(key_degree - 1) % 7]
         E_minor_key % Sharp() >> Print(0)
+        E_minor_key += 1    # Increases by 1 degree
 
     defaults << KeySignature()
 
@@ -446,10 +446,9 @@ def test_pitch_scales():
     defaults << Scale("Major")
     major_pitch: Pitch = Pitch()
     
-    for key_degree in range(1, 8):  # Excludes 8
-        major_pitch << Degree(key_degree)
-        print(major_pitch % str())
-        assert major_pitch % str() == major_scale_keys[key_degree - 1]
+    for degree_increase in range(7):  # Excludes 7
+        print((major_pitch + degree_increase) % str())
+        assert (major_pitch + degree_increase) % str() == major_scale_keys[degree_increase]
 
     print("------")
     minor_scale_keys: list[str] = [
@@ -458,10 +457,9 @@ def test_pitch_scales():
     defaults << Scale("minor")
     minor_pitch: Pitch = Pitch()
     
-    for key_degree in range(1, 8):  # Excludes 8
-        minor_pitch << Degree(key_degree)
-        print(minor_pitch % str())
-        assert minor_pitch % str() == minor_scale_keys[key_degree - 1]
+    for degree_increase in range(7):  # Excludes 7
+        print((minor_pitch + degree_increase) % str())
+        assert (minor_pitch + degree_increase) % str() == minor_scale_keys[degree_increase]
 
     defaults << Scale([])
 
@@ -554,8 +552,8 @@ def test_pitch_add():
     print("------")
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
-        (pitch_3 << Degree(degree + 1)) % str() >> Print()
-        assert pitch_3 << Degree(degree + 1) == keys[degree]
+        (pitch_3 + degree) % str() >> Print()
+        assert pitch_3 + degree == keys[degree]
 
 
     pitch_4: Pitch = Pitch(60.0)    # Middle C (60)
@@ -612,8 +610,8 @@ def test_pitch_add():
     print("------")
     white_pitches: list[float] = [60.0, 62.0, 64.0, 65.0, 67.0, 69.0, 71.0]
     for degree in range(7):
-        (pitch_4 << Degree(degree + 1)) % float() >> Print()
-        assert (pitch_4 << Degree(degree + 1)) % float() == white_pitches[degree]
+        (pitch_4 + degree) % float() >> Print()
+        assert (pitch_4 + degree) % float() == white_pitches[degree]
 
     print("------")
     pitch_5: Pitch = Pitch()

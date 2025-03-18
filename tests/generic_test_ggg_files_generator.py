@@ -130,10 +130,10 @@ chord + pitch_bend >> Save("json/testing/_Save_Play_p.10.3_first_note.json") >> 
 # Global Staff setting up
 defaults << Tempo(120) << Measures(7)
 
-(Chord() * 7 << Size("7th") << Scale([])) << Iterate()**Add(1)**Degree() \
+(Chord() * 7 << Size("7th") << Scale([])) + Iterate()**Degree() \
     >> Save("json/testing/_Save_Play_p.11_first_note.json") >> Export("json/testing/_Export_Play_p.11_sequence.json")
 defaults << Scale("minor")
-(Chord("A") << Octave(3) << Scale([])) * 7 << Iterate()**Add()**Degree() \
+(Chord("A") << Octave(3) << Scale([])) * 7 + Iterate()**Degree() \
     >> Save("json/testing/_Save_Play_p.12_first_note.json") >> Export("json/testing/_Export_Play_p.12_sequence.json") \
         << Inversion(1) >> Save("json/testing/_Save_Play_p.13_first_note.json") >> Export("json/testing/_Export_Play_p.13_sequence.json")
 

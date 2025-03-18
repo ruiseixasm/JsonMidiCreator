@@ -523,6 +523,9 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self += single_operand
+            case of.Frame():
+                for item in self._items:
+                    item += operand
             case _:
                 if self.len() > 0:
                     self_last_item: any = self[-1]
@@ -547,6 +550,9 @@ class Container(o.Operand):
                     while operand > 0 and len(self._items) > 0:
                         self._items.pop()
                         operand -= 1
+            case of.Frame():
+                for item in self._items:
+                    item -= operand
             case _:
                 return self._delete([ operand ])
         return self
@@ -578,6 +584,9 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self *= single_operand
+            case _:
+                for item in self._items:
+                    item *= operand
         return self
     
     def __itruediv__(self, operand: any) -> Self:
@@ -607,6 +616,9 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self /= single_operand
+            case _:
+                for item in self._items:
+                    item /= operand
         return self
 
 

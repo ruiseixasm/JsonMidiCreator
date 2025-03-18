@@ -51,7 +51,7 @@ def test_container_mod():
     for single_item in keys_container:
         assert single_item == "C"
     
-    keys_container << Iterate()**Add(1)**Degree()
+    keys_container += Iterate()**Degree()
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         keys_container[degree] % str() >> Print()
@@ -84,7 +84,7 @@ def test_clip_mod():
     for single_item in chords_clip:
         assert single_item == "C"
     
-    chords_clip << Iterate()**Add(1)**Degree()
+    chords_clip += Iterate()**Degree()
     keys: list = ["C", "D", "E", "F", "G", "A", "B"]
     for degree in range(7):
         chords_clip[degree] % str() >> Print()

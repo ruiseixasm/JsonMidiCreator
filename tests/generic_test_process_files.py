@@ -304,7 +304,7 @@ defaults << Tempo(120) << Measures(7)
 original_save       = Load("json/testing/_Save_Play_p.11_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.11_sequence.json")
 start_time = time.time()
-(Chord() * 7 << Size("7th") << Scale([])) << Iterate()**Add(1)**Degree() \
+(Chord() * 7 << Size("7th") << Scale([])) + Iterate()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
     "time_ms":  (time.time() - start_time) * 1000,
@@ -317,7 +317,7 @@ original_save       = Load("json/testing/_Save_Play_p.13_first_note.json")
 original_export     = Import("json/testing/_Export_Play_p.13_sequence.json")
 start_time = time.time()
 defaults << Scale("minor")
-(Chord("A") << Octave(3) << Scale([])) * 7 << Iterate()**Add()**Degree() \
+(Chord("A") << Octave(3) << Scale([])) * 7 + Iterate()**Degree() \
     >> od.LeftShift(result_save) >> od.LeftShift(result_export) \
     << Inversion(1) >> od.LeftShift(result_save) >> od.LeftShift(result_export)
 results_list.append({
