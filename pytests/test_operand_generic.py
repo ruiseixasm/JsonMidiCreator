@@ -511,6 +511,19 @@ def test_pitch_add():
 
     defaults << KeySignature() << Scale([])
 
+    default_pitch = Pitch()
+    assert default_pitch % Degree() == 1
+    assert default_pitch % Octave() == 4
+
+    default_pitch << Degree(8)
+    assert default_pitch % Degree() == 1
+    assert default_pitch % Octave() == 4
+
+    default_pitch += Degree(7)
+    assert default_pitch % Degree() == 1
+    assert default_pitch % Octave() == 5
+
+
     # Perform the operation
     pitch_b: Pitch = Pitch()    # 60.0
     assert pitch_b % float() == 60.0
