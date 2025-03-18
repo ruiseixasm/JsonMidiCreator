@@ -30,7 +30,7 @@ eight_notes[6] % Length() % Fraction() >> Print()
 # Processing Degrees
 chooser = Input(SinX() * 100)
 degrees = Choice(1, 3, 5, 6)
-pattern = UpDown([Semitone(0), Semitone(1), Semitone(1), Semitone(1), Semitone(1), Semitone(1), Semitone(1)])
+pattern = UpDown([0, 1, 1, 1, 1, 1, 1], Degree)
 
 for _ in range(80):
     eight_notes << chooser**degrees

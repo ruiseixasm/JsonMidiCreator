@@ -432,9 +432,8 @@ class Comparison(Selection):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case type():            self._parameter = operand
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
+            case _:
+                super().__lshift__(operand)
         return self
     
 class Matching(Comparison):
@@ -530,9 +529,8 @@ class Pattern(Comparison):
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():            self._pattern = operand
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
+            case _:
+                super().__lshift__(operand)
         return self
 
 class UpDown(Pattern):
