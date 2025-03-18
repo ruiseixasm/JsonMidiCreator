@@ -32,10 +32,10 @@ chooser = Input(SinX() * 100)
 degrees = Choice(1, 3, 5, 6, -1, -7)
 pattern = UpDown([0, 1, 1], Degree)
 
-for interaction in range(1000):
+for iteration in range(1000):
     eight_notes << chooser**degrees
     if eight_notes.filter(Nth(1, 2, 3)) == pattern:
-        print(f"Interaction: {interaction}.")
+        print(f"Iteration: {iteration}.")
         eight_notes >> P
         R() >> P
 

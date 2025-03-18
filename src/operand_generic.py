@@ -199,12 +199,18 @@ class Pitch(Generic):
     def get_key_int(self) -> int:
 
         staff_scale: list[int] = self._staff_reference % list()
+        total_keys: int = sum(1 for key in staff_scale if key != 0)
 
         degree_0: int   = 0
         if self._degree > 0:
             degree_0    = self._degree - 1
+            if self._degree > total_keys:
+                # print("Overflow Degrees!")
         elif self._degree < 0:
+            print("Negative Degree!")
             degree_0    = self._degree + 1
+
+        # degree_0 %= total_keys
 
         degree_transposition: int = 0
         while degree_0 > 0:
@@ -540,7 +546,7 @@ class Pitch(Generic):
                 else:
                     staff_scale: list[int] = self._staff_reference % list()
                     total_degrees: int = sum(1 for key in staff_scale if key != 0)
-                    self._degree = operand % total_degrees
+                    self._degree = (operand - 1) % total_degrees + 1
 
                     # self.set_degree(operand)
 
