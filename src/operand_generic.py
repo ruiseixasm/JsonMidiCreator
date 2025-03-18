@@ -204,7 +204,7 @@ class Pitch(Generic):
         degree_0: int   = 0
         if self._degree > 0:
             degree_0    = self._degree - 1
-            if self._degree > total_keys:
+            # if self._degree > total_keys:
                 # print("Overflow Degrees!")
         elif self._degree < 0:
             print("Negative Degree!")
