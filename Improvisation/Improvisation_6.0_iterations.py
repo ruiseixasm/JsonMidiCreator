@@ -21,6 +21,11 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
+device_list = defaults % Device() % list() >> Print()
+device_list.insert(0, "Blofeld")
+device_list >> Print()
+defaults << Device(device_list)
+
 defaults << Tempo(90)
 
 eight_notes = Note(Dotted(1/16)) * 7 << Nth(7)**Dotted(1/4) >> L
@@ -29,12 +34,12 @@ eight_notes[6] % Length() % Fraction() >> Print()
 
 # Processing Degrees
 chooser = Input(SinX() * 100)
-degrees = Choice(1, 3, 5, 6, -1, -7)
-pattern = UpDown([0, 1, 1], Degree)
+degrees = Choice(1, 3, 5, 6, -1, -7, (5, Octave(3)))
+pattern = UpDown([0, 1, 1, -1], Degree)
 
 for iteration in range(1000):
     eight_notes << chooser**degrees
-    if eight_notes.filter(Nth(1, 2, 3)) == pattern:
+    if eight_notes.filter(Nth(1, 2, 3, 4)) == pattern:
         print(f"Iteration: {iteration}.")
         eight_notes >> P
         R() >> P
