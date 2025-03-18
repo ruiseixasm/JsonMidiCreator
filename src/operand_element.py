@@ -1040,7 +1040,7 @@ class KeyScale(Note):
             total_degrees: int = sum(1 for key in staff_scale if key != 0)
             for degree_i in range(total_degrees):
                 new_note: Note = Note(self).set_staff_reference(self._staff_reference)
-                new_note._pitch._degree += degree_i # Jumps by degrees (scale tones)
+                new_note._pitch += degree_i # Jumps by degrees (scale tones)
                 scale_notes.append( new_note )
         return self._arpeggio.arpeggiate(scale_notes)
     
@@ -1289,14 +1289,14 @@ class Chord(KeyScale):
         else:   # Uses the staff keys straight away
             # modulated_scale: og.Scale = og.defaults % og.Scale(self._mode) # already modulated
             for note_i in range(self._size):          # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ...
-                key_step: int = note_i * 2
-                if key_step == 3:   # Third
+                key_degree: int = note_i * 2
+                if key_degree == 3:   # Third
                     if self._sus2:
-                        key_step -= 1
+                        key_degree -= 1
                     if self._sus4:
-                        key_step += 1   # cancels out if both sus2 and sus4 are set to true
+                        key_degree += 1   # cancels out if both sus2 and sus4 are set to true
                 new_note: Note = Note(self).set_staff_reference(self._staff_reference)
-                new_note._pitch._degree += key_step # Jumps by degrees (scale tones)
+                new_note._pitch += key_degree # Jumps by degrees (scale tones)
                 chord_notes.append( new_note )
 
         # Where the inversions are done
