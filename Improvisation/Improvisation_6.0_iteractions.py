@@ -29,12 +29,13 @@ eight_notes[6] % Length() % Fraction() >> Print()
 
 # Processing Degrees
 chooser = Input(SinX() * 100)
-degrees = Choice(1, 3, 5, 6)
-pattern = UpDown([0, 1, 1, 1, 1, 1, 1], Degree)
+degrees = Choice(1, 3, 5, 6, -1, -7)
+pattern = UpDown([0, 1, 1], Degree)
 
-for _ in range(80):
+for interaction in range(1000):
     eight_notes << chooser**degrees
-    if eight_notes == pattern:
+    if eight_notes.filter(Nth(1, 2, 3)) == pattern:
+        print(f"Interaction: {interaction}.")
         eight_notes >> P
         R() >> P
 
