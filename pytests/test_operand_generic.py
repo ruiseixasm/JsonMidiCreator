@@ -511,17 +511,29 @@ def test_pitch_add():
 
     defaults << KeySignature() << Scale([])
 
-    default_pitch = Pitch()
-    assert default_pitch % Degree() == 1
-    assert default_pitch % Octave() == 4
+    pitch_degree = Pitch()
+    assert pitch_degree % Degree() == 1
+    assert pitch_degree % Octave() == 4
 
-    default_pitch << Degree(8)
-    assert default_pitch % Degree() == 1
-    assert default_pitch % Octave() == 4
+    pitch_degree << Degree(8)
+    assert pitch_degree % Degree() == 1
+    assert pitch_degree % Octave() == 4
 
-    default_pitch += Degree(7)
-    assert default_pitch % Degree() == 1
-    assert default_pitch % Octave() == 5
+    pitch_degree += Degree(7)
+    assert pitch_degree % Degree() == 1
+    assert pitch_degree % Octave() == 5
+
+    pitch_integer = Pitch()
+    assert pitch_integer % int() == 1
+    assert pitch_integer % Octave() == 4
+
+    pitch_integer << 8
+    assert pitch_integer % int() == 1
+    assert pitch_integer % Octave() == 4
+
+    pitch_integer += 7
+    assert pitch_integer % int() == 1
+    assert pitch_integer % Octave() == 5
 
 
     # Perform the operation
