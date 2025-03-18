@@ -493,12 +493,12 @@ class Pattern(Comparison):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
-            if len(self._parameter) > 0:
+            if len(self._pattern) > 0:
                 masked_clip: oc.Clip = self.mask(other)
                 parameter_instantiation = self._parameter()
                 for element_index in range(masked_clip.len() - 1):
                     if masked_clip[element_index + 1] % parameter_instantiation - masked_clip[element_index] % parameter_instantiation \
-                        != self._pattern[element_index % len(self._parameter)]:
+                        != self._pattern[element_index % len(self._pattern)]:
                         return False
             return True
         return super().__eq__(other)
@@ -540,14 +540,14 @@ class UpDown(Pattern):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
-            if len(self._parameter) > 0:
+            if len(self._pattern) > 0:
                 masked_clip: oc.Clip = self.mask(other)
                 parameter_instantiation = self._parameter()
                 for element_index in range(masked_clip.len() - 1):
-                    if self._pattern[element_index % len(self._parameter)] > 0:
+                    if self._pattern[element_index % len(self._pattern)] > 0:
                         if not masked_clip[element_index + 1] % parameter_instantiation > masked_clip[element_index] % parameter_instantiation:
                             return False
-                    elif self._pattern[element_index % len(self._parameter)] < 0:
+                    elif self._pattern[element_index % len(self._pattern)] < 0:
                         if not masked_clip[element_index + 1] % parameter_instantiation < masked_clip[element_index] % parameter_instantiation:
                             return False
                     else:
