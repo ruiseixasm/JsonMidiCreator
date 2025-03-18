@@ -40,7 +40,8 @@ iterations = Iterations(1, 3, 6)
 
 for iteration in range(1000):
     eight_notes << chooser**degrees
-    if eight_notes.filter(Nth(1, 2, 3, 4)) == pattern:
+    first_notes = eight_notes >> Nth(1, 2, 3, 4)
+    if first_notes == pattern and first_notes == iterations:
         print(f"Iteration: {iteration}.")
         eight_notes >> P
         R() >> P

@@ -184,7 +184,7 @@ class IsNot(Selection):
 class Iterations(Selection):
 
     def __init__(self, *parameters):
-        self._iterations: tuple = tuple(1)
+        self._iterations: tuple = tuple([1, 3, 5])
         super().__init__(*parameters)
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -199,9 +199,9 @@ class Iterations(Selection):
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
-            if len(self._pattern) > 0:
+            if len(self._iterations) > 0:
                 self._index += 1
-                if self._index in self._pattern:
+                if self._index in self._iterations:
                     return True
             return False
         return super().__eq__(other)
@@ -218,7 +218,7 @@ class Iterations(Selection):
             "iterations" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._iterations = self.deserialize(serialization["parameters"]["iterations"])
+            self._iterations = tuple(self.deserialize(serialization["parameters"]["iterations"]))
         return self
         
     def __lshift__(self, operand: any) -> Self:
