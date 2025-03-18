@@ -207,10 +207,6 @@ class Pitch(Generic):
             degree_transposition += 1
             if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
                 degree_0 -= 1
-        while degree_0 < 0:
-            degree_transposition -= 1
-            if staff_scale[ degree_transposition % 12 ] == 1:  # Scale key
-                degree_0 += 1
 
         key_int: int = self._tonic_key % 12 + degree_transposition
 
