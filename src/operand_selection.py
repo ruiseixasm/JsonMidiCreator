@@ -181,6 +181,62 @@ class IsNot(Selection):
                     self << single_operand
         return self
 
+class Iterations(Selection):
+
+    def __init__(self, *parameters):
+        self._iterations: tuple = tuple(1)
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case tuple():           return self._iterations
+                    case _:                 return super().__mod__(operand)
+            case tuple():           return self.deep_copy(self._iterations)
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: any) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        if isinstance(other, oc.Clip):
+            if len(self._pattern) > 0:
+                self._index += 1
+                if self._index in self._pattern:
+                    return True
+            return False
+        return super().__eq__(other)
+
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["iterations"] = self.serialize(self._iterations)
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "iterations" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._iterations = self.deserialize(serialization["parameters"]["iterations"])
+        return self
+        
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Iterations():
+                super().__lshift__(operand)
+                self._iterations     = self.deep_copy(operand._iterations)
+            case od.DataSource():
+                match operand._data:
+                    case tuple():           self._iterations = operand._data
+                    case _:                 super().__lshift__(operand)
+            case tuple():
+                self._iterations = self.deep_copy(operand)
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 from typing import Dict, Iterable
 
@@ -534,7 +590,7 @@ class Pattern(Comparison):
         return self
 
 class UpDown(Pattern):
-    
+
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists
         if isinstance(other, oc.Clip):
@@ -553,6 +609,7 @@ class UpDown(Pattern):
                             return False
             return True
         return super().__eq__(other)
+
 
 
 class Threshold(Selection):
