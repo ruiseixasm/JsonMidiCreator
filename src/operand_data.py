@@ -368,9 +368,11 @@ class Serialization(Data):
 
 class Playlist(Data):
     def __init__(self, *parameters):
+        import operand_generic as og
         super().__init__([])
         self._midi_track: ou.MidiTrack = ou.MidiTrack("Playlist 1")
         self._position_beats: Fraction = Fraction(0)
+        self._staff: og.Staff = og.defaults._staff.copy()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -387,6 +389,7 @@ class Playlist(Data):
         <operand_data.Playlist object at 0x0000022EC9967490>
         """
         import operand_rational as ra
+        import operand_generic as og
         match operand:
             case DataSource():
                 match operand._data:
@@ -421,6 +424,7 @@ class Playlist(Data):
         import operand_container as oc
         import operand_element as oe
         import operand_rational as ra
+        import operand_generic as og
         match operand:
             case Playlist():
                 self._data          = self.shallow_playlist_copy(operand._data)
