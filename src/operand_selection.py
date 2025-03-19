@@ -48,8 +48,6 @@ class Selection(o.Operand):
     first : any_like
         Any type of parameter can be used to set Selection.
     """
-    def __init__(self, *parameters):
-        super().__init__(*parameters)
     
     def select(self, clip: oc.Clip) -> oc.Clip:
         if self != clip:
@@ -61,37 +59,6 @@ class Selection(o.Operand):
         if isinstance(clip, oc.Clip):
             return self.select(clip)
         return clip
-
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case self.__class__():
-                return self.copy()
-            case _:
-                return super().__mod__(operand)
-
-    def __eq__(self, other: any) -> bool:
-        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
-        if other.__class__ == o.Operand:
-            return True
-        if isinstance(other, od.Conditional):
-            return other == self
-        return False
-    
-    # CHAINABLE OPERATIONS
-
-    def __lshift__(self, operand: any) -> Self:
-        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
-        match operand:
-            case Selection():
-                super().__lshift__(operand)
-            case od.Serialization():
-                self.loadSerialization( operand.getSerialization() )
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-            case _:
-                super().__lshift__(operand)
-        return self
 
 
 class IsNot(Selection):
