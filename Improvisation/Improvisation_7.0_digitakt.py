@@ -70,7 +70,9 @@ complete_part << full_ptn
 
 second_part = complete_part + Position(4)
 
-complete_part >> second_part >> P
+complete_part >>= second_part
+
+complete_part >> P
 
 
 

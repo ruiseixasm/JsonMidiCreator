@@ -751,8 +751,9 @@ class Clip(Container):  # Just a container of Elements
             case ra.Duration():     return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
                 | float() | Fraction():
-                                    return self._staff % operand
-            case _:                 return super().__mod__(operand)
+                return self._staff % operand
+            case _:
+                return super().__mod__(operand)
 
     #######################################################################
     # Conversion (Simple, One-way) | Only destination Staff is considered #
@@ -1150,17 +1151,12 @@ class Clip(Container):  # Just a container of Elements
             case oe.Element():
                 return self._delete([ operand ])
             case list():
-                operand_elements = [
-                    single_element for single_element in operand if isinstance(single_element, oe.Element)
-                ]
-                return self._delete(operand_elements)
-            
+                return self._delete(operand)
             case od.ClipParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats -= self._staff.convertToBeats(operand._data)._rational
-
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
@@ -1744,7 +1740,7 @@ class Part(Container):
     def _sort_position(self) -> Self:
         if self is not self._upper_container:
             self._upper_container._sort_position()
-        self._items.sort(key=lambda x: x % ra.Position() // Fraction())
+        self._items.sort(key=lambda x: x % ra.Position())
         return self
 
 
@@ -1817,6 +1813,7 @@ class Part(Container):
                 super().__lshift__(operand)
             case Clip():
                 self._items.append( operand.copy() )
+                self._sort_position()
             case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
                 if isinstance(self._staff, og.Staff):
                     self._staff << operand
@@ -1828,7 +1825,7 @@ class Part(Container):
                 self._items = [
                     self.deep_copy(item) for item in operand if isinstance(item, (Clip, od.Playlist))
                 ]
-                
+                self._sort_position()
             case od.PartParameter():
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
@@ -1849,21 +1846,23 @@ class Part(Container):
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case Part():
-                wrapper_song: Part = Part()
-                wrapper_song._items = [
+                new_part: Part = Part()
+                new_part._items = [
                     data_clip for data_clip in operand._items
                 ]
-                wrapper_song._items.extend(
+                new_part._items.extend(
                     data_clip for data_clip in self._items
                 )
-                return wrapper_song
+                new_part._sort_position()
+                return new_part
             case Clip():
-                wrapper_song: Part = Part()
-                wrapper_song._items = [ operand ]
-                wrapper_song._items.extend(
+                new_part: Part = Part()
+                new_part._items = [ operand ]
+                new_part._items.extend(
                     data_clip for data_clip in self._items
                 )
-                return wrapper_song
+                new_part._sort_position()
+                return new_part
             case tuple():
                 for single_operand in operand:
                     self.__rrshift__(single_operand)
@@ -1878,11 +1877,15 @@ class Part(Container):
         match operand:
             case Part():
                 self._items.extend(
-                    data_clip.copy() for data_clip in operand._items
+                    single_clip.copy() for single_clip in operand._items
                 )
+                self._sort_position()
             case Clip():
                 self._items.append( operand.copy() )
-
+                self._sort_position()
+            case list():
+                self._items.append( self.deep_copy(operand) )
+                self._sort_position()
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -1893,15 +1896,12 @@ class Part(Container):
 
     def __isub__(self, operand: any) -> Self:
         match operand:
-            case Part():
-                self._items = [
-                    single_clip for single_clip in self._items if single_clip not in operand._items
-                ]
             case Clip():
-                self._items = [
-                    single_clip for single_clip in self._items if single_clip != operand
-                ]
-                
+                return self._delete(operand)
+            case Part():
+                return self._delete(operand._items)
+            case list():
+                return self._delete(operand)
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
