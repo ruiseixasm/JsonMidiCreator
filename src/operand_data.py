@@ -367,6 +367,7 @@ class Serialization(Data):
         return self._data / operand
 
 if TYPE_CHECKING:
+    from operand_rational import Position
     from operand_generic import Staff
 
 class Playlist(Data):
