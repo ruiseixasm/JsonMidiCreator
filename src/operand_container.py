@@ -1130,7 +1130,7 @@ class Clip(Container):  # Just a container of Elements
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats += self._staff.convertToBeats(operand)._rational
+                        self._position_beats += self._staff.convertToBeats(operand._data)._rational
 
             case tuple():
                 for single_operand in operand:
@@ -1159,7 +1159,7 @@ class Clip(Container):  # Just a container of Elements
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats -= self._staff.convertToBeats(operand)._rational
+                        self._position_beats -= self._staff.convertToBeats(operand._data)._rational
 
             case tuple():
                 for single_operand in operand:
@@ -1234,7 +1234,7 @@ class Clip(Container):  # Just a container of Elements
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats *= self._staff.convertToBeats(operand)._rational
+                        self._position_beats *= self._staff.convertToBeats(operand._data)._rational
             case os.Selection():
                 if operand != self:
                     self._items = []
@@ -1302,7 +1302,7 @@ class Clip(Container):  # Just a container of Elements
                 operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats /= self._staff.convertToBeats(operand)._rational
+                        self._position_beats /= self._staff.convertToBeats(operand._data)._rational
 
             # Returns an altered Clip with less info (truncated info)
             case od.Getter() | od.Process():
