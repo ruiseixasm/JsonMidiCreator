@@ -436,6 +436,17 @@ class Playlist(Data):
         return super().__eq__(other)
     
     def getPlaylist(self, position = None, staff = None) -> list:
+        import operand_rational as ra
+        if len(self._data) > 0:
+            self_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._position_beats))
+            # Position generates a dummy list with the position as ms
+            operand_playlist_list: list[dict] = self_position.getPlaylist()
+            offset_position_ms: float = operand_playlist_list[0]["time_ms"]
+            self_playlist_list_copy: list[dict] = self.deep_copy( self._data )
+            for self_dict in self_playlist_list_copy:
+                if "time_ms" in self_dict:
+                    self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
+            return self_playlist_list_copy
         return self.shallow_playlist_copy(self._data)
 
     # CHAINABLE OPERATIONS
