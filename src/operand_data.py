@@ -193,9 +193,6 @@ class DataSource(Data):
         return self
 
 
-class Mask(Data):
-    pass
-
 class Conditional(Data):
     def __init__(self, *parameters):
         super().__init__(parameters)
