@@ -1068,6 +1068,7 @@ class Clip(Container):  # Just a container of Elements
         import operand_mutation as om
         match operand:
             case Part():
+                # NEEDS TO BE REVIEWED
                 wrapper_part: Part = Part()
                 wrapper_part._items = [
                     data_clip for data_clip in operand._items
@@ -1100,11 +1101,11 @@ class Clip(Container):  # Just a container of Elements
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
-                # Song at the right must be a copy
+                # Part at the right must be a copy
                 new_song: Part = operand.copy()
-                # Inserts self content at the beginning of the Song
+                # Inserts self content at the beginning of the Part
                 new_song._items.insert(0, self)
-                return new_song # Operand Song replaces self Clip
+                return new_song # Operand Part replaces self Clip
             case Clip():
                 operand_elements = [
                     single_element.copy().set_staff_reference(self._staff) for single_element in operand._items
@@ -1147,7 +1148,7 @@ class Clip(Container):  # Just a container of Elements
             case Clip():
                 return self._delete(operand._items)
             case Part():
-                operand -= self # Order is irrelevant in Song
+                operand -= self # Order is irrelevant in Part
                 return operand
             case oe.Element():
                 return self._delete([ operand ])
