@@ -45,24 +45,24 @@ kick_ptn = Note(kick) * 3
 kick_ptn /= Duration(2)
 snare_ptn = Note(snare) * 1
 
-full_ptn = kick_ptn + snare_ptn << Duration(1/16)
+full_clip = kick_ptn + snare_ptn << Duration(1/16)
 
-# full_ptn * 4 >> P
+# full_clip * 4 >> P
 R() >> P
 
 closed_hat_ptn = Note(closed_hat, 1/16) * 16
 
-full_ptn += closed_hat_ptn
+full_clip += closed_hat_ptn
 
-# full_ptn * 4 >> P
+# full_clip * 4 >> P
 
 # Extend pattern by 16 measures
-full_ptn *= 4
-complete_part = Part(full_ptn)
+full_clip *= 4
+complete_part = Part(full_clip)
 
 cymbal_ptn = Note(cymbal, 1/1) * 1
-cymbal_first = cymbal_ptn + CPar(Position(2.0))
-cymbal_second = cymbal_ptn + CPar(Position(6.0))
+cymbal_first = cymbal_ptn + CPar(Position(1.0))
+cymbal_second = cymbal_ptn + CPar(Position(3.0))
 
 complete_part << cymbal_first
 complete_part << cymbal_second
