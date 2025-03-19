@@ -414,10 +414,12 @@ class Playlist(Data):
                     case ou.MidiTrack():    return self._midi_track
                     case list():            return self._data
                     case ra.Position():     return operand._data << DataSource( self._position_beats )
+                    case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
             case list():            return self.shallow_playlist_copy(self._data)
             case ra.Position():     return operand.copy() << DataSource( self._position_beats )
+            case og.Staff():        return self._staff.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -447,6 +449,7 @@ class Playlist(Data):
             case Playlist():
                 self._data          = self.shallow_playlist_copy(operand._data)
                 self._midi_track    << operand._midi_track
+                self.set_staff_reference(operand._staff)
             case DataSource():
                 match operand._data:
                     case ou.MidiTrack():
@@ -455,6 +458,8 @@ class Playlist(Data):
                         self._data = operand._data
                     case ra.Position():
                         self._position_beats = operand._data._rational
+                    case og.Staff():
+                        self._staff = operand._data
                     case _:
                         super().__lshift__(operand)
             case oc.Part() | oc.Clip() | oe.Element() | Playlist():
@@ -468,7 +473,16 @@ class Playlist(Data):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
+            case _:
+                self._staff << operand
         return self
+    
+    def start(self) -> float:
+        return 0.0
+
+    def finish(self) -> float:
+        return 0.0
+
 
     def __rrshift__(self, operand: any) -> Self:
         import operand_rational as ra
