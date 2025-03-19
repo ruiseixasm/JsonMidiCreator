@@ -31,7 +31,7 @@ b_minor_scale = KeyScale(Scale("Dorian"), "D")
 b_minor_scale >> P
 R() >> P
 
-seven_keys = Note(1/1) * 7 << Position(0) << Iterate()
+seven_keys = Note(1/1) / 7 << Iterate()
 seven_keys >> P
 R() >> P
 
