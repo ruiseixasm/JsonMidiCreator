@@ -445,9 +445,9 @@ class Container(o.Operand):
                 offset += 1
         return self._sort_position()
 
-    def filter(self, mask: any, shallow_copy: bool = True) -> Self:
+    def filter(self, condition: any, shallow_copy: bool = True) -> Self:
         """
-        Filters out all items that don't met the mask (equal to).
+        Filters out all items that don't met the condition (equal to).
 
         Args:
             parameter (any): The object to be compared with (==).
@@ -457,9 +457,9 @@ class Container(o.Operand):
         """
         if shallow_copy:
             shallow_copy: Container = self.shallow_copy()
-            shallow_copy._items = [item for item in self._items if item == mask]
+            shallow_copy._items = [item for item in self._items if item == condition]
             return shallow_copy
-        self._items = [item for item in self._items if item == mask]
+        self._items = [item for item in self._items if item == condition]
         return self
     
     def operate(self, operand: any = None, operator: str = "<<") -> Self:
