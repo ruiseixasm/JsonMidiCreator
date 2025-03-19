@@ -370,6 +370,7 @@ class Playlist(Data):
     def __init__(self, *parameters):
         super().__init__([])
         self._midi_track: ou.MidiTrack = ou.MidiTrack("Playlist 1")
+        self._position_beats: Fraction = Fraction(0)
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
 
@@ -385,14 +386,17 @@ class Playlist(Data):
         >>> play_list >> Play()
         <operand_data.Playlist object at 0x0000022EC9967490>
         """
+        import operand_rational as ra
         match operand:
             case DataSource():
                 match operand._data:
                     case ou.MidiTrack():    return self._midi_track
                     case list():            return self._data
+                    case ra.Position():     return operand._data << DataSource( self._position_beats )
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
             case list():            return self.shallow_playlist_copy(self._data)
+            case ra.Position():     return operand.copy() << DataSource( self._position_beats )
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -416,6 +420,7 @@ class Playlist(Data):
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
         import operand_element as oe
+        import operand_rational as ra
         match operand:
             case Playlist():
                 self._data          = self.shallow_playlist_copy(operand._data)
@@ -426,6 +431,8 @@ class Playlist(Data):
                         self._midi_track = operand._data
                     case list():
                         self._data = operand._data
+                    case ra.Position():
+                        self._position_beats = operand._data._rational
                     case _:
                         super().__lshift__(operand)
             case oc.Part() | oc.Clip() | oe.Element() | Playlist():
@@ -434,6 +441,8 @@ class Playlist(Data):
                 self._midi_track    << operand
             case list():
                 self._data = self.shallow_playlist_copy(operand)
+            case ra.Position():
+                self._position_beats = operand._rational
             case tuple():
                 for single_operand in operand:
                     self << single_operand
