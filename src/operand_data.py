@@ -366,6 +366,9 @@ class Serialization(Data):
     def __truediv__(self, operand: any) -> 'o.Operand':
         return self._data / operand
 
+if TYPE_CHECKING:
+    from operand_generic import Staff
+
 class Playlist(Data):
     def __init__(self, *parameters):
         import operand_generic as og
@@ -375,6 +378,21 @@ class Playlist(Data):
         self._staff: og.Staff = og.defaults._staff.copy()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
+
+    def set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
+        import operand_generic as og
+        if isinstance(staff_reference, og.Staff):
+            self._staff << staff_reference
+        return self
+
+    def get_staff_reference(self) -> 'Staff':
+        return self._staff
+
+    def reset_staff_reference(self) -> Self:
+        import operand_generic as og
+        self._staff = og.defaults._staff.copy()
+        return self
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """
