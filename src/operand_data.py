@@ -478,9 +478,21 @@ class Playlist(Data):
         return self
     
     def start(self) -> float:
+        if len(self._data) > 0:
+            self_start_position_ms: float = self._data[0]["time_ms"]
+            for self_dict in self._data:
+                if "time_ms" in self_dict and self_dict["time_ms"] < self_start_position_ms:
+                    self_start_position_ms = self_dict["time_ms"]
+            return self_start_position_ms
         return 0.0
 
     def finish(self) -> float:
+        if len(self._data) > 0:
+            self_finish_position_ms: float = self._data[0]["time_ms"]
+            for self_dict in self._data:
+                if "time_ms" in self_dict and self_dict["time_ms"] > self_finish_position_ms:
+                    self_finish_position_ms = self_dict["time_ms"]
+            return self_finish_position_ms
         return 0.0
 
 
@@ -499,10 +511,7 @@ class Playlist(Data):
                             ending_position_ms = operand_dict["time_ms"]
                     # Where self_copy _data list is manipulated (pushed forward)
                     increase_position_ms: float = ending_position_ms
-                    starting_position_ms = self_copy._data[0]["time_ms"]
-                    for self_copy_dict in self_copy._data:
-                        if "time_ms" in self_copy_dict and self_copy_dict["time_ms"] < starting_position_ms:
-                            starting_position_ms = self_copy_dict["time_ms"]
+                    starting_position_ms: float = self.start()
                     increase_position_ms = ending_position_ms - starting_position_ms
                     for self_copy_dict in self_copy._data:
                         if "time_ms" in self_copy_dict:
