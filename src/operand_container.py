@@ -1886,7 +1886,7 @@ class Part(Container):
                     self += single_operand
             case _:
                 for item in self._items: 
-                    item += operand
+                    item += od.ClipParameter(operand)
         return self
 
     def __isub__(self, operand: any) -> Self:
@@ -1902,7 +1902,7 @@ class Part(Container):
                     self -= single_operand
             case _:
                 for item in self._items: 
-                    item -= operand
+                    item -= od.ClipParameter(operand)
         return self
 
     def __imul__(self, operand: any) -> Self:
@@ -1913,7 +1913,7 @@ class Part(Container):
                     self *= single_operand
             case _:
                 for item in self._items: 
-                    item *= operand
+                    item *= od.ClipParameter(operand)
         return self
 
     def __itruediv__(self, operand: any) -> Self:
@@ -1923,6 +1923,6 @@ class Part(Container):
                     self /= single_operand
             case _:
                 for item in self._items: 
-                    item /= operand
+                    item /= od.ClipParameter(operand)
         return self
 
