@@ -517,9 +517,10 @@ class Playlist(Data):
                 return self.copy()
 
             case ra.Position():
-                operand_play_list: list[dict] = operand.getPlaylist()
-                new_start_position_ms: float = operand_play_list[0]["time_ms"]
                 if len(self._data) > 0:
+                    # Position generates a dummy list with the position as ms
+                    operand_playlist_list: list[dict] = operand.getPlaylist()
+                    new_start_position_ms: float = operand_playlist_list[0]["time_ms"]
                     self_start_position_ms: float = self.start()
                     offset_position_ms: float = new_start_position_ms - self_start_position_ms
                     for self_dict in self._data:
@@ -528,8 +529,9 @@ class Playlist(Data):
                 return self
 
             case ra.Length():
-                operand_play_list: list[dict] = operand.getPlaylist()
-                offset_position_ms: float = operand_play_list[0]["time_ms"]
+                # Length generates a dummy list with the position as ms
+                operand_playlist_list: list[dict] = operand.getPlaylist()
+                offset_position_ms: float = operand_playlist_list[0]["time_ms"]
                 for self_dict in self._data:
                     if "time_ms" in self_dict:
                         self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
