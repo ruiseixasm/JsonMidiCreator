@@ -743,10 +743,10 @@ class Clip(Container):  # Just a container of Elements
             case ou.TrackNumber() | od.TrackName() | str():
                 return self._midi_track % operand
             case ra.Position():
-                return operand.copy() << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
                 if self._length_beats >= 0:
-                    return operand.copy() << self._staff.convertToLength(ra.Beats(self._length_beats))
+                    return self._staff.convertToLength(ra.Beats(self._length_beats))
                 return self.length()
             case ra.Duration():     return self.duration()
             case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
