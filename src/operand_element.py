@@ -442,8 +442,23 @@ class Element(o.Operand):
         import operand_container as oc
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:  # Allows Frame skipping to be applied to the elements' parameters!
-            case Element() | oc.Clip():
-                return self * operand
+            case Element():
+                return self + operand
+            case oc.Clip():
+                self_clip: oc.Clip = operand.copy()
+                self.set_staff_reference(self_clip._staff)
+                if self_clip.len() > 0:
+                    self_clip._insert([ self ], self_clip[0])
+                else:
+                    self_clip._insert([ self ])
+                return self_clip
+            case int():
+                new_clip: oc.Clip = oc.Clip(self._staff_reference)
+                if operand > 0:
+                    new_clip._items.append( self )
+                    for _ in range(operand - 1):
+                        new_clip._items.append( self.copy() )
+                return new_clip.set_staff_reference()
             case _:
                 if operand != 0:
                     self_operand: any = self % operand
