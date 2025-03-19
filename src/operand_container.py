@@ -1814,8 +1814,7 @@ class Part(Container):
             case Part():
                 super().__lshift__(operand)
             case Clip():
-                self._items.append( operand.copy() )
-                self._sort_position()
+                self._append([ operand.copy() ])._sort_position()
             case None:
                 self._staff = None
             case od.Serialization():
