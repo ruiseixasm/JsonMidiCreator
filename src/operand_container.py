@@ -1841,7 +1841,7 @@ class Part(Container):
                     self << single_operand
             case _:
                 for item in self._items: 
-                    item << operand
+                    item << od.ClipParameter(operand)
         return self
 
     # operand is the pusher >> (NO COPIES!) (PASSTHROUGH)
