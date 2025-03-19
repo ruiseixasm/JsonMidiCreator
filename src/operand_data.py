@@ -414,12 +414,12 @@ class Playlist(Data):
                 match operand._data:
                     case ou.MidiTrack():    return self._midi_track
                     case list():            return self._data
-                    case ra.Position():     return operand._data << DataSource( self._position_beats )
+                    case ra.Position():     return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
             case list():            return self.shallow_playlist_copy(self._data)
-            case ra.Position():     return operand.copy() << DataSource( self._position_beats )
+            case ra.Position():     return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case og.Staff():        return self._staff.copy()
             case _:                 return super().__mod__(operand)
 
