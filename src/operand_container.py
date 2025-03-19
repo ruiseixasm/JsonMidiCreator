@@ -1816,9 +1816,6 @@ class Part(Container):
             case Clip():
                 self._items.append( operand.copy() )
                 self._sort_position()
-            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
-                if isinstance(self._staff, og.Staff):
-                    self._staff << operand
             case None:
                 self._staff = None
             case od.Serialization():
@@ -1848,23 +1845,9 @@ class Part(Container):
     def __rrshift__(self, operand: o.T) -> o.T:
         match operand:
             case Part():
-                new_part: Part = Part()
-                new_part._items = [
-                    data_clip for data_clip in operand._items
-                ]
-                new_part._items.extend(
-                    data_clip for data_clip in self._items
-                )
-                new_part._sort_position()
-                return new_part
+                return self._insert(operand._items)._sort_position()
             case Clip():
-                new_part: Part = Part()
-                new_part._items = [ operand ]
-                new_part._items.extend(
-                    data_clip for data_clip in self._items
-                )
-                new_part._sort_position()
-                return new_part
+                return self._insert([ operand ])._sort_position()
             case tuple():
                 for single_operand in operand:
                     self.__rrshift__(single_operand)
