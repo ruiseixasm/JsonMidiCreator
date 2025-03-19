@@ -1027,6 +1027,8 @@ class Clip(Container):  # Just a container of Elements
                         self._midi_track << operand._data
                     case None:
                         self._length_beats = Fraction(-1)
+                    case Clip():
+                        self._staff << operand._data._staff
                     case _:
                         self._staff << operand._data
 
