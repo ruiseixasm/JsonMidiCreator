@@ -1876,16 +1876,11 @@ class Part(Container):
     def __iadd__(self, operand: any) -> Self:
         match operand:
             case Part():
-                self._items.extend(
-                    single_clip.copy() for single_clip in operand._items
-                )
-                self._sort_position()
+                self._append(self.deep_copy(operand._items))._sort_position()
             case Clip():
-                self._items.append( operand.copy() )
-                self._sort_position()
+                self._append([ operand.copy() ])._sort_position()
             case list():
-                self._items.append( self.deep_copy(operand) )
-                self._sort_position()
+                self._append(self.deep_copy(operand))._sort_position()
             case tuple():
                 for single_operand in operand:
                     self += single_operand
