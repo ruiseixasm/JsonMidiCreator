@@ -57,7 +57,7 @@ full_ptn += closed_hat_ptn
 # full_ptn * 4 >> P
 
 # Extend pattern by 16 measures
-full_ptn *= 16
+full_ptn *= 4
 
 cymbal_ptn = Note(cymbal, 1/1) * 1
 cymbal_first = cymbal_ptn + CPar(Position(2.0))
@@ -65,5 +65,12 @@ cymbal_second = cymbal_ptn + CPar(Position(6.0))
 complete_part = Part()
 complete_part << cymbal_first
 complete_part << cymbal_second
+complete_part << full_ptn
 
-complete_part >> P
+
+second_part = complete_part + Position(4)
+
+complete_part >> second_part >> P
+
+
+
