@@ -1074,10 +1074,9 @@ class Clip(Container):  # Just a container of Elements
                 ]
                 wrapper_part._items.append( self )
                 return wrapper_part
+                # return operand._insert([ self ])._sort_position()
             case Clip():
-                wrapper_part: Part = Part()
-                wrapper_part._items = [ operand, self ]
-                return wrapper_part
+                return Part([ operand, self ])._sort_position()
             case oe.Element():
                 # Give space to Element
                 add_position: ra.Position = \
