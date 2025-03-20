@@ -1737,8 +1737,12 @@ class Part(Container):
     def __getitem__(self, key: str | int) -> Clip | od.Playlist:
         if isinstance(key, str):
             for single_item in self._items:
-                if single_item._midi_track._name == key:
-                    return single_item
+                if isinstance(single_item, Clip):
+                    if single_item._midi_track._name == key:
+                        return single_item
+                else:
+                    if single_item._track_name._data == key:
+                        return single_item
             return ol.Null()
         return self._items[key]
 
