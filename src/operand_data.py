@@ -193,6 +193,17 @@ class DataSource(Data):
         return self
 
 
+class Next(Data):
+    def __init__(self, data = None):
+        super().__init__()
+        self._data = data
+
+class Previous(Data):
+    def __init__(self, data = None):
+        super().__init__()
+        self._data = data
+
+
 class Conditional(Data):
     def __init__(self, *parameters):
         super().__init__(parameters)

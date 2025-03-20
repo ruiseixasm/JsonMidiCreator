@@ -154,17 +154,17 @@ class Container(o.Operand):
                 ]
             case int():
                 return self.len()
-            case ou.Next():
+            case od.Next():
                 self._index += operand % int() - 1
                 item: any = self._items[self._index % len(self._items)]
                 self._index += 1
                 self._index %= len(self._items)
-                return item
-            case ou.Previous():
+                return od.Next(item)
+            case od.Previous():
                 self._index -= operand % int()
                 self._index %= len(self._items)
                 item: any = self._items[self._index]
-                return item
+                return od.Previous(item)
             case _:
                 return super().__mod__(operand)
 

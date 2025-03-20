@@ -228,14 +228,6 @@ class Unit(o.Operand):
                     self._unit = int( self._unit / number._rational )
         return self
 
-class Next(Unit):
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
-class Previous(Unit):
-    def __init__(self, *parameters):
-        super().__init__(1, *parameters)
-
 class Total(Unit):
     pass
 

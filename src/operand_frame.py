@@ -480,7 +480,8 @@ class Transition(Left):
             input = self._multi_data['operand'][self._index]
             if not self._multi_data['last_subject'] == input:
                 if isinstance(input, (oc.Container, ch.Chaos)):
-                    input %= ou.Next()    # Iterates to next subject
+                    next_data = input % od.Next()
+                    input = next_data._data # Iterates to next subject
                 self._index += self._multi_data['step']
                 self._index %= len(self._multi_data['operand'])
                 self._multi_data['last_subject'] = input
@@ -609,8 +610,8 @@ class Equal(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
-            if isinstance(condition, ou.Previous):
-                previous_i: int = condition % int()
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition % int() % od.DataSource()
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -635,8 +636,8 @@ class NotEqual(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
-            if isinstance(condition, ou.Previous):
-                previous_i: int = condition % int()
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition % int() % od.DataSource()
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -661,8 +662,8 @@ class Greater(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
-            if isinstance(condition, ou.Previous):
-                previous_i: int = condition % int()
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition % int() % od.DataSource()
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -687,8 +688,8 @@ class Less(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
-            if isinstance(condition, ou.Previous):
-                previous_i: int = condition % int()
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition % int() % od.DataSource()
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -713,8 +714,8 @@ class GreaterEqual(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
-            if isinstance(condition, ou.Previous):
-                previous_i: int = condition % int()
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition % int() % od.DataSource()
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -739,8 +740,8 @@ class LessEqual(Selector):
     def __and__(self, input: o.Operand) -> o.Operand:
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
-            if isinstance(condition, ou.Previous):
-                previous_i: int = condition % int()
+            if isinstance(condition, od.Previous):
+                previous_i: int = condition % int() % od.DataSource()
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
