@@ -459,7 +459,7 @@ class Descending(Comparison):
             return True
         return super().__eq__(other)
 
-class Pattern(Comparison):
+class Sequence(Comparison):
     def __init__(self, *parameters):
         self._pattern: list = []
         super().__init__(*parameters)
@@ -503,7 +503,7 @@ class Pattern(Comparison):
     def __lshift__(self, operand: any) -> Self:
         operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
         match operand:
-            case Pattern():
+            case Sequence():
                 super().__lshift__(operand)
                 self._pattern = operand._pattern
             case od.DataSource():
@@ -516,7 +516,7 @@ class Pattern(Comparison):
                 super().__lshift__(operand)
         return self
 
-class UpDown(Pattern):
+class UpDown(Sequence):
 
     def __eq__(self, other: any) -> bool:
         other = self & other    # Processes the tailed self operands or the Frame operand if any exists

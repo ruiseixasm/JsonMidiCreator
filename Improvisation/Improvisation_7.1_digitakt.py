@@ -46,10 +46,10 @@ kick_clip /= Duration(2)
 snare_clip = Note(snare) * 1 << TrackName("Snare")
 closed_hat_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")
 
-# Extend pattern by 16 measures 4 times
+# Extend pattern by 4 measures, each clip is 1 measure long
 complete_part = Part(kick_clip, snare_clip, closed_hat_clip) * 4
 
-cymbal_ptn = Note(cymbal, 1/1) * 1
+cymbal_ptn = Note(cymbal, 1/2) * 1
 cymbal_first = cymbal_ptn + CPar(Position(1.0))
 cymbal_second = cymbal_ptn + CPar(Position(3.0))
 cymbal_clip = cymbal_first + cymbal_second << TrackName("Cymbal")
@@ -63,5 +63,7 @@ complete_part >>= repeated_part
 
 complete_part >> P
 
+R() >> P
+complete_part["Kick"] >> P
 
 
