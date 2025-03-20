@@ -611,7 +611,7 @@ class Equal(Selector):
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
-                previous_i: int = condition % int() % od.DataSource()
+                previous_i: int = condition._data
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -637,7 +637,7 @@ class NotEqual(Selector):
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
-                previous_i: int = condition % int() % od.DataSource()
+                previous_i: int = condition._data
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -663,7 +663,7 @@ class Greater(Selector):
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
-                previous_i: int = condition % int() % od.DataSource()
+                previous_i: int = condition._data
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -689,7 +689,7 @@ class Less(Selector):
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
-                previous_i: int = condition % int() % od.DataSource()
+                previous_i: int = condition._data
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -715,7 +715,7 @@ class GreaterEqual(Selector):
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
-                previous_i: int = condition % int() % od.DataSource()
+                previous_i: int = condition._data
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
@@ -741,7 +741,7 @@ class LessEqual(Selector):
         self._multi_data['previous'].insert(0, input)
         for condition in self._multi_data['operand']:
             if isinstance(condition, od.Previous):
-                previous_i: int = condition % int() % od.DataSource()
+                previous_i: int = condition._data
                 if previous_i < len(self._multi_data['previous']):
                     condition = self._multi_data['previous'][previous_i]
                 else:
