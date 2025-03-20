@@ -1741,7 +1741,7 @@ class Part(Container):
                     if single_item._midi_track._name == key:
                         return single_item
                 else:
-                    if single_item._track_name._data == key:
+                    if single_item._track_name == key:
                         return single_item
             return ol.Null()
         return self._items[key]

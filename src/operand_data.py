@@ -386,7 +386,7 @@ class Playlist(Data):
     def __init__(self, *parameters):
         import operand_generic as og
         super().__init__([])
-        self._track_name: TrackName = TrackName("Playlist 1")
+        self._track_name: str = "Playlist 1"
         self._position_beats: Fraction = Fraction(0)
         self._staff: og.Staff = og.defaults._staff.copy()
         for single_parameter in parameters: # Faster than passing a tuple
@@ -424,13 +424,13 @@ class Playlist(Data):
         match operand:
             case DataSource():
                 match operand._data:
-                    case TrackName():       return self._track_name
+                    case TrackName():       return operand._data << DataSource(self._track_name)
                     case list():            return self._data
                     case ra.Position():     return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
-            case TrackName():       return self._track_name.copy()
-            case str():             return self._track_name % operand
+            case TrackName():       return TrackName(self._track_name)
+            case str():             return self._track_name._data
             case list():            return self.shallow_playlist_copy(self._data)
             case ra.Position():     return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case og.Staff():        return self._staff.copy()
@@ -467,7 +467,7 @@ class Playlist(Data):
         serialization = super().getSerialization()
 
         serialization["parameters"]["staff"]        = self.serialize(self._staff)
-        serialization["parameters"]["track_name"]   = self.serialize(self._track_name)
+        serialization["parameters"]["track_name"]   = self._track_name
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         return serialization
 
@@ -480,7 +480,7 @@ class Playlist(Data):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize(serialization["parameters"]["staff"])
-            self._track_name        = self.deserialize(serialization["parameters"]["track_name"])
+            self._track_name        = serialization["parameters"]["track_name"]
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
         return self
 
@@ -492,12 +492,12 @@ class Playlist(Data):
         match operand:
             case Playlist():
                 self._data          = self.shallow_playlist_copy(operand._data)
-                self._track_name    << operand._track_name
+                self._track_name    = operand._track_name
                 self.set_staff_reference(operand._staff)
             case DataSource():
                 match operand._data:
                     case TrackName():
-                        self._track_name = operand._data
+                        self._track_name = operand._data._data
                     case list():
                         self._data = operand._data
                     case ra.Position():
@@ -508,8 +508,10 @@ class Playlist(Data):
                         super().__lshift__(operand)
             case oc.Part() | oc.Clip() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
-            case TrackName() | str():
-                self._track_name << operand._data
+            case TrackName():
+                self._track_name = operand._data
+            case str():
+                self._track_name = operand
             case list():
                 self._data = self.shallow_playlist_copy(operand)
             case ra.Position():
