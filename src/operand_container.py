@@ -674,7 +674,11 @@ class Clip(Container):  # Just a container of Elements
 
 
     def __getitem__(self, index: int) -> oe.Element:
-        return self._items[index]
+        return super().__getitem__(index)
+    
+    def __next__(self) -> oe.Element:
+        return super().__next__()
+
 
     def _replace(self, old_item: Any = None, new_item: Any = None) -> Self:
         if isinstance(new_item, oe.Element):
@@ -1729,14 +1733,18 @@ class Part(Container):
         for single_operand in operands:
             self << single_operand
 
-    def __getitem__(self, key: str | int) -> Clip:
+
+    def __getitem__(self, key: str | int) -> Clip | od.Playlist:
         if isinstance(key, str):
-            for single_clip in self:
-                if isinstance(single_clip, Clip):   # Playlists aren't selectable by name !
-                    if single_clip._midi_track._name == key:
-                        return single_clip
+            for single_item in self._items:
+                if single_item._midi_track._name == key:
+                    return single_item
             return ol.Null()
         return self._items[key]
+
+    def __next__(self) -> Clip | od.Playlist:
+        return super().__next__()
+    
 
     def _sort_position(self) -> Self:
         if self is not self._upper_container:
