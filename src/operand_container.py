@@ -46,10 +46,10 @@ class Container(o.Operand):
     def __getitem__(self, index: int) -> any:
         return self._items[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Self:
         return self
     
-    def __next__(self):
+    def __next__(self) -> any:
         if self._items_iterator < len(self._items):
             item = self._items[self._items_iterator]
             self._items_iterator += 1
@@ -1748,10 +1748,9 @@ class Part(Container):
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case ou.MidiTrack():
-                for single_clip in self:
-                    if isinstance(single_clip, Clip):
-                        if single_clip._midi_track == operand:
-                            return single_clip
+                for single_item in self._items:
+                    if single_item._midi_track == operand:
+                        return single_item
                 return ol.Null()
             case str():             return self[operand]
             case _:                 return super().__mod__(operand)
