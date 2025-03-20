@@ -1753,16 +1753,6 @@ class Part(Container):
         return self
 
 
-    def __mod__(self, operand: o.T) -> o.T:
-        match operand:
-            case ou.MidiTrack():
-                for single_item in self._items:
-                    if single_item._midi_track == operand:
-                        return single_item
-                return ol.Null()
-            case str():             return self[operand]
-            case _:                 return super().__mod__(operand)
-
     def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list:
         play_list: list = []
         for single_clip in self:
