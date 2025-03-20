@@ -418,6 +418,8 @@ class Playlist(Data):
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case ou.MidiTrack():    return self._midi_track.copy()
+            case ou.TrackNumber() | TrackName() | str():
+                                    return self._midi_track % operand
             case list():            return self.shallow_playlist_copy(self._data)
             case ra.Position():     return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case og.Staff():        return self._staff.copy()
