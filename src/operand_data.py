@@ -892,7 +892,8 @@ class Decompose(Process):
 
 if TYPE_CHECKING:
     from operand_generic import Arpeggio
-
+    from operand_element import Element
+    
 class Arpeggiate(Process):
     
     def __init__(self, parameters: any = None):
@@ -902,6 +903,17 @@ class Arpeggiate(Process):
         import operand_container as oc
         if isinstance(operand, oc.Clip):
             return operand.arpeggiate(self._data)
+        return super().__rrshift__(operand)
+
+class Stepper(Process):
+
+    def __init__(self, pattern: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], element: 'Element' = None):
+        super().__init__((pattern, element))
+
+    def __rrshift__(self, operand: o.T) -> o.T:
+        import operand_container as oc
+        if isinstance(operand, oc.Clip):
+            return operand.stepper(*self._data)
         return super().__rrshift__(operand)
 
 class Tie(Process):

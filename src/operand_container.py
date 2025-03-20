@@ -1341,7 +1341,22 @@ class Clip(Container):  # Just a container of Elements
         for index, element in enumerate(self._items):
             element._position_beats = original_positions[index]
         return self
+    
+    def stepper(self, pattern: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], element: oe.Element = None) -> Self:
 
+        if not isinstance(element, oe.Element):
+            element = oe.Note().set_staff_reference(self._staff)
+        else:
+            element = element.copy().set_staff_reference(self._staff)
+        
+        position_steps: ra.Steps = ra.Steps(0)
+        for single_step in pattern:
+            if single_step != 0:
+                self += element << position_steps
+            position_steps += 1
+
+        return self._sort_position()
+    
     def reverse(self, non_empty_measures_only: bool = True) -> Self:
         """
         Reverses the sequence of the clip concerning the elements position, like horizontally mirrored.
