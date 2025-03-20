@@ -508,8 +508,8 @@ class Playlist(Data):
                         super().__lshift__(operand)
             case oc.Part() | oc.Clip() | oe.Element() | Playlist():
                 self._data = operand.getPlaylist()
-            case ou.MidiTrack():
-                self._midi_track    << operand
+            case ou.MidiTrack() | ou.TrackNumber() | TrackName() | str():
+                self._midi_track << operand._data
             case list():
                 self._data = self.shallow_playlist_copy(operand)
             case ra.Position():
