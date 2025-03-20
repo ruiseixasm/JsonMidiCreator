@@ -450,7 +450,26 @@ class Playlist(Data):
             return self_playlist_list_copy
         return self.shallow_playlist_copy(self._data)
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+
+        serialization["parameters"]["staff"]        = self.serialize(self._staff)
+        serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
+        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"]
+            and "position" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._staff             = self.deserialize(serialization["parameters"]["staff"])
+            self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
+            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+        return self
 
     def __lshift__(self, operand: any) -> Self:
         import operand_container as oc
