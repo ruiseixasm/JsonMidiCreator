@@ -1342,18 +1342,23 @@ class Clip(Container):  # Just a container of Elements
             element._position_beats = original_positions[index]
         return self
     
-    def stepper(self, pattern: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], element: oe.Element = None) -> Self:
+    def stepper(self, pattern: str | list[int] = "1... 1... 1... 1...", element: oe.Element = None) -> Self:
 
         if not isinstance(element, oe.Element):
             element = oe.Note().set_staff_reference(self._staff)
         else:
             element = element.copy().set_staff_reference(self._staff)
         
-        position_steps: ra.Steps = ra.Steps(0)
-        for single_step in pattern:
-            if single_step != 0:
-                self += element << position_steps
-            position_steps += 1
+        if isinstance(pattern, str):
+            pattern = [1 if char == '1' else 0 for char in pattern if char != ' ' and char != '-']
+
+        if isinstance(pattern, list):
+
+            position_steps: ra.Steps = ra.Steps(0)
+            for single_step in pattern:
+                if single_step == 1:
+                    self += element << position_steps
+                position_steps += 1
 
         return self._sort_position()
     

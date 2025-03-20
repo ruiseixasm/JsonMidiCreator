@@ -907,7 +907,7 @@ class Arpeggiate(Process):
 
 class Stepper(Process):
 
-    def __init__(self, pattern: list[int] = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0], element: 'Element' = None):
+    def __init__(self, pattern: str | list[int] = "1... 1... 1... 1...", element: 'Element' = None):
         super().__init__((pattern, element))
 
     def __rrshift__(self, operand: o.T) -> o.T:
