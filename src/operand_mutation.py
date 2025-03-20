@@ -97,7 +97,7 @@ class Mutation(o.Operand):
             case float():           return float(self._step)
             case type():            return self._parameter
             case ra.Index():        return ra.Index(self._index)
-            case ou.Next():         return self * operand
+            case od.Next():         return od.Next(self * operand)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
