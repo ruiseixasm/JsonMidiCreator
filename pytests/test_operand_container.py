@@ -645,7 +645,7 @@ def test_position_shift():
     assert four_notes_2[0] % Beats() == 0
 
     assert four_notes_1 % Length() == 3 * Beats(1) + Beats(1/2)
-    assert (Measures(1) >> four_notes_1) % Position() == Beats(4)
+    assert (Measures(1) >> four_notes_1) % Position() == Beats(0)    # Clip has no Position on its own
 
 # test_position_shift()
 

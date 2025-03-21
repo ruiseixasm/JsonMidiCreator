@@ -1015,9 +1015,6 @@ class Clip(Container):  # Just a container of Elements
                 element_clip: Clip = Clip(operand)
                 clip_part: Part = Part(element_clip)
                 return Song(clip_part, self)
-            case ra.Position() | ra.TimeValue():
-                self_part: Part = Part(self)
-                return self_part << operand
         return Part(self)
 
 
