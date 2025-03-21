@@ -720,46 +720,6 @@ class Clip(Container):  # Just a container of Elements
         return True
 
 
-    def __mod__(self, operand: o.T) -> o.T:
-        """
-        The % symbol is used to extract a Parameter, because a Container has
-        only one type of Parameters it should be used in conjugation with list()
-        to extract the Parameter list.
-
-        Examples
-        --------
-        >>> clip = Track(Note("A"), Note("B"))
-        >>> clip % list() >> Print()
-        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
-        """
-        match operand:
-            case od.DataSource():
-                match operand._data:
-                    case og.Staff():        return self._staff
-                    case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():
-                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
-                    case ra.Measurement():
-                        return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
-                    case _:                 return super().__mod__(operand)
-            case og.Staff():        return self._staff.copy()
-            case ou.MidiTrack():    return self._midi_track.copy()
-            case ou.TrackNumber() | od.TrackName() | str():
-                return self._midi_track % operand
-            case ra.Position():
-                return self._staff.convertToPosition(ra.Beats(self._position_beats))
-            case ra.Length():
-                if self._length_beats >= 0:
-                    return self._staff.convertToLength(ra.Beats(self._length_beats))
-                return self.length()
-            case ra.Duration():     return self.duration()
-            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
-                | float() | Fraction():
-                return self._staff % operand
-            case _:
-                return super().__mod__(operand)
-
-
     def first(self) -> oe.Element:
         """
         Gets the first Element accordingly to it's Position on the Staff.
@@ -847,6 +807,46 @@ class Clip(Container):  # Just a container of Elements
             Duration: Equal to length() but returning Duration.
         """
         return self.length().convertToDuration()
+
+
+    def __mod__(self, operand: o.T) -> o.T:
+        """
+        The % symbol is used to extract a Parameter, because a Container has
+        only one type of Parameters it should be used in conjugation with list()
+        to extract the Parameter list.
+
+        Examples
+        --------
+        >>> clip = Track(Note("A"), Note("B"))
+        >>> clip % list() >> Print()
+        [<operand_element.Note object at 0x0000017B5F3FF6D0>, <operand_element.Note object at 0x0000017B5D3B36D0>]
+        """
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case og.Staff():        return self._staff
+                    case ou.MidiTrack():    return self._midi_track
+                    case ra.Position():
+                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                    case ra.Measurement():
+                        return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
+                    case _:                 return super().__mod__(operand)
+            case og.Staff():        return self._staff.copy()
+            case ou.MidiTrack():    return self._midi_track.copy()
+            case ou.TrackNumber() | od.TrackName() | str():
+                return self._midi_track % operand
+            case ra.Position():
+                return self._staff.convertToPosition(ra.Beats(self._position_beats))
+            case ra.Length():
+                if self._length_beats >= 0:
+                    return self._staff.convertToLength(ra.Beats(self._length_beats))
+                return self.length()
+            case ra.Duration():     return self.duration()
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+                | float() | Fraction():
+                return self._staff % operand
+            case _:
+                return super().__mod__(operand)
 
 
     if TYPE_CHECKING:
