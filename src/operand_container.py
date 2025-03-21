@@ -826,8 +826,6 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        return self._staff
                     case ou.MidiTrack():    return self._midi_track
-                    case ra.Position():
-                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case ra.Measurement():
                         return operand._data << self._staff.convertToLength(ra.Beats(self._length_beats))
                     case _:                 return super().__mod__(operand)
@@ -888,7 +886,6 @@ class Clip(Container):  # Just a container of Elements
 
         serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["midi_track"]   = self.serialize(self._midi_track)
-        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         serialization["parameters"]["length"]       = self.serialize(self._length_beats)
         return serialization
 
@@ -896,13 +893,12 @@ class Clip(Container):  # Just a container of Elements
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"]
-            and "position" in serialization["parameters"] and "length" in serialization["parameters"]):
+            "staff" in serialization["parameters"] and "midi_track" in serialization["parameters"] and
+            "length" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._midi_track        = self.deserialize(serialization["parameters"]["midi_track"])
-            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
             self._length_beats      = self.deserialize(serialization["parameters"]["length"])
         return self
 
@@ -911,7 +907,6 @@ class Clip(Container):  # Just a container of Elements
         match operand:
             case Clip():
                 self._midi_track        << operand._midi_track
-                self._position_beats    = operand._position_beats
                 self._length_beats      = operand._length_beats
                 # BIG BOTTLENECK HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 # Profiling time of 371 ms in a total of 2006 ms (18.48%) | Called 37 times (10.017 ms per call)
@@ -924,7 +919,6 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case og.Staff():        self._staff = operand._data
                     case ou.MidiTrack():    self._midi_track = operand._data
-                    case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case om.Mutation():     operand._data.mutate(self)
                     case _:                 super().__lshift__(operand)
@@ -952,8 +946,6 @@ class Clip(Container):  # Just a container of Elements
 
                     operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
                     match operand._data:
-                        case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                            self._position_beats = self._staff.convertToBeats(operand._data)._rational
                         case ra.Length() | ra.Duration():
                             self._length_beats = self._staff.convertToBeats(operand._data)._rational
                         case ou.MidiTrack() | ou.TrackNumber() | od.TrackName() | str():
@@ -1024,7 +1016,7 @@ class Clip(Container):  # Just a container of Elements
             case om.Mutation():
                 return operand.mutate(self)
             case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist(self._position_beats))
+                return operand >> od.Playlist(self.getPlaylist())
             case _:
                 return super().__rrshift__(operand)
         return operand
@@ -1061,12 +1053,6 @@ class Clip(Container):  # Just a container of Elements
                     self_last_element: oe.Element = self[-1]
                     return self._append(operand_elements, self_last_element)
                 return self._append(operand_elements)
-                        
-            case od.ClipParameter():
-                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
-                match operand._data:
-                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats += self._staff.convertToBeats(operand._data)._rational
 
             case od.Parameters():
                 for single_parameter in operand._data:
@@ -1091,11 +1077,6 @@ class Clip(Container):  # Just a container of Elements
                 return self._delete([ operand ])
             case list():
                 return self._delete(operand)
-            case od.ClipParameter():
-                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
-                match operand._data:
-                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats -= self._staff.convertToBeats(operand._data)._rational
             case od.Parameters():
                 for single_parameter in operand._data:
                     self -= od.ClipParameter(single_parameter)
@@ -1169,11 +1150,6 @@ class Clip(Container):  # Just a container of Elements
                 self._items.append(
                     operand.copy().set_staff_reference(self._staff) << next_position
                 )
-            case od.ClipParameter():
-                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
-                match operand._data:
-                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats *= self._staff.convertToBeats(operand._data)._rational
             case od.Parameters():
                 for single_parameter in operand._data:
                     self *= od.ClipParameter(single_parameter)
@@ -1241,11 +1217,6 @@ class Clip(Container):  # Just a container of Elements
                     self_repeating = int( operand_value / length_value )
                 self /= self_repeating
 
-            case od.ClipParameter():
-                operand._data = self & operand._data    # Processes the tailed self operands or the Frame operand if any exists
-                match operand._data:
-                    case ra.Position() | ra.TimeValue() | ou.TimeUnit():
-                        self._position_beats /= self._staff.convertToBeats(operand._data)._rational
             case od.Parameters():
                 for single_parameter in operand._data:
                     self /= od.ClipParameter(single_parameter)
