@@ -489,38 +489,45 @@ class Playlist(Data):
         import operand_element as oe
         import operand_rational as ra
         import operand_generic as og
-        match operand:
-            case Playlist():
-                self._data          = self.shallow_playlist_copy(operand._data)
-                self._track_name    = operand._track_name
-                self.set_staff_reference(operand._staff)
-            case DataSource():
-                match operand._data:
-                    case TrackName():
-                        self._track_name = operand._data._data
-                    case list():
-                        self._data = operand._data
-                    case ra.Position():
-                        self._position_beats = operand._data._rational
-                    case og.Staff():
-                        self._staff = operand._data
-                    case _:
-                        super().__lshift__(operand)
-            case oc.Part() | oc.Clip() | oe.Element() | Playlist():
-                self._data = operand.getPlaylist()
-            case TrackName():
-                self._track_name = operand._data
-            case str():
-                self._track_name = operand
-            case list():
-                self._data = self.shallow_playlist_copy(operand)
-            case ra.Position():
-                self._position_beats = operand._rational
-            case tuple():
-                for single_operand in operand:
-                    self << single_operand
-            case _:
-                self._staff << operand
+        
+        if isinstance(operand, Parameters):
+            for single_parameter in operand._data:
+                self << single_parameter
+
+        else:
+
+            match operand:
+                case Playlist():
+                    self._data          = self.shallow_playlist_copy(operand._data)
+                    self._track_name    = operand._track_name
+                    self.set_staff_reference(operand._staff)
+                case DataSource():
+                    match operand._data:
+                        case TrackName():
+                            self._track_name = operand._data._data
+                        case list():
+                            self._data = operand._data
+                        case ra.Position():
+                            self._position_beats = operand._data._rational
+                        case og.Staff():
+                            self._staff = operand._data
+                        case _:
+                            super().__lshift__(operand)
+                case oc.Part() | oc.Clip() | oe.Element() | Playlist():
+                    self._data = operand.getPlaylist()
+                case TrackName():
+                    self._track_name = operand._data
+                case str():
+                    self._track_name = operand
+                case list():
+                    self._data = self.shallow_playlist_copy(operand)
+                case ra.Position():
+                    self._position_beats = operand._rational
+                case tuple():
+                    for single_operand in operand:
+                        self << single_operand
+                case _:
+                    self._staff << operand
         return self
     
     def start(self) -> float:
