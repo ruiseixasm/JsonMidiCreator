@@ -354,6 +354,7 @@ class Operand:
         import operand_element as oe
         import operand_mutation as om
         import operand_selection as os
+        import operand_mutation as om
         if isinstance(operand, list):
             for single_operand in operand:
                 if isinstance(single_operand, (od.Process, oc.Container, tuple, list)):
@@ -372,6 +373,18 @@ class Operand:
                     od.Process, oc.Container, tuple, list, oe.Element, om.Mutation, os.Selection)
                 ):
             return self.filter(operand)
+        if isinstance(self, oc.Clip):
+            match operand:
+                case om.Mutation():
+                    return operand.mutate(self)
+                case od.Playlist():
+                    return operand >> od.Playlist(self.getPlaylist())
+        if isinstance(self, oe.Element):
+            match operand:
+                case od.Serialization():
+                    return operand % od.DataSource() >> self
+                case od.Playlist():
+                    return operand >> od.Playlist(self.getPlaylist())
         return operand.__rrshift__(self)
 
     # operand is the pusher

@@ -324,14 +324,6 @@ class Element(o.Operand):
                     self << single_operand
         return self
 
-    # Promotes to upper Container, meaning, Part
-    def __rshift__(self, operand: o.T) -> Union[TypeElement, 'Clip', 'Part', 'Song']:
-        match operand:
-            case od.Serialization():
-                return operand % od.DataSource() >> self
-            case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist())
-        return super().__rshift__(operand)
 
     # Promotes to upper Container, meaning, Clip
     def __rrshift__(self, operand: o.T) -> 'Clip':
