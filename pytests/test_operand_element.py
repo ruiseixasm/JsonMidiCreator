@@ -221,22 +221,22 @@ def test_note_mul():
 
 def test_note_shift():
 
-    note: Note = Note()
+    note: Note = Note("A")
     assert note % Position() == 0.0 # Measures
-    Length( Beats(2) ) >> note
+    note += Beats(2)
     print(f"Position: {note % Position() % float()}")
     assert note % Position() == 0.5 # Measures (4 Beats per Measure)
 
-    second_note: Note = Note()
+    second_note: Note = Note("G")
     assert second_note % Position() == 0.0 # Measures
     two_notes: Clip = note >> second_note   # Must be a Clip!
     assert two_notes.len() == 2
-    print(f"Position: {two_notes % Position() % float()}")
-    assert two_notes % Position() == 0.0 # Measures
     print(f"Position: {two_notes[0] % Position() % float()}")
-    assert two_notes[0] % Position() == 0.5 # Measures
+    assert two_notes[0] % Position() == 0.0 # Measures
+    assert two_notes[0] == second_note
     print(f"Position: {two_notes[1] % Position() % float()}")
-    assert two_notes[1] % Position() == 0.75 # Measures
+    assert two_notes[1] % Position() == 0.5 # Measures
+    assert two_notes[1] == note
 
 # test_note_shift()
 
