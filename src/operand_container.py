@@ -226,6 +226,12 @@ class Container(o.Operand):
     def __gt__(self, other: any) -> bool:
         return self % other > other
 
+    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+        return []
+
+    def getMidilist(self, position: ra.Position = None) -> list[dict]:
+        return []
+
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
