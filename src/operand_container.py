@@ -993,12 +993,10 @@ class Clip(Container):  # Just a container of Elements
     def __rrshift__(self, operand: o.T) -> 'Part':
         match operand:
             case Clip():
-                clip_part: Part = Part(operand)
-                return Song(clip_part, self)
+                return Part(operand, self)
             case oe.Element():
                 element_clip: Clip = Clip(operand)
-                clip_part: Part = Part(element_clip)
-                return Song(clip_part, self)
+                return Part(element_clip, self)
         return Part(self)
 
 
