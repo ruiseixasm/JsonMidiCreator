@@ -666,7 +666,6 @@ class Clip(Container):  # Just a container of Elements
         super().__init__()
         self._staff: og.Staff = og.defaults._staff.copy()
         self._midi_track: ou.MidiTrack  = ou.MidiTrack()
-        self._position_beats: Fraction  = Fraction(0)   # in Beats
         self._length_beats: Fraction    = Fraction(-1)  # in Beats where -1 means isn't set
         self._items: list[oe.Element] = []
         for single_operand in operands:
@@ -851,7 +850,7 @@ class Clip(Container):  # Just a container of Elements
         self._staff.reset_accidentals()
         self._staff.reset_tied_note()
 
-        clip_position_beats: Fraction = self._position_beats
+        clip_position_beats: Fraction = Fraction(0)
 
         if isinstance(position, ra.Position):
             clip_position_beats += self._staff.transformPosition(position)._rational
