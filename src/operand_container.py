@@ -1710,6 +1710,7 @@ class Part(Container):
     def __init__(self, *operands):
         super().__init__()
         self._items: list[Clip | od.Playlist] = []
+        self._position_beats: Fraction  = Fraction(0)   # in Beats
         for single_operand in operands:
             self << single_operand
 
@@ -1737,6 +1738,19 @@ class Part(Container):
         return self
 
 
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case ra.Position():
+                        return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
+                    case _:                 return super().__mod__(operand)
+            case ra.Position():
+                return self._staff.convertToPosition(ra.Beats(self._position_beats))
+            case _:
+                return super().__mod__(operand)
+
+
     def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list:
         play_list: list = []
         for single_clip in self:
@@ -1751,7 +1765,21 @@ class Part(Container):
                 midi_list.extend(single_clip.getMidilist(midi_track, position, staff))
         return midi_list
 
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+
+        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
+        return serialization
+
     # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "position" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
+        return self
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
