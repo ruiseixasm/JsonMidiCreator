@@ -848,18 +848,24 @@ class Clip(Container):  # Just a container of Elements
             case _:
                 return super().__mod__(operand)
 
+    def get_position_beats(self, position: ra.Position = None) -> Fraction:
 
-    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+        # Needs to be reset because shallow_copy doesn't result in different
+        # staff references for each element
+        self._staff.reset_accidentals()
+        self._staff.reset_tied_note()
 
         clip_position_beats: Fraction = self._position_beats
 
         if isinstance(position, ra.Position):
             clip_position_beats += self._staff.transformPosition(position)._rational
 
-        # Needs to be reset because shallow_copy doesn't result in different
-        # staff references for each element
-        self._staff.reset_accidentals()
-        self._staff.reset_tied_note()
+        return clip_position_beats
+
+
+    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
+
+        clip_position_beats: Fraction = self.get_position_beats(position)
 
         return [
             single_playlist
@@ -867,24 +873,14 @@ class Clip(Container):  # Just a container of Elements
                 for single_playlist in single_element.getPlaylist(clip_position_beats)
         ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list[dict]:
+    def getMidilist(self, position: ra.Position = None) -> list[dict]:
 
-        clip_position_beats: Fraction = self._position_beats
-
-        if isinstance(position, ra.Position):
-            clip_position_beats += self._staff.transformPosition(position)._rational
-
-        # Needs to be reset because shallow_copy doesn't result in different
-        # staff references for each element
-        self._staff.reset_accidentals()
-        self._staff.reset_tied_note()
-
-        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
+        clip_position_beats: Fraction = self.get_position_beats(position)
 
         return [
             single_midilist
                 for single_element in self._items
-                for single_midilist in single_element.getMidilist(midi_track, clip_position_beats)
+                for single_midilist in single_element.getMidilist(self._midi_track, clip_position_beats)
         ]
 
     def getSerialization(self) -> dict:
@@ -1751,7 +1747,7 @@ class Part(Container):
         for single_clip in self:
             if isinstance(single_clip, (Clip, od.Playlist)):
                 part_position: ra.Position = self // ra.Position()
-                play_list.extend(single_clip.getPlaylist(position = part_position))
+                play_list.extend(single_clip.getPlaylist(part_position))
         return play_list
 
     def getMidilist(self) -> list:
@@ -1759,7 +1755,7 @@ class Part(Container):
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
                 part_position: ra.Position = self // ra.Position()
-                midi_list.extend(single_clip.getMidilist(position = part_position))
+                midi_list.extend(single_clip.getMidilist(part_position))
         return midi_list
 
     def getSerialization(self) -> dict:
