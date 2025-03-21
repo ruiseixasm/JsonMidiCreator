@@ -1145,6 +1145,10 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats += self._staff.convertToBeats(operand._data)._rational
 
+            case od.Parameters():
+                for single_parameter in operand._data:
+                    self += od.ClipParameter(single_parameter)
+
             case tuple():
                 for single_operand in operand:
                     self += single_operand
@@ -1169,6 +1173,10 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats -= self._staff.convertToBeats(operand._data)._rational
+            case od.Parameters():
+                for single_parameter in operand._data:
+                    self -= od.ClipParameter(single_parameter)
+
             case tuple():
                 for single_operand in operand:
                     self -= single_operand
@@ -1243,6 +1251,10 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats *= self._staff.convertToBeats(operand._data)._rational
+            case od.Parameters():
+                for single_parameter in operand._data:
+                    self *= od.ClipParameter(single_parameter)
+
             case os.Selection():
                 if operand != self:
                     self._items = []
@@ -1311,6 +1323,10 @@ class Clip(Container):  # Just a container of Elements
                 match operand._data:
                     case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                         self._position_beats /= self._staff.convertToBeats(operand._data)._rational
+            case od.Parameters():
+                for single_parameter in operand._data:
+                    self /= od.ClipParameter(single_parameter)
+
 
             # Returns an altered Clip with less info (truncated info)
             case od.Getter() | od.Process():
