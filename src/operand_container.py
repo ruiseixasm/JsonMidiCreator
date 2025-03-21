@@ -849,21 +849,6 @@ class Clip(Container):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
-    if TYPE_CHECKING:
-        from operand_element import Element
-
-    def get_clip_elements(self) -> list['Element']: # Helper method
-        
-        # Needs to be reset because shallow_copy doesn't result in different
-        # staff references for each element
-        self._staff.reset_accidentals()
-        self._staff.reset_tied_note()
-
-        return [
-                element for element in self.shallow_copy()._sort_position()._items 
-                if isinstance(element, oe.Element)
-            ]
-
     def getPlaylist(self, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
 
         clip_position_beats: Fraction = self._position_beats
@@ -874,14 +859,19 @@ class Clip(Container):  # Just a container of Elements
         if isinstance(position_beats, Fraction):
             clip_position_beats += position_beats
 
+        # Needs to be reset because shallow_copy doesn't result in different
+        # staff references for each element
+        self._staff.reset_accidentals()
+        self._staff.reset_tied_note()
+
         return [
             single_playlist
-                for single_element in self.get_clip_elements()
+                for single_element in self._items
                 for single_playlist in single_element.getPlaylist(clip_position_beats)
         ]
 
     def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
-        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
+
         clip_position_beats: Fraction = self._position_beats
 
         if isinstance(staff, og.Staff):
@@ -890,9 +880,16 @@ class Clip(Container):  # Just a container of Elements
         if isinstance(position_beats, Fraction):
             clip_position_beats += position_beats
 
+        # Needs to be reset because shallow_copy doesn't result in different
+        # staff references for each element
+        self._staff.reset_accidentals()
+        self._staff.reset_tied_note()
+
+        midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
+        
         return [
             single_midilist
-                for single_element in self.get_clip_elements()
+                for single_element in self._items
                 for single_midilist in single_element.getMidilist(midi_track, clip_position_beats)
         ]
 
