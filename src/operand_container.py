@@ -1882,3 +1882,41 @@ class Part(Container):
                     item /= operand
         return self
 
+
+class Song(Container):
+    def __init__(self, *operands):
+        super().__init__()
+        self._items: list[Part] = []
+        for single_operand in operands:
+            self << single_operand
+
+
+    def __getitem__(self, key: int) -> Part:
+        return self._items[key]
+
+    def __next__(self) -> Part:
+        return super().__next__()
+    
+
+    def _sort_position(self) -> Self:
+        if self is not self._upper_container:
+            self._upper_container._sort_position()
+        self._items.sort(key=lambda x: x % ra.Position())
+        return self
+
+
+    def getPlaylist(self, position: ra.Position = None) -> list:
+        play_list: list = []
+        for single_clip in self:
+            if isinstance(single_clip, (Clip, od.Playlist)):
+                play_list.extend(single_clip.getPlaylist(position))
+        return play_list
+
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+        midi_list: list = []
+        for single_clip in self:
+            if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
+                midi_list.extend(single_clip.getMidilist(midi_track, position))
+        return midi_list
+
+
