@@ -636,11 +636,13 @@ class Device(Data):
         super().__init__( device_list if isinstance(device_list, list) else [] )
 
 class DataMany(Data):
-    def __init__(self, *parameters):    # Allows multiple parameters
-        super().__init__(list(parameters))
+    def __init__(self, *parameters):
+        super().__init__(parameters)
 
 class Parameters(DataMany):
-    pass
+    def __init__(self, *parameters):    # Allows multiple parameters
+        super().__init__()
+        self._data = parameters
 
 class Performers(DataMany):
     def reset(self, *parameters) -> 'Performers':
