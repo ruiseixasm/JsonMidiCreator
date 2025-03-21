@@ -616,6 +616,12 @@ class Playlist(Data):
                 return Playlist(self._track_name) << DataSource( self.shallow_playlist_copy(self._data) + self.shallow_playlist_copy(operand) )
             case o.Operand():
                 return Playlist(self._track_name) << DataSource( self.shallow_playlist_copy(self._data) + operand.getPlaylist() )
+            case PlaylistParameter():
+                self += operand._data
+            case Parameters():
+                for single_parameter in operand._data:
+                    self += single_parameter
+
             case _:
                 return Playlist(self)
 
