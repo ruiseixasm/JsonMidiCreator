@@ -940,9 +940,7 @@ class Clip(Container):  # Just a container of Elements
                     case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
                     case ra.Length():       self._length_beats = self._staff.convertToBeats(operand._data)._rational
                     case om.Mutation():     operand._data.mutate(self)
-                    case _:
-                        super().__lshift__(operand)
-                        self._items = o.filter_list(self._items, lambda item: isinstance(item, oe.Element))
+                    case _:                 super().__lshift__(operand)
 
             case ou.MidiTrack() | ou.TrackNumber() | od.TrackName():
                 self._midi_track << operand
@@ -1708,9 +1706,10 @@ class Clip(Container):  # Just a container of Elements
 
 class Part(Container):
     def __init__(self, *operands):
+        self._staff: og.Staff = og.defaults._staff.copy()
+        self._position_beats: Fraction  = Fraction(0)   # in Beats
         super().__init__()
         self._items: list[Clip | od.Playlist] = []
-        self._position_beats: Fraction  = Fraction(0)   # in Beats
         for single_operand in operands:
             self << single_operand
 
@@ -1742,11 +1741,16 @@ class Part(Container):
         match operand:
             case od.DataSource():
                 match operand._data:
+                    case og.Staff():        return self._staff
                     case ra.Position():
                         return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case _:                 return super().__mod__(operand)
+            case og.Staff():        return self._staff.copy()
             case ra.Position():
                 return self._staff.convertToPosition(ra.Beats(self._position_beats))
+            case ra.StaffParameter() | ou.KeySignature() | ou.Accidentals() | ou.Major() | ou.Minor() | og.Scale() | ra.Measures() | ou.Measure() \
+                | float() | Fraction():
+                return self._staff % operand
             case _:
                 return super().__mod__(operand)
 
@@ -1768,6 +1772,7 @@ class Part(Container):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
+        serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         return serialization
 
@@ -1775,9 +1780,10 @@ class Part(Container):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "position" in serialization["parameters"]):
+            "staff" in serialization["parameters"] and "position" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
+            self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._position_beats    = self.deserialize(serialization["parameters"]["position"])
         return self
 
@@ -1785,6 +1791,19 @@ class Part(Container):
         match operand:
             case Part():
                 super().__lshift__(operand)
+                self._position_beats    = operand._position_beats
+                self._staff             << operand._staff
+                
+            case od.DataSource():
+                match operand._data:
+                    case og.Staff():        self._staff = operand._data
+                    case ra.Position():     self._position_beats = self._staff.convertToBeats(operand._data)._rational
+                    case _:                 super().__lshift__(operand)
+
+            case og.Staff() | ou.KeySignature() | og.TimeSignature() | ra.StaffParameter() | ou.Accidentals() | ou.Major() | ou.Minor():
+                self._staff << operand
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                self._position_beats = self._staff.convertToBeats(operand)._rational
             case Clip():
                 self._append([ operand.copy() ])._sort_position()
             case od.Serialization():
