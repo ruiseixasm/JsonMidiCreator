@@ -326,15 +326,30 @@ class Element(o.Operand):
 
 
     # Promotes to upper Container, meaning, Clip
-    def __rrshift__(self, operand: o.T) -> 'Clip':
+    def __rshift__(self, operand: o.T) -> 'Clip':
         import operand_container as oc
         match operand:
+            case oc.Clip():
+                self_part: oc.Part = oc.Part(self)
+                clip_part: oc.Part = oc.Part(operand)
+                self_part += clip_part
+                return self_part
             case Element():
                 self_clip: oc.Clip = oc.Clip(self)
                 element_clip: oc.Clip = oc.Clip(operand)
-                element_clip += self_clip
-                return element_clip
-        return oc.Clip(self)
+                self_clip += element_clip
+                return self_clip
+        return super().__rshift__(operand)
+
+    # Promotes to upper Container, meaning, Clip
+    def __rrshift__(self, operand: o.T) -> Self:
+        import operand_container as oc
+        match operand:
+            case od.Serialization():
+                return operand % od.DataSource() >> self
+            case od.Playlist():
+                return operand >> od.Playlist(self.getPlaylist())
+        return self
 
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__iadd__(operand)

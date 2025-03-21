@@ -989,14 +989,30 @@ class Clip(Container):  # Just a container of Elements
         return shallow_copy
     
 
-    # Promotes two Clips to a Part
-    def __rrshift__(self, operand: o.T) -> 'Part':
+    # Promotes to upper Container, meaning, Part
+    def __rshift__(self, operand: o.T) -> 'Part':
         match operand:
             case Clip():
-                return Part(operand, self)
+                self_part: Part = Part(self)
+                clip_part: Part = Part(operand)
+                self_part += clip_part
+                return self_part
             case oe.Element():
+                self_part: Part = Part(self)
                 element_clip: Clip = Clip(operand)
-                return Part(element_clip, self)
+                clip_part: Part = Part(element_clip)
+                self_part += clip_part
+                return self_part
+        return super().__rshift__(operand)
+
+    # Promotes two Clips to a Part
+    def __rrshift__(self, operand: o.T) -> Self:
+        import operand_mutation as om
+        match operand:
+            case om.Mutation():
+                return operand.mutate(self)
+            case od.Playlist():
+                return operand >> od.Playlist(self.getPlaylist())
         return Part(self)
 
 
