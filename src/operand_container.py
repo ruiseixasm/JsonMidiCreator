@@ -263,9 +263,11 @@ class Container(o.Operand):
             case tuple():
                 for single_operand in operand:
                     self << single_operand
-            case _: # Works for Frame too
+            case of.Frame():
                 for item in self._items:
                     item << operand
+            case _:
+                self += operand
         return self
 
     def empty_copy(self, *parameters) -> Self:
@@ -651,6 +653,8 @@ class Container(o.Operand):
         return self.__or__(operand)
 
 
+TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
+
 
 class Clip(Container):  # Just a container of Elements
     """
@@ -927,6 +931,8 @@ class Clip(Container):  # Just a container of Elements
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
+            case oe.Element():
+                self += operand # It's equivalent
             case list():
                 self._items = [
                     item.copy() for item in operand if isinstance(item, oe.Element)
@@ -982,35 +988,52 @@ class Clip(Container):  # Just a container of Elements
             shallow_copy << single_parameter
         return shallow_copy
     
-    
-    # operand is the pusher >> (NO COPIES!)
-    def __rrshift__(self, operand: o.T) -> Union[o.T, 'Part']:
+
+    # Promotes to upper Container, meaning, Part
+    def __rshift__(self, operand: o.T) -> Union[TypeClip, 'Part', 'Song']:
         import operand_mutation as om
         match operand:
-            case Part():
-                # NEEDS TO BE REVIEWED
-                wrapper_part: Part = Part()
-                wrapper_part._items = [
-                    data_clip for data_clip in operand._items
-                ]
-                wrapper_part._items.append( self )
-                return wrapper_part
-                # return operand._insert([ self ])._sort_position()
-            case Clip():
-                return Part([ operand, self ])._sort_position()
-            case oe.Element():
-                # Give space to Element
-                add_position: ra.Position = \
-                    self._staff.convertToPosition( operand % ra.Position() ) + self._staff.convertToPosition( operand % ra.Duration() )
-                self += add_position  # No copy!
-                self._items.insert(0, operand.copy().set_staff_reference(self._staff))
             case om.Mutation():
                 return operand.mutate(self)
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
-            case _:
-                return super().__rrshift__(operand)
-        return operand
+            case Song():
+                self_song: Song = Song(self)
+                self_song += operand
+                return self_song
+            case Part():
+                self_part: Part = Part(self)
+                self_part += operand
+                return self_part
+            case Clip():
+                self_part: Part = Part(self)
+                clip_part: Part = Part(operand)
+                self_part += clip_part
+                return self_part
+            case oe.Element():
+                self_part: Part = Part(self)
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                self_part += clip_part
+                return self_part
+        return super().__rshift__(operand)
+
+    # Promotes to upper Container, meaning, Part
+    def __rrshift__(self, operand: o.T) -> 'Part':
+        match operand:
+            case Part():
+                return Song(operand, self)
+            case Clip():
+                clip_part: Part = Part(operand)
+                return Song(clip_part, self)
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                return Song(clip_part, self)
+            case ra.Position() | ra.TimeValue():
+                self_part: Part = Part(self)
+                return self_part << operand
+        return Part(self)
 
 
     # Avoids the costly copy of Track self doing +=
@@ -1178,6 +1201,9 @@ class Clip(Container):  # Just a container of Elements
                         if isinstance(single_data, oe.Element)
                 ]
                 self._items.extend( single_element for single_element in operand_elements )
+
+            case oe.Element():
+                self /= Clip(operand)
 
             case int():
                 if operand > 1:
@@ -1772,21 +1798,46 @@ class Part(Container):
                     item << operand
         return self
 
-    # operand is the pusher >> (NO COPIES!) (PASSTHROUGH)
-    def __rrshift__(self, operand: o.T) -> o.T:
+    # Promotes to upper Container, meaning, Song
+    def __rshift__(self, operand: o.T) -> 'Song':
+        match operand:
+            case Song():
+                self_song: Song = Song(self)
+                self_song += operand
+                return self_song
+            case Part():
+                self_song: Song = Song(self)
+                part_song: Song = Song(operand)
+                self_song += part_song
+                return self_song
+            case Clip():
+                self_song: Song = Song(self)
+                clip_part: Part = Part(operand)
+                part_song: Song = Song(clip_part)
+                self_song += part_song
+                return self_song
+            case oe.Element():
+                self_song: Song = Song(self)
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                part_song: Song = Song(clip_part)
+                self_song += part_song
+                return self_song
+        return super().__rshift__(operand)
+
+    # Promotes to upper Container, meaning, Song
+    def __rrshift__(self, operand: o.T) -> 'Song':
         match operand:
             case Part():
-                return self._insert(operand._items)._sort_position()
+                return Song(operand, self)
             case Clip():
-                return self._insert([ operand ])._sort_position()
-            case tuple():
-                for single_operand in operand:
-                    self.__rrshift__(single_operand)
-            case _:
-                for single_item in self:
-                    if isinstance(single_item, o.Operand):
-                        single_item.__rrshift__(operand)
-        return operand
+                clip_part: Part = Part(operand)
+                return Song(clip_part, self)
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                return Song(clip_part, self)
+        return Song(self)
 
 
     def __iadd__(self, operand: any) -> Self:
@@ -1877,4 +1928,72 @@ class Song(Container):
             midi_list.extend(single_part.getMidilist())
         return midi_list
 
+    # CHAINABLE OPERATIONS
+
+    def __lshift__(self, operand: any) -> Self:
+        match operand:
+            case Part():
+                self._append([ operand.copy() ])._sort_position()
+            case Clip():
+                clip_part: Part = Part(operand)
+                self._append([ clip_part ])._sort_position()
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                self._append([ clip_part ])._sort_position()
+            case od.Serialization():
+                self.loadSerialization( operand.getSerialization() )
+            case list():
+                self._items = [
+                    self.deep_copy(item) for item in operand if isinstance(item, Part)
+                ]
+                self._sort_position()
+            case tuple():
+                for single_operand in operand:
+                    self << single_operand
+            case _:
+                for single_part in self._items:
+                    single_part << operand
+        return self
+
+    # Maintains current Container, meaning, Song
+    def __rshift__(self, operand: o.T) -> 'Song':
+        match operand:
+            case Song():
+                return self + operand
+            case Part():
+                part_song: Song = Song(operand)
+                return self + part_song
+            case Clip():
+                clip_part: Part = Part(operand)
+                part_song: Song = Song(clip_part)
+                return self + part_song
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                part_song: Song = Song(clip_part)
+                return self + part_song
+        return super().__rshift__(operand)
+
+    # Maintains current Container, meaning, Song
+    def __rrshift__(self, operand: o.T) -> 'Song':
+        match operand:
+            case Song():
+                return operand + self
+            case Part():
+                part_song: Song = Song(operand)
+                part_song += self
+                return part_song
+            case Clip():
+                clip_part: Part = Part(operand)
+                part_song: Song = Song(clip_part)
+                part_song += self
+                return part_song
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                part_song: Song = Song(clip_part)
+                part_song += self
+                return part_song
+        return self
 

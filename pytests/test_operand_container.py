@@ -43,6 +43,26 @@ def test_staff_parameters():
 
 # test_staff_parameters()
 
+def test_container_content():
+
+    container = Container("String")
+    assert container.len() == 1
+    assert isinstance(container[0], str)
+
+    clip = Clip(Chord())
+    assert clip.len() == 1
+    assert isinstance(clip[0], Element)
+
+    part = Part(clip)
+    assert part.len() == 1
+    assert isinstance(part[0], Clip)
+
+    song = Song(part)
+    assert song.len() == 1
+    assert isinstance(song[0], Part)
+
+# test_container_content()
+
 
 def test_container_mod():
 
@@ -95,6 +115,11 @@ def test_clip_mod():
     for degree in range(7):
         chords_clip[degree] % Pitch() % float() >> Print()
         assert chords_clip[degree] % Pitch() % float() == keys_float[degree]
+
+    single_note = Note()
+    note_clip = Clip(single_note)
+
+    assert note_clip.len() == 1
 
 # test_clip_mod()
 
@@ -179,7 +204,7 @@ def test_rrshift_clip():
     note: Note = Note()
     assert note_clip % Position() == 0.0 # Measures
     assert note_clip.len() == 1
-    two_notes = note_clip >> note
+    two_notes = note_clip / note
     assert two_notes.len() == 2
     print(f"Position: {two_notes % Position() % float()}")
     assert two_notes % Position() == 0.0 # Measures
@@ -740,18 +765,19 @@ def test_song_operations():
     clip_1: Clip = Clip([Clock()])
     clip_2: Clip = Clip([Note()])
 
-    song_1: Part = Part([clip_1, clip_2])
-    song_2: Part = Part([clip_2, clip_1])
+    part_1: Part = Part(clip_1, clip_2)
+    part_2: Part = Part(clip_2, clip_1)
 
-    assert song_1.len() == 2
-    assert song_2.len() == 2
+    assert part_1.len() == 2
+    assert part_2.len() == 2
 
-    assert (song_1 + clip_2).len() == 3
-    assert (song_1 - clip_2).len() == 1
-    assert (song_1 + song_2).len() == 4
+    assert (part_1 + clip_2).len() == 3
+    assert (part_1 - clip_2).len() == 1
+    assert (part_1 + part_2).len() == 4
 
-    assert (song_1 >> clip_2).len() == 3
-    assert (song_1 >> song_2).len() == 4
+    # Becomes a Song of two Parts due to >> operator
+    assert (part_1 >> clip_2).len() == 2
+    assert (part_1 >> part_2).len() == 2
 
 # test_song_operations()
 

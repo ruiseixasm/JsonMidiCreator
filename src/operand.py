@@ -368,7 +368,9 @@ class Operand:
                     last_operand >>= od.Filter(single_operand)
             return last_operand
         if isinstance(self, oc.Container) \
-                and not isinstance(operand, (od.Process, oc.Container, tuple, list, oe.Element, om.Mutation, os.Selection)):
+                and not isinstance(operand, (
+                    od.Process, oc.Container, tuple, list, oe.Element, om.Mutation, os.Selection)
+                ):
             return self.filter(operand)
         return operand.__rrshift__(self)
 
