@@ -164,6 +164,19 @@ def test_or_clip():
 
 # test_or_clip()
 
+def test_copy_container():
+
+    clip = Clip(Note)
+    assert clip.copy() == clip
+
+    part = Part(clip)
+    assert part.copy() == part
+
+    song = Part(part)
+    assert song.copy() == song
+
+
+
 def test_rshift_container():
 
     clip = Note() >> Note()
