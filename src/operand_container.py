@@ -833,8 +833,6 @@ class Clip(Container):  # Just a container of Elements
             case ou.MidiTrack():    return self._midi_track.copy()
             case ou.TrackNumber() | od.TrackName() | str():
                 return self._midi_track % operand
-            case ra.Position():
-                return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case ra.Length():
                 if self._length_beats >= 0:
                     return self._staff.convertToLength(ra.Beats(self._length_beats))
@@ -970,7 +968,6 @@ class Clip(Container):  # Just a container of Elements
         empty_copy: Clip                = super().empty_copy()
         empty_copy._staff               << self._staff
         empty_copy._midi_track          << self._midi_track
-        empty_copy._position_beats      = self._position_beats
         empty_copy._length_beats        = self._length_beats
         for single_parameter in parameters:
             empty_copy << single_parameter
@@ -981,7 +978,6 @@ class Clip(Container):  # Just a container of Elements
         # It's a shallow copy, so it shares the same Staff and midi track
         shallow_copy._staff             = self._staff   
         shallow_copy._midi_track        = self._midi_track
-        shallow_copy._position_beats    = self._position_beats
         shallow_copy._length_beats      = self._length_beats
         for single_parameter in parameters:
             shallow_copy << single_parameter

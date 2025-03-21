@@ -582,7 +582,7 @@ def test_position_shift():
 
     assert chords % Position() == 0.0
     Steps(3) >> chords
-    assert chords % Position() == 3 * 1/16
+    assert chords % Position() == 0.0   # Clip has no Position on its own
 
     Steps(-3) >> chords
     fifth_measure_chords = chords.copy()
@@ -598,7 +598,7 @@ def test_position_shift():
     four_notes_2: Clip = Note() * 4
 
     Beats(2) >> four_notes_1
-    assert four_notes_1 % Position() == Beats(2)
+    assert four_notes_1 % Position() == Beats(0)    # Clip has no Position on its own
     Beats(-2) >> four_notes_1
     assert four_notes_1 % Position() == Beats(0)
 
