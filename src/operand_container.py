@@ -849,7 +849,7 @@ class Clip(Container):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list[dict]:
+    def getPlaylist(self, position: ra.Position = None) -> list[dict]:
 
         clip_position_beats: Fraction = self._position_beats
 
@@ -867,7 +867,7 @@ class Clip(Container):  # Just a container of Elements
                 for single_playlist in single_element.getPlaylist(clip_position_beats)
         ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, staff: og.Staff = None) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list[dict]:
 
         clip_position_beats: Fraction = self._position_beats
 
@@ -1746,18 +1746,18 @@ class Part(Container):
                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list:
+    def getPlaylist(self, position: ra.Position = None) -> list:
         play_list: list = []
         for single_clip in self:
             if isinstance(single_clip, (Clip, od.Playlist)):
-                play_list.extend(single_clip.getPlaylist(position, staff))
+                play_list.extend(single_clip.getPlaylist(position))
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, staff: og.Staff = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                midi_list.extend(single_clip.getMidilist(midi_track, position, staff))
+                midi_list.extend(single_clip.getMidilist(midi_track, position))
         return midi_list
 
     def getSerialization(self) -> dict:
