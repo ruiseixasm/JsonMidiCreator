@@ -372,12 +372,6 @@ class Operand:
                     od.Process, oc.Container, tuple, list, oe.Element, om.Mutation, os.Selection)
                 ):
             return self.filter(operand)
-        if isinstance(self, oc.Clip):
-            match operand:
-                case om.Mutation():
-                    return operand.mutate(self)
-                case od.Playlist():
-                    return operand >> od.Playlist(self.getPlaylist())
         return operand.__rrshift__(self)
 
     # operand is the pusher

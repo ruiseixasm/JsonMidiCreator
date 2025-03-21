@@ -991,6 +991,7 @@ class Clip(Container):  # Just a container of Elements
 
     # Promotes to upper Container, meaning, Part
     def __rshift__(self, operand: o.T) -> 'Part':
+        import operand_mutation as om
         match operand:
             case Clip():
                 self_part: Part = Part(self)
@@ -1003,6 +1004,10 @@ class Clip(Container):  # Just a container of Elements
                 clip_part: Part = Part(element_clip)
                 self_part += clip_part
                 return self_part
+            case om.Mutation():
+                return operand.mutate(self)
+            case od.Playlist():
+                return operand >> od.Playlist(self.getPlaylist())
         return super().__rshift__(operand)
 
     # Promotes two Clips to a Part
