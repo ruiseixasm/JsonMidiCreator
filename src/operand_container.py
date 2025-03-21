@@ -993,36 +993,21 @@ class Clip(Container):  # Just a container of Elements
     def __rshift__(self, operand: o.T) -> Union[TypeClip, 'Part', 'Song']:
         import operand_mutation as om
         match operand:
-            case om.Mutation():
-                return operand.mutate(self)
-            case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist())
-            case Song():
-                self_song: Song = Song(self)
-                self_song += operand
-                return self_song
-            case Part():
-                self_part: Part = Part(self)
-                self_part += operand
-                return self_part
-            case Clip():
-                self_part: Part = Part(self)
-                clip_part: Part = Part(operand)
-                self_part += clip_part
-                return self_part
             case oe.Element():
                 self_part: Part = Part(self)
                 element_clip: Clip = Clip(operand)
                 clip_part: Part = Part(element_clip)
                 self_part += clip_part
                 return self_part
+            case om.Mutation():
+                return operand.mutate(self)
+            case od.Playlist():
+                return operand >> od.Playlist(self.getPlaylist())
         return super().__rshift__(operand)
 
-    # Promotes to upper Container, meaning, Part
-    def __rrshift__(self, operand: o.T) -> 'Part':
+    # Promotes two Clips to a Part
+    def __rrshift__(self, operand: o.T) -> Union[TypeClip, 'Part']:
         match operand:
-            case Part():
-                return Song(operand, self)
             case Clip():
                 clip_part: Part = Part(operand)
                 return Song(clip_part, self)
@@ -1801,10 +1786,6 @@ class Part(Container):
     # Promotes to upper Container, meaning, Song
     def __rshift__(self, operand: o.T) -> 'Song':
         match operand:
-            case Song():
-                self_song: Song = Song(self)
-                self_song += operand
-                return self_song
             case Part():
                 self_song: Song = Song(self)
                 part_song: Song = Song(operand)

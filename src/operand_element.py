@@ -37,6 +37,8 @@ TypeElement = TypeVar('TypeElement', bound='Element')  # TypeElement represents 
 
 if TYPE_CHECKING:
     from operand_container import Clip
+    from operand_container import Part
+    from operand_container import Song
 
 class Element(o.Operand):
     def __init__(self, *parameters):
@@ -322,27 +324,25 @@ class Element(o.Operand):
                     self << single_operand
         return self
 
-    # operand is the pusher >> (NO COPIES!) (PASSTHROUGH)
-    def __rrshift__(self, operand: o.T) -> o.T:
-        import operand_container as oc
+    # Promotes to upper Container, meaning, Part
+    def __rshift__(self, operand: o.T) -> Union[TypeElement, 'Clip', 'Part', 'Song']:
         match operand:
-            case ra.Position():
-                self << operand
-            case ra.Length():
-                self << ra.Position(ra.Beats(self._position_beats + operand._rational))
-            case Element():
-                new_clip: oc.Clip = self * 1  # Creates new_clip with self
-                operand >> new_clip # Inserts operand into new_clip at the beginning
-                return new_clip
-            case oc.Clip():
-                operand *= self
             case od.Serialization():
                 return operand % od.DataSource() >> self
             case od.Playlist():
                 return operand >> od.Playlist(self.getPlaylist())
-            case _:
-                return super().__rrshift__(operand)
-        return operand
+        return super().__rshift__(operand)
+
+    # Promotes to upper Container, meaning, Clip
+    def __rrshift__(self, operand: o.T) -> 'Clip':
+        import operand_container as oc
+        match operand:
+            case Element():
+                self_clip: oc.Clip = oc.Clip(self)
+                element_clip: oc.Clip = oc.Clip(operand)
+                element_clip += self_clip
+                return element_clip
+        return oc.Clip(self)
 
     def __add__(self, operand: any) -> Union[TypeElement, 'Clip']:
         return self.copy().__iadd__(operand)
