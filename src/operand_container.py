@@ -794,7 +794,7 @@ class Clip(Container):  # Just a container of Elements
         Returns:
             Length: Equal to Clip finish() - start().
         """
-        return ra.Length( self.finish() - self.start() )
+        return ( self.finish() - self.start() ).convertToLength()
 
     def duration(self) -> ra.Duration:
         """
@@ -1005,10 +1005,6 @@ class Clip(Container):  # Just a container of Elements
                     self._staff.convertToPosition( operand % ra.Position() ) + self._staff.convertToPosition( operand % ra.Duration() )
                 self += add_position  # No copy!
                 self._items.insert(0, operand.copy().set_staff_reference(self._staff))
-            case ra.Position():
-                self._position_beats = self._staff.convertToBeats(operand)._rational
-            case ra.Length() | ra.TimeValue() | ra.Duration() | ou.TimeUnit():
-                self._position_beats += self._staff.convertToBeats(operand)._rational
             case om.Mutation():
                 return operand.mutate(self)
             case od.Playlist():

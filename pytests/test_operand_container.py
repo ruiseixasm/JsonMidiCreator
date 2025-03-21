@@ -587,10 +587,15 @@ def test_position_shift():
     Steps(-3) >> chords
     fifth_measure_chords = chords.copy()
     Measures(4) >> fifth_measure_chords
+    print(f"Length: {chords % Length() % float()}")
+    assert chords % Length() == 4.0
+    assert chords % Position() == 0.0   # Clip has no Position on its own
     assert fifth_measure_chords % Length() == 4.0
+    assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
 
     # __add__ is clip position agnostic!
     aggregated_chords: Clip = chords + fifth_measure_chords
+    print(f"Length: {aggregated_chords % Length() % float()}")
     assert aggregated_chords % Length() == 4.0
 
 

@@ -378,8 +378,6 @@ class Operand:
             case tuple():
                 for single_operand in operand:
                     self.__rrshift__(single_operand)
-            case _:
-                self << operand
         return operand
 
     def __irshift__(self, operand: T) -> T:
