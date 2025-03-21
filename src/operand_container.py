@@ -849,15 +849,12 @@ class Clip(Container):  # Just a container of Elements
                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
+    def getPlaylist(self, position: ra.Position = None, staff: og.Staff = None) -> list[dict]:
 
         clip_position_beats: Fraction = self._position_beats
 
-        if isinstance(staff, og.Staff):
-            clip_position_beats = staff.transformBeats(self._staff.convertToBeats(ra.Beats(clip_position_beats)))._rational
-
-        if isinstance(position_beats, Fraction):
-            clip_position_beats += position_beats
+        if isinstance(position, ra.Position):
+            clip_position_beats += self._staff.transformPosition(position)._rational
 
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
@@ -870,15 +867,12 @@ class Clip(Container):  # Just a container of Elements
                 for single_playlist in single_element.getPlaylist(clip_position_beats)
         ]
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None, staff: og.Staff = None) -> list[dict]:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None, staff: og.Staff = None) -> list[dict]:
 
         clip_position_beats: Fraction = self._position_beats
 
-        if isinstance(staff, og.Staff):
-            clip_position_beats = staff.transformBeats(self._staff.convertToBeats(ra.Beats(clip_position_beats)))._rational
-
-        if isinstance(position_beats, Fraction):
-            clip_position_beats += position_beats
+        if isinstance(position, ra.Position):
+            clip_position_beats += self._staff.transformPosition(position)._rational
 
         # Needs to be reset because shallow_copy doesn't result in different
         # staff references for each element
@@ -886,7 +880,7 @@ class Clip(Container):  # Just a container of Elements
         self._staff.reset_tied_note()
 
         midi_track: ou.MidiTrack = self._midi_track if not isinstance(midi_track, ou.MidiTrack) else midi_track
-        
+
         return [
             single_midilist
                 for single_element in self._items
