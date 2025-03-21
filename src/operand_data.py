@@ -241,6 +241,11 @@ class PartParameter(Data):   # Just a data wrapper
         super().__init__()
         self._data = operand
 
+class PlaylistParameter(Data):   # Just a data wrapper
+    def __init__(self, operand: any = None):
+        super().__init__()
+        self._data = operand
+
 class TrackName(Data):
     def __init__(self, track_name: str = "Track 1"):    # By default is "Track 1"
         super().__init__(track_name)
@@ -495,6 +500,9 @@ class Playlist(Data):
                 self << single_parameter
 
         else:
+
+            if isinstance(operand, PlaylistParameter):
+                operand = operand._data
 
             match operand:
                 case Playlist():
