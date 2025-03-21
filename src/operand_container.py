@@ -1913,6 +1913,8 @@ class Song(Container):
 
     def __lshift__(self, operand: any) -> Self:
         match operand:
+            case Song():
+                super().__lshift__(operand)
             case Part():
                 self._append([ operand.copy() ])._sort_position()
             case Clip():

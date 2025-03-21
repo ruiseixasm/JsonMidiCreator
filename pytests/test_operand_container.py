@@ -166,13 +166,16 @@ def test_or_clip():
 
 def test_copy_container():
 
-    clip = Clip(Note)
+    clip = Clip(Note())
+    assert clip.len() == 1
     assert clip.copy() == clip
 
     part = Part(clip)
+    assert part.len() == 1
     assert part.copy() == part
 
     song = Part(part)
+    assert song.len() == 1
     assert song.copy() == song
 
 
