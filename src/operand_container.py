@@ -1746,18 +1746,20 @@ class Part(Container):
                 return super().__mod__(operand)
 
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self) -> list:
         play_list: list = []
         for single_clip in self:
             if isinstance(single_clip, (Clip, od.Playlist)):
-                play_list.extend(single_clip.getPlaylist(position))
+                part_position: ra.Position = self // ra.Position()
+                play_list.extend(single_clip.getPlaylist(position = part_position))
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self) -> list:
         midi_list: list = []
         for single_clip in self:
             if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                midi_list.extend(single_clip.getMidilist(midi_track, position))
+                part_position: ra.Position = self // ra.Position()
+                midi_list.extend(single_clip.getMidilist(position = part_position))
         return midi_list
 
     def getSerialization(self) -> dict:
@@ -1905,18 +1907,16 @@ class Song(Container):
         return self
 
 
-    def getPlaylist(self, position: ra.Position = None) -> list:
+    def getPlaylist(self) -> list:
         play_list: list = []
-        for single_clip in self:
-            if isinstance(single_clip, (Clip, od.Playlist)):
-                play_list.extend(single_clip.getPlaylist(position))
+        for single_part in self:
+            play_list.extend(single_part.getPlaylist())
         return play_list
 
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position: ra.Position = None) -> list:
+    def getMidilist(self) -> list:
         midi_list: list = []
-        for single_clip in self:
-            if isinstance(single_clip, Clip):   # Can't get Midilist from Playlist !
-                midi_list.extend(single_clip.getMidilist(midi_track, position))
+        for single_part in self:
+            midi_list.extend(single_part.getMidilist())
         return midi_list
 
 
