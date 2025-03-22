@@ -1019,7 +1019,7 @@ class Clip(Container):  # Just a container of Elements
     def __rshift__(self, operand) -> Self:
         import operand_mutation as om
         match operand:
-            case Clip() | oe.Element():
+            case Song() | Part() | Clip() | oe.Element():
                 self += operand
                 return self
             case om.Mutation():
@@ -1035,12 +1035,15 @@ class Clip(Container):  # Just a container of Elements
     # Avoids the costly copy of Track self doing +=
     def __iadd__(self, operand: any) -> Self:
         match operand:
+            case Song():
+                for single_part in operand._items:
+                    self += single_part
+                return self
             case Part():
-                # Part at the right must be a copy
-                new_song: Part = operand.copy()
-                # Inserts self content at the beginning of the Part
-                new_song._items.insert(0, self)
-                return new_song # Operand Part replaces self Clip
+                for single_item in operand._items:
+                    if isinstance(single_item, Clip):
+                        self += single_item
+                return self
             case Clip():
                 operand_elements = [
                     single_element.copy().set_staff_reference(self._staff) for single_element in operand._items
@@ -1798,7 +1801,7 @@ class Part(Container):
     # Pass trough method that always results in a Part (Self)
     def __rshift__(self, operand) -> Self:
         match operand:
-            case Part() | Clip() | oe.Element():
+            case Song() | Part() | Clip() | oe.Element():
                 self += operand
                 return self
         return super().__rshift__(operand)
@@ -1806,6 +1809,10 @@ class Part(Container):
 
     def __iadd__(self, operand: any) -> Self:
         match operand:
+            case Song():
+                for single_part in operand._items:
+                    self += single_part
+                return self
             case Part():
                 self._append(self.deep_copy(operand._items))._sort_position()
             case Clip():
