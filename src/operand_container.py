@@ -490,6 +490,17 @@ class Container(o.Operand):
             return shallow_copy
         self._items = [item for item in self._items if item == condition]
         return self
+
+    def dropper(self, probability: float | Fraction = 1/16, chaos: ch.Chaos = None) -> Self:
+        if not isinstance(chaos, ch.Chaos):
+            chaos = ch.SinX()
+
+        probability = ra.Probability(probability)._rational
+        for single_item in self._items:
+            if chaos * 1 % int() % probability.denominator < probability.numerator:
+                self._delete([ single_item ])
+
+        return self
     
     def operate(self, operand: any = None, operator: str = "<<") -> Self:
         operator = operator.strip()
