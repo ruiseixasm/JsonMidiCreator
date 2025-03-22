@@ -1000,28 +1000,28 @@ class Clip(Container):  # Just a container of Elements
 
 
     # Promotes to upper Container, meaning, Part
-    def __rshift__(self, operand) -> Union['Clip', 'Part', 'od.Playlist']:
+    def __rshift__(self, operand) -> Self:
         import operand_mutation as om
         match operand:
-            case Clip():        # Returns a Part
-                self_part: Part = Part(self)
-                clip_part: Part = Part(operand)
-                self_part += clip_part
-                return cast(Part, self_part)  # Ensure explicit type
-            case oe.Element():  # Returns a Part
-                self_part: Part = Part(self)
-                element_clip: Clip = Clip(operand)
-                clip_part: Part = Part(element_clip)
-                self_part += clip_part
-                return cast(Part, self_part)
-            case om.Mutation(): # Returns a Clip
-                return cast(Clip, operand.mutate(self))
-            case od.Playlist(): # Returns a Playlist
-                return cast(od.Playlist, operand.__rrshift__(self))
-            case od.Process():  # Returns a Clip
-                return cast(Clip, operand.__rrshift__(self))
-        # Returns a Clip
-        return cast(Clip, super().__rshift__(operand))
+            # case Clip():        # Returns a Part
+            #     self_part: Part = Part(self)
+            #     clip_part: Part = Part(operand)
+            #     self_part += clip_part
+            #     return cast(Part, self_part)  # Ensure explicit type
+            # case oe.Element():  # Returns a Part
+            #     self_part: Part = Part(self)
+            #     element_clip: Clip = Clip(operand)
+            #     clip_part: Part = Part(element_clip)
+            #     self_part += clip_part
+            #     return cast(Part, self_part)
+            case om.Mutation():
+                return operand.mutate(self)
+            case od.Playlist():
+                operand.__rrshift__(self)
+                return self
+            case od.Process():
+                return operand.__rrshift__(self)
+        return super().__rshift__(operand)
 
 
     # Avoids the costly copy of Track self doing +=
