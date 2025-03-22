@@ -957,7 +957,7 @@ class Clip(Container):  # Just a container of Elements
             # Use Frame objects to bypass this parameter into elements (Setting Position)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
-            case oe.Element():
+            case Song() | Part() | oe.Element():
                 self += operand # It's equivalent
             case list():
                 self._items = [
@@ -1780,7 +1780,7 @@ class Part(Container):
                 self._staff << operand
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position_beats = self._staff.convertToBeats(operand)._rational
-            case Clip() | oe.Element():
+            case Song() | Clip() | oe.Element():
                 self += operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
