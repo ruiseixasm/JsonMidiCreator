@@ -999,21 +999,13 @@ class Clip(Container):  # Just a container of Elements
         return shallow_copy
 
 
-    # Promotes to upper Container, meaning, Part
+    # Pass trough method that always results in a Clip (Self)
     def __rshift__(self, operand) -> Self:
         import operand_mutation as om
         match operand:
-            # case Clip():        # Returns a Part
-            #     self_part: Part = Part(self)
-            #     clip_part: Part = Part(operand)
-            #     self_part += clip_part
-            #     return cast(Part, self_part)  # Ensure explicit type
-            # case oe.Element():  # Returns a Part
-            #     self_part: Part = Part(self)
-            #     element_clip: Clip = Clip(operand)
-            #     clip_part: Part = Part(element_clip)
-            #     self_part += clip_part
-            #     return cast(Part, self_part)
+            case Clip():
+                self += operand
+                return self
             case om.Mutation():
                 return operand.mutate(self)
             case od.Playlist():
