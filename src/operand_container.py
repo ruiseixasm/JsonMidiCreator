@@ -1921,15 +1921,8 @@ class Song(Container):
         match operand:
             case Song():
                 super().__lshift__(operand)
-            case Part():
-                self._append([ operand.copy() ])._sort_position()
-            case Clip():
-                clip_part: Part = Part(operand)
-                self._append([ clip_part ])._sort_position()
-            case oe.Element():
-                element_clip: Clip = Clip(operand)
-                clip_part: Part = Part(element_clip)
-                self._append([ clip_part ])._sort_position()
+            case Part() | Clip() | oe.Element():
+                self += operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -1943,6 +1936,27 @@ class Song(Container):
             case _:
                 for single_part in self._items:
                     single_part << operand
+        return self
+
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case Part():
+                self._append([ operand.copy() ])._sort_position()
+            case Clip():
+                clip_part: Part = Part(operand)
+                self._append([ clip_part ])._sort_position()
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                clip_part: Part = Part(element_clip)
+                self._append([ clip_part ])._sort_position()
+            case list():
+                self._append(self.deep_copy(operand))._sort_position()
+            case tuple():
+                for single_operand in operand:
+                    self += single_operand
+            case _:
+                for item in self._items:
+                    item += operand
         return self
 
     # # Maintains current Container, meaning, Song
