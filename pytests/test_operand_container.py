@@ -182,13 +182,13 @@ def test_copy_container():
 
 def test_rshift_container():
 
-    clip = Note() >> Note()
+    clip = Clip(Note(), Note())
     assert type(clip) is Clip
 
-    part = clip >> Note()
+    part = Part() + clip
     assert type(part) is Part
 
-    song = part >> clip
+    song = Song() + part
     assert type(song) is Song
 
 # test_rshift_container()
@@ -674,7 +674,7 @@ def test_position_shift():
     assert four_notes_2[0] % Beats() == 0
 
     assert four_notes_1 % Length() == 3 * Beats(1) + Beats(1/2)
-    assert (Measures(1) >> four_notes_1) % Position() == Beats(0)    # Clip has no Position on its own
+    assert Measures(1) >> four_notes_1 == Beats(4)    # Operator >> is a pass trough operator
 
 # test_position_shift()
 
@@ -804,7 +804,7 @@ def test_song_operations():
     assert (part_1 - clip_2).len() == 1
     assert (part_1 + part_2).len() == 4
 
-    # Becomes a Song of two Parts due to >> operator
+    # Becomes a Part of two Clips due to + operator
     assert (part_1 >> clip_2).len() == 2
     assert (part_1 >> part_2).len() == 2
 
