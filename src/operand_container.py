@@ -1830,6 +1830,9 @@ class Part(Container):
                 self._append(self.deep_copy(operand._items))._sort_position()
             case Clip():
                 self._append([ operand.copy() ])._sort_position()
+            case oe.Element():
+                element_clip: Clip = Clip(operand)
+                self._append([ element_clip ])
             case list():
                 self._append(self.deep_copy(operand))._sort_position()
             case tuple():

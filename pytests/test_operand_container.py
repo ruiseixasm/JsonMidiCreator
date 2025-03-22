@@ -180,18 +180,30 @@ def test_copy_container():
 
 
 
-def test_rshift_container():
+def test_add_container():
 
-    clip = Clip(Note(), Note())
+    clip = Clip() + Note()
     assert type(clip) is Clip
+    assert clip.len() == 1
 
     part = Part() + clip
     assert type(part) is Part
+    assert part.len() == 1
+    part = Part() + Note()
+    assert type(part) is Part
+    assert part.len() == 1
 
     song = Song() + part
     assert type(song) is Song
+    assert song.len() == 1
+    song = Song() + clip
+    assert type(song) is Song
+    assert song.len() == 1
+    song = Song() + Note()
+    assert type(song) is Song
+    assert song.len() == 1
 
-# test_rshift_container()
+# test_add_container()
 
 
 def test_rrshift_clip():
