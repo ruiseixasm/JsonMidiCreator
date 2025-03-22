@@ -441,11 +441,14 @@ class Operand:
     def __rand__(self, operand: any) -> any:
         return self.__and__(operand)
     
-    def __or__(self, operand: any) -> any:
-        return operand.__ror__(self)
+    def __or__(self, operand: any) -> Self:
+        return self.copy().__ior__(operand)
 
-    def __ror__(self, operand: any) -> any:
+    def __ior__(self, operand: any) -> Self:
         return self
+
+    def __ror__(self, operand: T) -> T:
+        return operand
     
 
     # STATIC METHODS
