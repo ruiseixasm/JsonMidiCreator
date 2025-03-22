@@ -1769,8 +1769,8 @@ class Part(Container):
                 self._staff << operand
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 self._position_beats = self._staff.convertToBeats(operand)._rational
-            case Clip():
-                self._append([ operand.copy() ])._sort_position()
+            case Clip() | oe.Element():
+                self += operand
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case list():
@@ -1832,7 +1832,7 @@ class Part(Container):
                 self._append([ operand.copy() ])._sort_position()
             case oe.Element():
                 element_clip: Clip = Clip(operand)
-                self._append([ element_clip ])
+                self._append([ element_clip ])._sort_position()
             case list():
                 self._append(self.deep_copy(operand))._sort_position()
             case tuple():

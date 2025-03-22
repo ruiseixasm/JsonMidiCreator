@@ -205,6 +205,25 @@ def test_add_container():
 
 # test_add_container()
 
+def test_new_container():
+
+    clip = Clip(Note())
+    assert clip.len() == 1
+
+    part = Part(clip)
+    assert part.len() == 1
+    part = Part(Note())
+    assert part.len() == 1
+
+    song = Song(part)
+    assert song.len() == 1
+    song = Song(clip)
+    assert song.len() == 1
+    song = Song(Note())
+    assert song.len() == 1
+
+# test_new_container()
+
 
 def test_rrshift_clip():
 
