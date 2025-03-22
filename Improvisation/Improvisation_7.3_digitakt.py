@@ -41,7 +41,8 @@ cymbal      = Channel(8)
 
 defaults << Tempo(130)
 
-open_hats_clip = Clip() >> Stepper("..1..1..", Note(open_hat, 1/16)) << TrackName("Open Hat")
+open_hats_clip = Clip() >> Stepper("..1..1..", Note(open_hat, 1/16))
+open_hats_clip << TrackName("Open Hat")
 open_hats_clip += open_hats_clip + Beats(2)
 
 close_hats_clip = Note(closed_hat, 1/16) * 16 << TrackName("Closed Hat")

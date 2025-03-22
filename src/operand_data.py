@@ -562,7 +562,7 @@ class Playlist(Data):
         import operand_element as oe
         import operand_container as oc
         match operand:
-            case oc.Clip() | oe.Element() | Playlist(): # TO BE REVIEWED !!
+            case oc.Clip() | oe.Element() | Playlist():
                 operand_playlist_list: list[dict] = operand.getPlaylist()
                 if len(self._data) > 0 and len(operand_playlist_list) > 0:
                     operand_playlist: Playlist = Playlist( DataSource( operand_playlist_list ) )

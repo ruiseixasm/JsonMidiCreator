@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonMidiPlayer
 '''
 # Example using typing.Union (compatible with Python < 3.10)
 from typing import Union, TypeVar, TYPE_CHECKING, Type, Callable, List, Tuple, Optional, Any, Generic
-from typing import Self
+from typing import Self, cast
 
 from fractions import Fraction
 import json
@@ -993,31 +993,33 @@ class Clip(Container):  # Just a container of Elements
         for single_parameter in parameters:
             shallow_copy << single_parameter
         return shallow_copy
-    
+
 
     # Promotes to upper Container, meaning, Part
-    def __rshift__(self, operand: o.T) -> Union[TypeClip, 'Part']:
+    def __rshift__(self, operand) -> Union['Clip', 'Part', 'od.Playlist']:
         import operand_mutation as om
         match operand:
-            case Clip():
+            case Clip():        # Returns a Part
                 self_part: Part = Part(self)
                 clip_part: Part = Part(operand)
                 self_part += clip_part
-                return self_part
-            case oe.Element():
+                return cast(Part, self_part)  # Ensure explicit type
+            case oe.Element():  # Returns a Part
                 self_part: Part = Part(self)
                 element_clip: Clip = Clip(operand)
                 clip_part: Part = Part(element_clip)
                 self_part += clip_part
-                return self_part
-            case om.Mutation():
-                return operand.mutate(self)
-            case od.Playlist():
-                return operand >> od.Playlist(self.getPlaylist())
-        return super().__rshift__(operand)
+                return cast(Part, self_part)
+            case om.Mutation(): # Returns a Clip
+                return cast(Clip, operand.mutate(self))
+            case od.Playlist(): # Returns a Playlist
+                return cast(od.Playlist, operand.__rrshift__(self))
+            case od.Process():  # Returns a Clip
+                return cast(Clip, operand.__rrshift__(self))
+        # Returns a Clip
+        return cast(Clip, super().__rshift__(operand))
 
-    # Promotes two Clips to a Part
-    def __rrshift__(self, operand: o.T) -> Self:
+    def __rrshift__(self, operand) -> Self:
         return self
 
 
