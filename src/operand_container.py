@@ -276,6 +276,10 @@ class Container(o.Operand):
                 self += operand
         return self
 
+    # Pass trough operation as last resort
+    def __rrshift__(self, operand: o.T) -> o.T:
+        return operand
+
     def empty_copy(self, *parameters) -> Self:
         empty_copy: Container = self.__class__()
         # COPY THE SELF OPERANDS RECURSIVELY
@@ -1018,10 +1022,6 @@ class Clip(Container):  # Just a container of Elements
                 return cast(Clip, operand.__rrshift__(self))
         # Returns a Clip
         return cast(Clip, super().__rshift__(operand))
-
-    # Pass trough operation as last resort
-    def __rrshift__(self, operand: o.T) -> o.T:
-        return operand
 
 
     # Avoids the costly copy of Track self doing +=
