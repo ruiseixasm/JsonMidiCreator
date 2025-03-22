@@ -294,6 +294,7 @@ class Container(o.Operand):
 
     # Pass trough operation as last resort
     def __rrshift__(self, operand: o.T) -> o.T:
+        self << operand # Left shifts remaining parameter (Pass Through)
         return operand
 
     def empty_copy(self, *parameters) -> Self:

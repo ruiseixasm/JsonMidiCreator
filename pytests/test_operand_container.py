@@ -666,28 +666,33 @@ def test_position_shift():
     chords: Clip = Chord() * 4 << Loop(1, 5, 6, 4)
 
     assert chords % Position() == 0.0
+    print(f"Position first [0]: {chords[0] % Position() % float()}")
     Steps(3) >> chords
+    print(f"Position first [0]: {chords[0] % Position() % float()}")
     assert chords % Position() == 0.0   # Clip has no Position on its own
 
-    Steps(-3) >> chords
+    Steps(-3) >> chords # SETS, doesn't Move!!
+    print(f"Position first [0]: {chords[0] % Position() % float()}")
+    assert chords[0] % Position() == Steps(-3)
     fifth_measure_chords = chords.copy()
-    Measures(4) >> fifth_measure_chords
+    Measures(4) >> fifth_measure_chords # SETS, doesn't Move!!
     print(f"Length: {chords % Length() % float()}")
-    assert chords % Length() == 4.0
     assert chords % Position() == 0.0   # Clip has no Position on its own
-    assert fifth_measure_chords % Length() == 4.0
+    assert chords % Length() == 1.0 # All Elements became at the same position, 1.0 length each one
     assert fifth_measure_chords % Position() == 0.0   # Clip has no Position on its own
+    assert fifth_measure_chords % Length() == 1.0   # All Elements became at the same position, 1.0 length each one
 
     # __add__ is clip position agnostic!
     aggregated_chords: Clip = chords + fifth_measure_chords
     print(f"Length: {aggregated_chords % Length() % float()}")
-    assert aggregated_chords % Length() == 4.0
+    print(f"Length ADD: {(Steps(3) + Measures(4) + Measures(1)) % Length() % float()}")
+    assert aggregated_chords % Length() == Steps(3) + Measures(4) + Measures(1)
 
 
     four_notes_1: Clip = Note() * 4 << NoteValue(1/8)
     four_notes_2: Clip = Note() * 4
 
-    Beats(2) >> four_notes_1
+    Beats(2) >> four_notes_1 # SETS common Position!!
     assert four_notes_1 % Position() == Beats(0)    # Clip has no Position on its own
     Beats(-2) >> four_notes_1
     assert four_notes_1 % Position() == Beats(0)
@@ -697,15 +702,16 @@ def test_position_shift():
 
     eight_notes = four_notes_1 * four_notes_2  # * Moves four_notes_2 to the next Measure
     print(eight_notes[0] % Beats() % int())
-    assert eight_notes[0] % Beats() == 0
+    assert eight_notes[0] % Beats() == -2
     print(eight_notes[4] % Beats() % int())
-    assert eight_notes[4] % Beats() == 4
+    assert eight_notes[4] % Beats() == 4 
 
     print(four_notes_2[0] % Beats() % int())
     assert four_notes_2[0] % Beats() == 0
 
-    assert four_notes_1 % Length() == 3 * Beats(1) + Beats(1/2)
-    assert Measures(1) >> four_notes_1 == Beats(4)    # Operator >> is a pass trough operator
+    print(f"Length: {four_notes_1 % Length() % float()}")
+    assert Measures(1) >> four_notes_1 == Beats(4)  # Operator >> is a pass trough operator
+    assert four_notes_1 % Length() == Beats(1/2)    # All Elements became at the same position, NoteValue(1/8) length each one
 
 # test_position_shift()
 
