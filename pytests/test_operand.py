@@ -84,14 +84,14 @@ def test_operand_copy():
     basic_parameters: tuple = (3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
-    Print("1st Cycle")
+    print("1st Cycle - Simple data")
     for single_class in list_all_classes:
         class_object: Operand = single_class() << basic_parameters
         if class_object != class_object.copy():
             print(f"Culprit: {single_class.__name__}")
             assert class_object == class_object.copy()
 
-    Print("2nd Cycle")
+    print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -103,7 +103,7 @@ def test_operand_copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
 
-    Print("3rd Cycle")
+    print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -130,7 +130,7 @@ def test_operand_serialization():
     basic_parameters: tuple = (3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
-    Print("1st Cycle")
+    print("1st Cycle - Simple data")
     for single_class in list_all_classes:
         class_object = single_class()
         if not isinstance(class_object, (int)):
@@ -145,7 +145,7 @@ def test_operand_serialization():
                 print(f"Culprit ii: {single_class.__name__}")
                 assert loaded_instantiation == class_object
 
-    Print("2nd Cycle")
+    print("2nd Cycle - Unit objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -163,7 +163,7 @@ def test_operand_serialization():
                 print(f"Culprit ii: {single_class.__name__}")
                 assert loaded_instantiation == class_object
 
-    Print("3rd Cycle")
+    print("3rd Cycle - Rational objects data")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
