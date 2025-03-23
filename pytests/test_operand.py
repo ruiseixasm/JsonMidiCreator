@@ -92,7 +92,6 @@ def test_operand_copy():
             assert class_object == class_object.copy()
 
     Print("2nd Cycle")
-    exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -100,12 +99,9 @@ def test_operand_copy():
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
                 class_object << unit_class_object
-            # if not class_object == class_object.copy():
-            #     exclude_class_names += single_class.__name__ + ", "
             if class_object != class_object.copy():
                 print(f"Culprit: {single_class.__name__}")
                 assert class_object == class_object.copy()
-    # print(exclude_class_names)
 
     Print("3rd Cycle")
     for single_class in list_all_classes:
@@ -150,7 +146,6 @@ def test_operand_serialization():
                 assert loaded_instantiation == class_object
 
     Print("2nd Cycle")
-    exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -167,7 +162,6 @@ def test_operand_serialization():
             if loaded_instantiation != class_object:
                 print(f"Culprit ii: {single_class.__name__}")
                 assert loaded_instantiation == class_object
-    # print(exclude_class_names)
 
     Print("3rd Cycle")
     for single_class in list_all_classes:
