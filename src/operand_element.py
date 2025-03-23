@@ -478,6 +478,81 @@ class Element(o.Operand):
         return round(float(minutes * 60_000), 3)
 
 
+class Group(Element):
+    def __init__(self, *parameters):
+        self._elements: list[Element] = [
+            # From top to down, from left to right
+            ControlChange(ou.Number("Pan"), ou.Value(0)),
+            Note()
+        ]
+        super().__init__(*parameters)
+
+    def __mod__(self, operand: o.T) -> o.T:
+        match operand:
+            case od.DataSource():
+                match operand._data:
+                    case list():            return self._elements
+                    case _:                 return super().__mod__(operand)
+            case list():            return self._elements.copy()
+            case _:                 return super().__mod__(operand)
+
+    def __eq__(self, other: o.Operand) -> bool:
+        other = self & other    # Processes the tailed self operands or the Frame operand if any exists
+        match other:
+            case self.__class__():
+                return super().__eq__(other) \
+                    and self._elements == other._elements
+            case _:
+                return super().__eq__(other)
+    
+    def get_component_elements(self) -> list[Element]:
+        return self._elements
+
+    def getPlaylist(self, position_beats: Fraction = None) -> list:
+        self_playlist: list = []
+        for single_element in self.get_component_elements():
+            self_playlist.extend(single_element.getPlaylist(position_beats))
+        return self_playlist
+    
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+        self_midilist: list = []
+        for single_element in self.get_component_elements():
+            self_midilist.extend(single_element.getMidilist(midi_track, position_beats))    # extends the list with other list
+        return self_midilist
+    
+    def getSerialization(self) -> dict:
+        serialization = super().getSerialization()
+        serialization["parameters"]["elements"] = self.serialize( self._elements )
+        return serialization
+
+    # CHAINABLE OPERATIONS
+
+    def loadSerialization(self, serialization: dict) -> Self:
+        if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
+            "elements" in serialization["parameters"]):
+
+            super().loadSerialization(serialization)
+            self._elements  = self.deserialize( serialization["parameters"]["elements"] )
+        return self
+
+    def __lshift__(self, operand: any) -> Self:
+        operand = self & operand    # Processes the tailed self operands or the Frame operand if any exists
+        match operand:
+            case Group():
+                super().__lshift__(operand)
+                self._elements = self.deep_copy( operand._elements )
+            case od.DataSource():
+                match operand._data:
+                    case list():
+                        self._elements = operand._data
+                    case _:
+                        super().__lshift__(operand)
+            case list():
+                self._elements = self.deep_copy( operand )
+            case _:
+                super().__lshift__(operand)
+        return self
+
 
 class Clock(Element):
     def __init__(self, *parameters):
@@ -917,7 +992,7 @@ class Cluster(Note):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Note]:
+    def get_component_elements(self) -> list[Element]:
         cluster_notes: list[Note] = []
         for single_set in self._sets:
             new_note: Note = Note(self).set_staff_reference(self._staff_reference)
@@ -965,6 +1040,8 @@ class Cluster(Note):
                 match operand._data:
                     case list():
                         self._sets = operand._data
+                    case og.Arpeggio():
+                        self._arpeggio = operand._data
                     case _:
                         super().__lshift__(operand)
             case list():
@@ -1032,7 +1109,7 @@ class KeyScale(Note):
             case _:
                 return super().__eq__(other)
             
-    def get_component_elements(self) -> list[Note]:
+    def get_component_elements(self) -> list[Element]:
         scale_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -1130,7 +1207,7 @@ class Polychord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Note]:
+    def get_component_elements(self) -> list[Element]:
         polychord_notes: list[Note] = []
         for single_degree in self._degrees:
             polychord_notes.append( Note(self).set_staff_reference(self._staff_reference) << ou.Degree(single_degree) )
@@ -1270,7 +1347,7 @@ class Chord(KeyScale):
             case _:
                 return super().__eq__(other)
     
-    def get_component_elements(self) -> list[Note]:
+    def get_component_elements(self) -> list[Element]:
         chord_notes: list[Note] = []
         # Sets Scale to be used
         if self._scale.hasScale():
@@ -1473,7 +1550,7 @@ class Retrigger(Note):
             case list():            return self.get_component_elements()
             case _:                 return super().__mod__(operand)
 
-    def get_component_elements(self) -> list[Note]:
+    def get_component_elements(self) -> list[Element]:
         retrigger_notes: list[Note] = []
         self_iteration: int = 0
         note_position: ra.Position = self._staff_reference.convertToPosition(ra.Beats(self._position_beats))
