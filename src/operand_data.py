@@ -392,23 +392,8 @@ class Playlist(Data):
         import operand_generic as og
         super().__init__([])
         self._track_name: str = "Playlist 1"
-        self._staff: og.Staff = og.defaults._staff.copy()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
-
-    def set_staff_reference(self, staff_reference: 'Staff' = None) -> Self:
-        import operand_generic as og
-        if isinstance(staff_reference, og.Staff):
-            self._staff << staff_reference
-        return self
-
-    def get_staff_reference(self) -> 'Staff':
-        return self._staff
-
-    def reset_staff_reference(self) -> Self:
-        import operand_generic as og
-        self._staff = og.defaults._staff.copy()
-        return self
 
 
     def __mod__(self, operand: o.T) -> o.T:
@@ -430,12 +415,10 @@ class Playlist(Data):
                 match operand._data:
                     case TrackName():       return operand._data << DataSource(self._track_name)
                     case list():            return self._data
-                    case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case TrackName():       return TrackName(self._track_name)
             case str():             return self._track_name._data
             case list():            return self.shallow_playlist_copy(self._data)
-            case og.Staff():        return self._staff.copy()
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -469,7 +452,6 @@ class Playlist(Data):
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
 
-        serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["track_name"]   = self._track_name
         return serialization
 
@@ -477,10 +459,9 @@ class Playlist(Data):
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "track_name" in serialization["parameters"]):
+            "track_name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
-            self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._track_name        = serialization["parameters"]["track_name"]
         return self
 
@@ -503,15 +484,12 @@ class Playlist(Data):
                 case Playlist():
                     self._data          = self.shallow_playlist_copy(operand._data)
                     self._track_name    = operand._track_name
-                    self.set_staff_reference(operand._staff)
                 case DataSource():
                     match operand._data:
                         case TrackName():
                             self._track_name = operand._data._data
                         case list():
                             self._data = operand._data
-                        case og.Staff():
-                            self._staff = operand._data
                         case _:
                             super().__lshift__(operand)
                 case oc.Container() | oe.Element() | Playlist():
@@ -526,7 +504,7 @@ class Playlist(Data):
                     for single_operand in operand:
                         self << single_operand
                 case _:
-                    self._staff << operand
+                    super().__lshift__(operand)
         return self
     
     def start(self) -> float:
