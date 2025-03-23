@@ -892,32 +892,32 @@ class Clip(Container):  # Just a container of Elements
         self._staff.reset_accidentals()
         self._staff.reset_tied_note()
 
-        clip_position_beats: Fraction = Fraction(0)
+        position_beats: Fraction = Fraction(0)
 
         if isinstance(position, ra.Position):
-            clip_position_beats += self._staff.transformPosition(position)._rational
+            position_beats += self._staff.transformPosition(position)._rational
 
-        return clip_position_beats
+        return position_beats
 
 
     def getPlaylist(self, position: ra.Position = None) -> list[dict]:
 
-        clip_position_beats: Fraction = self.get_position_beats(position)
+        position_beats: Fraction = self.get_position_beats(position)
 
         return [
             single_playlist
                 for single_element in self._items
-                for single_playlist in single_element.getPlaylist(clip_position_beats)
+                for single_playlist in single_element.getPlaylist(position_beats)
         ]
 
     def getMidilist(self, position: ra.Position = None) -> list[dict]:
 
-        clip_position_beats: Fraction = self.get_position_beats(position)
+        position_beats: Fraction = self.get_position_beats(position)
 
         return [
             single_midilist
                 for single_element in self._items
-                for single_midilist in single_element.getMidilist(self._midi_track, clip_position_beats)
+                for single_midilist in single_element.getMidilist(self._midi_track, position_beats)
         ]
 
     def getSerialization(self) -> dict:

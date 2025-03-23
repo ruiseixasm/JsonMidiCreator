@@ -392,7 +392,6 @@ class Playlist(Data):
         import operand_generic as og
         super().__init__([])
         self._track_name: str = "Playlist 1"
-        self._position_beats: Fraction = Fraction(0)
         self._staff: og.Staff = og.defaults._staff.copy()
         for single_parameter in parameters: # Faster than passing a tuple
             self << single_parameter
@@ -431,13 +430,11 @@ class Playlist(Data):
                 match operand._data:
                     case TrackName():       return operand._data << DataSource(self._track_name)
                     case list():            return self._data
-                    case ra.Position():     return operand._data << self._staff.convertToPosition(ra.Beats(self._position_beats))
                     case og.Staff():        return self._staff
                     case _:                 return super().__mod__(operand)
             case TrackName():       return TrackName(self._track_name)
             case str():             return self._track_name._data
             case list():            return self.shallow_playlist_copy(self._data)
-            case ra.Position():     return self._staff.convertToPosition(ra.Beats(self._position_beats))
             case og.Staff():        return self._staff.copy()
             case _:                 return super().__mod__(operand)
 
@@ -454,12 +451,13 @@ class Playlist(Data):
                 return self._data == other.getPlaylist()
         return super().__eq__(other)
     
-    def getPlaylist(self, position = None, staff = None) -> list:
+    def getPlaylist(self, position: 'Position' = None) -> list:
         import operand_rational as ra
         if len(self._data) > 0:
-            self_position: ra.Position = self._staff.convertToPosition(ra.Beats(self._position_beats))
+            if not isinstance(position, ra.Position):
+                position: ra.Position = ra.Position(0)
             # Position generates a dummy list with the position as ms
-            operand_playlist_list: list[dict] = self_position.getPlaylist()
+            operand_playlist_list: list[dict] = position.getPlaylist()
             offset_position_ms: float = operand_playlist_list[0]["time_ms"]
             self_playlist_list_copy: list[dict] = self.deep_copy( self._data )
             for self_dict in self_playlist_list_copy:
@@ -473,20 +471,17 @@ class Playlist(Data):
 
         serialization["parameters"]["staff"]        = self.serialize(self._staff)
         serialization["parameters"]["track_name"]   = self._track_name
-        serialization["parameters"]["position"]     = self.serialize(self._position_beats)
         return serialization
 
     # CHAINABLE OPERATIONS
 
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
-            "staff" in serialization["parameters"] and "track_name" in serialization["parameters"]
-            and "position" in serialization["parameters"]):
+            "staff" in serialization["parameters"] and "track_name" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._staff             = self.deserialize(serialization["parameters"]["staff"])
             self._track_name        = serialization["parameters"]["track_name"]
-            self._position_beats    = self.deserialize(serialization["parameters"]["position"])
         return self
 
     def __lshift__(self, operand: any) -> Self:
@@ -515,8 +510,6 @@ class Playlist(Data):
                             self._track_name = operand._data._data
                         case list():
                             self._data = operand._data
-                        case ra.Position():
-                            self._position_beats = operand._data._rational
                         case og.Staff():
                             self._staff = operand._data
                         case _:
@@ -529,8 +522,6 @@ class Playlist(Data):
                     self._track_name = operand
                 case list():
                     self._data = self.shallow_playlist_copy(operand)
-                case ra.Position():
-                    self._position_beats = operand._rational
                 case tuple():
                     for single_operand in operand:
                         self << single_operand
