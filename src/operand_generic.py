@@ -1136,7 +1136,7 @@ class Staff(Generic):
         self._stacked_notes: dict[float,    # time_ms
                                   dict[int,     # status byte
                                        dict[int,    # pitch
-                                            set[list[str]]]]    # set of devices list
+                                            set[tuple[str]]]]    # set of devices tuple
                             ] = {}
 
     def reset_accidentals(self) -> Self:
@@ -1186,16 +1186,18 @@ class Staff(Generic):
         return None
 
     def stack_note(self, note_on_ms: float, status_byte: int, pitch: int, device: list[str]) -> bool:
-        if note_on_ms not in self._stacked_notes:
-            self._stacked_notes[note_on_ms] = {}
-        if status_byte not in self._stacked_notes[note_on_ms]:
-            self._stacked_notes[note_on_ms][status_byte] = {}
-        if pitch not in self._stacked_notes[note_on_ms][status_byte]:
-            self._stacked_notes[note_on_ms][status_byte][pitch] = set()
-        if device not in self._stacked_notes[note_on_ms][status_byte][pitch]:
-            self._stacked_notes[note_on_ms][status_byte][pitch].add(device)
-        else:   # It's an Overlapping note
-            return False
+        if self is not defaults._staff: # defaults's staff remains clean
+            device_tuple: tuple[str] = tuple(device)
+            if note_on_ms not in self._stacked_notes:
+                self._stacked_notes[note_on_ms] = {}
+            if status_byte not in self._stacked_notes[note_on_ms]:
+                self._stacked_notes[note_on_ms][status_byte] = {}
+            if pitch not in self._stacked_notes[note_on_ms][status_byte]:
+                self._stacked_notes[note_on_ms][status_byte][pitch] = set()
+            if device_tuple not in self._stacked_notes[note_on_ms][status_byte][pitch]:
+                self._stacked_notes[note_on_ms][status_byte][pitch].add(device_tuple)
+            else:   # It's an Overlapping note
+                return False
         return True
 
     def reset_stacked_notes(self) -> Self:

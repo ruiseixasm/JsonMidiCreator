@@ -851,7 +851,14 @@ class Note(Element):
                 )
 
         # Record present Note on the Staff stacked notes
-        
+        if not self._staff_reference.stack_note(
+            self_playlist[0]["time_ms"],
+            self_playlist[0]["midi_message"]["status_byte"],
+            self_playlist[0]["midi_message"]["data_byte_1"],
+            self_playlist[0]["midi_message"]["device"],
+        ):
+            print(f"Warning: Removed redundant note with same time start!")
+            return []
 
         return self_playlist
 
