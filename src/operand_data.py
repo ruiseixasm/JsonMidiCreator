@@ -592,11 +592,13 @@ class Playlist(Data):
     # Only the "time_ms" data matters to be copied because the rest wont change (faster)
     @staticmethod
     def shallow_playlist_list_copy(playlist: list[dict]) -> list[dict]:
-        return [
-            single_dict.copy()
-                for single_dict in playlist
-                if isinstance(single_dict, dict) and "time_ms" in single_dict
-        ]
+        if isinstance(playlist, list):
+            return [
+                single_dict.copy()
+                    for single_dict in playlist
+                    if isinstance(single_dict, dict) and "time_ms" in single_dict
+            ]
+        return []
 
 
 class Load(Serialization):
