@@ -558,41 +558,55 @@ class Playlist(Data):
                             self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
                 return self
 
-            case ra.Length():
-                # Length generates a dummy list with the position as ms
+            case _:
+                return super().__rrshift__(operand)
+
+
+    def __iadd__(self, operand: any) -> Self:
+        import operand_rational as ra
+        match operand:
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                # Position generates a dummy list with the position as ms
                 operand_playlist_list: list[dict] = operand.getPlaylist()
                 offset_position_ms: float = operand_playlist_list[0]["time_ms"]
                 for self_dict in self._data:
                     if "time_ms" in self_dict:
                         self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
-                return self
-
-            case _:
-                return super().__rrshift__(operand)
-
-
-    def __add__(self, operand: any) -> Self:
-        import operand_rational as ra
-        match operand:
-            case ra.Length():
-                playlist_copy = self.shallow_playlist_list_copy(self._data)
-                increase_position_ms: float = operand.getMillis_float() # OUTDATED, NEEDS TO BE REVIEWED WITH LENGTH INSTEAD
-                for self_dict in playlist_copy:
-                    if "time_ms" in self_dict:
-                        self_dict["time_ms"] = round(self_dict["time_ms"] + increase_position_ms, 3)
-                return Playlist(self._track_name) << DataSource( playlist_copy )
             case list():
-                return Playlist(self._track_name) << DataSource( self.shallow_playlist_list_copy(self._data) + self.shallow_playlist_list_copy(operand) )
+                if isinstance(self._data, list):
+                    self._data.extend(
+                        self.shallow_playlist_list_copy(operand)
+                    )
             case o.Operand():
-                return Playlist(self._track_name) << DataSource( self.shallow_playlist_list_copy(self._data) + operand.getPlaylist() )
+                if isinstance(self._data, list):
+                    self._data.extend(
+                        operand.getPlaylist()
+                    )
             case PlaylistParameter():
                 self += operand._data
             case Parameters():
                 for single_parameter in operand._data:
                     self += single_parameter
 
-            case _:
-                return Playlist(self)
+        return self
+
+    def __isub__(self, operand: any) -> Self:
+        import operand_rational as ra
+        match operand:
+            case ra.Position() | ra.TimeValue() | ou.TimeUnit():
+                # Position generates a dummy list with the position as ms
+                operand_playlist_list: list[dict] = operand.getPlaylist()
+                offset_position_ms: float = operand_playlist_list[0]["time_ms"]
+                for self_dict in self._data:
+                    if "time_ms" in self_dict:
+                        self_dict["time_ms"] = round(self_dict["time_ms"] - offset_position_ms, 3)
+            case PlaylistParameter():
+                self -= operand._data
+            case Parameters():
+                for single_parameter in operand._data:
+                    self -= single_parameter
+
+        return self
 
     # Only the "time_ms" data matters to be copied because the rest wont change (faster)
     @staticmethod
