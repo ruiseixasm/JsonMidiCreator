@@ -1136,7 +1136,7 @@ class Staff(Generic):
         self._stacked_notes: dict[float,    # time_ms
                                   dict[int,     # status byte
                                        dict[int,    # pitch
-                                            list[str]]] # devices list
+                                            set[list[str]]]]    # set of devices list
                             ] = {}
 
     def reset_accidentals(self) -> Self:
@@ -1186,17 +1186,21 @@ class Staff(Generic):
         return None
 
     def stack_note(self, note_on_ms: float, status_byte: int, pitch: int, device: list[str]) -> bool:
-        
         if note_on_ms not in self._stacked_notes:
             self._stacked_notes[note_on_ms] = {}
         if status_byte not in self._stacked_notes[note_on_ms]:
             self._stacked_notes[note_on_ms][status_byte] = {}
         if pitch not in self._stacked_notes[note_on_ms][status_byte]:
-            self._stacked_notes[note_on_ms][status_byte][pitch] = device
-
-
-
+            self._stacked_notes[note_on_ms][status_byte][pitch] = set()
+        if device not in self._stacked_notes[note_on_ms][status_byte][pitch]:
+            self._stacked_notes[note_on_ms][status_byte][pitch].add(device)
+        else:   # It's an Overlapping note
+            return False
         return True
+
+    def reset_stacked_notes(self) -> Self:
+        self._stacked_notes = {}
+        return self
 
 
     def __mod__(self, operand: o.T) -> o.T:
