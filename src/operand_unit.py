@@ -2036,7 +2036,11 @@ class Program(Midi):
                 match operand._data:
                     case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
-            case str():             self.nameToNumber(operand)
+            case str():
+                if operand.isdigit():
+                    self._unit = int(operand) - 1
+                else:
+                    self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
         return self
 
