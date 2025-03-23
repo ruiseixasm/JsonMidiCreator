@@ -527,8 +527,10 @@ class Playlist(Data):
     
     # Pass trough method that always results in a Container (Self)
     def __rshift__(self, operand) -> Self:
+        import operand_element as oe
+        import operand_container as oc
         match operand:
-            case Playlist():
+            case Playlist() | oe.Element() | oc.Container():
                 self += operand
                 return self
         return super().__rshift__(operand)
@@ -541,6 +543,8 @@ class Playlist(Data):
 
     def __iadd__(self, operand: any) -> Self:
         import operand_rational as ra
+        import operand_element as oe
+        import operand_container as oc
         match operand:
             case ra.Position() | ra.TimeValue() | ou.TimeUnit():
                 # Position generates a dummy list with the position as ms
@@ -554,7 +558,7 @@ class Playlist(Data):
                     self._data.extend(
                         self.shallow_playlist_list_copy(operand)
                     )
-            case o.Operand():
+            case Playlist() | oe.Element() | oc.Container():
                 if isinstance(self._data, list):
                     self._data.extend(
                         operand.getPlaylist()
