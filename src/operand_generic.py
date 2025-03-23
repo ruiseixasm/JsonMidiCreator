@@ -1133,6 +1133,11 @@ class Staff(Generic):
         # Volatile variable not intended to be user defined
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
         self._tied_notes: dict[int, dict[str, any]] = {}
+        self._stacked_notes: dict[float,    # time_ms
+                                  dict[int,     # status byte
+                                       dict[int,    # pitch
+                                            list[str]]] # devices list
+                            ] = {}
 
     def reset_accidentals(self) -> Self:
         self._accidentals = { 0: {} }
@@ -1179,7 +1184,20 @@ class Staff(Generic):
         if pitch in self._tied_notes:
             return self._tied_notes[pitch]
         return None
+
+    def stack_note(self, note_on_ms: float, status_byte: int, pitch: int, device: list[str]) -> bool:
         
+        if note_on_ms not in self._stacked_notes:
+            self._stacked_notes[note_on_ms] = {}
+        if status_byte not in self._stacked_notes[note_on_ms]:
+            self._stacked_notes[note_on_ms][status_byte] = {}
+        if pitch not in self._stacked_notes[note_on_ms][status_byte]:
+            self._stacked_notes[note_on_ms][status_byte][pitch] = device
+
+
+
+        return True
+
 
     def __mod__(self, operand: o.T) -> o.T:
         """

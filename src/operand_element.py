@@ -843,12 +843,15 @@ class Note(Element):
                 )
                 last_tied_note["note_list"][1]["time_ms"] = off_position_ms
                 self._staff_reference.set_tied_note_length(self_pitch, last_tied_note["length"] + self_length)
-                return []   # Discard self_playlist
+                return []   # Discard self_playlist, adjusts just the duration of the previous note
             else:
                 # This note becomes the last tied note
                 self._staff_reference.add_tied_note(self_pitch, 
                     self_position, self_length, self_playlist
                 )
+
+        # Record present Note on the Staff stacked notes
+        
 
         return self_playlist
 
