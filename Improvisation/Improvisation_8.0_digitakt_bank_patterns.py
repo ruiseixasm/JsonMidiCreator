@@ -43,14 +43,15 @@ fx_control_ch   = Channel(9)
 auto_channel    = Channel(10)
 
 bank_pattern: dict[str, list[int]] = {
-    "A": [0] + list(range(0 * 16, 1 * 16)),
-    "B": [0] + list(range(1 * 16, 2 * 16)),
-    "C": [0] + list(range(2 * 16, 3 * 16)),
-    "D": [0] + list(range(3 * 16, 4 * 16)),
-    "E": [0] + list(range(4 * 16, 5 * 16)),
-    "F": [0] + list(range(5 * 16, 6 * 16)),
-    "G": [0] + list(range(6 * 16, 7 * 16)),
-    "H": [0] + list(range(7 * 16, 8 * 16))
+    # The first column is just for offset purposes
+    "A": list(range(0 * 16, 1 * 16 + 1)),   # 1 to 16
+    "B": list(range(1 * 16, 2 * 16 + 1)),   # 17 to 32
+    "C": list(range(2 * 16, 3 * 16 + 1)),   # 33 to 48
+    "D": list(range(3 * 16, 4 * 16 + 1)),   # 49 to 64
+    "E": list(range(4 * 16, 5 * 16 + 1)),   # 65 to 80
+    "F": list(range(5 * 16, 6 * 16 + 1)),   # 81 to 96
+    "G": list(range(6 * 16, 7 * 16 + 1)),   # 97 to 112
+    "H": list(range(7 * 16, 8 * 16 + 1))    # 113 to 128
 }
 
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
@@ -73,8 +74,8 @@ set_pattern_to_3 >> P
 
 
 R(2/1) >> P
-set_pattern_to_2 = ProgramChange(auto_channel, "2")
-set_pattern_to_3 = ProgramChange(auto_channel, "3")
+set_pattern_to_2 = ProgramChange(auto_channel, 2)
+set_pattern_to_3 = ProgramChange(auto_channel, 3)
 
 set_pattern_to_2 >> P
 

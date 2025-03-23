@@ -2216,7 +2216,7 @@ class ProgramChange(Automation):
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case ou.Program():      return ou.Program() << od.DataSource(self._program)
+                    case ou.Program():      return operand._data << od.DataSource(self._program)
                     case _:                 return super().__mod__(operand)
             case ou.Program():      return ou.Program() << od.DataSource(self._program)
             case int():             return self._program
@@ -2243,7 +2243,7 @@ class ProgramChange(Automation):
                     "time_ms": self.get_time_ms(self_position_ms),
                     "midi_message": {
                         "status_byte": 0xC0 | 0x0F & self._channel - 1,
-                        "data_byte": self._program,
+                        "data_byte": self._program - 1,
                         "device": self._device
                     }
                 }

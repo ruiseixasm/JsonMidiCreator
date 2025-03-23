@@ -2015,15 +2015,18 @@ class Program(Midi):
     Parameters
     ----------
     first : integer_like or string_like
-        A Program Number varies from 0 to 127 or it's known name like "Piano"
+        A Program Number varies from 1 to 128 or it's known name like "Piano"
     """
+    def __init__(self, *parameters):
+        super().__init__(1, *parameters)         # By default is 1 the Piano
+
     def __mod__(self, operand: o.T) -> o.T:
         match operand:
             case od.DataSource():
                 match operand._data:
-                    case str():                     return Program.numberToName(self._unit)
+                    case str():                     return Program.numberToName(self._unit) + 1
                     case _:                         return super().__mod__(operand)
-            case str():                 return Program.numberToName(self._unit)
+            case str():                 return Program.numberToName(self._unit - 1)
             case _:                     return super().__mod__(operand)
 
     # CHAINABLE OPERATIONS
@@ -2039,7 +2042,7 @@ class Program(Midi):
             case str():
                 operand = operand.strip()
                 if operand.isdigit():
-                    self._unit = int(operand) - 1
+                    self._unit = int(operand)
                 else:
                     self.nameToNumber(operand)
             case _:                 super().__lshift__(operand)
@@ -2200,7 +2203,7 @@ class Program(Midi):
             for instrument_name in instrument["names"]:
                 # Check if all input words are present in the name string
                 if all(word in instrument_name.lower() for word in name_split):
-                    self._unit = instrument["midi_instrument"]
+                    self._unit = instrument["midi_instrument"] + 1
                     return
 
     @staticmethod
