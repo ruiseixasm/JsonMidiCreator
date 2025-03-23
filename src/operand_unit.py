@@ -2037,6 +2037,7 @@ class Program(Midi):
                     case str():                     self.nameToNumber(operand._data)
                     case _:                         super().__lshift__(operand)
             case str():
+                operand = operand.strip()
                 if operand.isdigit():
                     self._unit = int(operand) - 1
                 else:
