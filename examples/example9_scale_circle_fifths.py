@@ -49,5 +49,9 @@ play_list_4 = Playlist() << ((KeyScale("A") << Scale("minor") << NoteValue(1)) *
     << Duration(1) << Velocity(70) << Octave(4))
 # play_list_4 >> Play()
 
-# play_list_1 >> play_list_2 >> play_list_3 >> play_list_4 >> Play(True)
+play_list_1 + Measures(0 * 8) \
+    >> play_list_2 + Measures(1 * 8) \
+    >> play_list_3 + Measures(2 * 8) \
+    >> play_list_4 + Measures(3 * 8) \
+    >> Play(True)
 # play_list_2 >> Play()

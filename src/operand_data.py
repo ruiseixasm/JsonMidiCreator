@@ -433,7 +433,25 @@ class Playlist(Data):
             case o.Operand():
                 return self._data == other.getPlaylist()
         return super().__eq__(other)
-    
+
+    def start(self) -> float:
+        if len(self._data) > 0:
+            start_position_ms: float = self._data[0]["time_ms"]
+            for self_dict in self._data:
+                if "time_ms" in self_dict and self_dict["time_ms"] < start_position_ms:
+                    start_position_ms = self_dict["time_ms"]
+            return start_position_ms
+        return 0.0
+
+    def finish(self) -> float:
+        if len(self._data) > 0:
+            finish_position_ms: float = self._data[0]["time_ms"]
+            for self_dict in self._data:
+                if "time_ms" in self_dict and self_dict["time_ms"] > finish_position_ms:
+                    finish_position_ms = self_dict["time_ms"]
+            return finish_position_ms
+        return 0.0
+  
     def getPlaylist(self, position: 'Position' = None) -> list:
         import operand_rational as ra
         if len(self._data) > 0:
@@ -507,59 +525,18 @@ class Playlist(Data):
                     super().__lshift__(operand)
         return self
     
-    def start(self) -> float:
-        if len(self._data) > 0:
-            start_position_ms: float = self._data[0]["time_ms"]
-            for self_dict in self._data:
-                if "time_ms" in self_dict and self_dict["time_ms"] < start_position_ms:
-                    start_position_ms = self_dict["time_ms"]
-            return start_position_ms
-        return 0.0
-
-    def finish(self) -> float:
-        if len(self._data) > 0:
-            finish_position_ms: float = self._data[0]["time_ms"]
-            for self_dict in self._data:
-                if "time_ms" in self_dict and self_dict["time_ms"] > finish_position_ms:
-                    finish_position_ms = self_dict["time_ms"]
-            return finish_position_ms
-        return 0.0
-
-
-    def __rrshift__(self, operand: any) -> Self:
-        import operand_rational as ra
-        import operand_element as oe
-        import operand_container as oc
+    # Pass trough method that always results in a Container (Self)
+    def __rshift__(self, operand) -> Self:
         match operand:
-            case oc.Clip() | oe.Element() | Playlist():
-                operand_playlist_list: list[dict] = operand.getPlaylist()
-                if len(self._data) > 0 and len(operand_playlist_list) > 0:
-                    operand_playlist: Playlist = Playlist( DataSource( operand_playlist_list ) )
-                    finish_position_ms: float = operand_playlist.finish()
-                    self_start_position_ms: float = self.start()
-                    increase_position_ms: float = finish_position_ms - self_start_position_ms
-                    self_copy: Playlist = self.copy()
-                    # Where self_copy _data list is manipulated (pushed forward)
-                    for self_copy_dict in self_copy._data:
-                        if "time_ms" in self_copy_dict:
-                            self_copy_dict["time_ms"] = round(self_copy_dict["time_ms"] + increase_position_ms, 3)
-                    return self_copy << DataSource( operand_playlist_list + self_copy._data )
-                return self.copy()
-
-            case ra.Position():
-                if len(self._data) > 0:
-                    # Position generates a dummy list with the position as ms
-                    operand_playlist_list: list[dict] = operand.getPlaylist()
-                    new_start_position_ms: float = operand_playlist_list[0]["time_ms"]
-                    self_start_position_ms: float = self.start()
-                    offset_position_ms: float = new_start_position_ms - self_start_position_ms
-                    for self_dict in self._data:
-                        if "time_ms" in self_dict:
-                            self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
+            case Playlist():
+                self += operand
                 return self
+        return super().__rshift__(operand)
 
-            case _:
-                return super().__rrshift__(operand)
+    # Pass trough operation as last resort
+    def __rrshift__(self, operand: o.T) -> o.T:
+        self << operand # Left shifts remaining parameter (Pass Through)
+        return operand
 
 
     def __iadd__(self, operand: any) -> Self:
