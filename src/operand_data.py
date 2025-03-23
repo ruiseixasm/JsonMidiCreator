@@ -417,8 +417,8 @@ class Playlist(Data):
                     case list():            return self._data
                     case _:                 return super().__mod__(operand)
             case TrackName():       return TrackName(self._track_name)
-            case str():             return self._track_name._data
-            case list():            return self.shallow_playlist_copy(self._data)
+            case str():             return self._track_name
+            case list():            return self.shallow_playlist_list_copy(self._data)
             case _:                 return super().__mod__(operand)
 
     def __eq__(self, other: any) -> bool:
@@ -447,7 +447,7 @@ class Playlist(Data):
                 if "time_ms" in self_dict:
                     self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
             return self_playlist_list_copy
-        return self.shallow_playlist_copy(self._data)
+        return self.shallow_playlist_list_copy(self._data)
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
@@ -482,7 +482,7 @@ class Playlist(Data):
 
             match operand:
                 case Playlist():
-                    self._data          = self.shallow_playlist_copy(operand._data)
+                    self._data          = self.shallow_playlist_list_copy(operand._data)
                     self._track_name    = operand._track_name
                 case DataSource():
                     match operand._data:
@@ -499,7 +499,7 @@ class Playlist(Data):
                 case str():
                     self._track_name = operand
                 case list():
-                    self._data = self.shallow_playlist_copy(operand)
+                    self._data = self.shallow_playlist_list_copy(operand)
                 case tuple():
                     for single_operand in operand:
                         self << single_operand
@@ -575,16 +575,16 @@ class Playlist(Data):
         import operand_rational as ra
         match operand:
             case ra.Length():
-                playlist_copy = self.shallow_playlist_copy(self._data)
+                playlist_copy = self.shallow_playlist_list_copy(self._data)
                 increase_position_ms: float = operand.getMillis_float() # OUTDATED, NEEDS TO BE REVIEWED WITH LENGTH INSTEAD
                 for self_dict in playlist_copy:
                     if "time_ms" in self_dict:
                         self_dict["time_ms"] = round(self_dict["time_ms"] + increase_position_ms, 3)
                 return Playlist(self._track_name) << DataSource( playlist_copy )
             case list():
-                return Playlist(self._track_name) << DataSource( self.shallow_playlist_copy(self._data) + self.shallow_playlist_copy(operand) )
+                return Playlist(self._track_name) << DataSource( self.shallow_playlist_list_copy(self._data) + self.shallow_playlist_list_copy(operand) )
             case o.Operand():
-                return Playlist(self._track_name) << DataSource( self.shallow_playlist_copy(self._data) + operand.getPlaylist() )
+                return Playlist(self._track_name) << DataSource( self.shallow_playlist_list_copy(self._data) + operand.getPlaylist() )
             case PlaylistParameter():
                 self += operand._data
             case Parameters():
@@ -596,7 +596,7 @@ class Playlist(Data):
 
     # Only the "time_ms" data matters to be copied because the rest wont change (faster)
     @staticmethod
-    def shallow_playlist_copy(playlist: list[dict]) -> list[dict]:
+    def shallow_playlist_list_copy(playlist: list[dict]) -> list[dict]:
         return [
             single_dict.copy()
                 for single_dict in playlist
