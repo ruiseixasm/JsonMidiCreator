@@ -84,13 +84,14 @@ def test_operand_copy():
     basic_parameters: tuple = (3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
+    Print("1st Cycle")
     for single_class in list_all_classes:
         class_object: Operand = single_class() << basic_parameters
-        print(single_class.__name__)
-        if isinstance(class_object, Serialization):
-            print("Culprit!")
-        assert class_object == class_object.copy()
+        if class_object != class_object.copy():
+            print(f"Culprit: {single_class.__name__}")
+            assert class_object == class_object.copy()
 
+    Print("2nd Cycle")
     exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
@@ -99,12 +100,14 @@ def test_operand_copy():
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
                 class_object << unit_class_object
-            print(single_class.__name__)
             # if not class_object == class_object.copy():
             #     exclude_class_names += single_class.__name__ + ", "
-            assert class_object == class_object.copy()
+            if class_object != class_object.copy():
+                print(f"Culprit: {single_class.__name__}")
+                assert class_object == class_object.copy()
     # print(exclude_class_names)
 
+    Print("3rd Cycle")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -112,8 +115,9 @@ def test_operand_copy():
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
                 class_object << rational_class_object
-            print(single_class.__name__)
-            assert class_object == class_object.copy()
+            if class_object != class_object.copy():
+                print(f"Culprit: {single_class.__name__}")
+                assert class_object == class_object.copy()
 
 # test_operand_copy()
 
@@ -130,17 +134,22 @@ def test_operand_serialization():
     basic_parameters: tuple = (3, "minor", "##", [1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1])
     list_all_classes: list[Type[Operand]] = list_all_operand_classes(Operand)
 
+    Print("1st Cycle")
     for single_class in list_all_classes:
         class_object = single_class()
         if not isinstance(class_object, (int)):
-            print(single_class.__name__)
             class_object << basic_parameters
             serialization: dict = class_object.getSerialization()
-            assert len(serialization) > 0
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
-            assert loaded_instantiation == class_object
+            if not len(serialization) > 0:
+                print(f"Culprit i: {single_class.__name__}")
+                assert len(serialization) > 0
+            if loaded_instantiation != class_object:
+                print(f"Culprit ii: {single_class.__name__}")
+                assert loaded_instantiation == class_object
 
+    Print("2nd Cycle")
     exclude_class_names: str = ""
     for single_class in list_all_classes:
         class_object: Operand = single_class()
@@ -149,16 +158,18 @@ def test_operand_serialization():
             for single_unit_class in list_unit_classes:
                 unit_class_object: Unit = single_unit_class() << basic_parameters
                 class_object << unit_class_object
-            print(single_class.__name__)
-            # if not class_object == class_object.copy():
-            #     exclude_class_names += single_class.__name__ + ", "
             serialization: dict = class_object.getSerialization()
-            assert len(serialization) > 0
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
-            assert loaded_instantiation == class_object
+            if not len(serialization) > 0:
+                print(f"Culprit i: {single_class.__name__}")
+                assert len(serialization) > 0
+            if loaded_instantiation != class_object:
+                print(f"Culprit ii: {single_class.__name__}")
+                assert loaded_instantiation == class_object
     # print(exclude_class_names)
 
+    Print("3rd Cycle")
     for single_class in list_all_classes:
         class_object: Operand = single_class()
         if not isinstance(class_object, (int)):
@@ -166,12 +177,15 @@ def test_operand_serialization():
             for single_rational_class in list_unit_classes:
                 rational_class_object: Rational = single_rational_class() << basic_parameters
                 class_object << rational_class_object
-            print(single_class.__name__)
             serialization: dict = class_object.getSerialization()
-            assert len(serialization) > 0
             loaded_instantiation: Operand = single_class()
             loaded_instantiation.loadSerialization(serialization)
-            assert loaded_instantiation == class_object
+            if not len(serialization) > 0:
+                print(f"Culprit i: {single_class.__name__}")
+                assert len(serialization) > 0
+            if loaded_instantiation != class_object:
+                print(f"Culprit ii: {single_class.__name__}")
+                assert loaded_instantiation == class_object
 
 # test_operand_serialization()
 

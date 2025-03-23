@@ -454,7 +454,7 @@ class Playlist(Data):
   
     def getPlaylist(self, position: 'Position' = None) -> list:
         import operand_rational as ra
-        if len(self._data) > 0:
+        if isinstance(self._data, list) and len(self._data) > 0:
             if not isinstance(position, ra.Position):
                 position: ra.Position = ra.Position(0)
             # Position generates a dummy list with the position as ms
@@ -465,7 +465,7 @@ class Playlist(Data):
                 if "time_ms" in self_dict:
                     self_dict["time_ms"] = round(self_dict["time_ms"] + offset_position_ms, 3)
             return self_playlist_list_copy
-        return self.shallow_playlist_list_copy(self._data)
+        return []
 
     def getSerialization(self) -> dict:
         serialization = super().getSerialization()
