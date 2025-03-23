@@ -508,8 +508,9 @@ class Playlist(Data):
                             self._track_name = operand._data._data
                         case list():
                             self._data = operand._data
-                        case _:
-                            super().__lshift__(operand)
+                        # Don't do this
+                        # case _:
+                        #     super().__lshift__(operand)
                 case oc.Container() | oe.Element() | Playlist():
                     self._data = operand.getPlaylist()
                 case TrackName():
@@ -521,8 +522,9 @@ class Playlist(Data):
                 case tuple():
                     for single_operand in operand:
                         self << single_operand
-                case _:
-                    super().__lshift__(operand)
+                # Don't do this
+                # case _:
+                #     super().__lshift__(operand)
         return self
     
     # Pass trough method that always results in a Container (Self)
