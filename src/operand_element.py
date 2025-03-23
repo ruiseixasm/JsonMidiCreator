@@ -896,6 +896,15 @@ class Note(Element):
                     self_position, self_length, self_midilist
                 )
 
+        # Record present Note on the Staff stacked notes
+        if not self._staff_reference.stack_note(
+            self_midilist[0]["time"],
+            self_midilist[0]["channel"],
+            self_midilist[0]["pitch"]
+        ):
+            print(f"Warning: Removed redundant note with same time start!")
+            return []
+
         return self_midilist
 
     def getSerialization(self) -> dict:

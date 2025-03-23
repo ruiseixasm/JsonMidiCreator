@@ -1133,7 +1133,7 @@ class Staff(Generic):
         # Volatile variable not intended to be user defined
         self._accidentals: dict[int, dict[int, int]] = { 0: {} }
         self._tied_notes: dict[int, dict[str, any]] = {}
-        self._stacked_notes: dict[float,    # time_ms
+        self._stacked_notes: dict[float,    # note on time
                                   dict[int,     # status byte
                                        dict[int,    # pitch
                                             set[tuple[str]]]]    # set of devices tuple
@@ -1185,17 +1185,17 @@ class Staff(Generic):
             return self._tied_notes[pitch]
         return None
 
-    def stack_note(self, note_on_ms: float, status_byte: int, pitch: int, device: list[str]) -> bool:
+    def stack_note(self, note_on: float, channel_byte: int, pitch: int, device: list[str] = []) -> bool:
         if self is not defaults._staff: # defaults's staff remains clean
             device_tuple: tuple[str] = tuple(device)
-            if note_on_ms not in self._stacked_notes:
-                self._stacked_notes[note_on_ms] = {}
-            if status_byte not in self._stacked_notes[note_on_ms]:
-                self._stacked_notes[note_on_ms][status_byte] = {}
-            if pitch not in self._stacked_notes[note_on_ms][status_byte]:
-                self._stacked_notes[note_on_ms][status_byte][pitch] = set()
-            if device_tuple not in self._stacked_notes[note_on_ms][status_byte][pitch]:
-                self._stacked_notes[note_on_ms][status_byte][pitch].add(device_tuple)
+            if note_on not in self._stacked_notes:
+                self._stacked_notes[note_on] = {}
+            if channel_byte not in self._stacked_notes[note_on]:
+                self._stacked_notes[note_on][channel_byte] = {}
+            if pitch not in self._stacked_notes[note_on][channel_byte]:
+                self._stacked_notes[note_on][channel_byte][pitch] = set()
+            if device_tuple not in self._stacked_notes[note_on][channel_byte][pitch]:
+                self._stacked_notes[note_on][channel_byte][pitch].add(device_tuple)
             else:   # It's an Overlapping note
                 return False
         return True
