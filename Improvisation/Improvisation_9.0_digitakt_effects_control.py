@@ -62,14 +62,100 @@ midi_cc: dict[str,
             # PER TRACK PARAMETERS (CHANNEL 1 TO 8)
             "TRACK": {
                 "Mute": {
-                    "MSB": 94,
-                    "LSB": -1   # Blank, no LSB, 7 bits
+                    "MSB": 94, "LSB": -1   # Blank, no LSB, 7 bits
                 },
                 "Level": {
-                    "MSB": 95,
-                    "LSB": -1   # Blank, no LSB, 7 bits
+                    "MSB": 95, "LSB": -1   # Blank, no LSB, 7 bits
+                }
+            },
+            "TRIG": {
+                "Note": {
+                    "MSB": 3, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Velocity": {
+                    "MSB": 4, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Length": {
+                    "MSB": 5, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Filter": {
+                    "MSB": 13, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "LFO": {
+                    "MSB": 14, "LSB": -1   # Blank, no LSB, 7 bits
+                }
+            },
+            "SOURCE": {
+                "Tune": {
+                    "MSB": 16, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Mode": {
+                    "MSB": 17, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Bit": {
+                    "MSB": 18, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Sample": {
+                    "MSB": 19, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Knob E": {
+                    "MSB": 20, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Knob F": {
+                    "MSB": 21, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Knob G": {
+                    "MSB": 22, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Level": {
+                    "MSB": 23, "LSB": -1   # Blank, no LSB, 7 bits
+                }
+            },
+            "FILTER": {
+                "Frequency": {
+                    "MSB": 74, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Resonance": {
+                    "MSB": 75, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Type": {
+                    "MSB": 76, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Attack": {
+                    "MSB": 70, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Decay": {
+                    "MSB": 71, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Sustain": {
+                    "MSB": 72, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Release": {
+                    "MSB": 73, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Depth": {
+                    "MSB": 77, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Delay": {
+                    "MSB": 86, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Rate": {
+                    "MSB": 87, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Base": {
+                    "MSB": 84, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Width": {
+                    "MSB": 85, "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Routing": {
+                    "MSB": 88, "LSB": -1   # Blank, no LSB, 7 bits
                 }
             }
+
+
+
+            # PER PATTERN PARAMETERS (CHANNEL 9)
         }
 
 
