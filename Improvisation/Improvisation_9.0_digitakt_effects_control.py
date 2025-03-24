@@ -393,6 +393,12 @@ defaults << Tempo(120)
 
 
 level_cc = ControlChange(kick, midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=5)
-
 level_cc * 4 >> P
+
+
+variables_level_cc = ControlChange(
+        Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]
+    ) * 16 << Iterate(100, -6) >> Reverse()
+variables_level_cc * 4 >> P
+
 

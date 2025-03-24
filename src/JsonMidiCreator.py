@@ -31,6 +31,7 @@ from operand_mutation import *
 from operand_selection import *
 from operand_arrangement import *
 from operand_patterns import *
+from operand_variables import *
 
 
 # Determine the operating system
