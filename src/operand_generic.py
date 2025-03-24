@@ -718,30 +718,27 @@ class Controller(Generic):
 
 
     def _midi_msb_lsb_values(self) -> tuple[int]:
+            
+        msb_value: int  = (self._value >> 7) & 127
+        lsb_value: int  = self._value & 127
 
-        if self._high:
+        if not self._high:
+            msb_value: int  = self._value & 127
 
-            msb_value: int  = (self._value >> 7) & 127
-            lsb_value: int  = self._value & 127
-            return msb_value, lsb_value # msb and lsb value bytes
-
-        msb_value: int  = self._value & 127
-        return msb_value, 0
+        return msb_value, lsb_value
 
 
     def _midi_nrpn_values(self) -> tuple[int]:
 
         cc_99_msb: int  = self._number
         cc_98_lsb: int  = self._lsb
+        cc_6_msb: int   = (self._value >> 7) & 127
+        cc_38_lsb: int  = self._value & 127
 
-        if self._high:
-            
-            cc_6_msb: int   = (self._value >> 7) & 127
-            cc_38_lsb: int  = self._value & 127
-            return cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb
+        if not self._high:
+            cc_6_msb    = self._value & 127
 
-        cc_6_msb: int  = self._value & 127
-        return cc_99_msb, cc_98_lsb, cc_6_msb, 0
+        return cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb
 
 
     def __mod__(self, operand: o.T) -> o.T:
