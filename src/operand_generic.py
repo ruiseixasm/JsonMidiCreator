@@ -713,6 +713,7 @@ class Controller(Generic):
         self._lsb: int          = -1    # lsb < 0 means 7 bit Controller instead of 14 bits
         self._value: int        = ou.Number.getDefault(self._number)
         self._nrpn: bool        = False
+        self._high: bool        = False
         super().__init__(*parameters)
 
     def _midi_msb_lsb_values(self) -> tuple[int]:
@@ -762,12 +763,14 @@ class Controller(Generic):
                     case ou.LSB():              return operand._data << od.DataSource(self._lsb)
                     case ou.Value():            return operand._data << od.DataSource(self._value)
                     case ou.NRPN():             return operand._data << od.DataSource(self._nrpn)
+                    case ou.HighResolution():   return operand._data << od.DataSource(self._high)
                     case of.Frame():            return self % od.DataSource( operand._data )
                     case _:                     return super().__mod__(operand)
             case ou.Number():           return operand.copy() << od.DataSource(self._number)
             case ou.LSB():              return operand.copy() << od.DataSource(self._lsb)
             case ou.Value():            return operand.copy() << od.DataSource(self._value)
             case ou.NRPN():             return operand.copy() << od.DataSource(self._nrpn)
+            case ou.HighResolution():   return operand.copy() << od.DataSource(self._high)
             case int():                 return self._value
             case float():               return float(self._value)
             case dict():
@@ -776,7 +779,8 @@ class Controller(Generic):
                     "MSB": self._number,
                     "LSB": self._lsb,
                     "VALUE": self._value,
-                    "NRPN": self._nrpn
+                    "NRPN": self._nrpn,
+                    "HIGH": self._high
                 }
                 return controller_dict
             case of.Frame():            return self % operand
@@ -788,7 +792,8 @@ class Controller(Generic):
             return True
         if isinstance(other, Controller):
             return self._number == other._number and self._lsb == other._lsb \
-                and self._value == other._value and self._nrpn == other._nrpn
+                and self._value == other._value and self._nrpn == other._nrpn \
+                and self._high == other._high
         if isinstance(other, od.Conditional):
             return other == self
         return self % other == other
@@ -799,6 +804,7 @@ class Controller(Generic):
         serialization["parameters"]["lsb"]      = self.serialize( self._lsb )
         serialization["parameters"]["value"]    = self.serialize( self._value )
         serialization["parameters"]["nrpn"]     = self.serialize( self._nrpn )
+        serialization["parameters"]["high"]     = self.serialize( self._high )
         return serialization
 
     # CHAINABLE OPERATIONS
@@ -806,13 +812,14 @@ class Controller(Generic):
     def loadSerialization(self, serialization: dict) -> Self:
         if isinstance(serialization, dict) and ("class" in serialization and serialization["class"] == self.__class__.__name__ and "parameters" in serialization and
             "number" in serialization["parameters"] and "lsb" in serialization["parameters"] and "value" in serialization["parameters"] and
-            "nrpn" in serialization["parameters"]):
+            "nrpn" in serialization["parameters"] and "high" in serialization["parameters"]):
 
             super().loadSerialization(serialization)
             self._number    = self.deserialize( serialization["parameters"]["number"] )
             self._lsb       = self.deserialize( serialization["parameters"]["lsb"] )
             self._value     = self.deserialize( serialization["parameters"]["value"] )
             self._nrpn      = self.deserialize( serialization["parameters"]["nrpn"] )
+            self._high      = self.deserialize( serialization["parameters"]["high"] )
         return self
         
     def __lshift__(self, operand: any) -> Self:
@@ -824,6 +831,7 @@ class Controller(Generic):
                 self._lsb       = operand._lsb
                 self._value     = operand._value
                 self._nrpn      = operand._nrpn
+                self._high      = operand._high
             case od.DataSource():
                 match operand._data:
                     case ou.Number():       self._number = operand._data._unit

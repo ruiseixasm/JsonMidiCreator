@@ -66,16 +66,16 @@ class Unit(o.Operand):
                 return self.copy()
             case od.DataSource():
                 match operand._data:
+                    case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!
                     case int():             return self._unit           # returns a int()
-                    case bool():            return False if self._unit == 0 else True
                     case Fraction():        return Fraction(self._unit)
                     case float():           return float(self._unit)
                     case of.Frame():        return self % od.DataSource( operand._data )
                     case Unit() | ra.Rational():
                                             return operand.__class__() << od.DataSource( self._unit )
                     case _:                 return super().__mod__(operand)
+            case bool():            return False if self._unit == 0 else True   # bool is a subclass of int !!
             case int():             return self._unit
-            case bool():            return False if self._unit == 0 else True
             case Fraction():        return Fraction(self._unit)
             case float():           return float(self._unit)
             case of.Frame():        return self % operand
@@ -160,14 +160,14 @@ class Unit(o.Operand):
                 self._unit = operand._unit
             case od.DataSource():
                 match operand._data:
-                    case int():                     self._unit = operand._data
-                    case float() | Fraction() | bool():
+                    case float() | Fraction() | bool():   # bool is a subclass of int !!
                                                     self._unit = int(operand._data)
+                    case int():                     self._unit = operand._data
                     case Unit() | ra.Rational():    self._unit = operand._data % od.DataSource( int() )
+            case float() | Fraction() | bool():   # bool is a subclass of int !!
+                self._unit = int(operand)
             case int():
                 self._unit = operand
-            case float() | Fraction() | bool():
-                self._unit = int(operand)
             case ra.Rational():
                 self._unit = operand % int()
             case od.Serialization():
