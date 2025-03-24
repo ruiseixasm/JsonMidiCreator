@@ -54,57 +54,30 @@ bank_pattern: dict[str, list[int]] = {
     "H": list(range(7 * 16, 8 * 16 + 1))    # 113 to 128
 }
 
+midi_cc: dict[str,
+            dict[str,
+                dict[str, int]
+            ]
+        ] = {
+            # PER TRACK PARAMETERS (CHANNEL 1 TO 8)
+            "TRACK": {
+                "Mute": {
+                    "MSB": 94,
+                    "LSB": -1   # Blank, no LSB, 7 bits
+                },
+                "Level": {
+                    "MSB": 95,
+                    "LSB": -1   # Blank, no LSB, 7 bits
+                }
+            }
+        }
 
 
 # https://youtu.be/KQ4UCfROIfk?si=Jcv9g2yZBGFpMsoy
 defaults << Tempo(120)
 
 
-set_pattern_to_2 = ProgramChange(auto_channel, Program("2"))
-set_pattern_to_3 = ProgramChange(auto_channel, Program("3"))
+level_cc = ControlChange(kick, MSB(midi_cc["TRACK"]["Level"]["MSB"])) * 16 << Iterate(step=5)
 
-set_pattern_to_2 >> P
-
-R(1/1) >> P
-set_pattern_to_3 >> P
-
-R(1/1) >> P
-set_pattern_to_2 >> P
-
-R(1/1) >> P
-set_pattern_to_3 >> P
-
-
-R(2/1) >> P
-set_pattern_to_2 = ProgramChange(auto_channel, 2)
-set_pattern_to_3 = ProgramChange(auto_channel, 3)
-
-set_pattern_to_2 >> P
-
-R(1/1) >> P
-set_pattern_to_3 >> P
-
-R(1/1) >> P
-set_pattern_to_2 >> P
-
-R(1/1) >> P
-set_pattern_to_3 >> P
-
-
-R(2/1) >> P
-set_pattern_to_2 = ProgramChange(auto_channel, Program(bank_pattern["A"][2]))
-set_pattern_to_3 = ProgramChange(auto_channel, Program(bank_pattern["A"][3]))
-
-set_pattern_to_2 >> P
-
-R(1/1) >> P
-set_pattern_to_3 >> P
-
-R(1/1) >> P
-set_pattern_to_2 >> P
-
-R(1/1) >> P
-set_pattern_to_3 >> P
-
-
+level_cc * 4 >> P
 
