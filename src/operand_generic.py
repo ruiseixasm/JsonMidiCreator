@@ -710,35 +710,40 @@ class Pitch(Generic):
 class Controller(Generic):
     def __init__(self, *parameters):
         self._number: int       = ou.Number("Pan")._unit
-        self._lsb: int          = -1    # lsb < 0 means 7 bit Controller instead of 14 bits
+        self._lsb: int          = 0 # lsb for 14 bits messages
         self._value: int        = ou.Number.getDefault(self._number)
         self._nrpn: bool        = False
         self._high: bool        = False
         super().__init__(*parameters)
 
+
     def _midi_msb_lsb_values(self) -> tuple[int]:
 
-        if self._lsb < 0:
-            msb_value: int  = self._value & 127
-            return msb_value, -1
-            
-        msb_value: int  = (self._value >> 7) & 127
-        lsb_value: int  = self._value & 127
+        if self._high:
 
-        return msb_value, lsb_value # msb and lsb value bytes
+            msb_value: int  = (self._value >> 7) & 127
+            lsb_value: int  = self._value & 127
+
+            return msb_value, lsb_value # msb and lsb value bytes
+
+        msb_value: int  = self._value & 127
+        return msb_value, 0
+
 
     def _midi_nrpn_values(self) -> tuple[int]:
 
         cc_99_msb: int  = self._number
         cc_98_lsb: int  = self._lsb
-        if self._lsb < 0:
-            cc_6_msb: int  = self._value & 127
-            return cc_99_msb, cc_98_lsb, cc_6_msb, -1
-        
-        cc_6_msb: int   = (self._value >> 7) & 127
-        cc_38_lsb: int  = self._value & 127
 
-        return cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb
+        if self._high:
+            
+            cc_6_msb: int   = (self._value >> 7) & 127
+            cc_38_lsb: int  = self._value & 127
+
+            return cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb
+
+        cc_6_msb: int  = self._value & 127
+        return cc_99_msb, cc_98_lsb, cc_6_msb, 0
 
 
     def __mod__(self, operand: o.T) -> o.T:

@@ -1932,7 +1932,7 @@ class ControlChange(Automation):
                     }
                 ]
 
-            if cc_38_lsb >= 0:
+            if self._controller._high:
 
                 self_playlist.append(
                     {
@@ -1963,7 +1963,7 @@ class ControlChange(Automation):
                     }
                 ]
 
-            if lsb_value >= 0:
+            if self._controller._high:
 
                 self_playlist.append(
                     {
@@ -2002,8 +2002,8 @@ class ControlChange(Automation):
             self_midilist[2]["number"]      = 6
             self_midilist[2]["value"]       = cc_6_msb
 
-            if cc_38_lsb >= 0:
-                
+            if self._controller._high:
+
                 self_midilist[3] = self_midilist[0].copy()
                 self_midilist[3]["number"]      = 38
                 self_midilist[3]["value"]       = cc_38_lsb
@@ -2015,7 +2015,7 @@ class ControlChange(Automation):
             self_midilist[0]["number"]      = self._controller._number
             self_midilist[0]["value"]       = msb_value
 
-            if lsb_value >= 0:
+            if self._controller._high:
 
                 self_midilist[1] = self_midilist[0].copy()
                 self_midilist[1]["number"]      = self._controller._lsb
