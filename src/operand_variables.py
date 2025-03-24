@@ -40,20 +40,22 @@ class Variables(o.Operand):
 
 
 class Blofeld(Variables):
-    pass
 
+    device          = od.Device("Blofeld")
 
 
 class Digitakt(Variables):
 
-    kick        = ou.Channel(1)
-    snare       = ou.Channel(2)
-    tom         = ou.Channel(3)
-    clap        = ou.Channel(4)
-    cowbell     = ou.Channel(5)
-    closed_hat  = ou.Channel(6)
-    open_hat    = ou.Channel(7)
-    cymbal      = ou.Channel(8)
+    device          = od.Device("Digitakt")
+
+    kick            = ou.Channel(1)
+    snare           = ou.Channel(2)
+    tom             = ou.Channel(3)
+    clap            = ou.Channel(4)
+    cowbell         = ou.Channel(5)
+    closed_hat      = ou.Channel(6)
+    open_hat        = ou.Channel(7)
+    cymbal          = ou.Channel(8)
 
     fx_control_ch   = ou.Channel(9)
     auto_channel    = ou.Channel(10)
