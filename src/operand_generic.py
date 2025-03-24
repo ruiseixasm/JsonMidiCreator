@@ -713,6 +713,11 @@ class Controller(Generic):
         self._value: int        = ou.Number.getDefault(self._number)
         super().__init__(*parameters)
 
+    def _return_bytes(self) -> tuple[int]:
+
+        return 0, 0
+
+
     def __mod__(self, operand: o.T) -> o.T:
         """
         The % symbol is used to extract a Parameter, in the case of a Controller,

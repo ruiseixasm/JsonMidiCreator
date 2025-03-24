@@ -457,7 +457,7 @@ class Element(o.Operand):
                     return self << self_operand
         return self
 
-    def get_position_duration_minutes(self, position_beats: Fraction = None) -> tuple:
+    def get_position_duration_minutes(self, position_beats: Fraction = None) -> tuple[Fraction]:
 
         if isinstance(position_beats, Fraction):
             self_position_ms: Fraction = self._staff_reference.getMinutes(
