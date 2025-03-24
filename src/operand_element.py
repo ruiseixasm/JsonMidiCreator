@@ -1889,26 +1889,61 @@ class ControlChange(Automation):
         self_position_ms, self_duration_ms = self.get_position_duration_minutes(position_beats)
 
         # Midi validation is done in the JsonMidiPlayer program
+
+        time_ms: float = self.get_time_ms(self_position_ms)
+        msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+
+        if lsb_value < 0:
+            return [
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": self._controller._number,
+                            "data_byte_2": msb_value,
+                            "device": self._device
+                        }
+                    }
+                ]
+        
         return [
                 {
-                    "time_ms": self.get_time_ms(self_position_ms),
+                    "time_ms": time_ms,
                     "midi_message": {
                         "status_byte": 0xB0 | 0x0F & self._channel - 1,
                         "data_byte_1": self._controller._number,
-                        "data_byte_2": self._controller._value,
+                        "data_byte_2": msb_value,
+                        "device": self._device
+                    }
+                },
+                {
+                    "time_ms": time_ms,
+                    "midi_message": {
+                        "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                        "data_byte_1": self._controller._lsb,
+                        "data_byte_2": lsb_value,
                         "device": self._device
                     }
                 }
             ]
     
-    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list:
+    def getMidilist(self, midi_track: ou.MidiTrack = None, position_beats: Fraction = None) -> list[dict]:
         if not self._enabled:
             return []
-        self_midilist: list = super().getMidilist(midi_track, position_beats)
+        self_midilist: list[dict] = super().getMidilist(midi_track, position_beats)
         self_midilist[0]["event"]       = "ControllerEvent"
+
         # Validation is done by midiutil Midi Range Validation
+
+        msb_value, lsb_value = self._controller._midi_msb_lsb_values()
         self_midilist[0]["number"]      = self._controller._number
-        self_midilist[0]["value"]       = self._controller._value
+        self_midilist[0]["value"]       = msb_value
+
+        if lsb_value >= 0:
+            self_midilist[1] = self_midilist[0].copy()
+            self_midilist[1]["number"]      = self._controller._lsb
+            self_midilist[1]["value"]       = lsb_value
+
         return self_midilist
 
     def getSerialization(self) -> dict:
