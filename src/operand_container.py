@@ -529,18 +529,6 @@ class Container(o.Operand):
         return self
 
 
-    def __add__(self, operand: any) -> Self:
-        return self.copy().__iadd__(operand)
-    
-    def __sub__(self, operand: any) -> Self:
-        return self.copy().__isub__(operand)
-    
-    def __mul__(self, operand: any) -> Self:
-        return self.copy().__imul__(operand)
-    
-    def __truediv__(self, operand: any) -> Self:
-        return self.copy().__itruediv__(operand)
-    
     # Avoids the costly copy of Container self doing +=
     def __iadd__(self, operand: any) -> Self:
         match operand:
