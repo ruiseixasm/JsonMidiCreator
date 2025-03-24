@@ -1921,6 +1921,7 @@ class Defaults(Generic):
                 self_devices = self // oc.Devices()
                 self_devices -= operand
                 self._devices = self_devices // list()
+                return self
         return super().__isub__(operand)
 
 
