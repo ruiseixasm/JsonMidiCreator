@@ -26,7 +26,7 @@ from JsonMidiCreator import *
 # https://youtu.be/gDS6oerX0wY?si=n3TQLqnub8xBLGIh
 
 
-device_list = defaults % Device() % list() >> Print()
+device_list = defaults % Devices() % list() >> Print()
 device_list.insert(0, "Blofeld")
 device_list >> Print()
 # defaults << Device(device_list)

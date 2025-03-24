@@ -21,7 +21,7 @@ if src_path not in sys.path:
 
 from JsonMidiCreator import *
 
-device_list = defaults % Device() % list() >> Print()
+device_list = defaults % Devices() % list() >> Print()
 device_list.insert(0, "Digitakt")
 device_list >> Print()
 defaults << Device(device_list)

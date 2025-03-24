@@ -92,7 +92,7 @@ class Element(o.Operand):
         Examples
         --------
         >>> element = Element()
-        >>> element % Device() % list() >> Print()
+        >>> element % Devices() % list() >> Print()
         ['loopMIDI', 'Microsoft']
         """
         import operand_container as oc
