@@ -2276,7 +2276,7 @@ class Number(Midi):
         
         {   "midi_number": 4,   "default_value": 0,     "names": ["Foot Controller", "Foot Pedal"]    },
         {   "midi_number": 5,   "default_value": 0,     "names": ["Portamento Time"]    },
-        {   "midi_number": 6,   "default_value": 0,     "names": ["Data Entry MSB"]    },
+        {   "midi_number": 6,   "default_value": 0,     "names": ["Data Entry MSB", "Data", "Value"]    },
         {   "midi_number": 7,   "default_value": 100,   "names": ["Main Volume"]    },
         {   "midi_number": 8,   "default_value": 64,    "names": ["Balance"]    },
         
@@ -2306,6 +2306,9 @@ class Number(Midi):
         {   "midi_number": 95,  "default_value": 0,     "names": ["Phaser"]    },
         {   "midi_number": 96,  "default_value": 0,     "names": ["Data Increment"]    },
         {   "midi_number": 97,  "default_value": 0,     "names": ["Data Decrement"]    },
+
+        {   "midi_number": 98,  "default_value": 0,     "names": ["NRPN LSB", "LSB"]    },
+        {   "midi_number": 99,  "default_value": 0,     "names": ["NRPN MSB", "MSB"]    },
 
         {   "midi_number": 120, "default_value": 0,     "names": ["All Sounds Off"]    },
         {   "midi_number": 121, "default_value": 0,     "names": ["Reset All Controllers"]    },
