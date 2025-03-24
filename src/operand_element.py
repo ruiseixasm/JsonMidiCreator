@@ -1900,7 +1900,52 @@ class ControlChange(Automation):
         
         if self._controller._nrpn:
 
-            ...
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values()
+
+            self_playlist = [
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 99,
+                            "data_byte_2": cc_99_msb,
+                            "device": self._devices
+                        }
+                    },
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 98,
+                            "data_byte_2": cc_98_lsb,
+                            "device": self._devices
+                        }
+                    },
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 6,
+                            "data_byte_2": cc_6_msb,
+                            "device": self._devices
+                        }
+                    }
+                ]
+
+            if cc_38_lsb >= 0:
+
+                self_playlist.append(
+                    {
+                        "time_ms": time_ms,
+                        "midi_message": {
+                            "status_byte": 0xB0 | 0x0F & self._channel - 1,
+                            "data_byte_1": 38,
+                            "data_byte_2": cc_38_lsb,
+                            "device": self._devices
+                        }
+                    }
+                )
+        
 
         else:
 
@@ -1919,6 +1964,7 @@ class ControlChange(Automation):
                 ]
 
             if lsb_value >= 0:
+
                 self_playlist.append(
                     {
                         "time_ms": time_ms,
@@ -1943,15 +1989,34 @@ class ControlChange(Automation):
 
         if self._controller._nrpn:
 
-            ...
+            cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb = self._controller._midi_nrpn_values()
+
+            self_midilist[0]["number"]      = 99
+            self_midilist[0]["value"]       = cc_99_msb
+
+            self_midilist[1] = self_midilist[0].copy()
+            self_midilist[1]["number"]      = 98
+            self_midilist[1]["value"]       = cc_98_lsb
+
+            self_midilist[2] = self_midilist[0].copy()
+            self_midilist[2]["number"]      = 6
+            self_midilist[2]["value"]       = cc_6_msb
+
+            if cc_38_lsb >= 0:
+                
+                self_midilist[3] = self_midilist[0].copy()
+                self_midilist[3]["number"]      = 38
+                self_midilist[3]["value"]       = cc_38_lsb
 
         else:
 
             msb_value, lsb_value = self._controller._midi_msb_lsb_values()
+
             self_midilist[0]["number"]      = self._controller._number
             self_midilist[0]["value"]       = msb_value
 
             if lsb_value >= 0:
+
                 self_midilist[1] = self_midilist[0].copy()
                 self_midilist[1]["number"]      = self._controller._lsb
                 self_midilist[1]["value"]       = lsb_value
