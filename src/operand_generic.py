@@ -834,9 +834,11 @@ class Controller(Generic):
                 self._high      = operand._high
             case od.DataSource():
                 match operand._data:
-                    case ou.Number():       self._number = operand._data._unit
-                    case ou.LSB():          self._lsb = operand._data._unit
-                    case ou.Value():        self._value = operand._data._unit
+                    case ou.Number():           self._number = operand._data._unit
+                    case ou.LSB():              self._lsb = operand._data._unit
+                    case ou.Value():            self._value = operand._data._unit
+                    case ou.NRPN():             self._nrpn = bool(operand._data._unit)
+                    case ou.HighResolution():   self._high = bool(operand._data._unit)
             case od.Serialization():
                 self.loadSerialization( operand.getSerialization() )
             case ou.Number():   # Includes ou.MSB() as a subclass pf Number
@@ -847,6 +849,12 @@ class Controller(Generic):
                 self._lsb = operand._unit
             case ou.Value():
                 self._value = operand._unit
+            case ou.NRPN():
+                self._nrpn = bool(operand._unit)
+            case ou.HighResolution():
+                self._high = bool(operand._unit)
+            case bool():   # bool is a subclass of int !!
+                self._high = operand
             case int():
                 self._value = operand
             case float():
@@ -862,6 +870,8 @@ class Controller(Generic):
                     self._value = operand["VALUE"]
                 if "NRPN" in operand and isinstance(operand["NRPN"], (bool, int)):
                     self._nrpn = bool(operand["NRPN"])
+                if "HIGH" in operand and isinstance(operand["HIGH"], (bool, int)):
+                    self._nrpn = bool(operand["HIGH"])
             case tuple():
                 for single_operand in operand:
                     self << single_operand
