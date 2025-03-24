@@ -621,7 +621,6 @@ class Import(Playlist):
 
 class Device(Data):
     def __init__(self, device_list: list[str] = None):
-        import operand_generic as og
         super().__init__( device_list if isinstance(device_list, list) else [] )
 
 class DataMany(Data):

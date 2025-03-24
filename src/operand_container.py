@@ -86,7 +86,8 @@ class Container(o.Operand):
         if self is not self._upper_container:
             self._upper_container._delete(items)
         self._items = [
-            single_item for single_item in self._items if single_item not in items
+            single_item for single_item in self._items
+            if single_item not in items
         ]
         return self
 
@@ -563,7 +564,7 @@ class Container(o.Operand):
 
     def __radd__(self, operand: any) -> Self:
         self_copy: Container = self.copy()
-        self_copy._items.insert(0, self.deep_copy( operand ))
+        self_copy._insert([ self.deep_copy( operand ) ])
         return self_copy
 
     def __isub__(self, operand: any) -> Self:
@@ -680,7 +681,20 @@ class Container(o.Operand):
 
 
 class Devices(Container):
-    pass
+    
+    def __iadd__(self, operand: any) -> Self:
+        match operand:
+            case od.Device():
+                if isinstance(operand._data, str):
+                    self._insert([ operand._data ]) # Places at the beginning
+                
+        return super().__iadd__(operand)
+
+    def __isub__(self, operand: any) -> Self:
+        match operand:
+            case od.Device():
+                return self._delete([ operand._data ])
+        return super().__isub__(operand)
 
 
 
