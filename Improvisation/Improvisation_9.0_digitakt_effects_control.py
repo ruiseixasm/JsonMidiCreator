@@ -163,7 +163,7 @@ midi_cc: dict[str,
 defaults << Tempo(120)
 
 
-level_cc = ControlChange(kick, MSB(midi_cc["TRACK"]["Level"]["MSB"])) * 16 << Iterate(step=5)
+level_cc = ControlChange(kick, midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=5)
 
 level_cc * 4 >> P
 
