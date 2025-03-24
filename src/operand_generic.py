@@ -723,7 +723,6 @@ class Controller(Generic):
 
             msb_value: int  = (self._value >> 7) & 127
             lsb_value: int  = self._value & 127
-
             return msb_value, lsb_value # msb and lsb value bytes
 
         msb_value: int  = self._value & 127
@@ -739,7 +738,6 @@ class Controller(Generic):
             
             cc_6_msb: int   = (self._value >> 7) & 127
             cc_38_lsb: int  = self._value & 127
-
             return cc_99_msb, cc_98_lsb, cc_6_msb, cc_38_lsb
 
         cc_6_msb: int  = self._value & 127
@@ -873,9 +871,9 @@ class Controller(Generic):
                     self._lsb = operand["LSB"]
                 if "VALUE" in operand and isinstance(operand["VALUE"], int):
                     self._value = operand["VALUE"]
-                if "NRPN" in operand and isinstance(operand["NRPN"], (bool, int)):
+                if "NRPN" in operand and isinstance(operand["NRPN"], int):   # bool is a subclass of int !!
                     self._nrpn = bool(operand["NRPN"])
-                if "HIGH" in operand and isinstance(operand["HIGH"], (bool, int)):
+                if "HIGH" in operand and isinstance(operand["HIGH"], int):   # bool is a subclass of int !!
                     self._nrpn = bool(operand["HIGH"])
             case tuple():
                 for single_operand in operand:

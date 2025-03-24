@@ -33,9 +33,13 @@ chooser = Input(SinX() * 100)
 defaults << Tempo(120)
 
 
+print("1st LOOP")
+
 level_cc = ControlChange(Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]) * 16 << Iterate(step=5)
 level_cc * 4 >> P
 
+
+print("2nd LOOP")
 
 variables_level_cc = ControlChange(
         Digitakt.kick, Digitakt.midi_cc["TRACK"]["Level"]
@@ -43,5 +47,16 @@ variables_level_cc = ControlChange(
 variables_level_cc * 4 >> P
 
 
+print("3rd LOOP")
+
+variables_level_nrpn = ControlChange(
+        Digitakt.kick, Digitakt.midi_nrpn["TRACK"]["Level"]
+    ) * 16 << Iterate(100, -6) >> Reverse()
+variables_level_nrpn * 4 >> P
+
+
+
+
 defaults -= Digitakt.device
 defaults % Devices() % list() >> Print()
+
