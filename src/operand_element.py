@@ -863,7 +863,7 @@ class Note(Element):
             self_playlist[0]["midi_message"]["device"],
         ):
             print(f"Warning (PL): Removed redundant Note on Channel {self._channel} "
-                  f"and Pitch {self_playlist[0]["midi_message"]["data_byte_1"]} with same time start!")
+                  f"and Pitch {self_playlist[0]['midi_message']['data_byte_1']} with same time start!")
             return []
 
         return self_playlist
@@ -908,8 +908,8 @@ class Note(Element):
             self_midilist[0]["channel"],
             self_midilist[0]["pitch"]
         ):
-            print(f"Warning (ML): Removed redundant Note on Channel {self_midilist[0]["channel"] + 1} "
-                  f"and Pitch {self_midilist[0]["pitch"]} with same time start!")
+            print(f"Warning (ML): Removed redundant Note on Channel {self_midilist[0]['channel'] + 1} "
+                  f"and Pitch {self_midilist[0]['pitch']} with same time start!")
             return []
 
         return self_midilist
