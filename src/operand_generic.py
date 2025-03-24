@@ -712,6 +712,7 @@ class Controller(Generic):
         self._number: int       = ou.Number("Pan")._unit
         self._lsb: int          = -1    # lsb < 0 means 7 bit Controller instead of 14 bits
         self._value: int        = ou.Number.getDefault(self._number)
+        self._nrpn: bool        = False
         super().__init__(*parameters)
 
     def _midi_msb_lsb_values(self) -> tuple[int]:

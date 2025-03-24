@@ -1656,6 +1656,10 @@ class Sus4(Boolean):        # Fourth instead of the third
             case _: super().__lshift__(operand)
         return self
 
+class NRPN(Boolean):
+    pass
+
+
 class Mode(Unit):
     """`Unit -> Mode`
 
