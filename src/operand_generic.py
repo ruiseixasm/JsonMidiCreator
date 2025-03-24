@@ -709,7 +709,7 @@ class Pitch(Generic):
 
 class Controller(Generic):
     def __init__(self, *parameters):
-        self._number: int       = ou.Number("Pan")._unit
+        self._number: int       = ou.Number("Pan")._unit    # Same as MSB
         self._lsb: int          = 0 # lsb for 14 bits messages
         self._value: int        = ou.Number.getDefault(self._number)
         self._nrpn: bool        = False
