@@ -64,6 +64,7 @@ class Container(o.Operand):
         insert_at: int = 0                  # By default works as insert
         if before_item is not None:
             for index, single_item in enumerate(self._items):
+                # if single_item == before_item:
                 if single_item is before_item:
                     insert_at = index       # Before the item
                     break
@@ -76,6 +77,7 @@ class Container(o.Operand):
         append_at: int = len(self._items)   # By default works as append
         if after_item is not None:
             for index, single_item in enumerate(self._items):
+                # if single_item == after_item:
                 if single_item is after_item:
                     append_at = index + 1   # After the item
                     break
