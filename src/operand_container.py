@@ -691,6 +691,11 @@ class Container(o.Operand):
         return self.__or__(operand)
 
 
+class Devices(Container):
+    pass
+
+
+
 TypeClip = TypeVar('TypeClip', bound='Clip')    # TypeClip represents any subclass of Operand
 
 
